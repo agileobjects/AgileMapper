@@ -4,7 +4,7 @@
     using AbstractMappers;
     using global::ExpressMapper;
     using global::ExpressMapper.Extensions;
-    using TestClasses;
+    using static TestClasses.Deep;
 
     internal class ExpressMapperDeepMapper : DeepMapperBase
     {

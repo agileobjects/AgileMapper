@@ -4,7 +4,7 @@
     using System.Linq;
     using AbstractMappers;
     using global::Mapster;
-    using TestClasses;
+    using static TestClasses.Complex;
 
     internal class MapsterComplexTypeMapperSetup : ComplexTypeMapperSetupBase
     {

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using System.Dynamic;
 #endif
     using System.Linq.Expressions;
@@ -30,7 +30,7 @@
 
         public bool AddUnsuccessfulMemberPopulations => false;
 
-        public bool LazyLoadRecursionMappingFuncs => true;
+        public bool LazyLoadRepeatMappingFuncs => true;
 
         #region ToANew Overloads
 
@@ -146,7 +146,7 @@
 
         #region IFlatteningSelector Members
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         dynamic IFlatteningSelector<TSource>.ToDynamic(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, ExpandoObject>>>[] configurations)
         {

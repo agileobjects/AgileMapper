@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper
     using Members.Population;
     using ObjectPopulation.Enumerables;
     using ObjectPopulation.MapperKeys;
-    using ObjectPopulation.Recursion;
+    using ObjectPopulation.RepeatedMappings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper
             string name,
             MappingRuleSetSettings settings,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
-            IRecursiveMemberMappingStrategy recursiveMemberMappingStrategy,
+            IRepeatMappingStrategy repeatMappingStrategy,
             IMemberPopulationFactory populationFactory,
             IDataSourceFactory fallbackDataSourceFactory,
             IRootMapperKeyFactory rootMapperKeyFactory)
@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper
             Name = name;
             Settings = settings;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
-            RecursiveMemberMappingStrategy = recursiveMemberMappingStrategy;
+            RepeatMappingStrategy = repeatMappingStrategy;
             PopulationFactory = populationFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
             RootMapperKeyFactory = rootMapperKeyFactory;
@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper
 
         public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
-        public IRecursiveMemberMappingStrategy RecursiveMemberMappingStrategy { get; }
+        public IRepeatMappingStrategy RepeatMappingStrategy { get; }
 
         public IMemberPopulationFactory PopulationFactory { get; }
 

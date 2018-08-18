@@ -56,18 +56,19 @@
         {
             var childMapperData = childMappingData.MapperData;
 
-            if (childMapperData.TargetMemberEverRecurses())
+            if (childMapperData.IsRepeatMapping &&
+                childMapperData.RuleSet.RepeatMappingStrategy.AppliesTo(childMapperData))
             {
-                var mapRecursionCall = childMapperData
+                var repeatMappingCall = childMapperData
                     .RuleSet
-                    .RecursiveMemberMappingStrategy
-                    .GetMapRecursionCallFor(
+                    .RepeatMappingStrategy
+                    .GetMapRepeatedCallFor(
                         childMappingData,
-                        mappingValues.SourceValue,
+                        mappingValues,
                         dataSourceIndex,
                         declaredTypeMapperData);
 
-                return mapRecursionCall;
+                return repeatMappingCall;
             }
 
             var inlineMappingBlock = GetInlineMappingBlock(
@@ -143,10 +144,27 @@
 
             elementMapperData.Context.IsForNewElement = targetElementValue.NodeType == ExpressionType.Default;
 
-            return GetInlineMappingBlock(
+            if (elementMapperData.IsRepeatMapping &&
+                elementMapperData.RuleSet.RepeatMappingStrategy.AppliesTo(elementMapperData))
+            {
+                var repeatMappingCall = elementMapperData
+                    .RuleSet
+                    .RepeatMappingStrategy
+                    .GetMapRepeatedCallFor(
+                        elementMappingData,
+                        mappingValues,
+                        enumerableMapperData.DataSourceIndex,
+                        enumerableMapperData);
+
+                return repeatMappingCall;
+            }
+
+            var inlineMappingBlock = GetInlineMappingBlock(
                 elementMappingData,
                 mappingValues,
                 MappingDataCreationFactory.ForElement(mappingValues, parentMappingDataObject, elementMapperData));
+
+            return inlineMappingBlock;
         }
 
         public static Expression GetInlineMappingBlock(

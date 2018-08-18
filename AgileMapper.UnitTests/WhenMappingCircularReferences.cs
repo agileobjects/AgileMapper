@@ -506,6 +506,247 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/77
+        [Fact]
+        public void ShouldMapMultipleLinkRelationships()
+        {
+            var warehouse = new Issue77.Warehouse
+            {
+                Id = 16473,
+                Name = "Test Warehouse 16473",
+                Description = "The test warehouse"
+            };
+
+            var tagForWarehouse = new Issue77.Tag
+            {
+                Id = 46437
+            };
+
+            var warehouseTag = new Issue77.WarehouseTag
+            {
+                WarehouseId = warehouse.Id,
+                Warehouse = warehouse,
+                TagId = tagForWarehouse.Id,
+                Tag = tagForWarehouse
+            };
+
+            var branch = new Issue77.Branch
+            {
+                Id = 27362,
+                Name = "Test Branch 27362",
+                Description = "The test branch"
+            };
+
+            var tagForBranch = new Issue77.Tag
+            {
+                Id = 57832
+            };
+
+            var branchTag = new Issue77.BranchTag
+            {
+                BranchId = branch.Id,
+                Branch = branch,
+                TagId = tagForBranch.Id,
+                Tag = tagForBranch
+            };
+
+            var warehouseLocation = new Issue77.Location
+            {
+                Id = 63672,
+                Name = "Warehouse Location",
+                Description = "Warehouse Street, Warehouse Land"
+            };
+
+            var tagForWarehouseLocation = new Issue77.Tag
+            {
+                Id = 53627
+            };
+
+            var warehouseLocationTag = new Issue77.LocationTag
+            {
+                LocationId = warehouseLocation.Id,
+                Location = warehouseLocation,
+                TagId = tagForWarehouseLocation.Id,
+                Tag = tagForWarehouseLocation
+            };
+
+            var branchLocation = new Issue77.Location
+            {
+                Id = 73726,
+                Name = "Branch Location",
+                Description = "Branch Street, Branch Land"
+            };
+
+            var tagForBranchLocation = new Issue77.Tag
+            {
+                Id = 53272
+            };
+
+            var branchLocationTag = new Issue77.LocationTag
+            {
+                LocationId = branchLocation.Id,
+                Location = branchLocation,
+                TagId = tagForBranchLocation.Id,
+                Tag = tagForBranchLocation
+            };
+
+            var product = new Issue77.Product
+            {
+                Id = 37638,
+                Name = "Test Product",
+                Description = "The test product"
+            };
+
+            var tagForProduct = new Issue77.Tag
+            {
+                Id = 58276
+            };
+
+            var productTag = new Issue77.ProductTag
+            {
+                ProductId = product.Id,
+                Product = product,
+                TagId = tagForProduct.Id,
+                Tag = tagForProduct
+            };
+
+            var warehouseProduct = new Issue77.WarehouseProduct
+            {
+                Id = 38376,
+                WarehouseId = warehouse.Id,
+                Warehouse = warehouse,
+                ProductId = product.Id,
+                Product = product
+            };
+
+            var tagForWarehouseProduct = new Issue77.Tag
+            {
+                Id = 63463
+            };
+
+            var warehouseProductTag = new Issue77.WarehouseProductTag
+            {
+                WarehouseProductId = warehouseProduct.Id,
+                WarehouseProduct = warehouseProduct,
+                TagId = tagForWarehouseProduct.Id,
+                Tag = tagForWarehouseProduct
+            };
+
+            warehouse.BranchId = branch.Id;
+            warehouse.Branch = branch;
+            warehouse.LocationId = warehouseLocation.Id;
+            warehouse.Location = warehouseLocation;
+            warehouse.Tags.Add(warehouseTag);
+            tagForWarehouse.Warehouses.Add(warehouseTag);
+            tagForWarehouseLocation.Locations.Add(warehouseLocationTag);
+            warehouseLocation.Tags.Add(warehouseLocationTag);
+
+            branch.Location = branchLocation;
+            branch.Warehouses.Add(warehouse);
+            branch.Tags.Add(branchTag);
+            tagForBranch.Branches.Add(branchTag);
+            tagForBranchLocation.Locations.Add(branchLocationTag);
+            branchLocation.Tags.Add(branchLocationTag);
+
+            product.Tags.Add(productTag);
+            tagForProduct.Products.Add(productTag);
+
+            warehouse.Products.Add(warehouseProduct);
+            product.Warehouses.Add(warehouseProduct);
+            warehouseProduct.Tags.Add(warehouseProductTag);
+            tagForWarehouseProduct.WarehouseProducts.Add(warehouseProductTag);
+
+            Issue77.Warehouse clonedWarehouse;
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<Issue77.Warehouse>().ToANew<Issue77.Warehouse>();
+
+                clonedWarehouse = mapper.DeepClone(warehouse);
+
+                ((IMapperInternal)mapper).Context.ObjectMapperFactory.RootMappers.ShouldHaveSingleItem();
+            }
+
+            clonedWarehouse.ShouldNotBeSameAs(warehouse);
+            clonedWarehouse.Id.ShouldBe(16473);
+            clonedWarehouse.Name.ShouldBe("Test Warehouse 16473");
+            clonedWarehouse.Description.ShouldBe("The test warehouse");
+            clonedWarehouse.BranchId.ShouldBe(27362);
+            clonedWarehouse.LocationId.ShouldBe(63672);
+
+            var clonedWarehouseTag = clonedWarehouse.Tags.ShouldHaveSingleItem();
+            clonedWarehouseTag.Warehouse.ShouldBe(clonedWarehouse);
+            var clonedTagForWarehouse = clonedWarehouseTag.Tag.ShouldNotBeNull();
+            clonedTagForWarehouse.Warehouses.ShouldHaveSingleItem().ShouldBe(clonedWarehouseTag);
+
+            var clonedBranch = clonedWarehouse.Branch.ShouldNotBeNull();
+            clonedBranch.ShouldNotBeSameAs(branch);
+            clonedBranch.Id.ShouldBe(27362);
+            clonedBranch.Name.ShouldBe("Test Branch 27362");
+            clonedBranch.Description.ShouldBe("The test branch");
+            clonedBranch.Warehouses.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouse);
+
+            var clonedBranchTag = clonedBranch.Tags.ShouldHaveSingleItem();
+            clonedBranchTag.Branch.ShouldBeSameAs(clonedBranch);
+            var clonedTagForBranch = clonedBranchTag.Tag.ShouldNotBeNull();
+            clonedTagForBranch.ShouldNotBeSameAs(tagForBranch);
+            clonedTagForBranch.Id.ShouldBe(57832);
+            clonedTagForBranch.Branches.ShouldHaveSingleItem().ShouldBeSameAs(clonedBranchTag);
+
+            var clonedWarehouseLocation = clonedWarehouse.Location.ShouldNotBeNull();
+            clonedWarehouseLocation.ShouldNotBeSameAs(warehouseLocation);
+            clonedWarehouseLocation.Id.ShouldBe(63672);
+            clonedWarehouseLocation.Name.ShouldBe("Warehouse Location");
+            clonedWarehouseLocation.Description.ShouldBe("Warehouse Street, Warehouse Land");
+
+            var clonedWarehouseLocationTag = clonedWarehouseLocation.Tags.ShouldHaveSingleItem();
+            clonedWarehouseLocationTag.Location.ShouldBeSameAs(clonedWarehouseLocation);
+            var clonedTagForWarehouseLocation = clonedWarehouseLocationTag.Tag.ShouldNotBeNull();
+            clonedTagForWarehouseLocation.ShouldNotBeSameAs(tagForWarehouseLocation);
+            clonedTagForWarehouseLocation.Id.ShouldBe(53627);
+            clonedTagForWarehouseLocation.Locations.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouseLocationTag);
+
+            var clonedBranchLocation = clonedBranch.Location.ShouldNotBeNull();
+            clonedBranchLocation.ShouldNotBeSameAs(branchLocation);
+            clonedBranchLocation.Id.ShouldBe(73726);
+            clonedBranchLocation.Name.ShouldBe("Branch Location");
+            clonedBranchLocation.Description.ShouldBe("Branch Street, Branch Land");
+
+            var clonedBranchLocationTag = clonedBranchLocation.Tags.ShouldHaveSingleItem();
+            clonedBranchLocationTag.Location.ShouldBeSameAs(clonedBranchLocation);
+            var clonedTagForBranchLocation = clonedBranchLocationTag.Tag.ShouldNotBeNull();
+            clonedTagForBranchLocation.ShouldNotBeSameAs(tagForBranchLocation);
+            clonedTagForBranchLocation.Id.ShouldBe(53272);
+            clonedTagForBranchLocation.Locations.ShouldHaveSingleItem().ShouldBeSameAs(clonedBranchLocationTag);
+
+            var clonedWarehouseProduct = clonedWarehouse.Products.ShouldHaveSingleItem();
+            clonedWarehouseProduct.ShouldNotBeSameAs(warehouseProduct);
+            clonedWarehouseProduct.WarehouseId.ShouldBe(16473);
+            clonedWarehouseProduct.Warehouse.ShouldNotBeNull().ShouldBeSameAs(clonedWarehouse);
+
+            var clonedWarehouseProductTag = clonedWarehouseProduct.Tags.ShouldHaveSingleItem();
+            clonedWarehouseProductTag.WarehouseProduct.ShouldBeSameAs(clonedWarehouseProduct);
+            var clonedTagForWarehouseProduct = clonedWarehouseProductTag.Tag.ShouldNotBeNull();
+            clonedTagForWarehouseProduct.ShouldNotBeSameAs(tagForWarehouseProduct);
+            clonedTagForWarehouseProduct.Id.ShouldBe(63463);
+            clonedTagForWarehouseProduct.WarehouseProducts.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouseProductTag);
+            clonedWarehouseProduct.ProductId.ShouldBe(37638);
+
+            var clonedProduct = clonedWarehouseProduct.Product.ShouldNotBeNull();
+            clonedProduct.ShouldNotBeSameAs(product);
+            clonedProduct.Id.ShouldBe(37638);
+            clonedProduct.Name.ShouldBe("Test Product");
+            clonedProduct.Description.ShouldBe("The test product");
+            clonedProduct.Warehouses.ShouldHaveSingleItem().ShouldBeSameAs(clonedWarehouseProduct);
+
+            var clonedProductTag = clonedProduct.Tags.ShouldHaveSingleItem();
+            clonedProductTag.Product.ShouldBeSameAs(clonedProduct);
+            var clonedTagForProduct = clonedProductTag.Tag.ShouldNotBeNull();
+            clonedTagForProduct.ShouldNotBeSameAs(tagForProduct);
+            clonedTagForProduct.Id.ShouldBe(58276);
+            clonedTagForProduct.Products.ShouldHaveSingleItem().ShouldBeSameAs(clonedProductTag);
+        }
+
         [Fact]
         public void ShouldNotMapANullParentMember()
         {
@@ -537,7 +778,7 @@
 
             plan.ShouldNotBeNull();
             plan.ShouldContain("WhenMappingCircularReferences.Video -> WhenMappingCircularReferences.Video");
-            plan.ShouldContain(".MapRecursion(");
+            plan.ShouldContain(".MapRepeated(");
         }
 
         [Fact]
@@ -548,7 +789,7 @@
                 .ToANew<Parent>();
 
             plan.ShouldContain("Map Parent -> Parent");
-            plan.ShouldContain(".MapRecursion(");
+            plan.ShouldContain(".MapRepeated(");
         }
 
         #region Helper Classes
@@ -626,7 +867,7 @@
             public Presenter Presenter { get; set; }
         }
 
-        public class Issue62
+        public static class Issue62
         {
             public class Location
             {
@@ -653,7 +894,7 @@
             }
         }
 
-        public class Issue63
+        public static class Issue63
         {
             public class Location
             {
@@ -702,6 +943,190 @@
                 public int Id { get; set; }
 
                 public string Name { get; set; }
+            }
+        }
+
+        public static class Issue77
+        {
+            internal class Tag : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<BranchTag> Branches { get; set; } = new HashSet<BranchTag>();
+
+                public HashSet<LocationTag> Locations { get; set; } = new HashSet<LocationTag>();
+
+                public HashSet<WarehouseTag> Warehouses { get; set; } = new HashSet<WarehouseTag>();
+
+                public HashSet<ProductTag> Products { get; set; } = new HashSet<ProductTag>();
+
+                public HashSet<MovementTag> Movements { get; set; } = new HashSet<MovementTag>();
+
+                public HashSet<AssociateTag> Associates { get; set; } = new HashSet<AssociateTag>();
+
+                public HashSet<WarehouseProductTag> WarehouseProducts { get; set; } = new HashSet<WarehouseProductTag>();
+            }
+
+            internal class BranchTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int BranchId { get; set; }
+
+                public Branch Branch { get; set; }
+            }
+
+            internal class Branch : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public Location Location { get; set; }
+
+                public HashSet<Warehouse> Warehouses { get; set; } = new HashSet<Warehouse>();
+
+                public HashSet<BranchTag> Tags { get; set; } = new HashSet<BranchTag>();
+            }
+
+            internal class LocationTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int LocationId { get; set; }
+
+                public Location Location { get; set; }
+            }
+
+            internal class Location : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<LocationTag> Tags { get; set; } = new HashSet<LocationTag>();
+            }
+
+            internal class WarehouseTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int WarehouseId { get; set; }
+
+                public Warehouse Warehouse { get; set; }
+            }
+
+            internal class Warehouse : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public int BranchId { get; set; }
+
+                public Branch Branch { get; set; }
+
+                public int LocationId { get; set; }
+
+                public Location Location { get; set; }
+
+                public HashSet<WarehouseProduct> Products { get; set; } = new HashSet<WarehouseProduct>();
+
+                public HashSet<WarehouseTag> Tags { get; set; } = new HashSet<WarehouseTag>();
+            }
+
+            internal class ProductTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int ProductId { get; set; }
+
+                public Product Product { get; set; }
+            }
+
+            internal class Product : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<WarehouseProduct> Warehouses { get; set; } = new HashSet<WarehouseProduct>();
+
+                public HashSet<ProductTag> Tags { get; set; } = new HashSet<ProductTag>();
+            }
+
+            internal class MovementTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int MovementId { get; set; }
+
+                public Movement Movement { get; set; }
+            }
+
+            internal class Movement : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<MovementTag> Tags { get; set; } = new HashSet<MovementTag>();
+            }
+
+            internal class AssociateTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int AssociateId { get; set; }
+
+                public Associate Associate { get; set; }
+            }
+
+            internal class Associate : EntityBase
+            {
+                public string Name { get; set; }
+
+                public string Description { get; set; }
+
+                public HashSet<AssociateTag> Tags { get; set; } = new HashSet<AssociateTag>();
+            }
+
+            internal class WarehouseProductTag
+            {
+                public int TagId { get; set; }
+
+                public Tag Tag { get; set; }
+
+                public int WarehouseProductId { get; set; }
+
+                public WarehouseProduct WarehouseProduct { get; set; }
+            }
+
+            internal class WarehouseProduct : EntityBase
+            {
+                public int WarehouseId { get; set; }
+
+                public Warehouse Warehouse { get; set; }
+
+                public int ProductId { get; set; }
+
+                public Product Product { get; set; }
+
+                public HashSet<WarehouseProductTag> Tags { get; set; } = new HashSet<WarehouseProductTag>();
             }
         }
 

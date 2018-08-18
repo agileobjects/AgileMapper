@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
+namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 {
     using System;
     using Members;
@@ -8,12 +8,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
     using System.Linq.Expressions;
 #endif
 
-    internal class RecursionMapperFunc<TChildSource, TChildTarget> : IRecursionMapperFunc
+    internal class RepeatedMapperFunc<TChildSource, TChildTarget> : IRepeatedMapperFunc
     {
         private readonly ObjectMapperData _mapperData;
-        private MapperFunc<TChildSource, TChildTarget> _recursionMapperFunc;
+        private MapperFunc<TChildSource, TChildTarget> _repeatedMappingFunc;
 
-        public RecursionMapperFunc(IObjectMappingData mappingData, bool lazyLoadFuncs)
+        public RepeatedMapperFunc(IObjectMappingData mappingData, bool lazyLoadFuncs)
         {
             if (lazyLoadFuncs)
             {
@@ -34,14 +34,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
         {
             var typedData = (ObjectMappingData<TChildSource, TChildTarget>)mappingData;
 
-            EnsureRecursionFunc(typedData);
+            EnsureFunc(typedData);
 
-            return _recursionMapperFunc.Invoke(typedData);
+            return _repeatedMappingFunc.Invoke(typedData);
         }
 
-        private void EnsureRecursionFunc(ObjectMappingData<TChildSource, TChildTarget> mappingData)
+        private void EnsureFunc(ObjectMappingData<TChildSource, TChildTarget> mappingData)
         {
-            if (_recursionMapperFunc == null)
+            if (_repeatedMappingFunc == null)
             {
                 lock (this)
                 {
@@ -60,11 +60,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
             MappingLambda = mappingData.GetOrCreateMapper().MappingLambda;
 
             var typedMappingLambda = (Expression<MapperFunc<TChildSource, TChildTarget>>)MappingLambda;
-            _recursionMapperFunc = typedMappingLambda.Compile();
+            _repeatedMappingFunc = typedMappingLambda.Compile();
 
             if (isLazyLoading)
             {
-                _mapperData.GetRootMapperData().Mapper.CacheRecursionMapperFuncs();
+                _mapperData.GetRootMapperData().Mapper.CacheRepeatedMappingFuncs();
             }
 
             mappingData.MapperKey.MapperData = null;

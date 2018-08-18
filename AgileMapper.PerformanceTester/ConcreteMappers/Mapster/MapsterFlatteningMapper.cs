@@ -2,7 +2,7 @@
 {
     using AbstractMappers;
     using global::Mapster;
-    using TestClasses;
+    using static TestClasses.Flattening;
 
     internal class MapsterFlatteningMapper : FlatteningMapperBase
     {

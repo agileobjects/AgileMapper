@@ -2,7 +2,7 @@
 {
     using AbstractMappers;
     using Omu.ValueInjecter;
-    using TestClasses;
+    using static TestClasses.Ctor;
 
     internal class ValueInjecterCtorMapper : CtorMapperBase
     {

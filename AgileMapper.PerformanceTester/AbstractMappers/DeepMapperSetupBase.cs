@@ -2,10 +2,7 @@
 {
     internal abstract class DeepMapperSetupBase : MapperSetupTestBase
     {
-        protected override void Execute()
-        {
-            SetupDeepMapper();
-        }
+        protected override void Execute() => SetupDeepMapper();
 
         protected abstract void SetupDeepMapper();
     }

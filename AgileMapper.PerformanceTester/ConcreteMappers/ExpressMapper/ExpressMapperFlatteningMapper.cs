@@ -2,7 +2,7 @@
 {
     using AbstractMappers;
     using global::ExpressMapper;
-    using TestClasses;
+    using static TestClasses.Flattening;
 
     internal class ExpressMapperFlatteningMapper : FlatteningMapperBase
     {

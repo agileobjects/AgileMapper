@@ -8,6 +8,6 @@
 
         bool AddUnsuccessfulMemberPopulations { get; }
 
-        bool LazyLoadRecursionMappingFuncs { get; }
+        bool LazyLoadRepeatMappingFuncs { get; }
     }
 }

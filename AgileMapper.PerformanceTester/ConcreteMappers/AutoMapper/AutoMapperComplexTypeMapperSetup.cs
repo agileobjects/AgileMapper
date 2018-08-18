@@ -2,7 +2,7 @@
 {
     using AbstractMappers;
     using global::AutoMapper;
-    using TestClasses;
+    using static TestClasses.Complex;
 
     internal class AutoMapperComplexTypeMapperSetup : ComplexTypeMapperSetupBase
     {

@@ -2,7 +2,7 @@
 {
     using System;
     using System.Diagnostics;
-    using TestClasses;
+    using static TestClasses.Flattening;
 
     internal abstract class FlatteningMapperBase : MapperTestBase
     {

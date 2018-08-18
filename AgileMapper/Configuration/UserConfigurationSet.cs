@@ -325,7 +325,7 @@
             RecursionDepthSettings.Add(settings);
         }
 
-        public bool ShortCircuitRecursion(IBasicMapperData mapperData)
+        public bool ShortCircuitRecursion(IMemberMapperData mapperData)
         {
             if (_recursionDepthSettings == null)
             {

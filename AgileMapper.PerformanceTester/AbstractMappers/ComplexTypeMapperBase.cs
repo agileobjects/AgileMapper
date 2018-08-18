@@ -3,13 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
-    using TestClasses;
+    using static TestClasses.Complex;
 
     internal abstract class ComplexTypeMapperBase : MapperTestBase
     {
-        public override object Execute(Stopwatch timer)
+        private readonly Foo _foo;
+
+        protected ComplexTypeMapperBase()
         {
-            return Clone(new Foo
+            _foo = new Foo
             {
                 Name = "foo",
                 Int32 = 12,
@@ -22,18 +24,20 @@
                 {
                     new Foo { Name = "j1", Int64 = 123, NullableInt = 321 },
                     new Foo { Name = "j2", Int32 = 12345, NullableInt = 54321 },
-                    new Foo { Name = "j3", Int32 = 12345, NullableInt = 54321 },
+                    new Foo { Name = "j3", Int32 = 12345, NullableInt = 54321 }
                 },
                 FooArray = new[]
                 {
                     new Foo { Name = "a1" },
                     new Foo { Name = "a2" },
-                    new Foo { Name = "a3" },
+                    new Foo { Name = "a3" }
                 },
                 Ints = new[] { 7, 8, 9 },
                 IntArray = new[] { 1, 2, 3, 4, 5 }
-            });
+            };
         }
+
+        public override object Execute(Stopwatch timer) => Clone(_foo);
 
         protected abstract Foo Clone(Foo foo);
     }

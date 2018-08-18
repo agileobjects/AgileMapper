@@ -23,8 +23,8 @@
             if (cachedMapper.MapperData.HasMapperFuncs)
             {
                 _mappingPlanFunctions.AddRange(cachedMapper
-                    .RecursionMapperFuncs
-                    .Project(mf => new RecursionMapperMappingPlanFunction(mf)));
+                    .RepeatedMappingFuncs
+                    .Project(mf => new RepeatedMappingMappingPlanFunction(mf)));
             }
         }
 

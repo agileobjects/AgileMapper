@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AbstractMappers;
-    using TestClasses;
+    using static TestClasses.Deep;
 
     internal class ManualDeepMapper : DeepMapperBase
     {

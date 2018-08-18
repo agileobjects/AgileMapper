@@ -404,12 +404,12 @@
 
             return SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
                 ? Expression.New(nullTargetVariableType)
-#if NET35
-                : Expression.New(nullTargetVariableType.GetPublicInstanceConstructor());
-#else
+#if FEATURE_COLLECTION_CAPACITY
                 : Expression.New(
                     nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
                     GetSourceCountAccess());
+#else
+                : Expression.New(nullTargetVariableType.GetPublicInstanceConstructor());
 #endif
         }
 

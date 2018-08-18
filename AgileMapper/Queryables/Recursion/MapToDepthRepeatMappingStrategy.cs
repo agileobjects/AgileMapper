@@ -2,30 +2,28 @@
 {
     using Members;
     using ObjectPopulation;
-    using ObjectPopulation.Recursion;
+    using ObjectPopulation.RepeatedMappings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
 
-    internal struct MapToDepthRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
+    internal struct MapToDepthRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public Expression GetMapRecursionCallFor(
+        public bool AppliesTo(IMemberMapperData mapperData)
+            => !mapperData.TargetMemberIsEnumerableElement();
+
+        public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
-            Expression sourceValue,
+            MappingValues mappingValues,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
             if (ShortCircuitRecursion(childMappingData))
             {
-                return GetRecursionShortCircuit(childMappingData);
+                return GetMappingShortCircuit(childMappingData);
             }
-
-            var mappingValues = new MappingValues(
-                sourceValue,
-                childMappingData.MapperData.GetTargetMemberDefault(),
-                declaredTypeMapperData.EnumerableIndex);
 
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(
                 childMappingData,
@@ -37,6 +35,11 @@
 
         private static bool ShortCircuitRecursion(IObjectMappingData childMappingData)
         {
+            if (!childMappingData.MapperData.TargetMember.IsRecursion)
+            {
+                return false;
+            }
+
             return childMappingData
                 .MappingContext
                 .MapperContext
@@ -44,7 +47,7 @@
                 .ShortCircuitRecursion(childMappingData.MapperData);
         }
 
-        private static Expression GetRecursionShortCircuit(IObjectMappingData childMappingData)
+        private static Expression GetMappingShortCircuit(IObjectMappingData childMappingData)
         {
             if (childMappingData.MapperData.TargetMember.IsComplex)
             {

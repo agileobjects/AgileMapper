@@ -1,14 +1,14 @@
 namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 {
     using AgileMapper.Configuration;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using Dynamics;
 #endif
 
     internal class DictionaryMappingConfigContinuation<TFirst, TSecond> :
         ISourceDictionaryMappingConfigContinuation<TFirst, TSecond>,
         ITargetDictionaryMappingConfigContinuation<TFirst, TSecond>
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         ,
         ISourceDynamicMappingConfigContinuation<TSecond>,
         ITargetDynamicMappingConfigContinuation<TFirst>
@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         ITargetDictionaryMappingConfigurator<TFirst, TSecond> ITargetDictionaryMappingConfigContinuation<TFirst, TSecond>.And
             => new TargetDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Clone());
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         ISourceDynamicMappingConfigurator<TSecond> ISourceDynamicMappingConfigContinuation<TSecond>.And
             => new SourceDynamicMappingConfigurator<TSecond>(_configInfo.Clone());
 

@@ -21,14 +21,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
     {
-        private static readonly MethodInfo _mapRecursionMethod =
-            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRecursion");
+        private static readonly MethodInfo _mapRepeatedChildMethod =
+            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 5);
+
+        private static readonly MethodInfo _mapRepeatedElementMethod =
+            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 3);
 
         private readonly List<ObjectMapperData> _childMapperDatas;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
+        private bool? _isRepeatMapping;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -76,32 +80,35 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             DataSourcesByTargetMember = new Dictionary<QualifiedMember, DataSourceSet>();
 
+            ReturnLabelTarget = Expression.Label(TargetType, "Return");
+            _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
+
             if (targetMember.IsEnumerable)
             {
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
             }
-            else if (!this.TargetMemberIsEnumerableElement())
-            {
-                TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
-                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
-            }
-
-            ReturnLabelTarget = Expression.Label(TargetType, "Return");
-            _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
             if (IsRoot)
             {
+                TargetTypeHasNotYetBeenMapped = true;
+                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
                 Context = new MapperDataContext(this, true, isPartOfDerivedTypeMapping);
                 return;
+            }
+
+            parent._childMapperDatas.Add(this);
+            Parent = parent;
+            
+            if (!this.TargetMemberIsEnumerableElement())
+            {
+                TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
+                TargetTypeWillNotBeMappedAgain = IsTargetTypeLastMapping(parent);
             }
 
             Context = new MapperDataContext(
                 this,
                 isForStandaloneMapping,
                 isPartOfDerivedTypeMapping || parent.Context.IsForDerivedType);
-
-            parent._childMapperDatas.Add(this);
-            Parent = parent;
         }
 
         #region Setup
@@ -146,9 +153,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)
         {
-            if (IsRoot)
+            if (IsRepeatMapping)
             {
-                return true;
+                return false;
             }
 
             while (parent != null)
@@ -201,6 +208,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private bool IsTargetTypeLastMapping(ObjectMapperData parent)
         {
+            if (IsRepeatMapping)
+            {
+                return false;
+            }
+
             while (parent != null)
             {
                 if (parent.TargetTypeWillBeMappedAgain)
@@ -423,7 +435,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool IsEntryPoint => IsRoot || Context.IsStandalone || TargetMember.IsRecursion;
+        public bool IsEntryPoint => IsRoot || Context.IsStandalone || IsRepeatMapping;
+
+        public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
         public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
         {
@@ -504,24 +518,52 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
         {
             return mappingDataType
-                .GetPublicInstanceMethod("Map", parameterCount: numberOfArguments);
+                .GetPublicInstanceMethod("Map", numberOfArguments);
         }
 
-        public MethodCallExpression GetMapRecursionCall(
-            Expression sourceObject,
+        public MethodCallExpression GetMapRepeatedCall(
             QualifiedMember targetMember,
+            MappingValues mappingValues,
             int dataSourceIndex)
         {
-            var mapCall = Expression.Call(
-                EntryPointMapperData.MappingDataObject,
-                _mapRecursionMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
-                sourceObject,
-                targetMember.GetAccess(this),
-                EnumerableIndex,
-                targetMember.RegistrationName.ToConstantExpression(),
-                dataSourceIndex.ToConstantExpression());
+            MethodInfo mapRepeatedMethod;
+            Expression[] arguments;
 
-            return mapCall;
+            if (targetMember.LeafMember.IsEnumerableElement())
+            {
+                mapRepeatedMethod = _mapRepeatedElementMethod;
+
+                arguments = new[]
+                {
+                    mappingValues.SourceValue,
+                    mappingValues.TargetValue,
+                    mappingValues.EnumerableIndex,
+                };
+            }
+            else
+            {
+                mapRepeatedMethod = _mapRepeatedChildMethod;
+
+                arguments = new[]
+                {
+                    mappingValues.SourceValue,
+                    mappingValues.TargetValue,
+                    EnumerableIndex,
+                    targetMember.RegistrationName.ToConstantExpression(),
+                    dataSourceIndex.ToConstantExpression()
+                };
+            }
+
+            mapRepeatedMethod = mapRepeatedMethod.MakeGenericMethod(
+                mappingValues.SourceValue.Type,
+                mappingValues.TargetValue.Type);
+
+            var mapRepeatedCall = Expression.Call(
+                EntryPointMapperData.MappingDataObject,
+                mapRepeatedMethod,
+                arguments);
+
+            return mapRepeatedCall;
         }
 
         public IBasicMapperData WithNoTargetMember()

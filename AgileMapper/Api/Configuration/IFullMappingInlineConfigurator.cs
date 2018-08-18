@@ -2,7 +2,7 @@
 {
     using System.Reflection;
     using Dictionaries;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using Dynamics;
 #endif
 
@@ -26,7 +26,7 @@
         /// </summary>
         ITargetDictionaryMappingInlineConfigurator<TSource, TTarget> ForDictionaries { get; }
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         /// <summary>
         /// Configure how this mapper performs a target ExpandoObject mapping, inline. Use this property 
         /// to access ExpandoObject-specific configuration; separators, etc.

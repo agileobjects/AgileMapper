@@ -242,16 +242,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TTargetElement targetElement,
             int enumerableIndex)
         {
-            var elementMappingData = ObjectMappingDataFactory.ForElement(
-                sourceElement,
-                targetElement,
-                enumerableIndex,
-                this);
+            var elementMappingData = GetElementMappingData(sourceElement, targetElement, enumerableIndex);
 
             return (TTargetElement)_mapper.MapSubObject(elementMappingData);
         }
 
-        TDeclaredTarget IObjectMappingDataUntyped.MapRecursion<TDeclaredSource, TDeclaredTarget>(
+        private IObjectMappingData GetElementMappingData<TSourceElement, TTargetElement>(
+            TSourceElement sourceElement,
+            TTargetElement targetElement,
+            int enumerableIndex)
+        {
+            return ObjectMappingDataFactory.ForElement(
+                sourceElement,
+                targetElement,
+                enumerableIndex,
+                this);
+        }
+
+        TDeclaredTarget IObjectMappingDataUntyped.MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? enumerableIndex,
@@ -267,15 +275,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     targetMemberName,
                     dataSourceIndex);
 
-                return (TDeclaredTarget)_mapper.MapRecursion(childMappingData);
+                return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }
 
-            return Parent.MapRecursion(
+            return Parent.MapRepeated(
                 sourceValue,
                 targetValue,
                 enumerableIndex,
                 targetMemberName,
                 dataSourceIndex);
+        }
+
+        TDeclaredTarget IObjectMappingDataUntyped.MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceElement,
+            TDeclaredTarget targetElement,
+            int enumerableIndex)
+        {
+            if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
+            {
+                var childMappingData = GetElementMappingData(
+                    sourceElement,
+                    targetElement,
+                    enumerableIndex);
+
+                return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
+            }
+
+            return Parent.MapRepeated(
+                sourceElement,
+                targetElement,
+                enumerableIndex);
         }
 
         #endregion

@@ -2,17 +2,12 @@
 {
     using AbstractMappers;
     using global::AutoMapper;
-    using TestClasses;
+    using static TestClasses.Deep;
 
     internal class AutoMapperDeepMapperSetup : DeepMapperSetupBase
     {
         public override void Initialise()
         {
-        }
-
-        protected override void Reset()
-        {
-            Mapper.Reset();
         }
 
         protected override void SetupDeepMapper()
@@ -26,5 +21,7 @@
 
             Mapper.Map<Customer, CustomerDto>(new Customer());
         }
+
+        protected override void Reset() => Mapper.Reset();
     }
 }

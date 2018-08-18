@@ -1,4 +1,4 @@
-﻿#if DYNAMIC_SUPPORTED
+﻿#if FEATURE_DYNAMIC
 namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
 {
     using System.Collections.Generic;

@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.AgileMapper
 {
     using AbstractMappers;
-    using TestClasses;
+    using static TestClasses.Complex;
 
     internal class AgileMapperComplexTypeMapper : ComplexTypeMapperBase
     {
@@ -13,9 +13,6 @@
             _mapper.WhenMapping.DisableObjectTracking();
         }
 
-        protected override Foo Clone(Foo foo)
-        {
-            return _mapper.DeepClone(foo);
-        }
+        protected override Foo Clone(Foo foo) => _mapper.DeepClone(foo);
     }
 }

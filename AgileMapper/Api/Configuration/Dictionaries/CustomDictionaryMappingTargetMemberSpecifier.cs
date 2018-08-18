@@ -5,7 +5,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
     using DataSources;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using Dynamics;
 #endif
 #if NET35
@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
     public class CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> :
         CustomDictionaryKeySpecifierBase<TValue, TTarget>
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         ,
         ICustomDynamicMappingTargetMemberSpecifier<TTarget>
 #endif
@@ -65,7 +65,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
             => RegisterCustomKey(targetSetMethod);
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         ISourceDynamicMappingConfigContinuation<TTarget> ICustomDynamicMappingTargetMemberSpecifier<TTarget>.To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
             => RegisterCustomKey(targetMember);

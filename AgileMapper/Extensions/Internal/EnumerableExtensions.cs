@@ -131,6 +131,9 @@
             return true;
         }
 
+        public static bool All<T>(this IList<T> items, Func<T, bool> predicate)
+            => None(items, item => !predicate.Invoke(item));
+
         [DebuggerStepThrough]
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 

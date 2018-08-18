@@ -50,6 +50,7 @@ namespace AgileObjects.AgileMapper.Members
         public static bool MapToNullCollections(this IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
 
+        [DebuggerStepThrough]
         public static ObjectMapperData GetRootMapperData(this IMemberMapperData mapperData)
         {
             while (!mapperData.IsRoot)
@@ -229,53 +230,42 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
             => mapperData.TargetMember.IsComplex && mapperData.TargetMember.Type.IsValueType();
 
-        public static bool TargetMemberEverRecurses(this IMemberMapperData mapperData)
+        public static bool IsRepeatMapping(this IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsRecursion)
             {
                 return true;
             }
-
-            var parentMapperData = mapperData.Parent;
-
-            while (!parentMapperData.Context.IsStandalone)
+            
+            if (mapperData.IsRoot || (mapperData.TargetMember.MemberChain.Length == 2))
             {
-                if (parentMapperData.TargetMember.IsRecursion)
-                {
-                    // The target member we're mapping right now isn't recursive, but 
-                    // it's being mapped as part of the mapping of a recursive member. 
-                    // We therefore check if this member recurses later; if so we'll 
-                    // map it by calling MapRecursion, and it'll be the entry point of 
-                    // the RecursionMapperFunc which performs the recursive mapping:
-                    return TargetMemberIsRecursionWithin(
-                        parentMapperData.TargetMember,
-                        mapperData.TargetMember.LeafMember,
-                        new List<Type>());
-                }
-
-                parentMapperData = parentMapperData.Parent;
+                return false;
             }
 
-            return false;
+            if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))
+            {
+                return false;
+            }
+
+            // The target member we're mapping right now isn't recursive, but 
+            // it might recurse elsewhere within the mapping graph. 
+            // We therefore check if this member ever recurses; if so we'll 
+            // map it by calling MapRepeated, and it'll be the entry point of 
+            // the RepeatedMapperFunc which performs the repeated mapping:
+            var rootMember = mapperData.GetRootMapperData().TargetMember;
+
+            return TargetMemberEverRecursesWithin(rootMember, mapperData.TargetMember);
         }
 
-        private static bool TargetMemberIsRecursionWithin(
-            QualifiedMember parentMember,
-            Member member,
-            ICollection<Type> checkedTypes)
+        private static IList<Member> GetTargetMembers(Type targetType)
+            => GlobalContext.Instance.MemberCache.GetTargetMembers(targetType);
+
+        private static bool TargetMemberEverRecursesWithin(QualifiedMember parentMember, QualifiedMember subjectMember)
         {
             while (true)
             {
-                if (parentMember.IsEnumerable)
-                {
-                    parentMember = parentMember.GetElementMember();
-                    continue;
-                }
-
-                var nonSimpleChildMembers = GlobalContext.Instance
-                    .MemberCache
-                    .GetTargetMembers(parentMember.Type)
-                    .Filter(m => !m.IsSimple && !checkedTypes.Contains(m.IsEnumerable ? m.ElementType : m.Type))
+                var nonSimpleChildMembers = GetTargetMembers(parentMember.Type)
+                    .Filter(m => !m.IsSimple)
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())
@@ -283,20 +273,46 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                var matchingChildMember = nonSimpleChildMembers.FirstOrDefault(cm => cm.Equals(member));
+                var sameTypedChildMembers = nonSimpleChildMembers
+                    .Filter(cm => (cm.IsEnumerable ? cm.ElementType : cm.Type) == subjectMember.Type)
+                    .ToArray();
 
-                if (matchingChildMember != null)
+                if (sameTypedChildMembers
+                        .Project(cm => GetNonEnumerableChildMember(parentMember, cm))
+                        .Any(cm => cm != subjectMember))
                 {
-                    var childMember = parentMember.Append(matchingChildMember);
-
-                    return childMember.IsRecursion;
+                    return true;
                 }
 
-                checkedTypes.Add(parentMember.Type);
+                foreach (var childMember in nonSimpleChildMembers)
+                {
+                    var qualifiedChildMember = GetNonEnumerableChildMember(parentMember, childMember);
 
-                return nonSimpleChildMembers.Any(m =>
-                    TargetMemberIsRecursionWithin(parentMember.Append(m), member, checkedTypes));
+                    if (qualifiedChildMember.IsRecursion)
+                    {
+                        continue;
+                    }
+
+                    if (TargetMemberEverRecursesWithin(qualifiedChildMember, subjectMember))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
+        }
+
+        private static QualifiedMember GetNonEnumerableChildMember(QualifiedMember parentMember, Member childMember)
+        {
+            var qualifiedChildMember = parentMember.Append(childMember);
+
+            if (qualifiedChildMember.IsEnumerable)
+            {
+                qualifiedChildMember = qualifiedChildMember.GetElementMember();
+            }
+
+            return qualifiedChildMember;
         }
 
         public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)

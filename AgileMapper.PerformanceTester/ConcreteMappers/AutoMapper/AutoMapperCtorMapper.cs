@@ -2,7 +2,7 @@
 {
     using AbstractMappers;
     using global::AutoMapper;
-    using TestClasses;
+    using static TestClasses.Ctor;
 
     internal class AutoMapperCtorMapper : CtorMapperBase
     {
@@ -18,9 +18,7 @@
             _mapper = config.CreateMapper();
         }
 
-        protected override ConstructedObject Construct(ValueObject valueObject)
-        {
-            return _mapper.Map<ValueObject, ConstructedObject>(valueObject);
-        }
+        protected override ConstructedObject Construct(ValueObject valueObject) 
+            => _mapper.Map<ValueObject, ConstructedObject>(valueObject);
     }
 }

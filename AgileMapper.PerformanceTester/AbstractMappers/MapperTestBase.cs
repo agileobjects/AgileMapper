@@ -6,7 +6,7 @@
     {
         public string Name => GetType().Name;
 
-        public int NumberOfExecutions => 1_000_000;
+        public virtual int NumberOfExecutions => 1_000_000;
 
         public abstract void Initialise();
 

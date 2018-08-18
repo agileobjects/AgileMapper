@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         /// <summary>
         /// Map the given <paramref name="sourceValue"/> to the given <paramref name="targetValue"/> as 
-        /// part of the mapping of a recursive relationship.
+        /// part of the mapping of a source and target type mapped multiple times within the object graph.
         /// </summary>
         /// <typeparam name="TDeclaredSource">
         /// The declared type of the given <paramref name="sourceValue"/>.
@@ -61,12 +61,35 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// The index of the data source being used to perform the mapping.
         /// </param>
         /// <returns>The mapping result.</returns>
-        TDeclaredTarget MapRecursion<TDeclaredSource, TDeclaredTarget>(
+        TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? enumerableIndex,
             string targetMemberName,
             int dataSourceIndex);
+
+        /// <summary>
+        /// Map the given <paramref name="sourceElement"/> to the given <paramref name="targetElement"/> as 
+        /// part of the mapping of a source and target element type mapped multiple times within the
+        /// object graph.
+        /// </summary>
+        /// <typeparam name="TDeclaredSource">
+        /// The declared type of the given <paramref name="sourceElement"/>.
+        /// </typeparam>
+        /// <typeparam name="TDeclaredTarget">
+        /// The declared type of the given <paramref name="targetElement"/>.
+        /// </typeparam>
+        /// <param name="sourceElement">The source element from which to map.</param>
+        /// <param name="targetElement">The target element to which to map.</param>
+        /// <param name="enumerableIndex">
+        /// The index of the current enumerable being mapped in the mapping context described by the 
+        /// <see cref="IObjectMappingDataUntyped"/>
+        /// </param>
+        /// <returns>The mapping result.</returns>
+        TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceElement,
+            TDeclaredTarget targetElement,
+            int enumerableIndex);
 
         /// <summary>
         /// Gets the <see cref="IObjectMappingDataUntyped"/> typed as a 

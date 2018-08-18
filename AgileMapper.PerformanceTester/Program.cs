@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester
     public class Program
     {
         private static readonly string[] _mapperIds = { "man", "ag", "au", "exp", "ma", "vi" };
-        private static readonly string[] _testIds = { "ctor", "compl", "compls", "flat", "unflat", "unflats", "deep", "deeps" };
+        private static readonly string[] _testIds = { "ctor", "compl", "compls", "flat", "unflat", "unflats", "deep", "deeps", "ent", "ents" };
 
         public static void Main(string[] args)
         {
@@ -125,6 +125,18 @@ namespace AgileObjects.AgileMapper.PerformanceTester
                     useAutoMapper ? new AutoMapperDeepMapperSetup() : null,
                     useExpressMapper ? new ExpressMapperDeepMapperSetup() : null,
                     useMapster ? new MapsterDeepMapperSetup() : null
+                },
+                new IObjectMapperTest[]
+                {
+                    useAgileMapper ? new AgileMapperEntityMapper() : null,
+                    //useAutoMapper ? new AutoMapperEntityMapper() : null, // Not supported, StackOverflow exception
+                    //useMapster ? new MapsterEntityMapper() : null, // Not supported, StackOverflow exception
+                },
+                new IObjectMapperTest[]
+                {
+                    useAgileMapper ? new AgileMapperEntityMapperSetup() : null,
+                    useAutoMapper ? new AutoMapperEntityMapperSetup() : null,
+                    useMapster ? new MapsterEntityMapperSetup() : null
                 }
             };
 
@@ -144,6 +156,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester
             }
 
             Console.WriteLine("Done!");
+            Console.ReadLine();
         }
 
         private static bool TryGetMappersToTest(IList<string> args, out string[] mappersToTest)

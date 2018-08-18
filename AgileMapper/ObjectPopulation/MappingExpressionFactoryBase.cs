@@ -132,8 +132,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var configuredRootDataSource = configuredRootDataSources[i];
                 var newSourceContext = context.WithDataSource(configuredRootDataSource);
 
-                newSourceContext.InstantiateLocalVariable = false;
-
                 var memberPopulations = GetObjectPopulation(newSourceContext).WhereNotNull().ToArray();
 
                 if (memberPopulations.None())
@@ -252,7 +250,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                     return false;
 
-                case Assign when IsMapRecursionCall(((BinaryExpression)expression).Right):
+                case Assign when IsMapRepeatedCall(((BinaryExpression)expression).Right):
                     return false;
 
                 default:
@@ -263,10 +261,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static bool IsCallTo(Expression call, string methodName)
             => ((MethodCallExpression)call).Method.Name == methodName;
 
-        private static bool IsMapRecursionCall(Expression expression)
+        private static bool IsMapRepeatedCall(Expression expression)
         {
             return (expression.NodeType == Call) &&
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRecursion));
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRepeated));
         }
 
         private Expression GetMappingBlock(MappingCreationContext context)
@@ -304,7 +302,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return returnExpression;
             }
 
-            CreateFullMappingBlock:
+        CreateFullMappingBlock:
 
             returnExpression = GetReturnExpression(GetReturnValue(context.MapperData), context);
 
@@ -498,7 +496,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     newSourceMappingData.MappingTypes,
                     new FixedMembersMembersSource(newDataSource.SourceMember, TargetMember));
 
-                var newContext = new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions);
+                var newContext = new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions)
+                {
+                    InstantiateLocalVariable = false
+                };
 
                 newContext.MapperData.SourceObject = newDataSource.Value;
                 newContext.MapperData.TargetObject = MapperData.TargetObject;

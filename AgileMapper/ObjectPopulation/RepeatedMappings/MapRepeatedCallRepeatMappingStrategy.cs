@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Recursion
+﻿namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 {
     using System;
     using Extensions.Internal;
@@ -9,34 +9,36 @@
     using System.Linq.Expressions;
 #endif
 
-    internal struct MapRecursionCallRecursiveMemberMappingStrategy : IRecursiveMemberMappingStrategy
+    internal struct MapRepeatedCallRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public Expression GetMapRecursionCallFor(
-            IObjectMappingData childMappingData,
-            Expression sourceValue,
+        public bool AppliesTo(IMemberMapperData mapperData) => !mapperData.TargetMember.IsEnumerable;
+
+        public Expression GetMapRepeatedCallFor(
+            IObjectMappingData mappingData,
+            MappingValues mappingValues,
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
-            var childMapperData = childMappingData.MapperData;
+            var childMapperData = mappingData.MapperData;
 
-            if (DoNotMapRecursion(childMapperData))
+            if (DoNotMap(childMapperData))
             {
                 return Constants.EmptyExpression;
             }
 
             childMapperData.CacheMappedObjects = true;
 
-            childMapperData.RegisterRequiredMapperFunc(childMappingData);
+            childMapperData.RegisterRequiredMapperFunc(mappingData);
 
-            var mapRecursionCall = declaredTypeMapperData.GetMapRecursionCall(
-                sourceValue,
+            var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
                 childMapperData.TargetMember,
+                mappingValues,
                 dataSourceIndex);
 
-            return mapRecursionCall;
+            return mapRepeatedCall;
         }
 
-        private static bool DoNotMapRecursion(IMemberMapperData mapperData)
+        private static bool DoNotMap(IMemberMapperData mapperData)
         {
             if (mapperData.SourceType.IsDictionary())
             {

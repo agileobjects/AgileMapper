@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
     using Dynamics;
 #endif
     using Members;
@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     internal class CustomTargetDictionaryKeySpecifier<TSource, TValue> :
         CustomDictionaryKeySpecifierBase<TSource, TValue>,
         ICustomTargetDictionaryKeySpecifier<TSource, TValue>
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         ,
         ICustomTargetDynamicMemberNameSpecifier<TSource>
 #endif
@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         public ITargetDictionaryMappingConfigContinuation<TSource, TValue> ToFullKey(string fullMemberNameKey)
             => RegisterFullMemberNameKey(fullMemberNameKey);
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         public ITargetDynamicMappingConfigContinuation<TSource> ToFullMemberName(string fullMemberName)
             => RegisterFullMemberNameKey(fullMemberName);
 #endif
@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         public ITargetDictionaryMappingConfigContinuation<TSource, TValue> ToMemberNameKey(string memberNameKeyPart)
             => RegisterMemberNamePartKey(memberNameKeyPart);
 
-#if DYNAMIC_SUPPORTED
+#if FEATURE_DYNAMIC
         public ITargetDynamicMappingConfigContinuation<TSource> ToMemberName(string memberName)
             => RegisterMemberNamePartKey(memberName);
 #endif

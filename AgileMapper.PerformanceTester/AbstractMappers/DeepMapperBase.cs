@@ -2,13 +2,15 @@
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using TestClasses;
+    using static TestClasses.Deep;
 
     internal abstract class DeepMapperBase : MapperTestBase
     {
-        public override object Execute(Stopwatch timer)
+        private readonly Customer _customer;
+
+        protected DeepMapperBase()
         {
-            return Map(new Customer
+            _customer = new Customer
             {
                 Address = new Address { City = "istanbul", Country = "turkey", Id = 1, Street = "istiklal cad." },
                 HomeAddress = new Address { City = "istanbul", Country = "turkey", Id = 2, Street = "istiklal cad." },
@@ -25,8 +27,10 @@
                     new Address { City = "istanbul", Country = "turkey", Id = 3, Street = "istiklal cad." },
                     new Address { City = "izmir", Country = "turkey", Id = 4, Street = "konak" }
                 }
-            });
+            };
         }
+
+        public override object Execute(Stopwatch timer) => Map(_customer);
 
         protected abstract CustomerDto Map(Customer customer);
     }

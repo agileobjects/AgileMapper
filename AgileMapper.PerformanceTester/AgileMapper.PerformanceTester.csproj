@@ -53,6 +53,7 @@
       <HintPath>..\packages\ValueInjecter.3.1.3\lib\net45\Omu.ValueInjecter.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
@@ -75,9 +76,13 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="AbstractMappers\DeepMapperSetupBase.cs" />
+    <Compile Include="AbstractMappers\EntityMapperBase.cs" />
+    <Compile Include="AbstractMappers\EntityMapperSetupBase.cs" />
     <Compile Include="AbstractMappers\MapperSetupTestBase.cs" />
     <Compile Include="AbstractMappers\MapperTestBase.cs" />
     <Compile Include="AbstractMappers\UnflatteningMapperSetupBase.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperEntityMapper.cs" />
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperEntityMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperUnflatteningMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AgileMapper\AgileMapperComplexTypeMapperSetup.cs" />
     <Compile Include="AbstractMappers\ComplexTypeMapperSetupBase.cs" />
@@ -93,6 +98,8 @@
     <Compile Include="AbstractMappers\DeepMapperBase.cs" />
     <Compile Include="AbstractMappers\FlatteningMapperBase.cs" />
     <Compile Include="AbstractMappers\IObjectMapperTest.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperEntityMapperSetup.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperEntityMapper.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperUnflatteningMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperDeepMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperComplexTypeMapperSetup.cs" />
@@ -112,6 +119,8 @@
     <Compile Include="ConcreteMappers\Manual\ManualDeepMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualFlatteningMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\Mapster\MapsterEntityMapperSetup.cs" />
+    <Compile Include="ConcreteMappers\Mapster\MapsterEntityMapper.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterDeepMapperSetup.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterComplexTypeMapperSetup.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterComplexTypeMapper.cs" />
@@ -126,17 +135,11 @@
     <Compile Include="MapperTester.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestClasses\Address.cs" />
-    <Compile Include="TestClasses\AddressDto.cs" />
-    <Compile Include="TestClasses\Customer.cs" />
-    <Compile Include="TestClasses\CustomerDto.cs" />
-    <Compile Include="TestClasses\ConstructedObject.cs" />
+    <Compile Include="TestClasses\Ctor.cs" />
+    <Compile Include="TestClasses\Deep.cs" />
+    <Compile Include="TestClasses\Entities.cs" />
     <Compile Include="TestClasses\Foo.cs" />
-    <Compile Include="TestClasses\ValueObject.cs" />
-    <Compile Include="TestClasses\ModelDto.cs" />
-    <Compile Include="TestClasses\ModelObject.cs" />
-    <Compile Include="TestClasses\ModelSubObject.cs" />
-    <Compile Include="TestClasses\ModelSubSubObject.cs" />
+    <Compile Include="TestClasses\Flattening.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

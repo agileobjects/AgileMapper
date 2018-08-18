@@ -89,6 +89,26 @@
         public static IPlanTargetSelector<TSource> GetPlansFor<TSource>() => Default.GetPlansFor<TSource>();
 
         /// <summary>
+        /// Create and compile a query projection function from the source IQueryable Type specified by the given 
+        /// <paramref name="exampleQueryable"/>.
+        /// </summary>
+        /// <typeparam name="TSourceElement">
+        /// The type of element contained in the source IQueryable from which the projection function to be created will project.
+        /// </typeparam>
+        /// <param name="exampleQueryable">
+        /// An IQueryable instance specifying the source IQueryable for which a query projection mapping plan should be created.
+        /// </param>
+        /// <returns>
+        /// An IProjectionPlanTargetSelector with which to specify the target Type to which the query projection function to 
+        /// be created should be cached.
+        /// </returns>
+        public static IProjectionPlanTargetSelector<TSourceElement> GetPlanForProjecting<TSourceElement>(
+            IQueryable<TSourceElement> exampleQueryable)
+        {
+            return Default.GetPlanForProjecting(exampleQueryable);
+        }
+
+        /// <summary>
         /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.
         /// </summary>
         /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>

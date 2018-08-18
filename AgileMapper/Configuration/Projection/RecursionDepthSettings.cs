@@ -12,7 +12,7 @@
             _recursionDepth = recursionDepth;
         }
 
-        public bool IsBeyondDepth(IBasicMapperData mapperData)
+        public bool IsBeyondDepth(IMemberMapperData mapperData)
         {
             if (_recursionDepth == 0)
             {
@@ -23,7 +23,8 @@
 
             while (mapperData != null)
             {
-                if (mapperData.TargetMember.IsRecursion)
+                if (mapperData.TargetMember.IsRecursion && 
+                    mapperData.RuleSet.RepeatMappingStrategy.AppliesTo(mapperData))
                 {
                     ++recursionDepth;
                 }

@@ -3,17 +3,12 @@
     using System.Collections.Generic;
     using AbstractMappers;
     using global::Mapster;
-    using TestClasses;
+    using static TestClasses.Deep;
 
     internal class MapsterDeepMapperSetup : DeepMapperSetupBase
     {
         public override void Initialise()
         {
-        }
-
-        protected override void Reset()
-        {
-            TypeAdapterConfig<Customer, CustomerDto>.Clear();
         }
 
         protected override void SetupDeepMapper()
@@ -25,5 +20,8 @@
 
             new Customer().Adapt<Customer, CustomerDto>();
         }
+
+        protected override void Reset() 
+            => TypeAdapterConfig<Customer, CustomerDto>.Clear();
     }
 }
