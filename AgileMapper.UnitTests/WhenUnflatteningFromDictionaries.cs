@@ -46,14 +46,22 @@
             result.Value.Value.ShouldBe(1234);
         }
 
-        //[Fact]
-        //public void ShouldFlattenANullNullableDateTimeOffsetMember()
-        //{
-        //    var source = new PublicProperty<DateTimeOffset?> { Value = null };
-        //    var result = Mapper.Flatten(source).ToDictionary<string>();
+        [Fact]
+        public void ShouldPopulateANullableDateTimeOffsetMember()
+        {
+            var source = new Dictionary<string, string> { ["Value"] = "2018-07-30 14:30:05" };
+            var result = Mapper.Unflatten(source).To<PublicProperty<DateTimeOffset?>>();
 
-        //    result.ShouldNotContainKey("Value");
-        //}
+            result.Value.HasValue.ShouldBeTrue();
+
+            // ReSharper disable once PossibleInvalidOperationException
+            result.Value.Value.Year.ShouldBe(2018);
+            result.Value.Value.Month.ShouldBe(07);
+            result.Value.Value.Day.ShouldBe(30);
+            result.Value.Value.Hour.ShouldBe(14);
+            result.Value.Value.Minute.ShouldBe(30);
+            result.Value.Value.Second.ShouldBe(05);
+        }
 
         //[Fact]
         //public void ShouldFlattenANullNullableIntToAStringDictionary()
