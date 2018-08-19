@@ -1,11 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Queryables.Api;
+    using System;
+    using System.Linq;
+    using System.Linq.Expressions;
 
     /// <summary>
     /// Provides mapping and mapping configuration services.
@@ -145,6 +145,12 @@
         /// <param name="source">The object to flatten.</param>
         /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
         IFlatteningSelector<TSource> Flatten<TSource>(TSource source);
+
+        /// <summary>
+        /// Unflatten a given source object to an instance of the given <typeparamref name="TResult"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The Type to which the source object should be unflattened.</typeparam>
+        UnflatteningSelector<TResult> Unflatten<TResult>();
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.

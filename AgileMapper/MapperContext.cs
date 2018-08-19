@@ -12,6 +12,7 @@
     internal class MapperContext
     {
         private InlineMapperContextSet _inlineContexts;
+        private IMappingContext _queryProjectionMappingContext;
 
         public MapperContext()
         {
@@ -24,7 +25,6 @@
             ConstructionFactory = new ComplexTypeConstructionFactory(Cache);
             ValueConverters = new ConverterSet(UserConfigurations);
             RuleSets = MappingRuleSetCollection.Default;
-            QueryProjectionMappingContext = new SimpleMappingContext(RuleSets.Project, this);
         }
 
         public IMapperInternal Mapper { get; set; }
@@ -39,7 +39,8 @@
 
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
-        public InlineMapperContextSet InlineContexts => _inlineContexts ?? (_inlineContexts = new InlineMapperContextSet(this));
+        public InlineMapperContextSet InlineContexts
+            => _inlineContexts ?? (_inlineContexts = new InlineMapperContextSet(this));
 
         public UserConfigurationSet UserConfigurations { get; }
 
@@ -49,7 +50,9 @@
 
         public MappingRuleSetCollection RuleSets { get; }
 
-        public IMappingContext QueryProjectionMappingContext { get; }
+        public IMappingContext QueryProjectionMappingContext
+            => _queryProjectionMappingContext ??
+              (_queryProjectionMappingContext = new SimpleMappingContext(RuleSets.Project, this));
 
         public MapperContext Clone()
         {

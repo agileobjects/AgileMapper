@@ -227,6 +227,7 @@
     <Compile Include="TestClasses\StringKeyedDictionary.cs" />
     <Compile Include="TestClasses\Wedding.cs" />
     <Compile Include="TestClasses\WeddingDto.cs" />
+    <Compile Include="WhenUnflatteningFromDictionaries.cs" />
     <Compile Include="WhenFlatteningToDictionaries.cs" />
     <Compile Include="WhenMappingEntities.cs" />
     <Compile Include="WhenMappingToMetaMembers.cs" />

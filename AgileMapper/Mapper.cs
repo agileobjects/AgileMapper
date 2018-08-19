@@ -1,12 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Plans;
     using Queryables.Api;
+    using System;
+    using System.Linq;
+    using System.Linq.Expressions;
     using Validation;
 
     /// <summary>
@@ -173,6 +173,13 @@
             => Default.Flatten(source);
 
         /// <summary>
+        /// Unflatten a given source object to an instance of the given <typeparamref name="TResult"/>.
+        /// </summary>
+        /// <typeparam name="TResult">The Type to which the source object should be unflattened.</typeparam>
+        public static UnflatteningSelector<TResult> Unflatten<TResult>()
+            => Default.Unflatten<TResult>();
+
+        /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
         /// </summary>
         /// <typeparam name="TSource">The type of source object on which to perform the mapping.</typeparam>
@@ -232,6 +239,9 @@
 
         IFlatteningSelector<TSource> IMapper.Flatten<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);
+
+        UnflatteningSelector<TResult> IMapper.Unflatten<TResult>()
+            => new UnflatteningSelector<TResult>(this);
 
         ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);
