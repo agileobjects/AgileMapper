@@ -52,7 +52,7 @@
             var source = new Dictionary<string, string> { ["Value"] = "2018-07-30 14:30:05" };
             var result = Mapper.Unflatten(source).To<PublicProperty<DateTimeOffset?>>();
 
-            result.Value.HasValue.ShouldBeTrue();
+            result.Value.ShouldNotBeNull();
 
             // ReSharper disable once PossibleInvalidOperationException
             result.Value.Value.Year.ShouldBe(2018);
@@ -63,57 +63,36 @@
             result.Value.Value.Second.ShouldBe(05);
         }
 
-        //[Fact]
-        //public void ShouldFlattenANullNullableIntToAStringDictionary()
-        //{
-        //    var source = new PublicTwoFields<int?, int?> { Value1 = 123, Value2 = null };
-        //    var result = Mapper.Flatten(source).ToDictionary<string>();
+        [Fact]
+        public void ShouldPopulateANullNullableInt()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Value1"] = 123,
+                ["Value2"] = null
+            };
+            var result = Mapper.Unflatten(source).To<PublicTwoFields<int?, int?>>();
 
-        //    result["Value1"].ShouldBe("123");
-        //    result.ShouldNotContainKey("Value2");
-        //}
+            result.Value1.ShouldBe(123);
+            result.Value2.ShouldBeNull();
+        }
 
-        //[Fact]
-        //public void ShouldHandleANullComplexTypeMember()
-        //{
-        //    var source = new PublicProperty<PublicField<int>> { Value = null };
-        //    var result = Mapper.Flatten(source).ToDictionary();
+        [Fact]
+        public void ShouldFlattenAComplexTypeEnumerableMember()
+        {
+            var source = new Dictionary<string, string>
+            {
+                ["Value[0]ProductId"] = "SumminElse"
+            };
 
-        //    result.ShouldNotContainKey("Value");
-        //    result.ShouldNotContainKey("Value.Value");
-        //}
+            var result = Mapper
+                .Unflatten(source)
+                .To<PublicProperty<IEnumerable<Product>>>(cfg => cfg
+                    .ForDictionaries.UseFlattenedMemberNames());
 
-        //[Fact]
-        //public void ShouldNotIncludeComplexTypeEnumerableMembers()
-        //{
-        //    var source = new PublicProperty<IEnumerable<Product>>
-        //    {
-        //        Value = new[]
-        //        {
-        //            new Product { ProductId = "Summin" }
-        //        }
-        //    };
-        //    var result = Mapper.Flatten(source).ToDictionary();
-
-        //    result.ShouldNotContainKey("Value");
-        //}
-
-        //[Fact]
-        //public void ShouldFlattenAComplexTypeEnumerableMember()
-        //{
-        //    var source = new PublicProperty<IEnumerable<Product>>
-        //    {
-        //        Value = new[]
-        //        {
-        //            new Product { ProductId = "SumminElse" }
-        //        }
-        //    };
-
-        //    var result = Mapper.Flatten(source).ToDictionary(cfg => cfg
-        //        .ForDictionaries.UseFlattenedMemberNames());
-
-        //    ((string)result["Value[0]ProductId"]).ShouldBe("SumminElse");
-        //}
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldHaveSingleItem().ProductId.ShouldBe("SumminElse");
+        }
 
         //[Fact]
         //public void ShouldHandleANullComplexTypeEnumerableMemberElement()

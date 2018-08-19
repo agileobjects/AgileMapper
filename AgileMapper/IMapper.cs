@@ -144,14 +144,17 @@
         /// </summary>
         /// <typeparam name="TSource">The type of object to flatten.</typeparam>
         /// <param name="source">The object to flatten.</param>
-        /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
+        /// <returns>An IFlatteningSelector with which to select the type of flattening to perform.</returns>
         IFlatteningSelector<TSource> Flatten<TSource>(TSource source);
 
         /// <summary>
         /// Unflatten the given string-keyed <paramref name="source"/> Dictionary to a specified result Type.
         /// </summary>
         /// <typeparam name="TValue">The Type of values the source Dictionary contains.</typeparam>
-        IUnflatteningSelector Unflatten<TValue>(IDictionary<string, TValue> source);
+        /// <returns>
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
+        /// </returns>
+        IUnflatteningSelector<IDictionary<string, TValue>> Unflatten<TValue>(IDictionary<string, TValue> source);
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
