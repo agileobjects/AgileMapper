@@ -232,14 +232,14 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool IsRepeatMapping(this IBasicMapperData mapperData)
         {
+            if (mapperData.IsRoot || (mapperData.TargetMember.Depth == 2))
+            {
+                return false;
+            }
+
             if (mapperData.TargetMember.IsRecursion)
             {
                 return true;
-            }
-            
-            if (mapperData.IsRoot || (mapperData.TargetMember.MemberChain.Length == 2))
-            {
-                return false;
             }
 
             if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))

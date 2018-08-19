@@ -15,17 +15,7 @@
             => !mapperData.TargetMemberIsEnumerableElement();
 
         public bool WillNotMap(IBasicMapperData mapperData)
-        {
-            if (!mapperData.TargetMember.IsRecursion)
-            {
-                return false;
-            }
-
-            return ((IMemberMapperData)mapperData.Parent)
-                .MapperContext
-                .UserConfigurations
-                .ShortCircuitRecursion(mapperData);
-        }
+            => AppliesTo(mapperData) && ShortCircuitRecursion(mapperData);
 
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
@@ -33,7 +23,7 @@
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
-            if (WillNotMap(childMappingData.MapperData))
+            if (ShortCircuitRecursion(childMappingData.MapperData))
             {
                 return GetMappingShortCircuit(childMappingData);
             }
@@ -44,6 +34,19 @@
                 MappingDataCreationFactory.ForChild(mappingValues, 0, childMappingData.MapperData));
 
             return inlineMappingBlock;
+        }
+
+        private static bool ShortCircuitRecursion(IBasicMapperData mapperData)
+        {
+            if (!mapperData.TargetMember.IsRecursion)
+            {
+                return false;
+            }
+
+            return ((IMemberMapperData)mapperData.Parent)
+                .MapperContext
+                .UserConfigurations
+                .ShortCircuitRecursion(mapperData);
         }
 
         private static Expression GetMappingShortCircuit(IObjectMappingData childMappingData)

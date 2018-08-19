@@ -18,6 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             if (lazyLoadFuncs)
             {
                 _mapperData = mappingData.MapperData;
+                _mapperData.IsEntryPoint = true;
                 return;
             }
 

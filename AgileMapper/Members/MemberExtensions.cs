@@ -62,7 +62,7 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
-            if (member.MemberChain.Length < 2)
+            if (member.Depth < 2)
             {
                 // Either the root member, QualifiedMember.All or QualifiedMember.None:
                 reason = null;
@@ -122,7 +122,7 @@
                 return false;
             }
 
-            return member.MemberChain[member.MemberChain.Length - 2].Type.IsValueType();
+            return member.MemberChain[member.Depth - 2].Type.IsValueType();
         }
 
         public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)

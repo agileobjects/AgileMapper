@@ -15,11 +15,11 @@
         [Fact]
         public void ShouldPopulateASimpleTypeMember()
         {
-            var source = new Dictionary<string, string> { ["Value"] = "Flatten THIS" };
+            var source = new Dictionary<string, string> { ["Value"] = "Unflatten THIS" };
             var result = Mapper.Unflatten(source).To<PublicProperty<string>>();
 
             result.ShouldNotBeNull();
-            result.Value.ShouldBe("Flatten THIS");
+            result.Value.ShouldBe("Unflatten THIS");
         }
 
         [Fact]
@@ -109,29 +109,29 @@
                 ["IsFeatured"] = true,
                 ["DisplayOrder"] = 1,
 
-                ["Topic[0].Id"] = 456,
-                ["Topic[0].Name"] = "Biology",
-                ["Topic[0].UrlFriendlyName"] = "biology",
-                ["Topic[0].AuthorName"] = "Richard Dawkins",
-                ["Topic[0].AuthorUrlFriendlyName"] = "richard-dawkins",
-                ["Topic[0].MetaTitle"] = "Dat Biology",
-                ["Topic[0].MetaDescription"] = "Such biology",
-                ["Topic[0].ShortDescription"] = "Such bio",
-                ["Topic[0].Status"] = TopicStatus.Live,
-                ["Topic[0].IsFeatured"] = true,
-                ["Topic[0].DisplayOrder"] = 1,
+                ["Topics[0].Id"] = 456,
+                ["Topics[0].Name"] = "Biology",
+                ["Topics[0].UrlFriendlyName"] = "biology",
+                ["Topics[0].AuthorName"] = "Richard Dawkins",
+                ["Topics[0].AuthorUrlFriendlyName"] = "richard-dawkins",
+                ["Topics[0].MetaTitle"] = "Dat Biology",
+                ["Topics[0].MetaDescription"] = "Such biology",
+                ["Topics[0].ShortDescription"] = "Such bio",
+                ["Topics[0].Status"] = TopicStatus.Live,
+                ["Topics[0].IsFeatured"] = true,
+                ["Topics[0].DisplayOrder"] = 1,
 
-                ["Topic[1].Id"] = 789,
-                ["Topic[1].Name"] = "Physics",
-                ["Topic[1].UrlFriendlyName"] = "physics",
-                ["Topic[1].AuthorName"] = "Neil Degrasse Tyson",
-                ["Topic[1].AuthorUrlFriendlyName"] = "neil-degrasse-tyson",
-                ["Topic[1].MetaTitle"] = "Dat Physics",
-                ["Topic[1].MetaDescription"] = "Such physics",
-                ["Topic[1].ShortDescription"] = "Such phs",
-                ["Topic[1].Status"] = TopicStatus.Live,
-                ["Topic[1].IsFeatured"] = true,
-                ["Topic[1].DisplayOrder"] = 1,
+                ["Topics[1].Id"] = 789,
+                ["Topics[1].Name"] = "Physics",
+                ["Topics[1].UrlFriendlyName"] = "physics",
+                ["Topics[1].AuthorName"] = "Neil Degrasse Tyson",
+                ["Topics[1].AuthorUrlFriendlyName"] = "neil-degrasse-tyson",
+                ["Topics[1].MetaTitle"] = "Dat Physics",
+                ["Topics[1].MetaDescription"] = "Such physics",
+                ["Topics[1].ShortDescription"] = "Such phs",
+                ["Topics[1].Status"] = TopicStatus.Live,
+                ["Topics[1].IsFeatured"] = true,
+                ["Topics[1].DisplayOrder"] = 1,
 
                 ["Communities[0].Id"] = 563,
                 ["Communities[0].Name"] = "Pipettes",
@@ -149,15 +149,14 @@
 
             scienceCommunity.Name.ShouldBe("Science");
             scienceCommunity.Communities[0].Name.ShouldBe("Pipettes");
-            scienceCommunity.Communities[0].Topics[0].Name.ShouldBe("Biology");
-            scienceCommunity.Communities[0].Topics[0].IsFeatured.ShouldBe(true);
+            scienceCommunity.Communities[0].DisplayOrder.ShouldBe(2);
+            scienceCommunity.Communities[0].Topics.ShouldBeEmpty();
             scienceCommunity.Topics[0].Name.ShouldBe("Biology");
-            scienceCommunity.Topics[0].Communities[0].Id.ShouldBe(123);
-            scienceCommunity.Topics[0].Communities[0].Name.ShouldBe("Science");
-            scienceCommunity.Topics[0].Communities[1].Name.ShouldBe("Pipettes");
-            scienceCommunity.Topics[1].Name.ShouldBe("Physics");
             scienceCommunity.Topics[1].Status.ShouldBe(TopicStatus.Live);
-            scienceCommunity.Topics[1].Communities[0].Name.ShouldBe("Science");
+            scienceCommunity.Topics[0].Communities.ShouldBeEmpty();
+            scienceCommunity.Topics[1].Name.ShouldBe("Physics");
+            scienceCommunity.Topics[1].ShortDescription.ShouldBe("Such phs");
+            scienceCommunity.Topics[1].Communities.ShouldBeEmpty();
         }
 
         #region Helper Classes

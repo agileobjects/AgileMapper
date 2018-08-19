@@ -165,14 +165,8 @@
             return type.IsValueType() && type.IsFromBcl();
         }
 
-        public static bool IsDictionary(this Type type) => IsDictionary(type, out _);
-
-        public static bool IsDictionary(this Type type, out KeyValuePair<Type, Type> keyAndValueTypes)
-        {
-            keyAndValueTypes = GetDictionaryTypes(type);
-
-            return !keyAndValueTypes.Equals(default(KeyValuePair<Type, Type>));
-        }
+        public static bool IsDictionary(this Type type)
+            => !GetDictionaryTypes(type).Equals(default(KeyValuePair<Type, Type>));
 
         public static KeyValuePair<Type, Type> GetDictionaryTypes(this Type type)
         {

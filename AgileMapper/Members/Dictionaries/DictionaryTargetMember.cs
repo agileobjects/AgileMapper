@@ -374,7 +374,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             // mapping to flattened entries to mapping entire objects:
             return HasObjectEntries &&
                    LeafMember.IsEnumerableElement() &&
-                  (MemberChain[MemberChain.Length - 2] == _rootDictionaryMember.LeafMember) &&
+                  (MemberChain[Depth - 2] == _rootDictionaryMember.LeafMember) &&
                   (sourceType == typeof(object));
         }
 

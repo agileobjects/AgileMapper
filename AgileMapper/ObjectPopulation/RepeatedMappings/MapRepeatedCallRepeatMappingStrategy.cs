@@ -17,7 +17,7 @@
         {
             if (mapperData.SourceType.IsDictionary())
             {
-                return true;
+                return mapperData.TargetMember.Depth > 3;
             }
 
             while (mapperData != null)

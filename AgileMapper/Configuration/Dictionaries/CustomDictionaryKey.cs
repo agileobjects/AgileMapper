@@ -83,14 +83,14 @@
 
             var targetMember = GetTargetMember(member, mapperData);
 
-            if (targetMember.MemberChain.Length < SourceMember.MemberChain.Length)
+            if (targetMember.Depth < SourceMember.Depth)
             {
                 return false;
             }
 
-            var targetMemberChainIndex = targetMember.MemberChain.Length;
+            var targetMemberChainIndex = targetMember.Depth;
 
-            for (var i = SourceMember.MemberChain.Length - 1; i > 0; --i)
+            for (var i = SourceMember.Depth- 1; i > 0; --i)
             {
                 if (!SourceMember.MemberChain[i].Equals(targetMember.MemberChain[--targetMemberChainIndex]))
                 {
