@@ -94,192 +94,164 @@
             result.Value.ShouldHaveSingleItem().ProductId.ShouldBe("SumminElse");
         }
 
-        //[Fact]
-        //public void ShouldHandleANullComplexTypeEnumerableMemberElement()
-        //{
-        //    var source = new PublicProperty<IEnumerable<Product>>
-        //    {
-        //        Value = new Product[] { null }
-        //    };
-        //    var result = Mapper.Flatten(source).ToDictionary();
+        [Fact]
+        public void ShouldPopulateARecursiveObjectModel()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Id"] = 123,
+                ["Name"] = "Science",
+                ["UrlFriendlyName"] = "Science",
+                ["MetaTitle"] = "Dat Science",
+                ["MetaDescription"] = "All about science",
+                ["ShortDescription"] = "Sci",
+                ["Status"] = CommunityStatus.Live,
+                ["IsFeatured"] = true,
+                ["DisplayOrder"] = 1,
 
-        //    result.ShouldNotContainKey("Value[0].ProductId");
-        //}
+                ["Topic[0].Id"] = 456,
+                ["Topic[0].Name"] = "Biology",
+                ["Topic[0].UrlFriendlyName"] = "biology",
+                ["Topic[0].AuthorName"] = "Richard Dawkins",
+                ["Topic[0].AuthorUrlFriendlyName"] = "richard-dawkins",
+                ["Topic[0].MetaTitle"] = "Dat Biology",
+                ["Topic[0].MetaDescription"] = "Such biology",
+                ["Topic[0].ShortDescription"] = "Such bio",
+                ["Topic[0].Status"] = TopicStatus.Live,
+                ["Topic[0].IsFeatured"] = true,
+                ["Topic[0].DisplayOrder"] = 1,
 
-        //[Fact]
-        //public void ShouldFlattenARecursiveObjectModel()
-        //{
-        //    var scienceCommunity = new CommunityViewModel
-        //    {
-        //        Id = 123,
-        //        Name = "Science",
-        //        UrlFriendlyName = "science",
-        //        MetaTitle = "Dat Science",
-        //        MetaDescription = "All about science",
-        //        ShortDescription = "Sci",
-        //        Status = CommunityStatus.Live,
-        //        IsFeatured = true,
-        //        DisplayOrder = 1
-        //    };
+                ["Topic[1].Id"] = 789,
+                ["Topic[1].Name"] = "Physics",
+                ["Topic[1].UrlFriendlyName"] = "physics",
+                ["Topic[1].AuthorName"] = "Neil Degrasse Tyson",
+                ["Topic[1].AuthorUrlFriendlyName"] = "neil-degrasse-tyson",
+                ["Topic[1].MetaTitle"] = "Dat Physics",
+                ["Topic[1].MetaDescription"] = "Such physics",
+                ["Topic[1].ShortDescription"] = "Such phs",
+                ["Topic[1].Status"] = TopicStatus.Live,
+                ["Topic[1].IsFeatured"] = true,
+                ["Topic[1].DisplayOrder"] = 1,
 
-        //    var pipettesCommunity = new CommunityViewModel
-        //    {
-        //        Id = 563,
-        //        Name = "Pipettes",
-        //        UrlFriendlyName = "pipettes",
-        //        MetaTitle = "Dem Pipettes",
-        //        MetaDescription = "All about Pipettes",
-        //        ShortDescription = "Pips",
-        //        Status = CommunityStatus.Live,
-        //        DisplayOrder = 2
-        //    };
+                ["Communities[0].Id"] = 563,
+                ["Communities[0].Name"] = "Pipettes",
+                ["Communities[0].UrlFriendlyName"] = "pipettes",
+                ["Communities[0].MetaTitle"] = "Dem Pipettes",
+                ["Communities[0].MetaDescription"] = "All about Pipettes",
+                ["Communities[0].ShortDescription"] = "Pips",
+                ["Communities[0].Status"] = CommunityStatus.Live,
+                ["Communities[0].DisplayOrder"] = 2
+            };
 
-        //    var biologyTopic = new TopicViewModel
-        //    {
-        //        Id = 456,
-        //        Name = "Biology",
-        //        UrlFriendlyName = "biology",
-        //        AuthorName = "Richard Dawkins",
-        //        AuthorUrlFriendlyName = "richard-dawkins",
-        //        MetaTitle = "Dat Biology",
-        //        MetaDescription = "Such biology",
-        //        ShortDescription = "Such Bio",
-        //        Status = TopicStatus.Live,
-        //        IsFeatured = true,
-        //        DisplayOrder = 1
-        //    };
+            var scienceCommunity = Mapper
+                .Unflatten(source)
+                .To<CommunityViewModel>();
 
-        //    var physicsTopic = new TopicViewModel
-        //    {
-        //        Id = 789,
-        //        Name = "Physics",
-        //        UrlFriendlyName = "physics",
-        //        AuthorName = "Neil Degrasse Tyson",
-        //        AuthorUrlFriendlyName = "neil-degrasse-tyson",
-        //        MetaTitle = "Dat Physics",
-        //        MetaDescription = "Such physics",
-        //        ShortDescription = "Such phs",
-        //        Status = TopicStatus.Live,
-        //        IsFeatured = true,
-        //        DisplayOrder = 1
-        //    };
+            scienceCommunity.Name.ShouldBe("Science");
+            scienceCommunity.Communities[0].Name.ShouldBe("Pipettes");
+            scienceCommunity.Communities[0].Topics[0].Name.ShouldBe("Biology");
+            scienceCommunity.Communities[0].Topics[0].IsFeatured.ShouldBe(true);
+            scienceCommunity.Topics[0].Name.ShouldBe("Biology");
+            scienceCommunity.Topics[0].Communities[0].Id.ShouldBe(123);
+            scienceCommunity.Topics[0].Communities[0].Name.ShouldBe("Science");
+            scienceCommunity.Topics[0].Communities[1].Name.ShouldBe("Pipettes");
+            scienceCommunity.Topics[1].Name.ShouldBe("Physics");
+            scienceCommunity.Topics[1].Status.ShouldBe(TopicStatus.Live);
+            scienceCommunity.Topics[1].Communities[0].Name.ShouldBe("Science");
+        }
 
-        //    scienceCommunity.Topics.AddRange(new[] { biologyTopic, physicsTopic });
-        //    scienceCommunity.Communities.Add(pipettesCommunity);
-        //    pipettesCommunity.Topics.Add(biologyTopic);
-        //    pipettesCommunity.Communities.Add(scienceCommunity);
-        //    biologyTopic.Communities.AddRange(new[] { scienceCommunity, pipettesCommunity });
-        //    physicsTopic.Communities.Add(scienceCommunity);
+        #region Helper Classes
 
-        //    var flattened = Mapper
-        //        .Flatten(scienceCommunity)
-        //        .ToDictionary();
+        public abstract class PageContentViewModelBase
+        {
+            private string _metaTitle;
 
-        //    flattened["Name"].ShouldBe("Science");
-        //    flattened["Communities[0].Name"].ShouldBe("Pipettes");
-        //    flattened["Communities[0].Topics[0].Name"].ShouldBe("Biology");
-        //    flattened["Communities[0].Topics[0].IsFeatured"].ShouldBe(true);
-        //    flattened["Topics[0].Name"].ShouldBe("Biology");
-        //    flattened["Topics[0].Communities[0].Id"].ShouldBe(123);
-        //    flattened["Topics[0].Communities[0].Name"].ShouldBe("Science");
-        //    flattened["Topics[0].Communities[1].Name"].ShouldBe("Pipettes");
-        //    flattened["Topics[1].Name"].ShouldBe("Physics");
-        //    flattened["Topics[1].Status"].ShouldBe(TopicStatus.Live);
-        //    flattened["Topics[1].Communities[0].Name"].ShouldBe("Science");
-        //}
+            private string _metaDescription;
 
-        //#region Helper Classes
+            public string Name { get; set; }
 
-        //public abstract class PageContentViewModelBase
-        //{
-        //    private string _metaTitle;
+            public string ShortDescription { get; set; }
 
-        //    private string _metaDescription;
+            public string MetaTitle
+            {
+                get => string.IsNullOrEmpty(_metaTitle)
+                    ? $"Message Board topic {Name}"
+                    : _metaTitle;
 
-        //    public string Name { get; set; }
+                set => _metaTitle = value;
+            }
 
-        //    public string ShortDescription { get; set; }
+            public string MetaDescription
+            {
+                get => string.IsNullOrEmpty(_metaDescription)
+                    ? $"Message Board topic {ShortDescription}"
+                    : _metaDescription;
 
-        //    public string MetaTitle
-        //    {
-        //        get => string.IsNullOrEmpty(_metaTitle)
-        //            ? $"Message Board topic {Name}"
-        //            : _metaTitle;
+                set => _metaDescription = value;
+            }
 
-        //        set => _metaTitle = value;
-        //    }
+            public string PageTitle => $"Message Board {Name}";
+        }
 
-        //    public string MetaDescription
-        //    {
-        //        get => string.IsNullOrEmpty(_metaDescription)
-        //            ? $"Message Board topic {ShortDescription}"
-        //            : _metaDescription;
+        public class CommunityViewModel : PageContentViewModelBase
+        {
+            public CommunityViewModel()
+            {
+                Topics = new List<TopicViewModel>();
+                Communities = new List<CommunityViewModel>();
+            }
 
-        //        set => _metaDescription = value;
-        //    }
+            public int Id { get; set; }
 
-        //    public string PageTitle => $"Message Board {Name}";
-        //}
+            public int DisplayOrder { get; set; }
 
-        //public class CommunityViewModel : PageContentViewModelBase
-        //{
-        //    public CommunityViewModel()
-        //    {
-        //        Topics = new List<TopicViewModel>();
-        //        Communities = new List<CommunityViewModel>();
-        //    }
+            public bool IsFeatured { get; set; }
 
-        //    public int Id { get; set; }
+            public CommunityStatus? Status { get; set; }
 
-        //    public int DisplayOrder { get; set; }
+            public string UrlFriendlyName { get; set; }
 
-        //    public bool IsFeatured { get; set; }
+            public List<TopicViewModel> Topics { get; set; }
 
-        //    public CommunityStatus? Status { get; set; }
+            public List<CommunityViewModel> Communities { get; set; }
+        }
 
-        //    public string UrlFriendlyName { get; set; }
+        public class TopicViewModel : PageContentViewModelBase
+        {
+            public TopicViewModel()
+            {
+                Communities = new List<CommunityViewModel>();
+            }
 
-        //    public List<TopicViewModel> Topics { get; set; }
+            public int Id { get; set; }
 
-        //    public List<CommunityViewModel> Communities { get; set; }
-        //}
+            public int DisplayOrder { get; set; }
 
-        //public class TopicViewModel : PageContentViewModelBase
-        //{
-        //    public TopicViewModel()
-        //    {
-        //        Communities = new List<CommunityViewModel>();
-        //    }
+            public bool IsFeatured { get; set; }
 
-        //    public int Id { get; set; }
+            public TopicStatus Status { get; set; }
 
-        //    public int DisplayOrder { get; set; }
+            public string UrlFriendlyName { get; set; }
 
-        //    public bool IsFeatured { get; set; }
+            public string AuthorName { get; set; }
 
-        //    public TopicStatus Status { get; set; }
+            public string AuthorUrlFriendlyName { get; set; }
 
-        //    public string UrlFriendlyName { get; set; }
+            public List<CommunityViewModel> Communities { get; set; }
+        }
 
-        //    public string AuthorName { get; set; }
+        public enum CommunityStatus
+        {
+            Undefined = 0,
+            Live = 1
+        }
 
-        //    public string AuthorUrlFriendlyName { get; set; }
+        public enum TopicStatus
+        {
+            Undefined = 0,
+            Live = 1
+        }
 
-        //    public List<CommunityViewModel> Communities { get; set; }
-        //}
-
-        //public enum CommunityStatus
-        //{
-        //    Undefined = 0,
-        //    Live = 1
-        //}
-
-        //public enum TopicStatus
-        //{
-        //    Undefined = 0,
-        //    Live = 1
-        //}
-
-        //#endregion
+        #endregion
     }
 }

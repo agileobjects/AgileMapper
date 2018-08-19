@@ -11,8 +11,21 @@
 
     internal struct MapToDepthRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public bool AppliesTo(IMemberMapperData mapperData)
+        public bool AppliesTo(IBasicMapperData mapperData)
             => !mapperData.TargetMemberIsEnumerableElement();
+
+        public bool WillNotMap(IBasicMapperData mapperData)
+        {
+            if (!mapperData.TargetMember.IsRecursion)
+            {
+                return false;
+            }
+
+            return ((IMemberMapperData)mapperData.Parent)
+                .MapperContext
+                .UserConfigurations
+                .ShortCircuitRecursion(mapperData);
+        }
 
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
@@ -20,7 +33,7 @@
             int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
-            if (ShortCircuitRecursion(childMappingData))
+            if (WillNotMap(childMappingData.MapperData))
             {
                 return GetMappingShortCircuit(childMappingData);
             }
@@ -31,20 +44,6 @@
                 MappingDataCreationFactory.ForChild(mappingValues, 0, childMappingData.MapperData));
 
             return inlineMappingBlock;
-        }
-
-        private static bool ShortCircuitRecursion(IObjectMappingData childMappingData)
-        {
-            if (!childMappingData.MapperData.TargetMember.IsRecursion)
-            {
-                return false;
-            }
-
-            return childMappingData
-                .MappingContext
-                .MapperContext
-                .UserConfigurations
-                .ShortCircuitRecursion(childMappingData.MapperData);
         }
 
         private static Expression GetMappingShortCircuit(IObjectMappingData childMappingData)
