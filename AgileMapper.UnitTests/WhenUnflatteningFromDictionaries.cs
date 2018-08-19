@@ -16,41 +16,35 @@
         public void ShouldPopulateASimpleTypeMember()
         {
             var source = new Dictionary<string, string> { ["Value"] = "Flatten THIS" };
-            var result = Mapper.Unflatten<PublicProperty<string>>().From(source);
+            var result = Mapper.Unflatten(source).To<PublicProperty<string>>();
 
             result.ShouldNotBeNull();
             result.Value.ShouldBe("Flatten THIS");
         }
 
-        //[Fact]
-        //public void ShouldFlattenASimpleTypeArrayMember()
-        //{
-        //    var source = new PublicProperty<long[]> { Value = new[] { 1L, 2L, 3L } };
-        //    var result = Mapper.Flatten(source).ToDictionary();
+        [Fact]
+        public void ShouldPopulateASimpleTypeArrayMember()
+        {
+            var source = new Dictionary<string, object>
+            {
+                ["Value[0]"] = 1L,
+                ["Value[1]"] = 2L,
+                ["Value[2]"] = 3L
+            };
+            var result = Mapper.Unflatten(source).To<PublicProperty<long[]>>();
 
-        //    result.ShouldNotBeNull();
-        //    ((long)result["Value[0]"]).ShouldBe(1L);
-        //    ((long)result["Value[1]"]).ShouldBe(2L);
-        //    ((long)result["Value[2]"]).ShouldBe(3L);
-        //}
+            result.ShouldNotBeNull();
+            result.Value.ShouldBe(1L, 2L, 3L);
+        }
 
-        //[Fact]
-        //public void ShouldNotIncludeComplexTypeMembers()
-        //{
-        //    var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 9876 } };
-        //    var result = Mapper.Flatten(source).ToDictionary();
+        [Fact]
+        public void ShouldPopulateAComplexTypeMember()
+        {
+            var source = new Dictionary<string, string> { ["Value.Value"] = "1234" };
+            var result = Mapper.CreateNew().Unflatten(source).To<PublicProperty<PublicField<int>>>();
 
-        //    result.ShouldNotContainKey("Value");
-        //}
-
-        //[Fact]
-        //public void ShouldFlattenAComplexTypeMember()
-        //{
-        //    var source = new PublicProperty<PublicField<int>> { Value = new PublicField<int> { Value = 1234 } };
-        //    var result = Mapper.CreateNew().Flatten(source).ToDictionary();
-
-        //    ((int)result["Value.Value"]).ShouldBe(1234);
-        //}
+            result.Value.Value.ShouldBe(1234);
+        }
 
         //[Fact]
         //public void ShouldFlattenANullNullableDateTimeOffsetMember()

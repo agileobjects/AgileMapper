@@ -4,6 +4,7 @@
     using Api.Configuration;
     using Queryables.Api;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
 
@@ -147,10 +148,10 @@
         IFlatteningSelector<TSource> Flatten<TSource>(TSource source);
 
         /// <summary>
-        /// Unflatten a given source object to an instance of the given <typeparamref name="TResult"/>.
+        /// Unflatten the given string-keyed <paramref name="source"/> Dictionary to a specified result Type.
         /// </summary>
-        /// <typeparam name="TResult">The Type to which the source object should be unflattened.</typeparam>
-        UnflatteningSelector<TResult> Unflatten<TResult>();
+        /// <typeparam name="TValue">The Type of values the source Dictionary contains.</typeparam>
+        IUnflatteningSelector Unflatten<TValue>(IDictionary<string, TValue> source);
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.

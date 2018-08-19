@@ -14,6 +14,7 @@
     internal class MappingExecutor<TSource> :
         ITargetSelector<TSource>,
         IFlatteningSelector<TSource>,
+        IUnflatteningSelector,
         IMappingContext
     {
         private readonly TSource _source;
@@ -179,6 +180,12 @@
 #endif
             return queryString.Replace(".", "%2E");
         }
+
+        #endregion
+
+        #region IUnflatteningSelector Members
+
+        TResult IUnflatteningSelector.To<TResult>() => ToANew<TResult>();
 
         #endregion
     }
