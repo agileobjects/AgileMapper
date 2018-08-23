@@ -32,6 +32,25 @@
         }
 
         [Fact]
+        public void ShouldHandleAZeroLengthKey()
+        {
+            var result = "Line1=Somewhere%20else&=Nowhere".ToQueryString().Unflatten().To<Address>();
+
+            result.ShouldNotBeNull();
+            result.Line1.ShouldBe("Somewhere else");
+        }
+
+        [Fact]
+        public void ShouldHandleAZeroLengthValue()
+        {
+            var result = "Line1=Nowhere&Line2=".ToQueryString().Unflatten().To<Address>();
+
+            result.ShouldNotBeNull();
+            result.Line1.ShouldBe("Nowhere");
+            result.Line2.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldErrorIfNullStringUsed()
         {
             Should.Throw<ArgumentException>(() => default(string).ToQueryString());

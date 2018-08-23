@@ -8,7 +8,7 @@
     /// <summary>
     /// Encapsulates a query string-formatted string.
     /// </summary>
-    public class QueryString : IDictionary<string, string>
+    public sealed class QueryString : IDictionary<string, string>
     {
         private readonly Dictionary<string, string> _keyValuePairs;
 
@@ -79,7 +79,7 @@
 
                 ++separatorIndex;
                 var valueLength = nextPairIndex - separatorIndex;
-                var value = Unescape(queryString.Substring(separatorIndex, valueLength));
+                var value = UnescapeValue(queryString.Substring(separatorIndex, valueLength));
 
                 if (keyValuePairs.TryGetValue(key, out var existingValue))
                 {
@@ -98,6 +98,11 @@
             }
         }
 
+        #region Parse Helpers
+
+        private static string UnescapeValue(string substring)
+            => string.IsNullOrEmpty(substring) ? null : Unescape(substring);
+
         private static string Unescape(string substring)
         {
             if (substring.Length < 2)
@@ -111,6 +116,8 @@
 #endif
             return substring.Replace("%2E", ".");
         }
+
+        #endregion
 
         /// <summary>
         /// Returns the query string-formatted representation of the <see cref="QueryString"/>.
