@@ -12,12 +12,13 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Adding Mapper.Map(source).ToANew(Type) for runtime-typed mappings
-- .NET 3.5 support
-- Adding .ToRoot() custom data source target specifier
-- Adding GetServiceOrThrow() to base MapperConfiguration
-- Support for Dictionary mapping in partial trust environments
-- Performance and memory use improvements
+- Duck-typed support for using service providers in mapping and configuration
+- Optimising mapper compilation for complex, multiply-recursive object graphs
+- Support for ordering MapperConfiguration classes
+- Support for mapping HashSet{T}
+- Unflatten() syntactic sugar methods for IDictionaries{TKey, TValue}
+- Support for unflattening a query string
+- Bug fixes
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
