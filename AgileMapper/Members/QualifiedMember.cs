@@ -99,14 +99,14 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if (MemberChain.Length < 3)
+            if (Depth < 3)
             {
                 // Need at least 3 members for recursion: 
                 // Foo -> Foo.ChildFoo -> Foo.ChildFoo.ChildFoo
                 return false;
             }
 
-            for (var i = MemberChain.Length - 2; i >= 0; --i)
+            for (var i = Depth - 2; i >= 0; --i)
             {
                 if (LeafMember.Type == MemberChain[i].Type)
                 {
@@ -140,6 +140,8 @@ namespace AgileObjects.AgileMapper.Members
         public virtual bool IsRoot => LeafMember?.IsRoot == true;
 
         public Member[] MemberChain { get; }
+
+        public int Depth => MemberChain.Length;
 
         public Member LeafMember { get; }
 
@@ -199,7 +201,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if ((otherQualifiedMember.LeafMember == MemberChain[0]) &&
                 otherQualifiedMember.MemberChain[0].IsRoot &&
-                ((otherQualifiedMember.MemberChain.Length + 1) == MemberChain.Length))
+                ((otherQualifiedMember.Depth + 1) == Depth))
             {
                 return this;
             }
@@ -245,14 +247,14 @@ namespace AgileObjects.AgileMapper.Members
 
         protected virtual QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
         {
-            var newMemberChain = new Member[MemberChain.Length];
+            var newMemberChain = new Member[Depth];
 
-            for (var i = 0; i < MemberChain.Length - 1; i++)
+            for (var i = 0; i < Depth - 1; i++)
             {
                 newMemberChain[i] = MemberChain[i];
             }
 
-            newMemberChain[MemberChain.Length - 1] = LeafMember.WithType(runtimeType);
+            newMemberChain[Depth - 1] = LeafMember.WithType(runtimeType);
 
             return CreateFinalMember(new QualifiedMember(newMemberChain, this));
         }

@@ -33,6 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
         private bool? _isRepeatMapping;
+        private bool _isEntryPoint;
 
         private ObjectMapperData(
             IObjectMappingData mappingData,
@@ -98,7 +99,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             parent._childMapperDatas.Add(this);
             Parent = parent;
-            
+
             if (!this.TargetMemberIsEnumerableElement())
             {
                 TargetTypeHasNotYetBeenMapped = IsTargetTypeFirstMapping(parent);
@@ -435,7 +436,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool IsEntryPoint => IsRoot || Context.IsStandalone || IsRepeatMapping;
+        public bool IsEntryPoint
+        {
+            get => _isEntryPoint || IsRoot || Context.IsStandalone || IsRepeatMapping;
+            set => _isEntryPoint = value;
+        }
+
 
         public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 

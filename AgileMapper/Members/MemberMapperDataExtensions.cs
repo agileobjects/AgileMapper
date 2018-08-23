@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
 
         [DebuggerStepThrough]
-        public static ObjectMapperData GetRootMapperData(this IMemberMapperData mapperData)
+        public static ObjectMapperData GetRootMapperData(this IBasicMapperData mapperData)
         {
             while (!mapperData.IsRoot)
             {
@@ -230,16 +230,16 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
             => mapperData.TargetMember.IsComplex && mapperData.TargetMember.Type.IsValueType();
 
-        public static bool IsRepeatMapping(this IMemberMapperData mapperData)
+        public static bool IsRepeatMapping(this IBasicMapperData mapperData)
         {
+            if (mapperData.IsRoot || (mapperData.TargetMember.Depth == 2))
+            {
+                return false;
+            }
+
             if (mapperData.TargetMember.IsRecursion)
             {
                 return true;
-            }
-            
-            if (mapperData.IsRoot || (mapperData.TargetMember.MemberChain.Length == 2))
-            {
-                return false;
             }
 
             if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))

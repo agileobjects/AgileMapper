@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Api;
@@ -143,8 +144,28 @@
         /// </summary>
         /// <typeparam name="TSource">The type of object to flatten.</typeparam>
         /// <param name="source">The object to flatten.</param>
-        /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
+        /// <returns>An IFlatteningSelector with which to select the type of flattening to perform.</returns>
         IFlatteningSelector<TSource> Flatten<TSource>(TSource source);
+
+        /// <summary>
+        /// Unflatten the given string-keyed <paramref name="source"/> Dictionary to a specified result Type.
+        /// </summary>
+        /// <typeparam name="TValue">The Type of values the source Dictionary contains.</typeparam>
+        /// <returns>
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
+        /// </returns>
+        IUnflatteningSelector<IDictionary<string, TValue>> Unflatten<TValue>(IDictionary<string, TValue> source);
+
+        /// <summary>
+        /// Unflatten the given <paramref name="queryString"/> to a specified result Type, using the default mapper.
+        /// Strings can be converted to a <see cref="QueryString"/> instance explicitly, or by using the
+        /// string.ToQueryString() extension method.
+        /// </summary>
+        /// <param name="queryString">The <see cref="QueryString"/> from which to unflatten.</param>
+        /// <returns>
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
+        /// </returns>
+        IUnflatteningSelector<QueryString> Unflatten(QueryString queryString);
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.

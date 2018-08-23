@@ -9,7 +9,9 @@
 
     internal interface IRepeatMappingStrategy
     {
-        bool AppliesTo(IMemberMapperData mapperData);
+        bool AppliesTo(IBasicMapperData mapperData);
+
+        bool WillNotMap(IBasicMapperData mapperData);
 
         Expression GetMapRepeatedCallFor(
             IObjectMappingData mappingData,

@@ -199,7 +199,7 @@
                 return mapperData.TargetMember.MemberChain[memberIndex - 1].IsDictionary;
             }
 
-            var rootDictionaryContextIndex = mapperData.TargetMember.MemberChain.Length;
+            var rootDictionaryContextIndex = mapperData.TargetMember.Depth;
             var sourceMember = mapperData.SourceMember;
 
             while (mapperData.SourceMember.Type == sourceMember.Type)

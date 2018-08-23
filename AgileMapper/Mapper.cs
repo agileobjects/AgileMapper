@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using Api;
@@ -168,9 +169,22 @@
         /// </summary>
         /// <typeparam name="TSource">The type of object to flatten.</typeparam>
         /// <param name="source">The object to flatten.</param>
-        /// <returns>A FlatteningTypeSelector with which to select the type of flattening to perform.</returns>
+        /// <returns>An IFlatteningSelector with which to select the type of flattening to perform.</returns>
         public static IFlatteningSelector<TSource> Flatten<TSource>(TSource source) where TSource : class
             => Default.Flatten(source);
+
+        /// <summary>
+        /// Unflatten the given string-keyed <paramref name="source"/> Dictionary to a specified result Type.
+        /// </summary>
+        /// <typeparam name="TValue">The Type of values the source Dictionary contains.</typeparam>
+        /// <returns>
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
+        /// </returns>
+        public static IUnflatteningSelector<IDictionary<string, TValue>> Unflatten<TValue>(
+            IDictionary<string, TValue> source)
+        {
+            return Default.Unflatten(source);
+        }
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
@@ -232,6 +246,12 @@
 
         IFlatteningSelector<TSource> IMapper.Flatten<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);
+
+        IUnflatteningSelector<IDictionary<string, TValue>> IMapper.Unflatten<TValue>(IDictionary<string, TValue> source)
+            => new MappingExecutor<IDictionary<string, TValue>>(source, Context);
+
+        IUnflatteningSelector<QueryString> IMapper.Unflatten(QueryString queryString)
+            => new MappingExecutor<QueryString>(queryString, Context);
 
         ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);

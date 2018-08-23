@@ -11,38 +11,13 @@
 
     internal struct MapRepeatedCallRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public bool AppliesTo(IMemberMapperData mapperData) => !mapperData.TargetMember.IsEnumerable;
+        public bool AppliesTo(IBasicMapperData mapperData) => !mapperData.TargetMember.IsEnumerable;
 
-        public Expression GetMapRepeatedCallFor(
-            IObjectMappingData mappingData,
-            MappingValues mappingValues,
-            int dataSourceIndex,
-            ObjectMapperData declaredTypeMapperData)
-        {
-            var childMapperData = mappingData.MapperData;
-
-            if (DoNotMap(childMapperData))
-            {
-                return Constants.EmptyExpression;
-            }
-
-            childMapperData.CacheMappedObjects = true;
-
-            childMapperData.RegisterRequiredMapperFunc(mappingData);
-
-            var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
-                childMapperData.TargetMember,
-                mappingValues,
-                dataSourceIndex);
-
-            return mapRepeatedCall;
-        }
-
-        private static bool DoNotMap(IMemberMapperData mapperData)
+        public bool WillNotMap(IBasicMapperData mapperData)
         {
             if (mapperData.SourceType.IsDictionary())
             {
-                return true;
+                return mapperData.TargetMember.Depth > 3;
             }
 
             while (mapperData != null)
@@ -58,6 +33,31 @@
             }
 
             return false;
+        }
+
+        public Expression GetMapRepeatedCallFor(
+            IObjectMappingData mappingData,
+            MappingValues mappingValues,
+            int dataSourceIndex,
+            ObjectMapperData declaredTypeMapperData)
+        {
+            var childMapperData = mappingData.MapperData;
+
+            if (WillNotMap(childMapperData))
+            {
+                return Constants.EmptyExpression;
+            }
+
+            childMapperData.CacheMappedObjects = true;
+
+            childMapperData.RegisterRequiredMapperFunc(mappingData);
+
+            var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
+                childMapperData.TargetMember,
+                mappingValues,
+                dataSourceIndex);
+
+            return mapRepeatedCall;
         }
     }
 }

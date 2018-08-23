@@ -59,6 +59,11 @@
                 return true;
             }
 
+            if (string.IsNullOrEmpty(separator))
+            {
+                return false;
+            }
+
             var elementKeyParts = elementKeyPartMatcher.Matches(queryKey);
 
             var searchEndIndex = queryKey.Length;

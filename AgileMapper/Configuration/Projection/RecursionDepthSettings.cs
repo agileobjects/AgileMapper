@@ -12,7 +12,7 @@
             _recursionDepth = recursionDepth;
         }
 
-        public bool IsBeyondDepth(IMemberMapperData mapperData)
+        public bool IsBeyondDepth(IBasicMapperData mapperData)
         {
             if (_recursionDepth == 0)
             {

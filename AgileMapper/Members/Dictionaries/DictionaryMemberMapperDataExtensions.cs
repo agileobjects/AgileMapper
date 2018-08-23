@@ -138,7 +138,12 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                     mapperData = mapperData.Parent;
                 }
 
-                return mapperData.Parent.EnumerablePopulationBuilder.Counter;
+                if (!mapperData.IsEntryPoint)
+                {
+                    return mapperData.Parent.EnumerablePopulationBuilder.Counter;
+                }
+
+                parentContextAccess = mapperData.MappingDataObject;
             }
 
             var mappingDataType = typeof(IMappingData<,>)

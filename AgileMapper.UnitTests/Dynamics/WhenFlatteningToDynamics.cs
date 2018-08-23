@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests
+﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Collections.Generic;
     using Microsoft.CSharp.RuntimeBinder;

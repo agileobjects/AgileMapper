@@ -44,6 +44,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 yield break;
             }
 
+            var elementMapperData = context.MapperData.GetElementMapperData();
+
+            if (elementMapperData.IsRepeatMapping() &&
+                context.RuleSet.RepeatMappingStrategy.WillNotMap(elementMapperData))
+            {
+                yield break;
+            }
+
             yield return context.RuleSet.EnumerablePopulationStrategy.GetPopulation(
                 context.MapperData.EnumerablePopulationBuilder,
                 context.MappingData);

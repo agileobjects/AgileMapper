@@ -109,7 +109,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             if (!mapperData.RuleSet.Settings.AllowObjectTracking ||
                 !mapperData.CacheMappedObjects ||
-                 mapperData.TargetTypeHasNotYetBeenMapped)
+                 mapperData.TargetTypeHasNotYetBeenMapped ||
+                 mapperData.SourceType.IsDictionary())
             {
                 return null;
             }
