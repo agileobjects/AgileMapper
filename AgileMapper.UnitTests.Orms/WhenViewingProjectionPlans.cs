@@ -48,19 +48,26 @@
         [Fact]
         public Task ShouldReturnCachedQueryProjectionPlansInAllCachedPlans()
         {
-            return RunTest(mapper =>
+            return RunTest((IMapper mapper) =>
             {
-                mapper.GetPlanForProjecting(Context.Products).To<ProductDto>();
-                mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
-                mapper.GetPlanForProjecting(Context.Persons).To<PersonViewModel>();
+                try
+                {
+                    Mapper.GetPlanForProjecting(Context.Products).To<ProductDto>();
+                    Mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
+                    Mapper.GetPlanForProjecting(Context.Persons).To<PersonViewModel>();
 
-                var allPlans = mapper.GetPlansInCache();
+                    var allPlans = Mapper.GetPlansInCache();
 
-                allPlans.ShouldContain("IQueryable<Product> -> IQueryable<ProductDto>");
-                allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");
-                allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonViewModel>");
+                    allPlans.ShouldContain("IQueryable<Product> -> IQueryable<ProductDto>");
+                    allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");
+                    allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonViewModel>");
 
-                return Task.CompletedTask;
+                    return Task.CompletedTask;
+                }
+                finally
+                {
+                    Mapper.ResetDefaultInstance();
+                }
             });
         }
     }
