@@ -175,7 +175,12 @@
         bool IDictionary<string, string>.TryGetValue(string key, out string value)
             => _keyValuePairs.TryGetValue(key, out value);
 
-        string IDictionary<string, string>.this[string key]
+        /// <summary>
+        /// Gets or sets the query string value with the given <paramref name="key"/>.
+        /// </summary>
+        /// <param name="key">The key of the query string value to get or set.</param>
+        /// <returns>The query string value with the specified key.</returns>
+        public string this[string key]
         {
             get => _keyValuePairs[key];
             set => _keyValuePairs[key] = value;

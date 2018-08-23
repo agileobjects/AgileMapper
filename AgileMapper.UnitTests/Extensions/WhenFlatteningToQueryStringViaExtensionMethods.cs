@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Extensions
 {
     using System.Collections.Generic;
-    using System.Linq;
     using AgileMapper.Extensions;
     using TestClasses;
 #if !NET35
@@ -85,24 +84,20 @@
                 .MapMember(s => s.Numbers)
                 .ToMemberNameKey("Nums"));
 
-            var resultDictionary = result
-                .Split('&')
-                .Select(data => data.Split('='))
-                .Select(pair => new KeyValuePair<string, string>(pair[0], pair[1]))
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            var resultDictionary = (QueryString)result;
 
             resultDictionary["SponsorName"].ShouldBe("Sherri");
-            resultDictionary["Nums%5B0%5D"].ShouldBe("1");
-            resultDictionary["Nums%5B1%5D"].ShouldBe("2");
-            resultDictionary["Nums%5B2%5D"].ShouldBe("3");
-            resultDictionary["Address%2ELine1"].ShouldBe("One%21");
-            resultDictionary["Address%2ELine2"].ShouldBe("Two%21");
-            resultDictionary["Products%5B0%5D%2EProductId"].ShouldBe("prod-1");
-            resultDictionary["Products%5B1%5D%2EProductId"].ShouldBe("prod-2");
-            resultDictionary["Products%5B2%5D%2EProductId"].ShouldBe("prod-3");
-            resultDictionary["Products%5B0%5D%2EPrice"].ShouldBe("0%2E99");
-            resultDictionary["Products%5B1%5D%2EPrice"].ShouldBe("1%2E99");
-            resultDictionary["Products%5B2%5D%2EPrice"].ShouldBe("2%2E99");
+            resultDictionary["Nums[0]"].ShouldBe("1");
+            resultDictionary["Nums[1]"].ShouldBe("2");
+            resultDictionary["Nums[2]"].ShouldBe("3");
+            resultDictionary["Address.Line1"].ShouldBe("One!");
+            resultDictionary["Address.Line2"].ShouldBe("Two!");
+            resultDictionary["Products[0].ProductId"].ShouldBe("prod-1");
+            resultDictionary["Products[1].ProductId"].ShouldBe("prod-2");
+            resultDictionary["Products[2].ProductId"].ShouldBe("prod-3");
+            resultDictionary["Products[0].Price"].ShouldBe("0.99");
+            resultDictionary["Products[1].Price"].ShouldBe("1.99");
+            resultDictionary["Products[2].Price"].ShouldBe("2.99");
         }
     }
 }
