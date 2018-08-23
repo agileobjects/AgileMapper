@@ -53,7 +53,7 @@
         [Fact]
         public void ShouldHandleAMisformattedValue()
         {
-            var result = "Line1=NowhereLine2=&Line2&Line2=Hello".ToQueryString().Unflatten().To<Address>();
+            var result = "Line1=NowhereLine2=&Line2&Line2=Hello&Line2&".ToQueryString().Unflatten().To<Address>();
 
             result.ShouldNotBeNull();
             result.Line1.ShouldBe("NowhereLine2=");

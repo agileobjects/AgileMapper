@@ -50,62 +50,73 @@
 
             var keyValuePairs = new Dictionary<string, string>();
 
-            var nextPairIndex = queryString[0] == '?' ? 1 : 0;
+            var previousAmpersandIndex = queryString[0] == '?' ? 1 : 0;
 
             while (true)
             {
-                if (nextPairIndex == -1)
+                var nextAmpersandIndex = queryString.IndexOf('&', previousAmpersandIndex);
+
+                if (nextAmpersandIndex == -1)
                 {
-                    return new QueryString(keyValuePairs);
+                    nextAmpersandIndex = queryString.Length;
                 }
 
-                var separatorIndex = queryString.IndexOf('=', nextPairIndex);
+                var equalsSignIndex = queryString.IndexOf('=', previousAmpersandIndex);
 
-                if (separatorIndex == -1)
+                int keyLength;
+                string value;
+
+                if ((equalsSignIndex == -1) || (equalsSignIndex > nextAmpersandIndex))
                 {
-                    nextPairIndex = queryString.IndexOf('&', ++nextPairIndex);
-                    continue;
+                    keyLength = nextAmpersandIndex - previousAmpersandIndex;
+                    value = null;
+                }
+                else
+                {
+                    keyLength = equalsSignIndex - previousAmpersandIndex;
+
+                    var valueLength = nextAmpersandIndex - equalsSignIndex - 1;
+
+                    value = (valueLength > 0)
+                        ? Unescape(queryString, equalsSignIndex + 1, valueLength)
+                        : null;
                 }
 
-                var keyLength = separatorIndex - nextPairIndex;
-                var key = Unescape(queryString.Substring(nextPairIndex, keyLength));
-
-                nextPairIndex = queryString.IndexOf('&', separatorIndex);
-
-                if (nextPairIndex == -1)
-                {
-                    nextPairIndex = queryString.Length;
-                }
-
-                ++separatorIndex;
-                var valueLength = nextPairIndex - separatorIndex;
-                var value = UnescapeValue(queryString.Substring(separatorIndex, valueLength));
+                var key = Unescape(queryString, previousAmpersandIndex, keyLength);
 
                 if (keyValuePairs.TryGetValue(key, out var existingValue))
                 {
-                    value = existingValue + "," + value;
+                    if (value != null)
+                    {
+                        if (existingValue != null)
+                        {
+                            value = existingValue + "," + value;
+                        }
+
+                        keyValuePairs[key] = value;
+                    }
                 }
-
-                keyValuePairs[key] = value;
-
-                if (nextPairIndex == queryString.Length)
+                else
                 {
-                    nextPairIndex = -1;
-                    continue;
+                    keyValuePairs.Add(key, value);
                 }
 
-                ++nextPairIndex;
+                previousAmpersandIndex = nextAmpersandIndex + 1;
+
+                if ((previousAmpersandIndex == queryString.Length) || (nextAmpersandIndex == queryString.Length))
+                {
+                    return new QueryString(keyValuePairs);
+                }
             }
         }
 
         #region Parse Helpers
 
-        private static string UnescapeValue(string substring)
-            => string.IsNullOrEmpty(substring) ? null : Unescape(substring);
-
-        private static string Unescape(string substring)
+        private static string Unescape(string queryString, int fromIndex, int length)
         {
-            if (substring.Length < 2)
+            var substring = queryString.Substring(fromIndex, length);
+
+            if (length < 2)
             {
                 return substring;
             }
