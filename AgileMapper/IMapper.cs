@@ -1,12 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    using Api;
-    using Api.Configuration;
-    using Queryables.Api;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Api;
+    using Api.Configuration;
+    using Queryables.Api;
 
     /// <summary>
     /// Provides mapping and mapping configuration services.
@@ -155,6 +155,17 @@
         /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
         /// </returns>
         IUnflatteningSelector<IDictionary<string, TValue>> Unflatten<TValue>(IDictionary<string, TValue> source);
+
+        /// <summary>
+        /// Unflatten the given <paramref name="queryString"/> to a specified result Type, using the default mapper.
+        /// Strings can be converted to a <see cref="QueryString"/> instance explicitly, or by using the
+        /// string.ToQueryString() extension method.
+        /// </summary>
+        /// <param name="queryString">The <see cref="QueryString"/> from which to unflatten.</param>
+        /// <returns>
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
+        /// </returns>
+        IUnflatteningSelector<QueryString> Unflatten(QueryString queryString);
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.

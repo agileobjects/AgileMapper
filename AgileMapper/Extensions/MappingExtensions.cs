@@ -125,5 +125,17 @@
         {
             return mapper.Unflatten(source);
         }
+
+        /// <summary>
+        /// Unflatten this <paramref name="queryString"/> to a specified result Type, using the default mapper.
+        /// Strings can be converted to a <see cref="QueryString"/> instance explicitly, or by using the
+        /// string.ToQueryString() extension method.
+        /// </summary>
+        /// <param name="queryString">The <see cref="QueryString"/> from which to unflatten.</param>
+        /// <returns>
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
+        /// </returns>
+        public static IUnflatteningSelector<QueryString> Unflatten(this QueryString queryString)
+            => Mapper.Default.Unflatten(queryString);
     }
 }

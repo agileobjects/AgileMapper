@@ -250,6 +250,9 @@
         IUnflatteningSelector<IDictionary<string, TValue>> IMapper.Unflatten<TValue>(IDictionary<string, TValue> source)
             => new MappingExecutor<IDictionary<string, TValue>>(source, Context);
 
+        IUnflatteningSelector<QueryString> IMapper.Unflatten(QueryString queryString)
+            => new MappingExecutor<QueryString>(queryString, Context);
+
         ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
             => new MappingExecutor<TSource>(source, Context);
 
