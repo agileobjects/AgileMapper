@@ -7,6 +7,7 @@
     using MoreTestClasses;
     using NetStandardPolyfills;
     using TestClasses;
+    using Testing;
 #if !NET35
     using Xunit;
 #else
