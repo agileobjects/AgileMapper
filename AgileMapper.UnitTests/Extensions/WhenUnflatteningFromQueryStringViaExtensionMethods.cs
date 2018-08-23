@@ -51,6 +51,16 @@
         }
 
         [Fact]
+        public void ShouldHandleAMisformattedValue()
+        {
+            var result = "Line1=NowhereLine2=&Line2&Line2=Hello".ToQueryString().Unflatten().To<Address>();
+
+            result.ShouldNotBeNull();
+            result.Line1.ShouldBe("NowhereLine2=");
+            result.Line2.ShouldBe("Hello");
+        }
+
+        [Fact]
         public void ShouldErrorIfNullStringUsed()
         {
             Should.Throw<ArgumentException>(() => default(string).ToQueryString());
