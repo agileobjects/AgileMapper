@@ -41,13 +41,19 @@
         }
 
         [Fact]
-        public void ShouldHandleAZeroLengthValue()
+        public void ShouldHandleAZeroLengthValueUsingASpecifiedMapper()
         {
-            var result = "Line1=Nowhere&Line2=".ToQueryString().Unflatten().To<Address>();
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = "Line1=Nowhere&Line2="
+                    .ToQueryString()
+                    .UnflattenUsing(mapper)
+                    .To<Address>(cfg => cfg.Map("Somewhere!").To(a => a.Line1));
 
-            result.ShouldNotBeNull();
-            result.Line1.ShouldBe("Nowhere");
-            result.Line2.ShouldBeNull();
+                result.ShouldNotBeNull();
+                result.Line1.ShouldBe("Somewhere!");
+                result.Line2.ShouldBeNull();
+            }
         }
 
         [Fact]

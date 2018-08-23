@@ -159,7 +159,11 @@
 
         #region IDictionary Members
 
-        IEnumerator<KeyValuePair<string, string>> IEnumerable<KeyValuePair<string, string>>.GetEnumerator()
+        /// <summary>
+        /// Gets the enumerator for the <see cref="QueryString"/>.
+        /// </summary>
+        /// <returns>The enumerator for the <see cref="QueryString"/>.</returns>
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
             => _keyValuePairs.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => _keyValuePairs.GetEnumerator();
@@ -167,7 +171,10 @@
         void ICollection<KeyValuePair<string, string>>.Add(KeyValuePair<string, string> item)
             => KvpCollection.Add(item);
 
-        void ICollection<KeyValuePair<string, string>>.Clear() => _keyValuePairs.Clear();
+        /// <summary>
+        /// Empties the <see cref="QueryString"/>.
+        /// </summary>
+        public void Clear() => _keyValuePairs.Clear();
 
         bool ICollection<KeyValuePair<string, string>>.Contains(KeyValuePair<string, string> item)
             => KvpCollection.Contains(item);
@@ -180,17 +187,50 @@
 
         private ICollection<KeyValuePair<string, string>> KvpCollection => _keyValuePairs;
 
-        int ICollection<KeyValuePair<string, string>>.Count => _keyValuePairs.Count;
+        /// <summary>
+        /// Gets the number of KeyValuePairs in the <see cref="QueryString"/>.
+        /// </summary>
+        public int Count => _keyValuePairs.Count;
 
         bool ICollection<KeyValuePair<string, string>>.IsReadOnly => false;
 
-        void IDictionary<string, string>.Add(string key, string value) => _keyValuePairs.Add(key, value);
+        /// <summary>
+        /// Adds a new KeyValuePair to the <see cref="QueryString"/>.
+        /// </summary>
+        /// <param name="key">The key to use in the KeyValuePair.</param>
+        /// <param name="value">The value to use in the KeyValuePair.</param>
+        public void Add(string key, string value) => _keyValuePairs.Add(key, value);
 
-        bool IDictionary<string, string>.ContainsKey(string key) => _keyValuePairs.ContainsKey(key);
+        /// <summary>
+        /// Determines whether the <see cref="QueryString"/> contains a KeyValuePair with the given <paramref name="key"/>.
+        /// </summary>
+        /// <param name="key">The key for which to make the determination.</param>
+        /// <returns>
+        /// True if the <see cref="QueryString"/> contains a KeyValuePair with the given <paramref name="key"/>, otherwise false.
+        /// </returns>
+        public bool ContainsKey(string key) => _keyValuePairs.ContainsKey(key);
 
-        bool IDictionary<string, string>.Remove(string key) => _keyValuePairs.Remove(key);
+        /// <summary>
+        /// Removes the query string KeyValuePair with the given <paramref name="key"/> from the <see cref="QueryString"/>.
+        /// </summary>
+        /// <param name="key">The key of the KeyValuePair to remove.</param>
+        /// <returns>
+        /// True if the KeyValuePair is successfully removed; otherwise, false. False is also returned if no KeyValuePair
+        /// exists in the <see cref="QueryString"/> with the given <paramref name="key"/>.
+        /// </returns>
+        public bool Remove(string key) => _keyValuePairs.Remove(key);
 
-        bool IDictionary<string, string>.TryGetValue(string key, out string value)
+        /// <summary>
+        /// Gets the value associated with the given <paramref name="key"/>.
+        /// </summary>
+        /// <param name="key">The key the value for which should be retrieved.</param>
+        /// <param name="value">
+        /// Populated with the value matching the given <paramref name="key"/> if one exists, otherwise set to null.
+        /// </param>
+        /// <returns>
+        /// True if a value exists matching the given <paramref name="key"/>, otherwise false.
+        /// </returns>
+        public bool TryGetValue(string key, out string value)
             => _keyValuePairs.TryGetValue(key, out value);
 
         /// <summary>
@@ -204,7 +244,10 @@
             set => _keyValuePairs[key] = value;
         }
 
-        ICollection<string> IDictionary<string, string>.Keys => _keyValuePairs.Keys;
+        /// <summary>
+        /// Gets the set of keys contained in the <see cref="QueryString"/>.
+        /// </summary>
+        public ICollection<string> Keys => _keyValuePairs.Keys;
 
         ICollection<string> IDictionary<string, string>.Values => _keyValuePairs.Values;
 

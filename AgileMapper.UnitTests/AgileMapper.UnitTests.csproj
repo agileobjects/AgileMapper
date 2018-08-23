@@ -136,7 +136,7 @@
     <Compile Include="Extensions\WhenFlatteningToQueryStringViaExtensionMethods.cs" />
     <Compile Include="Extensions\WhenFlatteningViaExtensionMethods.cs" />
     <Compile Include="Extensions\WhenMappingViaExtensionMethods.cs" />
-    <Compile Include="Extensions\WhenUnflatteningFromQueryStringViaExtensionMethods.cs" />
+    <Compile Include="Extensions\WhenUnflatteningFromQueryStringsViaExtensionMethods.cs" />
     <Compile Include="Extensions\WhenUnflatteningViaExtensionMethods.cs" />
     <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
     <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
@@ -233,6 +233,7 @@
     <Compile Include="Dictionaries\WhenFlatteningToDictionaries.cs" />
     <Compile Include="WhenMappingEntities.cs" />
     <Compile Include="WhenMappingToMetaMembers.cs" />
+    <Compile Include="WhenUnflatteningFromQueryStrings.cs" />
     <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
