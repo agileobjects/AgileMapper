@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
-    using System;
     using System.Collections.Generic;
 #if NET35
     using System.Linq;

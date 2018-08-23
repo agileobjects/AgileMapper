@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using Members;
 
     internal class DeclaredAndRuntimeTypesKey
     {

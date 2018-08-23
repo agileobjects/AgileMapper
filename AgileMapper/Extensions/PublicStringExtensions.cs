@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AgileObjects.AgileMapper.Extensions
+﻿namespace AgileObjects.AgileMapper.Extensions
 {
     /// <summary>
     /// Provides mapping-related extension methods for strings.

@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Extensions
 {
-    using System;
     using System.Collections.Generic;
     using AgileMapper.Extensions;
     using TestClasses;
