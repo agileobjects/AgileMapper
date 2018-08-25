@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
-    using System.Linq;
     using System.Threading.Tasks;
     using Xunit;
     using static WhenMappingCircularReferences;
@@ -81,29 +80,6 @@
             }
 
             return branch;
-        }
-
-        private static class Issue86
-        {
-            public class Branch
-            {
-
-            }
-
-            public class Product
-            {
-
-            }
-
-            public class Warehouse
-            {
-
-            }
-
-            public class WarehouseProduct
-            {
-
-            }
         }
 
         #endregion
