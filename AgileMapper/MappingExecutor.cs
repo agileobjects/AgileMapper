@@ -185,6 +185,8 @@
 
         #region IUnflatteningSelector Members
 
+        object IUnflatteningSelector<TSource>.To(Type resultType) => ToANew(resultType);
+
         TResult IUnflatteningSelector<TSource>.To<TResult>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
         {
