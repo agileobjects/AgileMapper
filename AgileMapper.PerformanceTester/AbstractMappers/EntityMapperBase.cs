@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.AbstractMappers
 {
+    using System;
     using System.Diagnostics;
     using static TestClasses.Entities;
 
@@ -163,5 +164,10 @@
         public override object Execute(Stopwatch timer) => Clone(_warehouse);
 
         protected abstract Warehouse Clone(Warehouse warehouse);
+
+        public override void Verify(object result)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

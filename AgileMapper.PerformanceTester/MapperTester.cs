@@ -15,7 +15,11 @@
 
                 var timer = Stopwatch.StartNew();
 
-                test.Execute(timer);
+                var result = test.Execute(timer);
+
+                timer.Stop();
+
+                test.Verify(result);
 
                 timer.Restart();
 

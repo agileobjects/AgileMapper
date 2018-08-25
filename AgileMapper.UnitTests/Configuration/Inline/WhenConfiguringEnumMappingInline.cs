@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

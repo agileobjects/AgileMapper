@@ -39,6 +39,13 @@
 
         public override object Execute(Stopwatch timer) => Clone(_foo);
 
+        public override void Verify(object result)
+        {
+            var cloned = (Foo)result;
+
+            //cloned.Name.Should
+        }
+
         protected abstract Foo Clone(Foo foo);
     }
 }

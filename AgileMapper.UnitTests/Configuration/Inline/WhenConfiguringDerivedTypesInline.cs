@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System.Linq;
+    using Common;
     using MoreTestClasses;
     using NetStandardPolyfills;
     using TestClasses;

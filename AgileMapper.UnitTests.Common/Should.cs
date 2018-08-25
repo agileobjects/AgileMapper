@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests
+﻿namespace AgileObjects.AgileMapper.UnitTests.Common
 {
     using System;
 #if !NET35

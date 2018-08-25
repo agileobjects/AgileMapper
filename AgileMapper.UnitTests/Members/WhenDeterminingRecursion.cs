@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Members
 {
     using AgileMapper.Members;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

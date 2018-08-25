@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using AgileMapper.Members;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

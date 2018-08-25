@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.AbstractMappers
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using static TestClasses.Deep;
@@ -33,5 +34,10 @@
         public override object Execute(Stopwatch timer) => Map(_customer);
 
         protected abstract CustomerDto Map(Customer customer);
+
+        public override void Verify(object result)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

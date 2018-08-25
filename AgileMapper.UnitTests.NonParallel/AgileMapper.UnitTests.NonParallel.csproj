@@ -84,6 +84,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj">
+      <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
+      <Name>AgileMapper.UnitTests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
       <Project>{0d045f11-1cbb-4be1-b854-d7e5d348c2fe}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>

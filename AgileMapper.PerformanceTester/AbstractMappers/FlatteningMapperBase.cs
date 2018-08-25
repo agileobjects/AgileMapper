@@ -31,5 +31,10 @@
         }
 
         protected abstract ModelDto Flatten(ModelObject model);
+
+        public override void Verify(object result)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

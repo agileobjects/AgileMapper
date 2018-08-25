@@ -2,6 +2,7 @@
 {
     using System;
     using Api.Configuration;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

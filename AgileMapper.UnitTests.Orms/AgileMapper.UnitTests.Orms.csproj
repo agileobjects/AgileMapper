@@ -160,7 +160,6 @@
     <Compile Include="TestClasses\PublicLong.cs" />
     <Compile Include="TestClasses\PublicShort.cs" />
     <Compile Include="TestClasses\PublicString.cs" />
-    <Compile Include="TestExtensions.cs" />
     <Compile Include="WhenProjectingCircularReferences.cs" />
     <Compile Include="WhenProjectingFlatTypes.cs" />
     <Compile Include="WhenProjectingToComplexTypeMembers.cs" />
@@ -178,6 +177,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" AdditionalProperties="TargetFramework=netstandard1.0">
+      <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
+      <Name>AgileMapper.UnitTests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
       <Project>{049E1EE5-48CE-441A-B166-3CF6BEC17957}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>

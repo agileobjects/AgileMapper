@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Configuration.Inline
 {
     using System.Threading.Tasks;
+    using Common;
     using Infrastructure;
     using TestClasses;
 

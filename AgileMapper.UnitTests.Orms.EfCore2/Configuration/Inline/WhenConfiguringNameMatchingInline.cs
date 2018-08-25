@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2.Configuration.Inline
 {
     using System.Threading.Tasks;
+    using Common;
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
     using Orms.Infrastructure;

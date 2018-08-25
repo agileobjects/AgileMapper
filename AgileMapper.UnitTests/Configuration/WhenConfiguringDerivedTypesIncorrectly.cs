@@ -3,6 +3,7 @@
     using System;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

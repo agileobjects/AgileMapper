@@ -23,5 +23,10 @@
         public override object Execute(Stopwatch timer) => Unflatten(_modelDto);
 
         protected abstract ModelObject Unflatten(ModelDto dto);
+
+        public override void Verify(object result)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

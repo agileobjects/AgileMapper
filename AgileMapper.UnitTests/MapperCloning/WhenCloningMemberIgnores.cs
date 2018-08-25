@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.MapperCloning
 {
     using AgileMapper.Configuration;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

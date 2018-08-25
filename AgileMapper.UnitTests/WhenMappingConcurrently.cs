@@ -2,9 +2,15 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Xunit;
+    using Common;
     using static WhenMappingCircularReferences;
+#if !NET35
+    using Xunit;
+#else
+    using Fact = NUnit.Framework.TestAttribute;
 
+    [NUnit.Framework.TestFixture]
+#endif
     public class WhenMappingConcurrently
     {
         // See https://github.com/agileobjects/AgileMapper/issues/86
@@ -16,7 +22,7 @@
                 Environment.ProcessorCount,
                 i =>
                 {
-                    (int Warehouses, int WarehouseProducts) counts = (100, 100);
+                    var counts = new Counts(100, 100);
 
                     var branch = Mapper.Map(CreateSourceBranch(counts)).ToANew<Issue77.Branch>();
 
@@ -52,7 +58,20 @@
 
         #region Helper Members
 
-        private static Issue77.Branch CreateSourceBranch((int Warehouses, int WarehouseProducts) counts)
+        private struct Counts
+        {
+            public Counts(int warehouses, int warehouseProducts)
+            {
+                Warehouses = warehouses;
+                WarehouseProducts = warehouseProducts;
+            }
+
+            public int Warehouses { get; }
+
+            public int WarehouseProducts { get; }
+        }
+
+        private static Issue77.Branch CreateSourceBranch(Counts counts)
         {
             var branch = new Issue77.Branch();
             var product = new Issue77.Product();

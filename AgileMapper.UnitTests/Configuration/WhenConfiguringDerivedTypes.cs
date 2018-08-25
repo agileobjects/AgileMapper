@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using AgileMapper.Extensions.Internal;
+    using Common;
     using MoreTestClasses;
     using NetStandardPolyfills;
     using TestClasses;

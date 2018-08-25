@@ -242,6 +242,11 @@ namespace AgileObjects.AgileMapper.Members
                 return true;
             }
 
+            if ((mapperData.TargetMember.Depth == 3) && mapperData.TargetMemberIsEnumerableElement())
+            {
+                return false;
+            }
+
             if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))
             {
                 return false;

@@ -2,6 +2,7 @@
 {
     using System.Linq;
     using System.Threading.Tasks;
+    using Common;
     using Infrastructure;
     using TestClasses;
     using static TestClasses.Animal.AnimalType;

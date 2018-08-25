@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Globalization;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

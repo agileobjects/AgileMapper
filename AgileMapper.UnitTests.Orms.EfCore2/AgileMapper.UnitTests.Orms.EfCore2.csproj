@@ -195,6 +195,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" AdditionalProperties="TargetFramework=netstandard1.0">
+      <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
+      <Name>AgileMapper.UnitTests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
       <Project>{049e1ee5-48ce-441a-b166-3cf6bec17957}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>

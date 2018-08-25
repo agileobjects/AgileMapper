@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel.Configuration
 {
     using System.Collections.Generic;
+    using Common;
     using MoreTestClasses;
     using Xunit;
     using UnitTestsMapperConfigurations = UnitTests.Configuration.WhenApplyingMapperConfigurations;

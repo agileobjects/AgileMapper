@@ -23,8 +23,12 @@
             return null;
         }
 
-        protected abstract void Reset();
-
         protected abstract void Execute();
+
+        public void Verify(object result)
+        {
+        }
+
+        protected abstract void Reset();
     }
 }

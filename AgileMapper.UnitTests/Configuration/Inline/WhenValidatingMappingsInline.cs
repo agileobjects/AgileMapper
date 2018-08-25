@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
+    using Common;
     using TestClasses;
     using Validation;
 #if !NET35

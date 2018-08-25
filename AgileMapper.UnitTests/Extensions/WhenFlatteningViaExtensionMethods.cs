@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Extensions
 {
     using AgileMapper.Extensions;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

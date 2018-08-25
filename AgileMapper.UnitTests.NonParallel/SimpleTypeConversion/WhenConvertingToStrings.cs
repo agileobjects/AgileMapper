@@ -2,6 +2,7 @@
 {
     using System;
     using System.Globalization;
+    using Common;
     using TestClasses;
     using Xunit;
 

@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel.Configuration.Inline
 {
+    using Common;
     using TestClasses;
     using Xunit;
 
