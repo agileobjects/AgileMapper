@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 
     internal class RepeatedMapperFunc<TChildSource, TChildTarget> : IRepeatedMapperFunc
     {
+        private readonly object _mappingFuncLock;
         private readonly ObjectMapperData _mapperData;
         private MapperFunc<TChildSource, TChildTarget> _repeatedMappingFunc;
 
@@ -17,6 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
         {
             if (lazyLoadFuncs)
             {
+                _mappingFuncLock = new object();
                 _mapperData = mappingData.MapperData;
                 _mapperData.IsEntryPoint = true;
                 return;
@@ -42,14 +44,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 
         private void EnsureFunc(ObjectMappingData<TChildSource, TChildTarget> mappingData)
         {
-            if (_repeatedMappingFunc == null)
+            if (_repeatedMappingFunc != null)
             {
-                lock (this)
-                {
-                    mappingData.MapperData = _mapperData;
+                return;
+            }
 
-                    CreateMapperFunc(mappingData, isLazyLoading: true);
+            lock (_mappingFuncLock)
+            {
+                if (_repeatedMappingFunc != null)
+                {
+                    return;
                 }
+
+                mappingData.MapperData = _mapperData;
+
+                CreateMapperFunc(mappingData, isLazyLoading: true);
             }
         }
 
