@@ -3,6 +3,8 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Linq;
+    using UnitTests.Common;
     using static TestClasses.Complex;
 
     internal abstract class ComplexTypeMapperBase : MapperTestBase
@@ -43,7 +45,23 @@
         {
             var cloned = (Foo)result;
 
-            //cloned.Name.Should
+            cloned.Name.ShouldBe("foo");
+            cloned.Int32.ShouldBe(12);
+            cloned.Int64.ShouldBe(123123);
+            cloned.NullableInt.ShouldBe(16);
+            cloned.DateTime.ShouldBe(_foo.DateTime);
+            cloned.Double.ShouldBe(2312112);
+
+            cloned.SubFoo.ShouldNotBeNull();
+            cloned.SubFoo.Name.ShouldBe("foo one");
+
+            cloned.Foos.Count.ShouldBe(3);
+            cloned.Foos.First().ShouldBe(3);
+
+            cloned.FooArray.Length.ShouldBe(3);
+
+            cloned.Ints.ShouldBe(7, 8, 9);
+            cloned.IntArray.ShouldBe(1, 2, 3, 4, 5);
         }
 
         protected abstract Foo Clone(Foo foo);
