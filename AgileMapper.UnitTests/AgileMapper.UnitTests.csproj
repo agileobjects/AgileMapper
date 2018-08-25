@@ -230,6 +230,7 @@
     <Compile Include="TestClasses\WeddingDto.cs" />
     <Compile Include="Dictionaries\WhenUnflatteningFromDictionaries.cs" />
     <Compile Include="Dictionaries\WhenFlatteningToDictionaries.cs" />
+    <Compile Include="WhenMappingConcurrently.cs" />
     <Compile Include="WhenMappingEntities.cs" />
     <Compile Include="WhenMappingToMetaMembers.cs" />
     <Compile Include="WhenUnflatteningFromQueryStrings.cs" />
