@@ -13,15 +13,11 @@
             {
                 test.Initialise();
 
-                var timer = Stopwatch.StartNew();
-
-                var result = test.Execute(timer);
-
-                timer.Stop();
+                var result = test.Execute(Stopwatch.StartNew());
 
                 test.Verify(result);
 
-                timer.Restart();
+                var timer = Stopwatch.StartNew();
 
                 for (var i = 0; i < test.NumberOfExecutions; i++)
                 {

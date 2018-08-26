@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTester.AbstractMappers
 {
-    using System;
     using System.Diagnostics;
+    using UnitTests.Common;
     using static TestClasses.Ctor;
 
     internal abstract class CtorMapperBase : MapperTestBase
@@ -19,7 +19,9 @@
 
         public override void Verify(object result)
         {
-            throw new NotImplementedException();
+            var ctor = (result as ConstructedObject).ShouldNotBeNull();
+
+            ctor.Value.ShouldBe(5);
         }
     }
 }

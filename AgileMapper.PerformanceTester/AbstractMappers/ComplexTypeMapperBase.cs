@@ -26,7 +26,7 @@
                 {
                     new Foo { Name = "j1", Int64 = 123, NullableInt = 321 },
                     new Foo { Name = "j2", Int32 = 12345, NullableInt = 54321 },
-                    new Foo { Name = "j3", Int32 = 12345, NullableInt = 54321 }
+                    new Foo { Name = "j3", Int32 = 54321, NullableInt = 12345 }
                 },
                 FooArray = new[]
                 {
@@ -55,10 +55,43 @@
             cloned.SubFoo.ShouldNotBeNull();
             cloned.SubFoo.Name.ShouldBe("foo one");
 
-            cloned.Foos.Count.ShouldBe(3);
-            cloned.Foos.First().ShouldBe(3);
+            var foos = cloned.Foos.ShouldNotBeEmpty();
 
-            cloned.FooArray.Length.ShouldBe(3);
+            foos.Count().ShouldBe(3);
+
+            foos.First().Name.ShouldBe("j1");
+            foos.First().Int64.ShouldBe(123);
+            foos.First().NullableInt.ShouldBe(321);
+            foos.First().Foos.ShouldBeEmpty();
+            foos.First().FooArray.ShouldBeEmpty();
+
+            foos.Second().Name.ShouldBe("j2");
+            foos.Second().Int32.ShouldBe(12345);
+            foos.Second().NullableInt.ShouldBe(54321);
+            foos.Second().Foos.ShouldBeEmpty();
+            foos.Second().FooArray.ShouldBeEmpty();
+
+            foos.Third().Name.ShouldBe("j3");
+            foos.Third().Int32.ShouldBe(54321);
+            foos.Third().NullableInt.ShouldBe(12345);
+            foos.Third().Foos.ShouldBeEmpty();
+            foos.Third().FooArray.ShouldBeEmpty();
+
+            var fooArr = cloned.FooArray.ShouldNotBeEmpty();
+
+            fooArr.Count().ShouldBe(3);
+
+            fooArr.First().Name.ShouldBe("a1");
+            fooArr.First().Foos.ShouldBeEmpty();
+            fooArr.First().FooArray.ShouldBeEmpty();
+
+            fooArr.Second().Name.ShouldBe("a2");
+            fooArr.First().Foos.ShouldBeEmpty();
+            fooArr.First().FooArray.ShouldBeEmpty();
+
+            fooArr.Third().Name.ShouldBe("a3");
+            fooArr.First().Foos.ShouldBeEmpty();
+            fooArr.First().FooArray.ShouldBeEmpty();
 
             cloned.Ints.ShouldBe(7, 8, 9);
             cloned.IntArray.ShouldBe(1, 2, 3, 4, 5);

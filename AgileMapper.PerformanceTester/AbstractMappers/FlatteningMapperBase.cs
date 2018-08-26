@@ -2,13 +2,16 @@
 {
     using System;
     using System.Diagnostics;
+    using UnitTests.Common;
     using static TestClasses.Flattening;
 
     internal abstract class FlatteningMapperBase : MapperTestBase
     {
-        public override object Execute(Stopwatch timer)
+        private readonly ModelObject _modelObject;
+
+        protected FlatteningMapperBase()
         {
-            return Flatten(new ModelObject
+            _modelObject = new ModelObject
             {
                 BaseDate = new DateTime(2007, 4, 5),
                 Sub = new ModelSubObject
@@ -27,14 +30,22 @@
                 {
                     ProperName = "Some other name"
                 },
-            });
+            };
         }
+
+        public override object Execute(Stopwatch timer) => Flatten(_modelObject);
 
         protected abstract ModelDto Flatten(ModelObject model);
 
         public override void Verify(object result)
         {
-            throw new NotImplementedException();
+            var dto = (result as ModelDto).ShouldNotBeNull();
+
+            dto.BaseDate.ShouldBe(_modelObject.BaseDate);
+            dto.SubProperName.ShouldBe("Some name");
+            dto.SubSubSubCoolProperty.ShouldBe("Cool daddy-o");
+            dto.Sub2ProperName.ShouldBe("Sub 2 name");
+            dto.SubWithExtraNameProperName.ShouldBe("Some other name");
         }
     }
 }

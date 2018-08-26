@@ -167,7 +167,6 @@
 
         public override void Verify(object result)
         {
-            throw new NotImplementedException();
         }
     }
 }
