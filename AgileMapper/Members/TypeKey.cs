@@ -35,11 +35,6 @@ namespace AgileObjects.AgileMapper.Members
             return obj.GetHashCode() == _hashCode;
         }
 
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public override int GetHashCode() => _hashCode;
 
         private enum KeyType { SourceMembers, TargetMembers, TypeId, Parameter }
