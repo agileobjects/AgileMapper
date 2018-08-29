@@ -112,14 +112,7 @@
                 return (TActual)(object)expected.ToString();
             }
 
-#if NET35
-            if (expected is IConvertible)
-            {
-                return (TActual)Convert.ChangeType(expected, typeof(TActual));
-            }
-#endif
-            throw new NotSupportedException(
-                $"Can't change a {typeof(TExpected).Name} to a {typeof(TActual).Name}");
+            return (TActual)Convert.ChangeType(expected, typeof(TActual));
         }
 
         public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, IEnumerable<T2> expectedValues)

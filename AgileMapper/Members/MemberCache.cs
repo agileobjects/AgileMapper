@@ -15,7 +15,7 @@
 
         public MemberCache(CacheSet cacheSet)
         {
-            _membersCache = cacheSet.CreateScoped<TypeKey, IList<Member>>();
+            _membersCache = cacheSet.CreateScoped<TypeKey, IList<Member>>(default(HashCodeComparer<TypeKey>));
         }
 
         public IList<Member> GetSourceMembers(Type sourceType)

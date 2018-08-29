@@ -18,6 +18,7 @@
     {
         #region Untyped MethodInfos
 
+        // TODO: Use Project instead of Select:
         public static readonly MethodInfo EnumerableSelectWithoutIndexMethod;
         private static readonly MethodInfo _enumerableSelectWithIndexMethod;
         private static readonly MethodInfo _queryableSelectMethod;
@@ -88,23 +89,29 @@
 
         public static implicit operator BlockExpression(EnumerablePopulationBuilder builder)
         {
-            var variables = new List<ParameterExpression>(2);
-
-            if (builder._sourceVariable != null)
+            if ((builder._sourceVariable == null) &&
+                (builder._collectionDataVariable == null))
             {
-                variables.Add(builder._sourceVariable);
+                return Expression.Block(builder._populationExpressions);
             }
 
-            if (builder._collectionDataVariable != null)
+            if (builder._sourceVariable == null)
             {
-                variables.Add(builder._collectionDataVariable);
+                return Expression.Block(
+                    new[] { builder._collectionDataVariable },
+                    builder._populationExpressions);
             }
 
-            var population = variables.Any()
-                ? Expression.Block(variables, builder._populationExpressions)
-                : Expression.Block(builder._populationExpressions);
+            if (builder._collectionDataVariable == null)
+            {
+                return Expression.Block(
+                    new[] { builder._sourceVariable },
+                    builder._populationExpressions);
+            }
 
-            return population;
+            return Expression.Block(
+                new[] { builder._sourceVariable, builder._collectionDataVariable },
+                builder._populationExpressions);
         }
 
         #endregion
@@ -156,7 +163,7 @@
                 return false;
             }
 
-            var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
+            var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>(default(HashCodeComparer<TypeKey>));
             var sourceElementId = GetIdentifierOrNull(Context.SourceElementType, _sourceElementParameter, MapperData, typeIdsCache);
 
             if (sourceElementId == null)
@@ -206,7 +213,7 @@
                 var identifier = mapperData
                     .MapperContext
                     .Naming
-                    .GetIdentifierOrNull(key);
+                    .GetIdentifierOrNull(key.Type);
 
                 return identifier?.GetAccess(parameter);
             });

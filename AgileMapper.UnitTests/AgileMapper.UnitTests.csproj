@@ -85,6 +85,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Caching\WhenCachingWithHashCodes.cs" />
     <Compile Include="Configuration\AssemblyScanningTestClassBase.cs" />
     <Compile Include="Configuration\Inline\InlineMappingExtensions.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringCallbacksInline.cs" />

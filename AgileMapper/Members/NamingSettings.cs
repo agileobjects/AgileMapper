@@ -17,7 +17,7 @@
 
         public NamingSettings(CacheSet mapperScopedCache)
         {
-            _idMemberCache = mapperScopedCache.CreateScoped<TypeKey, Member>();
+            _idMemberCache = mapperScopedCache.CreateScoped<TypeKey, Member>(default(HashCodeComparer<TypeKey>));
 
             _matchingNameFactories = new List<Func<Member, string>>
             {

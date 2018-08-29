@@ -11,6 +11,7 @@
     {
         private static readonly object _lookupSync = new object();
 
+        // TODO: Could use a cache instead of a List for autoCheckedTypes?
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
         private readonly List<SourceAndTargetTypesKey> _autoCheckedTypes;
 

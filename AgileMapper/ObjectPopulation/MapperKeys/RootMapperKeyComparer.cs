@@ -1,9 +1,11 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
-    using System.Collections.Generic;
+    using Caching;
 
-    internal struct RootMapperKeyComparer : IEqualityComparer<IRootMapperKey>
+    internal struct RootMapperKeyComparer : IKeyComparer<IRootMapperKey>
     {
+        public bool UseHashCodes => false;
+
         public bool Equals(IRootMapperKey x, IRootMapperKey y)
         {
             // ReSharper disable PossibleNullReferenceException

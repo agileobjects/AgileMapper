@@ -380,7 +380,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         isForDerivedTypeParameter);
 
                 return withTypesLambda.Compile();
-            });
+            },
+            default(HashCodeComparer<SourceAndTargetTypesKey>));
 
             return (IObjectMappingData)typedAsCaller.Invoke(this, isForDerivedTypeMapping);
         }

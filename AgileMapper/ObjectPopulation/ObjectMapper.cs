@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 _repeatedMappingFuncsByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRepeatedMapperFunc>();
                 MapperData.Mapper = this;
-                
+
                 CacheRepeatedMappingFuncs();
             }
         }
@@ -82,7 +82,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         lazyLoadParameter);
 
                     return mapperCreationLambda.Compile();
-                });
+                },
+                default(HashCodeComparer<SourceAndTargetTypesKey>));
 
                 var mapperFunc = mapperFuncCreator.Invoke(
                     mapperKey.MappingData,

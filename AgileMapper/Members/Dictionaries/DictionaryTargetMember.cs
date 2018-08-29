@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
     using System.Dynamic;
+    using Caching;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
@@ -113,7 +114,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                     key.DictionaryMember = null;
 
                     return member;
-                });
+                },
+                default(HashCodeComparer<DictionaryMemberKey>));
 
             var childMember = Append(targetEntryMember);
 
@@ -430,12 +432,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 var typedTargetMember = (DictionaryTargetMember)DictionaryMember.WithType(_entryDeclaringType);
 
                 return Member.DictionaryEntry(_entryKey, typedTargetMember);
-            }
-
-            public override bool Equals(object obj)
-            {
-                // ReSharper disable once PossibleNullReferenceException
-                return obj.GetHashCode() == _hashCode;
             }
 
             public override int GetHashCode() => _hashCode;

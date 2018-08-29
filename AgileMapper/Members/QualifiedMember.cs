@@ -243,7 +243,7 @@ namespace AgileObjects.AgileMapper.Members
 
         private ICache<Type, QualifiedMember> RuntimeTypedMemberCache
             => _runtimeTypedMemberCache ??
-              (_runtimeTypedMemberCache = _mapperContext.Cache.CreateNew<Type, QualifiedMember>(default(ReferenceEqualsComparer<Type>)));
+              (_runtimeTypedMemberCache = _mapperContext.Cache.CreateNew<Type, QualifiedMember>(default(HashCodeComparer<Type>)));
 
         protected virtual QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
         {
