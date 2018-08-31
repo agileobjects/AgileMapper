@@ -278,8 +278,7 @@
                 var source = new[] { new PersonViewModel(), new CustomerViewModel { Discount = 5 } };
                 var result = mapper.Map(source).ToANew<Person[]>();
 
-                var customer = result.Second() as CustomerCtor;
-                customer.ShouldNotBeNull();
+                var customer = (result.Second() as CustomerCtor).ShouldNotBeNull();
                 customer.Discount.ShouldBe(15);
                 customer.Number.ShouldBe(2);
             }

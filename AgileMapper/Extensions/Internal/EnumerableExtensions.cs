@@ -343,5 +343,107 @@
         }
 
         #endregion
+
+        public static bool TryFindIndexOf<T>(
+            this IList<int> hashCodes,
+            T item,
+            int startIndex,
+            int endIndex,
+            out int itemIndex)
+        {
+            var hashCode = item.GetHashCode();
+
+            if ((hashCode < hashCodes[0]) && (hashCode > hashCodes[endIndex - 1]))
+            {
+                itemIndex = -1;
+                return false;
+            }
+
+            var lowerBound = Math.Max(startIndex, 0);
+            var upperBound = endIndex - 1;
+
+            while (lowerBound <= upperBound)
+            {
+                itemIndex = (lowerBound + upperBound) / 2;
+
+                if (hashCodes[itemIndex] == hashCode)
+                {
+                    return true;
+                }
+
+                if (hashCodes[itemIndex] > hashCode)
+                {
+                    upperBound = itemIndex - 1;
+                }
+                else
+                {
+                    lowerBound = itemIndex + 1;
+                }
+            }
+
+            itemIndex = -1;
+            return false;
+        }
+
+        public static void StoreHashCode<T>(
+            this IList<int> hashCodes,
+            T item,
+            int count,
+            Action<int, int, bool> insertHashCodeAt)
+        {
+            var hashCode = item.GetHashCode();
+
+            if (count == 0)
+            {
+                insertHashCodeAt(0, hashCode, false);
+                return;
+            }
+
+            if (hashCodes[0] > hashCode)
+            {
+                insertHashCodeAt(0, hashCode, true);
+                return;
+            }
+
+            if (hashCodes[count - 1] < hashCode)
+            {
+                insertHashCodeAt(count, hashCode, false);
+                return;
+            }
+
+            var lowerBound = 1;
+            var upperBound = count - 2;
+
+            while (true)
+            {
+                if ((upperBound - lowerBound) <= 1)
+                {
+                    while (lowerBound <= upperBound)
+                    {
+                        if (hashCodes[lowerBound] < hashCode)
+                        {
+                            ++lowerBound;
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    insertHashCodeAt(lowerBound, hashCode, true);
+                    return;
+                }
+
+                var searchIndex = (lowerBound + upperBound) / 2;
+
+                if (hashCodes[searchIndex] > hashCode)
+                {
+                    upperBound = searchIndex - 1;
+                }
+                else
+                {
+                    lowerBound = searchIndex + 1;
+                }
+            }
+        }
     }
 }
