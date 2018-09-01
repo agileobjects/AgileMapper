@@ -6,21 +6,50 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
     using System.Reflection;
     using NetStandardPolyfills;
 
-    internal static class CollectionData
+    /// <summary>
+    /// Untyped factory class for creating <see cref="CollectionData{T, T}"/> instances.
+    /// </summary>
+    public static class CollectionData
     {
         private static readonly MethodInfo[] _createMethods = typeof(CollectionData)
             .GetPublicStaticMethods("Create")
             .ToArray();
 
-        public static readonly MethodInfo IdSameTypesCreateMethod = _createMethods[0];
-        public static readonly MethodInfo IdDifferentTypesCreateMethod = _createMethods[1];
+        internal static readonly MethodInfo IdSameTypesCreateMethod = _createMethods[0];
+        internal static readonly MethodInfo IdDifferentTypesCreateMethod = _createMethods[1];
 
+        /// <summary>
+        /// Creates a new <see cref="CollectionData{T, T}"/> instance using the given items.
+        /// </summary>
+        /// <typeparam name="T">The type of object stored in the source and target collections.</typeparam>
+        /// <typeparam name="TId">The type of the stored object's identifiers.</typeparam>
+        /// <param name="sourceItems">The collection of source items.</param>
+        /// <param name="targetItems">The collection of target items.</param>
+        /// <param name="idFactory">
+        /// A Func with which to retrieve the unique identifier of an object in the source or target collections.
+        /// </param>
+        /// <returns>A new <see cref="CollectionData{T, T}"/> instance.</returns>
         public static CollectionData<T, T> Create<T, TId>(
             IEnumerable<T> sourceItems,
             IEnumerable<T> targetItems,
             Func<T, TId> idFactory)
             => Create(sourceItems, targetItems, idFactory, idFactory);
 
+        /// <summary>
+        /// Creates a new <see cref="CollectionData{TSource, TTarget}"/> instance using the given items.
+        /// </summary>
+        /// <typeparam name="TSource">The type of object stored in the source collection.</typeparam>
+        /// <typeparam name="TTarget">The type of object stored in the target collection.</typeparam>
+        /// <typeparam name="TId">The type of the stored object's identifiers.</typeparam>
+        /// <param name="sourceItems">The collection of source items.</param>
+        /// <param name="targetItems">The collection of target items.</param>
+        /// <param name="sourceIdFactory">
+        /// A Func with which to retrieve the unique identifier of an object in the source collection.
+        /// </param>
+        /// <param name="targetIdFactory">
+        /// A Func with which to retrieve the unique identifier of an object in the target collection.
+        /// </param>
+        /// <returns>A new <see cref="CollectionData{TSource, TTarget}"/> instance.</returns>
         public static CollectionData<TSource, TTarget> Create<TSource, TTarget, TId>(
             IEnumerable<TSource> sourceItems,
             IEnumerable<TTarget> targetItems,
@@ -100,9 +129,14 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
         }
     }
 
-    internal class CollectionData<TSource, TTarget>
+    /// <summary>
+    /// Helper class for merging or updating collections.
+    /// </summary>
+    /// <typeparam name="TSource">The type of object stored in the source collection.</typeparam>
+    /// <typeparam name="TTarget">The type of object stored in the target collection.</typeparam>
+    public class CollectionData<TSource, TTarget>
     {
-        public CollectionData(
+        internal CollectionData(
             IEnumerable<TTarget> absentTargetItems,
             IEnumerable<Tuple<TSource, TTarget>> intersection,
             IEnumerable<TSource> newSourceItems)
@@ -112,10 +146,19 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
             NewSourceItems = newSourceItems;
         }
 
+        /// <summary>
+        /// Gets the items which exist in the target collection but not the source collection.
+        /// </summary>
         public IEnumerable<TTarget> AbsentTargetItems { get; }
 
+        /// <summary>
+        /// Gets the items which exist in both the source and target collections.
+        /// </summary>
         public IEnumerable<Tuple<TSource, TTarget>> Intersection { get; }
 
+        /// <summary>
+        /// Gets the items which exist in the source collection but not the target collection.
+        /// </summary>
         public IEnumerable<TSource> NewSourceItems { get; }
     }
 }

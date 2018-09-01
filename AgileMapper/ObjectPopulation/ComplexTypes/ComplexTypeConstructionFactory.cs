@@ -7,12 +7,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Caching;
     using DataSources;
     using DataSources.Finders;
+    using Extensions;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
     using NetStandardPolyfills;
 #if NET35
-    using Extensions;
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;

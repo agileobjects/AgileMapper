@@ -6,6 +6,7 @@
     using System.Text.RegularExpressions;
     using Caching;
     using Configuration;
+    using Extensions;
     using Extensions.Internal;
 
     internal class NamingSettings
