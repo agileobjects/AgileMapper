@@ -105,7 +105,15 @@
                     return;
                 }
 
-                _checkedTypes.StoreHashCode(typesKey, _checkedTypes.Count, InsertHashCode);
+                var hashCode = typesKey.GetHashCode();
+
+                _checkedTypes.GetStorageInfoFor(
+                    hashCode,
+                    _checkedTypes.Count,
+                    out var insertIndex,
+                    out var doInsert);
+
+                InsertHashCode(insertIndex, hashCode, doInsert);
 
                 if (rootSourceType == rootTargetType)
                 {
@@ -171,9 +179,9 @@
                    _checkedTypes.TryFindIndexOf(typesKey, startIndex, CheckedTypesCount, out _);
         }
 
-        private void InsertHashCode(int i, int hashCode, bool unshift)
+        private void InsertHashCode(int i, int hashCode, bool doInsert)
         {
-            if (unshift)
+            if (doInsert)
             {
                 _checkedTypes.Insert(i, hashCode);
                 return;
