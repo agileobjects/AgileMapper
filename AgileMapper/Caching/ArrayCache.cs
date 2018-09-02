@@ -165,18 +165,8 @@
             return biggerArray;
         }
 
-        private void StoreHashCode(TKey key)
-        {
-            var hashCode = key.GetHashCode();
-
-            _hashCodes.GetStorageInfoFor(
-                hashCode,
-                _length,
-                out var insertIndex,
-                out var unshift);
-
-            InsertHashCode(insertIndex, hashCode, unshift);
-        }
+        private void StoreHashCode(TKey key) 
+            => _hashCodes.StoreHashCode(key, _length, InsertHashCode);
 
         private void InsertHashCode(int i, int hashCode, bool unshift)
         {

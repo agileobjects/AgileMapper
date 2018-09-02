@@ -385,31 +385,29 @@
             return false;
         }
 
-        public static void GetStorageInfoFor(
+        public static void StoreHashCode<T>(
             this IList<int> hashCodes,
-            int hashCode,
+            T item,
             int count,
-            out int insertIndex,
-            out bool unshift)
+            Action<int, int, bool> insertHashCodeAt)
         {
+            var hashCode = item.GetHashCode();
+
             if (count == 0)
             {
-                insertIndex = 0;
-                unshift = false;
+                insertHashCodeAt(0, hashCode, false);
                 return;
             }
 
             if (hashCodes[0] > hashCode)
             {
-                insertIndex = 0;
-                unshift = true;
+                insertHashCodeAt(0, hashCode, true);
                 return;
             }
 
             if (hashCodes[count - 1] < hashCode)
             {
-                insertIndex = count;
-                unshift = false;
+                insertHashCodeAt(count, hashCode, false);
                 return;
             }
 
@@ -431,8 +429,7 @@
                         break;
                     }
 
-                    insertIndex = lowerBound;
-                    unshift = true;
+                    insertHashCodeAt(lowerBound, hashCode, true);
                     return;
                 }
 
