@@ -9,18 +9,17 @@
 
     internal class DerivedTypePairSet
     {
-        private readonly object _lookupSync = new object();
+        private static readonly object _lookupSync = new object();
+
+        // TODO: Could use a cache instead of a List for autoCheckedTypes?
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
-        private readonly List<int> _checkedTypes;
+        private readonly List<SourceAndTargetTypesKey> _autoCheckedTypes;
 
         public DerivedTypePairSet()
         {
             _typePairsByTargetType = new Dictionary<Type, List<DerivedTypePair>>();
-            _checkedTypes = new List<int>();
+            _autoCheckedTypes = new List<SourceAndTargetTypesKey>();
         }
-
-        // ReSharper disable once InconsistentlySynchronizedField
-        private int CheckedTypesCount => _checkedTypes.Count;
 
         public void Add(DerivedTypePair typePair)
         {
@@ -83,29 +82,20 @@
 
         #region Auto-Registration
 
-        // ReSharper disable InconsistentlySynchronizedField
         private void LookForDerivedTypePairs(ITypePair mapperData, MapperContext mapperContext)
         {
             var rootSourceType = GetRootType(mapperData.SourceType);
             var rootTargetType = GetRootType(mapperData.TargetType);
             var typesKey = new SourceAndTargetTypesKey(rootSourceType, rootTargetType);
 
-            var currentTypeCount = CheckedTypesCount;
-
-            if (TypesChecked(typesKey, 0))
-            {
-                return;
-            }
-
             lock (_lookupSync)
             {
-                if ((CheckedTypesCount > currentTypeCount) &&
-                     TypesChecked(typesKey, startIndex: currentTypeCount))
+                if (_autoCheckedTypes.Contains(typesKey))
                 {
                     return;
                 }
 
-                _checkedTypes.StoreHashCode(typesKey, _checkedTypes.Count, InsertHashCode);
+                _autoCheckedTypes.Add(typesKey);
 
                 if (rootSourceType == rootTargetType)
                 {
@@ -164,25 +154,6 @@
                 }
             }
         }
-
-        private bool TypesChecked(SourceAndTargetTypesKey typesKey, int startIndex)
-        {
-            return (CheckedTypesCount > 0) &&
-                   _checkedTypes.TryFindIndexOf(typesKey, startIndex, CheckedTypesCount, out _);
-        }
-
-        private void InsertHashCode(int i, int hashCode, bool unshift)
-        {
-            if (unshift)
-            {
-                _checkedTypes.Insert(i, hashCode);
-                return;
-            }
-
-            _checkedTypes.Add(hashCode);
-        }
-
-        // ReSharper restore InconsistentlySynchronizedField
 
         private void AddSameRootTypePairs(Type rootType, MapperContext mapperContext)
         {
@@ -313,7 +284,7 @@
 
             lock (_lookupSync)
             {
-                derivedTypes._checkedTypes.AddRange(_checkedTypes);
+                derivedTypes._autoCheckedTypes.AddRange(_autoCheckedTypes);
             }
         }
     }

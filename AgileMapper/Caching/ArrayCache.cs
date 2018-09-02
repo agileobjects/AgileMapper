@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Extensions.Internal;
 
     internal interface IKeyComparer<TKey> : IEqualityComparer<TKey>
     {
@@ -122,14 +121,42 @@
 
         private bool TryGetValueFromHashCode(TKey key, int startIndex, out TValue value)
         {
-            if (_hashCodes.TryFindIndexOf(key, startIndex, _length, out var keyIndex))
+            var hashCode = key.GetHashCode();
+
+            if ((hashCode < _hashCodes[0]) && (hashCode > _hashCodes[_length - 1]))
             {
-                value = _values[_keyIndexes[keyIndex]];
-                return true;
+                return NotFound(out value);
             }
 
-            value = default(TValue);
-            return false;
+            var lowerBound = Math.Max(startIndex, 0);
+            var upperBound = _length - 1;
+
+            while (lowerBound <= upperBound)
+            {
+                var searchIndex = (lowerBound + upperBound) / 2;
+
+                if (_hashCodes[searchIndex] == hashCode)
+                {
+                    return Found(searchIndex, out value);
+                }
+
+                if (_hashCodes[searchIndex] > hashCode)
+                {
+                    upperBound = searchIndex - 1;
+                }
+                else
+                {
+                    lowerBound = searchIndex + 1;
+                }
+            }
+
+            return NotFound(out value);
+        }
+
+        private bool Found(int index, out TValue value)
+        {
+            value = _values[_keyIndexes[index]];
+            return true;
         }
 
         private void EnsureCapacity()
@@ -165,10 +192,64 @@
             return biggerArray;
         }
 
-        private void StoreHashCode(TKey key) 
-            => _hashCodes.StoreHashCode(key, _length, InsertHashCode);
+        private void StoreHashCode(TKey key)
+        {
+            var hashCode = key.GetHashCode();
 
-        private void InsertHashCode(int i, int hashCode, bool unshift)
+            if (_length == 0)
+            {
+                InsertHashCodeAt(0, hashCode, unshift: false);
+                return;
+            }
+
+            if (_hashCodes[0] > hashCode)
+            {
+                InsertHashCodeAt(0, hashCode);
+                return;
+            }
+
+            if (_hashCodes[_length - 1] < hashCode)
+            {
+                InsertHashCodeAt(_length, hashCode, unshift: false);
+                return;
+            }
+
+            var lowerBound = 1;
+            var upperBound = _length - 2;
+
+            while (true)
+            {
+                if ((upperBound - lowerBound) <= 1)
+                {
+                    while (lowerBound <= upperBound)
+                    {
+                        if (_hashCodes[lowerBound] < hashCode)
+                        {
+                            ++lowerBound;
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    InsertHashCodeAt(lowerBound, hashCode);
+                    return;
+                }
+
+                var searchIndex = (lowerBound + upperBound) / 2;
+
+                if (_hashCodes[searchIndex] > hashCode)
+                {
+                    upperBound = searchIndex - 1;
+                }
+                else
+                {
+                    lowerBound = searchIndex + 1;
+                }
+            }
+        }
+
+        private void InsertHashCodeAt(int i, int hashCode, bool unshift = true)
         {
             if (unshift)
             {

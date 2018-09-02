@@ -21,6 +21,17 @@ namespace AgileObjects.AgileMapper
 
         public Type TargetType { get; }
 
+        public override bool Equals(object obj)
+        {
+            // ReSharper disable once PossibleNullReferenceException
+            return obj.GetHashCode() == _hashCode;
+        }
+
+        #region ExcludeFromCodeCoverage
+#if DEBUG
+        [ExcludeFromCodeCoverage]
+#endif
+        #endregion
         public override int GetHashCode() => _hashCode;
     }
 }
