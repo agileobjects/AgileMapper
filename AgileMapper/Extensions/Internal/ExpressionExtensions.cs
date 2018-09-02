@@ -217,13 +217,6 @@
             return Expression.Convert(expression, targetType);
         }
 
-        public static bool IsProjectCall(this MethodCallExpression call)
-        {
-            return call.Method.IsStatic && call.Method.IsGenericMethod && ReferenceEquals(
-                call.Method.GetGenericMethodDefinition(),
-                EnumerablePopulationBuilder.ProjectWithoutIndexMethod);
-        }
-
         public static Expression WithOrderingLinqCall(
             this Expression enumerable,
             string orderingMethodName,

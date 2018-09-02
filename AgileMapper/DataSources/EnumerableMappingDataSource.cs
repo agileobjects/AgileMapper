@@ -66,7 +66,8 @@
             var sourceEnumerable = GetForwardLinkSelection(
                 orderedLinks,
                 linkParameter,
-                forwardLink);
+                forwardLink,
+                mapperData);
 
             return sourceEnumerable;
         }
@@ -113,10 +114,10 @@
             return false;
         }
 
-        private static Expression GetForwardLinkSelection(
-            Expression sourceEnumerable,
+        private static Expression GetForwardLinkSelection(Expression sourceEnumerable,
             ParameterExpression linkParameter,
-            Member forwardLink)
+            Member forwardLink,
+            IMemberMapperData mapperData)
         {
             var funcTypes = new[] { linkParameter.Type, forwardLink.Type };
             var forwardLinkAccess = forwardLink.GetAccess(linkParameter);
@@ -128,7 +129,7 @@
 
             return Expression.Call(
                 EnumerablePopulationBuilder
-                    .ProjectWithoutIndexMethod
+                    .GetProjectionMethodFor(mapperData)
                     .MakeGenericMethod(funcTypes),
                 sourceEnumerable,
                 forwardLinkLambda);

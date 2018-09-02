@@ -19,6 +19,7 @@
     {
         #region Untyped MethodInfos
 
+        public static readonly MethodInfo EnumerableSelectWithoutIndexMethod;
         public static readonly MethodInfo ProjectWithoutIndexMethod;
         private static readonly MethodInfo _projectWithIndexMethod;
         private static readonly MethodInfo _queryableSelectMethod;
@@ -60,8 +61,24 @@
             ProjectWithoutIndexMethod = projectMethods.First();
             _projectWithIndexMethod = projectMethods.Last();
 
-            _queryableSelectMethod = typeof(Queryable)
+            EnumerableSelectWithoutIndexMethod = typeof(Enumerable)
                 .GetPublicStaticMethods(nameof(Enumerable.Select))
+                .Project(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters()
+                })
+                .Filter(m => m.Parameters.Length == 2)
+                .Project(m => new
+                {
+                    m.Method,
+                    ProjectionLambdaParameterCount = m.Parameters[1].ParameterType.GetGenericTypeArguments().Length
+                })
+                .First(m => m.ProjectionLambdaParameterCount == 2)
+                .Method;
+
+            _queryableSelectMethod = typeof(Queryable)
+                .GetPublicStaticMethods(nameof(Queryable.Select))
                 .First(m =>
                     (m.GetParameters().Length == 2) &&
                     (m.GetParameters()[1].ParameterType.GetGenericTypeArguments()[0].GetGenericTypeArguments().Length == 2));
@@ -101,6 +118,30 @@
         }
 
         #endregion
+
+        public static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData)
+        {
+            var counterRequired = false;
+
+            return GetProjectionMethodFor(mapperData, ref counterRequired);
+        }
+
+        private static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData, ref bool counterRequired)
+        {
+            if (mapperData.SourceType.IsQueryable())
+            {
+                counterRequired = false;
+                return _queryableSelectMethod;
+            }
+
+            if (mapperData.Context.IsPartOfQueryableMapping())
+            {
+                counterRequired = false;
+                return EnumerableSelectWithoutIndexMethod;
+            }
+
+            return counterRequired ? _projectWithIndexMethod : ProjectWithoutIndexMethod;
+        }
 
         public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
 
@@ -583,18 +624,7 @@
             Func<Expression, Expression, Expression> projectionLambdaFactory,
             bool counterRequired)
         {
-            var isRootQueryableMapping = MapperData.SourceType.IsQueryable();
-
-            if (isRootQueryableMapping || MapperData.Context.IsPartOfQueryableMapping())
-            {
-                counterRequired = false;
-            }
-
-            var linqSelectOverload = isRootQueryableMapping
-                ? _queryableSelectMethod
-                : counterRequired
-                    ? _projectWithIndexMethod
-                    : ProjectWithoutIndexMethod;
+            var projectionMethod = GetProjectionMethodFor(MapperData, ref counterRequired);
 
             ParameterExpression[] projectionLambdaParameters;
             Type[] funcTypes;
@@ -617,7 +647,7 @@
                 projectionLambdaFactory.Invoke(_sourceElementParameter, Counter),
                 projectionLambdaParameters);
 
-            var typedSelectMethod = linqSelectOverload.MakeGenericMethod(Context.ElementTypes);
+            var typedSelectMethod = projectionMethod.MakeGenericMethod(Context.ElementTypes);
             var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionLambda);
 
             return typedSelectCall;
