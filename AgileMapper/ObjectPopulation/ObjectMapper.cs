@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Caching;
     using MapperKeys;
     using NetStandardPolyfills;
@@ -115,17 +116,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            for (var i = 0; i < _subMappersByKey.Count; i++)
-            {
-                var subMapperByKey = _subMappersByKey[i];
-
-                if (!subMapperByKey.Value.IsStaticallyCacheable())
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return _subMappersByKey.Values.All(subMapperByKey => subMapperByKey.IsStaticallyCacheable());
         }
 
         public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);

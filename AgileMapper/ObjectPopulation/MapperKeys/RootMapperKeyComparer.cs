@@ -12,12 +12,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
             return ReferenceEquals(x.RuleSet, y.RuleSet) && x.Equals(y);
             // ReSharper restore PossibleNullReferenceException
         }
-
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
-        public int GetHashCode(IRootMapperKey obj) => 0;
     }
 }

@@ -1,9 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Caching
 {
-    using System.Collections.Generic;
-
-    internal interface IKeyComparer<TKey> : IEqualityComparer<TKey>
+    internal interface IKeyComparer<in TKey>
     {
         bool UseHashCodes { get; }
+
+        bool Equals(TKey x, TKey y);
     }
 }

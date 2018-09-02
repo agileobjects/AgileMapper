@@ -61,7 +61,7 @@
             return new ExpressionReplacer(
                     target,
                     replacement,
-                    comparer ?? default(HashCodeComparer<Expression>))
+                    comparer ?? default(ReferenceEqualsComparer<Expression>))
                 .Replace<TExpression>(expression);
         }
 

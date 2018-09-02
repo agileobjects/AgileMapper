@@ -34,9 +34,6 @@
             }
         }
 
-        KeyValuePair<TKey, TValue> ICache<TKey, TValue>.this[int index]
-            => new KeyValuePair<TKey, TValue>(_keys[index], _values[index]);
-
         int ICache<TKey, TValue>.Count => _length;
 
         private bool UseHashCodes => _keyComparer.UseHashCodes;
@@ -45,7 +42,7 @@
         {
             get
             {
-                for (var i = 0; i < _length; i++)
+                for (var i = 0; i < _length; ++i)
                 {
                     yield return _values[i];
                 }
