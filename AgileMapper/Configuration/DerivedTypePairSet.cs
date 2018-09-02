@@ -12,15 +12,17 @@
     {
         private static readonly object _lookupSync = new object();
 
-        // TODO: Could use a cache instead of a List for autoCheckedTypes?
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
-        private readonly List<SourceAndTargetTypesKey> _autoCheckedTypes;
+        private readonly List<SourceAndTargetTypesKey> _checkedTypes;
 
         public DerivedTypePairSet()
         {
             _typePairsByTargetType = new Dictionary<Type, List<DerivedTypePair>>();
-            _autoCheckedTypes = new List<SourceAndTargetTypesKey>();
+            _checkedTypes = new List<SourceAndTargetTypesKey>();
         }
+
+        // ReSharper disable once InconsistentlySynchronizedField
+        private int CheckedTypesCount => _checkedTypes.Count;
 
         public void Add(DerivedTypePair typePair)
         {
@@ -88,15 +90,22 @@
             var rootSourceType = GetRootType(mapperData.SourceType);
             var rootTargetType = GetRootType(mapperData.TargetType);
             var typesKey = new SourceAndTargetTypesKey(rootSourceType, rootTargetType);
+            var currentTypeCount = CheckedTypesCount;
+
+            // ReSharper disable once InconsistentlySynchronizedField
+            if (TypesChecked(typesKey, 0))
+            {
+                return;
+            }
 
             lock (_lookupSync)
             {
-                if (_autoCheckedTypes.Contains(typesKey))
+                if ((CheckedTypesCount > currentTypeCount) && TypesChecked(typesKey, startIndex: currentTypeCount))
                 {
                     return;
                 }
 
-                _autoCheckedTypes.Add(typesKey);
+                Store(typesKey);
 
                 if (rootSourceType == rootTargetType)
                 {
@@ -155,6 +164,111 @@
                 }
             }
         }
+
+        // ReSharper disable InconsistentlySynchronizedField
+        private bool TypesChecked(SourceAndTargetTypesKey typesKey, int startIndex)
+        {
+            if (CheckedTypesCount == 0)
+            {
+                return false;
+            }
+
+            if ((typesKey < _checkedTypes[0]) && (typesKey > _checkedTypes[CheckedTypesCount - 1]))
+            {
+                return false;
+            }
+
+            var lowerBound = Math.Max(startIndex, 0);
+            var upperBound = CheckedTypesCount - 1;
+
+            while (lowerBound <= upperBound)
+            {
+                var searchIndex = (lowerBound + upperBound) / 2;
+
+                if (_checkedTypes[searchIndex].Equals(typesKey))
+                {
+                    return true;
+                }
+
+                if (_checkedTypes[searchIndex] > typesKey)
+                {
+                    upperBound = searchIndex - 1;
+                }
+                else
+                {
+                    lowerBound = searchIndex + 1;
+                }
+            }
+
+            return false;
+        }
+
+        private void Store(SourceAndTargetTypesKey typesKey)
+        {
+            if (CheckedTypesCount == 0)
+            {
+                StoreKeyAt(0, typesKey, insert: false);
+                return;
+            }
+
+            if (typesKey < _checkedTypes[0])
+            {
+                StoreKeyAt(0, typesKey, insert: true);
+                return;
+            }
+
+            if (typesKey > _checkedTypes[CheckedTypesCount - 1])
+            {
+                StoreKeyAt(CheckedTypesCount, typesKey, insert: false);
+                return;
+            }
+
+            var lowerBound = 1;
+            var upperBound = CheckedTypesCount - 2;
+
+            while (true)
+            {
+                if ((upperBound - lowerBound) <= 1)
+                {
+                    while (lowerBound <= upperBound)
+                    {
+                        if (_checkedTypes[lowerBound] < typesKey)
+                        {
+                            ++lowerBound;
+                            continue;
+                        }
+
+                        break;
+                    }
+
+                    StoreKeyAt(lowerBound, typesKey, insert: true);
+                    return;
+                }
+
+                var searchIndex = (lowerBound + upperBound) / 2;
+
+                if (_checkedTypes[searchIndex] > typesKey)
+                {
+                    upperBound = searchIndex - 1;
+                }
+                else
+                {
+                    lowerBound = searchIndex + 1;
+                }
+            }
+        }
+
+        private void StoreKeyAt(int i, SourceAndTargetTypesKey typesKey, bool insert)
+        {
+            if (insert)
+            {
+                _checkedTypes.Insert(i, typesKey);
+                return;
+            }
+
+            _checkedTypes.Add(typesKey);
+        }
+        // ReSharper restore InconsistentlySynchronizedField
 
         private void AddSameRootTypePairs(Type rootType, MapperContext mapperContext)
         {
@@ -285,7 +399,7 @@
 
             lock (_lookupSync)
             {
-                derivedTypes._autoCheckedTypes.AddRange(_autoCheckedTypes);
+                derivedTypes._checkedTypes.AddRange(_checkedTypes);
             }
         }
     }
