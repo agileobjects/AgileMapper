@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using DataSources;
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions;

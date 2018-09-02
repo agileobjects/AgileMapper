@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
@@ -26,6 +27,10 @@ namespace AgileObjects.AgileMapper.DataSources
 
         private static readonly MethodInfo _stringStartsWithMethod = typeof(string)
             .GetPublicInstanceMethod("StartsWith", typeof(string), typeof(StringComparison));
+
+        public static readonly MethodInfo EnumerableNoneMethod = typeof(PublicEnumerableExtensions)
+            .GetPublicStaticMethod("None")
+            .MakeGenericMethod(typeof(string));
 
         #endregion
 
@@ -136,7 +141,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 targetMemberKey,
                 GetKeyStartsWithIgnoreCaseCall,
                 (keyParameter, targetKey) => GetKeyStartsWithCall(keyParameter, targetKey, StringComparison.Ordinal),
-                EnumerableExtensions.EnumerableNoneMethod);
+                EnumerableNoneMethod);
 
             return noKeysStartWithTarget;
         }

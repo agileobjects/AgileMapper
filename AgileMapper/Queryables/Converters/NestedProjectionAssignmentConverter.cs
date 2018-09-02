@@ -30,7 +30,7 @@
         {
             return modifier.Settings.SupportsEnumerableMaterialisation &&
                   (assignment.Expression.NodeType == ExpressionType.Call) &&
-                 ((MethodCallExpression)assignment.Expression).IsLinqSelectCall();
+                 ((MethodCallExpression)assignment.Expression).IsProjectCall();
         }
 
         private static MemberAssignment ConvertToMaterialisation(

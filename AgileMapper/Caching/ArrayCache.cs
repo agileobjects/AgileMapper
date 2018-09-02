@@ -3,11 +3,6 @@
     using System;
     using System.Collections.Generic;
 
-    internal interface IKeyComparer<TKey> : IEqualityComparer<TKey>
-    {
-        bool UseHashCodes { get; }
-    }
-
     internal class ArrayCache<TKey, TValue> : ICache<TKey, TValue>
     {
         private const int DefaultCapacity = 10;
@@ -25,11 +20,18 @@
         {
             _capacity = DefaultCapacity;
             _length = 0;
-            _hashCodes = new int[DefaultCapacity];
-            _keyIndexes = new int[DefaultCapacity];
-            _keys = new TKey[DefaultCapacity];
-            _values = new TValue[DefaultCapacity];
             _keyComparer = keyComparer ?? default(DefaultComparer<TKey>);
+            _values = new TValue[DefaultCapacity];
+
+            if (UseHashCodes)
+            {
+                _hashCodes = new int[DefaultCapacity];
+                _keyIndexes = new int[DefaultCapacity];
+            }
+            else
+            {
+                _keys = new TKey[DefaultCapacity];
+            }
         }
 
         KeyValuePair<TKey, TValue> ICache<TKey, TValue>.this[int index]
@@ -137,7 +139,8 @@
 
                 if (_hashCodes[searchIndex] == hashCode)
                 {
-                    return Found(searchIndex, out value);
+                    value = _values[_keyIndexes[searchIndex]];
+                    return true;
                 }
 
                 if (_hashCodes[searchIndex] > hashCode)
@@ -151,12 +154,6 @@
             }
 
             return NotFound(out value);
-        }
-
-        private bool Found(int index, out TValue value)
-        {
-            value = _values[_keyIndexes[index]];
-            return true;
         }
 
         private void EnsureCapacity()

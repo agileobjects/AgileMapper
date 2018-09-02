@@ -2,6 +2,7 @@
 {
     using System;
     using System.Linq;
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
