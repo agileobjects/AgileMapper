@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
     using System;
     using System.Linq;
-    using Extensions;
     using Extensions.Internal;
     using Members;
 #if NET35

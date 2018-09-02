@@ -5,7 +5,6 @@
     using System.Text;
     using Configuration;
     using DataSources;
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;

@@ -5,7 +5,6 @@
     using System.Linq;
     using DataSources;
     using Dictionaries;
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;

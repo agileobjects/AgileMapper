@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
@@ -382,15 +381,12 @@ namespace AgileObjects.AgileMapper.Members
 
                     case "Select":
                     case "SelectMany":
-                    case "Project":
-                    case "Filter":
-                    case "Where":
                     case "OrderBy":
                     case "OrderByDescending":
                     case "ToList":
                     case "ToArray":
-                        return (method.DeclaringType == typeof(Enumerable)) ||
-                               (method.DeclaringType == typeof(PublicEnumerableExtensions));
+                    case "Where":
+                        return method.DeclaringType == typeof(Enumerable);
 
                     default:
                         return false;

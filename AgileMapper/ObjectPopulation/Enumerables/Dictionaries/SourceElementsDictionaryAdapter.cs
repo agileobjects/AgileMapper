@@ -68,8 +68,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
             var filteredEntries = Expression.Call(linqWhereMethod, dictionaryAccess, keyMatchesLambda);
 
-            var projectMethod = EnumerablePopulationBuilder
-                .ProjectWithoutIndexMethod
+            var linqSelectMethod = EnumerablePopulationBuilder
+                .EnumerableSelectWithoutIndexMethod
                 .MakeGenericMethod(kvpType, SourceMember.ValueType);
 
             var kvpValueLambda = Expression.Lambda(
@@ -77,7 +77,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
                 Expression.Property(kvpParameter, "Value"),
                 kvpParameter);
 
-            var filteredValues = Expression.Call(projectMethod, filteredEntries, kvpValueLambda);
+            var filteredValues = Expression.Call(linqSelectMethod, filteredEntries, kvpValueLambda);
 
             return filteredValues;
         }

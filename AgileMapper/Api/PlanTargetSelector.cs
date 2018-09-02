@@ -6,7 +6,6 @@
     using System.Linq.Expressions;
     using AgileMapper.Configuration.Inline;
     using Configuration;
-    using Extensions;
     using ObjectPopulation;
     using Extensions.Internal;
     using Plans;

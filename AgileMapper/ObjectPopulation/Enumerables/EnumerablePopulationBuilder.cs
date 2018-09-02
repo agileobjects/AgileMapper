@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Reflection;
     using Caching;
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -19,8 +18,9 @@
     {
         #region Untyped MethodInfos
 
-        public static readonly MethodInfo ProjectWithoutIndexMethod;
-        private static readonly MethodInfo _projectWithIndexMethod;
+        // TODO: Use Project instead of Select:
+        public static readonly MethodInfo EnumerableSelectWithoutIndexMethod;
+        private static readonly MethodInfo _enumerableSelectWithIndexMethod;
         private static readonly MethodInfo _queryableSelectMethod;
         private static readonly MethodInfo _forEachMethod;
         private static readonly MethodInfo _forEachTupleMethod;
@@ -53,12 +53,26 @@
 
         static EnumerablePopulationBuilder()
         {
-            var projectMethods = typeof(PublicEnumerableExtensions)
-                .GetPublicStaticMethods("Project")
+            var linqSelectMethods = typeof(Enumerable)
+                .GetPublicStaticMethods(nameof(Enumerable.Select))
+                .Project(m => new
+                {
+                    Method = m,
+                    Parameters = m.GetParameters()
+                })
+                .Filter(m => m.Parameters.Length == 2)
+                .Project(m => new
+                {
+                    m.Method,
+                    ProjectionLambdaParameterCount = m.Parameters[1].ParameterType.GetGenericTypeArguments().Length
+                })
                 .ToArray();
 
-            ProjectWithoutIndexMethod = projectMethods.First();
-            _projectWithIndexMethod = projectMethods.Last();
+            EnumerableSelectWithoutIndexMethod = linqSelectMethods
+                .First(m => m.ProjectionLambdaParameterCount == 2).Method;
+
+            _enumerableSelectWithIndexMethod = linqSelectMethods
+                .First(m => m.ProjectionLambdaParameterCount == 3).Method;
 
             _queryableSelectMethod = typeof(Queryable)
                 .GetPublicStaticMethods(nameof(Enumerable.Select))
@@ -66,7 +80,7 @@
                     (m.GetParameters().Length == 2) &&
                     (m.GetParameters()[1].ParameterType.GetGenericTypeArguments()[0].GetGenericTypeArguments().Length == 2));
 
-            var forEachMethods = typeof(PublicEnumerableExtensions).GetPublicStaticMethods("ForEach").ToArray();
+            var forEachMethods = typeof(EnumerableExtensions).GetPublicStaticMethods("ForEach").ToArray();
             _forEachMethod = forEachMethods.First();
             _forEachTupleMethod = forEachMethods.Last();
         }
@@ -593,8 +607,8 @@
             var linqSelectOverload = isRootQueryableMapping
                 ? _queryableSelectMethod
                 : counterRequired
-                    ? _projectWithIndexMethod
-                    : ProjectWithoutIndexMethod;
+                    ? _enumerableSelectWithIndexMethod
+                    : EnumerableSelectWithoutIndexMethod;
 
             ParameterExpression[] projectionLambdaParameters;
             Type[] funcTypes;
@@ -769,7 +783,7 @@
 
             public SourceItemsSelector ExcludingTargetItems()
             {
-                var excludeMethod = typeof(PublicEnumerableExtensions)
+                var excludeMethod = typeof(EnumerableExtensions)
                     .GetPublicStaticMethod("Exclude")
                     .MakeGenericMethod(_builder.Context.TargetElementType);
 

@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;

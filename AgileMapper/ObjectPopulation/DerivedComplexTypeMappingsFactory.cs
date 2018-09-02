@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using Configuration;
-    using Extensions;
     using Extensions.Internal;
     using Members;
 #if NET35

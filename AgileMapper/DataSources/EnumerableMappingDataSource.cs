@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -128,7 +127,7 @@
 
             return Expression.Call(
                 EnumerablePopulationBuilder
-                    .ProjectWithoutIndexMethod
+                    .EnumerableSelectWithoutIndexMethod
                     .MakeGenericMethod(funcTypes),
                 sourceEnumerable,
                 forwardLinkLambda);

@@ -14,6 +14,11 @@
 
     internal static class EnumerableExtensions
     {
+        public static readonly MethodInfo EnumerableNoneMethod = typeof(EnumerableExtensions)
+            .GetPublicStaticMethods("None")
+            .First(m => m.GetParameters().Length == 2)
+            .MakeGenericMethod(typeof(string));
+
         public static void AddUnlessNullOrEmpty(this ICollection<Expression> items, Expression item)
         {
             if ((item != null) && (item != Constants.EmptyExpression))
@@ -22,20 +27,40 @@
             }
         }
 
+        public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, TResult> projector)
+        {
+            foreach (var item in items)
+            {
+                yield return projector.Invoke(item);
+            }
+        }
+
+        public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, int, TResult> projector)
+        {
+            var index = 0;
+
+            foreach (var item in items)
+            {
+                yield return projector.Invoke(item, index++);
+            }
+        }
+
+        public static IEnumerable<TItem> Filter<TItem>(this IEnumerable<TItem> items, Func<TItem, bool> predicate)
+        {
+            foreach (var item in items)
+            {
+                if (predicate.Invoke(item))
+                {
+                    yield return item;
+                }
+            }
+        }
+
 #if NET35
         public static void AddRange<TContained, TItem>(this List<TContained> items, IEnumerable<TItem> newItems)
             where TItem : TContained
         {
-            var itemsToAdd = newItems.ToArray();
-
-            var requiredCapacity = items.Count + itemsToAdd.Length;
-
-            if (items.Capacity < requiredCapacity)
-            {
-                items.Capacity = requiredCapacity + 3;
-            }
-
-            foreach (var newItem in itemsToAdd)
+            foreach (var newItem in newItems)
             {
                 items.Add(newItem);
             }
@@ -88,6 +113,10 @@
 
         [DebuggerStepThrough]
         public static bool None<T>(this IEnumerable<T> items) => !items.GetEnumerator().MoveNext();
+
+        // Used in Dictionary mapping via EnumerableNoneMethod
+        public static bool None<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+            => items.All(item => !predicate.Invoke(item));
 
         public static bool None<T>(this IList<T> items, Func<T, bool> predicate)
         {
@@ -165,6 +194,15 @@
                     itemValueFactory.Invoke);
         }
 
+        public static T[] ToArray<T>(this IList<T> items)
+        {
+            var array = new T[items.Count];
+
+            array.CopyFrom(items);
+
+            return array;
+        }
+
         public static void CopyTo<T>(this IList<T> sourceList, List<T> targetList, int startIndex = 0)
             => targetList.AddRange(sourceList);
 
@@ -174,6 +212,15 @@
             {
                 targetList[i + startIndex] = sourceList[i];
             }
+        }
+
+        public static T[] ToArray<T>(this ICollection<T> items)
+        {
+            var array = new T[items.Count];
+
+            items.CopyTo(array, 0);
+
+            return array;
         }
 
         [DebuggerStepThrough]
@@ -226,6 +273,76 @@
 
             return combinedArray;
         }
+
+        public static IEnumerable<T> Exclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
+            => (excludedItems != null) ? items.StreamExclude(excludedItems) : items;
+
+        private static IEnumerable<T> StreamExclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
+        {
+            Dictionary<T, int> excludedItemCountsByItem = null;
+
+            foreach (var item in items)
+            {
+                if (excludedItemCountsByItem == null)
+                {
+                    excludedItemCountsByItem = GetCountsByItem(excludedItems);
+                }
+
+                if (excludedItemCountsByItem.TryGetValue(item, out var count) && (count > 0))
+                {
+                    excludedItemCountsByItem[item] = count - 1;
+                    continue;
+                }
+
+                yield return item;
+            }
+        }
+
+        private static Dictionary<T, int> GetCountsByItem<T>(IEnumerable<T> items)
+        {
+            var itemCountsByItem = new Dictionary<T, int>();
+
+            foreach (var item in items)
+            {
+                if (item == null)
+                {
+                    continue;
+                }
+
+                if (itemCountsByItem.TryGetValue(item, out var count))
+                {
+                    itemCountsByItem[item] = count + 1;
+                }
+                else
+                {
+                    itemCountsByItem.Add(item, 1);
+                }
+            }
+
+            return itemCountsByItem;
+        }
+
+        #region ForEach Overloads
+
+        public static void ForEach<T>(this IEnumerable<T> items, Action<T> itemAction)
+        {
+            foreach (var item in items)
+            {
+                itemAction.Invoke(item);
+            }
+        }
+
+        public static void ForEach<T1, T2>(this IEnumerable<Tuple<T1, T2>> items, Action<T1, T2, int> itemAction)
+        {
+            var i = 0;
+
+            foreach (var tuple in items)
+            {
+                itemAction.Invoke(tuple.Item1, tuple.Item2, i++);
+            }
+        }
+
+        #endregion
 
         public static bool TryFindIndexOf<T>(
             this IList<int> hashCodes,

@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
-    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;

@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Extensions;
     using Extensions.Internal;
     using ObjectPopulation;
 
