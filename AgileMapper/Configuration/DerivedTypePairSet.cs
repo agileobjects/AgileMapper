@@ -173,7 +173,7 @@
                 return false;
             }
 
-            if ((typesKey < _checkedTypes[0]) && (typesKey > _checkedTypes[CheckedTypesCount - 1]))
+            if ((typesKey < _checkedTypes[0]) && (typesKey > _checkedTypes.Last()))
             {
                 return false;
             }
@@ -217,7 +217,7 @@
                 return;
             }
 
-            if (typesKey > _checkedTypes[CheckedTypesCount - 1])
+            if (typesKey > _checkedTypes.Last())
             {
                 StoreKeyAt(CheckedTypesCount, typesKey, insert: false);
                 return;

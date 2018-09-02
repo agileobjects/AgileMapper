@@ -25,6 +25,8 @@ namespace AgileObjects.AgileMapper
 
         public Type TargetType { get; }
 
+        public bool Equals(SourceAndTargetTypesKey other) => other._hashCode == _hashCode;
+
         public override bool Equals(object obj)
         {
             // ReSharper disable once PossibleNullReferenceException
