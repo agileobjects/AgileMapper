@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Caching
 {
     using System;
-    using System.Collections.Generic;
 
     internal class CacheSet
     {
@@ -9,13 +8,18 @@
 
         public CacheSet()
         {
-            _cachesByType = CreateNew<Type, ICache>(default(ReferenceEqualsComparer<Type>));
+            _cachesByType = CreateNew<Type, ICache>(default(HashCodeComparer<Type>));
         }
 
-        public TValue GetOrAdd<TKey, TValue>(TKey key, Func<TKey, TValue> valueFactory)
-            => CreateScoped<TKey, TValue>().GetOrAdd(key, valueFactory);
+        public TValue GetOrAdd<TKey, TValue>(
+            TKey key,
+            Func<TKey, TValue> valueFactory,
+            IKeyComparer<TKey> keyComparer = null)
+        {
+            return CreateScoped<TKey, TValue>(keyComparer).GetOrAdd(key, valueFactory);
+        }
 
-        public ICache<TKey, TValue> CreateScoped<TKey, TValue>(IEqualityComparer<TKey> keyComparer = null)
+        public ICache<TKey, TValue> CreateScoped<TKey, TValue>(IKeyComparer<TKey> keyComparer = null)
         {
             var cache = _cachesByType.GetOrAdd(
                 typeof(ICache<TKey, TValue>),
@@ -24,7 +28,7 @@
             return (ICache<TKey, TValue>)cache;
         }
 
-        public ICache<TKey, TValue> CreateNew<TKey, TValue>(IEqualityComparer<TKey> keyComparer = null)
+        public ICache<TKey, TValue> CreateNew<TKey, TValue>(IKeyComparer<TKey> keyComparer = null)
             => new ArrayCache<TKey, TValue>(keyComparer);
 
         public void Empty()

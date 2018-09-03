@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using AgileMapper.Members;
     using AgileMapper.Members.Dictionaries;
+    using Common;
     using Members;
     using TestClasses;
 #if !NET35

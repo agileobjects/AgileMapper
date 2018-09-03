@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using Caching;
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -19,7 +20,8 @@
         #region Untyped MethodInfos
 
         public static readonly MethodInfo EnumerableSelectWithoutIndexMethod;
-        private static readonly MethodInfo _enumerableSelectWithIndexMethod;
+        public static readonly MethodInfo ProjectWithoutIndexMethod;
+        private static readonly MethodInfo _projectWithIndexMethod;
         private static readonly MethodInfo _queryableSelectMethod;
         private static readonly MethodInfo _forEachMethod;
         private static readonly MethodInfo _forEachTupleMethod;
@@ -52,7 +54,14 @@
 
         static EnumerablePopulationBuilder()
         {
-            var linqSelectMethods = typeof(Enumerable)
+            var projectMethods = typeof(PublicEnumerableExtensions)
+                .GetPublicStaticMethods("Project")
+                .ToArray();
+
+            ProjectWithoutIndexMethod = projectMethods.First();
+            _projectWithIndexMethod = projectMethods.Last();
+
+            EnumerableSelectWithoutIndexMethod = typeof(Enumerable)
                 .GetPublicStaticMethods(nameof(Enumerable.Select))
                 .Project(m => new
                 {
@@ -65,21 +74,16 @@
                     m.Method,
                     ProjectionLambdaParameterCount = m.Parameters[1].ParameterType.GetGenericTypeArguments().Length
                 })
-                .ToArray();
-
-            EnumerableSelectWithoutIndexMethod = linqSelectMethods
-                .First(m => m.ProjectionLambdaParameterCount == 2).Method;
-
-            _enumerableSelectWithIndexMethod = linqSelectMethods
-                .First(m => m.ProjectionLambdaParameterCount == 3).Method;
+                .First(m => m.ProjectionLambdaParameterCount == 2)
+                .Method;
 
             _queryableSelectMethod = typeof(Queryable)
-                .GetPublicStaticMethods(nameof(Enumerable.Select))
+                .GetPublicStaticMethods(nameof(Queryable.Select))
                 .First(m =>
                     (m.GetParameters().Length == 2) &&
                     (m.GetParameters()[1].ParameterType.GetGenericTypeArguments()[0].GetGenericTypeArguments().Length == 2));
 
-            var forEachMethods = typeof(EnumerableExtensions).GetPublicStaticMethods("ForEach").ToArray();
+            var forEachMethods = typeof(PublicEnumerableExtensions).GetPublicStaticMethods("ForEach").ToArray();
             _forEachMethod = forEachMethods.First();
             _forEachTupleMethod = forEachMethods.Last();
         }
@@ -88,26 +92,56 @@
 
         public static implicit operator BlockExpression(EnumerablePopulationBuilder builder)
         {
-            var variables = new List<ParameterExpression>(2);
-
-            if (builder._sourceVariable != null)
+            if ((builder._sourceVariable == null) &&
+                (builder._collectionDataVariable == null))
             {
-                variables.Add(builder._sourceVariable);
+                return Expression.Block(builder._populationExpressions);
             }
 
-            if (builder._collectionDataVariable != null)
+            if (builder._sourceVariable == null)
             {
-                variables.Add(builder._collectionDataVariable);
+                return Expression.Block(
+                    new[] { builder._collectionDataVariable },
+                    builder._populationExpressions);
             }
 
-            var population = variables.Any()
-                ? Expression.Block(variables, builder._populationExpressions)
-                : Expression.Block(builder._populationExpressions);
+            if (builder._collectionDataVariable == null)
+            {
+                return Expression.Block(
+                    new[] { builder._sourceVariable },
+                    builder._populationExpressions);
+            }
 
-            return population;
+            return Expression.Block(
+                new[] { builder._sourceVariable, builder._collectionDataVariable },
+                builder._populationExpressions);
         }
 
         #endregion
+
+        public static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData)
+        {
+            var counterRequired = false;
+
+            return GetProjectionMethodFor(mapperData, ref counterRequired);
+        }
+
+        private static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData, ref bool counterRequired)
+        {
+            if (mapperData.SourceType.IsQueryable())
+            {
+                counterRequired = false;
+                return _queryableSelectMethod;
+            }
+
+            if (mapperData.Context.IsPartOfQueryableMapping())
+            {
+                counterRequired = false;
+                return EnumerableSelectWithoutIndexMethod;
+            }
+
+            return counterRequired ? _projectWithIndexMethod : ProjectWithoutIndexMethod;
+        }
 
         public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
 
@@ -156,7 +190,7 @@
                 return false;
             }
 
-            var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>();
+            var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>(default(HashCodeComparer<TypeKey>));
             var sourceElementId = GetIdentifierOrNull(Context.SourceElementType, _sourceElementParameter, MapperData, typeIdsCache);
 
             if (sourceElementId == null)
@@ -206,7 +240,7 @@
                 var identifier = mapperData
                     .MapperContext
                     .Naming
-                    .GetIdentifierOrNull(key);
+                    .GetIdentifierOrNull(key.Type);
 
                 return identifier?.GetAccess(parameter);
             });
@@ -590,18 +624,7 @@
             Func<Expression, Expression, Expression> projectionLambdaFactory,
             bool counterRequired)
         {
-            var isRootQueryableMapping = MapperData.SourceType.IsQueryable();
-
-            if (isRootQueryableMapping || MapperData.Context.IsPartOfQueryableMapping())
-            {
-                counterRequired = false;
-            }
-
-            var linqSelectOverload = isRootQueryableMapping
-                ? _queryableSelectMethod
-                : counterRequired
-                    ? _enumerableSelectWithIndexMethod
-                    : EnumerableSelectWithoutIndexMethod;
+            var projectionMethod = GetProjectionMethodFor(MapperData, ref counterRequired);
 
             ParameterExpression[] projectionLambdaParameters;
             Type[] funcTypes;
@@ -624,7 +647,7 @@
                 projectionLambdaFactory.Invoke(_sourceElementParameter, Counter),
                 projectionLambdaParameters);
 
-            var typedSelectMethod = linqSelectOverload.MakeGenericMethod(Context.ElementTypes);
+            var typedSelectMethod = projectionMethod.MakeGenericMethod(Context.ElementTypes);
             var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionLambda);
 
             return typedSelectCall;
@@ -776,7 +799,7 @@
 
             public SourceItemsSelector ExcludingTargetItems()
             {
-                var excludeMethod = typeof(EnumerableExtensions)
+                var excludeMethod = typeof(PublicEnumerableExtensions)
                     .GetPublicStaticMethod("Exclude")
                     .MakeGenericMethod(_builder.Context.TargetElementType);
 

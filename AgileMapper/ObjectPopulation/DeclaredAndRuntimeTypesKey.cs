@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private readonly bool _sourceTypesAreTheSame;
         private readonly bool _targetTypesAreTheSame;
+        private readonly int _hashCode;
 
         private DeclaredAndRuntimeTypesKey(
             Type declaredSourceType,
@@ -19,6 +20,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             DeclaredTargetType = declaredTargetType;
             RuntimeTargetType = runtimeTargetType;
             _targetTypesAreTheSame = (declaredTargetType == runtimeTargetType);
+
+            _hashCode = DeclaredSourceType.GetHashCode();
+
+            unchecked
+            {
+                _hashCode = (_hashCode * 397) ^ DeclaredTargetType.GetHashCode();
+            }
         }
 
         public static DeclaredAndRuntimeTypesKey For<TSource, TTarget>(MappingTypes mappingTypes)
@@ -40,21 +48,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public override bool Equals(object obj)
         {
+            // ReSharper disable once PossibleNullReferenceException
+            if (_hashCode != obj.GetHashCode())
+            {
+                return false;
+            }
+
             var otherKey = (DeclaredAndRuntimeTypesKey)obj;
 
             return
-                // ReSharper disable once PossibleNullReferenceException
-                (DeclaredSourceType == otherKey.DeclaredSourceType) &&
                 ((_sourceTypesAreTheSame && otherKey._sourceTypesAreTheSame) || RuntimeSourceType == otherKey.RuntimeSourceType) &&
-                (DeclaredTargetType == otherKey.DeclaredTargetType) &&
                 ((_targetTypesAreTheSame && otherKey._targetTypesAreTheSame) || RuntimeTargetType == otherKey.RuntimeTargetType);
         }
 
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
-        public override int GetHashCode() => 0;
+        public override int GetHashCode() => _hashCode;
     }
 }

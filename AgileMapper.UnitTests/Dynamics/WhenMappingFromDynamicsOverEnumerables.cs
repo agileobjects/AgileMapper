@@ -5,6 +5,7 @@
     using System.Linq;
     using AgileMapper.Extensions.Internal;
     using Api;
+    using Common;
     using TestClasses;
     using Xunit;
 

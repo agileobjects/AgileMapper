@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Reflection;
     using DataSources;
     using Dictionaries;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -240,6 +241,11 @@ namespace AgileObjects.AgileMapper.Members
             if (mapperData.TargetMember.IsRecursion)
             {
                 return true;
+            }
+
+            if ((mapperData.TargetMember.Depth == 3) && mapperData.TargetMemberIsEnumerableElement())
+            {
+                return false;
             }
 
             if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))

@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using AgileMapper.Configuration;
     using AgileMapper.Extensions;
+    using Common;
     using TestClasses;
 #if NET_STANDARD
     using Microsoft.Extensions.DependencyInjection;

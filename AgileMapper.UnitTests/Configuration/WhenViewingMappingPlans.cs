@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System.Collections.ObjectModel;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

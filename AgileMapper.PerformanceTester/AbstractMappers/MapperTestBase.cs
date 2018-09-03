@@ -11,5 +11,7 @@
         public abstract void Initialise();
 
         public abstract object Execute(Stopwatch timer);
+        
+        public abstract void Verify(object result);
     }
 }

@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Members;
+    using Common;
     using ObjectPopulation;
     using TestClasses;
 #if !NET35

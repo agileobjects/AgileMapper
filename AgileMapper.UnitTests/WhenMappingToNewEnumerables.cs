@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

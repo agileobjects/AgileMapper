@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using Common;
     using MoreTestClasses;
 #if !NET35
     using Xunit;

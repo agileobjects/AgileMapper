@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using Caching;
     using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -17,7 +18,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return null;
             }
 
-            var cache = GlobalContext.Instance.Cache.CreateScoped<TypeKey, ParameterExpression>();
+            var cache = GlobalContext.Instance
+                .Cache
+                .CreateScoped<TypeKey, ParameterExpression>(default(HashCodeComparer<TypeKey>));
 
             var parameter = cache.GetOrAdd(
                 TypeKey.ForParameter(type, name),

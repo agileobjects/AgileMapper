@@ -17,9 +17,15 @@ namespace AgileObjects.AgileMapper
             }
         }
 
+        public static bool operator <(SourceAndTargetTypesKey x, SourceAndTargetTypesKey y) => x._hashCode < y._hashCode;
+
+        public static bool operator >(SourceAndTargetTypesKey x, SourceAndTargetTypesKey y) => x._hashCode > y._hashCode;
+
         public Type SourceType { get; }
 
         public Type TargetType { get; }
+
+        public bool Equals(SourceAndTargetTypesKey other) => other._hashCode == _hashCode;
 
         public override bool Equals(object obj)
         {

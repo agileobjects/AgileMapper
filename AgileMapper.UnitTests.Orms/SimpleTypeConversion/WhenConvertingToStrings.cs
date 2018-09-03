@@ -4,6 +4,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Threading.Tasks;
+    using Common;
     using Infrastructure;
     using TestClasses;
     using UnitTests.TestClasses;

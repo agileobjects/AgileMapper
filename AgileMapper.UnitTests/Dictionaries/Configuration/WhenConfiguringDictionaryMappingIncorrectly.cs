@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using AgileMapper.Configuration;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -318,21 +319,21 @@
         [Fact]
         public void ShouldErrorIfToFullKeyUsedWithNonSimpleMemberInFlattening()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var source = new { Numbers = new[] { 1, 2, 3 } };
+            var source = new { Numbers = new[] { 1, 2, 3 } };
 
-                var configEx = Should.Throw<MappingConfigurationException>(() =>
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.Map(source).ToANew<Dictionary<string, int>>(cfg => cfg
                         .ForDictionaries
                         .MapMember(s => s.Numbers)
                         .ToFullKey("Nums"));
-                });
+                }
+            });
 
-                configEx.Message.ShouldContain(".Numbers");
-                configEx.Message.ShouldContain("ToMemberNameKey");
-            }
+            configEx.Message.ShouldContain(".Numbers");
+            configEx.Message.ShouldContain("ToMemberNameKey");
         }
     }
 }

@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
     using System.Collections.Generic;
     using System.Linq;
     using AgileMapper.Configuration;
+    using Common;
     using NetStandardPolyfills;
     using TestClasses;
 #if !NET35

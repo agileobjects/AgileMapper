@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Common;
     using TestClasses;
     using Validation;
 #if !NET35

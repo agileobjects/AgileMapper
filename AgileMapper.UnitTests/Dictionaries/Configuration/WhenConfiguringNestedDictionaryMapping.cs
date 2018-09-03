@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dictionaries.Configuration
 {
     using System.Collections.Generic;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

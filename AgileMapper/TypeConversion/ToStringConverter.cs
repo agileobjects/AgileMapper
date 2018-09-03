@@ -4,6 +4,7 @@
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
 #if NET35

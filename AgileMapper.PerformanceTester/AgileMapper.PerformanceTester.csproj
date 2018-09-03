@@ -75,9 +75,11 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="ConcreteMappers\AgileMapper\AgileMapperInstantiation.cs" />
     <Compile Include="AbstractMappers\DeepMapperSetupBase.cs" />
     <Compile Include="AbstractMappers\EntityMapperBase.cs" />
     <Compile Include="AbstractMappers\EntityMapperSetupBase.cs" />
+    <Compile Include="AbstractMappers\MapperInstantiationBase.cs" />
     <Compile Include="AbstractMappers\MapperSetupTestBase.cs" />
     <Compile Include="AbstractMappers\MapperTestBase.cs" />
     <Compile Include="AbstractMappers\UnflatteningMapperSetupBase.cs" />
@@ -98,6 +100,7 @@
     <Compile Include="AbstractMappers\DeepMapperBase.cs" />
     <Compile Include="AbstractMappers\FlatteningMapperBase.cs" />
     <Compile Include="AbstractMappers\IObjectMapperTest.cs" />
+    <Compile Include="ConcreteMappers\AutoMapper\AutoMapperInstantiation.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperEntityMapperSetup.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperEntityMapper.cs" />
     <Compile Include="ConcreteMappers\AutoMapper\AutoMapperUnflatteningMapperSetup.cs" />
@@ -114,11 +117,13 @@
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperComplexTypeMapper.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperDeepMapper.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperFlatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperInstantiation.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualComplexTypeMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualCtorMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualDeepMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualFlatteningMapper.cs" />
     <Compile Include="ConcreteMappers\Manual\ManualUnflatteningMapper.cs" />
+    <Compile Include="ConcreteMappers\Mapster\MapsterMapperInstantiation.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterEntityMapperSetup.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterEntityMapper.cs" />
     <Compile Include="ConcreteMappers\Mapster\MapsterDeepMapperSetup.cs" />
@@ -148,6 +153,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj">
+      <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
+      <Name>AgileMapper.UnitTests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
       <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
       <Name>AgileMapper</Name>

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Text;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

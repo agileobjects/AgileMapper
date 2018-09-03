@@ -11,5 +11,7 @@
         void Initialise();
 
         object Execute(Stopwatch timer);
+
+        void Verify(object result);
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel.Configuration
 {
     using AgileMapper.Configuration;
+    using Common;
 #if !NET35
     using Xunit;
 #else

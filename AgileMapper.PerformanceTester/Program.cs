@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.PerformanceTester
     public class Program
     {
         private static readonly string[] _mapperIds = { "man", "ag", "au", "exp", "ma", "vi" };
-        private static readonly string[] _testIds = { "ctor", "compl", "compls", "flat", "unflat", "unflats", "deep", "deeps", "ent", "ents" };
+        private static readonly string[] _testIds = { "ctor", "compl", "compls", "flat", "unflat", "unflats", "deep", "deeps", "ent", "ents", "new" };
 
         public static void Main(string[] args)
         {
@@ -137,6 +137,13 @@ namespace AgileObjects.AgileMapper.PerformanceTester
                     useAgileMapper ? new AgileMapperEntityMapperSetup() : null,
                     useAutoMapper ? new AutoMapperEntityMapperSetup() : null,
                     useMapster ? new MapsterEntityMapperSetup() : null
+                },
+                new IObjectMapperTest[]
+                {
+                    useAgileMapper ? new AgileMapperInstantiation() : null,
+                    useAutoMapper ? new AutoMapperInstantiation() : null,
+                    useExpressMapper ? new ExpressMapperInstantiation() : null,
+                    useMapster ? new MapsterMapperInstantiation() : null
                 }
             };
 

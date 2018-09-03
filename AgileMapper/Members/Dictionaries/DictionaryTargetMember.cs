@@ -2,6 +2,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
     using System.Dynamic;
+    using Caching;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
@@ -113,7 +115,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                     key.DictionaryMember = null;
 
                     return member;
-                });
+                },
+                default(HashCodeComparer<DictionaryMemberKey>));
 
             var childMember = Append(targetEntryMember);
 
@@ -402,18 +405,25 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         private class DictionaryMemberKey
         {
             private readonly Type _entryDeclaringType;
-            private readonly Type _entryValueType;
             private readonly string _entryKey;
+            private readonly int _hashCode;
 
             public DictionaryMemberKey(
                 Type entryDeclaringType,
                 string entryKey,
                 DictionaryTargetMember dictionaryMember)
             {
-                _entryValueType = dictionaryMember.ValueType;
                 _entryDeclaringType = entryDeclaringType;
                 _entryKey = entryKey;
                 DictionaryMember = dictionaryMember;
+
+                _hashCode = dictionaryMember.ValueType.GetHashCode();
+
+                unchecked
+                {
+                    _hashCode = (_hashCode * 397) ^ _entryDeclaringType.GetHashCode();
+                    _hashCode = (_hashCode * 397) ^ _entryKey.GetHashCode();
+                }
             }
 
             public DictionaryTargetMember DictionaryMember { private get; set; }
@@ -425,22 +435,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return Member.DictionaryEntry(_entryKey, typedTargetMember);
             }
 
-            public override bool Equals(object obj)
-            {
-                var otherKey = (DictionaryMemberKey)obj;
-
-                // ReSharper disable once PossibleNullReferenceException
-                return (otherKey._entryValueType == _entryValueType) &&
-                       (otherKey._entryDeclaringType == _entryDeclaringType) &&
-                       (otherKey._entryKey == _entryKey);
-            }
-
-            #region ExcludeFromCodeCoverage
-#if DEBUG
-            [ExcludeFromCodeCoverage]
-#endif
-            #endregion
-            public override int GetHashCode() => 0;
+            public override int GetHashCode() => _hashCode;
         }
 
         #endregion

@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
     using AgileMapper.Extensions.Internal;
+    using Common;
     using NetStandardPolyfills;
     using TestClasses;
 #if !NET35

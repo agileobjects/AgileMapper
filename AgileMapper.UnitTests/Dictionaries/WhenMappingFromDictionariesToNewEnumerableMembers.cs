@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dictionaries
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using Common;
 #if !NETCOREAPP1_0 && !NET35
     using Microsoft.Extensions.Primitives;
 #endif

@@ -66,7 +66,8 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.abstractions.2.0.2\lib\net35\xunit.abstractions.dll</HintPath>
+      <HintPath>..\packages\xunit.abstractions.2.0.3\lib\net35\xunit.abstractions.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="xunit.assert, Version=2.4.0.4049, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
       <HintPath>..\packages\xunit.assert.2.4.0\lib\netstandard2.0\xunit.assert.dll</HintPath>
@@ -85,6 +86,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Caching\WhenCachingWithHashCodes.cs" />
     <Compile Include="Configuration\AssemblyScanningTestClassBase.cs" />
     <Compile Include="Configuration\Inline\InlineMappingExtensions.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringCallbacksInline.cs" />
@@ -154,8 +156,6 @@
     <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
     <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
     <Compile Include="MapperCloning\WhenCloningStringFormatting.cs" />
-    <Compile Include="Should.cs" />
-    <Compile Include="ShouldExtensions.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToFlagsEnums.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
@@ -280,7 +280,6 @@
     <Compile Include="TestClasses\PublicReadOnlyField.cs" />
     <Compile Include="TestClasses\Title.cs" />
     <Compile Include="TestClasses\TitleShortlist.cs" />
-    <Compile Include="TestExtensions.cs" />
     <Compile Include="WhenMappingCircularReferences.cs" />
     <Compile Include="WhenMappingDerivedTypes.cs" />
     <Compile Include="WhenMappingOnToComplexTypeMembers.cs" />
@@ -310,6 +309,10 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj">
+      <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
+      <Name>AgileMapper.UnitTests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
       <Project>{0d045f11-1cbb-4be1-b854-d7e5d348c2fe}</Project>
       <Name>AgileMapper.UnitTests.MoreTestClasses</Name>

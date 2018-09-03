@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests
+﻿namespace AgileObjects.AgileMapper.UnitTests.Common
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@
     using System.Globalization;
     using System.Linq;
 
-    internal static class TestExtensions
+    public static class TestExtensions
     {
         public static string ToCurrentCultureString(this DateTime? dateTime)
             => dateTime.GetValueOrDefault().ToCurrentCultureString();
@@ -19,5 +19,8 @@
 
         [DebuggerStepThrough]
         public static T Third<T>(this IEnumerable<T> items) => items.ElementAt(2);
+
+        [DebuggerStepThrough]
+        public static T Fourth<T>(this IEnumerable<T> items) => items.ElementAt(3);
     }
 }

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\common.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>net35;netstandard1.0</TargetFrameworks>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Common</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.Common</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj" />
+  </ItemGroup>
+
+</Project>

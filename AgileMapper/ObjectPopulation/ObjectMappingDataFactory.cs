@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Dynamic;
     using System.Linq;
+    using Caching;
     using Enumerables;
     using Extensions.Internal;
     using MapperKeys;
@@ -130,7 +131,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     parentParameter);
 
                 return typedForChildLambda.Compile();
-            });
+            },
+            default(HashCodeComparer<SourceAndTargetTypesKey>));
 
             var membersSource = new FixedMembersMembersSource(sourceMember, targetMember, dataSourceIndex);
 

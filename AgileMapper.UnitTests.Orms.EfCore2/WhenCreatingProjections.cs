@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
 {
     using System.Threading.Tasks;
+    using Common;
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
     using MoreTestClasses;

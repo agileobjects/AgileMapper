@@ -3,6 +3,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using AgileMapper.Extensions.Internal;
+    using Common;
     using Infrastructure;
     using TestClasses;
 

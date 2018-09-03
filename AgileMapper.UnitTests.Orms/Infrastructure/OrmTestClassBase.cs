@@ -3,6 +3,7 @@
     using System;
     using System.Diagnostics;
     using System.Threading.Tasks;
+    using Common;
     using Xunit;
 
     [Collection(TestConstants.OrmCollectionName)]

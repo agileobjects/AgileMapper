@@ -10,6 +10,7 @@
     using Api.Configuration;
     using Api.Configuration.Projection;
     using Caching;
+    using Extensions;
 #if NET35
     using Extensions.Internal;
 #endif

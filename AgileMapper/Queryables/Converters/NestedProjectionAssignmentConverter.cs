@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
     using Extensions.Internal;
+    using ObjectPopulation.Enumerables;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -30,7 +31,14 @@
         {
             return modifier.Settings.SupportsEnumerableMaterialisation &&
                   (assignment.Expression.NodeType == ExpressionType.Call) &&
-                 ((MethodCallExpression)assignment.Expression).IsLinqSelectCall();
+                   IsLinqSelectCall((MethodCallExpression)assignment.Expression);
+        }
+
+        public static bool IsLinqSelectCall(MethodCallExpression call)
+        {
+            return call.Method.IsStatic && call.Method.IsGenericMethod && ReferenceEquals(
+                   call.Method.GetGenericMethodDefinition(),
+                   EnumerablePopulationBuilder.EnumerableSelectWithoutIndexMethod);
         }
 
         private static MemberAssignment ConvertToMaterialisation(

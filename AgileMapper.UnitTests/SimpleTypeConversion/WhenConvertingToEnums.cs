@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.SimpleTypeConversion
 {
+    using Common;
     using TestClasses;
     using static TestClasses.Title;
 #if !NET35

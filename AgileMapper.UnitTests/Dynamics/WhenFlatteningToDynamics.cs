@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Collections.Generic;
+    using Common;
     using Microsoft.CSharp.RuntimeBinder;
     using TestClasses;
     using Xunit;

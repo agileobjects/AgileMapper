@@ -28,9 +28,9 @@
 
         static ExpressionExtensions()
         {
-            var toArrayExtensionMethods = typeof(EnumerableExtensions).GetPublicStaticMethods("ToArray").ToArray();
+            var toArrayExtensionMethods = typeof(PublicEnumerableExtensions).GetPublicStaticMethods("ToArray").ToArray();
             _listToArrayMethod = toArrayExtensionMethods.First();
-            _collectionToArrayMethod = toArrayExtensionMethods.ElementAt(1);
+            _collectionToArrayMethod = toArrayExtensionMethods.Last();
 
             var linqEnumerableMethods = typeof(Enumerable).GetPublicStaticMethods().ToArray();
             _linqToArrayMethod = linqEnumerableMethods.First(m => m.Name == "ToArray");
@@ -215,13 +215,6 @@
             }
 
             return Expression.Convert(expression, targetType);
-        }
-
-        public static bool IsLinqSelectCall(this MethodCallExpression call)
-        {
-            return call.Method.IsStatic && call.Method.IsGenericMethod && ReferenceEquals(
-                call.Method.GetGenericMethodDefinition(),
-                EnumerablePopulationBuilder.EnumerableSelectWithoutIndexMethod);
         }
 
         public static Expression WithOrderingLinqCall(

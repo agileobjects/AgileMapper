@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reflection;
     using Caching;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
@@ -19,8 +20,8 @@
         public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
-            _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>(default(ReferenceEqualsComparer<Assembly>));
-            _derivedTypesByType = cacheSet.CreateScoped<Type, ICollection<Type>>(default(ReferenceEqualsComparer<Type>));
+            _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>(default(HashCodeComparer<Assembly>));
+            _derivedTypesByType = cacheSet.CreateScoped<Type, ICollection<Type>>(default(HashCodeComparer<Type>));
         }
 
         public void AddAssemblies(Assembly[] assemblies)

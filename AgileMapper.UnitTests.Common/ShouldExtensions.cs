@@ -1,10 +1,11 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests
+﻿namespace AgileObjects.AgileMapper.UnitTests.Common
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using AgileMapper.Extensions.Internal;
+    using Extensions;
+    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -112,13 +113,7 @@
                 return (TActual)(object)expected.ToString();
             }
 
-            if (expected is IConvertible)
-            {
-                return (TActual)Convert.ChangeType(expected, typeof(TActual));
-            }
-
-            throw new NotSupportedException(
-                $"Can't change a {typeof(TExpected).Name} to a {typeof(TActual).Name}");
+            return (TActual)Convert.ChangeType(expected, typeof(TActual));
         }
 
         public static void ShouldBe<T1, T2>(this IEnumerable<T1> actualValues, IEnumerable<T2> expectedValues)

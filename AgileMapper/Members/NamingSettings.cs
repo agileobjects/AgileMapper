@@ -6,6 +6,7 @@
     using System.Text.RegularExpressions;
     using Caching;
     using Configuration;
+    using Extensions;
     using Extensions.Internal;
 
     internal class NamingSettings
@@ -17,7 +18,7 @@
 
         public NamingSettings(CacheSet mapperScopedCache)
         {
-            _idMemberCache = mapperScopedCache.CreateScoped<TypeKey, Member>();
+            _idMemberCache = mapperScopedCache.CreateScoped<TypeKey, Member>(default(HashCodeComparer<TypeKey>));
 
             _matchingNameFactories = new List<Func<Member, string>>
             {

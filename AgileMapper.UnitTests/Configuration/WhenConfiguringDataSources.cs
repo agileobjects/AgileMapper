@@ -7,6 +7,7 @@
     using System.Linq;
     using AgileMapper.Extensions;
     using AgileMapper.Members;
+    using Common;
     using TestClasses;
 #if !NET35
     using Xunit;

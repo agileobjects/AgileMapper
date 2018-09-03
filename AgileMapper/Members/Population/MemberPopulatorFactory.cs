@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Collections.Generic;
     using Configuration;
     using DataSources.Finders;
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
