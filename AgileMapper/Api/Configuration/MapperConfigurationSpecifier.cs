@@ -84,8 +84,7 @@
 
             ThrowIfInvalidAssembliesSupplied(matchingAssemblies.Any(), nullSupplied: false);
 
-            ApplyConfigurationsIn(matchingAssemblies.SelectMany(QueryConfigurationTypesIn));
-            return this;
+            return ApplyConfigurationsIn(matchingAssemblies.SelectMany(QueryConfigurationTypesIn));
         }
 
         /// <summary>
@@ -101,12 +100,10 @@
             where TConfiguration : MapperConfiguration, new()
         {
             ThrowIfConfigurationAlreadyApplied(typeof(TConfiguration));
-            ThrowIfDependedOnConfigurationNotApplied(typeof(TConfiguration));
 
-            var configuration = new TConfiguration();
+            var configurationTypeChain = GetAllConfigurationTypesFor(typeof(TConfiguration));
 
-            Apply(configuration);
-            return this;
+            return ApplyConfigurationsIn(configurationTypeChain);
         }
 
         private void ThrowIfConfigurationAlreadyApplied(Type configurationType)
@@ -118,29 +115,17 @@
             }
         }
 
-        private void ThrowIfDependedOnConfigurationNotApplied(Type configurationType)
+        private static IEnumerable<Type> GetAllConfigurationTypesFor(Type configurationType)
         {
-            var dependedOnTypes = GetDependedOnConfigurationTypesFor(configurationType);
-
-            if (dependedOnTypes.None())
+            foreach (var dependedOnType in GetDependedOnConfigurationTypesFor(configurationType))
             {
-                return;
+                foreach (var nestedDependedOnType in GetAllConfigurationTypesFor(dependedOnType))
+                {
+                    yield return nestedDependedOnType;
+                }
             }
 
-            var missingDependencies = dependedOnTypes
-                .Filter(t => !ConfigurationApplied(t))
-                .ToArray();
-
-            if (missingDependencies.None())
-            {
-                return;
-            }
-
-            var configurationTypeName = configurationType.GetFriendlyName();
-            var dependencyNames = missingDependencies.Project(d => d.GetFriendlyName()).Join(", ");
-
-            throw new MappingConfigurationException(
-                $"Configuration {configurationTypeName} must be registered after depended-on configuration(s) {dependencyNames}");
+            yield return configurationType;
         }
 
         private bool ConfigurationApplied(Type configurationType)
@@ -158,12 +143,9 @@
         /// to be registered.
         /// </returns>
         public MapperConfigurationSpecifier FromAssemblyOf<T>()
-        {
-            ApplyConfigurationsIn(QueryConfigurationTypesIn(typeof(T).GetAssembly()));
-            return this;
-        }
+            => ApplyConfigurationsIn(QueryConfigurationTypesIn(typeof(T).GetAssembly()));
 
-        private void ApplyConfigurationsIn(IEnumerable<Type> configurationTypes)
+        private MapperConfigurationSpecifier ApplyConfigurationsIn(IEnumerable<Type> configurationTypes)
         {
             var configurationData = configurationTypes
                 .Select(t => new ConfigurationData(t))
@@ -172,7 +154,7 @@
             if (configurationData.None(d => d.DependedOnConfigurationTypes.Any()))
             {
                 Apply(configurationData.Project(d => d.Configuration));
-                return;
+                return this;
             }
 
             var configurationCount = configurationData.Count;
@@ -213,6 +195,7 @@
                 .Project(kvp => configurationDataByType[kvp.Key].Configuration);
 
             Apply(orderedConfigurations);
+            return this;
         }
 
         private static void InsertWithOrder(

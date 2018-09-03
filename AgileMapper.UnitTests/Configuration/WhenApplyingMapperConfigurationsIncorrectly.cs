@@ -75,19 +75,20 @@
         }
 
         [Fact]
-        public void ShouldErrorIfDependentConfigurationAddedBeforeDependedOnConfiguration()
+        public void ShouldErrorIfRedundantConfigurationAdded()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping.UseConfigurations
-                        .From<WhenApplyingMapperConfigurations.ParentMapperConfiguration>();
+                        .From<WhenApplyingMapperConfigurations.ParentMapperConfiguration>()
+                        .From<WhenApplyingMapperConfigurations.ChildMapperConfiguration>();
                 }
             });
 
-            configEx.Message.ShouldContain("ParentMapperConfiguration");
             configEx.Message.ShouldContain("ChildMapperConfiguration");
+            configEx.Message.ShouldContain("already been applied");
         }
 
         [Fact]
