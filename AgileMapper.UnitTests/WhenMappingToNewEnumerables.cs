@@ -127,7 +127,6 @@
             result.ShouldBe((short)1, (short)2, (short)3);
         }
 #endif
-
         [Fact]
         public void ShouldMapFromAHashset()
         {
@@ -142,6 +141,17 @@
             result.ShouldBe(yesterday, today, tomorrow);
         }
 
+#if !NET35
+        [Fact]
+        public void ShouldMapToAnISet()
+        {
+            var source = new[] { "1", "2", "3" };
+            var result = Mapper.Map(source).ToANew<ISet<long>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldBe(1L, 2L, 3L);
+        }
+#endif
         [Fact]
         public void ShouldHandleANullComplexTypeElement()
         {
