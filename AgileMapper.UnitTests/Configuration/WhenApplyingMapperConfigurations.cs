@@ -192,7 +192,7 @@
                 mapper.WhenMapping
                     .UseServiceProvider(provider)
                     .UseConfigurations
-                    .From<ParentMapperConfiguration>();
+                    .From<GrandParentMapperConfiguration>();
 
                 var result = mapper.Map(grandParent).ToANew<GrandParentDto>();
 
