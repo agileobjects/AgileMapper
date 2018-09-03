@@ -161,7 +161,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return instance.WithToCollectionCall(ElementType);
             }
 
-            return GetCopyIntoObjectConstruction(instance);
+            if (HasSetInterface)
+            {
+                return GetCopyIntoObjectConstruction(instance);
+            }
+
+            return instance.WithToListLinqCall(ElementType);
         }
 
         private static bool ValueIsNotEnumerableInterface(Expression instance)
