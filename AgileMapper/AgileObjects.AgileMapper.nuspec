@@ -12,13 +12,11 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Duck-typed support for using service providers in mapping and configuration
-- Optimising mapper compilation for complex, multiply-recursive object graphs
-- Support for ordering MapperConfiguration classes
-- Support for mapping HashSet{T}
-- Unflatten() syntactic sugar methods for IDictionaries{TKey, TValue}
-- Support for unflattening a query string
-- Bug fixes
+- Auto-applying configurations specified with ApplyAfter attributes
+- Adding Mapper.Unflatten(source).To(Type) overload
+- Support for ISet{T}
+- Performance improvements
+- Fixing concurrency issue with default mapper
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
