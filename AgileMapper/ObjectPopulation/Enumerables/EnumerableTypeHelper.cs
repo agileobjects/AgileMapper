@@ -176,7 +176,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 ? EnumerableType.GetDictionaryConcreteType()
                 : IsCollection
                     ? CollectionType
-                    : IsHashSet
+                    : HasSetInterface
                         ? HashSetType
                         : ListType;
         }

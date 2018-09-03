@@ -379,7 +379,7 @@
 
             if (MapperData.TargetIsDefinitelyUnpopulated())
             {
-                return GetNullTargetListConstruction();
+                return GetNullTargetConstruction();
             }
 
             if (_sourceAdapter.UseReadOnlyTargetWrapper)
@@ -415,7 +415,7 @@
                 return nonNullTargetVariableValue;
             }
 
-            var nullTargetVariableValue = GetNullTargetListConstruction();
+            var nullTargetVariableValue = GetNullTargetConstruction();
 
             var targetVariableValue = Expression.Condition(
                 MapperData.TargetObject.GetIsNotDefaultComparison(),
@@ -429,21 +429,21 @@
         private Expression GetCopyIntoWrapperConstruction()
             => TargetTypeHelper.GetWrapperConstruction(MapperData.TargetObject, GetSourceCountAccess());
 
-        private Expression GetNullTargetListConstruction()
+        private Expression GetNullTargetConstruction()
         {
             var nonNullTargetVariableType =
                (TargetTypeHelper.IsDeclaredReadOnly ? TargetTypeHelper.ListType : MapperData.TargetType);
 
             var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableType);
 
+#if FEATURE_COLLECTION_CAPACITY
             return SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
                 ? Expression.New(nullTargetVariableType)
-#if FEATURE_COLLECTION_CAPACITY
                 : Expression.New(
                     nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
                     GetSourceCountAccess());
 #else
-                : Expression.New(nullTargetVariableType.GetPublicInstanceConstructor());
+            return Expression.New(nullTargetVariableType);
 #endif
         }
 
@@ -493,7 +493,13 @@
         private Type GetNullTargetVariableType(Type nonNullTargetVariableType)
         {
             return nonNullTargetVariableType.IsInterface()
+#if FEATURE_ISET
+                ? nonNullTargetVariableType.IsClosedTypeOf(typeof(ISet<>))
+                    ? TargetTypeHelper.HashSetType
+                    : TargetTypeHelper.ListType
+#else
                 ? TargetTypeHelper.ListType
+#endif
                 : nonNullTargetVariableType;
         }
 
