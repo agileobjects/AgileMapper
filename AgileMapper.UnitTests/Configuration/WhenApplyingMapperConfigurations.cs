@@ -175,6 +175,33 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/91
+        [Fact]
+        public void ShouldApplyMapperConfigurationsInOrderAutomatically()
+        {
+            var values = new List<int> { 1, 2, 3 };
+            var provider = new StubServiceProvider(values);
+
+            var grandParent = new GrandParent
+            {
+                DatChild = new Parent { MyChild = new Child() }
+            };
+
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .UseServiceProvider(provider)
+                    .UseConfigurations
+                    .From<ParentMapperConfiguration>();
+
+                var result = mapper.Map(grandParent).ToANew<GrandParentDto>();
+
+                result.MyChild.ShouldNotBeNull();
+                result.MyChild.MyChild.ShouldNotBeNull();
+                result.MyChild.MyChild.IsMyCountGtrZero.ShouldBeTrue();
+            }
+        }
+
         #region Helper Classes
 
         public class PfiToPfsMapperConfiguration : MapperConfiguration
