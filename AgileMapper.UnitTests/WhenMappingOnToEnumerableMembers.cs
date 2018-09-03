@@ -201,6 +201,35 @@
             result.Value.Second().Price.ShouldBe(1000.00);
             result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
         }
+
+        [Fact]
+        public void ShouldMergeAnIdentifiableComplexTypeSet()
+        {
+            var source = new PublicField<Product[]>
+            {
+                Value = new Product[]
+                {
+                    new MegaProduct { ProductId = "Science", Price = 1000.00 }
+                }
+            };
+
+            var target = new PublicField<ISet<MegaProduct>>
+            {
+                Value = new HashSet<MegaProduct>
+                {
+                    new MegaProduct { ProductId = "Magic", Price = 1.00 },
+                    new MegaProduct { ProductId = "Science" }
+                }
+            };
+
+            var existingProduct = target.Value.Second();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.Value.ShouldBeSameAs(target.Value);
+            result.Value.Second().ShouldBeSameAs(existingProduct);
+            result.Value.Second().Price.ShouldBe(1000.00);
+            result.Value.ShouldBe(r => r.ProductId, "Magic", "Science");
+        }
 #endif
         [Fact]
         public void ShouldHandleANullSourceMember()

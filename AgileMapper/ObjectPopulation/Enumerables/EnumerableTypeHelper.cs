@@ -22,7 +22,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type _readOnlyCollectionType;
         private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
-
+#if FEATURE_ISET
+        private Type _setInterfaceType;
+#endif
         public EnumerableTypeHelper(IQualifiedMember member)
             : this(member.Type, member.ElementType)
         {
@@ -45,7 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsCollection => EnumerableType.IsAssignableTo(CollectionType);
 
-        public bool IsHashSet => EnumerableType == HashSetType;
+        private bool IsHashSet => EnumerableType == HashSetType;
 
         public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
 
@@ -53,6 +55,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool HasCollectionInterface => EnumerableType.IsAssignableTo(CollectionInterfaceType);
 
+#if FEATURE_ISET
+        private bool HasSetInterface => EnumerableType.IsAssignableTo(SetInterfaceType);
+#else
+        private bool HasSetInterface => IsHashSet;
+#endif
         public bool IsReadOnly => IsArray || IsReadOnlyCollection;
 
         public bool IsDeclaredReadOnly
@@ -89,6 +96,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Type EnumerableInterfaceType => GetEnumerableType(ref _enumerableInterfaceType, typeof(IEnumerable<>));
 
+#if FEATURE_ISET
+        private Type SetInterfaceType => GetEnumerableType(ref _setInterfaceType, typeof(ISet<>));
+#endif
         private Type GetEnumerableType(ref Type typeField, Type openGenericEnumerableType)
             => typeField ?? (typeField = openGenericEnumerableType.MakeGenericType(ElementType));
 
@@ -113,7 +123,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetCopyIntoObjectConstruction(Expression targetObject)
         {
-            var objectType = IsHashSet ? HashSetType : ListType;
+            var objectType = HasSetInterface ? HashSetType : ListType;
 
             return Expression.New(
                 objectType.GetPublicInstanceConstructor(EnumerableInterfaceType),
@@ -151,7 +161,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return instance.WithToCollectionCall(ElementType);
             }
 
-            return instance.WithToListLinqCall(ElementType);
+            return GetCopyIntoObjectConstruction(instance);
         }
 
         private static bool ValueIsNotEnumerableInterface(Expression instance)
@@ -166,7 +176,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 ? EnumerableType.GetDictionaryConcreteType()
                 : IsCollection
                     ? CollectionType
-                    : IsHashSet
+                    : HasSetInterface
                         ? HashSetType
                         : ListType;
         }
