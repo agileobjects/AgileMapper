@@ -311,6 +311,29 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/90
+        [Fact]
+        public void ShouldUseAConfiguredFactoryForAnUnconstructableType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue90.Parent>()
+                    .ToANew<Issue90.ParentDto>()
+                    .CreateInstancesOf<Issue90.Status>()
+                    .Using(ctx => Issue90.Status.GetStatus(ctx.Source.ParentStatusId));
+
+                var source = new Issue90.Parent { ParentStatusId = Issue90.Status.StatusId.Approved };
+                var result = mapper.Map(source).ToANew<Issue90.ParentDto>();
+
+                result.ShouldNotBeNull();
+                result.ParentStatusId.ShouldBe(Issue90.Status.StatusId.Approved);
+                result.ParentStatus.ShouldNotBeNull();
+                result.ParentStatus.Id.ShouldBe(Issue90.Status.StatusId.Approved);
+                result.ParentStatus.Name.ShouldBe("Approved");
+            }
+        }
+
         [Fact]
         public void ShouldHandleAnObjectMappingDataCreationException()
         {
@@ -488,6 +511,65 @@
             {
                 get => throw new NotSupportedException("NO, JUST NO");
                 set => _value = value;
+            }
+        }
+
+        private static class Issue90
+        {
+            public class Status
+            {
+                public enum StatusId
+                {
+                    Unsubmitted = 1,
+                    Approved = 2,
+                    Withdrawn = 3
+                }
+
+                private Status(StatusId id)
+                {
+                    Id = id;
+                    Name = id.ToString();
+                }
+
+                public StatusId Id { get; }
+
+                public string Name { get; }
+
+                private static readonly Status _unsubmitted = new Status(StatusId.Unsubmitted);
+                private static readonly Status _approved = new Status(StatusId.Approved);
+                private static readonly Status _withdrawn = new Status(StatusId.Withdrawn);
+
+                public static Status GetStatus(StatusId statusId)
+                {
+                    switch (statusId)
+                    {
+                        case StatusId.Unsubmitted:
+                            return _unsubmitted;
+
+                        case StatusId.Approved:
+                            return _approved;
+
+                        case StatusId.Withdrawn:
+                            return _withdrawn;
+
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }
+            }
+
+            public class Parent
+            {
+                public Status.StatusId ParentStatusId { get; set; }
+
+                public Status ParentStatus => Status.GetStatus(ParentStatusId);
+            }
+
+            public class ParentDto
+            {
+                public Status.StatusId ParentStatusId { get; set; }
+
+                public Status ParentStatus { get; set; }
             }
         }
 
