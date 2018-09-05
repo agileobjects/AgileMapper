@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests", "AgileMapper.UnitTests\AgileMapper.UnitTests.csproj", "{A3F2D405-8C0B-4033-9EC5-1B64007593FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.PerformanceTester", "AgileMapper.PerformanceTester\AgileMapper.PerformanceTester.csproj", "{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.PerformanceTester.Net45", "AgileMapper.PerformanceTester.Net45\AgileMapper.PerformanceTester.Net45.csproj", "{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.NonParallel", "AgileMapper.UnitTests.NonParallel\AgileMapper.UnitTests.NonParallel.csproj", "{254D5970-FCEF-4386-8E5E-2028B765982B}"
 EndProject

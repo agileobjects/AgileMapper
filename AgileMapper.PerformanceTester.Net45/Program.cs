@@ -7,7 +7,7 @@
 // Agile and Auto at their fastest:
 //[assembly: System.Security.AllowPartiallyTrustedCallers]
 
-namespace AgileObjects.AgileMapper.PerformanceTester
+namespace AgileObjects.AgileMapper.PerformanceTester.Net45
 {
     using System;
     using System.Collections.Generic;
