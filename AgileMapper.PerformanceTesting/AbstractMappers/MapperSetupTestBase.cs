@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Reflection;
 
     public abstract class MapperSetupTestBase : IObjectMapperTest
     {
@@ -11,7 +12,11 @@
         {
             var type = GetType();
             var mapperTestName = $"{type.Namespace}.{type.Name.Replace("Setup", null)}";
-            var mapperTestType = type.Assembly.GetType(mapperTestName) ?? throw new InvalidOperationException();
+
+            var mapperTestType =
+                type.Assembly.GetType(mapperTestName, throwOnError: false) ??
+                Assembly.GetExecutingAssembly().GetType(mapperTestName, throwOnError: false) ??
+                throw new InvalidOperationException("Couldn't find mapper test " + mapperTestName);
 
             _mapperTest = (IObjectMapperTest)Activator.CreateInstance(mapperTestType);
 
