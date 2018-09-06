@@ -153,6 +153,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.PerformanceTesting\AgileMapper.PerformanceTesting.csproj">
+      <Project>{f377844c-1a00-4685-8c04-07e6067c2812}</Project>
+      <Name>AgileMapper.PerformanceTesting</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj">
       <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
       <Name>AgileMapper.UnitTests.Common</Name>
