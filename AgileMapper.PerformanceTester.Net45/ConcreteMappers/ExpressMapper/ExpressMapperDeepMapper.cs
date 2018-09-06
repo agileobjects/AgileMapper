@@ -1,12 +1,12 @@
-﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.Net45.ConcreteMappers.ExpressMapper
 {
     using System.Collections.Generic;
-    using AbstractMappers;
     using global::ExpressMapper;
     using global::ExpressMapper.Extensions;
-    using static TestClasses.Deep;
+    using PerformanceTesting.AbstractMappers;
+    using static PerformanceTesting.TestClasses.Deep;
 
-    internal class ExpressMapperDeepMapper : DeepMapperBase
+    public class ExpressMapperDeepMapper : DeepMapperBase
     {
         public override void Initialise()
         {
@@ -28,8 +28,6 @@
         }
 
         protected override CustomerDto Map(Customer customer)
-        {
-            return Mapper.Map<Customer, CustomerDto>(customer);
-        }
+            => Mapper.Map<Customer, CustomerDto>(customer);
     }
 }

@@ -1,12 +1,12 @@
-﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.Net45.ConcreteMappers.ExpressMapper
 {
     using System.Collections.Generic;
-    using AbstractMappers;
     using global::ExpressMapper;
     using global::ExpressMapper.Extensions;
-    using static TestClasses.Deep;
+    using PerformanceTesting.AbstractMappers;
+    using static PerformanceTesting.TestClasses.Deep;
 
-    internal class ExpressMapperDeepMapperSetup : DeepMapperSetupBase
+    public class ExpressMapperDeepMapperSetup : DeepMapperSetupBase
     {
         public override void Initialise()
         {

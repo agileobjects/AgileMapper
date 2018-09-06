@@ -1,13 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.Net45.ConcreteMappers.ExpressMapper
 {
     using System.Collections.Generic;
     using System.Linq;
-    using AbstractMappers;
     using global::ExpressMapper;
     using global::ExpressMapper.Extensions;
-    using static TestClasses.Complex;
+    using PerformanceTesting.AbstractMappers;
+    using static PerformanceTesting.TestClasses.Complex;
 
-    internal class ExpressMapperComplexTypeMapperSetup : ComplexTypeMapperSetupBase
+    public class ExpressMapperComplexTypeMapperSetup : ComplexTypeMapperSetupBase
     {
         public override void Initialise()
         {

@@ -1,10 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.Net45.ConcreteMappers.ExpressMapper
 {
-    using AbstractMappers;
     using global::ExpressMapper;
-    using static TestClasses.Flattening;
+    using PerformanceTesting.AbstractMappers;
+    using static PerformanceTesting.TestClasses.Flattening;
 
-    internal class ExpressMapperFlatteningMapper : FlatteningMapperBase
+    public class ExpressMapperFlatteningMapper : FlatteningMapperBase
     {
         public override void Initialise()
         {
@@ -19,8 +19,6 @@
         }
 
         protected override ModelDto Flatten(ModelObject model)
-        {
-            return Mapper.Map<ModelObject, ModelDto>(model);
-        }
+            => Mapper.Map<ModelObject, ModelDto>(model);
     }
 }

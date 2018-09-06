@@ -1,9 +1,9 @@
-﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.Net45.ConcreteMappers.ExpressMapper
 {
-    using AbstractMappers;
     using global::ExpressMapper;
+    using PerformanceTesting.AbstractMappers;
 
-    internal class ExpressMapperInstantiation : MapperInstantiationBase
+    public class ExpressMapperInstantiation : MapperInstantiationBase
     {
         protected override object CreateMapperInstance() => new MappingServiceProvider();
     }

@@ -1,10 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.PerformanceTester.ConcreteMappers.ExpressMapper
+﻿namespace AgileObjects.AgileMapper.PerformanceTester.Net45.ConcreteMappers.ExpressMapper
 {
-    using AbstractMappers;
     using global::ExpressMapper;
-    using static TestClasses.Ctor;
+    using PerformanceTesting.AbstractMappers;
+    using static PerformanceTesting.TestClasses.Ctor;
 
-    internal class ExpressMapperCtorMapper : CtorMapperBase
+    public class ExpressMapperCtorMapper : CtorMapperBase
     {
         public override void Initialise()
         {
@@ -16,8 +16,6 @@
         }
 
         protected override ConstructedObject Construct(ValueObject valueObject)
-        {
-            return Mapper.Map<ValueObject, ConstructedObject>(valueObject);
-        }
+            => Mapper.Map<ValueObject, ConstructedObject>(valueObject);
     }
 }
