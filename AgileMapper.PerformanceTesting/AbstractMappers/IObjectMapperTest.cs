@@ -10,6 +10,8 @@
 
         int NumberOfExecutions { get; }
 
+        object SourceObject { get; }
+
         void Initialise();
 
         object Execute(Stopwatch timer);

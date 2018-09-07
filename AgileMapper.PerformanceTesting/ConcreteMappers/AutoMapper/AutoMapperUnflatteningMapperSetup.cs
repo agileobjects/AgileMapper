@@ -10,11 +10,11 @@
         {
         }
 
-        protected override void SetupUnflatteningMapper()
+        protected override ModelObject SetupUnflatteningMapper(ModelDto dto)
         {
             Mapper.Initialize(cfg => cfg.CreateMap<ModelObject, ModelDto>().ReverseMap());
 
-            Mapper.Map<ModelDto, ModelObject>(new ModelDto());
+            return Mapper.Map<ModelDto, ModelObject>(dto);
         }
 
         protected override void Reset() => Mapper.Reset();

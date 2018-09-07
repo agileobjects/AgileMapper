@@ -11,14 +11,14 @@
         {
         }
 
-        protected override void SetupDeepMapper()
+        protected override CustomerDto SetupDeepMapper(Customer customer)
         {
             TypeAdapterConfig<Customer, CustomerDto>.NewConfig()
                 .Map(dest => dest.Addresses, src => src.Addresses ?? new List<Address>())
                 .Map(dest => dest.AddressesArray, src => src.AddressesArray ?? new Address[0])
                 .Compile();
 
-            new Customer().Adapt<Customer, CustomerDto>();
+            return customer.Adapt<Customer, CustomerDto>();
         }
 
         protected override void Reset()

@@ -11,6 +11,8 @@
 
         public override int NumberOfExecutions => 100_000;
 
+        public override object SourceObject => _warehouse;
+
         protected EntityMapperBase()
         {
             var warehouse = new Warehouse

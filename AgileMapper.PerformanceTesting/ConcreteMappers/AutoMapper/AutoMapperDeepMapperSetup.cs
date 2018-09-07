@@ -10,7 +10,7 @@
         {
         }
 
-        protected override void SetupDeepMapper()
+        protected override CustomerDto SetupDeepMapper(Customer customer)
         {
             Mapper.Initialize(cfg =>
             {
@@ -19,7 +19,7 @@
                 cfg.CreateMap<Customer, CustomerDto>();
             });
 
-            Mapper.Map<Customer, CustomerDto>(new Customer());
+            return Mapper.Map<Customer, CustomerDto>(customer);
         }
 
         protected override void Reset() => Mapper.Reset();

@@ -1,11 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTesting.AbstractMappers
 {
+    using static TestClasses.Deep;
+
     public abstract class DeepMapperSetupBase : MapperSetupTestBase
     {
         public override string Type => "deeps";
 
-        protected override void Execute() => SetupDeepMapper();
+        protected override object Execute() => SetupDeepMapper((Customer)SourceObject);
 
-        protected abstract void SetupDeepMapper();
+        protected abstract CustomerDto SetupDeepMapper(Customer customer);
     }
 }

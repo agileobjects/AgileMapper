@@ -14,8 +14,6 @@
             var mapperTestType = FindTestTypeOrThrow();
 
             _mapperTest = (IObjectMapperTest)Activator.CreateInstance(mapperTestType);
-
-            _mapperTest.Initialise();
         }
 
         private Type FindTestTypeOrThrow()
@@ -50,6 +48,8 @@
 
         public int NumberOfExecutions => 100;
 
+        public object SourceObject => _mapperTest.SourceObject;
+
         public abstract void Initialise();
 
         public object Execute(Stopwatch timer)
@@ -60,16 +60,18 @@
 
             timer.Start();
 
-            Execute();
+            var mapped = Execute();
 
-            var mapped = _mapperTest.Execute(new Stopwatch());
+            timer.Stop();
 
             _mapperTest.Verify(mapped);
+
+            timer.Start();
 
             return null;
         }
 
-        protected abstract void Execute();
+        protected abstract object Execute();
 
         public void Verify(object result)
         {

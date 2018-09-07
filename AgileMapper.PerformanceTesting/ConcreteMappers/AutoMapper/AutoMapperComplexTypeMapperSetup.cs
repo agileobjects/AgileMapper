@@ -10,11 +10,11 @@
         {
         }
 
-        protected override void SetupComplexTypeMapper()
+        protected override Foo SetupComplexTypeMapper(Foo foo)
         {
             Mapper.Initialize(cfg => cfg.CreateMap<Foo, Foo>());
 
-            Mapper.Map<Foo, Foo>(new Foo());
+            return Mapper.Map<Foo, Foo>(foo);
         }
 
         protected override void Reset() => Mapper.Reset();

@@ -35,6 +35,8 @@
 
         public override string Type => "flat";
 
+        public override object SourceObject => _modelObject;
+
         public override object Execute(Stopwatch timer) => Flatten(_modelObject);
 
         protected abstract ModelDto Flatten(ModelObject model);

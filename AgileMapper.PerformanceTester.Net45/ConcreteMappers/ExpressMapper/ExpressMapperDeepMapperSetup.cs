@@ -12,12 +12,7 @@
         {
         }
 
-        protected override void Reset()
-        {
-            Mapper.Reset();
-        }
-
-        protected override void SetupDeepMapper()
+        protected override CustomerDto SetupDeepMapper(Customer customer)
         {
             Mapper
                 .Register<Customer, CustomerDto>()
@@ -35,7 +30,9 @@
 
             Mapper.Compile();
 
-            Mapper.Map<Customer, CustomerDto>(new Customer());
+            return Mapper.Map<Customer, CustomerDto>(customer);
         }
+
+        protected override void Reset() => Mapper.Reset();
     }
 }

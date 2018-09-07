@@ -12,7 +12,7 @@
         {
         }
 
-        protected override void SetupComplexTypeMapper()
+        protected override Foo SetupComplexTypeMapper(Foo foo)
         {
             TypeAdapterConfig<Foo, Foo>.NewConfig()
                 .Map(dest => dest.Foos, src => src.Foos ?? new List<Foo>())
@@ -21,7 +21,7 @@
                 .Map(dest => dest.IntArray, src => src.IntArray ?? new int[0])
                 .Compile();
 
-            new Foo().Adapt<Foo, Foo>();
+            return foo.Adapt<Foo, Foo>();
         }
 
         protected override void Reset()

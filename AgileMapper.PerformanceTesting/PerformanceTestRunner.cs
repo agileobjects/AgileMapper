@@ -95,6 +95,7 @@ namespace AgileObjects.AgileMapper.PerformanceTesting
                 .Filter(testId => testsToRun.Contains(testId))
                 .Project(testId => mapperTestsByType[testId]
                     .Filter(d => mappersToTest.Contains(d.MapperId))
+                    .OrderBy(d => d.MapperId)
                     .Project(d => d.Test)
                     .ToArray())
                 .ToArray();

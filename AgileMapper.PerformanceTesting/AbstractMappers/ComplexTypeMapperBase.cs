@@ -41,6 +41,8 @@
 
         public override string Type => "compl";
 
+        public override object SourceObject => _foo;
+
         public override object Execute(Stopwatch timer) => Clone(_foo);
 
         public override void Verify(object result)

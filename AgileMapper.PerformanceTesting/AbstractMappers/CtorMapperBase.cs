@@ -15,6 +15,8 @@
 
         public override string Type => "ctor";
 
+        public override object SourceObject => _valueObject;
+
         public override object Execute(Stopwatch timer) => Construct(_valueObject);
 
         protected abstract ConstructedObject Construct(ValueObject valueObject);

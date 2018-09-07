@@ -9,8 +9,12 @@
 
         public override void Initialise() => _mapper = Mapper.CreateNew();
 
-        protected override void SetupComplexTypeMapper()
-            => _mapper.GetPlanFor<Foo>().ToANew<Foo>();
+        protected override Foo SetupComplexTypeMapper(Foo foo)
+        {
+            _mapper.GetPlanFor<Foo>().ToANew<Foo>();
+
+            return _mapper.Map(foo).ToANew<Foo>();
+        }
 
         protected override void Reset()
         {

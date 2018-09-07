@@ -10,10 +10,12 @@
 
         public virtual int NumberOfExecutions => 1_000_000;
 
+        public abstract object SourceObject { get; }
+
         public abstract void Initialise();
 
         public abstract object Execute(Stopwatch timer);
-        
+
         public abstract void Verify(object result);
     }
 }

@@ -23,6 +23,8 @@
 
         public override string Type => "unflat";
 
+        public override object SourceObject => _modelDto;
+
         public override object Execute(Stopwatch timer) => Unflatten(_modelDto);
 
         protected abstract ModelObject Unflatten(ModelDto dto);

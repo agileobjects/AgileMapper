@@ -5,8 +5,10 @@
     public abstract class MapperInstantiationBase : MapperTestBase
     {
         public override string Type => "new";
-        
+
         public override int NumberOfExecutions => 10_000;
+
+        public override object SourceObject => null;
 
         public override void Initialise()
         {

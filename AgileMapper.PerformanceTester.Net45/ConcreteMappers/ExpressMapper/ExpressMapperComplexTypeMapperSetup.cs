@@ -13,12 +13,7 @@
         {
         }
 
-        protected override void Reset()
-        {
-            Mapper.Reset();
-        }
-
-        protected override void SetupComplexTypeMapper()
+        protected override Foo SetupComplexTypeMapper(Foo sourceFoo)
         {
             Mapper
                 .Register<Foo, Foo>()
@@ -29,7 +24,9 @@
 
             Mapper.Compile();
 
-            Mapper.Map<Foo, Foo>(new Foo());
+            return Mapper.Map<Foo, Foo>(sourceFoo);
         }
+
+        protected override void Reset() => Mapper.Reset();
     }
 }

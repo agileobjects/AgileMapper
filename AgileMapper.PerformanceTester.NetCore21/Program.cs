@@ -7,7 +7,7 @@
         public static void Main(string[] args)
         {
             new PerformanceTestRunner()
-                //.AddTest(MapperIds.Mapster, null)
+                //.AddTest(MapperIds.Mapster, typeof(MapsterEntityMapperSetup))
                 .Run(args);
         }
     }

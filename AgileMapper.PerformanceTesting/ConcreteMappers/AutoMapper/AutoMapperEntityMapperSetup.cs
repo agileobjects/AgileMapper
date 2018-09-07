@@ -1,39 +1,41 @@
 ﻿namespace AgileObjects.AgileMapper.PerformanceTesting.ConcreteMappers.AutoMapper
 {
-    using AbstractMappers;
-    using global::AutoMapper;
-    using static TestClasses.Entities;
+    // Mapper.Map<Warehouse, Warehouse>(warehouse); throws a StackOverflow exception
 
-    public class AutoMapperEntityMapperSetup : EntityMapperSetupBase
-    {
-        public override void Initialise()
-        {
-        }
+    //using AbstractMappers;
+    //using global::AutoMapper;
+    //using static TestClasses.Entities;
 
-        protected override void SetupEntityMapper()
-        {
-            Mapper.Initialize(cfg =>
-            {
-                cfg.CreateMap<Associate, Associate>();
-                cfg.CreateMap<AssociateTag, AssociateTag>();
-                cfg.CreateMap<Branch, Branch>();
-                cfg.CreateMap<BranchTag, BranchTag>();
-                cfg.CreateMap<Location, Location>();
-                cfg.CreateMap<LocationTag, LocationTag>();
-                cfg.CreateMap<Movement, Movement>();
-                cfg.CreateMap<MovementTag, MovementTag>();
-                cfg.CreateMap<Product, Product>();
-                cfg.CreateMap<ProductTag, ProductTag>();
-                cfg.CreateMap<Tag, Tag>();
-                cfg.CreateMap<Warehouse, Warehouse>();
-                cfg.CreateMap<WarehouseTag, WarehouseTag>();
-                cfg.CreateMap<WarehouseProduct, WarehouseProduct>();
-                cfg.CreateMap<WarehouseProductTag, WarehouseProductTag>();
-            });
+    //public class AutoMapperEntityMapperSetup : EntityMapperSetupBase
+    //{
+    //    public override void Initialise()
+    //    {
+    //    }
 
-            Mapper.Map<Warehouse, Warehouse>(new Warehouse());
-        }
+    //    protected override Warehouse SetupEntityMapper(Warehouse warehouse)
+    //    {
+    //        Mapper.Initialize(cfg =>
+    //        {
+    //            cfg.CreateMap<Associate, Associate>();
+    //            cfg.CreateMap<AssociateTag, AssociateTag>();
+    //            cfg.CreateMap<Branch, Branch>();
+    //            cfg.CreateMap<BranchTag, BranchTag>();
+    //            cfg.CreateMap<Location, Location>();
+    //            cfg.CreateMap<LocationTag, LocationTag>();
+    //            cfg.CreateMap<Movement, Movement>();
+    //            cfg.CreateMap<MovementTag, MovementTag>();
+    //            cfg.CreateMap<Product, Product>();
+    //            cfg.CreateMap<ProductTag, ProductTag>();
+    //            cfg.CreateMap<Tag, Tag>();
+    //            cfg.CreateMap<Warehouse, Warehouse>();
+    //            cfg.CreateMap<WarehouseTag, WarehouseTag>();
+    //            cfg.CreateMap<WarehouseProduct, WarehouseProduct>();
+    //            cfg.CreateMap<WarehouseProductTag, WarehouseProductTag>();
+    //        });
 
-        protected override void Reset() => Mapper.Reset();
-    }
+    //        return Mapper.Map<Warehouse, Warehouse>(warehouse);
+    //    }
+
+    //    protected override void Reset() => Mapper.Reset();
+    //}
 }

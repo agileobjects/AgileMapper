@@ -34,6 +34,8 @@
 
         public override string Type => "deep";
 
+        public override object SourceObject => _customer;
+
         public override object Execute(Stopwatch timer) => Map(_customer);
 
         protected abstract CustomerDto Map(Customer customer);
