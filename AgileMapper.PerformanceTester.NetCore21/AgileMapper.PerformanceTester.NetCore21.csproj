@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\common.props" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <AssemblyName>AgileObjects.AgileMapper.PerformanceTester.NetCore21</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.PerformanceTester.NetCore21</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="7.0.1" />
+    <PackageReference Include="Mapster" Version="3.1.8" />
+    <PackageReference Include="ValueInjecter" Version="3.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.PerformanceTesting\AgileMapper.PerformanceTesting.csproj" />
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
+    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj" />
+  </ItemGroup>
+
+</Project>

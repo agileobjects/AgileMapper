@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Linq;
     using System.Reflection;
 
     public abstract class MapperSetupTestBase : IObjectMapperTest
@@ -10,17 +11,37 @@
 
         protected MapperSetupTestBase()
         {
-            var type = GetType();
-            var mapperTestName = $"{type.Namespace}.{type.Name.Replace("Setup", null)}";
-
-            var mapperTestType =
-                type.Assembly.GetType(mapperTestName, throwOnError: false) ??
-                Assembly.GetExecutingAssembly().GetType(mapperTestName, throwOnError: false) ??
-                throw new InvalidOperationException("Couldn't find mapper test " + mapperTestName);
+            var mapperTestType = FindTestTypeOrThrow();
 
             _mapperTest = (IObjectMapperTest)Activator.CreateInstance(mapperTestType);
 
             _mapperTest.Initialise();
+        }
+
+        private Type FindTestTypeOrThrow()
+        {
+            var type = GetType();
+            var testName = type.Name.Replace("Setup", null);
+            var testFullName = $"{type.Namespace}.{testName}";
+
+            var testType = type.Assembly.GetType(testFullName, throwOnError: false);
+
+            if (testType != null)
+            {
+                return testType;
+            }
+
+            testType = Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .FirstOrDefault(t => t.Name == testName);
+
+            if (testType != null)
+            {
+                return testType;
+            }
+
+            throw new InvalidOperationException("Couldn't find mapper test " + testName);
         }
 
         public abstract string Type { get; }

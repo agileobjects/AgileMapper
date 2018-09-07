@@ -14,39 +14,49 @@ namespace AgileObjects.AgileMapper.PerformanceTesting
     using ConcreteMappers.Mapster;
     using ConcreteMappers.ValueInjecter;
     using Extensions;
+    using static MapperIds;
 
     public class PerformanceTestRunner
     {
         private static readonly string[] _testIds =
             { "ctor", "compl", "compls", "flat", "unflat", "unflats", "deep", "deeps", "ent", "ents", "new" };
 
-        private readonly Dictionary<string, IObjectMapperTest[]> _mapperTestsByMapperId;
+        private readonly Dictionary<string, ICollection<IObjectMapperTest>> _mapperTestsByMapperId;
 
         public PerformanceTestRunner()
         {
-            _mapperTestsByMapperId = new Dictionary<string, IObjectMapperTest[]>
+            _mapperTestsByMapperId = new Dictionary<string, ICollection<IObjectMapperTest>>
             {
-                ["man"] = GetMapperTestsFor(typeof(ManualCtorMapper)),
-                ["ag"] = GetMapperTestsFor(typeof(AgileMapperCtorMapper)),
-                ["au"] = GetMapperTestsFor(typeof(AutoMapperCtorMapper)),
-                ["ma"] = GetMapperTestsFor(typeof(MapsterCtorMapper)),
-                ["vi"] = GetMapperTestsFor(typeof(ValueInjecterCtorMapper))
+                [Manual] = GetMapperTestsFor(typeof(ManualCtorMapper)),
+                [AgileMapper] = GetMapperTestsFor(typeof(AgileMapperCtorMapper)),
+                [AutoMapper] = GetMapperTestsFor(typeof(AutoMapperCtorMapper)),
+                [Mapster] = GetMapperTestsFor(typeof(MapsterCtorMapper)),
+                [ValueInjecter] = GetMapperTestsFor(typeof(ValueInjecterCtorMapper))
             };
         }
 
-        private static IObjectMapperTest[] GetMapperTestsFor(Type exampleMapperTestType)
+        private static ICollection<IObjectMapperTest> GetMapperTestsFor(Type exampleMapperTestType)
         {
             return exampleMapperTestType
                 .Assembly
                 .GetTypes()
                 .Filter(t => (t.Namespace == exampleMapperTestType.Namespace) && typeof(IObjectMapperTest).IsAssignableFrom(t))
-                .Project(t => (IObjectMapperTest)Activator.CreateInstance(t))
-                .ToArray();
+                .Project(CreateTest)
+                .ToList();
         }
+
+        private static IObjectMapperTest CreateTest(Type testType)
+            => (IObjectMapperTest)Activator.CreateInstance(testType);
 
         public PerformanceTestRunner AddMapper(string id, Type exampleMapperTestType)
         {
             _mapperTestsByMapperId[id] = GetMapperTestsFor(exampleMapperTestType);
+            return this;
+        }
+
+        public PerformanceTestRunner AddTest(string mapperId, Type testType)
+        {
+            _mapperTestsByMapperId[mapperId].Add(CreateTest(testType));
             return this;
         }
 
