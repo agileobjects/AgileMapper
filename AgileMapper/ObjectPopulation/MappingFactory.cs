@@ -295,27 +295,26 @@
             bool performValueReplacement = false)
         {
             var variableAssignment = variable.AssignTo(variableValue);
-            var bodyIsTryCatch = body.NodeType == ExpressionType.Try;
-            var tryCatch = bodyIsTryCatch ? (TryExpression)body : null;
-            var mappingBody = bodyIsTryCatch ? tryCatch.Body : body;
 
-            if (performValueReplacement)
+            if (body.NodeType != ExpressionType.Try)
             {
-                mappingBody = mappingBody.Replace(variableValue, variable);
+                if (performValueReplacement)
+                {
+                    body = body.Replace(variableValue, variable);
+                }
+
+                return Expression.Block(new[] { variable }, variableAssignment, body);
             }
 
-            if (!bodyIsTryCatch)
-            {
-                return Expression.Block(new[] { variable }, variableAssignment, mappingBody);
-            }
+            var tryCatch = (TryExpression)body;
 
-            mappingBody = tryCatch.Update(
-                Expression.Block(variableAssignment, mappingBody),
+            body = tryCatch.Update(
+                Expression.Block(variableAssignment, tryCatch.Body.Replace(variableValue, variable)),
                 tryCatch.Handlers,
                 tryCatch.Finally,
                 tryCatch.Fault);
 
-            return Expression.Block(new[] { variable }, mappingBody);
+            return Expression.Block(new[] { variable }, body);
         }
     }
 }
