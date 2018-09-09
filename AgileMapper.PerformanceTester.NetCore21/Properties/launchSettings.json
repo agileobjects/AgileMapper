@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AgileMapper.PerformanceTester.NetCore21": {
+      "commandName": "Project",
+      "commandLineArgs": "ma ents"
+    }
+  }
+}
