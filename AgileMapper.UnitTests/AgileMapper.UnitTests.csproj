@@ -234,6 +234,7 @@
     <Compile Include="WhenMappingEntities.cs" />
     <Compile Include="WhenMappingToMetaMembers.cs" />
     <Compile Include="WhenUnflatteningFromQueryStrings.cs" />
+    <Compile Include="WhenUsingFactoryMethods.cs" />
     <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />

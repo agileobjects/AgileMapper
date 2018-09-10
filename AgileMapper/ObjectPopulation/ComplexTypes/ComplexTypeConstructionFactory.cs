@@ -17,6 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 #else
     using System.Linq.Expressions;
 #endif
+    using static System.StringComparison;
 
     internal class ComplexTypeConstructionFactory
     {
@@ -36,11 +37,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 AddConfiguredConstructions(
                     constructions,
                     key,
-                    out var newingConstructorRequired);
+                    out var otherConstructionRequired);
 
-                if (newingConstructorRequired && !key.MappingData.MapperData.TargetType.IsAbstract())
+                if (otherConstructionRequired && !key.MappingData.MapperData.TargetType.IsAbstract())
                 {
-                    AddNewingConstruction(constructions, key);
+                    AddAutoConstruction(constructions, key);
                 }
 
                 if (constructions.None())
@@ -72,11 +73,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private static void AddConfiguredConstructions(
             ICollection<Construction> constructions,
             ConstructionKey key,
-            out bool newingConstructorRequired)
+            out bool otherConstructionRequired)
         {
             var mapperData = key.MappingData.MapperData;
 
-            newingConstructorRequired = true;
+            otherConstructionRequired = true;
 
             var configuredFactories = mapperData
                 .MapperContext
@@ -91,61 +92,107 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                 if (configuredConstruction.IsUnconditional)
                 {
-                    newingConstructorRequired = false;
+                    otherConstructionRequired = false;
                     return;
                 }
             }
         }
 
-        private static void AddNewingConstruction(ICollection<Construction> constructions, ConstructionKey key)
+        private static void AddAutoConstruction(ICollection<Construction> constructions, ConstructionKey key)
         {
             var mapperData = key.MappingData.MapperData;
+
+            var greediestAvailableFactoryMethod = mapperData.TargetInstance.Type
+                .GetPublicStaticMethods()
+                .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type))
+                .Project(fm => CreateFactoryMethodData(fm, key))
+                .Filter(fm => fm.CanBeInvoked)
+                .OrderByDescending(fm => fm.NumberOfParameters)
+                .FirstOrDefault();
 
             var constructors = mapperData.TargetInstance.Type
                 .GetPublicInstanceConstructors()
                 .ToArray();
 
-            var greediestAvailableConstructor = constructors.Any()
+            var greedierAvailableConstructor = constructors.Any()
                 ? constructors
-                    .Filter(IsNotCopyConstructor)
+                    .Filter(ctor => IsCandidateCtor(ctor, greediestAvailableFactoryMethod))
                     .Project(ctor => CreateConstructorData(ctor, key))
-                    .Filter(ctor => ctor.CanBeConstructed)
+                    .Filter(ctor => ctor.CanBeInvoked)
                     .OrderByDescending(ctor => ctor.NumberOfParameters)
                     .FirstOrDefault()
                 : null;
 
-            if (greediestAvailableConstructor == null)
+            if (greedierAvailableConstructor != null)
             {
-                if (constructors.None() && mapperData.TargetMemberIsUserStruct())
-                {
-                    constructions.Add(Construction.NewStruct(mapperData.TargetInstance.Type));
-                }
-
+                greedierAvailableConstructor.AddTo(constructions, key);
                 return;
             }
 
-            foreach (var memberAndDataSourceSet in greediestAvailableConstructor.ArgumentDataSources)
+            if (greediestAvailableFactoryMethod != null)
             {
-                key.MappingData.MapperData.DataSourcesByTargetMember.Add(
-                    memberAndDataSourceSet.Item1,
-                    memberAndDataSourceSet.Item2);
+                greediestAvailableFactoryMethod.AddTo(constructions, key);
+                return;
             }
 
-            constructions.Add(greediestAvailableConstructor.Construction);
+            if (constructors.None() && mapperData.TargetMemberIsUserStruct())
+            {
+                constructions.Add(Construction.NewStruct(mapperData.TargetInstance.Type));
+            }
         }
 
-        private static bool IsNotCopyConstructor(ConstructorInfo ctor)
+        private static bool IsFactoryMethod(MethodInfo method, Type targetType)
         {
-            // If the constructor takes an instance of itself, we'll potentially end 
-            // up in an infinite loop figuring out how to create instances for it:
-            return ctor.GetParameters().None(p => p.ParameterType == ctor.DeclaringType);
+            return (method.ReturnType == targetType) &&
+                   (method.Name.StartsWith("Create", Ordinal) || method.Name.StartsWith("Get", Ordinal));
         }
 
-        private static ConstructorData CreateConstructorData(ConstructorInfo ctor, ConstructionKey key)
+        private static IConstructionData CreateFactoryMethodData(MethodInfo factoryMethod, ConstructionKey key)
         {
             var mapperData = key.MappingData.MapperData;
 
-            var ctorData = new ConstructorData(
+            var factoryMethodData = new ConstructionData<MethodInfo>(
+                factoryMethod,
+                factoryMethod
+                    .GetParameters()
+                    .Project(p =>
+                    {
+                        var parameterMapperData = new ChildMemberMapperData(
+                            mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
+                            mapperData);
+
+                        var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
+                        var dataSources = DataSourceFinder.FindFor(memberMappingData);
+
+                        return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
+                    })
+                    .ToArray(),
+                Expression.Call);
+
+            return factoryMethodData;
+        }
+
+        private static bool IsCandidateCtor(MethodBase ctor, IConstructionData candidateFactoryMethod)
+        {
+            var ctorCarameters = ctor.GetParameters();
+
+            return ((candidateFactoryMethod == null) ||
+                    (candidateFactoryMethod.NumberOfParameters < ctorCarameters.Length)) &&
+                     IsNotCopyConstructor(ctor.DeclaringType, ctorCarameters);
+        }
+
+        private static bool IsNotCopyConstructor(Type type, IList<ParameterInfo> ctorParameters)
+        {
+            // If the constructor takes an instance of itself, we'll potentially end 
+            // up in an infinite loop figuring out how to create instances for it:
+            return ctorParameters.None(p => p.ParameterType == type);
+        }
+
+        private static IConstructionData CreateConstructorData(ConstructorInfo ctor, ConstructionKey key)
+        {
+            var mapperData = key.MappingData.MapperData;
+
+            var ctorData = new ConstructionData<ConstructorInfo>(
                 ctor,
                 ctor.GetParameters()
                     .Project(p =>
@@ -159,7 +206,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                         return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
                     })
-                    .ToArray());
+                    .ToArray(),
+                Expression.New);
 
             return ctorData;
         }
@@ -201,45 +249,82 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public override int GetHashCode() => 0;
         }
 
-        private class ConstructorData
+        private interface IConstructionData
         {
-            public ConstructorData(
-                ConstructorInfo constructor,
-                ICollection<Tuple<QualifiedMember, DataSourceSet>> argumentDataSources)
+            bool CanBeInvoked { get; }
+
+            int NumberOfParameters { get; }
+
+            void AddTo(ICollection<Construction> constructions, ConstructionKey key);
+        }
+
+        private class ConstructionData<TInvokable> : IConstructionData
+        {
+            private readonly IEnumerable<Tuple<QualifiedMember, DataSourceSet>> _argumentDataSources;
+            private readonly Construction _construction;
+
+            public ConstructionData(
+                TInvokable invokable,
+                ICollection<Tuple<QualifiedMember, DataSourceSet>> argumentDataSources,
+                Func<TInvokable, IList<Expression>, Expression> constructionFactory)
             {
-                CanBeConstructed = argumentDataSources.All(ds => ds.Item2.HasValue);
+                CanBeInvoked = argumentDataSources.All(ds => ds.Item2.HasValue);
                 NumberOfParameters = argumentDataSources.Count;
 
-                if (!CanBeConstructed)
+                if (!CanBeInvoked)
                 {
                     return;
                 }
 
-                var variables = new List<ParameterExpression>();
-                var argumentValues = new List<Expression>(NumberOfParameters);
+                IList<ParameterExpression> variables;
+                IList<Expression> argumentValues;
 
-                foreach (var argumentDataSource in argumentDataSources)
+                if (argumentDataSources.None())
                 {
-                    variables.AddRange(argumentDataSource.Item2.Variables);
-                    argumentValues.Add(argumentDataSource.Item2.ValueExpression);
+                    variables = Enumerable<ParameterExpression>.EmptyArray;
+                    argumentValues = Enumerable<Expression>.EmptyArray;
+                    _argumentDataSources = Enumerable<Tuple<QualifiedMember, DataSourceSet>>.Empty;
+                }
+                else
+                {
+                    var vars = new List<ParameterExpression>();
+                    argumentValues = new List<Expression>(NumberOfParameters);
+
+                    foreach (var argumentDataSource in argumentDataSources)
+                    {
+                        vars.AddRange(argumentDataSource.Item2.Variables);
+                        argumentValues.Add(argumentDataSource.Item2.ValueExpression);
+                    }
+
+                    variables = vars;
+                    _argumentDataSources = argumentDataSources;
                 }
 
-                var objectConstruction = Expression.New(constructor, argumentValues);
+                var constructionExpression = constructionFactory.Invoke(invokable, argumentValues);
 
-                ArgumentDataSources = argumentDataSources;
-
-                Construction = variables.None()
-                    ? new Construction(objectConstruction)
-                    : new Construction(Expression.Block(variables, objectConstruction));
+                _construction = variables.None()
+                    ? new Construction(constructionExpression)
+                    : new Construction(Expression.Block(variables, constructionExpression));
             }
 
-            public bool CanBeConstructed { get; }
+            public bool CanBeInvoked { get; }
 
             public int NumberOfParameters { get; }
 
-            public IEnumerable<Tuple<QualifiedMember, DataSourceSet>> ArgumentDataSources { get; }
+            public void AddTo(ICollection<Construction> constructions, ConstructionKey key)
+            {
+                if (NumberOfParameters > 0)
+                {
+                    foreach (var memberAndDataSourceSet in _argumentDataSources)
+                    {
+                        key.MappingData.MapperData.DataSourcesByTargetMember.Add(
+                            memberAndDataSourceSet.Item1,
+                            memberAndDataSourceSet.Item2);
+                    }
+                }
 
-            public Construction Construction { get; }
+                constructions.Add(_construction);
+            }
         }
 
         private class Construction : IConditionallyChainable
