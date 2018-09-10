@@ -105,7 +105,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var greediestAvailableFactoryMethod = mapperData.TargetInstance.Type
                 .GetPublicStaticMethods()
                 .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type))
-                .Project(fm => CreateFactoryMethodData(fm, key))
+                .Project(fm => new ConstructionData<MethodInfo>(fm, Expression.Call, key))
                 .Filter(fm => fm.CanBeInvoked)
                 .OrderByDescending(fm => fm.NumberOfParameters)
                 .FirstOrDefault();
@@ -117,7 +117,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var greedierAvailableConstructor = constructors.Any()
                 ? constructors
                     .Filter(ctor => IsCandidateCtor(ctor, greediestAvailableFactoryMethod))
-                    .Project(ctor => CreateConstructorData(ctor, key))
+                    .Project(ctor => new ConstructionData<ConstructorInfo>(ctor, Expression.New, key))
                     .Filter(ctor => ctor.CanBeInvoked)
                     .OrderByDescending(ctor => ctor.NumberOfParameters)
                     .FirstOrDefault()
@@ -147,32 +147,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                    (method.Name.StartsWith("Create", Ordinal) || method.Name.StartsWith("Get", Ordinal));
         }
 
-        private static IConstructionData CreateFactoryMethodData(MethodInfo factoryMethod, ConstructionKey key)
-        {
-            var mapperData = key.MappingData.MapperData;
-
-            var factoryMethodData = new ConstructionData<MethodInfo>(
-                factoryMethod,
-                factoryMethod
-                    .GetParameters()
-                    .Project(p =>
-                    {
-                        var parameterMapperData = new ChildMemberMapperData(
-                            mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
-                            mapperData);
-
-                        var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
-                        var dataSources = DataSourceFinder.FindFor(memberMappingData);
-
-                        return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
-                    })
-                    .ToArray(),
-                Expression.Call);
-
-            return factoryMethodData;
-        }
-
-        private static bool IsCandidateCtor(MethodBase ctor, IConstructionData candidateFactoryMethod)
+        private static bool IsCandidateCtor(MethodBase ctor, ConstructionData<MethodInfo> candidateFactoryMethod)
         {
             var ctorCarameters = ctor.GetParameters();
 
@@ -186,30 +161,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             // If the constructor takes an instance of itself, we'll potentially end 
             // up in an infinite loop figuring out how to create instances for it:
             return ctorParameters.None(p => p.ParameterType == type);
-        }
-
-        private static IConstructionData CreateConstructorData(ConstructorInfo ctor, ConstructionKey key)
-        {
-            var mapperData = key.MappingData.MapperData;
-
-            var ctorData = new ConstructionData<ConstructorInfo>(
-                ctor,
-                ctor.GetParameters()
-                    .Project(p =>
-                    {
-                        var parameterMapperData = new ChildMemberMapperData(
-                            mapperData.TargetMember.Append(Member.ConstructorParameter(p)),
-                            mapperData);
-
-                        var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
-                        var dataSources = DataSourceFinder.FindFor(memberMappingData);
-
-                        return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
-                    })
-                    .ToArray(),
-                Expression.New);
-
-            return ctorData;
         }
 
         public void Reset() => _constructorsCache.Empty();
@@ -249,27 +200,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public override int GetHashCode() => 0;
         }
 
-        private interface IConstructionData
-        {
-            bool CanBeInvoked { get; }
-
-            int NumberOfParameters { get; }
-
-            void AddTo(ICollection<Construction> constructions, ConstructionKey key);
-        }
-
-        private class ConstructionData<TInvokable> : IConstructionData
+        private class ConstructionData<TInvokable>
+            where TInvokable : MethodBase
         {
             private readonly IEnumerable<Tuple<QualifiedMember, DataSourceSet>> _argumentDataSources;
             private readonly Construction _construction;
 
             public ConstructionData(
                 TInvokable invokable,
-                ICollection<Tuple<QualifiedMember, DataSourceSet>> argumentDataSources,
-                Func<TInvokable, IList<Expression>, Expression> constructionFactory)
+                Func<TInvokable, IList<Expression>, Expression> constructionFactory,
+                ConstructionKey key)
             {
+                var argumentDataSources = GetArgumentDataSources(invokable, key);
+
                 CanBeInvoked = argumentDataSources.All(ds => ds.Item2.HasValue);
-                NumberOfParameters = argumentDataSources.Count;
+                NumberOfParameters = argumentDataSources.Length;
 
                 if (!CanBeInvoked)
                 {
@@ -305,6 +250,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 _construction = variables.None()
                     ? new Construction(constructionExpression)
                     : new Construction(Expression.Block(variables, constructionExpression));
+            }
+
+            private static Tuple<QualifiedMember, DataSourceSet>[] GetArgumentDataSources(TInvokable invokable, ConstructionKey key)
+            {
+                return invokable
+                    .GetParameters()
+                    .Project(p =>
+                    {
+                        var parameterMapperData = new ChildMemberMapperData(
+                            key.MappingData.MapperData.TargetMember.Append(Member.ConstructorParameter(p)),
+                            key.MappingData.MapperData);
+
+                        var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
+                        var dataSources = DataSourceFinder.FindFor(memberMappingData);
+
+                        return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
+                    })
+                    .ToArray();
             }
 
             public bool CanBeInvoked { get; }

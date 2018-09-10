@@ -276,7 +276,7 @@
         public void ShouldHandleANullUnconstructableRootTarget()
         {
             var source = new { Value = new { Value = "Goodbye!" } };
-            var result = Mapper.Map(source).ToANew<PublicFactoryMethod<PublicField<string>>>();
+            var result = Mapper.Map(source).ToANew<PublicUnconstructable<PublicField<string>>>();
 
             result.ShouldBeNull();
         }
@@ -285,7 +285,7 @@
         public void ShouldHandleANullUnconstructableNestedMember()
         {
             var source = new { Value = new { Value = new { Value = "Goodbye!" } } };
-            var result = Mapper.Map(source).ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>();
+            var result = Mapper.Map(source).ToANew<PublicField<PublicUnconstructable<PublicField<string>>>>();
 
             result.Value.ShouldBeNull();
         }

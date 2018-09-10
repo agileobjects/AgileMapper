@@ -222,6 +222,7 @@
     <Compile Include="TestClasses\PublicTwoFields.cs" />
     <Compile Include="TestClasses\PublicTwoFieldsStruct.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
+    <Compile Include="TestClasses\PublicUnconstructable.cs" />
     <Compile Include="TestClasses\SaveOrderItemRequest.cs" />
     <Compile Include="TestClasses\SaveOrderRequest.cs" />
     <Compile Include="TestClasses\Status.cs" />
