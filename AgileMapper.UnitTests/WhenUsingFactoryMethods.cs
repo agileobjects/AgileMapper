@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using AgileMapper.Configuration;
     using Common;
     using TestClasses;
 #if !NET35
@@ -67,6 +68,28 @@
             result.ShouldNotBeNull();
             result.Value1.ShouldBe("123");
             result.Value2.ShouldBe("987");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantFactoryMethodConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicTwoFieldsStruct<string, string>>()
+                        .ToANew<MultiParameterCreateMethod>()
+                        .CreateInstancesUsing(ctx => MultiParameterCreateMethod.CreateObject(
+                            ctx.Source.Value1,
+                            ctx.Source.Value2));
+                }
+            });
+
+            configEx.Message.ShouldContain(
+                "MultiParameterCreateMethod.CreateObject(ctx.Source.Value1, ctx.Source.Value2)");
+
+            configEx.Message.ShouldContain("does not need to be configured");
         }
 
         #region Helper Classes
