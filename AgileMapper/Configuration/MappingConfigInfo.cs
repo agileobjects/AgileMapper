@@ -85,6 +85,8 @@
             return this;
         }
 
+        public bool IsForAllRuleSets => IsFor(_allRuleSets);
+
         public bool IsFor(MappingRuleSet mappingRuleSet)
             => (RuleSet == _allRuleSets) || (mappingRuleSet == _allRuleSets) || (mappingRuleSet == RuleSet);
 

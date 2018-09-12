@@ -70,6 +70,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return creationExpression;
         }
 
+        public Expression GetFactoryMethodObjectCreationOrNull(IObjectMappingData mappingData)
+        {
+            var key = new ConstructionKey(mappingData);
+            var factoryData = GetGreediestAvailableFactoryData(key);
+
+            return factoryData?.Construction.With(key).GetConstruction(mappingData);
+        }
+
         private static void AddConfiguredConstructions(
             ICollection<Construction> constructions,
             ConstructionKey key,
@@ -102,36 +110,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             var mapperData = key.MappingData.MapperData;
 
-            var greediestAvailableFactoryMethod = mapperData.TargetInstance.Type
-                .GetPublicStaticMethods()
-                .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type))
-                .Project(fm => new ConstructionData<MethodInfo>(fm, Expression.Call, key))
-                .Filter(fm => fm.CanBeInvoked)
-                .OrderByDescending(fm => fm.NumberOfParameters)
-                .FirstOrDefault();
+            var greediestAvailableFactory = GetGreediestAvailableFactoryData(key);
 
             var constructors = mapperData.TargetInstance.Type
                 .GetPublicInstanceConstructors()
                 .ToArray();
 
-            var greedierAvailableConstructor = constructors.Any()
+            var greedierAvailableNewing = constructors.Any()
                 ? constructors
-                    .Filter(ctor => IsCandidateCtor(ctor, greediestAvailableFactoryMethod))
+                    .Filter(ctor => IsCandidateCtor(ctor, greediestAvailableFactory))
                     .Project(ctor => new ConstructionData<ConstructorInfo>(ctor, Expression.New, key))
                     .Filter(ctor => ctor.CanBeInvoked)
                     .OrderByDescending(ctor => ctor.NumberOfParameters)
                     .FirstOrDefault()
                 : null;
 
-            if (greedierAvailableConstructor != null)
+            if (greedierAvailableNewing != null)
             {
-                greedierAvailableConstructor.AddTo(constructions, key);
+                greedierAvailableNewing.AddTo(constructions, key);
                 return;
             }
 
-            if (greediestAvailableFactoryMethod != null)
+            if (greediestAvailableFactory != null)
             {
-                greediestAvailableFactoryMethod.AddTo(constructions, key);
+                greediestAvailableFactory.AddTo(constructions, key);
                 return;
             }
 
@@ -139,6 +141,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 constructions.Add(Construction.NewStruct(mapperData.TargetInstance.Type));
             }
+        }
+
+        private static ConstructionData<MethodInfo> GetGreediestAvailableFactoryData(ConstructionKey key)
+        {
+            var mapperData = key.MappingData.MapperData;
+
+            return mapperData.TargetInstance.Type
+                .GetPublicStaticMethods()
+                .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type))
+                .Project(fm => new ConstructionData<MethodInfo>(fm, Expression.Call, key))
+                .Filter(fm => fm.CanBeInvoked)
+                .OrderByDescending(fm => fm.NumberOfParameters)
+                .FirstOrDefault();
         }
 
         private static bool IsFactoryMethod(MethodInfo method, Type targetType)
@@ -204,7 +219,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             where TInvokable : MethodBase
         {
             private readonly IEnumerable<Tuple<QualifiedMember, DataSourceSet>> _argumentDataSources;
-            private readonly Construction _construction;
 
             public ConstructionData(
                 TInvokable invokable,
@@ -241,13 +255,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                         argumentValues.Add(argumentDataSource.Item2.ValueExpression);
                     }
 
-                    variables = vars;
+                    variables = vars.Any() ? (IList<ParameterExpression>)vars : Enumerable<ParameterExpression>.EmptyArray;
                     _argumentDataSources = argumentDataSources;
                 }
 
                 var constructionExpression = constructionFactory.Invoke(invokable, argumentValues);
 
-                _construction = variables.None()
+                Construction = variables.None()
                     ? new Construction(constructionExpression)
                     : new Construction(Expression.Block(variables, constructionExpression));
             }
@@ -274,6 +288,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public int NumberOfParameters { get; }
 
+            public Construction Construction { get; }
+
             public void AddTo(ICollection<Construction> constructions, ConstructionKey key)
             {
                 if (NumberOfParameters > 0)
@@ -286,7 +302,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     }
                 }
 
-                constructions.Add(_construction);
+                constructions.Add(Construction);
             }
         }
 
@@ -331,7 +347,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return construction.With(key);
             }
 
-            private Construction With(ConstructionKey key)
+            public Construction With(ConstructionKey key)
             {
                 _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
                 return this;

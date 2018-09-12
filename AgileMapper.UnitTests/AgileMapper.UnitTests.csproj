@@ -215,7 +215,6 @@
     <Compile Include="TestClasses\PaymentTypeUk.cs" />
     <Compile Include="TestClasses\PaymentTypeUs.cs" />
     <Compile Include="TestClasses\PublicCtorStruct.cs" />
-    <Compile Include="TestClasses\PublicFactoryMethod.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicPropertyStruct.cs" />

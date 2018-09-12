@@ -79,29 +79,43 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         private MappingConfigContinuation<TSource, TTarget> RegisterObjectFactory(LambdaExpr factoryLambda)
         {
+            ThrowIfRedundantFactoryConfiguration(factoryLambda);
+
+            return RegisterObjectFactory(factoryLambda, ConfiguredObjectFactory.For);
+        }
+
+        private void ThrowIfRedundantFactoryConfiguration(LambdaExpr factoryLambda)
+        {
+            var ruleSet = _configInfo.IsForAllRuleSets
+                ? _configInfo.MapperContext.RuleSets.CreateNew
+                : _configInfo.RuleSet;
+
             var mappingContext = new SimpleMappingContext(
-                _configInfo.RuleSet,
+                ruleSet,
                 _configInfo.MapperContext);
 
             var mappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes<TSource, TObject>(mappingContext);
+                .ForRootFixedTypes<TSource, TObject>(mappingContext, createMapper: false);
 
-            var objectCreation = _configInfo
+            var factoryMethodObjectCreation = _configInfo
                 .MapperContext
                 .ConstructionFactory
-                .GetNewObjectCreation(mappingData);
+                .GetFactoryMethodObjectCreationOrNull(mappingData);
+
+            if (factoryMethodObjectCreation == null)
+            {
+                return;
+            }
 
             var factory = factoryLambda
                 .ReplaceParameterWith(mappingData.MapperData.MappingDataObject);
 
-            if (ExpressionEvaluation.AreEquivalent(factory, objectCreation))
+            if (ExpressionEvaluation.AreEquivalent(factory, factoryMethodObjectCreation))
             {
                 throw new MappingConfigurationException(
                     $"{factoryLambda.Body.ToReadableString()} will automatically be used to create " +
                     $"{typeof(TObject).GetFriendlyName()} instances, and does not need to be configured.");
             }
-
-            return RegisterObjectFactory(factoryLambda, ConfiguredObjectFactory.For);
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterObjectFactory<TFactory>(

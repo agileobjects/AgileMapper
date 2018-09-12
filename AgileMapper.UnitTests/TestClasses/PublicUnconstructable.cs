@@ -7,6 +7,9 @@
             Value = value;
         }
 
+        internal static PublicUnconstructable<T> MakeOne(T unconstructableValue)
+            => new PublicUnconstructable<T>(unconstructableValue);
+
         public T Value { get; }
     }
 }
