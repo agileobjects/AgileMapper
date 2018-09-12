@@ -2,6 +2,7 @@
 {
     using System;
     using Extensions.Internal;
+    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -45,7 +46,7 @@
             out Expression maxValueComparisonLeftSide,
             out Expression maxValueComparisonRightSide)
         {
-            var numericMaxValue = Expression.Field(null, nonNullableTargetType, "MaxValue");
+            var numericMaxValue = GetValueConstant(nonNullableTargetType, "MaxValue");
 
             if (sourceValue.Type.HasGreaterMaxValueThan(nonNullableTargetType))
             {
@@ -66,7 +67,7 @@
             out Expression minValueComparisonLeftSide,
             out Expression minValueComparisonRightSide)
         {
-            var numericMinValue = Expression.Field(null, nonNullableTargetType, "MinValue");
+            var numericMinValue = GetValueConstant(nonNullableTargetType, "MinValue");
 
             if (sourceValue.Type.HasSmallerMinValueThan(nonNullableTargetType))
             {
@@ -78,6 +79,14 @@
                 minValueComparisonLeftSide = sourceValue.GetConversionTo(nonNullableTargetType);
                 minValueComparisonRightSide = numericMinValue;
             }
+        }
+
+        private static ConstantExpression GetValueConstant(Type nonNullableTargetType, string fieldName)
+        {
+            return nonNullableTargetType
+                .GetPublicStaticField(fieldName)
+                .GetValue(null)
+                .ToConstantExpression(nonNullableTargetType);
         }
     }
 }
