@@ -215,13 +215,13 @@
     <Compile Include="TestClasses\PaymentTypeUk.cs" />
     <Compile Include="TestClasses\PaymentTypeUs.cs" />
     <Compile Include="TestClasses\PublicCtorStruct.cs" />
-    <Compile Include="TestClasses\PublicFactoryMethod.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicPropertyStruct.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />
     <Compile Include="TestClasses\PublicTwoFieldsStruct.cs" />
     <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
+    <Compile Include="TestClasses\PublicUnconstructable.cs" />
     <Compile Include="TestClasses\SaveOrderItemRequest.cs" />
     <Compile Include="TestClasses\SaveOrderRequest.cs" />
     <Compile Include="TestClasses\Status.cs" />
@@ -234,6 +234,7 @@
     <Compile Include="WhenMappingEntities.cs" />
     <Compile Include="WhenMappingToMetaMembers.cs" />
     <Compile Include="WhenUnflatteningFromQueryStrings.cs" />
+    <Compile Include="WhenUsingFactoryMethods.cs" />
     <Compile Include="WhenValidatingMappings.cs" />
     <Compile Include="WhenAnalysingCollections.cs" />
     <Compile Include="MapperCloning\WhenCloningDataSources.cs" />

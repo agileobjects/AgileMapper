@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using Internal;
 
@@ -21,6 +22,7 @@
         /// <param name="items">The items to project.</param>
         /// <param name="projector">A Func with which to project each item in the enumerable.</param>
         /// <returns>An iterator to transform this enumerable.</returns>
+        [DebuggerStepThrough]
         public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, TResult> projector)
         {
             foreach (var item in items)
@@ -40,6 +42,7 @@
         /// <param name="items">The items to project.</param>
         /// <param name="projector">A Func with which to project each item in the enumerable.</param>
         /// <returns>An iterator to transform this enumerable.</returns>
+        [DebuggerStepThrough]
         public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, int, TResult> projector)
         {
             var index = 0;
@@ -59,6 +62,7 @@
         /// <returns>
         /// An enumerator yielding the <paramref name="items"/> which pass the given <paramref name="predicate"/>.
         /// </returns>
+        [DebuggerStepThrough]
         public static IEnumerable<TItem> Filter<TItem>(this IEnumerable<TItem> items, Func<TItem, bool> predicate)
         {
             foreach (var item in items)

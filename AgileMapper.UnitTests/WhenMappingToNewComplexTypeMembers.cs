@@ -256,14 +256,14 @@
                 var existingValue = new PublicField<string>();
 
                 mapper.WhenMapping
-                    .ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>()
-                    .CreateInstancesUsing(data => new PublicField<PublicFactoryMethod<PublicField<string>>>
+                    .ToANew<PublicField<PublicUnconstructable<PublicField<string>>>>()
+                    .CreateInstancesUsing(data => new PublicField<PublicUnconstructable<PublicField<string>>>
                     {
-                        Value = PublicFactoryMethod<PublicField<string>>.Create(existingValue)
+                        Value = PublicUnconstructable<PublicField<string>>.MakeOne(existingValue)
                     });
 
                 var source = new { Value = new { Value = new { Value = "Hello!" } } };
-                var result = mapper.Map(source).ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>();
+                var result = mapper.Map(source).ToANew<PublicField<PublicUnconstructable<PublicField<string>>>>();
 
                 result.Value.ShouldNotBeNull();
                 result.Value.Value.ShouldNotBeNull();
@@ -276,7 +276,7 @@
         public void ShouldHandleANullUnconstructableRootTarget()
         {
             var source = new { Value = new { Value = "Goodbye!" } };
-            var result = Mapper.Map(source).ToANew<PublicFactoryMethod<PublicField<string>>>();
+            var result = Mapper.Map(source).ToANew<PublicUnconstructable<PublicField<string>>>();
 
             result.ShouldBeNull();
         }
@@ -285,7 +285,7 @@
         public void ShouldHandleANullUnconstructableNestedMember()
         {
             var source = new { Value = new { Value = new { Value = "Goodbye!" } } };
-            var result = Mapper.Map(source).ToANew<PublicField<PublicFactoryMethod<PublicField<string>>>>();
+            var result = Mapper.Map(source).ToANew<PublicField<PublicUnconstructable<PublicField<string>>>>();
 
             result.Value.ShouldBeNull();
         }

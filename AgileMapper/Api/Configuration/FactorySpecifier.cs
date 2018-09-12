@@ -4,13 +4,17 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using System.Globalization;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
-#if NET35
     using Extensions.Internal;
-#endif
     using Members;
     using ObjectPopulation;
     using Projection;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using LambdaExpr = Microsoft.Scripting.Ast.LambdaExpression;
+#else
+    using LambdaExpr = System.Linq.Expressions.LambdaExpression;
+#endif
 
     internal class FactorySpecifier<TSource, TTarget, TObject> :
         IMappingFactorySpecifier<TSource, TTarget, TObject>,
@@ -26,21 +30,21 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         public IMappingConfigContinuation<TSource, TTarget> Using(
             Expression<Func<IMappingData<TSource, TTarget>, TObject>> factory)
 #if NET35
-            => RegisterObjectFactory(factory.ToDlrExpression(), ConfiguredObjectFactory.For);
+            => RegisterObjectFactory(factory.ToDlrExpression());
 #else
-            => RegisterObjectFactory(factory, ConfiguredObjectFactory.For);
+            => RegisterObjectFactory(factory);
 #endif
         public IProjectionConfigContinuation<TSource, TTarget> Using(Expression<Func<TSource, TObject>> factory)
 #if NET35
-            => RegisterObjectFactory(factory.ToDlrExpression(), ConfiguredObjectFactory.For);
+            => RegisterObjectFactory(factory.ToDlrExpression());
 #else
-            => RegisterObjectFactory(factory, ConfiguredObjectFactory.For);
+            => RegisterObjectFactory(factory);
 #endif
         public IMappingConfigContinuation<TSource, TTarget> Using(LambdaExpression factory)
 #if NET35
-            => RegisterObjectFactory(factory.ToDlrExpression(), ConfiguredObjectFactory.For);
+            => RegisterObjectFactory(factory.ToDlrExpression());
 #else
-            => RegisterObjectFactory(factory, ConfiguredObjectFactory.For);
+            => RegisterObjectFactory(factory);
 #endif
         public IMappingConfigContinuation<TSource, TTarget> Using<TFactory>(TFactory factory)
             where TFactory : class
@@ -71,6 +75,47 @@ namespace AgileObjects.AgileMapper.Api.Configuration
                 objectTypeName,
                 typeof(TFactory).GetFriendlyName(),
                 string.Join(", ", validSignatures)));
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> RegisterObjectFactory(LambdaExpr factoryLambda)
+        {
+            ThrowIfRedundantFactoryConfiguration(factoryLambda);
+
+            return RegisterObjectFactory(factoryLambda, ConfiguredObjectFactory.For);
+        }
+
+        private void ThrowIfRedundantFactoryConfiguration(LambdaExpr factoryLambda)
+        {
+            var ruleSet = _configInfo.IsForAllRuleSets
+                ? _configInfo.MapperContext.RuleSets.CreateNew
+                : _configInfo.RuleSet;
+
+            var mappingContext = new SimpleMappingContext(
+                ruleSet,
+                _configInfo.MapperContext);
+
+            var mappingData = ObjectMappingDataFactory
+                .ForRootFixedTypes<TSource, TObject>(mappingContext, createMapper: false);
+
+            var factoryMethodObjectCreation = _configInfo
+                .MapperContext
+                .ConstructionFactory
+                .GetFactoryMethodObjectCreationOrNull(mappingData);
+
+            if (factoryMethodObjectCreation == null)
+            {
+                return;
+            }
+
+            var factory = factoryLambda
+                .ReplaceParameterWith(mappingData.MapperData.MappingDataObject);
+
+            if (ExpressionEvaluation.AreEquivalent(factory, factoryMethodObjectCreation))
+            {
+                throw new MappingConfigurationException(
+                    $"{factoryLambda.Body.ToReadableString()} will automatically be used to create " +
+                    $"{typeof(TObject).GetFriendlyName()} instances, and does not need to be configured.");
+            }
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterObjectFactory<TFactory>(

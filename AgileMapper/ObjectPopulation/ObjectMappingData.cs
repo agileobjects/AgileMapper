@@ -32,7 +32,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? enumerableIndex,
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
-            IObjectMappingData parent)
+            IObjectMappingData parent,
+            bool createMapper = true)
             : this(
                   source,
                   target,
@@ -41,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   mappingContext,
                   null,
                   parent,
-                  createMapper: true)
+                  createMapper)
         {
         }
 

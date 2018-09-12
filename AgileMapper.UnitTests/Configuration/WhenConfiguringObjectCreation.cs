@@ -470,11 +470,11 @@
                 {
                     mapper.WhenMapping
                         .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address());
+                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
 
                     mapper.WhenMapping
                         .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address());
+                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
                 }
             });
 

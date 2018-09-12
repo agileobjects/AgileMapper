@@ -7,8 +7,8 @@
     using AgileMapper.Configuration.Inline;
     using Configuration;
     using Extensions;
-    using ObjectPopulation;
     using Extensions.Internal;
+    using ObjectPopulation;
     using Plans;
     using Queryables.Api;
 
