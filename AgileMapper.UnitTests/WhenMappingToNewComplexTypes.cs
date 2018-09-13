@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System.Security.Claims;
     using Common;
     using TestClasses;
 #if !NET35
@@ -103,6 +104,14 @@
 
             result.ShouldBeOfType<PublicField<string>>();
             ((PublicField<string>)result).Value.ShouldBe("kjubfelkjnds;lkmm");
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/97
+        [Fact]
+        public void ShouldDeepCloneAClaim()
+        {
+            var claim = new Claim("test", "hello!");
+            var cloned = Mapper.DeepClone(claim);
         }
 
         [Fact]

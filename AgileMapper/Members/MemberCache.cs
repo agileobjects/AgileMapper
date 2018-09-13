@@ -40,6 +40,11 @@
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
+                if (key.Type.IsEnumerable())
+                {
+                    return Enumerable<Member>.EmptyArray;
+                }
+
                 var fields = GetFields(key.Type, All);
                 var properties = GetProperties(key.Type, All);
                 var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
