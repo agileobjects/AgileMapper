@@ -43,6 +43,7 @@
         [DebuggerStepThrough]
         public static T First<T>(this IList<T> items) => items[0];
 
+        [DebuggerStepThrough]
         public static T First<T>(this IList<T> items, Func<T, bool> predicate)
         {
             if (TryFindMatch(items, predicate, out var match))
@@ -53,9 +54,11 @@
             throw new InvalidOperationException("Sequence contains no matching element");
         }
 
+        [DebuggerStepThrough]
         public static T FirstOrDefault<T>(this IList<T> items, Func<T, bool> predicate)
             => TryFindMatch(items, predicate, out var match) ? match : default(T);
 
+        [DebuggerStepThrough]
         public static bool TryFindMatch<T>(this IList<T> items, Func<T, bool> predicate, out T match)
         {
             for (int i = 0, n = items.Count; i < n; i++)

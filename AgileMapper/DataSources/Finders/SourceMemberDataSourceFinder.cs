@@ -22,7 +22,7 @@
             {
                 if (context.DataSourceIndex == 0)
                 {
-                    if (targetMember.IsComplex && (targetMember.Type != typeof(object)))
+                    if (UseFallbackComplexTypeMappingDataSource(targetMember))
                     {
                         yield return new ComplexTypeMappingDataSource(context.DataSourceIndex, context.ChildMappingData);
                     }
@@ -61,5 +61,8 @@
 
             return context.GetFinalDataSource(sourceMemberDataSource, contextMappingData);
         }
+
+        private static bool UseFallbackComplexTypeMappingDataSource(QualifiedMember targetMember) 
+            => targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
     }
 }

@@ -239,6 +239,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             checkedTypes.Add(parentType);
 
+            if (parentType.IsEnumerable())
+            {
+                parentType = parentType.GetEnumerableElementType();
+
+                return !parentType.IsSimple() && TypeHasACompatibleChildMember(targetType, parentType, checkedTypes);
+            }
+
             var childTargetMembers = GlobalContext.Instance.MemberCache.GetTargetMembers(parentType);
 
             foreach (var childMember in childTargetMembers)

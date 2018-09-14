@@ -184,6 +184,43 @@
             result.Value["key2"].ShouldNotBeSameAs(source.Value["key2"]);
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/97
+        [Fact]
+        public void ShouldDeepCloneAReadOnlyDictionaryMember()
+        {
+            var source = new Issue97.ReadonlyDictionary();
+
+            source.Dictionary["Test"] = "123";
+
+            var cloned = Mapper.DeepClone(source);
+
+            cloned.Dictionary.ContainsKey("Test").ShouldBeTrue();
+            cloned.Dictionary["Test"].ShouldBe("123");
+        }
+
+        [Fact]
+        public void ShouldUseACloneConstructorToPopulateADictionaryConstructorParameter()
+        {
+            var source = new PublicReadOnlyProperty<IDictionary<string, string>>(
+                new Dictionary<string, string> { ["Test"] = "Hello!" });
+
+            var result = Mapper.Map(source).ToANew<PublicCtor<IDictionary<string, string>>>();
+
+            result.Value.ContainsKey("Test").ShouldBeTrue();
+            result.Value["Test"].ShouldBe("Hello!");
+        }
+
+        [Fact]
+        public void ShouldNotCreateDictionaryAsFallbackComplexType()
+        {
+            var source = new PublicReadOnlyProperty<IDictionary<string, string>>(
+                new Dictionary<string, string>());
+
+            var cloned = Mapper.DeepClone(source);
+
+            cloned.ShouldBeNull();
+        }
+
         [Fact]
         public void ShouldFlattenAComplexTypeCollectionToANestedObjectDictionaryImplementation()
         {
@@ -234,5 +271,22 @@
             result.Value.ShouldNotContainKey("[1].Address.Line2");
 
         }
+
+        #region Helper Members
+
+        private static class Issue97
+        {
+            public class ReadonlyDictionary
+            {
+                public ReadonlyDictionary()
+                {
+                    Dictionary = new Dictionary<string, string>();
+                }
+
+                public IDictionary<string, string> Dictionary { get; }
+            }
+        }
+
+        #endregion
     }
 }
