@@ -291,7 +291,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData, out var cloneConstructor))
                 {
-                    yield return GetClonedDictionaryAssignment(mapperData, cloneConstructor);
+                    yield return GetClonedDictionaryAssignment(context.MappingData, cloneConstructor);
                     yield break;
                 }
 
@@ -346,21 +346,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                (comparerProperty != null) ? 2 : 1);
         }
 
-        private static Expression GetClonedDictionaryAssignment(IMemberMapperData mapperData, ConstructorInfo cloneConstructor)
+        private static Expression GetClonedDictionaryAssignment(IObjectMappingData mappingData, ConstructorInfo cloneConstructor)
         {
             Expression cloneDictionary;
 
             if (cloneConstructor.GetParameters().Length == 1)
             {
-                cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject);
+                cloneDictionary = Expression.New(cloneConstructor, mappingData.MapperData.SourceObject);
             }
             else
             {
-                var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
-                cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
+                var comparer = Expression.Property(mappingData.MapperData.SourceObject, "Comparer");
+                cloneDictionary = Expression.New(cloneConstructor, mappingData.MapperData.SourceObject, comparer);
             }
 
-            var assignment = mapperData.TargetInstance.AssignTo(cloneDictionary);
+            var assignment = GetDictionaryAssignment(cloneDictionary, mappingData);
 
             return assignment;
         }
