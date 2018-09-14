@@ -199,6 +199,29 @@
         }
 
         [Fact]
+        public void ShouldUseACloneConstructorToPopulateADictionaryConstructorParameter()
+        {
+            var source = new PublicReadOnlyProperty<IDictionary<string, string>>(
+                new Dictionary<string, string> { ["Test"] = "Hello!" });
+
+            var result = Mapper.Map(source).ToANew<PublicCtor<IDictionary<string, string>>>();
+
+            result.Value.ContainsKey("Test").ShouldBeTrue();
+            result.Value["Test"].ShouldBe("Hello!");
+        }
+
+        [Fact]
+        public void ShouldNotCreateDictionaryAsFallbackComplexType()
+        {
+            var source = new PublicReadOnlyProperty<IDictionary<string, string>>(
+                new Dictionary<string, string>());
+
+            var cloned = Mapper.DeepClone(source);
+
+            cloned.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldFlattenAComplexTypeCollectionToANestedObjectDictionaryImplementation()
         {
             var source = new PublicField<ICollection<Customer>>()
