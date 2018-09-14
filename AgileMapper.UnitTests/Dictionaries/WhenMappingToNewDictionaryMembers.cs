@@ -188,10 +188,14 @@
         [Fact]
         public void ShouldDeepCloneAReadOnlyDictionaryMember()
         {
-            var source = new PublicReadOnlyProperty<IDictionary<string, string>>(
-                new Dictionary<string, string>());
+            var source = new Issue97.ReadonlyDictionary();
+
+            source.Dictionary["Test"] = "123";
 
             var cloned = Mapper.DeepClone(source);
+
+            cloned.Dictionary.ContainsKey("Test").ShouldBeTrue();
+            cloned.Dictionary["Test"].ShouldBe("123");
         }
 
         [Fact]
@@ -244,5 +248,22 @@
             result.Value.ShouldNotContainKey("[1].Address.Line2");
 
         }
+
+        #region Helper Members
+
+        private static class Issue97
+        {
+            public class ReadonlyDictionary
+            {
+                public ReadonlyDictionary()
+                {
+                    Dictionary = new Dictionary<string, string>();
+                }
+
+                public IDictionary<string, string> Dictionary { get; }
+            }
+        }
+
+        #endregion
     }
 }
