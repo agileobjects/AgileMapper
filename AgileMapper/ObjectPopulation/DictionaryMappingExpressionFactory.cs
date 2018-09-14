@@ -277,40 +277,59 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            var mapperData = context.MapperData;
-
-            if (!mapperData.TargetMember.IsDictionary)
+            if (!context.MapperData.TargetMember.IsDictionary)
             {
                 yield return GetDictionaryPopulation(context.MappingData);
                 yield break;
             }
 
-            Func<DictionarySourceMember, IObjectMappingData, Expression> assignmentFactory;
+            var assignmentFactory = GetDictionaryAssignmentFactoryOrNull(context, out var useAssignmentOnly);
+
+            if (useAssignmentOnly)
+            {
+                yield return assignmentFactory.Invoke(context.MappingData);
+                yield break;
+            }
+
+            var population = GetDictionaryPopulation(context.MappingData);
+            var assignment = assignmentFactory?.Invoke(context.MappingData);
+
+            yield return assignment;
+            yield return population;
+        }
+
+        private static Func<IObjectMappingData, Expression> GetDictionaryAssignmentFactoryOrNull(
+            MappingCreationContext context,
+            out bool useAssignmentOnly)
+        {
+            if (context.MapperData.TargetMember.IsReadOnly)
+            {
+                useAssignmentOnly = false;
+                return null;
+            }
+
+            var mapperData = context.MapperData;
 
             if (SourceMemberIsDictionary(mapperData, out var sourceDictionaryMember))
             {
                 if (UseDictionaryCloneConstructor(sourceDictionaryMember, mapperData, out var cloneConstructor))
                 {
-                    yield return GetClonedDictionaryAssignment(context.MappingData, cloneConstructor);
-                    yield break;
+                    useAssignmentOnly = true;
+                    return md => GetClonedDictionaryAssignment(md.MapperData, cloneConstructor);
                 }
 
-                assignmentFactory = GetMappedDictionaryAssignment;
-            }
-            else if (context.InstantiateLocalVariable)
-            {
-                assignmentFactory = (dsm, md) => GetParameterlessDictionaryAssignment(md);
-            }
-            else
-            {
-                assignmentFactory = null;
+                useAssignmentOnly = false;
+                return md => GetMappedDictionaryAssignment(sourceDictionaryMember, md);
             }
 
-            var population = GetDictionaryPopulation(context.MappingData);
-            var assignment = assignmentFactory?.Invoke(sourceDictionaryMember, context.MappingData);
+            useAssignmentOnly = false;
 
-            yield return assignment;
-            yield return population;
+            if (context.InstantiateLocalVariable)
+            {
+                return GetParameterlessDictionaryAssignment;
+            }
+
+            return null;
         }
 
         private static bool SourceMemberIsDictionary(
@@ -328,9 +347,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             cloneConstructor = null;
 
-            return mapperData.TargetMember.ElementType.IsSimple() &&
-                  (sourceDictionaryMember.Type == mapperData.TargetType) &&
-                 ((cloneConstructor = GetDictionaryCloneConstructor(mapperData)) != null);
+            return (sourceDictionaryMember.Type == mapperData.TargetType) &&
+                    mapperData.TargetMember.ElementType.IsSimple() &&
+                  ((cloneConstructor = GetDictionaryCloneConstructor(mapperData)) != null);
         }
 
         private static ConstructorInfo GetDictionaryCloneConstructor(ITypePair mapperData)
@@ -346,21 +365,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                (comparerProperty != null) ? 2 : 1);
         }
 
-        private static Expression GetClonedDictionaryAssignment(IObjectMappingData mappingData, ConstructorInfo cloneConstructor)
+        private static Expression GetClonedDictionaryAssignment(IMemberMapperData mapperData, ConstructorInfo cloneConstructor)
         {
             Expression cloneDictionary;
 
             if (cloneConstructor.GetParameters().Length == 1)
             {
-                cloneDictionary = Expression.New(cloneConstructor, mappingData.MapperData.SourceObject);
+                cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject);
             }
             else
             {
-                var comparer = Expression.Property(mappingData.MapperData.SourceObject, "Comparer");
-                cloneDictionary = Expression.New(cloneConstructor, mappingData.MapperData.SourceObject, comparer);
+                var comparer = Expression.Property(mapperData.SourceObject, "Comparer");
+                cloneDictionary = Expression.New(cloneConstructor, mapperData.SourceObject, comparer);
             }
 
-            var assignment = GetDictionaryAssignment(cloneDictionary, mappingData);
+            var assignment = mapperData.TargetInstance.AssignTo(cloneDictionary);
 
             return assignment;
         }

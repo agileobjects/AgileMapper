@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
-    using System.Collections.Generic;
     using Common;
     using TestClasses;
 #if !NET35
@@ -104,16 +103,6 @@
 
             result.ShouldBeOfType<PublicField<string>>();
             ((PublicField<string>)result).Value.ShouldBe("kjubfelkjnds;lkmm");
-        }
-
-        // See https://github.com/agileobjects/AgileMapper/issues/97
-        [Fact]
-        public void ShouldDeepCloneAReadOnlyDictionary()
-        {
-            var source = new PublicReadOnlyProperty<IDictionary<string, string>>(
-                new Dictionary<string, string>());
-
-            var cloned = Mapper.DeepClone(source);
         }
 
         [Fact]

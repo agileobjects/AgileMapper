@@ -184,6 +184,16 @@
             result.Value["key2"].ShouldNotBeSameAs(source.Value["key2"]);
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/97
+        [Fact]
+        public void ShouldDeepCloneAReadOnlyDictionaryMember()
+        {
+            var source = new PublicReadOnlyProperty<IDictionary<string, string>>(
+                new Dictionary<string, string>());
+
+            var cloned = Mapper.DeepClone(source);
+        }
+
         [Fact]
         public void ShouldFlattenAComplexTypeCollectionToANestedObjectDictionaryImplementation()
         {
