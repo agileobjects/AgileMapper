@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using AgileMapper.Configuration;
     using Common;
     using TestClasses;
@@ -351,9 +353,81 @@
             });
 
             configurationException.Message.ShouldContain("PublicProperty<int>.Value");
+            configurationException.Message.ShouldContain("'int' cannot be mapped to target type 'PublicField<long>'");
+        }
 
-            configurationException.Message.ShouldContain(
-                "'int' cannot be mapped to target type 'PublicField<long>'");
+        [Fact]
+        public void ShouldErrorIfRootEnumerableTargetNonEnumerableTypeMemberDataSourceConfigured()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<Address>>()
+                        .To<List<Address>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToTarget();
+                }
+            });
+
+            configurationException.Message.ShouldContain("Non-enumerable PublicProperty<Address>.Value");
+            configurationException.Message.ShouldContain("cannot be mapped to enumerable target type 'List<Address>'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRootNonEnumerableTargetEnumerableTypeMemberDataSourceConfigured()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<List<Customer>>>()
+                        .To<PublicProperty<Customer>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToTarget();
+                }
+            });
+
+            configurationException.Message.ShouldContain("Enumerable PublicField<List<Customer>>.Value");
+            configurationException.Message.ShouldContain("cannot be mapped to non-enumerable target type 'PublicProperty<Customer>'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConstantSpecifiedForTargetMember()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<Customer>>()
+                        .To<PublicProperty<Customer>>()
+                        .Map(ctx => "Number!")
+                        .To(ppc => "Number?");
+                }
+            });
+
+            configurationException.Message.ShouldContain("Unable to determine target member from '\"Number?\"'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfProjectionSpecifiedForTargetMember()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<IEnumerable<Customer>>>()
+                        .To<PublicProperty<IEnumerable<Customer>>>()
+                        .Map(ctx => new[] { "One", "Two", "Three" })
+                        .To(ppc => ppc.Value.Select(c => c.Name));
+                }
+            });
+
+            configurationException.Message.ShouldContain("not writeable");
         }
     }
 }

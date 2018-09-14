@@ -283,6 +283,7 @@
         public IMappingConfigContinuation<TSource, TTarget> ToTarget()
         {
             ThrowIfSimpleSource(typeof(TTarget));
+            ThrowIfEnumerableSourceAndTargetMismatch(typeof(TTarget));
 
             return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
                 _configInfo,
@@ -299,18 +300,7 @@
                 return;
             }
 
-            string sourceValue;
-
-            if (customValue.NodeType == ExpressionType.MemberAccess)
-            {
-                var rootSourceMember = _configInfo.MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
-                var sourceMember = customValue.ToSourceMember(_configInfo.MapperContext);
-                sourceValue = sourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
-            }
-            else
-            {
-                sourceValue = "Source type ";
-            }
+            var sourceValue = GetSourceValue(customValue);
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
@@ -318,6 +308,55 @@
                 sourceValue,
                 customValue.Type.GetFriendlyName(),
                 targetMemberType.GetFriendlyName()));
+        }
+
+        private void ThrowIfEnumerableSourceAndTargetMismatch(Type targetMemberType)
+        {
+            var customValue = _customValueLambda.Body;
+
+            if ((targetMemberType.IsDictionary() || customValue.Type.IsDictionary()) ||
+                (targetMemberType.IsEnumerable() == customValue.Type.IsEnumerable()))
+            {
+                return;
+            }
+
+            string sourceEnumerableState, targetEnumerableState;
+
+            if (targetMemberType.IsEnumerable())
+            {
+                sourceEnumerableState = "Non-enumerable";
+                targetEnumerableState = "enumerable";
+            }
+            else
+            {
+                sourceEnumerableState = "Enumerable";
+                targetEnumerableState = "non-enumerable";
+            }
+
+            var sourceValue = GetSourceValue(customValue);
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "{0} {1}'{2}' cannot be mapped to {3} target type '{4}'",
+                sourceEnumerableState,
+                sourceValue,
+                customValue.Type.GetFriendlyName(),
+                targetEnumerableState,
+                targetMemberType.GetFriendlyName()));
+        }
+
+        private string GetSourceValue(Expression customValue)
+        {
+            if (customValue.NodeType != ExpressionType.MemberAccess)
+            {
+                return "Source type ";
+            }
+
+            var rootSourceMember = _configInfo.MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
+            var sourceMember = customValue.ToSourceMember(_configInfo.MapperContext);
+            var sourceValue = sourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
+
+            return sourceValue;
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(

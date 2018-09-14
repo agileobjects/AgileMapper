@@ -26,7 +26,17 @@
 
         private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
-            var targetMember = lambda.ToTargetMember(configInfo.MapperContext);
+            QualifiedMember targetMember;
+
+            try
+            {
+                targetMember = lambda.ToTargetMember(configInfo.MapperContext);
+            }
+            catch (NotSupportedException)
+            {
+                throw new MappingConfigurationException(
+                    $"Unable to determine target member from '{lambda.Body.ToReadableString()}'");
+            }
 
             if (targetMember == null)
             {
