@@ -282,7 +282,7 @@
                 mapperContext);
         }
 
-        internal static QualifiedMember CreateMember(
+        private static QualifiedMember CreateMember(
             Expression memberAccessExpression,
             Func<Type, Member> rootMemberFactory,
             Func<Type, IList<Member>> membersFactory,

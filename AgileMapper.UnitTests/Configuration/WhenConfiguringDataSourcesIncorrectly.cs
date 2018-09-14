@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using AgileMapper.Configuration;
     using Common;
     using TestClasses;
@@ -391,6 +392,42 @@
 
             configurationException.Message.ShouldContain("Enumerable PublicField<List<Customer>>.Value");
             configurationException.Message.ShouldContain("cannot be mapped to non-enumerable target type 'PublicProperty<Customer>'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConstantSpecifiedForTargetMember()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<Customer>>()
+                        .To<PublicProperty<Customer>>()
+                        .Map(ctx => "Number!")
+                        .To(ppc => "Number?");
+                }
+            });
+
+            configurationException.Message.ShouldContain("Unable to determine target member from '\"Number?\"'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfProjectionSpecifiedForTargetMember()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<IEnumerable<Customer>>>()
+                        .To<PublicProperty<IEnumerable<Customer>>>()
+                        .Map(ctx => new[] { "One", "Two", "Three" })
+                        .To(ppc => ppc.Value.Select(c => c.Name));
+                }
+            });
+
+            configurationException.Message.ShouldContain("not writeable");
         }
     }
 }
