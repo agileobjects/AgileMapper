@@ -23,7 +23,7 @@
             var sourceValueIsLessThanOrEqualToMaxValue =
                 Expression.LessThanOrEqual(maxValueComparisonLeftSide, maxValueComparisonRightSide);
 
-            if (sourceValue.Type.IsUnsignedNumeric())
+            if (sourceValue.Type.GetNonNullableType().IsUnsignedNumeric())
             {
                 return sourceValueIsLessThanOrEqualToMaxValue;
             }

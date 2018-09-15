@@ -86,9 +86,9 @@
         }
 
         [Fact]
-        public void ShouldMapATooBigUnsignedLongToANullableInt()
+        public void ShouldMapATooBigUnsignedNullableLongToANullableInt()
         {
-            var source = new PublicField<ulong> { Value = ulong.MaxValue };
+            var source = new PublicField<ulong?> { Value = ulong.MaxValue };
             var result = Mapper.Map(source).ToANew<PublicProperty<int?>>();
 
             result.Value.ShouldBeNull();
