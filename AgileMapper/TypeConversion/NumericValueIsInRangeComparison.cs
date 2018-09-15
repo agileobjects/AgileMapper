@@ -17,18 +17,23 @@
                 sourceValue,
                 sourceValue.Type,
                 nonNullableTargetType,
-                out Expression maxValueComparisonLeftSide,
-                out Expression maxValueComparisonRightSide);
+                out var maxValueComparisonLeftSide,
+                out var maxValueComparisonRightSide);
+
+            var sourceValueIsLessThanOrEqualToMaxValue =
+                Expression.LessThanOrEqual(maxValueComparisonLeftSide, maxValueComparisonRightSide);
+
+            if (sourceValue.Type.IsUnsignedNumeric())
+            {
+                return sourceValueIsLessThanOrEqualToMaxValue;
+            }
 
             GetMinimumValueComparisonOperands(
                 sourceValue,
                 sourceValue.Type,
                 nonNullableTargetType,
-                out Expression minValueComparisonLeftSide,
-                out Expression minValueComparisonRightSide);
-
-            var sourceValueIsLessThanOrEqualToMaxValue =
-                Expression.LessThanOrEqual(maxValueComparisonLeftSide, maxValueComparisonRightSide);
+                out var minValueComparisonLeftSide,
+                out var minValueComparisonRightSide);
 
             var sourceValueIsGreaterThanOrEqualToMinValue =
                 Expression.GreaterThanOrEqual(minValueComparisonLeftSide, minValueComparisonRightSide);
