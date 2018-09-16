@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using AgileMapper.Extensions;
     using Common;
     using TestClasses;
 #if !NET35
@@ -108,6 +109,60 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
             }
         }
 
+        [Fact]
+        public void ShouldApplyMultipleConfiguredComplexTypeSourceValues()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<CtorTester<int>>()
+                    .ToANew<CtorTester<int>>()
+                    .If(ctx => ctx.Source.Value < 5)
+                    .Map(new Address { Line1 = "< 5" })
+                    .ToCtor<Address>()
+                    .But
+                    .If(ctx => ctx.Source.Value < 10)
+                    .Map(new Address { Line1 = "< 10" })
+                    .ToCtor<Address>()
+                    .But
+                    .If(ctx => ctx.Source.Value < 15)
+                    .Map(new Address { Line1 = "< 15" })
+                    .ToCtor<Address>();
+
+                var lessThanFiveSource = new CtorTester<int>(3);
+                var lessThanFiveResult = lessThanFiveSource.DeepCloneUsing(mapper);
+
+                lessThanFiveResult.Value.ShouldBe(3);
+                lessThanFiveResult.Address.ShouldNotBeNull().Line1.ShouldBe("< 5");
+
+                var lessThanTenSource = new CtorTester<int>(6);
+                var lessThanTenResult = lessThanTenSource.DeepCloneUsing(mapper);
+
+                lessThanTenResult.Value.ShouldBe(6);
+                lessThanTenResult.Address.ShouldNotBeNull().Line1.ShouldBe("< 10");
+
+                var lessThanFifteenSource = new CtorTester<int>(14);
+                var lessThanFifteenResult = lessThanFifteenSource.DeepCloneUsing(mapper);
+
+                lessThanFifteenResult.Value.ShouldBe(14);
+                lessThanFifteenResult.Address.ShouldNotBeNull().Line1.ShouldBe("< 15");
+
+                var addressSource = new CtorTester<int>(123, new Address { Line1 = "One!", Line2 = "Two!" });
+                var addressResult = addressSource.DeepCloneUsing(mapper);
+
+                addressResult.Value.ShouldBe(123);
+                addressResult.Address.ShouldNotBeNull().ShouldNotBeSameAs(addressSource.Address);
+                addressResult.Address.Line1.ShouldBe("One!");
+                addressResult.Address.Line2.ShouldBe("Two!");
+
+                var noAddressSource = new CtorTester<int>(789);
+                var noAddressResult = noAddressSource.DeepCloneUsing(mapper);
+
+                noAddressResult.Value.ShouldBe(789);
+                noAddressResult.Address.ShouldBeNull();
+            }
+        }
+
         #region Helper Classes
 
         private class CtorTester<T>
@@ -117,7 +172,15 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 Value = value;
             }
 
+            public CtorTester(T value, Address address)
+            {
+                Value = value;
+                Address = address;
+            }
+
             public T Value { get; }
+
+            public Address Address { get; }
         }
 
         #endregion

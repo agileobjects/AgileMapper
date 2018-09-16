@@ -293,7 +293,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                     IsUnconditional = false;
 
-                    var dataSourceCondition = dataSources.BuildConditions();
+                    var dataSourceCondition = BuildConditions(dataSources);
 
                     if (condition == null)
                     {
@@ -327,6 +327,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                         return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
                     })
                     .ToArray();
+            }
+
+            private static Expression BuildConditions(DataSourceSet dataSources)
+            {
+                var conditions = default(Expression);
+
+                foreach (var dataSource in dataSources.Filter(ds => ds.IsConditional))
+                {
+                    if (conditions == null)
+                    {
+                        conditions = dataSource.Condition;
+                        continue;
+                    }
+
+                    conditions = Expression.OrElse(conditions, dataSource.Condition);
+                }
+
+                return conditions;
             }
 
             public bool CanBeInvoked { get; }

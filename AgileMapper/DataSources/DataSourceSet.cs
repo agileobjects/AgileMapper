@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections;
     using System.Collections.Generic;
-    using Extensions;
     using Extensions.Internal;
     using Members;
 #if NET35
@@ -62,24 +61,6 @@ namespace AgileObjects.AgileMapper.DataSources
         public bool HasValue { get; }
 
         public bool IsConditional { get; }
-
-        public Expression BuildConditions()
-        {
-            var conditions = default(Expression);
-
-            foreach (var dataSource in _dataSources.Filter(ds => ds.IsConditional))
-            {
-                if (conditions == null)
-                {
-                    conditions = dataSource.Condition;
-                    continue;
-                }
-
-                conditions = Expression.AndAlso(conditions, dataSource.Condition);
-            }
-
-            return conditions;
-        }
 
         public Expression SourceMemberTypeTest { get; }
 
