@@ -335,6 +335,50 @@
         }
 
         [Fact]
+        public void ShouldPrioritiseCreationMethods()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<ConstructionTester>()
+                    .ToANew<ConstructionTester>()
+                    .If(ctx => ctx.Source.Value1 < 5)
+                    .CreateInstancesUsing(ctx => new ConstructionTester(100, 100))
+                    .But
+                    .If(ctx => ctx.Source.Value1 < 10)
+                    .CreateInstancesUsing(ctx => new ConstructionTester(500, 500));
+
+                var lessThanFiveSource = new ConstructionTester(2);
+                var lessThanFiveResult = mapper.Map(lessThanFiveSource).ToANew<ConstructionTester>();
+
+                lessThanFiveResult.Value1.ShouldBe(100);
+                lessThanFiveResult.Value2.ShouldBe(100);
+                lessThanFiveResult.Address.ShouldBeNull();
+
+                var lessThanTenSource = new ConstructionTester(8);
+                var lessThanTenResult = mapper.Map(lessThanTenSource).ToANew<ConstructionTester>();
+
+                lessThanTenResult.Value1.ShouldBe(500);
+                lessThanTenResult.Value2.ShouldBe(500);
+                lessThanTenResult.Address.ShouldBeNull();
+
+                var addressSource = new ConstructionTester(123, 456, new Address { Line1 = "One!" });
+                var addressResult = mapper.Map(addressSource).ToANew<ConstructionTester>();
+
+                addressResult.Value1.ShouldBe(123);
+                addressResult.Value2.ShouldBe(456);
+                addressResult.Address.ShouldNotBeNull().Line1.ShouldBe("One!");
+
+                var noAddressSource = new ConstructionTester(123, 456);
+                var noAddressResult = mapper.Map(noAddressSource).ToANew<ConstructionTester>();
+
+                noAddressResult.Value1.ShouldBe(123);
+                noAddressResult.Value2.ShouldBe(456);
+                noAddressResult.Address.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldHandleAnObjectMappingDataCreationException()
         {
             var thrownException = Should.Throw<MappingException>(() =>
@@ -562,6 +606,7 @@
             {
                 public Status.StatusId ParentStatusId { get; set; }
 
+                // ReSharper disable once UnusedMember.Global
                 public Status ParentStatus => Status.GetStatus(ParentStatusId);
             }
 
@@ -571,6 +616,38 @@
 
                 public Status ParentStatus { get; set; }
             }
+        }
+
+        private class ConstructionTester
+        {
+            public ConstructionTester(int value1)
+                : this(value1, default(int))
+            {
+            }
+
+            public ConstructionTester(int value1, int value2)
+                : this(value1, value2, default(Address))
+            {
+            }
+
+            public ConstructionTester(int value1, int value2, Address address)
+            {
+                Value1 = value1;
+                Value2 = value2;
+                Address = address;
+            }
+
+            public static ConstructionTester Create(int value1, int value2)
+                => new ConstructionTester(value1, value2);
+
+            public static ConstructionTester GetInstance(int value1, int value2, Address address)
+                => new ConstructionTester(value1, value2, address);
+
+            public int Value1 { get; }
+
+            public int Value2 { get; }
+
+            public Address Address { get; }
         }
 
         #endregion

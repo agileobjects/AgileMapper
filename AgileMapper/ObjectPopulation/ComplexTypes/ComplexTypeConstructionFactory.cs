@@ -475,14 +475,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     return paramCountComparison;
                 }
 
-                var priorityComparison = _info.Priority.CompareTo(other._info.Priority);
+                var priorityComparison = other._info.Priority.CompareTo(_info.Priority);
 
-                if (priorityComparison != 0)
-                {
-                    return priorityComparison;
-                }
-
-                return 0;
+                return priorityComparison;
             }
         }
 
