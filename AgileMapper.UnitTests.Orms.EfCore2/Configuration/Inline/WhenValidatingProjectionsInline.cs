@@ -49,15 +49,15 @@
                     await context
                         .Addresses
                         .ProjectUsing(mapper)
-                        .To<ProductStruct>(cfg => cfg
+                        .To<PublicStringCtorDto>(cfg => cfg
                             .ThrowNowIfMappingPlanIsIncomplete())
                         .FirstOrDefaultAsync();
                 });
 
-                validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<ProductStruct>");
+                validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<PublicStringCtorDto>");
                 validationEx.Message.ShouldContain("Rule set: Project");
                 validationEx.Message.ShouldContain("Unconstructable target Types");
-                validationEx.Message.ShouldContain("Address -> ProductStruct");
+                validationEx.Message.ShouldContain("Address -> PublicStringCtorDto");
             });
         }
     }
