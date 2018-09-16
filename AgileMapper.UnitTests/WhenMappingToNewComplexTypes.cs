@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
+    using System;
+    using AgileMapper.Extensions;
     using Common;
     using TestClasses;
 #if !NET35
@@ -112,5 +114,37 @@
 
             result.ShouldBeNull();
         }
+
+        [Fact]
+        public void ShouldConditionallyUseConstructorsWhereArgumentsAreNull()
+        {
+            var source = new CtorTester("Test");
+            var result = source.DeepClone();
+
+            result.Value.ShouldBe("Test");
+            result.Address.ShouldBeNull();
+        }
+
+        #region Helper Classes
+
+        private class CtorTester
+        {
+            public CtorTester(string value)
+            {
+                Value = value;
+            }
+
+            public CtorTester(string value, Address address)
+            {
+                Value = value;
+                Address = address ?? throw new ArgumentNullException(nameof(address));
+            }
+
+            public string Value { get; }
+
+            public Address Address { get; }
+        }
+
+        #endregion
     }
 }

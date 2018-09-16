@@ -21,7 +21,7 @@
             return clonedItems;
         }
 
-        public static void AddSorted<T>(this List<T> items, T newItem)
+        public static void AddSorted<T>(this IList<T> items, T newItem)
             where T : IComparable<T>
         {
             if (items.None())
