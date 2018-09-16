@@ -12,11 +12,10 @@
     <description>$description$</description>
     <summary>$description$</summary>
     <releaseNotes>
-- Auto-applying configurations specified with ApplyAfter attributes
-- Adding Mapper.Unflatten(source).To(Type) overload
-- Support for ISet{T}
-- Performance improvements
-- Fixing concurrency issue with default mapper
+- Automatic factory method discovery and use
+- Improved complex type parameter constructor selection
+- Improved invalid configured data source error messages
+- Performance and memory use improvements
     </releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</tags>
