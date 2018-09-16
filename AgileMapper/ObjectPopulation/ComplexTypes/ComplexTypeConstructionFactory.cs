@@ -361,11 +361,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 if (ParameterCount > 0)
                 {
-                    foreach (var memberAndDataSourceSet in _argumentDataSources)
+                    var dataSources = key.MappingData.MapperData.DataSourcesByTargetMember;
+
+                    foreach (var memberAndDataSourceSet in _argumentDataSources.Filter(ads => !dataSources.ContainsKey(ads.Item1)))
                     {
-                        key.MappingData.MapperData.DataSourcesByTargetMember.Add(
-                            memberAndDataSourceSet.Item1,
-                            memberAndDataSourceSet.Item2);
+                        dataSources.Add(memberAndDataSourceSet.Item1, memberAndDataSourceSet.Item2);
                     }
                 }
 

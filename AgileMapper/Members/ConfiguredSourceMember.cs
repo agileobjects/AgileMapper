@@ -81,7 +81,8 @@ namespace AgileObjects.AgileMapper.Members
                     : type.GetEnumerableElementType();
             }
 
-            _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>();
+            _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>(
+                default(HashCodeComparer<Member>));
         }
 
         public bool IsRoot => false;

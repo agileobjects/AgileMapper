@@ -199,7 +199,7 @@
             var startIndex = memberChain.Length - 1;
 
             if ((memberChain.Length > 2) &&
-                memberChain[startIndex] == memberChain[startIndex - 1])
+                 memberChain[startIndex] == memberChain[startIndex - 1])
             {
                 // The member chain ends in a 1-to-1, immediately recursive
                 // relationship; skip the last element:
@@ -210,7 +210,7 @@
             {
                 var member = memberChain[startIndex];
 
-                if (member == otherMembersLeafMember)
+                if (member.Equals(otherMembersLeafMember))
                 {
                     break;
                 }

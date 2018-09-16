@@ -244,6 +244,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool Equals(Member otherMember) => otherMember._hashCode == _hashCode;
 
+        public override int GetHashCode() => _hashCode;
+
         #region ExcludeFromCodeCoverage
 #if DEBUG
         [ExcludeFromCodeCoverage]

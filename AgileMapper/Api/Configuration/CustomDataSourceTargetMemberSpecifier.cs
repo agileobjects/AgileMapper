@@ -266,14 +266,8 @@
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>(ParameterInfo parameter)
         {
-            var memberChain = new[]
-            {
-                Member.RootTarget<TTarget>(),
-                Member.ConstructorParameter(parameter)
-            };
-
             var valueLambda = GetValueLambdaInfo<TParam>();
-            var constructorParameter = QualifiedMember.From(memberChain, _configInfo.MapperContext);
+            var constructorParameter = CreateRootTargetQualifiedMember().Append(Member.ConstructorParameter(parameter));
 
             return new ConfiguredDataSourceFactory(_configInfo, valueLambda, constructorParameter);
         }

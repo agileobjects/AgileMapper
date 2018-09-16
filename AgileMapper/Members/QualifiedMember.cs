@@ -81,7 +81,7 @@ namespace AgileObjects.AgileMapper.Members
 
             if (!IsSimple)
             {
-                _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>();
+                _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>(default(HashCodeComparer<Member>));
             }
 
             RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)

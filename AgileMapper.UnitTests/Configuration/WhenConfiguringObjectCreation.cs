@@ -122,6 +122,7 @@
                 nonMatchingSourceResult.Address.Line2.ShouldBeNull();
 
                 var nonMatchingTargetResult = mapper.Map(matchingSource).ToANew<Person>();
+
                 // The declared target type doesn't match, but CustomerViewModel is automatically 
                 // mapped to Customer because of the matching naming conventions:
                 nonMatchingTargetResult.Address.Line2.ShouldBe("Frankie House");
