@@ -16,9 +16,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private readonly List<ParameterExpression> _variables;
         private Expression _value;
 
-        public DataSourceSet(
-            IMemberMapperData mapperData,
-            params IDataSource[] dataSources)
+        public DataSourceSet(IMemberMapperData mapperData, params IDataSource[] dataSources)
         {
             MapperData = mapperData;
             _dataSources = dataSources;
@@ -39,6 +37,11 @@ namespace AgileObjects.AgileMapper.DataSources
                     HasValue = true;
                 }
 
+                if (dataSource.IsConditional)
+                {
+                    IsConditional = true;
+                }
+
                 if (dataSource.Variables.Any())
                 {
                     _variables.AddRange(dataSource.Variables);
@@ -56,6 +59,8 @@ namespace AgileObjects.AgileMapper.DataSources
         public bool None { get; }
 
         public bool HasValue { get; }
+
+        public bool IsConditional { get; }
 
         public Expression SourceMemberTypeTest { get; }
 

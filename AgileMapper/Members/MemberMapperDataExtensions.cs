@@ -180,7 +180,6 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             if (mapperData.TargetMember.LeafMember.HasMatchingCtorParameter &&
-                mapperData.TargetMember.LeafMember.IsWriteable &&
               ((mapperData.Parent?.IsRoot != true) ||
                !mapperData.RuleSet.Settings.RootHasPopulatedTarget))
             {

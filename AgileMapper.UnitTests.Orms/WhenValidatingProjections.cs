@@ -53,15 +53,15 @@
         {
             return RunTest((context, mapper) =>
             {
-                mapper.GetPlanForProjecting(context.Addresses).To<ProductStruct>();
+                mapper.GetPlanForProjecting(context.Addresses).To<PublicStringCtorDto>();
 
                 var validationEx = Should.Throw<MappingValidationException>(() =>
                     mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
 
-                validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<ProductStruct>");
+                validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<PublicStringCtorDto>");
                 validationEx.Message.ShouldContain("Rule set: Project");
                 validationEx.Message.ShouldContain("Unconstructable target Types");
-                validationEx.Message.ShouldContain("Address -> ProductStruct");
+                validationEx.Message.ShouldContain("Address -> PublicStringCtorDto");
 
                 return Task.CompletedTask;
             });

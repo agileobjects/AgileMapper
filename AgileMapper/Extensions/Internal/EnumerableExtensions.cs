@@ -59,6 +59,20 @@
             => TryFindMatch(items, predicate, out var match) ? match : default(T);
 
         [DebuggerStepThrough]
+        public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> items, Func<T, bool> predicate)
+        {
+            foreach (var item in items)
+            {
+                yield return item;
+
+                if (predicate.Invoke(item))
+                {
+                    yield break;
+                }
+            }
+        }
+
+        [DebuggerStepThrough]
         public static bool TryFindMatch<T>(this IList<T> items, Func<T, bool> predicate, out T match)
         {
             for (int i = 0, n = items.Count; i < n; i++)

@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Linq;
     using System.Reflection;
     using Caching;
+    using Configuration;
     using DataSources;
     using DataSources.Finders;
     using Extensions;
@@ -41,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                 if (otherConstructionRequired && !key.MappingData.MapperData.TargetType.IsAbstract())
                 {
-                    AddAutoConstruction(constructions, key);
+                    AddAutoConstructions(constructions, key);
                 }
 
                 if (constructions.None())
@@ -73,9 +74,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         public Expression GetFactoryMethodObjectCreationOrNull(IObjectMappingData mappingData)
         {
             var key = new ConstructionKey(mappingData);
-            var factoryData = GetGreediestAvailableFactoryData(key);
+            var factoryData = GetGreediestAvailableFactories(key);
 
-            return factoryData?.Construction.With(key).GetConstruction(mappingData);
+            return factoryData.Any()
+                ? factoryData.First().Construction.With(key).GetConstruction(mappingData)
+                : null;
         }
 
         private static void AddConfiguredConstructions(
@@ -106,54 +109,50 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
         }
 
-        private static void AddAutoConstruction(ICollection<Construction> constructions, ConstructionKey key)
+        private static void AddAutoConstructions(IList<Construction> constructions, ConstructionKey key)
         {
             var mapperData = key.MappingData.MapperData;
 
-            var greediestAvailableFactory = GetGreediestAvailableFactoryData(key);
+            var greediestAvailableFactories = GetGreediestAvailableFactories(key);
+            var greediestUnconditionalFactory = greediestAvailableFactories.LastOrDefault(f => f.IsUnconditional);
 
             var constructors = mapperData.TargetInstance.Type
                 .GetPublicInstanceConstructors()
                 .ToArray();
 
-            var greedierAvailableNewing = constructors.Any()
-                ? constructors
-                    .Filter(ctor => IsCandidateCtor(ctor, greediestAvailableFactory))
-                    .Project(ctor => new ConstructionData<ConstructorInfo>(ctor, Expression.New, key))
-                    .Filter(ctor => ctor.CanBeInvoked)
-                    .OrderByDescending(ctor => ctor.NumberOfParameters)
-                    .FirstOrDefault()
-                : null;
+            var greediestAvailableNewings = constructors.Any()
+                ? GetGreediestAvailableNewings(constructors, key, greediestUnconditionalFactory)
+                : Enumerable<ConstructionData<ConstructorInfo>>.EmptyArray;
 
-            if (greedierAvailableNewing != null)
+            int i;
+
+            for (i = 0; i < greediestAvailableFactories.Length; i++)
             {
-                greedierAvailableNewing.AddTo(constructions, key);
-                return;
+                greediestAvailableFactories[i].AddTo(constructions, key);
             }
 
-            if (greediestAvailableFactory != null)
+            for (i = 0; i < greediestAvailableNewings.Length; i++)
             {
-                greediestAvailableFactory.AddTo(constructions, key);
-                return;
+                greediestAvailableNewings[i].AddTo(constructions, key);
             }
 
-            if (constructors.None() && mapperData.TargetMemberIsUserStruct())
+            if (constructions.None() && mapperData.TargetMemberIsUserStruct())
             {
                 constructions.Add(Construction.NewStruct(mapperData.TargetInstance.Type));
             }
         }
 
-        private static ConstructionData<MethodInfo> GetGreediestAvailableFactoryData(ConstructionKey key)
+        private static ConstructionData<MethodInfo>[] GetGreediestAvailableFactories(ConstructionKey key)
         {
             var mapperData = key.MappingData.MapperData;
 
-            return mapperData.TargetInstance.Type
+            var candidateFactoryMethods = mapperData.TargetInstance.Type
                 .GetPublicStaticMethods()
-                .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type))
-                .Project(fm => new ConstructionData<MethodInfo>(fm, Expression.Call, key))
-                .Filter(fm => fm.CanBeInvoked)
-                .OrderByDescending(fm => fm.NumberOfParameters)
-                .FirstOrDefault();
+                .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type));
+
+            return CreateConstructionData(
+                candidateFactoryMethods,
+                fm => new ConstructionData<MethodInfo>(fm, Expression.Call, key, priority: 1));
         }
 
         private static bool IsFactoryMethod(MethodInfo method, Type targetType)
@@ -162,12 +161,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                    (method.Name.StartsWith("Create", Ordinal) || method.Name.StartsWith("Get", Ordinal));
         }
 
+        private static ConstructionData<ConstructorInfo>[] GetGreediestAvailableNewings(
+            IEnumerable<ConstructorInfo> constructors,
+            ConstructionKey key,
+            ConstructionData<MethodInfo> greediestUnconditionalFactory)
+        {
+            var candidateConstructors = constructors
+                .Filter(ctor => IsCandidateCtor(ctor, greediestUnconditionalFactory));
+
+            return CreateConstructionData(
+                candidateConstructors,
+                ctor => new ConstructionData<ConstructorInfo>(ctor, Expression.New, key, priority: 0));
+        }
+
         private static bool IsCandidateCtor(MethodBase ctor, ConstructionData<MethodInfo> candidateFactoryMethod)
         {
             var ctorCarameters = ctor.GetParameters();
 
             return ((candidateFactoryMethod == null) ||
-                    (candidateFactoryMethod.NumberOfParameters < ctorCarameters.Length)) &&
+                    (candidateFactoryMethod.ParameterCount < ctorCarameters.Length)) &&
                      IsNotCopyConstructor(ctor.DeclaringType, ctorCarameters);
         }
 
@@ -176,6 +188,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             // If the constructor takes an instance of itself, we'll potentially end 
             // up in an infinite loop figuring out how to create instances for it:
             return ctorParameters.None(p => p.ParameterType == type);
+        }
+
+        private static ConstructionData<T>[] CreateConstructionData<T>(
+            IEnumerable<T> invokables,
+            Func<T, ConstructionData<T>> dataFactory)
+            where T : MethodBase
+        {
+            return invokables
+                .OrderByDescending(fm => fm.GetParameters().Length)
+                .Project(dataFactory.Invoke)
+                .Filter(fm => fm.CanBeInvoked)
+                .TakeUntil(fm => fm.IsUnconditional)
+                .ToArray();
         }
 
         public void Reset() => _constructorsCache.Empty();
@@ -215,55 +240,75 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public override int GetHashCode() => 0;
         }
 
-        private class ConstructionData<TInvokable>
+        private class ConstructionData<TInvokable> : IConstructionInfo
             where TInvokable : MethodBase
         {
-            private readonly IEnumerable<Tuple<QualifiedMember, DataSourceSet>> _argumentDataSources;
+            private readonly Tuple<QualifiedMember, DataSourceSet>[] _argumentDataSources;
 
             public ConstructionData(
                 TInvokable invokable,
                 Func<TInvokable, IList<Expression>, Expression> constructionFactory,
-                ConstructionKey key)
+                ConstructionKey key,
+                int priority)
             {
                 var argumentDataSources = GetArgumentDataSources(invokable, key);
 
                 CanBeInvoked = argumentDataSources.All(ds => ds.Item2.HasValue);
-                NumberOfParameters = argumentDataSources.Length;
+                ParameterCount = argumentDataSources.Length;
+                Priority = priority;
 
                 if (!CanBeInvoked)
                 {
                     return;
                 }
 
-                IList<ParameterExpression> variables;
-                IList<Expression> argumentValues;
+                IsUnconditional = true;
+
+                Expression constructionExpression;
 
                 if (argumentDataSources.None())
                 {
-                    variables = Enumerable<ParameterExpression>.EmptyArray;
-                    argumentValues = Enumerable<Expression>.EmptyArray;
-                    _argumentDataSources = Enumerable<Tuple<QualifiedMember, DataSourceSet>>.Empty;
+                    constructionExpression = constructionFactory.Invoke(invokable, Enumerable<Expression>.EmptyArray);
+                    Construction = new Construction(this, constructionExpression);
+                    return;
                 }
-                else
-                {
-                    var vars = new List<ParameterExpression>();
-                    argumentValues = new List<Expression>(NumberOfParameters);
 
-                    foreach (var argumentDataSource in argumentDataSources)
+                _argumentDataSources = argumentDataSources;
+
+                var variables = new List<ParameterExpression>();
+                var argumentValues = new List<Expression>(ParameterCount);
+                var condition = default(Expression);
+
+                foreach (var argumentDataSource in argumentDataSources)
+                {
+                    var dataSources = argumentDataSource.Item2;
+
+                    variables.AddRange(dataSources.Variables);
+                    argumentValues.Add(dataSources.ValueExpression);
+
+                    if (!argumentDataSource.Item1.IsComplex || !dataSources.IsConditional)
                     {
-                        vars.AddRange(argumentDataSource.Item2.Variables);
-                        argumentValues.Add(argumentDataSource.Item2.ValueExpression);
+                        continue;
                     }
 
-                    variables = vars.Any() ? (IList<ParameterExpression>)vars : Enumerable<ParameterExpression>.EmptyArray;
-                    _argumentDataSources = argumentDataSources;
+                    IsUnconditional = false;
+
+                    var dataSourceCondition = BuildConditions(dataSources);
+
+                    if (condition == null)
+                    {
+                        condition = dataSourceCondition;
+                        continue;
+                    }
+
+                    condition = Expression.AndAlso(condition, dataSourceCondition);
                 }
 
-                var constructionExpression = constructionFactory.Invoke(invokable, argumentValues);
+                constructionExpression = constructionFactory.Invoke(invokable, argumentValues);
 
                 Construction = variables.None()
-                    ? new Construction(constructionExpression)
-                    : new Construction(Expression.Block(variables, constructionExpression));
+                    ? new Construction(this, constructionExpression, condition)
+                    : new Construction(this, Expression.Block(variables, constructionExpression), condition);
             }
 
             private static Tuple<QualifiedMember, DataSourceSet>[] GetArgumentDataSources(TInvokable invokable, ConstructionKey key)
@@ -284,15 +329,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     .ToArray();
             }
 
+            private static Expression BuildConditions(DataSourceSet dataSources)
+            {
+                var conditions = default(Expression);
+
+                foreach (var dataSource in dataSources.Filter(ds => ds.IsConditional))
+                {
+                    if (conditions == null)
+                    {
+                        conditions = dataSource.Condition;
+                        continue;
+                    }
+
+                    conditions = Expression.OrElse(conditions, dataSource.Condition);
+                }
+
+                return conditions;
+            }
+
             public bool CanBeInvoked { get; }
 
-            public int NumberOfParameters { get; }
+            public bool IsUnconditional { get; }
+
+            public int ParameterCount { get; }
+
+            public int Priority { get; }
 
             public Construction Construction { get; }
 
-            public void AddTo(ICollection<Construction> constructions, ConstructionKey key)
+            public void AddTo(IList<Construction> constructions, ConstructionKey key)
             {
-                if (NumberOfParameters > 0)
+                if (ParameterCount > 0)
                 {
                     foreach (var memberAndDataSourceSet in _argumentDataSources)
                     {
@@ -302,14 +369,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     }
                 }
 
-                constructions.Add(Construction);
+                constructions.AddSorted(Construction);
             }
         }
 
-        private class Construction : IConditionallyChainable
+        private interface IConstructionInfo
+        {
+            int ParameterCount { get; }
+
+            int Priority { get; }
+        }
+
+        private class Construction : IConditionallyChainable, IComparable<Construction>
         {
             private readonly Expression _construction;
+            private readonly bool _isConfigured;
+            private readonly IConstructionInfo _info;
             private ParameterExpression _mappingDataObject;
+
+            public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
+                : this(configuredFactory.Create(mapperData), configuredFactory.GetConditionOrNull(mapperData))
+            {
+                UsesMappingDataObjectParameter = configuredFactory.UsesMappingDataObjectParameter;
+                _isConfigured = true;
+            }
+
+            public Construction(IConstructionInfo info, Expression construction, Expression condition = null)
+                : this(construction, condition)
+            {
+                _info = info;
+            }
 
             private Construction(IList<Construction> constructions)
                 : this(constructions.ReverseChain())
@@ -317,13 +406,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);
             }
 
-            public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
-                : this(configuredFactory.Create(mapperData), configuredFactory.GetConditionOrNull(mapperData))
-            {
-                UsesMappingDataObjectParameter = configuredFactory.UsesMappingDataObjectParameter;
-            }
-
-            public Construction(Expression construction, Expression condition = null)
+            private Construction(Expression construction, Expression condition = null)
             {
                 _construction = construction;
                 Condition = condition;
@@ -367,6 +450,35 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public Expression GetConstruction(IObjectMappingData mappingData)
                 => _construction.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
+
+            public int CompareTo(Construction other)
+            {
+                // ReSharper disable once ImpureMethodCallOnReadonlyValueField
+                var isConfiguredComparison = other._isConfigured.CompareTo(_isConfigured);
+
+                if (isConfiguredComparison != 0)
+                {
+                    return isConfiguredComparison;
+                }
+
+                var conditionalComparison = IsUnconditional.CompareTo(other.IsUnconditional);
+
+                if (conditionalComparison != 0)
+                {
+                    return conditionalComparison;
+                }
+
+                var paramCountComparison = _info.ParameterCount.CompareTo(other._info.ParameterCount);
+
+                if (paramCountComparison != 0)
+                {
+                    return paramCountComparison;
+                }
+
+                var priorityComparison = other._info.Priority.CompareTo(_info.Priority);
+
+                return priorityComparison;
+            }
         }
 
         #endregion
