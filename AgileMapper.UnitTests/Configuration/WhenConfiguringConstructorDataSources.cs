@@ -65,5 +65,61 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 result.Value.ShouldBe(222);
             }
         }
+
+        [Fact]
+        public void ShouldApplyMultipleConfiguredSourceValues()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .ToANew<CtorTester<int>>()
+                    .If(ctx => ctx.Source.Value < 5)
+                    .Map(0)
+                    .ToCtor<int>()
+                    .But
+                    .If(ctx => ctx.Source.Value < 10)
+                    .Map(5)
+                    .ToCtor<int>()
+                    .But
+                    .If(ctx => ctx.Source.Value < 15)
+                    .Map(10)
+                    .ToCtor<int>();
+
+                var lessThenFiveSource = new PublicField<int> { Value = 4 };
+                var lessthanFiveResult = mapper.Map(lessThenFiveSource).ToANew<CtorTester<int>>();
+
+                lessthanFiveResult.Value.ShouldBe(0);
+
+                var lessThenTenSource = new PublicField<int> { Value = 8 };
+                var lessthanTenResult = mapper.Map(lessThenTenSource).ToANew<CtorTester<int>>();
+
+                lessthanTenResult.Value.ShouldBe(5);
+
+                var lessThenFifteenSource = new PublicField<int> { Value = 11 };
+                var lessthanFifteenResult = mapper.Map(lessThenFifteenSource).ToANew<CtorTester<int>>();
+
+                lessthanFifteenResult.Value.ShouldBe(10);
+
+                var moreThanFifteenSource = new PublicField<int> { Value = 123 };
+                var morethanFifteenResult = mapper.Map(moreThanFifteenSource).ToANew<CtorTester<int>>();
+
+                morethanFifteenResult.Value.ShouldBe(123);
+            }
+        }
+
+        #region Helper Classes
+
+        private class CtorTester<T>
+        {
+            public CtorTester(T value)
+            {
+                Value = value;
+            }
+
+            public T Value { get; }
+        }
+
+        #endregion
     }
 }
