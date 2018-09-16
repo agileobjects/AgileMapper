@@ -118,11 +118,19 @@
         [Fact]
         public void ShouldConditionallyUseConstructorsWhereArgumentsAreNull()
         {
-            var source = new CtorTester("Test");
-            var result = source.DeepClone();
+            var noAddressSource = new CtorTester("Test 1");
+            var noAddressResult = noAddressSource.DeepClone();
 
-            result.Value.ShouldBe("Test");
-            result.Address.ShouldBeNull();
+            noAddressResult.Value.ShouldBe("Test 1");
+            noAddressResult.Address.ShouldBeNull();
+
+            var addressSource = new CtorTester("Test 2", new Address { Line1 = "Line 1!" });
+            var addressResult = addressSource.DeepClone();
+
+            addressResult.Value.ShouldBe("Test 2");
+            addressResult.Address.ShouldNotBeNull();
+            addressResult.Address.ShouldNotBeSameAs(addressSource.Address);
+            addressResult.Address.Line1.ShouldBe("Line 1!");
         }
 
         #region Helper Classes
