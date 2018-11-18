@@ -4,6 +4,7 @@
     using System.Linq;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -14,7 +15,7 @@
     {
         #region Cached Items
 
-        public new static readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
+        public static new readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
 
         private static readonly Type[] _coercibleNumericTypes = typeof(TNumeric).GetCoercibleNumericTypes();
 

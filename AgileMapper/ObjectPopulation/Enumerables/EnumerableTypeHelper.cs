@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else

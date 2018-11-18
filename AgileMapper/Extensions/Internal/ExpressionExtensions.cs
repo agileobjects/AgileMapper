@@ -10,7 +10,7 @@
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using ReadableExpressions.Translators;
+    using ReadableExpressions.Translations;
     using LinqExp = System.Linq.Expressions;
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else

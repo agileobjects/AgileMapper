@@ -8,6 +8,7 @@
     using Extensions.Internal;
     using Members;
     using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else

@@ -8,6 +8,7 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
+    using ReadableExpressions.Extensions;
     using TypeConversion;
 #if NET35
     using Microsoft.Scripting.Ast;

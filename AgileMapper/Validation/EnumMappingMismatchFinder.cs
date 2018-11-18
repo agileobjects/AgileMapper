@@ -9,6 +9,7 @@
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else

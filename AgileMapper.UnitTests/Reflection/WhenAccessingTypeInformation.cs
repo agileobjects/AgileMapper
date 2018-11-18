@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Reflection
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using AgileMapper.Extensions.Internal;
     using Common;
@@ -15,34 +14,6 @@
 #endif
     public class WhenAccessingTypeInformation
     {
-        #region IsEnumerable
-
-        [Fact]
-        public void ShouldEvaluateAnArrayAsEnumerable()
-        {
-            typeof(int[]).IsEnumerable().ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldEvaluateAGenericListAsEnumerable()
-        {
-            typeof(List<string>).IsEnumerable().ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldEvaluateANonGenericListAsEnumerable()
-        {
-            typeof(IList).IsEnumerable().ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldNotEvaluateAStringAsEnumerable()
-        {
-            typeof(string).IsEnumerable().ShouldBeFalse();
-        }
-
-        #endregion
-
         #region IsComplex
 
         [Fact]

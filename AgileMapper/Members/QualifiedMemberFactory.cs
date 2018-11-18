@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.Members
 {
     using Caching;
     using Dictionaries;
-    using Extensions.Internal;
+    using ReadableExpressions.Extensions;
 
     internal class QualifiedMemberFactory
     {

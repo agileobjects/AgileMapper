@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
     using Extensions.Internal;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else

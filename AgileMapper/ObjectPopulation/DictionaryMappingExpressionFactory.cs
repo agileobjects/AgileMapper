@@ -14,6 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Population;
     using NetStandardPolyfills;
     using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else

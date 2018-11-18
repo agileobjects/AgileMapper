@@ -3,8 +3,8 @@
     using System;
     using System.Dynamic;
     using DataSources;
-    using Extensions.Internal;
     using Members;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -90,7 +90,7 @@
 
             var targetMemberChainIndex = targetMember.Depth;
 
-            for (var i = SourceMember.Depth- 1; i > 0; --i)
+            for (var i = SourceMember.Depth - 1; i > 0; --i)
             {
                 if (!SourceMember.MemberChain[i].Equals(targetMember.MemberChain[--targetMemberChainIndex]))
                 {

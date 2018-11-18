@@ -3,7 +3,6 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using NetStandardPolyfills;
@@ -95,25 +94,6 @@
             return value;
         }
 
-        public static Type GetEnumerableElementType(this Type enumerableType)
-        {
-            if (enumerableType.HasElementType)
-            {
-                return enumerableType.GetElementType();
-            }
-
-            if (enumerableType.IsGenericType())
-            {
-                return enumerableType.GetGenericTypeArguments().Last();
-            }
-
-            var enumerableInterfaceType = enumerableType
-                .GetAllInterfaces()
-                .FirstOrDefault(interfaceType => interfaceType.IsClosedTypeOf(typeof(IEnumerable<>)));
-
-            return enumerableInterfaceType?.GetGenericTypeArguments().First() ?? typeof(object);
-        }
-
         public static bool RuntimeTypeNeeded(this Type type)
         {
             return (type == typeof(object)) ||
@@ -128,13 +108,6 @@
                 || ReferenceEquals(type.GetAssembly(), _systemCoreLib)
 #endif
                 ;
-        }
-
-        public static bool IsEnumerable(this Type type)
-        {
-            return type.IsArray ||
-                  (type != typeof(string) &&
-                   type.IsAssignableTo(typeof(IEnumerable)));
         }
 
         public static bool IsQueryable(this Type type) => type.IsClosedTypeOf(typeof(IQueryable<>));
@@ -164,46 +137,6 @@
 
             return type.IsValueType() && type.IsFromBcl();
         }
-
-        public static bool IsDictionary(this Type type)
-            => !GetDictionaryTypes(type).Equals(default(KeyValuePair<Type, Type>));
-
-        public static KeyValuePair<Type, Type> GetDictionaryTypes(this Type type)
-        {
-            var dictionaryType = GetDictionaryType(type);
-
-            return (dictionaryType != null)
-                ? GetDictionaryTypesFrom(dictionaryType)
-                : default(KeyValuePair<Type, Type>);
-        }
-
-        public static Type GetDictionaryType(this Type type)
-        {
-            if (type.IsGenericType())
-            {
-                var typeDefinition = type.GetGenericTypeDefinition();
-
-                if ((typeDefinition == typeof(Dictionary<,>)) || (typeDefinition == typeof(IDictionary<,>)))
-                {
-                    return type;
-                }
-            }
-
-            var interfaceType = type
-                .GetAllInterfaces()
-                .FirstOrDefault(t => t.IsClosedTypeOf(typeof(IDictionary<,>)));
-
-            return interfaceType;
-        }
-
-        private static KeyValuePair<Type, Type> GetDictionaryTypesFrom(Type type)
-        {
-            var types = type.GetGenericTypeArguments();
-            return new KeyValuePair<Type, Type>(types[0], types[1]);
-        }
-
-        [DebuggerStepThrough]
-        public static Type GetNonNullableType(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
         public static Type[] GetCoercibleNumericTypes(this Type numericType)
         {

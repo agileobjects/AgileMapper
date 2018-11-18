@@ -2,6 +2,7 @@
 {
     using Extensions.Internal;
     using ObjectPopulation.Enumerables;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else

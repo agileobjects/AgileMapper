@@ -1,8 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 {
     using System;
-    using Extensions.Internal;
     using Members;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
