@@ -134,8 +134,7 @@
                 mapper.WhenMapping
                     .From<Customer>()
                     .To<PublicProperty<string>>()
-                    .Map((p, t) => p.Discount)
-                    .To(x => x.Value);
+                    .Map(c => c.Discount, pp => pp.Value);
 
                 var personSource = new Person { Name = "Wilma" };
                 var personResult = mapper.Map(personSource).ToANew<PublicProperty<string>>();
@@ -330,8 +329,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicField<string>>()
-                    .Map(ctx => ctx.Source.Name)
-                    .To(x => x.Value);
+                    .Map(p => p.Name, pf => pf.Value);
 
                 var source = new[] { new Person { Name = "Mr Thomas" } };
                 var result = mapper.Map(source).ToANew<List<PublicField<string>>>();
@@ -691,8 +689,7 @@
                 mapper.WhenMapping
                     .From(source)
                     .To<PublicProperty<IEnumerable<Person>>>()
-                    .Map((s, pp) => s.People)
-                    .To(pp => pp.Value);
+                    .Map(s => s.People, pp => pp.Value);
 
                 var result = mapper.Map(source).ToANew<PublicProperty<IEnumerable<Person>>>();
 

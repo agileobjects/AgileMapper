@@ -164,7 +164,7 @@
 #endif
             if ((customValueLambda.Body.NodeType != CONSTANT) ||
                 (typeof(TTargetValue) == typeof(object)) ||
-                customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
+                 customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
             {
                 return ConfiguredLambdaInfo.For(customValueLambda);
             }

@@ -131,15 +131,13 @@
                     .Map(source1)
                     .ToANew<PublicField<string>>(c => c
                         .If((pp, pf) => pp.Value != "No")
-                        .Map("Maybe?")
-                        .To(pf => pf.Value));
+                        .Map("Maybe?", pf => pf.Value));
 
                 var result2 = mapper
                     .Map(source2)
                     .ToANew<PublicField<string>>(c => c
                         .If((pp, pf) => pp.Value != "No")
-                        .Map("Maybe?")
-                        .To(pf => pf.Value));
+                        .Map("Maybe?", pf => pf.Value));
 
                 result1.Value.ShouldBe("Maybe?");
                 result2.Value.ShouldBe("No");

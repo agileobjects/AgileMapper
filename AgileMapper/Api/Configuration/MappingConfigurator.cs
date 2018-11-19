@@ -318,6 +318,13 @@
 
         #region Map Overloads
 
+        public IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
+            Expression<Func<TSource, TSourceValue>> valueFactoryExpression,
+            Expression<Func<TTarget, TTargetValue>> targetMember)
+        {
+            return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression).To(targetMember);
+        }
+
         public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
@@ -348,6 +355,13 @@
 
         public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
             => GetConstantValueTargetMemberSpecifier(value);
+
+        public IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
+            TSourceValue value,
+            Expression<Func<TTarget, TTargetValue>> targetMember)
+        {
+            return GetConstantValueTargetMemberSpecifier(value).To(targetMember);
+        }
 
         ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.Map<TSourceValue>(
             TSourceValue value)

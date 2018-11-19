@@ -54,12 +54,14 @@
                 return funcArguments;
             }
 
-            if (funcArguments[0].IsGenericType())
+            var firstArgument = funcArguments[0];
+
+            if (firstArgument.IsGenericType() && !firstArgument.IsAnonymous())
             {
-                return funcArguments[0].GetGenericTypeArguments();
+                return firstArgument.GetGenericTypeArguments();
             }
 
-            return new[] { funcArguments[0] };
+            return new[] { firstArgument };
         }
 
         public static ConfiguredLambdaInfo ForFunc<TFunc>(TFunc func, params Type[] argumentTypes)

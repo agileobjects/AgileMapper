@@ -100,6 +100,23 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             Expression<Func<TargetMemberSelector, bool>> memberFilter);
 
         /// <summary>
+        /// Configure a custom data source for the given <paramref name="targetMember"/> when mapping from and to the
+        /// source and target types being configured. The factory expression is passed a context object containing the
+        /// current mapping's source and target objects.
+        /// </summary>
+        /// <typeparam name="TSourceValue">The type of the custom value being configured.</typeparam>
+        /// <typeparam name="TTargetValue">The target member's type.</typeparam>
+        /// <param name="valueFactoryExpression">The expression to map to the configured target member.</param>
+        /// <param name="targetMember">The target member to which to apply the configuration.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
+        /// and target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
+            Expression<Func<TSource, TSourceValue>> valueFactoryExpression,
+            Expression<Func<TTarget, TTargetValue>> targetMember);
+
+        /// <summary>
         /// Configure a custom data source for a particular target member when mapping from and to the source and 
         /// target types being configured. The factory expression is passed a context object containing the current 
         /// mapping's source and target objects.
@@ -164,5 +181,21 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// custom constant value should be applied.
         /// </returns>
         ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value);
+
+        /// <summary>
+        /// Configure a constant value for the given <paramref name="targetMember"/> when mapping from and to the
+        /// source and target types being configured.
+        /// </summary>
+        /// <typeparam name="TSourceValue">The type of the custom constant value being configured.</typeparam>
+        /// <typeparam name="TTargetValue">The target member's type.</typeparam>
+        /// <param name="value">The constant value to map to the configured target member.</param>
+        /// <param name="targetMember">The target member to which to apply the configuration.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
+        /// and target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
+            TSourceValue value,
+            Expression<Func<TTarget, TTargetValue>> targetMember);
     }
 }
