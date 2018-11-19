@@ -52,21 +52,20 @@ namespace AgileObjects.AgileMapper.Configuration
 
             if (ConfigInfo.IsForAllSourceTypes())
             {
-                return GetRedundantSettingsConflictMessage(conflicting, " when mapping to " + targetType);
+                return GetRedundantSettingConflictMessage(conflicting, " when mapping to " + targetType);
             }
 
             var sourceType = ConfigInfo.SourceType.GetFriendlyName();
             var typeSettings = $" when mapping {sourceType} -> {targetType}";
 
-            return GetRedundantSettingsConflictMessage(conflicting, typeSettings);
+            return GetRedundantSettingConflictMessage(conflicting, typeSettings);
         }
 
 #if NET35
         int IComparable<EntityKeyMappingSetting>.CompareTo(EntityKeyMappingSetting other)
             => DoComparisonTo(other);
 #endif
-
-        private string GetRedundantSettingsConflictMessage(
+        private string GetRedundantSettingConflictMessage(
             EntityKeyMappingSetting conflicting,
             string typeSettings)
         {

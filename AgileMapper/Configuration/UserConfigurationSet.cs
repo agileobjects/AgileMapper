@@ -434,6 +434,7 @@
             _mappedObjectCachingSettings?.CopyTo(configurations.MappedObjectCachingSettings);
             _mapToNullConditions?.CopyTo(configurations.MapToNullConditions);
             _nullCollectionsSettings?.CopyTo(configurations.NullCollectionsSettings);
+            _entityKeyMappingSettings?.CopyTo(configurations.EntityKeyMappingSettings);
             _objectFactories?.CloneItems().CopyTo(configurations.ObjectFactories);
             _identifiers?.CloneTo(configurations.Identifiers);
             _ignoredMembers?.CloneItems().CopyTo(configurations.IgnoredMembers);
