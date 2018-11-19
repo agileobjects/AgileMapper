@@ -128,8 +128,7 @@ namespace AgileObjects.AgileMapper.Members
         public static QualifiedMember From(Member[] memberChain, MapperContext mapperContext)
         {
             var matchingNameSets = memberChain
-                .Project(mapperContext.Naming.GetMatchingNamesFor)
-                .ToArray();
+                .ProjectToArray(mapperContext.Naming.GetMatchingNamesFor);
 
             var joinedNames = mapperContext.Naming.GetJoinedNamesFor(matchingNameSets);
 

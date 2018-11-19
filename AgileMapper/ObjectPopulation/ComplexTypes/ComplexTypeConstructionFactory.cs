@@ -315,7 +315,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 return invokable
                     .GetParameters()
-                    .Project(p =>
+                    .ProjectToArray(p =>
                     {
                         var parameterMapperData = new ChildMemberMapperData(
                             key.MappingData.MapperData.TargetMember.Append(Member.ConstructorParameter(p)),
@@ -325,8 +325,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                         var dataSources = DataSourceFinder.FindFor(memberMappingData);
 
                         return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
-                    })
-                    .ToArray();
+                    });
             }
 
             private static Expression BuildConditions(DataSourceSet dataSources)

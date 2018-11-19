@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             GlobalContext.Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
-                .Project(tm => mapperData.TargetMember.Append(tm)));
+                .ProjectToArray(tm => mapperData.TargetMember.Append(tm)));
 
         private readonly Func<ObjectMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
 

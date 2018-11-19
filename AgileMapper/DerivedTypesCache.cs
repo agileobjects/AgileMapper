@@ -15,13 +15,13 @@
 
         private readonly List<Assembly> _assemblies;
         private readonly ICache<Assembly, IEnumerable<Type>> _typesByAssembly;
-        private readonly ICache<Type, ICollection<Type>> _derivedTypesByType;
+        private readonly ICache<Type, IList<Type>> _derivedTypesByType;
 
         public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
             _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>(default(HashCodeComparer<Assembly>));
-            _derivedTypesByType = cacheSet.CreateScoped<Type, ICollection<Type>>(default(HashCodeComparer<Type>));
+            _derivedTypesByType = cacheSet.CreateScoped<Type, IList<Type>>(default(HashCodeComparer<Type>));
         }
 
         public void AddAssemblies(Assembly[] assemblies)
@@ -32,7 +32,7 @@
             }
         }
 
-        public ICollection<Type> GetTypesDerivedFrom(Type type)
+        public IList<Type> GetTypesDerivedFrom(Type type)
         {
             if (type.IsSealed() || type.IsFromBcl())
             {
@@ -42,7 +42,7 @@
             return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
         }
 
-        private ICollection<Type> GetDerivedTypesForType(Type type)
+        private IList<Type> GetDerivedTypesForType(Type type)
         {
             var typeAssemblies = new[] { type.GetAssembly() };
 

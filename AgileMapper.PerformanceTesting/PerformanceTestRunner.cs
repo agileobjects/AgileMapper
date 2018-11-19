@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.PerformanceTesting
                 .GetTypes()
                 .Filter(t => (t.Namespace == exampleMapperTestType.Namespace) && typeof(IObjectMapperTest).IsAssignableFrom(t))
                 .Project(CreateTest)
-                .ToList();
+                .ToArray();
         }
 
         private static IObjectMapperTest CreateTest(Type testType)

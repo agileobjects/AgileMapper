@@ -123,6 +123,30 @@
         [DebuggerStepThrough]
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 
+        public static TResult[] ProjectToArray<TItem, TResult>(this IList<TItem> items, Func<TItem, TResult> projector)
+        {
+            var itemCount = items.Count;
+
+            if (itemCount == 0)
+            {
+                return Enumerable<TResult>.EmptyArray;
+            }
+
+            var result = new TResult[items.Count];
+
+            for (var i = 0; ;)
+            {
+                result[i] = projector.Invoke(items[i]);
+
+                if (++i == itemCount)
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         public static Expression ReverseChain<T>(this IList<T> items)
             where T : IConditionallyChainable
         {

@@ -236,7 +236,7 @@
             {
                 return ReplaceIn(
                     block,
-                    b => b.Update(b.Variables.Project(ReplaceIn), b.Expressions.Project(Replace)));
+                    b => b.Update(b.Variables.ProjectToArray(ReplaceIn), b.Expressions.ProjectToArray(Replace)));
             }
 
             private Expression ReplaceIn(MethodCallExpression call)
@@ -247,29 +247,29 @@
             private Expression ReplaceIn(GotoExpression @goto) => ReplaceIn(@goto, gt => gt.Update(gt.Target, Replace(gt.Value)));
 
             private Expression ReplaceIn(IndexExpression indexAccess)
-                => ReplaceIn(indexAccess, idx => idx.Update(Replace(idx.Object), idx.Arguments.Project(Replace)));
+                => ReplaceIn(indexAccess, idx => idx.Update(Replace(idx.Object), idx.Arguments.ProjectToArray(Replace)));
 
             private Expression ReplaceIn(InvocationExpression invocation)
                 => ReplaceIn(invocation, inv => ReplaceInCall(inv.Expression, inv.Arguments, inv.Update));
 
             private Expression ReplaceInCall(
                 Expression subject,
-                IEnumerable<Expression> arguments,
+                IList<Expression> arguments,
                 Func<Expression, IEnumerable<Expression>, Expression> replacer)
             {
-                return replacer.Invoke(Replace(subject), arguments.Project(Replace).ToArray());
+                return replacer.Invoke(Replace(subject), arguments.ProjectToArray(Replace));
             }
 
             private Expression ReplaceIn(LabelExpression label)
                 => ReplaceIn(label, l => l.Update(l.Target, Replace(l.DefaultValue)));
 
             private Expression ReplaceIn(LambdaExpression lambda)
-                => ReplaceIn(lambda, l => Expression.Lambda(l.Type, Replace(l.Body), l.Parameters.Project(ReplaceIn)));
+                => ReplaceIn(lambda, l => Expression.Lambda(l.Type, Replace(l.Body), l.Parameters.ProjectToArray(ReplaceIn)));
 
             private Expression ReplaceIn(MemberExpression memberAccess) => ReplaceIn(memberAccess, ma => ma.Update(Replace(ma.Expression)));
 
             private Expression ReplaceIn(MemberInitExpression memberInit)
-                => ReplaceIn(memberInit, mi => mi.Update(ReplaceInNew(mi.NewExpression), mi.Bindings.Project(ReplaceIn)));
+                => ReplaceIn(memberInit, mi => mi.Update(ReplaceInNew(mi.NewExpression), mi.Bindings.ProjectToArray(ReplaceIn)));
 
             private Expression ReplaceIn(ListInitExpression listInit)
                 => ReplaceIn(listInit, li => li.Update(ReplaceInNew(li.NewExpression), ReplaceIn(li.Initializers)));
@@ -290,14 +290,14 @@
 
                     case MemberBindingType.MemberBinding:
                         var memberBinding = (MemberMemberBinding)binding;
-                        return memberBinding.Update(memberBinding.Bindings.Project(ReplaceIn));
+                        return memberBinding.Update(memberBinding.Bindings.ProjectToArray(ReplaceIn));
                 }
 
                 throw new ArgumentOutOfRangeException();
             }
 
-            private IEnumerable<ElementInit> ReplaceIn(IEnumerable<ElementInit> initializers)
-                => initializers.Project(init => init.Update(init.Arguments.Project(Replace)));
+            private IEnumerable<ElementInit> ReplaceIn(IList<ElementInit> initializers)
+                => initializers.ProjectToArray(init => init.Update(init.Arguments.ProjectToArray(Replace)));
 
             private Expression ReplaceIn(NewExpression newing) => ReplaceIn(newing, ReplaceInNew);
 
@@ -305,10 +305,10 @@
             {
                 return newing.Arguments.None()
                     ? newing
-                    : newing.Update(newing.Arguments.Project(Replace));
+                    : newing.Update(newing.Arguments.ProjectToArray(Replace));
             }
 
-            private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(na.Expressions.Project(Replace)));
+            private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(na.Expressions.ProjectToArray(Replace)));
 
             private ParameterExpression ReplaceIn(ParameterExpression parameter) => (ParameterExpression)ReplaceIn(parameter, p => p);
 
@@ -320,7 +320,7 @@
             {
                 return ReplaceIn(
                     @try,
-                    t => t.Update(Replace(t.Body), t.Handlers.Project(ReplaceIn), Replace(t.Finally), Replace(t.Fault)));
+                    t => t.Update(Replace(t.Body), t.Handlers.ProjectToArray(ReplaceIn), Replace(t.Finally), Replace(t.Fault)));
             }
 
             private CatchBlock ReplaceIn(CatchBlock @catch)

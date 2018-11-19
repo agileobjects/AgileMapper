@@ -336,7 +336,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             var updatedCatchHandlers = tryCatchValue
                 .Handlers
-                .Project(handler => handler.Update(
+                .ProjectToArray(handler => handler.Update(
                     handler.Variable,
                     handler.Filter.Replace(replacements),
                     handler.Body.Replace(replacements)));

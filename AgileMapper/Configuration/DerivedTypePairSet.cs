@@ -135,13 +135,11 @@
                     return;
                 }
 
-                var candidatePairsData = derivedSourceTypes
-                    .Project(t => new
-                    {
-                        DerivedSourceType = t,
-                        DerivedTargetTypeName = derivedTargetTypeNameFactory.Invoke(t)
-                    })
-                    .ToArray();
+                var candidatePairsData = derivedSourceTypes.ProjectToArray(t => new
+                {
+                    DerivedSourceType = t,
+                    DerivedTargetTypeName = derivedTargetTypeNameFactory.Invoke(t)
+                });
 
                 foreach (var candidatePairData in candidatePairsData)
                 {

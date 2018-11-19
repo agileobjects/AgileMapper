@@ -518,11 +518,8 @@
             Type nonNullableTargetEnumType,
             Type underlyingEnumType)
         {
-            var validEnumValues = Enum
-                .GetValues(nonNullableTargetEnumType)
-                .Cast<object>()
-                .Project(v => Convert.ChangeType(v, underlyingEnumType).ToString())
-                .ToArray()
+            var validEnumValues = nonNullableTargetEnumType
+                .GetEnumValuesArray(v => Convert.ChangeType(v, underlyingEnumType).ToString())
                 .ToConstantExpression(typeof(ICollection<string>));
 
             var parsedString = GetStringParseCall(sourceValue, underlyingEnumType);

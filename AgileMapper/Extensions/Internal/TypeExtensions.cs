@@ -189,11 +189,29 @@
         {
             type = type.GetNonNullableType();
 
-            return type.IsEnum() ? enumValueFactory.Invoke(GetEnumValues(type)) : cache[type];
+            return type.IsEnum() ? enumValueFactory.Invoke(GetEnumValuesArray(type, Convert.ToInt64)) : cache[type];
         }
 
-        private static IEnumerable<long> GetEnumValues(Type enumType)
-            => Enum.GetValues(enumType).Cast<object>().Project(Convert.ToInt64);
+        public static TResult[] GetEnumValuesArray<TResult>(this Type enumType, Func<object, TResult> resultFactory)
+        {
+            var values = Enum.GetValues(enumType);
+            var valueCount = values.Length;
+
+            if (valueCount == 0)
+            {
+                return Enumerable<TResult>.EmptyArray;
+            }
+
+            var resultValues = new TResult[valueCount];
+            var i = 0;
+
+            foreach (var value in values)
+            {
+                resultValues[i++] = resultFactory.Invoke(value);
+            }
+
+            return resultValues;
+        }
 
         public static bool StartsWith(this string value, char character) => value[0] == character;
 

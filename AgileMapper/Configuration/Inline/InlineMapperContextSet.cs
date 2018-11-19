@@ -59,7 +59,7 @@
         {
             var key = new InlineMapperKey<TSource, TTarget, TConfigurator>(
 #if NET35
-                configurations.Project(c => c.ToDlrExpression()).ToArray(),
+                configurations.ProjectToArray(c => c.ToDlrExpression()),
 #else
                 configurations,
 #endif

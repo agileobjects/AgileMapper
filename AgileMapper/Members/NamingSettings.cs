@@ -54,11 +54,11 @@
             return null;
         }
 
-        public void AddNamePrefixes(IEnumerable<string> prefixes)
-            => AddNameMatchers(prefixes.Project(p => "^" + p + "(.+)$").ToArray());
+        public void AddNamePrefixes(IList<string> prefixes)
+            => AddNameMatchers(prefixes.ProjectToArray(p => "^" + p + "(.+)$"));
 
-        public void AddNameSuffixes(IEnumerable<string> suffixes)
-            => AddNameMatchers(suffixes.Project(s => "^(.+)" + s + "$").ToArray());
+        public void AddNameSuffixes(IList<string> suffixes)
+            => AddNameMatchers(suffixes.ProjectToArray(s => "^(.+)" + s + "$"));
 
         public void AddNameMatchers(IList<string> patterns)
         {

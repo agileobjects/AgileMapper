@@ -52,7 +52,7 @@
 
                 var constructorParameterNames = key.Type
                     .GetPublicInstanceConstructors()
-                    .SelectMany(ctor => ctor.GetParameters().Project(p => p.Name))
+                    .SelectMany(ctor => ctor.GetParameters().ProjectToArray(p => p.Name))
                     .Distinct()
                     .ToArray();
 

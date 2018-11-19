@@ -187,8 +187,7 @@
                 }
 
                 var mismatches = unmatchedSourceValues
-                    .Project(value => $" - {sourceEnumType.Name}.{value} matches no {targetEnumType.Name}")
-                    .ToArray();
+                    .ProjectToArray(value => $" - {sourceEnumType.Name}.{value} matches no {targetEnumType.Name}");
 
                 return mismatches;
             }
