@@ -231,7 +231,7 @@
         /// </returns>
         public IGlobalMappingSettings MaintainIdentityIntegrity()
         {
-            MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll);
+            MapperContext.UserConfigurations.Add(MappedObjectCachingSetting.CacheAll);
             return this;
         }
 
@@ -247,7 +247,7 @@
         /// </returns>
         public IGlobalMappingSettings DisableObjectTracking()
         {
-            MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone);
+            MapperContext.UserConfigurations.Add(MappedObjectCachingSetting.CacheNone);
             return this;
         }
 
@@ -260,6 +260,18 @@
         public IGlobalMappingSettings MapNullCollectionsToNull()
         {
             MapperContext.UserConfigurations.Add(new NullCollectionsSetting(GlobalConfigInfo));
+            return this;
+        }
+
+        /// <summary>
+        /// Map entity key values for all source and target types.
+        /// </summary>
+        /// <returns>
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalMappingSettings MapEntityKeys()
+        {
+            MapperContext.UserConfigurations.Add(EntityKeyMappingSetting.MapAllKeys);
             return this;
         }
 

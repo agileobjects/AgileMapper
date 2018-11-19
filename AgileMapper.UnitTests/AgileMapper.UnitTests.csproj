@@ -94,6 +94,7 @@
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInlineIncorrectly.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringDerivedTypesInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringEntityMappingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringEnumMappingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringNameMatchingInline.cs" />
     <Compile Include="Configuration\Inline\WhenConfiguringObjectCreationInline.cs" />
@@ -107,6 +108,7 @@
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
+    <Compile Include="Configuration\WhenConfiguringEntityMapping.cs" />
     <Compile Include="Configuration\WhenResolvingServices.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs" />

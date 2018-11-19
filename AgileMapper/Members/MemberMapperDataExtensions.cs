@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using Configuration;
     using DataSources;
     using Dictionaries;
     using Extensions;
@@ -191,15 +192,17 @@ namespace AgileObjects.AgileMapper.Members
                 mapperData,
                 mapperData.TargetMember,
                 md => md.MapperContext.UserConfigurations.QueryDataSourceFactories(md),
+                mapperData.MapperContext.UserConfigurations,
                 out reason);
         }
 
-        public static bool TargetMemberIsUnmappable<TTypePair>(
-            this TTypePair typePair,
+        public static bool TargetMemberIsUnmappable<TTMapperData>(
+            this TTMapperData mapperData,
             QualifiedMember targetMember,
-            Func<TTypePair, IEnumerable<ConfiguredDataSourceFactory>> configuredDataSourcesFactory,
+            Func<TTMapperData, IEnumerable<ConfiguredDataSourceFactory>> configuredDataSourcesFactory,
+            UserConfigurationSet userConfigurations,
             out string reason)
-            where TTypePair : ITypePair
+            where TTMapperData : IBasicMapperData
         {
             if (targetMember == QualifiedMember.All)
             {
@@ -207,9 +210,10 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if ((typePair.TargetType != typePair.SourceType) &&
+            if ((mapperData.TargetType != mapperData.SourceType) &&
                  targetMember.LeafMember.IsEntityId() &&
-                 configuredDataSourcesFactory.Invoke(typePair).None())
+                !userConfigurations.MapEntityKeys(mapperData) &&
+                 configuredDataSourcesFactory.Invoke(mapperData).None())
             {
                 reason = "Entity key member";
                 return true;
