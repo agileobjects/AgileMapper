@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using AgileMapper.Configuration;
     using Common;
     using TestClasses;
 #if !NET35
@@ -70,6 +71,114 @@
 
                 nonMatchingTargetResult.Id.ShouldBe(999);
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateMapKeysConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<ProductDto>().To<ProductEntity>()
+                        .MapEntityKeys()
+                        .And
+                        .MapEntityKeys();
+                }
+            });
+
+            configEx.Message.ShouldContain("already enabled");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateIgnoreKeysConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .MapEntityKeys()
+                        .AndWhenMapping
+                        .From<OrderDto>().To<OrderEntity>()
+                        .IgnoreEntityKeys()
+                        .And
+                        .IgnoreEntityKeys();
+                }
+            });
+
+            configEx.Message.ShouldContain("already disabled");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantMapKeysConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .MapEntityKeys()
+                        .AndWhenMapping
+                        .From<ProductEntity>().To<ProductEntity>()
+                        .MapEntityKeys();
+                }
+            });
+
+            configEx.Message.ShouldContain("already enabled");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantIgnoreKeysConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.To<ProductEntity>().IgnoreEntityKeys();
+                }
+            });
+
+            configEx.Message.ShouldContain("disabled by default");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingMapKeysConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .MapEntityKeys()
+                        .AndWhenMapping
+                        .To<CategoryEntity>()
+                        .IgnoreEntityKeys()
+                        .And
+                        .MapEntityKeys();
+                }
+            });
+
+            configEx.Message.ShouldContain("already been disabled");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingIgnoreKeysConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .To<ProductEntity>()
+                        .MapEntityKeys()
+                        .And
+                        .IgnoreEntityKeys();
+                }
+            });
+
+            configEx.Message.ShouldContain("already been enabled");
         }
     }
 }

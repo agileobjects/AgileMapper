@@ -3,25 +3,26 @@ namespace AgileObjects.AgileMapper.Configuration
 #if NET35
     using System;
 #endif
+    using Members;
     using ReadableExpressions.Extensions;
 
-    internal class MappedObjectCachingSettings :
+    internal class MappedObjectCachingSetting :
         UserConfiguredItemBase
 #if NET35
-        , IComparable<MappedObjectCachingSettings>
+        , IComparable<MappedObjectCachingSetting>
 #endif
     {
         #region Singleton Instances
 
-        public static readonly MappedObjectCachingSettings CacheAll =
-            new MappedObjectCachingSettings(MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes, cache: true);
+        public static readonly MappedObjectCachingSetting CacheAll =
+            new MappedObjectCachingSetting(MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes, cache: true);
 
-        public static readonly MappedObjectCachingSettings CacheNone =
-            new MappedObjectCachingSettings(MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes, cache: false);
+        public static readonly MappedObjectCachingSetting CacheNone =
+            new MappedObjectCachingSetting(MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes, cache: false);
 
         #endregion
 
-        public MappedObjectCachingSettings(MappingConfigInfo configInfo, bool cache)
+        public MappedObjectCachingSetting(MappingConfigInfo configInfo, bool cache)
             : base(configInfo)
         {
             Cache = cache;
@@ -40,7 +41,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
             if (base.ConflictsWith(otherItem))
             {
-                var otherSettings = (MappedObjectCachingSettings)otherItem;
+                var otherSettings = (MappedObjectCachingSetting)otherItem;
 
                 if ((this == CacheNone) || (otherSettings == CacheNone) ||
                     (this == CacheAll) || (otherSettings == CacheAll))
@@ -55,7 +56,7 @@ namespace AgileObjects.AgileMapper.Configuration
             return false;
         }
 
-        public string GetConflictMessage(MappedObjectCachingSettings conflicting)
+        public string GetConflictMessage(MappedObjectCachingSetting conflicting)
         {
             if (conflicting == this)
             {
@@ -72,20 +73,26 @@ namespace AgileObjects.AgileMapper.Configuration
                 return "Identity integrity cannot be configured globally with global object tracking disabled";
             }
 
-            var sourceType = ConfigInfo.SourceType.GetFriendlyName();
             var targetType = ConfigInfo.TargetType.GetFriendlyName();
+
+            if (ConfigInfo.IsForAllSourceTypes())
+            {
+                return GetRedundantSettingsConflictMessage(conflicting, " when mapping to " + targetType);
+            }
+            
+            var sourceType = ConfigInfo.SourceType.GetFriendlyName();
             var typeSettings = $" when mapping {sourceType} -> {targetType}";
 
             return GetRedundantSettingsConflictMessage(conflicting, typeSettings);
         }
 
 #if NET35
-        int IComparable<MappedObjectCachingSettings>.CompareTo(MappedObjectCachingSettings other)
+        int IComparable<MappedObjectCachingSetting>.CompareTo(MappedObjectCachingSetting other)
             => DoComparisonTo(other);
 #endif
 
         private string GetRedundantSettingsConflictMessage(
-            MappedObjectCachingSettings conflicting,
+            MappedObjectCachingSetting conflicting,
             string typeSettings = null)
         {
             if (Cache == conflicting.Cache)

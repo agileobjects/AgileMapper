@@ -213,7 +213,7 @@
 
         private IFullMappingSettings<TSource, TTarget> SetMappedObjectCaching(bool cache)
         {
-            MapperContext.UserConfigurations.Add(new MappedObjectCachingSettings(ConfigInfo, cache));
+            MapperContext.UserConfigurations.Add(new MappedObjectCachingSetting(ConfigInfo, cache));
             return this;
         }
 
@@ -229,7 +229,7 @@
 
         private IFullMappingSettings<TSource, TTarget> SetEntityKeyMapping(bool mapKeys)
         {
-            MapperContext.UserConfigurations.Add(new EntityKeyMappingSettings(ConfigInfo, mapKeys));
+            MapperContext.UserConfigurations.Add(new EntityKeyMappingSetting(ConfigInfo, mapKeys));
             return this;
         }
 

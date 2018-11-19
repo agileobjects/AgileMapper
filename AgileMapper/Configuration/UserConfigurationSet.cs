@@ -21,10 +21,10 @@
     {
         private readonly MapperContext _mapperContext;
         private ICollection<Type> _appliedConfigurationTypes;
-        private List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
+        private List<MappedObjectCachingSetting> _mappedObjectCachingSettings;
         private List<MapToNullCondition> _mapToNullConditions;
         private List<NullCollectionsSetting> _nullCollectionsSettings;
-        private List<EntityKeyMappingSettings> _entityKeyMappingSettings;
+        private List<EntityKeyMappingSetting> _entityKeyMappingSettings;
         private ConfiguredServiceProvider _serviceProvider;
         private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
@@ -51,17 +51,17 @@
 
         #region MappedObjectCachingSettings
 
-        private List<MappedObjectCachingSettings> MappedObjectCachingSettings
-            => _mappedObjectCachingSettings ?? (_mappedObjectCachingSettings = new List<MappedObjectCachingSettings>());
+        private List<MappedObjectCachingSetting> MappedObjectCachingSettings
+            => _mappedObjectCachingSettings ?? (_mappedObjectCachingSettings = new List<MappedObjectCachingSetting>());
 
-        public void Add(MappedObjectCachingSettings settings)
+        public void Add(MappedObjectCachingSetting setting)
         {
             ThrowIfConflictingItemExists(
-                settings,
+                setting,
                 _mappedObjectCachingSettings,
                 (s, conflicting) => conflicting.GetConflictMessage(s));
 
-            MappedObjectCachingSettings.AddSorted(settings);
+            MappedObjectCachingSettings.AddSorted(setting);
         }
 
         public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
@@ -119,10 +119,15 @@
 
         #region EntityKeyMappingSettings
 
-        private List<EntityKeyMappingSettings> EntityKeyMappingSettings
-            => _entityKeyMappingSettings ?? (_entityKeyMappingSettings = new List<EntityKeyMappingSettings>());
+        private List<EntityKeyMappingSetting> EntityKeyMappingSettings
+            => _entityKeyMappingSettings ?? (_entityKeyMappingSettings = new List<EntityKeyMappingSetting>());
 
-        public void Add(EntityKeyMappingSettings setting) => EntityKeyMappingSettings.AddSorted(setting);
+        public void Add(EntityKeyMappingSetting setting)
+        {
+            ThrowIfConflictingKeyMappingSettingExists(setting);
+
+            EntityKeyMappingSettings.AddSorted(setting);
+        }
 
         public bool MapEntityKeys(IBasicMapperData basicData)
             => _entityKeyMappingSettings?.FirstOrDefault(s => s.AppliesTo(basicData))?.MapKeys == true;
@@ -364,6 +369,19 @@
                 throw new MappingConfigurationException(
                     $"{ignoredMember.TargetMember.GetPath()} will not be mapped and does not need to be ignored ({reason})");
             }
+        }
+
+        private void ThrowIfConflictingKeyMappingSettingExists(EntityKeyMappingSetting setting)
+        {
+            if ((_entityKeyMappingSettings == null) && !setting.MapKeys)
+            {
+                throw new MappingConfigurationException("Entity key mapping is disabled by default");
+            }
+
+            ThrowIfConflictingItemExists(
+                setting,
+                _entityKeyMappingSettings,
+                (s, conflicting) => conflicting.GetConflictMessage(s));
         }
 
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)

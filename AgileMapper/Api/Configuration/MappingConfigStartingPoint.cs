@@ -231,7 +231,7 @@
         /// </returns>
         public IGlobalMappingSettings MaintainIdentityIntegrity()
         {
-            MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheAll);
+            MapperContext.UserConfigurations.Add(MappedObjectCachingSetting.CacheAll);
             return this;
         }
 
@@ -247,7 +247,7 @@
         /// </returns>
         public IGlobalMappingSettings DisableObjectTracking()
         {
-            MapperContext.UserConfigurations.Add(MappedObjectCachingSettings.CacheNone);
+            MapperContext.UserConfigurations.Add(MappedObjectCachingSetting.CacheNone);
             return this;
         }
 
@@ -271,7 +271,7 @@
         /// </returns>
         public IGlobalMappingSettings MapEntityKeys()
         {
-            MapperContext.UserConfigurations.Add(EntityKeyMappingSettings.MapAllKeys);
+            MapperContext.UserConfigurations.Add(EntityKeyMappingSetting.MapAllKeys);
             return this;
         }
 
