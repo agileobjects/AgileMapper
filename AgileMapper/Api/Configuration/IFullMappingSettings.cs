@@ -80,6 +80,17 @@
         IFullMappingSettings<TSource, TTarget> MapEntityKeys();
 
         /// <summary>
+        /// Ignore entity key values for the source and target types being configured. Use this method
+        /// to disable entity key mapping for specific Types when global entity key mapping has been
+        /// enabled with Mapper.WhenMapping.MapEntityKeys().
+        /// </summary>
+        /// <returns>
+        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the
+        /// source and target types being configured.
+        /// </returns>
+        IFullMappingSettings<TSource, TTarget> IgnoreEntityKeys();
+
+        /// <summary>
         /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another 
         /// enum Type.
         /// </summary>

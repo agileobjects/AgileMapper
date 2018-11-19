@@ -122,7 +122,7 @@
         private List<EntityKeyMappingSettings> EntityKeyMappingSettings
             => _entityKeyMappingSettings ?? (_entityKeyMappingSettings = new List<EntityKeyMappingSettings>());
 
-        public void Add(EntityKeyMappingSettings setting) => EntityKeyMappingSettings.Add(setting);
+        public void Add(EntityKeyMappingSettings setting) => EntityKeyMappingSettings.AddSorted(setting);
 
         public bool MapEntityKeys(IBasicMapperData basicData)
             => _entityKeyMappingSettings?.FirstOrDefault(s => s.AppliesTo(basicData))?.MapKeys == true;

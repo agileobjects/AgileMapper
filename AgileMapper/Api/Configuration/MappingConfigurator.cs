@@ -223,9 +223,13 @@
             return this;
         }
 
-        public IFullMappingSettings<TSource, TTarget> MapEntityKeys()
+        public IFullMappingSettings<TSource, TTarget> MapEntityKeys() => SetEntityKeyMapping(mapKeys: true);
+
+        public IFullMappingSettings<TSource, TTarget> IgnoreEntityKeys() => SetEntityKeyMapping(mapKeys: false);
+
+        private IFullMappingSettings<TSource, TTarget> SetEntityKeyMapping(bool mapKeys)
         {
-            MapperContext.UserConfigurations.Add(new EntityKeyMappingSettings(ConfigInfo, mapKeys: true));
+            MapperContext.UserConfigurations.Add(new EntityKeyMappingSettings(ConfigInfo, mapKeys));
             return this;
         }
 

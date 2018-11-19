@@ -35,13 +35,40 @@
                     .MapEntityKeys();
 
                 var source = new { Id = 123 };
-                var matchingEntityResult = mapper.Map(source).ToANew<ProductEntity>();
+                var matchingResult = mapper.Map(source).ToANew<ProductEntity>();
 
-                matchingEntityResult.Id.ShouldBe(123);
+                matchingResult.Id.ShouldBe(123);
 
-                var nonMatchingEntityResult = mapper.Map(source).ToANew<OrderEntity>();
+                var nonMatchingTargetResult = mapper.Map(source).ToANew<OrderEntity>();
 
-                nonMatchingEntityResult.Id.ShouldBeDefault();
+                nonMatchingTargetResult.Id.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreEntityKeysForASpecificSourceAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new { Id = 999 };
+
+                mapper.WhenMapping
+                    .MapEntityKeys()
+                    .AndWhenMapping
+                    .From(source).To<OrderEntity>()
+                    .IgnoreEntityKeys();
+
+                var matchingResult = mapper.Map(source).ToANew<OrderEntity>();
+
+                matchingResult.Id.ShouldBeDefault();
+
+                var nonMatchingSourceResult = mapper.Map(new { Id = 987, Name = "Fred" }).ToANew<CategoryEntity>();
+
+                nonMatchingSourceResult.Id.ShouldBe(987);
+
+                var nonMatchingTargetResult = mapper.Map(source).ToANew<CategoryEntity>();
+
+                nonMatchingTargetResult.Id.ShouldBe(999);
             }
         }
     }
