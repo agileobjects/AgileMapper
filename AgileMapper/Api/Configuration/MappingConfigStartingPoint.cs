@@ -271,7 +271,7 @@
         /// </returns>
         public IGlobalMappingSettings MapEntityKeys()
         {
-            MapperContext.UserConfigurations.Add(new EntityKeyMappingSettings(GlobalConfigInfo));
+            MapperContext.UserConfigurations.Add(EntityKeyMappingSettings.MapAllKeys);
             return this;
         }
 

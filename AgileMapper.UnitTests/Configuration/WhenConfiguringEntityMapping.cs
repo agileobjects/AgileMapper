@@ -24,5 +24,25 @@
                 result.Id.ShouldBe(456);
             }
         }
+
+        [Fact]
+        public void ShouldMapEntityKeysForASpecificTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<ProductEntity>()
+                    .MapEntityKeys();
+
+                var source = new { Id = 123 };
+                var matchingEntityResult = mapper.Map(source).ToANew<ProductEntity>();
+
+                matchingEntityResult.Id.ShouldBe(123);
+
+                var nonMatchingEntityResult = mapper.Map(source).ToANew<OrderEntity>();
+
+                nonMatchingEntityResult.Id.ShouldBeDefault();
+            }
+        }
     }
 }

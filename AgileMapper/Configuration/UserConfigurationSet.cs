@@ -125,7 +125,7 @@
         public void Add(EntityKeyMappingSettings setting) => EntityKeyMappingSettings.Add(setting);
 
         public bool MapEntityKeys(IBasicMapperData basicData)
-            => _entityKeyMappingSettings?.Any(s => s.AppliesTo(basicData)) == true;
+            => _entityKeyMappingSettings?.FirstOrDefault(s => s.AppliesTo(basicData))?.MapKeys == true;
 
         #endregion
 

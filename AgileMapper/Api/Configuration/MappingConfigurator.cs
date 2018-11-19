@@ -203,9 +203,7 @@
 
         public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
-            var exceptionCallback = new ExceptionCallback(ConfigInfo, callback.ToConstantExpression());
-
-            MapperContext.UserConfigurations.Add(exceptionCallback);
+            MapperContext.UserConfigurations.Add(new ExceptionCallback(ConfigInfo, callback.ToConstantExpression()));
             return this;
         }
 
@@ -215,17 +213,19 @@
 
         private IFullMappingSettings<TSource, TTarget> SetMappedObjectCaching(bool cache)
         {
-            var settings = new MappedObjectCachingSettings(ConfigInfo, cache);
-
-            MapperContext.UserConfigurations.Add(settings);
+            MapperContext.UserConfigurations.Add(new MappedObjectCachingSettings(ConfigInfo, cache));
             return this;
         }
 
         public IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull()
         {
-            var nullSetting = new NullCollectionsSetting(ConfigInfo);
+            MapperContext.UserConfigurations.Add(new NullCollectionsSetting(ConfigInfo));
+            return this;
+        }
 
-            MapperContext.UserConfigurations.Add(nullSetting);
+        public IFullMappingSettings<TSource, TTarget> MapEntityKeys()
+        {
+            MapperContext.UserConfigurations.Add(new EntityKeyMappingSettings(ConfigInfo, mapKeys: true));
             return this;
         }
 

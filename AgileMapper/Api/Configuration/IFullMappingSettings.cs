@@ -71,6 +71,15 @@
         IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull();
 
         /// <summary>
+        /// Map entity key values for the source and target types being configured.
+        /// </summary>
+        /// <returns>
+        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
+        /// target types being configured.
+        /// </returns>
+        IFullMappingSettings<TSource, TTarget> MapEntityKeys();
+
+        /// <summary>
         /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another 
         /// enum Type.
         /// </summary>
