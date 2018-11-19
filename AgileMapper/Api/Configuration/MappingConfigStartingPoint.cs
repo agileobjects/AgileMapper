@@ -264,6 +264,18 @@
         }
 
         /// <summary>
+        /// Map entity key values for all source and target types.
+        /// </summary>
+        /// <returns>
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalMappingSettings MapEntityKeys()
+        {
+            MapperContext.UserConfigurations.Add(new EntityKeyMappingSettings(GlobalConfigInfo));
+            return this;
+        }
+
+        /// <summary>
         /// Throw an exception upon creation of a mapper if the mapping plan has any target members which will not be mapped, 
         /// maps from a source enum to a target enum which does not support all of its values, or includes complex types which 
         /// cannot be constructed. Call this method to validate mapping plans during development; remove it in production code.

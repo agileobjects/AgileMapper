@@ -24,6 +24,7 @@
         private List<MappedObjectCachingSettings> _mappedObjectCachingSettings;
         private List<MapToNullCondition> _mapToNullConditions;
         private List<NullCollectionsSetting> _nullCollectionsSettings;
+        private List<EntityKeyMappingSettings> _entityKeyMappingSettings;
         private ConfiguredServiceProvider _serviceProvider;
         private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
@@ -113,6 +114,18 @@
 
         public bool MapToNullCollections(IBasicMapperData basicData)
             => _nullCollectionsSettings?.Any(s => s.AppliesTo(basicData)) == true;
+
+        #endregion
+
+        #region EntityKeyMappingSettings
+
+        private List<EntityKeyMappingSettings> EntityKeyMappingSettings
+            => _entityKeyMappingSettings ?? (_entityKeyMappingSettings = new List<EntityKeyMappingSettings>());
+
+        public void Add(EntityKeyMappingSettings setting) => EntityKeyMappingSettings.Add(setting);
+
+        public bool MapEntityKeys(IBasicMapperData basicData)
+            => _entityKeyMappingSettings?.Any(s => s.AppliesTo(basicData)) == true;
 
         #endregion
 
@@ -342,9 +355,10 @@
 
         private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
         {
-            if (ignoredMember.ConfigInfo.TargetMemberIsUnmappable(
+            if (ignoredMember.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
                 ignoredMember.TargetMember,
-                ci => QueryDataSourceFactories(ci.ToMapperData()),
+                QueryDataSourceFactories,
+                this,
                 out var reason))
             {
                 throw new MappingConfigurationException(
