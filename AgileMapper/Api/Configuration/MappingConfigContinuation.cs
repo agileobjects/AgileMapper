@@ -26,6 +26,6 @@
             => CreateNewConfigurator();
 
         private MappingConfigurator<TSource, TTarget> CreateNewConfigurator()
-            => new MappingConfigurator<TSource, TTarget>(_configInfo.Clone());
+            => new MappingConfigurator<TSource, TTarget>(_configInfo.Copy());
     }
 }

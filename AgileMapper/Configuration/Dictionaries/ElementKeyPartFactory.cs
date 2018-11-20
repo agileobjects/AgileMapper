@@ -98,7 +98,7 @@
                  configInfo.SourceType.IsEnumerable())
             {
                 configInfo = configInfo
-                    .Clone()
+                    .Copy()
                     .ForSourceType(configInfo.SourceType.GetEnumerableElementType());
             }
 
@@ -107,7 +107,7 @@
                  configInfo.TargetType.IsEnumerable())
             {
                 configInfo = configInfo
-                    .Clone()
+                    .Copy()
                     .ForTargetType(configInfo.TargetType.GetEnumerableElementType());
             }
 

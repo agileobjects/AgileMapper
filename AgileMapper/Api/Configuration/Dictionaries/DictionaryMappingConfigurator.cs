@@ -103,12 +103,12 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         private MappingConfigInfo GetConfigInfo(DictionaryContext context)
         {
             return (_configInfo.TargetType != typeof(object))
-                ? _configInfo.Clone().Set(context)
+                ? _configInfo.Copy().Set(context)
                 : GetGlobalConfigInfo(context);
         }
 
         private MappingConfigInfo GetGlobalConfigInfo(DictionaryContext context)
-            => _configInfo.Clone().ForAllRuleSets().ForAllTargetTypes().Set(context);
+            => _configInfo.Copy().ForAllRuleSets().ForAllTargetTypes().Set(context);
 
         #region AndWhenMapping
 

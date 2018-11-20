@@ -62,12 +62,12 @@
             }
 
             var reverseConfigInfo = ConfigInfo
-                .Clone()
+                .Copy()
                 .ForSourceType(ConfigInfo.TargetType)
                 .ForTargetType(ConfigInfo.SourceType)
                 .ForSourceValueType(TargetMember.Type);
 
-            var sourceParameter = Parameters.Create(ConfigInfo.TargetType, "source");
+            var sourceParameter = Parameters.Create(reverseConfigInfo.SourceType, "source");
             var sourceMemberAccess = TargetMember.GetQualifiedAccess(sourceParameter);
 
             var sourceMemberAccessLambda = Expression.Lambda(

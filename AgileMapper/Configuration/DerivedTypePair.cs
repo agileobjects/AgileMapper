@@ -50,7 +50,7 @@
         private static void ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(MappingConfigInfo configInfo)
         {
             var mapperData = configInfo
-                .Clone()
+                .Copy()
                 .ForSourceType<TDerivedSource>()
                 .ToMapperData();
 

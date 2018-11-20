@@ -207,7 +207,7 @@
                 dummyTargetMember);
         }
 
-        public MappingConfigInfo Clone()
+        public MappingConfigInfo Copy()
         {
             var cloned = new MappingConfigInfo(MapperContext)
             {
