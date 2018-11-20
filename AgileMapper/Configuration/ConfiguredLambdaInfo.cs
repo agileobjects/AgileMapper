@@ -56,7 +56,8 @@
 
             var firstArgument = funcArguments[0];
 
-            if (firstArgument.IsGenericType() && !firstArgument.IsAnonymous())
+            if (firstArgument.IsGenericType() &&
+                firstArgument.IsAssignableTo(typeof(IServiceProviderAccessor)))
             {
                 return firstArgument.GetGenericTypeArguments();
             }
@@ -137,6 +138,54 @@
         public bool UsesMappingDataObjectParameter => _parametersSwapper.HasMappingContextParameter;
 
         public Type ReturnType { get; }
+
+        public bool IsSourceMember(out LambdaExpression sourceMemberLambda)
+        {
+            if (_lambda.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                sourceMemberLambda = null;
+                return false;
+            }
+
+            var memberAccesses = _lambda.Body.GetMemberAccessChain(nt => { }, out var rootExpression);
+
+            if (memberAccesses == null)
+            {
+                sourceMemberLambda = null;
+                return false;
+            }
+
+            var sourceParameter = default(ParameterExpression);
+            var memberAccessPath = default(Expression);
+
+            foreach (var memberAccess in memberAccesses)
+            {
+                if (memberAccess.NodeType != ExpressionType.MemberAccess)
+                {
+                    sourceMemberLambda = null;
+                    return false;
+                }
+
+                if (sourceParameter == null)
+                {
+                    sourceParameter = Parameters.Create(rootExpression.Type, "source");
+                    memberAccessPath = sourceParameter;
+                }
+
+                memberAccessPath = Expression.MakeMemberAccess(
+                    memberAccessPath,
+                  ((MemberExpression)memberAccess).Member);
+            }
+
+            // ReSharper disable PossibleNullReferenceException
+            sourceMemberLambda = Expression.Lambda(
+                Expression.GetFuncType(sourceParameter.Type, memberAccessPath.Type),
+                memberAccessPath,
+                sourceParameter);
+            // ReSharper restore PossibleNullReferenceException
+
+            return true;
+        }
 
         public bool Supports(MappingRuleSet ruleSet)
             => ruleSet.Settings?.ExpressionIsSupported(_lambda) != false;

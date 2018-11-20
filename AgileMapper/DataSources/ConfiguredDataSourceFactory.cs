@@ -32,10 +32,55 @@
         public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo dataSourceLambda,
-            LambdaExpression targetMemberLambda)
+            LambdaExpression targetMemberLambda,
+            bool valueCouldBeSourceMember)
             : base(configInfo, targetMemberLambda)
         {
+            ValueCouldBeSourceMember = valueCouldBeSourceMember;
             _dataSourceLambda = dataSourceLambda;
+        }
+
+        private bool ValueCouldBeSourceMember { get; set; }
+
+        public ConfiguredDataSourceFactory CreateReverseIfAppropriate()
+        {
+            if (ValueCouldBeSourceMember == false)
+            {
+                return null;
+            }
+
+            if (!_dataSourceLambda.IsSourceMember(out var sourceMemberLambda))
+            {
+                return null;
+            }
+
+            var targetMember = sourceMemberLambda.ToTargetMemberOrNull(ConfigInfo.MapperContext, out _);
+
+            if (targetMember == null)
+            {
+                return null;
+            }
+
+            var reverseConfigInfo = ConfigInfo
+                .Clone()
+                .ForSourceType(ConfigInfo.TargetType)
+                .ForTargetType(ConfigInfo.SourceType)
+                .ForSourceValueType(TargetMember.Type);
+
+            var sourceParameter = Parameters.Create(ConfigInfo.TargetType, "source");
+            var sourceMemberAccess = TargetMember.GetQualifiedAccess(sourceParameter);
+
+            var sourceMemberAccessLambda = Expression.Lambda(
+                Expression.GetFuncType(sourceParameter.Type, sourceMemberAccess.Type),
+                sourceMemberAccess,
+                sourceParameter);
+
+            var sourceMemberLambdaInfo = ConfiguredLambdaInfo.For(sourceMemberAccessLambda);
+
+            return new ConfiguredDataSourceFactory(
+                reverseConfigInfo,
+                sourceMemberLambdaInfo,
+                targetMember);
         }
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
@@ -117,6 +162,7 @@
         {
             return new ConfiguredDataSourceFactory(ConfigInfo, _dataSourceLambda, TargetMember)
             {
+                ValueCouldBeSourceMember = ValueCouldBeSourceMember,
                 IsClone = true
             };
         }

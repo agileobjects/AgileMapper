@@ -279,9 +279,17 @@
 
             DataSourceFactories.AddSortFilter(dataSourceFactory);
 
-            if (!HasConfiguredRootDataSources && dataSourceFactory.TargetMember.IsRoot)
+            if (dataSourceFactory.TargetMember.IsRoot)
             {
                 HasConfiguredRootDataSources = true;
+                return;
+            }
+
+            var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate();
+
+            if (reverseDataSourceFactory != null)
+            {
+                DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
             }
         }
 
@@ -438,7 +446,7 @@
             _objectFactories?.CloneItems().CopyTo(configurations.ObjectFactories);
             _identifiers?.CloneTo(configurations.Identifiers);
             _ignoredMembers?.CloneItems().CopyTo(configurations.IgnoredMembers);
-            _enumPairings?.CopyTo(configurations._enumPairings);
+            _enumPairings?.CopyTo(configurations.EnumPairings);
             _dictionaries?.CloneTo(configurations.Dictionaries);
             _dataSourceFactories?.CloneItems().CopyTo(configurations.DataSourceFactories);
             _mappingCallbackFactories?.CopyTo(configurations.MappingCallbackFactories);

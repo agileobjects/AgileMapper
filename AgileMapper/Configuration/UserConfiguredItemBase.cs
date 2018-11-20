@@ -4,7 +4,6 @@
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -26,31 +25,14 @@
 
         private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
-            QualifiedMember targetMember;
+            var targetMember = lambda.ToTargetMemberOrNull(configInfo.MapperContext, out var failureReason);
 
-            try
+            if (targetMember != null)
             {
-                targetMember = lambda.ToTargetMember(configInfo.MapperContext);
-            }
-            catch (NotSupportedException)
-            {
-                throw new MappingConfigurationException(
-                    $"Unable to determine target member from '{lambda.Body.ToReadableString()}'");
+                return targetMember;
             }
 
-            if (targetMember == null)
-            {
-                throw new MappingConfigurationException(
-                    $"Target member {lambda.Body.ToReadableString()} is not writeable");
-            }
-
-            if (targetMember.IsUnmappable(out var reason))
-            {
-                throw new MappingConfigurationException(
-                    $"Target member {lambda.Body.ToReadableString()} is not mappable ({reason})");
-            }
-
-            return targetMember;
+            throw new MappingConfigurationException(failureReason);
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)

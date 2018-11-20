@@ -376,7 +376,8 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+                valueFactoryExpression,
+                valueCouldBeSourceMember: true);
         }
 
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
@@ -399,7 +400,8 @@
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType(valueConstant.Type),
-                valueLambda);
+                valueLambda,
+                valueCouldBeSourceMember: false);
         }
 
         #endregion
