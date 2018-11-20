@@ -276,6 +276,20 @@
         }
 
         /// <summary>
+        /// Apply configured data sources to the reverse of a configured mapping, for all source and target types.
+        /// For example, configuring ProductDto.ProdId -> Product.Id will also apply Product.Id -> ProductDto.ProdId.
+        /// This global option sets the default behaviour; individual configurations can subsequently opt-out.
+        /// </summary>
+        /// <returns>
+        /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
+        /// </returns>
+        public IGlobalMappingSettings ReverseConfiguredDataSources()
+        {
+            MapperContext.UserConfigurations.ReverseConfigurationSources = true;
+            return this;
+        }
+
+        /// <summary>
         /// Throw an exception upon creation of a mapper if the mapping plan has any target members which will not be mapped, 
         /// maps from a source enum to a target enum which does not support all of its values, or includes complex types which 
         /// cannot be constructed. Call this method to validate mapping plans during development; remove it in production code.

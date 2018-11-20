@@ -46,6 +46,8 @@
 
         public bool ValidateMappingPlans { get; set; }
 
+        public bool ReverseConfigurationSources { get; set; }
+
         public ICollection<Type> AppliedConfigurationTypes
             => _appliedConfigurationTypes ?? (_appliedConfigurationTypes = new List<Type>());
 
@@ -285,6 +287,14 @@
                 return;
             }
 
+            if (ReverseConfigurationSources)
+            {
+                AddReverse(dataSourceFactory);
+            }
+        }
+
+        public void AddReverse(ConfiguredDataSourceFactory dataSourceFactory)
+        {
             var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate();
 
             if (reverseDataSourceFactory != null)

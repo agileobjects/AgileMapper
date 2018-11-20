@@ -13,11 +13,13 @@
     public class WhenConfiguringReverseDataSources
     {
         [Fact]
-        public void ShouldReverseAConfiguredMember()
+        public void ShouldReverseAConfiguredMemberByDefault()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
+                    .ReverseConfiguredDataSources()
+                    .AndWhenMapping
                     .From<Person>()
                     .To<PublicProperty<Guid>>()
                     .Map(ctx => ctx.Source.Id)
@@ -42,6 +44,8 @@
                 const string GUID_VALUE = "21EFCF97-C7CF-42C7-B152-1C072E8C3BEA";
 
                 mapper.WhenMapping
+                    .ReverseConfiguredDataSources()
+                    .AndWhenMapping
                     .From<Person>()
                     .To<PublicField<Guid>>()
                     .Map(GUID_VALUE)
@@ -64,6 +68,8 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
+                    .ReverseConfiguredDataSources()
+                    .AndWhenMapping
                     .From<ProductDto>()
                     .To<PublicProperty<int>>()
                     .If(ctx => ctx.Source.Price > 100)
