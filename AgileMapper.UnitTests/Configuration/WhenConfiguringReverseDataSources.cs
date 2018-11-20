@@ -81,11 +81,11 @@
 
                 var lowPriceReverseResult = mapper.Map(lowPriceResult).ToANew<ProductDto>();
 
-                lowPriceReverseResult.ProductId.ShouldBe("0");
+                lowPriceReverseResult.ProductId.ShouldBeNull();
 
                 var highPriceReverseResult = mapper.Map(highPriceResult).ToANew<ProductDto>();
 
-                highPriceReverseResult.ProductId.ShouldBe("456");
+                highPriceReverseResult.ProductId.ShouldBeNull();
             }
         }
     }

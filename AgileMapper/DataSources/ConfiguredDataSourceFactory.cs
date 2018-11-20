@@ -44,7 +44,7 @@
 
         public ConfiguredDataSourceFactory CreateReverseIfAppropriate()
         {
-            if (ValueCouldBeSourceMember == false)
+            if ((ValueCouldBeSourceMember == false) || ConfigInfo.HasCondition)
             {
                 return null;
             }
@@ -77,10 +77,7 @@
 
             var sourceMemberLambdaInfo = ConfiguredLambdaInfo.For(sourceMemberAccessLambda);
 
-            return new ConfiguredDataSourceFactory(
-                reverseConfigInfo,
-                sourceMemberLambdaInfo,
-                targetMember);
+            return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember);
         }
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)

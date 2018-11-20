@@ -3,7 +3,6 @@
     using AgileMapper.Configuration;
     using Projection;
 
-
     internal class MappingConfigContinuation<TSource, TTarget> :
         IMappingConfigContinuation<TSource, TTarget>,
         IProjectionConfigContinuation<TSource, TTarget>
