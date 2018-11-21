@@ -318,7 +318,7 @@
 
         #region Map Overloads
 
-        public IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
+        public ICustomDataSourceMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
             Expression<Func<TSource, TSourceValue>> valueFactoryExpression,
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {

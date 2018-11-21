@@ -289,20 +289,32 @@
 
             if (ReverseConfigurationSources)
             {
-                AddReverse(dataSourceFactory);
+                AddReverse(dataSourceFactory, isAutoReversal: true);
             }
         }
 
-        public void AddReverseOf(MappingConfigInfo configInfo) => AddReverse(GetDataSourceFactoryFor(configInfo));
+        public void AddReverseOf(MappingConfigInfo configInfo)
+            => AddReverse(GetDataSourceFactoryFor(configInfo), isAutoReversal: false);
 
-        private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory)
+        private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory, bool isAutoReversal)
         {
             var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate();
 
-            if (reverseDataSourceFactory != null)
+            if (reverseDataSourceFactory == null)
             {
-                DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
+                return;
             }
+
+            if (isAutoReversal && (_dataSourceFactories.Count > 1))
+            {
+                // Don't replace an existing data source factory
+                if (_dataSourceFactories.Any(dfs => reverseDataSourceFactory.ConflictsWith(dataSourceFactory)))
+                {
+                    return;
+                }
+            }
+
+            DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
         }
 
         public void RemoveReverseOf(MappingConfigInfo configInfo)

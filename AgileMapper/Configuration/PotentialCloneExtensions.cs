@@ -52,8 +52,8 @@
             }
 
             var replacedItem = cloneableItems
-                .Filter(item => item.IsClone)
-                .Project((item, index) => new { Item = item, Index = index })
+                .Project((item, index) => new { Item = item, Index = index, item.IsClone })
+                .Filter(d => d.IsClone)
                 .FirstOrDefault(d => newItem.IsReplacementFor(d.Item));
 
             if (replacedItem != null)

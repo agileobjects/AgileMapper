@@ -78,6 +78,7 @@
 
             return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember)
             {
+                IsClone = true,
                 _isReversal = true
             };
         }
@@ -99,16 +100,17 @@
             }
 
             var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactory;
+            var isOtherDataSource = otherDataSource != null;
             var dataSourceLambdasAreTheSame = HasSameDataSourceLambdaAs(otherDataSource);
 
             if (IsClone &&
                (otherConfiguredItem is IPotentialClone otherClone) &&
                !otherClone.IsClone)
             {
-                return (otherDataSource != null) && dataSourceLambdasAreTheSame;
+                return isOtherDataSource && dataSourceLambdasAreTheSame;
             }
 
-            if (otherDataSource == null)
+            if (isOtherDataSource == false)
             {
                 return true;
             }
@@ -137,7 +139,7 @@
             var conflictIdentifier = lambdasAreTheSame ? "that" : "a";
 
             var reason = conflictingDataSource._isReversal
-                ? " from an automatic configured data source reversal" : null;
+                ? " from an automatically-configured reverse data source" : null;
 
             return $"{GetTargetMemberPath()} already has {conflictIdentifier} configured data source{reason}";
         }

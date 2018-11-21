@@ -142,5 +142,36 @@
                 highPriceReverseResult.ProductId.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldAllowReplacementOfImplictlyReversedConfiguredMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.AutoReverseConfiguredDataSources();
+
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicTwoFields<Guid, Guid>>()
+                    .Map(p => p.Id, ptf => ptf.Value1);
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Guid, Guid>>()
+                    .To<Person>()
+                    .Map(ptf => ptf.Value2, p => p.Id);
+
+                var source = new Person { Id = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicTwoFields<Guid, Guid>>();
+
+                result.Value1.ShouldBe(source.Id);
+                result.Value2.ShouldBe(source.Id); // ...from reverse of Value2 -> Id
+
+                result.Value2 = Guid.NewGuid();
+
+                var reverseResult = mapper.Map(result).ToANew<Person>();
+
+                reverseResult.Id.ShouldBe(result.Value2);
+            }
+        }
     }
 }

@@ -76,7 +76,7 @@
                 }
             });
 
-            configEx.Message.ShouldContain("data source reversal");
+            configEx.Message.ShouldContain("reverse data source");
         }
     }
 }
