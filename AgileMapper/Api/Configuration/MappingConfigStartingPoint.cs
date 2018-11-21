@@ -276,14 +276,15 @@
         }
 
         /// <summary>
-        /// Apply configured data sources to the reverse of a configured mapping, for all source and target types.
+        /// Apply configured data sources to the reverse of a configured mapping - as well as to the direction
+        /// configured - for all source and target types.
         /// For example, configuring ProductDto.ProdId -> Product.Id will also apply Product.Id -> ProductDto.ProdId.
         /// This global option sets the default behaviour; individual configurations can subsequently opt-out.
         /// </summary>
         /// <returns>
         /// This <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
-        public IGlobalMappingSettings ReverseConfiguredDataSources()
+        public IGlobalMappingSettings AutoReverseConfiguredDataSources()
         {
             MapperContext.UserConfigurations.ReverseConfigurationSources = true;
             return this;

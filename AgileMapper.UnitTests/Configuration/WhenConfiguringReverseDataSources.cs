@@ -18,7 +18,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .ReverseConfiguredDataSources()
+                    .AutoReverseConfiguredDataSources()
                     .AndWhenMapping
                     .From<Person>()
                     .To<PublicProperty<Guid>>()
@@ -65,7 +65,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .ReverseConfiguredDataSources()
+                    .AutoReverseConfiguredDataSources()
                     .AndWhenMapping
                     .From<Person>()
                     .To<PublicProperty<Guid>>()
@@ -92,7 +92,7 @@
                 const string GUID_VALUE = "21EFCF97-C7CF-42C7-B152-1C072E8C3BEA";
 
                 mapper.WhenMapping
-                    .ReverseConfiguredDataSources()
+                    .AutoReverseConfiguredDataSources()
                     .AndWhenMapping
                     .From<Person>()
                     .To<PublicField<Guid>>()
@@ -116,7 +116,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .ReverseConfiguredDataSources()
+                    .AutoReverseConfiguredDataSources()
                     .AndWhenMapping
                     .From<ProductDto>()
                     .To<PublicProperty<int>>()

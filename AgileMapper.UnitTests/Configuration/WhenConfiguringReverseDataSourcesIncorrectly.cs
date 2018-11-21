@@ -41,7 +41,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .ReverseConfiguredDataSources()
+                        .AutoReverseConfiguredDataSources()
                         .AndWhenMapping
                         .From<Person>()
                         .To<PublicProperty<Guid>>()
@@ -62,7 +62,7 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.WhenMapping.ReverseConfiguredDataSources();
+                    mapper.WhenMapping.AutoReverseConfiguredDataSources();
 
                     mapper.WhenMapping
                         .From<Person>()
