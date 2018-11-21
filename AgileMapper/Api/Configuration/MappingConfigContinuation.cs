@@ -16,6 +16,7 @@
 
         IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.AndViceVersa()
         {
+            _configInfo.MapperContext.UserConfigurations.AddReverseOf(_configInfo);
             return this;
         }
 

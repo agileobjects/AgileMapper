@@ -37,6 +37,29 @@
         }
 
         [Fact]
+        public void ShouldReverseAConfiguredMemberIfOptedIn()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<Guid>>()
+                    .Map(ctx => ctx.Source.Id)
+                    .To(pp => pp.Value)
+                    .AndViceVersa();
+
+                var source = new Person { Id = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
+
+                result.Value.ShouldBe(source.Id);
+
+                var reverseResult = mapper.Map(result).ToANew<Person>();
+
+                reverseResult.Id.ShouldBe(source.Id);
+            }
+        }
+
+        [Fact]
         public void ShouldNotReverseAConfiguredMemberIfOptedOut()
         {
             using (var mapper = Mapper.CreateNew())

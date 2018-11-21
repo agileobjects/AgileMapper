@@ -293,7 +293,14 @@
             }
         }
 
-        public void AddReverse(ConfiguredDataSourceFactory dataSourceFactory)
+        public void AddReverseOf(MappingConfigInfo configInfo)
+        {
+            var dataSourceFactory = _dataSourceFactories.First(dsf => dsf.ConfigInfo == configInfo);
+
+            AddReverse(dataSourceFactory);
+        }
+
+        private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory)
         {
             var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate();
 
