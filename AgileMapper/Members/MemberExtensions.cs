@@ -32,28 +32,33 @@
             => GetFriendlyMemberPath(targetMember, rootMapperData.TargetMember);
 
         public static string GetFriendlyMemberPath(this IQualifiedMember member, IQualifiedMember rootMember)
+            => GetFriendlyMemberPath(member, rootMember.GetFriendlyTypeName(), rootMember.Name);
+
+        public static string GetFriendlyMemberPath(
+            this IQualifiedMember member,
+            string rootTypeName,
+            string rootMemberName)
         {
-            var rootTypeName = rootMember.GetFriendlyTypeName();
             var memberPath = member.GetPath();
 
-            if (memberPath == rootMember.Name)
+            if (memberPath == rootMemberName)
             {
                 return rootTypeName;
             }
 
-            if (memberPath.StartsWith(rootMember.Name, Ordinal))
+            if (memberPath.StartsWith(rootMemberName, Ordinal))
             {
-                return rootTypeName + memberPath.Substring(rootMember.Name.Length);
+                return rootTypeName + memberPath.Substring(rootMemberName.Length);
             }
 
-            var rootMemberNameIndex = memberPath.IndexOf("." + rootMember.Name + ".", Ordinal);
+            var rootMemberNameIndex = memberPath.IndexOf("." + rootMemberName + ".", Ordinal);
 
             if (rootMemberNameIndex == -1)
             {
                 return rootTypeName + memberPath;
             }
 
-            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMember.Name.Length + 2);
+            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMemberName.Length + 2);
             var path = rootTypeName + "." + rootMemberString;
 
             return path;

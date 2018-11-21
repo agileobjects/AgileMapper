@@ -293,12 +293,7 @@
             }
         }
 
-        public void AddReverseOf(MappingConfigInfo configInfo)
-        {
-            var dataSourceFactory = _dataSourceFactories.First(dsf => dsf.ConfigInfo == configInfo);
-
-            AddReverse(dataSourceFactory);
-        }
+        public void AddReverseOf(MappingConfigInfo configInfo) => AddReverse(GetDataSourceFactoryFor(configInfo));
 
         private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory)
         {
@@ -312,7 +307,7 @@
 
         public void RemoveReverseOf(MappingConfigInfo configInfo)
         {
-            var dataSourceFactory = _dataSourceFactories.First(dsf => dsf.ConfigInfo == configInfo);
+            var dataSourceFactory = GetDataSourceFactoryFor(configInfo);
             var reverseConfigInfo = dataSourceFactory.GetReverseConfigInfo();
 
             for (var i = 0; i < _dataSourceFactories.Count; ++i)
@@ -324,6 +319,9 @@
                 }
             }
         }
+
+        public ConfiguredDataSourceFactory GetDataSourceFactoryFor(MappingConfigInfo configInfo)
+            => _dataSourceFactories.First(dsf => dsf.ConfigInfo == configInfo);
 
         public bool HasConfiguredRootDataSources { get; private set; }
 

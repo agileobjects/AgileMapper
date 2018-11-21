@@ -5,6 +5,7 @@
 #endif
     using Configuration;
     using Members;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -41,7 +42,7 @@
             _dataSourceLambda = dataSourceLambda;
         }
 
-        private bool ValueCouldBeSourceMember { get; set; }
+        public bool ValueCouldBeSourceMember { get; private set; }
 
         public ConfiguredDataSourceFactory CreateReverseIfAppropriate()
         {
@@ -119,9 +120,7 @@
         #region ConflictsWith Helpers
 
         private bool HasSameDataSourceLambdaAs(ConfiguredDataSourceFactory otherDataSource)
-        {
-            return _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
-        }
+            => _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
 
         protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
             => TargetMember.LeafMember.Equals(otherConfiguredItem.TargetMember.LeafMember);
@@ -134,6 +133,20 @@
             var conflictIdentifier = lambdasAreTheSame ? "that" : "a";
 
             return $"{TargetMember.GetPath()} already has {conflictIdentifier} configured data source";
+        }
+
+        public string GetDescription()
+        {
+            _dataSourceLambda.IsSourceMember(out var sourceMemberLambda);
+
+            var sourceMemberPath = sourceMemberLambda
+                .ToSourceMember(ConfigInfo.MapperContext)
+                .GetFriendlyMemberPath(ConfigInfo.SourceType.GetFriendlyName(), Member.RootSourceMemberName);
+
+            var targetMemberPath = TargetMember
+                .GetFriendlyMemberPath(ConfigInfo.TargetType.GetFriendlyName(), Member.RootTargetMemberName);
+
+            return sourceMemberPath + " -> " + targetMemberPath;
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)

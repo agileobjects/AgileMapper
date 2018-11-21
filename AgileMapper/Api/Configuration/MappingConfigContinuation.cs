@@ -14,16 +14,28 @@
             _configInfo = configInfo;
         }
 
+        private UserConfigurationSet UserConfigurations => _configInfo.MapperContext.UserConfigurations;
+
         IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.AndViceVersa()
         {
-            _configInfo.MapperContext.UserConfigurations.AddReverseOf(_configInfo);
+            UserConfigurations.AddReverseOf(_configInfo);
             return this;
         }
 
         IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.ButNotViceVersa()
         {
-            _configInfo.MapperContext.UserConfigurations.RemoveReverseOf(_configInfo);
-            return this;
+            if (UserConfigurations.ReverseConfigurationSources)
+            {
+                UserConfigurations.RemoveReverseOf(_configInfo);
+                return this;
+            }
+
+            var dataSourceFactory = UserConfigurations.GetDataSourceFactoryFor(_configInfo);
+            var dataSourceDescription = dataSourceFactory.GetDescription();
+
+            throw new MappingConfigurationException(
+                $"'{dataSourceDescription}' does not need to have its reverse suppressed, " +
+                 "because data source reversal is disabled by default");
         }
 
         public IFullMappingConfigurator<TSource, TTarget> And => CreateNewConfigurator();

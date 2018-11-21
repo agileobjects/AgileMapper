@@ -110,6 +110,7 @@
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringEntityMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSources.cs" />
+    <Compile Include="Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs" />
     <Compile Include="Configuration\WhenResolvingServices.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs" />
