@@ -18,8 +18,15 @@
 
         IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.AndViceVersa()
         {
-            UserConfigurations.AddReverseOf(_configInfo);
-            return this;
+            if (UserConfigurations.ReverseConfigurationSources == false)
+            {
+                UserConfigurations.AddReverseOf(_configInfo);
+                return this;
+            }
+
+            throw new MappingConfigurationException(
+                $"'{GetDataSourceDescription()}' does not need to be explitly reversed, " +
+                "because data source reversal is enabled by default");
         }
 
         IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.ButNotViceVersa()
@@ -30,13 +37,13 @@
                 return this;
             }
 
-            var dataSourceFactory = UserConfigurations.GetDataSourceFactoryFor(_configInfo);
-            var dataSourceDescription = dataSourceFactory.GetDescription();
-
             throw new MappingConfigurationException(
-                $"'{dataSourceDescription}' does not need to have its reverse suppressed, " +
+                $"'{GetDataSourceDescription()}' does not need to have its reverse suppressed, " +
                  "because data source reversal is disabled by default");
         }
+
+        private string GetDataSourceDescription()
+            => UserConfigurations.GetDataSourceFactoryFor(_configInfo).GetDescription();
 
         public IFullMappingConfigurator<TSource, TTarget> And => CreateNewConfigurator();
 

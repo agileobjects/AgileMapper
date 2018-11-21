@@ -32,5 +32,27 @@
             configEx.Message.ShouldContain("reverse");
             configEx.Message.ShouldContain("disabled by default");
         }
+
+        [Fact]
+        public void ShouldErrorIfRedundantOptInSpecified()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .ReverseConfiguredDataSources()
+                        .AndWhenMapping
+                        .From<Person>()
+                        .To<PublicProperty<Guid>>()
+                        .Map(ctx => ctx.Source.Id)
+                        .To(pp => pp.Value)
+                        .AndViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("reversed");
+            configEx.Message.ShouldContain("enabled by default");
+        }
     }
 }
