@@ -16,10 +16,10 @@
         /// <typeparam name="TTargetValue">The target member's type.</typeparam>
         /// <param name="targetMember">The target member to which to apply the configuration.</param>
         /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
-        /// and target type being configured.
+        /// An ICustomDataSourceMappingConfigContinuation with which to control the reverse configuration, or further
+        /// configure mappings from and to the source and target type being configured.
         /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
+        ICustomDataSourceMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember);
 
         /// <summary>

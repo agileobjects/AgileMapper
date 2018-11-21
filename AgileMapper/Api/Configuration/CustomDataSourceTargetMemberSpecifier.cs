@@ -49,7 +49,7 @@
             _customValueLambdaInfo = customValueLambda;
         }
 
-        public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
+        public ICustomDataSourceMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             ThrowIfTargetParameterSpecified(targetMember);

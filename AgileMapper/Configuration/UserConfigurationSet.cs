@@ -303,6 +303,21 @@
             }
         }
 
+        public void RemoveReverseOf(MappingConfigInfo configInfo)
+        {
+            var dataSourceFactory = _dataSourceFactories.First(dsf => dsf.ConfigInfo == configInfo);
+            var reverseConfigInfo = dataSourceFactory.GetReverseConfigInfo();
+
+            for (var i = 0; i < _dataSourceFactories.Count; ++i)
+            {
+                if (_dataSourceFactories[i].ConfigInfo == reverseConfigInfo)
+                {
+                    _dataSourceFactories.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
         public bool HasConfiguredRootDataSources { get; private set; }
 
         public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)

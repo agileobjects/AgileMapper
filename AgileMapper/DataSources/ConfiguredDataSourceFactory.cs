@@ -19,6 +19,7 @@
 #endif
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
+        private MappingConfigInfo _reverseConfigInfo;
 
         public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
@@ -61,11 +62,7 @@
                 return null;
             }
 
-            var reverseConfigInfo = ConfigInfo
-                .Copy()
-                .ForSourceType(ConfigInfo.TargetType)
-                .ForTargetType(ConfigInfo.SourceType)
-                .ForSourceValueType(TargetMember.Type);
+            var reverseConfigInfo = GetReverseConfigInfo();
 
             var sourceParameter = Parameters.Create(reverseConfigInfo.SourceType, "source");
             var sourceMemberAccess = TargetMember.GetQualifiedAccess(sourceParameter);
@@ -78,6 +75,15 @@
             var sourceMemberLambdaInfo = ConfiguredLambdaInfo.For(sourceMemberAccessLambda);
 
             return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember);
+        }
+
+        public MappingConfigInfo GetReverseConfigInfo()
+        {
+            return _reverseConfigInfo ?? (_reverseConfigInfo = ConfigInfo
+                .Copy()
+                .ForSourceType(ConfigInfo.TargetType)
+                .ForTargetType(ConfigInfo.SourceType)
+                .ForSourceValueType(TargetMember.Type));
         }
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)

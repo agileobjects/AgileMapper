@@ -4,7 +4,7 @@
     using Projection;
 
     internal class MappingConfigContinuation<TSource, TTarget> :
-        IMappingConfigContinuation<TSource, TTarget>,
+        ICustomDataSourceMappingConfigContinuation<TSource, TTarget>,
         IProjectionConfigContinuation<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
@@ -12,6 +12,17 @@
         public MappingConfigContinuation(MappingConfigInfo configInfo)
         {
             _configInfo = configInfo;
+        }
+
+        IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.AndViceVersa()
+        {
+            return this;
+        }
+
+        IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.ButNotViceVersa()
+        {
+            _configInfo.MapperContext.UserConfigurations.RemoveReverseOf(_configInfo);
+            return this;
         }
 
         public IFullMappingConfigurator<TSource, TTarget> And => CreateNewConfigurator();

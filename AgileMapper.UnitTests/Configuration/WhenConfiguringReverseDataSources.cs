@@ -37,6 +37,31 @@
         }
 
         [Fact]
+        public void ShouldNotReverseAConfiguredMemberIfOptedOut()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .ReverseConfiguredDataSources()
+                    .AndWhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<Guid>>()
+                    .Map(ctx => ctx.Source.Id)
+                    .To(pp => pp.Value)
+                    .ButNotViceVersa();
+
+                var source = new Person { Id = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
+
+                result.Value.ShouldBe(source.Id);
+
+                var reverseResult = mapper.Map(result).ToANew<Person>();
+
+                reverseResult.Id.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
         public void ShouldNotReverseAConfiguredConstant()
         {
             using (var mapper = Mapper.CreateNew())
