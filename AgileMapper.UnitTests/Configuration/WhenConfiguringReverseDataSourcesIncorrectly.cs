@@ -14,7 +14,7 @@
     public class WhenConfiguringReverseDataSourcesIncorrectly
     {
         [Fact]
-        public void ShouldErrorIfRedundantOptOutSpecified()
+        public void ShouldErrorIfRedundantOptOutConfigured()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -34,7 +34,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfRedundantOptInSpecified()
+        public void ShouldErrorIfRedundantOptInConfigured()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -53,6 +53,30 @@
 
             configEx.Message.ShouldContain("reversed");
             configEx.Message.ShouldContain("enabled by default");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantReverseDataSourceConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.ReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicProperty<Guid>>()
+                        .Map(p => p.Id, pp => pp.Value);
+
+                    mapper.WhenMapping
+                        .From<PublicProperty<Guid>>()
+                        .To<Person>()
+                        .Map(pp => pp.Value, p => p.Id);
+                }
+            });
+
+            configEx.Message.ShouldContain("data source reversal");
         }
     }
 }

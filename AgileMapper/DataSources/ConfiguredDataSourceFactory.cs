@@ -21,6 +21,7 @@
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
         private MappingConfigInfo _reverseConfigInfo;
+        private bool _isReversal;
 
         public ConfiguredDataSourceFactory(
             MappingConfigInfo configInfo,
@@ -75,7 +76,10 @@
 
             var sourceMemberLambdaInfo = ConfiguredLambdaInfo.For(sourceMemberAccessLambda);
 
-            return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember);
+            return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember)
+            {
+                _isReversal = true
+            };
         }
 
         public MappingConfigInfo GetReverseConfigInfo()
@@ -132,7 +136,10 @@
             var lambdasAreTheSame = HasSameDataSourceLambdaAs(conflictingDataSource);
             var conflictIdentifier = lambdasAreTheSame ? "that" : "a";
 
-            return $"{TargetMember.GetPath()} already has {conflictIdentifier} configured data source";
+            var reason = conflictingDataSource._isReversal
+                ? " from an automatic configured data source reversal" : null;
+
+            return $"{GetTargetMemberPath()} already has {conflictIdentifier} configured data source{reason}";
         }
 
         public string GetDescription()
@@ -143,11 +150,13 @@
                 .ToSourceMember(ConfigInfo.MapperContext)
                 .GetFriendlyMemberPath(ConfigInfo.SourceType.GetFriendlyName(), Member.RootSourceMemberName);
 
-            var targetMemberPath = TargetMember
-                .GetFriendlyMemberPath(ConfigInfo.TargetType.GetFriendlyName(), Member.RootTargetMemberName);
+            var targetMemberPath = GetTargetMemberPath();
 
             return sourceMemberPath + " -> " + targetMemberPath;
         }
+
+        private string GetTargetMemberPath()
+            => TargetMember.GetFriendlyMemberPath(ConfigInfo.TargetType.GetFriendlyName(), Member.RootTargetMemberName);
 
         public override bool AppliesTo(IBasicMapperData mapperData)
             => base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
