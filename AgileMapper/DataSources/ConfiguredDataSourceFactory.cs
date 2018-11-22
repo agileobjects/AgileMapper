@@ -20,6 +20,7 @@
 #endif
     {
         private readonly ConfiguredLambdaInfo _dataSourceLambda;
+        private bool _valueCouldBeSourceMember;
         private MappingConfigInfo _reverseConfigInfo;
         private bool _isReversal;
 
@@ -39,15 +40,13 @@
             bool valueCouldBeSourceMember)
             : base(configInfo, targetMemberLambda)
         {
-            ValueCouldBeSourceMember = valueCouldBeSourceMember;
+            _valueCouldBeSourceMember = valueCouldBeSourceMember;
             _dataSourceLambda = dataSourceLambda;
         }
 
-        public bool ValueCouldBeSourceMember { get; private set; }
-
-        public ConfiguredDataSourceFactory CreateReverseIfAppropriate()
+        public ConfiguredDataSourceFactory CreateReverseIfAppropriate(bool isAutoReversal)
         {
-            if ((ValueCouldBeSourceMember == false) || ConfigInfo.HasCondition)
+            if ((_valueCouldBeSourceMember == false) || ConfigInfo.HasCondition)
             {
                 return null;
             }
@@ -78,7 +77,7 @@
 
             return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember)
             {
-                IsClone = true,
+                IsClone = isAutoReversal,
                 _isReversal = true
             };
         }
@@ -189,7 +188,7 @@
         {
             return new ConfiguredDataSourceFactory(ConfigInfo, _dataSourceLambda, TargetMember)
             {
-                ValueCouldBeSourceMember = ValueCouldBeSourceMember,
+                _valueCouldBeSourceMember = _valueCouldBeSourceMember,
                 IsClone = true
             };
         }

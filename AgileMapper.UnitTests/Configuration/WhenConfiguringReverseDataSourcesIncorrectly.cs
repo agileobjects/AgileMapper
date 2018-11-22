@@ -78,5 +78,28 @@
 
             configEx.Message.ShouldContain("reverse data source");
         }
+
+        [Fact]
+        public void ShouldErrorIfRedundantExplicitReverseDataSourceConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicTwoFields<Guid, Guid>>()
+                        .Map(p => p.Id, ptf => ptf.Value1)
+                        .AndViceVersa();
+
+                    mapper.WhenMapping
+                        .From<PublicTwoFields<Guid, Guid>>()
+                        .To<Person>()
+                        .Map(pp => pp.Value2, p => p.Id);
+                }
+            });
+
+            configEx.Message.ShouldContain("reverse data source");
+        }
     }
 }

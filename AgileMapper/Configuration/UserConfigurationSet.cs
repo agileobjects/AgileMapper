@@ -298,23 +298,12 @@
 
         private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory, bool isAutoReversal)
         {
-            var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate();
+            var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate(isAutoReversal);
 
-            if (reverseDataSourceFactory == null)
+            if (reverseDataSourceFactory != null)
             {
-                return;
+                DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
             }
-
-            if (isAutoReversal && (_dataSourceFactories.Count > 1))
-            {
-                // Don't replace an existing data source factory
-                if (_dataSourceFactories.Any(dfs => reverseDataSourceFactory.ConflictsWith(dataSourceFactory)))
-                {
-                    return;
-                }
-            }
-
-            DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
         }
 
         public void RemoveReverseOf(MappingConfigInfo configInfo)
