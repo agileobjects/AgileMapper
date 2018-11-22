@@ -25,7 +25,7 @@
             }
 
             throw new MappingConfigurationException(
-                $"'{GetDataSourceDescription()}' does not need to be explitly reversed, " +
+                $"'{GetDataSourceDescription()}' does not need to be explicitly reversed, " +
                 "because data source reversal is enabled by default");
         }
 

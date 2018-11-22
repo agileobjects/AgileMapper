@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
     internal class ConfiguredIgnoredMember :
         UserConfiguredItemBase,
-        IPotentialClone,
+        IPotentialAutoCreatedItem,
         IReverseConflictable
 #if NET35
         , IComparable<ConfiguredIgnoredMember>
@@ -129,11 +129,11 @@ namespace AgileObjects.AgileMapper.Configuration
             return _memberFilter.Invoke(new TargetMemberSelector(otherConfiguredItem.TargetMember));
         }
 
-        #region IPotentialClone Members
+        #region IPotentialAutoCreatedItem Members
 
-        public bool IsClone { get; private set; }
+        public bool WasAutoCreated { get; private set; }
 
-        public IPotentialClone Clone()
+        public IPotentialAutoCreatedItem Clone()
         {
             return new ConfiguredIgnoredMember(
                 ConfigInfo,
@@ -141,18 +141,18 @@ namespace AgileObjects.AgileMapper.Configuration
                 _memberFilterLambda,
                 _memberFilter)
             {
-                IsClone = true
+                WasAutoCreated = true
             };
         }
 
-        public bool IsReplacementFor(IPotentialClone clonedItem)
+        public bool IsReplacementFor(IPotentialAutoCreatedItem autoCreatedItem)
         {
             if (HasMemberFilter)
             {
                 return false;
             }
 
-            var clonedIgnoredMember = (ConfiguredIgnoredMember)clonedItem;
+            var clonedIgnoredMember = (ConfiguredIgnoredMember)autoCreatedItem;
 
             return clonedIgnoredMember.HasNoMemberFilter &&
                    ConfigInfo.HasSameSourceTypeAs(clonedIgnoredMember.ConfigInfo) &&

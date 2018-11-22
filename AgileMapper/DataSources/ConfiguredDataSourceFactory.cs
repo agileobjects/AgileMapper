@@ -14,7 +14,7 @@
 
     internal class ConfiguredDataSourceFactory :
         UserConfiguredItemBase,
-        IPotentialClone
+        IPotentialAutoCreatedItem
 #if NET35
         , IComparable<ConfiguredDataSourceFactory>
 #endif
@@ -77,7 +77,7 @@
 
             return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember)
             {
-                IsClone = isAutoReversal,
+                WasAutoCreated = isAutoReversal,
                 _isReversal = true
             };
         }
@@ -102,9 +102,9 @@
             var isOtherDataSource = otherDataSource != null;
             var dataSourceLambdasAreTheSame = HasSameDataSourceLambdaAs(otherDataSource);
 
-            if (IsClone &&
-               (otherConfiguredItem is IPotentialClone otherClone) &&
-               !otherClone.IsClone)
+            if (WasAutoCreated &&
+               (otherConfiguredItem is IPotentialAutoCreatedItem otherItem) &&
+               !otherItem.WasAutoCreated)
             {
                 return isOtherDataSource && dataSourceLambdasAreTheSame;
             }
@@ -177,21 +177,21 @@
             return new ConfiguredDataSource(configuredCondition, value, mapperData);
         }
 
-        #region IPotentialClone Members
+        #region IPotentialAutoCreatedItem Members
 
-        public bool IsClone { get; private set; }
+        public bool WasAutoCreated { get; private set; }
 
-        public IPotentialClone Clone()
+        public IPotentialAutoCreatedItem Clone()
         {
             return new ConfiguredDataSourceFactory(ConfigInfo, _dataSourceLambda, TargetMember)
             {
                 _valueCouldBeSourceMember = _valueCouldBeSourceMember,
-                IsClone = true
+                WasAutoCreated = true
             };
         }
 
-        public bool IsReplacementFor(IPotentialClone clonedDataSourceFactory)
-            => ConflictsWith((ConfiguredDataSourceFactory)clonedDataSourceFactory);
+        public bool IsReplacementFor(IPotentialAutoCreatedItem autoCreatedDataSourceFactory)
+            => ConflictsWith((ConfiguredDataSourceFactory)autoCreatedDataSourceFactory);
 
         #endregion
 
