@@ -8,6 +8,7 @@
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -21,6 +22,8 @@
         private readonly Type[] _contextTypes;
         private readonly bool _isForTargetDictionary;
         private readonly ParametersSwapper _parametersSwapper;
+        private LambdaExpression _sourceMemberLambda;
+        private string _description;
 
         private ConfiguredLambdaInfo(
             LambdaExpression lambda,
@@ -147,6 +150,12 @@
                 return false;
             }
 
+            if (_sourceMemberLambda != null)
+            {
+                sourceMemberLambda = _sourceMemberLambda;
+                return true;
+            }
+
             var memberAccesses = _lambda.Body.GetMemberAccessChain(nt => { }, out var rootExpression);
 
             if (memberAccesses == null)
@@ -178,7 +187,7 @@
             }
 
             // ReSharper disable PossibleNullReferenceException
-            sourceMemberLambda = Expression.Lambda(
+            _sourceMemberLambda = sourceMemberLambda = Expression.Lambda(
                 Expression.GetFuncType(sourceParameter.Type, memberAccessPath.Type),
                 memberAccessPath,
                 sourceParameter);
@@ -204,6 +213,23 @@
             }
 
             return ExpressionEvaluation.AreEquivalent(_lambda.Body, otherLambdaInfo._lambda.Body);
+        }
+
+        public string GetDescription(MappingConfigInfo configInfo)
+        {
+            if (_description != null)
+            {
+                return _description;
+            }
+
+            if (IsSourceMember(out var sourceMemberLambda))
+            {
+                return _description = sourceMemberLambda
+                    .ToSourceMember(configInfo.MapperContext)
+                    .GetFriendlyMemberPath(configInfo.SourceType.GetFriendlyName(), Member.RootSourceMemberName);
+            }
+
+            return _description = _lambda.Body.ToReadableString();
         }
 
         public Expression GetBody(

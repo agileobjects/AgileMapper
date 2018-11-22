@@ -150,7 +150,7 @@
                             .To(dto => dto.ProductId));
                 });
 
-                configEx.Message.ShouldContain("already has a configured data source");
+                configEx.Message.ShouldContain("already has configured data source 'p.ProductId + \" DTO\"'");
             }
         }
 

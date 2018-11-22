@@ -134,27 +134,24 @@
 
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
         {
-            var lambdasAreTheSame = HasSameDataSourceLambdaAs(conflictingDataSource);
-            var conflictIdentifier = lambdasAreTheSame ? "that" : "a";
+            var existingDataSource = conflictingDataSource.GetDataSourceDescription();
 
             var reason = conflictingDataSource._isReversal
                 ? " from an automatically-configured reverse data source" : null;
 
-            return $"{GetTargetMemberPath()} already has {conflictIdentifier} configured data source{reason}";
+
+            return $"{GetTargetMemberPath()} already has configured data source '{existingDataSource}'{reason}";
         }
 
         public string GetDescription()
         {
-            _dataSourceLambda.IsSourceMember(out var sourceMemberLambda);
-
-            var sourceMemberPath = sourceMemberLambda
-                .ToSourceMember(ConfigInfo.MapperContext)
-                .GetFriendlyMemberPath(ConfigInfo.SourceType.GetFriendlyName(), Member.RootSourceMemberName);
-
+            var sourceMemberPath = GetDataSourceDescription();
             var targetMemberPath = GetTargetMemberPath();
 
             return sourceMemberPath + " -> " + targetMemberPath;
         }
+
+        private string GetDataSourceDescription() => _dataSourceLambda.GetDescription(ConfigInfo);
 
         private string GetTargetMemberPath()
             => TargetMember.GetFriendlyMemberPath(ConfigInfo.TargetType.GetFriendlyName(), Member.RootTargetMemberName);
