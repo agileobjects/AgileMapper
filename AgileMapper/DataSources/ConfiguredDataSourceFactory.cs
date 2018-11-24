@@ -5,6 +5,7 @@
 #endif
     using Configuration;
     using Members;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -44,21 +45,46 @@
             _dataSourceLambda = dataSourceLambda;
         }
 
-        public ConfiguredDataSourceFactory CreateReverseIfAppropriate(bool isAutoReversal)
+        public bool CannotBeReversed(out string reason) => CannotBeReversed(out _, out reason);
+
+        private bool CannotBeReversed(out QualifiedMember targetMember, out string reason)
         {
-            if ((_valueCouldBeSourceMember == false) || ConfigInfo.HasCondition)
+            if (ConfigInfo.HasCondition)
             {
-                return null;
+                targetMember = null;
+                reason = $"configuration has condition '{ConfigInfo.GetConditionDescription(ConfigInfo)}'";
+                return true;
+            }
+
+            if (_valueCouldBeSourceMember == false)
+            {
+                targetMember = null;
+                reason = $"configured value '{_dataSourceLambda.GetDescription(ConfigInfo)}' is not a source member";
+                return true;
             }
 
             if (!_dataSourceLambda.IsSourceMember(out var sourceMemberLambda))
             {
-                return null;
+                targetMember = null;
+                reason = $"configured value '{_dataSourceLambda.GetDescription(ConfigInfo)}' is not a source member";
+                return true;
             }
 
-            var targetMember = sourceMemberLambda.ToTargetMemberOrNull(ConfigInfo.MapperContext, out _);
+            targetMember = sourceMemberLambda.ToTargetMemberOrNull(ConfigInfo.MapperContext, out reason);
 
-            if (targetMember == null)
+            if (targetMember != null)
+            {
+                return false;
+            }
+
+            reason = $"source member {sourceMemberLambda.ToReadableString()} is not a useable target member. {reason}";
+            return true;
+
+        }
+
+        public ConfiguredDataSourceFactory CreateReverseIfAppropriate(bool isAutoReversal)
+        {
+            if (CannotBeReversed(out var targetMember, out _))
             {
                 return null;
             }
@@ -77,8 +103,8 @@
 
             return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember)
             {
-                WasAutoCreated = isAutoReversal,
-                _isReversal = true
+                _isReversal = true,
+                WasAutoCreated = isAutoReversal
             };
         }
 

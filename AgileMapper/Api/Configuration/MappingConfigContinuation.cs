@@ -18,9 +18,17 @@
 
         IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.AndViceVersa()
         {
-            if (UserConfigurations.AutoDataSourceReversalEnabled(_configInfo) == false)
+            var dataSourceFactory = UserConfigurations.GetDataSourceFactoryFor(_configInfo);
+
+            if (dataSourceFactory.CannotBeReversed(out var reason))
             {
-                UserConfigurations.AddReverseOf(_configInfo);
+                throw new MappingConfigurationException(
+                    $"'{GetDataSourceDescription()}' cannot be reversed, because {reason}");
+            }
+
+            if (UserConfigurations.AutoDataSourceReversalEnabled(dataSourceFactory) == false)
+            {
+                UserConfigurations.AddReverseDataSourceFor(dataSourceFactory);
                 return this;
             }
 

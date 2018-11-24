@@ -152,6 +152,9 @@
             }
         }
 
+        public string GetConditionDescription(MappingConfigInfo configInfo)
+            => _conditionLambda.GetDescription(configInfo);
+
         public Expression GetConditionOrNull(
             IMemberMapperData mapperData,
             CallbackPosition position,
@@ -195,16 +198,18 @@
 
         private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
 
-        public IBasicMapperData ToMapperData()
+        public IBasicMapperData ToMapperData(QualifiedMember targetMember = null)
         {
-            var dummyTargetMember = QualifiedMember
-                .From(Member.RootTarget(TargetType), MapperContext);
+            if (targetMember == null)
+            {
+                targetMember = QualifiedMember.From(Member.RootTarget(TargetType), MapperContext);
+            }
 
             return new BasicMapperData(
                 RuleSet,
                 SourceType,
                 TargetType,
-                dummyTargetMember);
+                targetMember);
         }
 
         public MappingConfigInfo Copy()

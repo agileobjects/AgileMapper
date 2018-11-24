@@ -143,5 +143,25 @@
 
             configEx.Message.ShouldContain("reverse data source");
         }
+
+        [Fact]
+        public void ShouldErrorOnMappingScopeOptInOfConfiguredConstantDataSource()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .Map("HELLO!").To(pf => pf.Value)
+                        .AndViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("cannot be reversed");
+            configEx.Message.ShouldContain("configured value '\"HELLO!\"'");
+            configEx.Message.ShouldContain("not a source member");
+        }
     }
 }

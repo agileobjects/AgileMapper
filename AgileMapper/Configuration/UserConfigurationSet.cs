@@ -147,8 +147,8 @@
             DataSourceReversalSettings.AddSorted(setting);
         }
 
-        public void AddReverseOf(MappingConfigInfo configInfo)
-            => AddReverse(GetDataSourceFactoryFor(configInfo), isAutoReversal: false);
+        public void AddReverseDataSourceFor(ConfiguredDataSourceFactory dataSourceFactory)
+            => AddReverse(dataSourceFactory, isAutoReversal: false);
 
         private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory, bool isAutoReversal)
         {
@@ -175,14 +175,20 @@
             }
         }
 
+        public bool AutoDataSourceReversalEnabled(ConfiguredDataSourceFactory dataSourceFactory)
+            => AutoDataSourceReversalEnabled(dataSourceFactory, dsf => dsf.ConfigInfo.ToMapperData(dsf.TargetMember));
+
         public bool AutoDataSourceReversalEnabled(MappingConfigInfo configInfo)
+            => AutoDataSourceReversalEnabled(configInfo, ci => ci.ToMapperData());
+
+        private bool AutoDataSourceReversalEnabled<T>(T dataItem, Func<T, IBasicMapperData> mapperDataFactory)
         {
             if (_dataSourceReversalSettings == null)
             {
                 return false;
             }
 
-            var basicData = configInfo.ToMapperData();
+            var basicData = mapperDataFactory.Invoke(dataItem);
 
             return _dataSourceReversalSettings.FirstOrDefault(s => s.AppliesTo(basicData))?.Reverse == true;
         }
@@ -340,7 +346,7 @@
                 return;
             }
 
-            if (AutoDataSourceReversalEnabled(dataSourceFactory.ConfigInfo))
+            if (AutoDataSourceReversalEnabled(dataSourceFactory))
             {
                 AddReverse(dataSourceFactory, isAutoReversal: true);
             }
