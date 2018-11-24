@@ -233,6 +233,18 @@
             return this;
         }
 
+        public IFullMappingSettings<TSource, TTarget> AutoReverseConfiguredDataSources() 
+            => SetDataSourceReversal(reverse: true);
+
+        public IFullMappingSettings<TSource, TTarget> DoNotAutoReverseConfiguredDataSources()
+            => SetDataSourceReversal(reverse: false);
+
+        private IFullMappingSettings<TSource, TTarget> SetDataSourceReversal(bool reverse)
+        {
+            MapperContext.UserConfigurations.Add(new DataSourceReversalSetting(ConfigInfo, reverse));
+            return this;
+        }
+
         public IMappingEnumPairSpecifier<TSource, TTarget> PairEnum<TFirstEnum>(TFirstEnum enumMember)
             where TFirstEnum : struct
         {

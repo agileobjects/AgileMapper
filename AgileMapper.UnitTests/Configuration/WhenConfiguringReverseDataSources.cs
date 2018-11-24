@@ -13,7 +13,7 @@
     public class WhenConfiguringReverseDataSources
     {
         [Fact]
-        public void ShouldReverseAConfiguredMemberByDefault()
+        public void ShouldReverseAConfiguredMemberByGlobalScope()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -37,7 +37,31 @@
         }
 
         [Fact]
-        public void ShouldReverseAConfiguredMemberIfOptedIn()
+        public void ShouldReverseAConfiguredMemberByMappingScope()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<Guid>>()
+                    .AutoReverseConfiguredDataSources()
+                    .And
+                    .Map(ctx => ctx.Source.Id)
+                    .To(pp => pp.Value);
+
+                var source = new Person { Id = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
+
+                result.Value.ShouldBe(source.Id);
+
+                var reverseResult = mapper.Map(result).ToANew<Person>();
+
+                reverseResult.Id.ShouldBe(source.Id);
+            }
+        }
+
+        [Fact]
+        public void ShouldReverseAConfiguredMemberByMemberScope()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -60,7 +84,32 @@
         }
 
         [Fact]
-        public void ShouldNotReverseAConfiguredMemberIfOptedOut()
+        public void ShouldNotReverseAConfiguredMemberIfGlobalScopeOptedOutAtMappingScope()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .AutoReverseConfiguredDataSources()
+                    .AndWhenMapping
+                    .From<Person>()
+                    .To<PublicProperty<Guid>>()
+                    .DoNotAutoReverseConfiguredDataSources()
+                    .And
+                    .Map(p => p.Id, pp => pp.Value);
+
+                var source = new Person { Id = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
+
+                result.Value.ShouldBe(source.Id);
+
+                var reverseResult = mapper.Map(result).ToANew<Person>();
+
+                reverseResult.Id.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldNotReverseAConfiguredMemberIfGlobalScopeOptedOutAtMemberScope()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -75,6 +124,30 @@
 
                 var source = new Person { Id = Guid.NewGuid() };
                 var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
+
+                result.Value.ShouldBe(source.Id);
+
+                var reverseResult = mapper.Map(result).ToANew<Person>();
+
+                reverseResult.Id.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldNotReverseAConfiguredMemberIfMappingScopeOptedOutAtMemberScope()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PublicField<Guid>>()
+                    .AutoReverseConfiguredDataSources()
+                    .And
+                    .Map(p => p.Id, pf => pf.Value)
+                    .ButNotViceVersa();
+
+                var source = new Person { Id = Guid.NewGuid() };
+                var result = mapper.Map(source).ToANew<PublicField<Guid>>();
 
                 result.Value.ShouldBe(source.Id);
 

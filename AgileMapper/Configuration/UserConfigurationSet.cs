@@ -25,6 +25,7 @@
         private List<MapToNullCondition> _mapToNullConditions;
         private List<NullCollectionsSetting> _nullCollectionsSettings;
         private List<EntityKeyMappingSetting> _entityKeyMappingSettings;
+        private List<DataSourceReversalSetting> _dataSourceReversalSettings;
         private ConfiguredServiceProvider _serviceProvider;
         private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
@@ -45,8 +46,6 @@
         }
 
         public bool ValidateMappingPlans { get; set; }
-
-        public bool ReverseConfigurationSources { get; set; }
 
         public ICollection<Type> AppliedConfigurationTypes
             => _appliedConfigurationTypes ?? (_appliedConfigurationTypes = new List<Type>());
@@ -133,6 +132,60 @@
 
         public bool MapEntityKeys(IBasicMapperData basicData)
             => _entityKeyMappingSettings?.FirstOrDefault(s => s.AppliesTo(basicData))?.MapKeys == true;
+
+        #endregion
+
+        #region ConfiguredDataSourceReversalSettings
+
+        private List<DataSourceReversalSetting> DataSourceReversalSettings
+            => _dataSourceReversalSettings ?? (_dataSourceReversalSettings = new List<DataSourceReversalSetting>());
+
+        public void Add(DataSourceReversalSetting setting)
+        {
+            ThrowIfConflictingDataSourceReversalSettingExists(setting);
+
+            DataSourceReversalSettings.AddSorted(setting);
+        }
+
+        public void AddReverseOf(MappingConfigInfo configInfo)
+            => AddReverse(GetDataSourceFactoryFor(configInfo), isAutoReversal: false);
+
+        private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory, bool isAutoReversal)
+        {
+            var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate(isAutoReversal);
+
+            if (reverseDataSourceFactory != null)
+            {
+                DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
+            }
+        }
+
+        public void RemoveReverseOf(MappingConfigInfo configInfo)
+        {
+            var dataSourceFactory = GetDataSourceFactoryFor(configInfo);
+            var reverseConfigInfo = dataSourceFactory.GetReverseConfigInfo();
+
+            for (var i = 0; i < _dataSourceFactories.Count; ++i)
+            {
+                if (_dataSourceFactories[i].ConfigInfo == reverseConfigInfo)
+                {
+                    _dataSourceFactories.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        public bool AutoDataSourceReversalEnabled(MappingConfigInfo configInfo)
+        {
+            if (_dataSourceReversalSettings == null)
+            {
+                return false;
+            }
+
+            var basicData = configInfo.ToMapperData();
+
+            return _dataSourceReversalSettings.FirstOrDefault(s => s.AppliesTo(basicData))?.Reverse == true;
+        }
 
         #endregion
 
@@ -287,37 +340,9 @@
                 return;
             }
 
-            if (ReverseConfigurationSources)
+            if (AutoDataSourceReversalEnabled(dataSourceFactory.ConfigInfo))
             {
                 AddReverse(dataSourceFactory, isAutoReversal: true);
-            }
-        }
-
-        public void AddReverseOf(MappingConfigInfo configInfo)
-            => AddReverse(GetDataSourceFactoryFor(configInfo), isAutoReversal: false);
-
-        private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory, bool isAutoReversal)
-        {
-            var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate(isAutoReversal);
-
-            if (reverseDataSourceFactory != null)
-            {
-                DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
-            }
-        }
-
-        public void RemoveReverseOf(MappingConfigInfo configInfo)
-        {
-            var dataSourceFactory = GetDataSourceFactoryFor(configInfo);
-            var reverseConfigInfo = dataSourceFactory.GetReverseConfigInfo();
-
-            for (var i = 0; i < _dataSourceFactories.Count; ++i)
-            {
-                if (_dataSourceFactories[i].ConfigInfo == reverseConfigInfo)
-                {
-                    _dataSourceFactories.RemoveAt(i);
-                    return;
-                }
             }
         }
 
@@ -423,6 +448,19 @@
                 (s, conflicting) => conflicting.GetConflictMessage(s));
         }
 
+        private void ThrowIfConflictingDataSourceReversalSettingExists(DataSourceReversalSetting setting)
+        {
+            if ((_dataSourceReversalSettings == null) && !setting.Reverse)
+            {
+                throw new MappingConfigurationException("Configured data source reversal is disabled by default");
+            }
+
+            ThrowIfConflictingItemExists(
+                setting,
+                _dataSourceReversalSettings,
+                (s, conflicting) => conflicting.GetConflictMessage(s));
+        }
+
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
             where TConfiguredItem : UserConfiguredItemBase
         {
@@ -474,6 +512,7 @@
             _mapToNullConditions?.CopyTo(configurations.MapToNullConditions);
             _nullCollectionsSettings?.CopyTo(configurations.NullCollectionsSettings);
             _entityKeyMappingSettings?.CopyTo(configurations.EntityKeyMappingSettings);
+            _dataSourceReversalSettings?.CopyTo(configurations.DataSourceReversalSettings);
             _objectFactories?.CloneItems().CopyTo(configurations.ObjectFactories);
             _identifiers?.CloneTo(configurations.Identifiers);
             _ignoredMembers?.CloneItems().CopyTo(configurations.IgnoredMembers);
@@ -493,6 +532,8 @@
             _mappedObjectCachingSettings?.Clear();
             _mapToNullConditions?.Clear();
             _nullCollectionsSettings?.Clear();
+            _entityKeyMappingSettings?.Clear();
+            _dataSourceReversalSettings?.Clear();
             _serviceProvider = _namedServiceProvider = null;
             _objectFactories?.Clear();
             _identifiers?.Reset();

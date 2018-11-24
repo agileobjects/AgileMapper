@@ -195,18 +195,16 @@
 
         private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
 
-        public IBasicMapperData ToMapperData(QualifiedMember targetMember = null)
+        public IBasicMapperData ToMapperData()
         {
-            if (targetMember == null)
-            {
-                targetMember = QualifiedMember.From(Member.RootTarget(TargetType), MapperContext);
-            }
+            var dummyTargetMember = QualifiedMember
+                .From(Member.RootTarget(TargetType), MapperContext);
 
             return new BasicMapperData(
                 RuleSet,
                 SourceType,
                 TargetType,
-                targetMember);
+                dummyTargetMember);
         }
 
         public MappingConfigInfo Copy()
