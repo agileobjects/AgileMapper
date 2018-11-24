@@ -14,27 +14,27 @@
     public class WhenConfiguringReverseDataSourcesIncorrectly
     {
         [Fact]
-        public void ShouldErrorIfRedundantOptOutConfigured()
+        public void ShouldErrorIfRedundantMappingScopeOptInConfigured()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
+                        .AutoReverseConfiguredDataSources()
+                        .AndWhenMapping
                         .From<Person>()
                         .To<PublicProperty<Guid>>()
-                        .Map(ctx => ctx.Source.Id)
-                        .To(pp => pp.Value)
-                        .ButNotViceVersa();
+                        .AutoReverseConfiguredDataSources();
                 }
             });
 
-            configEx.Message.ShouldContain("reverse");
-            configEx.Message.ShouldContain("disabled by default");
+            configEx.Message.ShouldContain("data source reversal");
+            configEx.Message.ShouldContain("enabled by default");
         }
 
         [Fact]
-        public void ShouldErrorIfRedundantOptInConfigured()
+        public void ShouldErrorIfRedundantMemberScopeOptInConfigured()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -53,6 +53,48 @@
 
             configEx.Message.ShouldContain("reversed");
             configEx.Message.ShouldContain("enabled by default");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantMappingScopeOptOutConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.AutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Customer>().To<PublicProperty<Guid>>()
+                        .DoNotAutoReverseConfiguredDataSources()
+                        .And
+                        .Map(c => c.Id, pp => pp.Value)
+                        .ButNotViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("reverse");
+            configEx.Message.ShouldContain("disabled by default");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantMemberScopeOptOutConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicProperty<Guid>>()
+                        .Map(ctx => ctx.Source.Id)
+                        .To(pp => pp.Value)
+                        .ButNotViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("reverse");
+            configEx.Message.ShouldContain("disabled by default");
         }
 
         [Fact]

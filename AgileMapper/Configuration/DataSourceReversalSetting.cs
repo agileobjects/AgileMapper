@@ -48,6 +48,11 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public string GetConflictMessage(DataSourceReversalSetting conflicting)
         {
+            if (ConfigInfo.IsForAllTargetTypes())
+            {
+                return GetRedundantSettingConflictMessage(conflicting, " by default");
+            }
+
             var targetType = ConfigInfo.TargetType.GetFriendlyName();
 
             if (ConfigInfo.IsForAllSourceTypes())
