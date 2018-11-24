@@ -72,8 +72,7 @@
             return path;
         }
 
-        public static bool IsEntityId(this Member member)
-            => member.MemberInfo?.HasKeyAttribute() == true;
+        public static bool IsEntityId(this Member member) => member.MemberInfo?.HasKeyAttribute() == true;
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
@@ -94,12 +93,6 @@
             {
                 reason = null;
                 return false;
-            }
-
-            if (!member.IsReadable)
-            {
-                reason = "write-only member";
-                return true;
             }
 
             if (!member.IsReadOnly)

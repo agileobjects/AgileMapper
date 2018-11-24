@@ -18,14 +18,15 @@ namespace AgileObjects.AgileMapper.Members
         public const string RootSourceMemberName = "Source";
         public const string RootTargetMemberName = "Target";
 
-        private readonly Func<Expression, MemberInfo, Expression> _accessFactory;
+        private readonly IAccessFactory _accessFactory;
         private readonly int _hashCode;
 
         private Member(
             MemberType memberType,
             Type type,
             MemberInfo memberInfo,
-            Func<Expression, MemberInfo, Expression> accessFactory = null,
+            IAccessFactory accessFactory = null,
+            bool isReadable = true,
             bool isWriteable = true,
             bool isRoot = false)
             : this(
@@ -34,6 +35,7 @@ namespace AgileObjects.AgileMapper.Members
                   memberInfo.DeclaringType,
                   type,
                   accessFactory,
+                  isReadable,
                   isWriteable,
                   isRoot)
         {
@@ -45,7 +47,8 @@ namespace AgileObjects.AgileMapper.Members
             string name,
             Type declaringType,
             Type type,
-            Func<Expression, MemberInfo, Expression> accessFactory = null,
+            IAccessFactory accessFactory = null,
+            bool isReadable = true,
             bool isWriteable = true,
             bool isRoot = false)
         {
@@ -54,6 +57,7 @@ namespace AgileObjects.AgileMapper.Members
             DeclaringType = declaringType;
             Type = type;
             _accessFactory = accessFactory;
+            IsReadable = isReadable;
             IsWriteable = isWriteable;
             IsRoot = isRoot;
 
@@ -65,7 +69,6 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             JoiningName = (isRoot || this.IsEnumerableElement()) ? name : "." + name;
-            IsReadable = memberType.IsReadable();
             IsEnumerable = type.IsEnumerable();
 
             if (IsEnumerable)
@@ -107,40 +110,49 @@ namespace AgileObjects.AgileMapper.Members
                 MemberType.ConstructorParameter,
                 parameter.Name,
                 parameter.Member.DeclaringType,
-                parameter.ParameterType);
+                parameter.ParameterType,
+                isReadable: false);
         }
 
-        public static Member Field(FieldInfo field)
+        public static Member Field(FieldInfo fieldInfo)
         {
             return new Member(
                 MemberType.Field,
-                field.FieldType,
-                field,
-                (instance, f) => Expression.Field(instance, (FieldInfo)f),
-                !field.IsInitOnly);
+                fieldInfo.FieldType,
+                fieldInfo,
+                new FieldInfoWrapper(fieldInfo),
+                isReadable: true,
+                isWriteable: !fieldInfo.IsInitOnly);
         }
 
-        public static Member Property(PropertyInfo property)
+        public static Member Property(PropertyInfo propertyInfo)
         {
             return new Member(
                 MemberType.Property,
-                property.PropertyType,
-                property,
-                (instance, p) => Expression.Property(instance, (PropertyInfo)p),
-                property.IsWritable());
+                propertyInfo.PropertyType,
+                propertyInfo,
+                new PropertyInfoWrapper(propertyInfo),
+                propertyInfo.IsReadable(),
+                propertyInfo.IsWritable());
         }
 
-        public static Member GetMethod(MethodInfo method)
+        public static Member GetMethod(MethodInfo methodInfo)
         {
             return new Member(
                 MemberType.GetMethod,
-                method.ReturnType,
-                method,
-                (instance, m) => Expression.Call(instance, (MethodInfo)m));
+                methodInfo.ReturnType,
+                methodInfo,
+                new MethodInfoWrapper(methodInfo));
         }
 
-        public static Member SetMethod(MethodInfo method)
-            => new Member(MemberType.SetMethod, method.GetParameters()[0].ParameterType, method);
+        public static Member SetMethod(MethodInfo methodInfo)
+        {
+            return new Member(
+                MemberType.SetMethod,
+                methodInfo.GetParameters()[0].ParameterType,
+                methodInfo,
+                isReadable: false);
+        }
 
         public static Member EnumerableElement(Type enumerableType, Type elementType = null)
         {
@@ -207,7 +219,7 @@ namespace AgileObjects.AgileMapper.Members
                 instance = Expression.Convert(instance, DeclaringType);
             }
 
-            return _accessFactory.Invoke(instance, MemberInfo);
+            return _accessFactory.GetAccess(instance);
         }
 
         public Member WithType(Type runtimeType)
@@ -219,6 +231,7 @@ namespace AgileObjects.AgileMapper.Members
                     runtimeType,
                     MemberInfo,
                     _accessFactory,
+                    IsReadable,
                     IsWriteable,
                     IsRoot);
             }
@@ -228,6 +241,7 @@ namespace AgileObjects.AgileMapper.Members
                 Name,
                 DeclaringType,
                 runtimeType,
+                isReadable: IsReadable,
                 isWriteable: IsWriteable,
                 isRoot: IsRoot);
         }
@@ -252,5 +266,41 @@ namespace AgileObjects.AgileMapper.Members
 #endif
         #endregion
         public override string ToString() => $"{Name}: {Type.GetFriendlyName()}";
+
+        #region AccessFactories
+
+        private interface IAccessFactory
+        {
+            Expression GetAccess(Expression instance);
+        }
+
+        private class FieldInfoWrapper : IAccessFactory
+        {
+            private readonly FieldInfo _fieldInfo;
+
+            public FieldInfoWrapper(FieldInfo fieldInfo) => _fieldInfo = fieldInfo;
+
+            public Expression GetAccess(Expression instance) => Expression.Field(instance, _fieldInfo);
+        }
+
+        private class PropertyInfoWrapper : IAccessFactory
+        {
+            private readonly PropertyInfo _propertyInfo;
+
+            public PropertyInfoWrapper(PropertyInfo propertyInfo) => _propertyInfo = propertyInfo;
+
+            public Expression GetAccess(Expression instance) => Expression.Property(instance, _propertyInfo);
+        }
+
+        private class MethodInfoWrapper : IAccessFactory
+        {
+            private readonly MethodInfo _methodInfo;
+
+            public MethodInfoWrapper(MethodInfo methodInfo) => _methodInfo = methodInfo;
+
+            public Expression GetAccess(Expression instance) => Expression.Call(instance, _methodInfo);
+        }
+
+        #endregion
     }
 }
