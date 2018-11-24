@@ -145,7 +145,7 @@
         }
 
         [Fact]
-        public void ShouldErrorOnMappingScopeOptInOfConfiguredConstantDataSource()
+        public void ShouldErrorOnMemberScopeOptInOfConfiguredConstantDataSource()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -162,6 +162,27 @@
             configEx.Message.ShouldContain("cannot be reversed");
             configEx.Message.ShouldContain("configured value '\"HELLO!\"'");
             configEx.Message.ShouldContain("not a source member");
+        }
+
+        [Fact]
+        public void ShouldErrorOnMemberScopeOptInOfConfiguredReadOnlySourceMemberDataSource()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicReadOnlyField<string>>()
+                        .To<CustomerViewModel>()
+                        .Map((prof, cvm) => prof.Value).To(cvm => cvm.AddressLine1)
+                        .AndViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("cannot be reversed");
+            configEx.Message.ShouldContain("source member 'PublicReadOnlyField<string>.Value'");
+            configEx.Message.ShouldContain("not mappable");
+            configEx.Message.ShouldContain("readonly string");
         }
     }
 }

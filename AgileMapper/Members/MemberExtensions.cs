@@ -6,6 +6,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using Configuration;
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -19,6 +20,7 @@
 #endif
     using static System.StringComparison;
     using static Constants;
+    using static Member;
 
     internal static class MemberExtensions
     {
@@ -28,8 +30,14 @@
         public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
             => GetFriendlyMemberPath(sourceMember, rootMapperData.SourceMember);
 
+        public static string GetFriendlySourcePath(this IQualifiedMember targetMember, MappingConfigInfo configInfo)
+            => GetFriendlyMemberPath(targetMember, configInfo.SourceType.GetFriendlyName(), RootSourceMemberName);
+
         public static string GetFriendlyTargetPath(this IQualifiedMember targetMember, IMemberMapperData rootMapperData)
             => GetFriendlyMemberPath(targetMember, rootMapperData.TargetMember);
+
+        public static string GetFriendlyTargetPath(this IQualifiedMember targetMember, MappingConfigInfo configInfo)
+            => GetFriendlyMemberPath(targetMember, configInfo.TargetType.GetFriendlyName(), RootTargetMemberName);
 
         public static string GetFriendlyMemberPath(this IQualifiedMember member, IQualifiedMember rootMember)
             => GetFriendlyMemberPath(member, rootMember.GetFriendlyTypeName(), rootMember.Name);
@@ -270,13 +278,14 @@
         {
             return CreateMember(
                 memberAccess,
-                Member.RootSource,
+                RootSource,
                 GlobalContext.Instance.MemberCache.GetSourceMembers,
                 mapperContext);
         }
 
         public static QualifiedMember ToTargetMemberOrNull(
             this LambdaExpression memberAccess,
+            Type targetType,
             MapperContext mapperContext,
             out string failureReason)
         {
@@ -294,13 +303,19 @@
 
             if (targetMember == null)
             {
-                failureReason = $"Target member {memberAccess.Body.ToReadableString()} is not writeable";
+                var targetPath = memberAccess
+                    .ToSourceMember(mapperContext)?
+                    .GetFriendlyMemberPath(targetType.GetFriendlyName(), RootTargetMemberName) ??
+                     memberAccess.Body.ToReadableString();
+
+                failureReason = $"Target member {targetPath} is not writeable";
                 return null;
             }
 
             if (targetMember.IsUnmappable(out var reason))
             {
-                failureReason = $"Target member {memberAccess.Body.ToReadableString()} is not mappable ({reason})";
+                var targetPath = targetMember.GetFriendlyMemberPath(targetType.GetFriendlyName(), RootTargetMemberName);
+                failureReason = $"Target member {targetPath} is not mappable ({reason})";
                 return null;
             }
 
@@ -316,7 +331,7 @@
         {
             return CreateMember(
                 memberAccess.Body,
-                Member.RootTarget,
+                RootTarget,
                 GlobalContext.Instance.MemberCache.GetTargetMembers,
                 mapperContext);
         }

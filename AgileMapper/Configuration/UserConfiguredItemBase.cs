@@ -25,14 +25,12 @@
 
         private static QualifiedMember GetTargetMemberOrThrow(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
-            var targetMember = lambda.ToTargetMemberOrNull(configInfo.MapperContext, out var failureReason);
+            var targetMember = lambda.ToTargetMemberOrNull(
+                configInfo.TargetType,
+                configInfo.MapperContext,
+                out var failureReason);
 
-            if (targetMember != null)
-            {
-                return targetMember;
-            }
-
-            throw new MappingConfigurationException(failureReason);
+            return targetMember ?? throw new MappingConfigurationException(failureReason);
         }
 
         protected UserConfiguredItemBase(MappingConfigInfo configInfo, QualifiedMember targetMember)

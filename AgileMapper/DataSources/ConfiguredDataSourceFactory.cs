@@ -5,8 +5,6 @@
 #endif
     using Configuration;
     using Members;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -70,14 +68,20 @@
                 return true;
             }
 
-            targetMember = sourceMemberLambda.ToTargetMemberOrNull(ConfigInfo.MapperContext, out reason);
+            targetMember = sourceMemberLambda.ToTargetMemberOrNull(
+                ConfigInfo.SourceType,
+                ConfigInfo.MapperContext,
+                out reason);
 
             if (targetMember != null)
             {
                 return false;
             }
 
-            reason = $"source member {sourceMemberLambda.ToReadableString()} is not a useable target member. {reason}";
+            var sourceMember = sourceMemberLambda.ToSourceMember(ConfigInfo.MapperContext);
+            var sourceMemberPath = sourceMember.GetFriendlySourcePath(ConfigInfo);
+
+            reason = $"source member '{sourceMemberPath}' is not a useable target member. {reason}";
             return true;
 
         }
@@ -179,8 +183,7 @@
 
         private string GetDataSourceDescription() => _dataSourceLambda.GetDescription(ConfigInfo);
 
-        private string GetTargetMemberPath()
-            => TargetMember.GetFriendlyMemberPath(ConfigInfo.TargetType.GetFriendlyName(), Member.RootTargetMemberName);
+        private string GetTargetMemberPath() => TargetMember.GetFriendlyTargetPath(ConfigInfo);
 
         public override bool AppliesTo(IBasicMapperData mapperData)
             => base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);

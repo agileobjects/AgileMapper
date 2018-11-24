@@ -226,7 +226,7 @@
             {
                 return _description = sourceMemberLambda
                     .ToSourceMember(configInfo.MapperContext)
-                    .GetFriendlyMemberPath(configInfo.SourceType.GetFriendlyName(), Member.RootSourceMemberName);
+                    .GetFriendlySourcePath(configInfo);
             }
 
             return _description = _lambda.Body.ToReadableString();
