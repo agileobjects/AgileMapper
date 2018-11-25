@@ -2,8 +2,7 @@
   <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <Summary>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Summary>
-    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0 and .NET 4.0.</Description>
+    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <TargetFrameworks>netstandard1.0;netstandard1.3;net35;net40</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -20,6 +19,11 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2018</Copyright>
+    <PackageReleaseNotes>- Making entity key mapping behaviour configurable
+- Support for auto-reversal of configured data sources
+- Updating to use ReadableExpressions v2.0
+- Added shorthand .Map(s =&gt; s.Value, t =&gt; t.Value) API method
+- Performance and memory use improvements</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
