@@ -47,17 +47,24 @@
 
         private bool CannotBeReversed(out QualifiedMember targetMember, out string reason)
         {
-            if (ConfigInfo.HasCondition)
-            {
-                targetMember = null;
-                reason = $"configuration has condition '{ConfigInfo.GetConditionDescription(ConfigInfo)}'";
-                return true;
-            }
-
             if (_valueCouldBeSourceMember == false)
             {
                 targetMember = null;
                 reason = $"configured value '{_dataSourceLambda.GetDescription(ConfigInfo)}' is not a source member";
+                return true;
+            }
+
+            if (!TargetMember.IsReadable)
+            {
+                targetMember = null;
+                reason = $"target member '{GetTargetMemberPath()}' is not readable, so cannot be used as a source member";
+                return true;
+            }
+
+            if (ConfigInfo.HasCondition)
+            {
+                targetMember = null;
+                reason = $"configuration has condition '{ConfigInfo.GetConditionDescription(ConfigInfo)}'";
                 return true;
             }
 

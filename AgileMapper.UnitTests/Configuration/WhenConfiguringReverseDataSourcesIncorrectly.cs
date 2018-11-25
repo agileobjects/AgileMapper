@@ -184,5 +184,26 @@
             configEx.Message.ShouldContain("not mappable");
             configEx.Message.ShouldContain("readonly string");
         }
+
+        [Fact]
+        public void ShouldErrorOnMemberScopeOptInOfConfiguredSourceMemberDataSourceForWriteOnlyTarget()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<decimal>>()
+                        .To<PublicWriteOnlyProperty<int>>()
+                        .Map((pp, pwop) => pp.Value).To(pwop => pwop.Value)
+                        .AndViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("cannot be reversed");
+            configEx.Message.ShouldContain("target member 'PublicWriteOnlyProperty<int>.Value'");
+            configEx.Message.ShouldContain("not readable");
+            configEx.Message.ShouldContain("cannot be used as a source member");
+        }
     }
 }
