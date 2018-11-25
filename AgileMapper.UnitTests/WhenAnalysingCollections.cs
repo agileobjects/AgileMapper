@@ -2,7 +2,7 @@
 {
     using System;
     using System.Linq;
-    using AgileMapper.Extensions.Internal;
+    using AgileMapper.Extensions;
     using Common;
     using TestClasses;
 #if !NET35

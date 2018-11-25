@@ -15,16 +15,13 @@
 
     internal class DictionarySettings
     {
-        private readonly List<CustomDictionaryKey> _configuredFullKeys;
-        private readonly List<CustomDictionaryKey> _configuredMemberKeys;
         private readonly List<JoiningNameFactory> _joiningNameFactories;
         private readonly List<ElementKeyPartFactory> _elementKeyPartFactories;
+        private List<CustomDictionaryKey> _configuredFullKeys;
+        private List<CustomDictionaryKey> _configuredMemberKeys;
 
         public DictionarySettings(MapperContext mapperContext)
         {
-            _configuredFullKeys = new List<CustomDictionaryKey>();
-            _configuredMemberKeys = new List<CustomDictionaryKey>();
-
             _joiningNameFactories = new List<JoiningNameFactory>
             {
                 JoiningNameFactory.UnderscoredForSourceDynamics(mapperContext),
@@ -40,11 +37,17 @@
             };
         }
 
+        private List<CustomDictionaryKey> ConfiguredFullKeys
+            => _configuredFullKeys ?? (_configuredFullKeys = new List<CustomDictionaryKey>());
+
+        private List<CustomDictionaryKey> ConfiguredMemberKeys
+            => _configuredMemberKeys ?? (_configuredMemberKeys = new List<CustomDictionaryKey>());
+
         public void AddFullKey(CustomDictionaryKey configuredKey)
         {
             if (configuredKey.SourceMember?.IsSimple != false)
             {
-                _configuredFullKeys.Add(configuredKey);
+                ConfiguredFullKeys.Add(configuredKey);
                 return;
             }
 
@@ -52,7 +55,7 @@
 
             if (!targetDictionaryTypes.Value.IsSimple())
             {
-                _configuredFullKeys.Add(configuredKey);
+                ConfiguredFullKeys.Add(configuredKey);
                 return;
             }
 
@@ -86,10 +89,7 @@
             return matchingKey?.Key;
         }
 
-        public void AddMemberKey(CustomDictionaryKey customKey)
-        {
-            _configuredMemberKeys.Add(customKey);
-        }
+        public void AddMemberKey(CustomDictionaryKey customKey) => ConfiguredMemberKeys.Add(customKey);
 
         public string GetMemberKeyOrNull(IMemberMapperData mapperData)
             => GetMemberKeyOrNull(mapperData.TargetMember.LeafMember, mapperData);
@@ -101,7 +101,7 @@
             IList<CustomDictionaryKey> keys,
             Member member,
             IMemberMapperData mapperData)
-            => keys.FirstOrDefault(k => k.AppliesTo(member, mapperData));
+            => keys?.FirstOrDefault(k => k.AppliesTo(member, mapperData));
 
         public void Add(JoiningNameFactory joiningNameFactory)
         {
@@ -155,8 +155,16 @@
 
         public void CloneTo(DictionarySettings dictionaries)
         {
-            dictionaries._configuredFullKeys.AddRange(_configuredFullKeys);
-            dictionaries._configuredMemberKeys.AddRange(_configuredMemberKeys);
+            if (_configuredFullKeys != null)
+            {
+                dictionaries.ConfiguredFullKeys.AddRange(_configuredFullKeys);
+            }
+
+            if (_configuredMemberKeys != null)
+            {
+                dictionaries.ConfiguredMemberKeys.AddRange(_configuredMemberKeys);
+            }
+
             dictionaries._joiningNameFactories.InsertRange(0, GetNonDefaultJoiningNameFactories());
             dictionaries._elementKeyPartFactories.InsertRange(0, GetNonDefaultElementKeyPartFactories());
         }
@@ -181,8 +189,8 @@
 
         public void Reset()
         {
-            _configuredFullKeys.Clear();
-            _configuredMemberKeys.Clear();
+            _configuredFullKeys?.Clear();
+            _configuredMemberKeys?.Clear();
             _joiningNameFactories.Clear();
             _elementKeyPartFactories.Clear();
         }

@@ -54,17 +54,17 @@
                 return true;
             }
 
-            if (!TargetMember.IsReadable)
-            {
-                targetMember = null;
-                reason = $"target member '{GetTargetMemberPath()}' is not readable, so cannot be used as a source member";
-                return true;
-            }
-
             if (ConfigInfo.HasCondition)
             {
                 targetMember = null;
                 reason = $"configuration has condition '{ConfigInfo.GetConditionDescription(ConfigInfo)}'";
+                return true;
+            }
+
+            if (!TargetMember.IsReadable)
+            {
+                targetMember = null;
+                reason = $"target member '{GetTargetMemberPath()}' is not readable, so cannot be used as a source member";
                 return true;
             }
 

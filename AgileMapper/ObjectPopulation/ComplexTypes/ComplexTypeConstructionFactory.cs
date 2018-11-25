@@ -275,7 +275,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                 _argumentDataSources = argumentDataSources;
 
-                var variables = new List<ParameterExpression>();
+                var variables = default(List<ParameterExpression>);
                 var argumentValues = new List<Expression>(ParameterCount);
                 var condition = default(Expression);
 
@@ -283,7 +283,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 {
                     var dataSources = argumentDataSource.Item2;
 
-                    variables.AddRange(dataSources.Variables);
+                    if (dataSources.Variables.Any())
+                    {
+                        if (variables == null)
+                        {
+                            variables = new List<ParameterExpression>(dataSources.Variables);
+                        }
+                        else
+                        {
+                            variables.AddRange(dataSources.Variables);
+                        }
+                    }
+
                     argumentValues.Add(dataSources.ValueExpression);
 
                     if (!argumentDataSource.Item1.IsComplex || !dataSources.IsConditional)
@@ -306,7 +317,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                 constructionExpression = constructionFactory.Invoke(invokable, argumentValues);
 
-                Construction = variables.None()
+                Construction = variables.NoneOrNull()
                     ? new Construction(this, constructionExpression, condition)
                     : new Construction(this, Expression.Block(variables, constructionExpression), condition);
             }

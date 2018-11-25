@@ -42,34 +42,38 @@ namespace AgileObjects.AgileMapper.Members
             private readonly Expression _mappingDataObject;
             private readonly bool _includeTargetNullChecking;
             private readonly ICollection<Expression> _stringMemberAccessSubjects;
-            private readonly ICollection<Expression> _allInvocations;
-            private readonly ICollection<Expression> _multiInvocations;
             private readonly ICollection<string> _nullCheckSubjects;
             private readonly Dictionary<string, Expression> _nestedAccessesByPath;
+            private ICollection<Expression> _allInvocations;
+            private ICollection<Expression> _multiInvocations;
 
             public ExpressionInfoFinderInstance(Expression mappingDataObject, bool targetCanBeNull)
             {
                 _mappingDataObject = mappingDataObject;
                 _includeTargetNullChecking = targetCanBeNull;
                 _stringMemberAccessSubjects = new List<Expression>();
-                _allInvocations = new List<Expression>();
-                _multiInvocations = new List<Expression>();
                 _nullCheckSubjects = new List<string>();
                 _nestedAccessesByPath = new Dictionary<string, Expression>();
             }
+
+            private ICollection<Expression> AllInvocations
+                => _allInvocations ?? (_allInvocations = new List<Expression>());
+
+            private ICollection<Expression> MultiInvocations
+                => _multiInvocations ?? (_multiInvocations = new List<Expression>());
 
             public ExpressionInfo FindIn(Expression expression)
             {
                 Visit(expression);
 
-                if (_nestedAccessesByPath.None() && _multiInvocations.None())
+                if (_nestedAccessesByPath.None() && _multiInvocations.NoneOrNull())
                 {
                     return EmptyExpressionInfo;
                 }
 
                 var nestedAccessChecks = GetNestedAccessChecks();
 
-                var multiInvocations = _multiInvocations.Any()
+                var multiInvocations = _multiInvocations?.Any() == true
                     ? _multiInvocations.OrderBy(inv => inv.ToString()).ToArray()
                     : Enumerable<Expression>.EmptyArray;
 
@@ -326,13 +330,13 @@ namespace AgileObjects.AgileMapper.Members
 
             private void AddInvocationIfNecessary(Expression invocation)
             {
-                if (!_allInvocations.Contains(invocation))
+                if (_allInvocations?.Contains(invocation) != true)
                 {
-                    _allInvocations.Add(invocation);
+                    AllInvocations.Add(invocation);
                 }
-                else if (!_multiInvocations.Contains(invocation))
+                else if (_multiInvocations?.Contains(invocation) != true)
                 {
-                    _multiInvocations.Add(invocation);
+                    MultiInvocations.Add(invocation);
                 }
             }
 

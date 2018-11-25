@@ -79,10 +79,20 @@
             Expression value)
         {
             var loopBody = (BlockExpression)loop.Body;
-            var loopBodyExpressions = new List<Expression>(loopBody.Expressions);
+            var loopBodyExpressions = new Expression[loopBody.Expressions.Count + 1];
+            var expressionOffset = 0;
 
-            var variableAssignment = variable.AssignTo(value);
-            loopBodyExpressions.Insert(insertIndex, variableAssignment);
+            for (var i = 0; i < loopBodyExpressions.Length; i++)
+            {
+                if (i != insertIndex)
+                {
+                    loopBodyExpressions[i] = loopBody.Expressions[i - expressionOffset];
+                    continue;
+                }
+
+                loopBodyExpressions[i] = variable.AssignTo(value);
+                expressionOffset = 1;
+            }
 
             loopBody = loopBody.Update(loopBody.Variables.Append(variable), loopBodyExpressions);
 
@@ -482,7 +492,7 @@
             {
                 var mappingBlock = (BlockExpression)mapping;
 
-                expressions.AddRange(mappingBlock.Expressions.Except(new[] { mappingBlock.Result }));
+                expressions.AddRange(mappingBlock.Expressions.Take(mappingBlock.Expressions.Count - 1));
                 mapping = mappingBlock.Result;
             }
 

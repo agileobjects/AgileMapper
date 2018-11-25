@@ -1,9 +1,10 @@
-namespace AgileObjects.AgileMapper.Extensions.Internal
+namespace AgileObjects.AgileMapper.Extensions
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using Internal;
     using NetStandardPolyfills;
 
     /// <summary>
