@@ -28,7 +28,7 @@
         private static Expression CreateSourceMemberTypeTest(Expression value, IMemberMapperData mapperData)
         {
             var parent = value;
-            var typeTests = new List<Expression>();
+            var typeTests = default(List<Expression>);
 
             while (parent != mapperData.SourceObject)
             {
@@ -41,10 +41,15 @@
                 var cast = (UnaryExpression)parent;
                 parent = cast.Operand;
 
+                if (typeTests == null)
+                {
+                    typeTests = new List<Expression>();
+                }
+
                 typeTests.Insert(0, GetRuntimeTypeCheck(cast, mapperData));
             }
 
-            var allTests = typeTests.AndTogether();
+            var allTests = typeTests?.AndTogether();
 
             return allTests;
         }

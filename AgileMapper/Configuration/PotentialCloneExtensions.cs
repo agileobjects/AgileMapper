@@ -9,7 +9,7 @@
     internal static class PotentialCloneExtensions
     {
         public static IList<T> CloneItems<T>(this IList<T> cloneableItems)
-            where T : IPotentialClone
+            where T : IPotentialAutoCreatedItem
         {
             var clonedItems = new T[cloneableItems.Count];
 
@@ -43,7 +43,7 @@
         }
 
         public static void AddSortFilter<T>(this List<T> cloneableItems, T newItem)
-            where T : IPotentialClone, IComparable<T>
+            where T : IPotentialAutoCreatedItem, IComparable<T>
         {
             if (cloneableItems.None())
             {
@@ -52,8 +52,8 @@
             }
 
             var replacedItem = cloneableItems
-                .Filter(item => item.IsClone)
-                .Project((item, index) => new { Item = item, Index = index })
+                .Project((item, index) => new { Item = item, Index = index, IsClone = item.WasAutoCreated })
+                .Filter(d => d.IsClone)
                 .FirstOrDefault(d => newItem.IsReplacementFor(d.Item));
 
             if (replacedItem != null)

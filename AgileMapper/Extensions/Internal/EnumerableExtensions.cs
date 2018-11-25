@@ -102,6 +102,9 @@
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
         [DebuggerStepThrough]
+        public static bool NoneOrNull<T>(this ICollection<T> items) => (items == null) || items.None();
+
+        [DebuggerStepThrough]
         public static bool None<T>(this IEnumerable<T> items) => !items.GetEnumerator().MoveNext();
 
         public static bool None<T>(this IList<T> items, Func<T, bool> predicate)

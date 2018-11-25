@@ -6,9 +6,11 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using Configuration;
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -18,6 +20,7 @@
 #endif
     using static System.StringComparison;
     using static Constants;
+    using static Member;
 
     internal static class MemberExtensions
     {
@@ -27,39 +30,49 @@
         public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
             => GetFriendlyMemberPath(sourceMember, rootMapperData.SourceMember);
 
+        public static string GetFriendlySourcePath(this IQualifiedMember targetMember, MappingConfigInfo configInfo)
+            => GetFriendlyMemberPath(targetMember, configInfo.SourceType.GetFriendlyName(), RootSourceMemberName);
+
         public static string GetFriendlyTargetPath(this IQualifiedMember targetMember, IMemberMapperData rootMapperData)
             => GetFriendlyMemberPath(targetMember, rootMapperData.TargetMember);
 
+        public static string GetFriendlyTargetPath(this IQualifiedMember targetMember, MappingConfigInfo configInfo)
+            => GetFriendlyMemberPath(targetMember, configInfo.TargetType.GetFriendlyName(), RootTargetMemberName);
+
         public static string GetFriendlyMemberPath(this IQualifiedMember member, IQualifiedMember rootMember)
+            => GetFriendlyMemberPath(member, rootMember.GetFriendlyTypeName(), rootMember.Name);
+
+        public static string GetFriendlyMemberPath(
+            this IQualifiedMember member,
+            string rootTypeName,
+            string rootMemberName)
         {
-            var rootTypeName = rootMember.GetFriendlyTypeName();
             var memberPath = member.GetPath();
 
-            if (memberPath == rootMember.Name)
+            if (memberPath == rootMemberName)
             {
                 return rootTypeName;
             }
 
-            if (memberPath.StartsWith(rootMember.Name, Ordinal))
+            if (memberPath.StartsWith(rootMemberName, Ordinal))
             {
-                return rootTypeName + memberPath.Substring(rootMember.Name.Length);
+                return rootTypeName + memberPath.Substring(rootMemberName.Length);
             }
 
-            var rootMemberNameIndex = memberPath.IndexOf("." + rootMember.Name + ".", Ordinal);
+            var rootMemberNameIndex = memberPath.IndexOf("." + rootMemberName + ".", Ordinal);
 
             if (rootMemberNameIndex == -1)
             {
                 return rootTypeName + memberPath;
             }
 
-            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMember.Name.Length + 2);
+            var rootMemberString = memberPath.Substring(rootMemberNameIndex + rootMemberName.Length + 2);
             var path = rootTypeName + "." + rootMemberString;
 
             return path;
         }
 
-        public static bool IsEntityId(this Member member)
-            => member.MemberInfo?.HasKeyAttribute() == true;
+        public static bool IsEntityId(this Member member) => member.MemberInfo?.HasKeyAttribute() == true;
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
@@ -80,12 +93,6 @@
             {
                 reason = null;
                 return false;
-            }
-
-            if (!member.IsReadable)
-            {
-                reason = "write-only member";
-                return true;
             }
 
             if (!member.IsReadOnly)
@@ -264,9 +271,49 @@
         {
             return CreateMember(
                 memberAccess,
-                Member.RootSource,
+                RootSource,
                 GlobalContext.Instance.MemberCache.GetSourceMembers,
                 mapperContext);
+        }
+
+        public static QualifiedMember ToTargetMemberOrNull(
+            this LambdaExpression memberAccess,
+            Type targetType,
+            MapperContext mapperContext,
+            out string failureReason)
+        {
+            QualifiedMember targetMember;
+
+            try
+            {
+                targetMember = memberAccess.ToTargetMember(mapperContext);
+            }
+            catch (NotSupportedException)
+            {
+                failureReason = $"Unable to determine target member from '{memberAccess.Body.ToReadableString()}'";
+                return null;
+            }
+
+            if (targetMember == null)
+            {
+                var targetPath = memberAccess
+                    .ToSourceMember(mapperContext)?
+                    .GetFriendlyMemberPath(targetType.GetFriendlyName(), RootTargetMemberName) ??
+                     memberAccess.Body.ToReadableString();
+
+                failureReason = $"Target member {targetPath} is not writeable";
+                return null;
+            }
+
+            if (targetMember.IsUnmappable(out var reason))
+            {
+                var targetPath = targetMember.GetFriendlyMemberPath(targetType.GetFriendlyName(), RootTargetMemberName);
+                failureReason = $"Target member {targetPath} is not mappable ({reason})";
+                return null;
+            }
+
+            failureReason = null;
+            return targetMember;
         }
 
 #if NET35
@@ -277,7 +324,7 @@
         {
             return CreateMember(
                 memberAccess.Body,
-                Member.RootTarget,
+                RootTarget,
                 GlobalContext.Instance.MemberCache.GetTargetMembers,
                 mapperContext);
         }
@@ -288,19 +335,11 @@
             Func<Type, IList<Member>> membersFactory,
             MapperContext mapperContext)
         {
-            var expression = memberAccessExpression;
-            var memberAccesses = new List<Expression>();
+            void ThrowIfUnsupported(ExpressionType unsupportedNodeType) =>
+                throw new NotSupportedException($"Unable to get member access from {unsupportedNodeType} Expression");
 
-            while (expression.NodeType != ExpressionType.Parameter)
-            {
-                var memberExpression = GetMemberAccess(expression);
-                memberAccesses.Insert(0, memberExpression);
-                expression = memberExpression.GetParentOrNull();
-            }
-
-            AdjustMemberAccessesIfRootedInMappingData(memberAccesses, ref expression);
-
-            var rootMember = rootMemberFactory.Invoke(expression.Type);
+            var memberAccesses = memberAccessExpression.GetMemberAccessChain(ThrowIfUnsupported, out var rootExpression);
+            var rootMember = rootMemberFactory.Invoke(rootExpression.Type);
             var parentMember = rootMember;
 
             var memberChain = new Member[memberAccesses.Count + 1];
@@ -325,25 +364,33 @@
             return QualifiedMember.From(memberChain, mapperContext);
         }
 
-        private static void AdjustMemberAccessesIfRootedInMappingData(IList<Expression> memberAccesses, ref Expression expression)
+        public static IList<Expression> GetMemberAccessChain(
+            this Expression memberAccessExpression,
+            Action<ExpressionType> nonMemberAction,
+            out Expression rootExpression)
         {
-            if (!expression.Type.IsClosedTypeOf(typeof(IMappingData<,>)))
+            rootExpression = memberAccessExpression;
+            var memberAccesses = new List<Expression>();
+
+            while (rootExpression.NodeType != ExpressionType.Parameter)
             {
-                return;
+                var memberExpression = GetMemberAccess(rootExpression, nonMemberAction);
+
+                if (memberExpression == null)
+                {
+                    return null;
+                }
+
+                memberAccesses.Insert(0, memberExpression);
+                rootExpression = memberExpression.GetParentOrNull();
             }
 
-            var mappingDataRoot = memberAccesses[0];
-            expression = Parameters.Create(mappingDataRoot.Type);
+            AdjustMemberAccessesIfRootedInMappingData(memberAccesses, ref rootExpression);
 
-            memberAccesses.RemoveAt(0);
-
-            for (var i = 0; i < memberAccesses.Count; i++)
-            {
-                memberAccesses[i] = memberAccesses[i].Replace(mappingDataRoot, expression);
-            }
+            return memberAccesses;
         }
 
-        private static Expression GetMemberAccess(Expression expression)
+        private static Expression GetMemberAccess(Expression expression, Action<ExpressionType> nonMemberAction)
         {
             while (true)
             {
@@ -364,7 +411,26 @@
                         return expression;
                 }
 
-                throw new NotSupportedException("Unable to get member access from " + expression.NodeType + " Expression");
+                nonMemberAction.Invoke(expression.NodeType);
+                return null;
+            }
+        }
+
+        private static void AdjustMemberAccessesIfRootedInMappingData(IList<Expression> memberAccesses, ref Expression expression)
+        {
+            if (!expression.Type.IsClosedTypeOf(typeof(IMappingData<,>)))
+            {
+                return;
+            }
+
+            var mappingDataRoot = memberAccesses[0];
+            expression = Parameters.Create(mappingDataRoot.Type);
+
+            memberAccesses.RemoveAt(0);
+
+            for (var i = 0; i < memberAccesses.Count; i++)
+            {
+                memberAccesses[i] = memberAccesses[i].Replace(mappingDataRoot, expression);
             }
         }
 

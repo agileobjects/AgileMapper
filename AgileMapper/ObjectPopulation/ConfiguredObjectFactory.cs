@@ -13,7 +13,7 @@
 
     internal class ConfiguredObjectFactory :
         UserConfiguredItemBase,
-        IPotentialClone
+        IPotentialAutoCreatedItem
 #if NET35
         , IComparable<ConfiguredObjectFactory>
 #endif
@@ -55,7 +55,7 @@
                 return false;
             }
 
-            return !IsClone ||
+            return !WasAutoCreated ||
                    _factoryInfo.IsSameAs(((ConfiguredObjectFactory)otherConfiguredItem)._factoryInfo);
         }
 
@@ -74,19 +74,19 @@
 
         public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
 
-        #region IPotentialClone Members
+        #region IPotentialAutoCreatedItem Members
 
-        public bool IsClone { get; private set; }
+        public bool WasAutoCreated { get; private set; }
 
-        public IPotentialClone Clone()
+        public IPotentialAutoCreatedItem Clone()
         {
             return new ConfiguredObjectFactory(ConfigInfo, _objectType, _factoryInfo)
             {
-                IsClone = true
+                WasAutoCreated = true
             };
         }
 
-        public bool IsReplacementFor(IPotentialClone clonedObjectFactory)
+        public bool IsReplacementFor(IPotentialAutoCreatedItem clonedObjectFactory)
             => ConflictsWith((ConfiguredObjectFactory)clonedObjectFactory);
 
         #endregion

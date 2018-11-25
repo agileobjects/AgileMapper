@@ -52,7 +52,7 @@
                 }
             });
 
-            inlineConfigEx.Message.ShouldContain("already has that configured data source");
+            inlineConfigEx.Message.ShouldContain("already has configured data source 'ctx.Source.Value + \"!\"'");
         }
 
         [Fact]
@@ -97,7 +97,7 @@
                 }
             });
 
-            inlineConfigEx.Message.ShouldContain("already has that configured data source");
+            inlineConfigEx.Message.ShouldContain("already has configured data source 'Person.Id'");
         }
 
         [Fact]
@@ -118,7 +118,7 @@
                 }
             });
 
-            conflictEx.Message.ShouldContain("already has a configured data source");
+            conflictEx.Message.ShouldContain("already has configured data source 'Customer.Id'");
         }
 
         [Fact]

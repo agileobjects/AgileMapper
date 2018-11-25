@@ -15,7 +15,7 @@
         /// Object mappings which encounter an Exception will return null.
         /// </summary>
         /// <returns>
-        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
+        /// This IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
         /// target types being configured.
         /// </returns>
         IFullMappingSettings<TSource, TTarget> SwallowAllExceptions();
@@ -29,7 +29,7 @@
         /// swallowed, it should be rethrown inside the callback.
         /// </param>
         /// <returns>
-        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
+        /// This IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
         /// target types being configured.
         /// </returns>
         IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback);
@@ -65,7 +65,7 @@
         /// being configured.
         /// </summary>
         /// <returns>
-        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
+        /// This IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
         /// target types being configured.
         /// </returns>
         IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull();
@@ -74,7 +74,7 @@
         /// Map entity key values for the source and target types being configured.
         /// </summary>
         /// <returns>
-        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
+        /// This IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
         /// target types being configured.
         /// </returns>
         IFullMappingSettings<TSource, TTarget> MapEntityKeys();
@@ -85,10 +85,37 @@
         /// enabled with Mapper.WhenMapping.MapEntityKeys().
         /// </summary>
         /// <returns>
-        /// An IFullMappingSettings{TSource, TTarget} with which to configure further settings for the
+        /// This IFullMappingSettings{TSource, TTarget} with which to configure further settings for the
         /// source and target types being configured.
         /// </returns>
         IFullMappingSettings<TSource, TTarget> IgnoreEntityKeys();
+
+        /// <summary>
+        /// Apply configured data sources in both mapping directions, for the source and target types being configured.
+        /// For example, configuring <typeparamref name="TSource"/>.SourceId -> <typeparamref name="TTarget"/>.Id
+        /// will also apply <typeparamref name="TTarget"/>.Id -> <typeparamref name="TSource"/>.SourceId.
+        /// This mapping-scoped option sets the default behaviour for mapping between <typeparamref name="TSource"/>
+        /// and <typeparamref name="TTarget"/> and vice-versa; individual member configurations can subsequently
+        /// opt-out.
+        /// </summary>
+        /// <returns>
+        /// This IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
+        /// target types being configured.
+        /// </returns>
+        IFullMappingSettings<TSource, TTarget> AutoReverseConfiguredDataSources();
+
+        /// <summary>
+        /// Apply configured data sources only in the configured mapping direction, for the source and target types
+        /// being configured.
+        /// Use this mapping-scoped option to opt-out of the global setting to apply data sources in both directions,
+        /// and set the default behaviour for mapping between <typeparamref name="TSource"/> and
+        /// <typeparamref name="TTarget"/>; individual member configurations can subsequently opt-in.
+        /// </summary>
+        /// <returns>
+        /// This IFullMappingSettings{TSource, TTarget} with which to configure further settings for the source and
+        /// target types being configured.
+        /// </returns>
+        IFullMappingSettings<TSource, TTarget> DoNotAutoReverseConfiguredDataSources();
 
         /// <summary>
         /// Configure this mapper to pair the given <paramref name="enumMember"/> with a member of another 

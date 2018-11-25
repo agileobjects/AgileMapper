@@ -17,6 +17,9 @@ namespace AgileObjects.AgileMapper.Members
         public static bool IsForTargetType(this ITypePair typePair, ITypePair otherTypePair)
             => otherTypePair.TargetType.IsAssignableTo(typePair.TargetType);
 
+        public static bool IsForAllTargetTypes(this ITypePair typePair)
+            => typePair.TargetType == typeof(object);
+
         public static bool HasCompatibleTypes<TOtherTypePair>(
             this ITypePair typePair,
             TOtherTypePair otherTypePair,

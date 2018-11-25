@@ -8,6 +8,7 @@
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -21,6 +22,8 @@
         private readonly Type[] _contextTypes;
         private readonly bool _isForTargetDictionary;
         private readonly ParametersSwapper _parametersSwapper;
+        private LambdaExpression _sourceMemberLambda;
+        private string _description;
 
         private ConfiguredLambdaInfo(
             LambdaExpression lambda,
@@ -56,7 +59,8 @@
 
             var firstArgument = funcArguments[0];
 
-            if (firstArgument.IsGenericType() && !firstArgument.IsAnonymous())
+            if (firstArgument.IsGenericType() &&
+                firstArgument.IsAssignableTo(typeof(IServiceProviderAccessor)))
             {
                 return firstArgument.GetGenericTypeArguments();
             }
@@ -138,6 +142,60 @@
 
         public Type ReturnType { get; }
 
+        public bool IsSourceMember(out LambdaExpression sourceMemberLambda)
+        {
+            if (_lambda.Body.NodeType != ExpressionType.MemberAccess)
+            {
+                sourceMemberLambda = null;
+                return false;
+            }
+
+            if (_sourceMemberLambda != null)
+            {
+                sourceMemberLambda = _sourceMemberLambda;
+                return true;
+            }
+
+            var memberAccesses = _lambda.Body.GetMemberAccessChain(nt => { }, out var rootExpression);
+
+            if (memberAccesses == null)
+            {
+                sourceMemberLambda = null;
+                return false;
+            }
+
+            var sourceParameter = default(ParameterExpression);
+            var memberAccessPath = default(Expression);
+
+            foreach (var memberAccess in memberAccesses)
+            {
+                if (memberAccess.NodeType != ExpressionType.MemberAccess)
+                {
+                    sourceMemberLambda = null;
+                    return false;
+                }
+
+                if (sourceParameter == null)
+                {
+                    sourceParameter = Parameters.Create(rootExpression.Type, "source");
+                    memberAccessPath = sourceParameter;
+                }
+
+                memberAccessPath = Expression.MakeMemberAccess(
+                    memberAccessPath,
+                  ((MemberExpression)memberAccess).Member);
+            }
+
+            // ReSharper disable PossibleNullReferenceException
+            _sourceMemberLambda = sourceMemberLambda = Expression.Lambda(
+                Expression.GetFuncType(sourceParameter.Type, memberAccessPath.Type),
+                memberAccessPath,
+                sourceParameter);
+            // ReSharper restore PossibleNullReferenceException
+
+            return true;
+        }
+
         public bool Supports(MappingRuleSet ruleSet)
             => ruleSet.Settings?.ExpressionIsSupported(_lambda) != false;
 
@@ -155,6 +213,23 @@
             }
 
             return ExpressionEvaluation.AreEquivalent(_lambda.Body, otherLambdaInfo._lambda.Body);
+        }
+
+        public string GetDescription(MappingConfigInfo configInfo)
+        {
+            if (_description != null)
+            {
+                return _description;
+            }
+
+            if (IsSourceMember(out var sourceMemberLambda))
+            {
+                return _description = sourceMemberLambda
+                    .ToSourceMember(configInfo.MapperContext)
+                    .GetFriendlySourcePath(configInfo);
+            }
+
+            return _description = _lambda.Body.ToReadableString();
         }
 
         public Expression GetBody(

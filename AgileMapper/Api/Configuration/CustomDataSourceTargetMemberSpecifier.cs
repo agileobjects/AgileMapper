@@ -28,14 +28,17 @@
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly LambdaExpression _customValueLambda;
+        private readonly bool _valueCouldBeSourceMember;
         private readonly ConfiguredLambdaInfo _customValueLambdaInfo;
 
         public CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
-            LambdaExpression customValueLambda)
+            LambdaExpression customValueLambda,
+            bool valueCouldBeSourceMember)
             : this(configInfo, default(ConfiguredLambdaInfo))
         {
             _customValueLambda = customValueLambda;
+            _valueCouldBeSourceMember = valueCouldBeSourceMember;
         }
 
         public CustomDataSourceTargetMemberSpecifier(
@@ -46,7 +49,7 @@
             _customValueLambdaInfo = customValueLambda;
         }
 
-        public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
+        public ICustomDataSourceMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             ThrowIfTargetParameterSpecified(targetMember);
@@ -99,11 +102,43 @@
             {
                 return new ConfiguredDictionaryEntryDataSourceFactory(_configInfo, valueLambdaInfo, dictionaryEntryMember);
             }
+
+            return CreateDataSourceFactory(valueLambdaInfo, targetMemberLambda);
+        }
+
+        private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
+        {
+            if (_customValueLambdaInfo != null)
+            {
+                return _customValueLambdaInfo;
+            }
+
 #if NET35
-            return new ConfiguredDataSourceFactory(_configInfo, valueLambdaInfo, targetMemberLambda.ToDlrExpression());
+            var customValueLambda = _customValueLambda.ToDlrExpression();
+            const Dlr.ExpressionType CONSTANT = Dlr.ExpressionType.Constant;
 #else
-            return new ConfiguredDataSourceFactory(_configInfo, valueLambdaInfo, targetMemberLambda);
+            var customValueLambda = _customValueLambda;
+            const ExpressionType CONSTANT = ExpressionType.Constant;
 #endif
+            if ((customValueLambda.Body.NodeType != CONSTANT) ||
+                (typeof(TTargetValue) == typeof(object)) ||
+                 customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
+            {
+                return ConfiguredLambdaInfo.For(customValueLambda);
+            }
+
+            var convertedConstantValue = _configInfo
+                .MapperContext
+                .ValueConverters
+                .GetConversion(customValueLambda.Body, typeof(TTargetValue));
+
+            var valueLambda = Lambda<Func<TTargetValue>>(convertedConstantValue);
+            var valueFunc = valueLambda.Compile();
+            var value = valueFunc.Invoke().ToConstantExpression(typeof(TTargetValue));
+            var constantValueLambda = Lambda<Func<TTargetValue>>(value);
+            var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
+
+            return valueLambdaInfo;
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
@@ -148,39 +183,19 @@
                 : _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TTarget>();
         }
 
-        private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
+        private ConfiguredDataSourceFactory CreateDataSourceFactory(
+            ConfiguredLambdaInfo valueLambdaInfo,
+            LambdaExpression targetMemberLambda)
         {
-            if (_customValueLambdaInfo != null)
-            {
-                return _customValueLambdaInfo;
-            }
-
+            return new ConfiguredDataSourceFactory(
+                _configInfo,
+                valueLambdaInfo,
 #if NET35
-            var customValueLambda = _customValueLambda.ToDlrExpression();
-            const Dlr.ExpressionType CONSTANT = Dlr.ExpressionType.Constant;
+                targetMemberLambda.ToDlrExpression(),
 #else
-            var customValueLambda = _customValueLambda;
-            const ExpressionType CONSTANT = ExpressionType.Constant;
+                targetMemberLambda,
 #endif
-            if ((customValueLambda.Body.NodeType != CONSTANT) ||
-                (typeof(TTargetValue) == typeof(object)) ||
-                 customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
-            {
-                return ConfiguredLambdaInfo.For(customValueLambda);
-            }
-
-            var convertedConstantValue = _configInfo
-                .MapperContext
-                .ValueConverters
-                .GetConversion(customValueLambda.Body, typeof(TTargetValue));
-
-            var valueLambda = Lambda<Func<TTargetValue>>(convertedConstantValue);
-            var valueFunc = valueLambda.Compile();
-            var value = valueFunc.Invoke().ToConstantExpression(typeof(TTargetValue));
-            var constantValueLambda = Lambda<Func<TTargetValue>>(value);
-            var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
-
-            return valueLambdaInfo;
+                _valueCouldBeSourceMember);
         }
 
         public IMappingConfigContinuation<TSource, TTarget> ToCtor<TTargetParam>()

@@ -22,17 +22,17 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         }
 
         ISourceDictionaryMappingConfigurator<TFirst, TSecond> ISourceDictionaryMappingConfigContinuation<TFirst, TSecond>.And
-            => new SourceDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Clone());
+            => new SourceDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Copy());
 
         ITargetDictionaryMappingConfigurator<TFirst, TSecond> ITargetDictionaryMappingConfigContinuation<TFirst, TSecond>.And
-            => new TargetDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Clone());
+            => new TargetDictionaryMappingConfigurator<TFirst, TSecond>(_configInfo.Copy());
 
 #if FEATURE_DYNAMIC
         ISourceDynamicMappingConfigurator<TSecond> ISourceDynamicMappingConfigContinuation<TSecond>.And
-            => new SourceDynamicMappingConfigurator<TSecond>(_configInfo.Clone());
+            => new SourceDynamicMappingConfigurator<TSecond>(_configInfo.Copy());
 
         ITargetDynamicMappingConfigurator<TFirst> ITargetDynamicMappingConfigContinuation<TFirst>.And
-            => new TargetDynamicMappingConfigurator<TFirst>(_configInfo.Clone());
+            => new TargetDynamicMappingConfigurator<TFirst>(_configInfo.Copy());
 #endif
     }
 }

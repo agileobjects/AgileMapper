@@ -14,7 +14,7 @@
         private readonly ICache<TypeKey, Member> _idMemberCache;
         private readonly List<Func<Member, string>> _matchingNameFactories;
         private readonly List<Func<IEnumerable<string>, string>> _joinedNameFactories;
-        private readonly List<Regex> _customNameMatchers;
+        private ICollection<Regex> _customNameMatchers;
 
         public NamingSettings(CacheSet mapperScopedCache)
         {
@@ -32,9 +32,10 @@
                 names => names.Join(string.Empty),
                 names => names.Join(".")
             };
-
-            _customNameMatchers = new List<Regex>();
         }
+
+        private ICollection<Regex> CustomNameMatchers
+            => _customNameMatchers ?? (_customNameMatchers = new List<Regex>());
 
         private static string GetIdentifierName(Member member)
         {
@@ -70,7 +71,7 @@
 
                 _matchingNameFactories.Add(member => GetMemberName(nameMatcher.Match(member.Name)));
 
-                _customNameMatchers.Add(nameMatcher);
+                CustomNameMatchers.Add(nameMatcher);
             }
         }
 
@@ -186,7 +187,7 @@
                 return true;
             }
 
-            if (_customNameMatchers.None())
+            if (_customNameMatchers.NoneOrNull())
             {
                 return false;
             }

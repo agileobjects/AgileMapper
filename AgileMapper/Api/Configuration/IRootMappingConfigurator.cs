@@ -112,7 +112,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
         /// and target type being configured.
         /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
+        ICustomDataSourceMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
             Expression<Func<TSource, TSourceValue>> valueFactoryExpression,
             Expression<Func<TTarget, TTargetValue>> targetMember);
 
@@ -124,8 +124,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of the custom value being configured.</typeparam>
         /// <param name="valueFactoryExpression">The expression to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
-        /// custom value should be applied.
+        /// An ICustomDataSourceMappingConfigContinuation with which to control the reverse configuration, or further
+        /// configure mappings from and to the source and target type being configured.
         /// </returns>
         ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression);

@@ -13,24 +13,26 @@ namespace AgileObjects.AgileMapper.DataSources
     internal class DataSourceSet : IEnumerable<IDataSource>
     {
         private readonly IList<IDataSource> _dataSources;
-        private readonly List<ParameterExpression> _variables;
+        private readonly IList<ParameterExpression> _variables;
         private Expression _value;
 
         public DataSourceSet(IMemberMapperData mapperData, params IDataSource[] dataSources)
         {
             MapperData = mapperData;
             _dataSources = dataSources;
-            _variables = new List<ParameterExpression>();
             None = dataSources.Length == 0;
 
             if (None)
             {
+                _variables = Enumerable<ParameterExpression>.EmptyArray;
                 return;
             }
 
-            for (var i = 0; i < dataSources.Length; i++)
+            var variables = new List<ParameterExpression>();
+
+            for (var i = 0; i < dataSources.Length; )
             {
-                var dataSource = dataSources[i];
+                var dataSource = dataSources[i++];
 
                 if (dataSource.IsValid)
                 {
@@ -44,7 +46,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
                 if (dataSource.Variables.Any())
                 {
-                    _variables.AddRange(dataSource.Variables);
+                    variables.AddRange(dataSource.Variables);
                 }
 
                 if (dataSource.SourceMemberTypeTest != null)
@@ -52,6 +54,8 @@ namespace AgileObjects.AgileMapper.DataSources
                     SourceMemberTypeTest = dataSource.SourceMemberTypeTest;
                 }
             }
+
+            _variables = variables;
         }
 
         public IMemberMapperData MapperData { get; }

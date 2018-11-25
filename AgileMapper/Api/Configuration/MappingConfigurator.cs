@@ -233,6 +233,18 @@
             return this;
         }
 
+        public IFullMappingSettings<TSource, TTarget> AutoReverseConfiguredDataSources() 
+            => SetDataSourceReversal(reverse: true);
+
+        public IFullMappingSettings<TSource, TTarget> DoNotAutoReverseConfiguredDataSources()
+            => SetDataSourceReversal(reverse: false);
+
+        private IFullMappingSettings<TSource, TTarget> SetDataSourceReversal(bool reverse)
+        {
+            MapperContext.UserConfigurations.Add(new DataSourceReversalSetting(ConfigInfo, reverse));
+            return this;
+        }
+
         public IMappingEnumPairSpecifier<TSource, TTarget> PairEnum<TFirstEnum>(TFirstEnum enumMember)
             where TFirstEnum : struct
         {
@@ -318,7 +330,7 @@
 
         #region Map Overloads
 
-        public IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
+        public ICustomDataSourceMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(
             Expression<Func<TSource, TSourceValue>> valueFactoryExpression,
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
@@ -376,7 +388,8 @@
         {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType<TSourceValue>(),
-                valueFactoryExpression);
+                valueFactoryExpression,
+                valueCouldBeSourceMember: true);
         }
 
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
@@ -399,7 +412,8 @@
 
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
                 ConfigInfo.ForSourceValueType(valueConstant.Type),
-                valueLambda);
+                valueLambda,
+                valueCouldBeSourceMember: false);
         }
 
         #endregion
