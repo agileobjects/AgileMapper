@@ -165,6 +165,26 @@
         }
 
         [Fact]
+        public void ShouldErrorOnMemberScopeOptInOfConfiguredConstantFuncDataSource()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .Map(p => "HELLO?!", pf => pf.Value)
+                        .AndViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("cannot be reversed");
+            configEx.Message.ShouldContain("configured value '\"HELLO?!\"'");
+            configEx.Message.ShouldContain("not a source member");
+        }
+
+        [Fact]
         public void ShouldErrorOnMemberScopeOptInOfConfiguredReadOnlySourceMemberDataSource()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
@@ -204,6 +224,27 @@
             configEx.Message.ShouldContain("target member 'PublicWriteOnlyProperty<int>.Value'");
             configEx.Message.ShouldContain("not readable");
             configEx.Message.ShouldContain("cannot be used as a source member");
+        }
+
+        [Fact]
+        public void ShouldErrorOnMemberScopeOptInOfConditionalConfiguredDataSource()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>()
+                        .To<PublicField<string>>()
+                        .If((p, pf) => p.Name.Contains("Rich"))
+                        .Map(p => p.Name, pf => pf.Value)
+                        .AndViceVersa();
+                }
+            });
+
+            configEx.Message.ShouldContain("cannot be reversed");
+            configEx.Message.ShouldContain("has condition");
+            configEx.Message.ShouldContain("p.Name.Contains(\"Rich\")");
         }
     }
 }
