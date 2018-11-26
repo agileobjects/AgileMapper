@@ -2,6 +2,8 @@ site_name: AgileMapper
 repo_url: https://github.com/agileobjects/AgileMapper
 site_description: 'AgileMapper: A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+'
 site_author: Steve Wilkes
+docs_dir: 'docs/src'
+site_dir: 'docs/site'
 nav:
     - Home: index.md
     - Member matching: Member-Matching.md
