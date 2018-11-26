@@ -1,6 +1,6 @@
 Custom formatting strings can be configured for given source types:
 
-```C#
+```cs
 // Map DateTimes to string as '<month name> <year>'
 Mapper.WhenMapping
     .StringsFrom<DateTime>(_ => _.UseFormat("y"));

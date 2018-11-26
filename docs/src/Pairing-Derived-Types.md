@@ -2,7 +2,7 @@ Derived type pairing matches particular derived sources types to particular deri
 
 For example:
 
-```C#
+```cs
 Mapper.WhenMapping
    .From<AnimalViewModel>() // Apply to AnimalViewModel mappings
    .ToANew<Animal>()        // Apply to Animal creation only
@@ -12,7 +12,7 @@ Mapper.WhenMapping
 
 Type pairs are used when mapping complex types:
 
-```C#
+```cs
 var animalViewModel = new CanineViewModel() as AnimalViewModel;
 var animal = Mapper.Map(animalViewModel).ToANew<Animal>();
 // animal is of type Dog
@@ -20,7 +20,7 @@ var animal = Mapper.Map(animalViewModel).ToANew<Animal>();
 
 ...and collections:
 
-```C#
+```cs
 var animalViewModels = new[]
 {
     new AnimalViewModel(),
@@ -33,7 +33,7 @@ var animals = Mapper.Map(animalViewModels).ToANew<List<Animal>>();
 
 ...and can be applied conditionally ([inline](Inline-Configuration) example):
 
-```C#
+```cs
 Mapper
     .Map(animalViewModels).ToANew<Animal[]>(cfg => cfg
         .WhenMapping

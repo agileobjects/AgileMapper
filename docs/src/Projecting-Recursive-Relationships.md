@@ -1,6 +1,6 @@
 If your [`IQueryProvider`](https://docs.microsoft.com/en-us/dotnet/api/system.linq.iqueryprovider) [supports](Entity-Framework#recursion) it, you can project recursive relationships to a specified depth. For example, with these classes:
 
-```C#
+```cs
 // Entity:
 public class Category
 {
@@ -49,7 +49,7 @@ public class CategoryDto
 
 To project a particular node of the tree to DTOs, the mapper has to know up-front how many levels deep you want to go in the tree. For example, without a specified recursion depth:
 
-```C#
+```cs
 // Using an EF Core DbContext:
 var stringsDto = await context
    .Categories
@@ -63,7 +63,7 @@ var stringsDto = await context
 
 ...or with a recursion depth of 1:
 
-```C#
+```cs
 var stringsDto = await context
    .Categories
    .Project().To<CategoryDto>(cfg => cfg.RecurseToDepth(1))
@@ -78,7 +78,7 @@ var stringsDto = await context
 
 ...or with a recursion depth of 2:
 
-```C#
+```cs
 var stringsDto = await context
    .Categories
    .Project().To<CategoryDto>(cfg => cfg.RecurseToDepth(2))

@@ -11,7 +11,7 @@ Flags enums are mapped automatically from numeric, string, enum and character so
 
 [Mapping plans](Using-Execution-Plans) warn you of enum mapping mismatches when mapping from one enum type to another. For example, a mapping between the following enums:
 
-```C#
+```cs
 // Source enum:
 enum PaymentTypeUs { Cash, Card, Check }
 // Target enum:
@@ -20,7 +20,7 @@ enum PaymentTypeUk { Cash, Card, Cheque }
 
 ...has the following warning in its mapping plan:
 
-```C#
+```cs
 // WARNING - enum mismatches mapping PaymentTypeUs to PaymentTypeUk:
 //  - PaymentTypeUs.Check matches no PaymentTypeUk
 ```
@@ -31,7 +31,7 @@ enum PaymentTypeUk { Cash, Card, Cheque }
 
 To have `PaymentTypeUs.Check` map to `PaymentTypeUk.Cheque`, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .PairEnum(PaymentTypeUs.Check).With(PaymentTypeUk.Cheque);
 ```
@@ -40,7 +40,7 @@ Mapper.WhenMapping
 
 Enum pairing can also be configured [inline](Inline-Configuration):
 
-```C#
+```cs
 Mapper.Map(usTransaction).ToANew<UkTransaction>(cfg => cfg
     .PairEnum(PaymentTypeUs.Check).With(PaymentTypeUk.Cheque));
 ```

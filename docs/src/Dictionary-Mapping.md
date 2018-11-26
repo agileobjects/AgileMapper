@@ -11,7 +11,7 @@ AgileMapper has extensive support for mapping to and from Dictionaries. Out of t
 
 For example, the following target type:
 
-```C#
+```cs
 public class ContactDetails
 {
     public string Name { get; set; }
@@ -27,7 +27,7 @@ public class Address
 
 ...can be mapped from the following source dictionary:
 
-```C#
+```cs
 var source = new Dictionary<string, string>
 {
     ["Name"] = "Steve",
@@ -58,7 +58,7 @@ Note that the `StreetName` key had no separator, but the mapping works anyway.
 
 The following source `ContactDetails`:
 
-```C#
+```cs
 var source = new ContactDetails
 {
     Name = "Bob",
@@ -73,7 +73,7 @@ var source = new ContactDetails
 
 ...can be mapped to a dictionary:
 
-```C#
+```cs
 var dictionary = Mapper.Map(source).ToANew<Dictionary<string, object>>();
 // or:
 var dictionaryInterface = Mapper.Map(source).ToANew<IDictionary<string, object>>();

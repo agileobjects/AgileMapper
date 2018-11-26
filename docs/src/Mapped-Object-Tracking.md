@@ -4,7 +4,7 @@ There are two circumstances in which you might want to keep track of mapped obje
 
 To avoid stack overflows, objects are automatically tracked when mapping circular references. If you know your object tree doesn't contain a circular reference, you can switch this behaviour off. For example:
 
-```C#
+```cs
 var child = new Child();
 var parent = new Parent();
 child.Parent = parent;
@@ -25,7 +25,7 @@ Mapper.Map(child).ToANew<Child>(cfg => cfg.DisableObjectTracking());
 
 If you want to maintain a 1-to-1 relationship between source and destination objects, you can switch on identity integrity, which uses object tracking. For example:
 
-```C#
+```cs
 var person = new Person();
 // use the same instance twice in a source array:
 var people = new[] { person, person };
@@ -43,7 +43,7 @@ var dtos2 = Mapper
 
 To switch object tracking off - or identity integrity on - in all mappings, use:
 
-```C#
+```cs
 // Never track objects - when your object *types* contain circular references, 
 // but you're sure your *instances* of those types never do:
 Mapper.WhenMapping.DisableObjectTracking();

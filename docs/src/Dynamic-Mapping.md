@@ -12,7 +12,7 @@ Out of the box:
 
 For example, the following target type:
 
-```C#
+```cs
 public class Doctor
 {
     public string Name { get; set; }
@@ -28,7 +28,7 @@ public class Specialty
 
 ...can be mapped from the following source ExpandoObject:
 
-```C#
+```cs
 dynamic source = new ExpandoObject();
 source.Name = "Andy";
 source.PhoneNumbers_0 = "01234 567890";
@@ -59,7 +59,7 @@ Note that the elements of the second `Specialty` have no separator, but the mapp
 
 The following source `Doctor`:
 
-```C#
+```cs
 var source = new Doctor
 {
     Name = "Bob",
@@ -73,7 +73,7 @@ var source = new Doctor
 
 ...can be mapped to an ExpandoObject:
 
-```C#
+```cs
 dynamic expando = Mapper.Map(source).ToANew<ExpandoObject>();
 // or:
 dynamic result = Mapper.Map(source).ToANew<dynamic>();

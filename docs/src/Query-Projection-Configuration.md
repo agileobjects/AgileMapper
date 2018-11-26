@@ -4,7 +4,7 @@
 
 For example:
 
-```C#
+```cs
 // Configured on the default mapper, via the static API:
 Mapper.WhenMapping
     .From<Product>()           // Apply to Product mappings
@@ -26,7 +26,7 @@ In this case, the `Product.Spec` -> `ProductDto.Specification` custom [member va
 
 You can achieve the same thing using an instance mapper by using `.ProjectUsing(mapper)` instead of `.Project()`. Any inline configuration you supply will be merged with the instance mapper's configuration in the usual way. For example:
 
-```C#
+```cs
 // Configure an instance mapper via its API:
 mapper.WhenMapping
     .From<Product>()           // Apply to Product mappings

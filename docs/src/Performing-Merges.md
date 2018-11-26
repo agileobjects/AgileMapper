@@ -1,12 +1,12 @@
 Update an object's unpopulated members with values from another using:
 
-```C#
+```cs
 Mapper.Map(customerViewModel).OnTo(customer);
 ```
 
 When merging collections, objects are matched by id ([configurable](Configuring-Object-Identifiers) if necessary). For example:
 
-```C#
+```cs
 var source = new Collection<CustomerViewModel>
 {
     new CustomerViewModel { Id = 1,    Name = "Rod" },

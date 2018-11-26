@@ -23,7 +23,7 @@ Generic `List<T>` instances are created for interface-type members except `ISet<
 
 By default, if the source collection matching a target collection is null, the target collection is populated with an empty collection. You can configure setting the target collection to null instead like this:
 
-```C#
+```cs
 // Map null-source collections to null for all source
 // and target types:
 Mapper.WhenMapping.MapNullCollectionsToNull();

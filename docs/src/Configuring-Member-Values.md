@@ -2,7 +2,7 @@ There are several ways of configuring a custom data source for a target member.
 
 **A source member**:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<ProductDto>()          // Apply to ProductDto mappings
     .To<Product>()               // Apply to Product creation, updates and merges
@@ -18,7 +18,7 @@ Mapper.WhenMapping
 
 **A source expression** (in this example, supplied [inline](Inline-Configuration)):
 
-```C#
+```cs
 // Source, target and mapping types are implicit from the mapping:
 Mapper.Map(productDto).ToANew<Product>(cfg => cfg
     .Map(ctx => "$" + ctx.Source.Price) // ctx.Source is the ProductDto
@@ -27,7 +27,7 @@ Mapper.Map(productDto).ToANew<Product>(cfg => cfg
 
 **A constant value**:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<ProductDto>()      // Apply to ProductDto mappings
     .OnTo<Product>()         // Apply to Product merges only
@@ -42,7 +42,7 @@ Mapper.WhenMapping
 
 **A value from an [injected service](Dependency-Injection)**:
 
-```C#
+```cs
 // Retrieve an IDateTimeProvider instance from a configured
 // service provider, and use its UtcNow value:
 Mapper.WhenMapping
@@ -54,7 +54,7 @@ Mapper.WhenMapping
 
 **The result of a function call** ([inline](Inline-Configuration)):
 
-```C#
+```cs
 Func<ProductDto, Product, string> companyNameFactory = 
     (dto, p) => dto.ManufaturerName + " Ltd";
 
@@ -68,7 +68,7 @@ Mapper.Map(productDto).ToANew<Product>(cfg => cfg
 
 Any of these methods can be configured to be conditional:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<ProductDto>()                 // Apply to ProductDto mappings
     .ToANew<Product>()                  // Apply to Product creation only
@@ -79,7 +79,7 @@ Mapper.WhenMapping
 
 And in an [inline](Inline-Configuration) example:
 
-```C#
+```cs
 Mapper.Map(productDto).ToANew<Product>(cfg => cfg
     .If((dto, p) => dto.CompanyId == 0) // Apply only if CompanyId is 0
     .Map("No-one")                      // Always the same value
@@ -92,13 +92,13 @@ By default, configured data sources only apply in the direction configured - con
 
 To make every source- to target-member pairing you configure apply to mappings in either direction, use:
 
-```C#
+```cs
 Mapper.WhenMapping.AutoReverseConfiguredDataSources();
 ```
 
 To make every source- to target-member pairing you configure for a particular pair of Types apply to mappings in either direction, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<Product>().To<ProductDto>()
     .AutoReverseConfiguredDataSources();
@@ -106,7 +106,7 @@ Mapper.WhenMapping
 
 To make a source- to target-member pairing you configure apply to mappings in either direction, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<Product>().To<ProductDto>()
     .Map(p => p.Specification, dto => dtp.Spec)
@@ -117,7 +117,7 @@ Mapper.WhenMapping
 
 If you use the mapper-level `AutoReverseConfiguredDataSources()` to set the default behaviour, source- to target-member pairings you configure for a particular pair of Types can opt out using:
 
-```C#
+```cs
 // Set the default behaviour:
 Mapper.WhenMapping.AutoReverseConfiguredDataSources();
 
@@ -129,7 +129,7 @@ Mapper.WhenMapping
 
 ...and individual source- to target-member pairings can opt out with:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<Product>().To<ProductDto>()
     .Map(p => p.Specification, dto => dtp.Spec)
@@ -140,7 +140,7 @@ Mapper.WhenMapping
 
 To map a data source to the root target object, use, *e.g*:
 
-```C#
+```cs
 // Source class - has a nested member 'Statistics':
 class Video
 {

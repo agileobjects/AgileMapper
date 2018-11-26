@@ -8,7 +8,7 @@ Unflattening produces an object populated using the source's [flattened](Object-
 
 For example, this Dictionary:
 
-```C#
+```cs
 var dictionary = new Dictionary<string, object>
 {
     ["Name"] = "Mrs Customer"
@@ -20,7 +20,7 @@ var dictionary = new Dictionary<string, object>
 
 ...and the `QueryString` object created from this string-formatted string:
 
-```C#
+```cs
 var queryString = 
      "Name=Mrs%20Customer" +
     "&Dob=11%2F5%2F1985%2012%3A00%3A00%20AM" +
@@ -31,7 +31,7 @@ var queryString =
 
 ...can both be unflattened to this `Customer` object:
 
-```C#
+```cs
 
 var customer = new Customer
 {

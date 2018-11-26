@@ -6,7 +6,7 @@ AgileMapper matches flattened member names [as you'd expect](Member-Matching), b
 
 Flattening produces an object including all the source object's string or value-type members. For example:
 
-```C#
+```cs
 var customer = new Customer
 {
     Name = "Mrs Customer",
@@ -21,7 +21,7 @@ var customer = new Customer
 
 ...can be flattened to a Dictionary using:
 
-```C#
+```cs
 var flat = Mapper.Flatten(myObject).ToDictionary();
 // flat is a Dictionary<string, object> containing:
 // ["Name"] = "Mrs Customer"
@@ -32,7 +32,7 @@ var flat = Mapper.Flatten(myObject).ToDictionary();
 
 ...or a dynamic using:
 
-```C#
+```cs
 dynamic flat = myInstanceMapper.Flatten(myObject).ToDynamic();
 // flat is an ExpandoObject with members:
 // flat.Name = "Mrs Customer"
@@ -43,7 +43,7 @@ dynamic flat = myInstanceMapper.Flatten(myObject).ToDynamic();
 
 ...or a query string-formatted string using:
 
-```C#
+```cs
 var flat = myObject.Flatten().ToQueryString();
 // flat is a query-string-formatted string with:
 //  Name=Mrs%20Customer

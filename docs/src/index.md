@@ -16,7 +16,7 @@ Mapping functions are created and cached the first time two types are mapped - n
 
 Create an object from another using:
 
-```C#
+```cs
 var customer = Mapper.Map(customerViewModel).ToANew<Customer>();
 // Or:
 var customer = customerViewModel.Map().ToANew<Customer>();
@@ -26,7 +26,7 @@ var customer = customerViewModel.Map().ToANew<Customer>();
 
 [Project](Query-Projection) entities to another Type using:
 
-```C#
+```cs
 var customerVm = await dbContext
     .Customers
     .Project().To<CustomerViewModel>()
@@ -37,7 +37,7 @@ var customerVm = await dbContext
 
 Deep-clone an object using:
 
-```C#
+```cs
 var clonedCustomer = Mapper.DeepClone(customerToBeCloned);
 // Or:
 var clonedCustomer = customerToBeCloned.DeepClone();
@@ -47,7 +47,7 @@ var clonedCustomer = customerToBeCloned.DeepClone();
 
 [Update](Performing-Updates) an object's members with values from another using:
 
-```C#
+```cs
 Mapper.Map(customerSaveRequest).Over(customer);
 // Or:
 customerSaveRequest.Map().Over(customer);
@@ -57,7 +57,7 @@ customerSaveRequest.Map().Over(customer);
 
 [Merge](Performing-Merges) an object's unpopulated members with values from another using:
 
-```C#
+```cs
 Mapper.Map(customerDto).OnTo(customer);
 // Or:
 customerDto.Map().OnTo(customer);
@@ -67,7 +67,7 @@ customerDto.Map().OnTo(customer);
 
 View an [execution plan](Using-Execution-Plans) to see how two object types will be mapped; this also caches the plan, so you can use it to choose when to incur that cost. Use:
 
-```C#
+```cs
 // For object creation:
 string mappingPlan = Mapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
 // For updates:

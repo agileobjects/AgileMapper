@@ -1,6 +1,6 @@
 Target members which have no [matching](Member-Matching), [compatible](Type-Conversion) source member are ignored by default, but you can also tell a mapper to ignore members which would usually be mapped. For example:
 
-```C#
+```cs
 public class OrderDto
 {
     public int Id { get; set; }
@@ -15,7 +15,7 @@ public class Order
 
 `Order.DateCreated` will be ignored because `OrderDto` has no matching member, but out of the box the `Id` property will be updated. You can stop this using:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<OrderDto>()   // Apply when mapping from OrderDto (optional)
     .To<Order>()        // Apply the ignore to Order creation, updates and merges
@@ -24,7 +24,7 @@ Mapper.WhenMapping
 
 Multiple fields can be ignored with a single configuration, and ignores can be made conditional. Here's an [inline configuration](Inline-Configuration) example:
 
-```C#
+```cs
 // Source, target and mapping types are implicit from the mapping:
 Mapper
     .Map(orderDto).Over(order, cfg => cfg
@@ -40,7 +40,7 @@ Target members can be ignored in several other ways, either globally (for all so
 
 You can ignore members by Type:
 
-```C#
+```cs
 Mapper.WhenMapping
     .IgnoreTargetMembersOfType<IDontMapMe>(); // Global ignore
 
@@ -52,7 +52,7 @@ Mapper.WhenMapping
 
 ...by member type:
 
-```C#
+```cs
 Mapper.WhenMapping
     .IgnoreTargetMembersWhere(m => m.IsSetMethod); // Global ignore
 
@@ -68,7 +68,7 @@ Mapper.WhenMapping
 
 ...by member name:
 
-```C#
+```cs
 Mapper.WhenMapping
     .IgnoreTargetMembersWhere(m => m.Name.Contains("NOPE")); // Global ignore
 
@@ -79,7 +79,7 @@ Mapper.WhenMapping
 
 ...by Attribute:
 
-```C#
+```cs
 Mapper.WhenMapping
     .IgnoreTargetMembersWhere(m => 
         m.HasAttribute<IgnoreDataMember>()); // Global ignore
@@ -92,7 +92,7 @@ Mapper.WhenMapping
 
 ...by member path:
 
-```C#
+```cs
 Mapper.WhenMapping
     .IgnoreTargetMembersWhere(m => 
         m.Path.Contains("Customer.Address")); // Global ignore
@@ -105,7 +105,7 @@ Mapper.WhenMapping
 
 ...or by `MemberInfo` matcher:
 
-```C#
+```cs
 Mapper.WhenMapping
     .IgnoreTargetMembersWhere(m => 
         m.IsFieldMatching(f => f.IsAssembly)); // Global ignore

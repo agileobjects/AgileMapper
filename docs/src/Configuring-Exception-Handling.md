@@ -1,13 +1,13 @@
 By default, an `Exception` thrown during a mapping is wrapped in a [`MappingException`](/agileobjects/AgileMapper/blob/master/AgileMapper/MappingException.cs) and rethrown. To configure a mapper to swallow exceptions and return null instead, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .SwallowAllExceptions();
 ```
 
 Alternatively, to have a mapper call a callback in the event of an exception use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .PassExceptionsTo(ctx =>
     {
@@ -23,7 +23,7 @@ Mapper.WhenMapping
 
 To only swallow exceptions thrown when mapping particular types, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<PersonViewModel>() // Apply to PersonViewModel mappings (optional)
     .To<Person>()            // Apply to Person creation, updates and merges
@@ -32,7 +32,7 @@ Mapper.WhenMapping
 
 ...and to have a callback called for a particular type, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .To<Person>()
     .PassExceptionsTo(ctx =>

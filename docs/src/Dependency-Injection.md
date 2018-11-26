@@ -4,7 +4,7 @@ A service provider object or pair of functions can be configured to be available
 
 To configure a service provider, use:
 
-```C#
+```cs
 // Use a given Type => object provider Func:
 Mapper.WhenMapping.UseServiceProvider(serviceType => 
     CreateService(serviceType));
@@ -44,7 +44,7 @@ Which methods the registered container supports dictates which service-resolutio
 
 Once a provider is configured, services can be accessed via the mapping context:
 
-```C#
+```cs
 // Register a duck-typed provider:
 Mapper.WhenMapping.UseServiceProvider(serviceProvider);
 
@@ -64,7 +64,7 @@ To retrieve the originally-configured provider, use `ctx.GetServiceProvider<TSer
 
 To access services in a [MapperConfiguration](Configuration-Classes) instance, use:
 
-```C#
+```cs
 public class MyMappingConfiguration : MapperConfiguration
 {
     protected override void Configure()
@@ -92,7 +92,7 @@ If a named service is requested (`.GetService<TService>("MyService")`) and:
 
 To test a `MapperConfiguration` without a service provider instance, use:
 
-```C#
+```cs
 using AgileObjects.AgileMapper.Testing;
 
 var logger = new Mock<ILogger>().Object;

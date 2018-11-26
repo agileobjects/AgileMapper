@@ -1,6 +1,6 @@
 If a naming convention prevents normal [member matching](Member-Matching), you can configure naming patterns to use to match names up. For example:
 
-```C#
+```cs
 public class ProductDto
 {
     public string strName { get; set; }
@@ -15,21 +15,21 @@ public class Product
 
 To have the name prefixes `str` and `dec` ignored when matching member names, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .UseNamePrefixes("str", "dec"); 
 ```
 
 You can also configure name suffixes:
 
-```C#
+```cs
 Mapper.WhenMapping
     .UseNameSuffix("Value"); // Match 'PriceValue' to 'Price'
 ```
 
 ...or a regex pattern:
 
-```C#
+```cs
 Mapper.WhenMapping
     .UseNamePattern("^_(.+)Value$"); // Match '_PriceValue' to 'Price'
 ```
@@ -38,7 +38,7 @@ Configured regex patterns must start with `^` and end with `$`, contain the capt
 
 Naming patterns can also be configured [inline](Inline-Configuration)
 
-```C#
+```cs
 var anonSource = new { _PriceValue = default(double) };
 
 // Source, target and mapping types are implicit from the mapping:
@@ -49,7 +49,7 @@ Mapper
 
 ...or for specific source and target types:
 
-```C#
+```cs
 var anonSource = new { _PriceValue = default(double) };
 
 Mapper.WhenMapping

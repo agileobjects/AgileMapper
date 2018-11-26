@@ -4,6 +4,8 @@ site_description: 'AgileMapper: A zero-configuration, highly-configurable object
 site_author: Steve Wilkes
 docs_dir: 'docs/src'
 site_dir: 'docs/site'
+extra_css:
+    - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/vs2015.min.css
 nav:
     - Home: index.md
     - Member matching: Member-Matching.md

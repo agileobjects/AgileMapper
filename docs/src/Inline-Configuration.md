@@ -1,6 +1,6 @@
 To supply some or all of a configuration inline - at the point the mapping is performed - use:
 
-```C#
+```cs
 var dto = mapper
     .Map(product).ToANew<ProductDto>(cfg => cfg
         .Map((p, d) => p.Spec).To(d => d.Specification));
@@ -8,7 +8,7 @@ var dto = mapper
 
 ...which also works in [query projections](Query-Projection), for example:
 
-```C#
+```cs
 var dto = await context
     .Products
     .Project().To<ProductDto>(cfg => cfg
@@ -18,7 +18,7 @@ var dto = await context
 
 To supply multiple lines of configuration, use:
 
-```C#
+```cs
 var dto = mapper
     .Map(product).ToANew<ProductDto>(cfg => cfg
         .Map((p, d) => p.Spec).To(d => d.Specification)
@@ -34,7 +34,7 @@ var dto = mapper
 
 To combine mapper configuration with inline configuration, use:
 
-```C#
+```cs
 // Configuration in app startup code:
 mapper.WhenMapping
     .From<Product>().To<ProductDto>()
@@ -52,7 +52,7 @@ Inline configuration can be supplied via the [static](Static-vs-Instance-Mappers
 
 If inline configuration is invalid, a `MappingConfigurationException` will be thrown when the mapping is attempted. For example:
 
-```C#
+```cs
 // Supply two different sources for ProductDto.Specification;
 // throws an Exception!
 var dto = mapper
@@ -70,7 +70,7 @@ The first time an inline-configured mapping is performed, the mapper's configura
 
 Finding the combined configuration for subsequent mappings incurs a [very] small performance penalty. For example, in the following mapping:
 
-```C#
+```cs
 public class Product
 {
     public string Spec { get; set; }

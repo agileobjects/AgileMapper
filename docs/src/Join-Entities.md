@@ -1,6 +1,6 @@
 Many-to-many relationships are sometimes (_e.g._ [EF Core 2](https://www.learnentityframeworkcore.com/configuration/many-to-many-relationship-configuration)) modelled using a joining type which joins one set of entities to another. For example:
 
-```C#
+```cs
 class Course
 {
     [Key]
@@ -31,7 +31,7 @@ class CourseStudent
 
 Often when projecting from entities to other types, we don't want the join entity, we want the _joined_ entity. For example:
 
-```C#
+```cs
 class CourseDto
 {
     public ICollection<StudentDto> Students { get; set; }

@@ -12,7 +12,7 @@ A nullable numeric member named **<something>Id** will not be mapped to zero if 
 
 For example:
 
-```C#
+```cs
 class CategoryDto
 {
     public int? Id { get; set; }

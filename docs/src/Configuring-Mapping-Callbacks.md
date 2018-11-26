@@ -2,7 +2,7 @@ You can configure code to be executed at specific points in a mapping - conditio
 
 Before mapping of a specified type begins:
 
-```C#
+```cs
 mapper.WhenMapping
     .To<Customer>() // Apply to Customer creation, updates and merges
     .Before
@@ -13,7 +13,7 @@ mapper.WhenMapping
 
 Before an instance of a specified type is created:
 
-```C#
+```cs
 mapper.WhenMapping
     .From<AddressDto>() // Apply to AddressDto mappings
     .ToANew<Address>()  // Apply to Address creation
@@ -24,7 +24,7 @@ mapper.WhenMapping
 
 After an instance of a specified type is created:
 
-```C#
+```cs
 mapper
     .After
     .CreatingInstancesOf<Address>()
@@ -34,7 +34,7 @@ mapper
 
 On either side of the mapping of a particular member:
 
-```C#
+```cs
 mapper.WhenMapping
     .From<Person>()   // Apply to Person mappings
     .Over<PersonVm>() // Apply to PersonVm updates
@@ -49,7 +49,7 @@ mapper.WhenMapping
 
 At the end of any mapping (conditionally):
 
-```C#
+```cs
 Mapper
     .After
     .MappingEnds
