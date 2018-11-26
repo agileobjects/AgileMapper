@@ -1,6 +1,6 @@
 Mappers can be cloned, to enable 'derived' mappers to inherit, add to and override a 'root' configuration:
 
-``` C#
+```cs
 var baseMapper = Mapper.CreateNew();
 
 // Setup the base configuration:

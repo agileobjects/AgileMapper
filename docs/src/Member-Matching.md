@@ -9,7 +9,7 @@ By default:
 
 For example:
 
-```C#
+```cs
 public class CustomerViewModel
 {
     public string Name { get; set; }

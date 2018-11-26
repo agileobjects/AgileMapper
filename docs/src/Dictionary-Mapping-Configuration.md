@@ -4,7 +4,7 @@ Dictionary mapping can be configured in various ways.
 
 If your source dictionary keys don't match target member names, you can configure full keys or member name key parts to use instead. For example, this source dictionary:
 
-```C#
+```cs
 var source = new Dictionary<string, string>
 {
     ["ContactName"] = "Steve",
@@ -15,7 +15,7 @@ var source = new Dictionary<string, string>
 
 ...can be configured to map to a `ContactDetails` object like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDictionaries
     .To<ContactDetails>()
@@ -30,7 +30,7 @@ Mapper.WhenMapping
 
 If the parts of nested member names in your source dictionary keys aren't separated with dots, you can configure what to use instead. For example, this source dictionary:
 
-```C#
+```cs
 var source = new Dictionary<string, string>
 {
     ["Name"] = "Steve",
@@ -41,7 +41,7 @@ var source = new Dictionary<string, string>
 
 ...uses '-' to separate member name parts, and can be configured to map to `ContactDetails` like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDictionaries
     .To<ContactDetails>() // Optional
@@ -52,7 +52,7 @@ The `To<ContactDetails>()` line in this examples is optional - excluding it sets
 
 To map an object to a dictionary without using separators, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<ContactDetails>()
     .ToDictionaries
@@ -65,7 +65,7 @@ Mapper.WhenMapping
 
 If your keys don't have enumerable member element indexes formatted as '[i]', you can configure the pattern to use instead. For example, this source dictionary:
 
-```C#
+```cs
 var source = new Dictionary<string, string>
 {
     ["Name"] = "Steve",
@@ -76,7 +76,7 @@ var source = new Dictionary<string, string>
 
 ...can be configured to map to `ContactDetails` like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDictionaries
     .To<ContactDetails>()
@@ -93,7 +93,7 @@ All configurations which can be applied to non-dictionary sources can be applied
 
 A dictionary can be configured to map to various derived types based on a configured condition. For example, this source dictionary:
 
-```C#
+```cs
 var source = new Dictionary<string, object>
 {
     ["[0].Name"] = "Fido",
@@ -109,7 +109,7 @@ var source = new Dictionary<string, object>
 
 Can be configured to map to an `Animal`, `Dog : Animal`, `Cat : Animal` hierarchy like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDictionaries
     .To<Animal>()
@@ -128,7 +128,7 @@ var animals = Mapper.Map(source).ToANew<List<Animal>>();
 
 Custom conditions can be configured which must be satisfied for a member to be mapped. For example:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDictionaries
     .To<ContactDetails>()

@@ -4,7 +4,7 @@
 
 If your source ExpandoObject member names don't match target member names, you can configure full names or name parts to use instead. For example, this source ExpandoObject:
 
-```C#
+```cs
 dynamic source = new ExpandoObject();
 source.ContactName = "Steve";
 source.PhoneNums_0 = "01234 567890";
@@ -13,7 +13,7 @@ source.PhoneNums_1 = "07890 654321";
 
 ...can be configured to map to a `ContactDetails` object like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDynamics
     .To<ContactDetails>()
@@ -28,7 +28,7 @@ Mapper.WhenMapping
 
 If the parts of nested member names in your source ExpandoObject aren't separated with underscores, you can configure what to use instead. For example, this source ExpandoObject:
 
-```C#
+```cs
 IDictionary<string, object> source = new ExpandoObject();
 source["Name"] = "Sandra";
 source["Addresses_0-HouseNumber"] = "123";
@@ -37,7 +37,7 @@ source["Addresses_0-StreetName"] = "Dynamic Lane";
 
 ...uses '-' to separate member name parts, and can be configured to map to `ContactDetails` like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDynamics
     .To<ContactDetails>() // Optional
@@ -48,7 +48,7 @@ The `To<ContactDetails>()` line in this examples is optional - excluding it sets
 
 To map an object to an ExpandoObject without using separators, use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<ContactDetails>()
     .ToDynamics
@@ -61,7 +61,7 @@ Mapper.WhenMapping
 
 If your member names don't have enumerable member element indexes formatted as '_i', you can configure the pattern to use instead. For example, this source ExpandoObject:
 
-```C#
+```cs
 dynamic source = new ExpandoObject();
 source.Name = "Steve";
 source.PhoneNumbers_0_ = "01234 567890";
@@ -70,7 +70,7 @@ source.PhoneNumbers_1_ = "07890 654321";
 
 ...can be configured to map to `ContactDetails` like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDynamics
     .To<ContactDetails>()
@@ -87,7 +87,7 @@ All configurations which can be applied to non-ExpandoObject sources can be appl
 
 An ExpandoObject can be configured to map to various derived types based on a configured condition. For example, this source ExpandoObject:
 
-```C#
+```cs
 dynamic source = new ExpandoObject();
 source._0_Name = "Fido";
 source._0_Type = AnimalType.Dog; // enum value
@@ -101,7 +101,7 @@ source._1_LovesCatnip = true;
 
 Can be configured to map to an `Animal`, `Dog : Animal`, `Cat : Animal` hierarchy like so:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDynamics
     .To<Animal>()
@@ -122,7 +122,7 @@ The source ExpandoObject in this configuration - for example in `d["Type"]` - is
 
 Custom conditions can be configured which must be satisfied for a member to be mapped. For example:
 
-```C#
+```cs
 Mapper.WhenMapping
     .FromDynamics
     .To<ContactDetails>()

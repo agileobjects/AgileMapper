@@ -7,7 +7,7 @@ Objects are identified during collection [updates](Performing-Updates) and [merg
 
 You can configure an object to be uniquely identified with a different member using:
 
-```C#
+```cs
 Mapper.WhenMapping
     .InstancesOf<NamedCustomer>() // Apply to NamedCustomer mappings
     .IdentifyUsing(c => c.Name);  // Identify using NamedCustomer.Name
@@ -15,7 +15,7 @@ Mapper.WhenMapping
 
 Or, configured [inline](Inline-Configuration):
 
-```C#
+```cs
 Mapper
     .Map(customerDtos).ToANew<NamedCustomer[]>(cfg => cfg
         .WhenMapping

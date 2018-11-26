@@ -1,6 +1,6 @@
 With the following Types:
 
-```C#
+```cs
 class Account
 {
     public int Id { get; set; }

@@ -6,7 +6,7 @@ Multiple, dedicated configuration classes can be created by deriving from the ab
 
 Mapper configuration is set up by implementing the abstract `Configure` method:
 
-```C#
+```cs
 public class ProductMappingConfiguration : MapperConfiguration
 {
     protected override void Configure()
@@ -34,21 +34,21 @@ In this example the default mapper is configured - the one used via the [static]
 
 To apply a particular `MapperConfiguration` Type, supply it explicitly:
 
-```C#
+```cs
 Mapper.WhenMapping
     .UseConfigurations.From<ProductMappingConfiguration>();
 ```
 
 To apply all `MapperConfiguration` Types from an Assembly, supply a Type from that Assembly:
 
-```C#
+```cs
 Mapper.WhenMapping
     .UseConfigurations.FromAssemblyOf<Product>();
 ```
 
 To apply all `MapperConfiguration` Types from multiple Assemblies, supply the Assemblies:
 
-```C#
+```cs
 // Scan all Assemblies from the AppDomain:
 Mapper.WhenMapping
     .UseConfigurations.From(assembly1, assembly2, assembly3);
@@ -63,7 +63,7 @@ Mapper.WhenMapping
 
 To apply all `MapperConfiguration` Types from the Assemblies current loaded into the `AppDomain`, use:
 
-```C#
+```cs
 // Scan all Assemblies from the AppDomain:
 Mapper.WhenMapping
     .UseConfigurations.FromCurrentAppDomain();
@@ -79,7 +79,7 @@ Mapper.WhenMapping
 
 Calling `GetPlansFor<Source>().To<Target>()` caches the mapping function at the point you call it. If Types configured in the object graph are configured in more than one `MapperConfiguration`, you might need to define an order in which configuration classes are applied. Use:
 
-```C#
+```cs
 // Configure aspects of Parent -> Parent mapping, which includes 
 // mapping Child -> Child. Automatically apply ChildMapperConfiguration,
 // then apply this configuration afterwards.
@@ -100,7 +100,7 @@ Chains of `ApplyAfter` attributes will be followed, with all configurations auto
 
 [Configured Service Providers](Dependency-Injection) are available to `MapperConfiguration` classes. For example:
 
-```C#
+```cs
 // Get a Dependency Injection container:
 var diContainer = GetDiContainer();
 
@@ -114,7 +114,7 @@ Mapper.WhenMapping
 
 ...the DI container and its registered services are now available to the `MapperConfiguration` class via the `GetService<TService>()` and `GetServiceProvider<TContainer>()` methods:
 
-```C#
+```cs
 public class MyMappingConfiguration : MapperConfiguration
 {
     protected override void Configure()

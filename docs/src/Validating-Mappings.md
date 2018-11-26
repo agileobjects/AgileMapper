@@ -10,7 +10,7 @@ Mapping plan validation is intended to be used during development to make sure n
 
 To validate that a mapping plan created on-the-fly is complete, use:
 
-```C#
+```cs
 mapper
     .Map(customerDto).Over(customer, cfg => cfg
         .ThrowNowIfMappingPlanIsIncomplete());
@@ -27,7 +27,7 @@ mapper
 
 To validate all cached mapping plans, use:
 
-```C#
+```cs
 // Cache the mapping plans you want to use later:
 mapper.GetPlansFor<CustomerDto>().To<Customer>();
 mapper.GetPlanFor<Customer>().ToANew<CustomerDto>();
@@ -42,7 +42,7 @@ mapper.ThrowNowIfAnyMappingPlanIsIncomplete();
 
 To configure a mapper to validate mapping plans by default, use:
 
-```C#
+```cs
 Mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
 
 // All throw if the plan is incomplete:

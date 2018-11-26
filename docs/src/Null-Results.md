@@ -2,7 +2,7 @@ If a target complex type member has no [matching source member](Member-Matching)
 
 For example:
 
-```C#
+```cs
 var source = new { Name = "Frank" };
 var target = new Person { Name = "Charlie", Address = default(Address) };
 Mapper.Map(source).Over(target);
@@ -12,7 +12,7 @@ Mapper.Map(source).Over(target);
 
 To configure a condition under which a complex type mapping should return null instead of an instantiated object, use (e.g.):
 
-```C#
+```cs
 Mapper.WhenMapping
     .ToANew<Address>()
     .If((o, a) => 

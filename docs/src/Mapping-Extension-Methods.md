@@ -1,12 +1,12 @@
 If you include:
 
-```C#
+```cs
 using AgileObjects.AgileMapper.Extensions;
 ```
 
 ...mapping can be performed via extension methods. For example:
 
-```C#
+```cs
 // Create a new CustomerViewModel from a Customer:
 var customerViewModel = customer.Map().ToANew<CustomerViewModel>();
 
@@ -24,7 +24,7 @@ customerDto.Map().OnTo(customer);
 
 Mappings performed via these extension methods use the default mapper - the same one you map with via the [static Mapper API](Static-vs-Instance-Mappers). To use an instance mapper with an extension method, use:
 
-```C#
+```cs
 // Deep-clone a Customer using 
 // the given instance-scoped mapper:
 var clonedCustomer = customer
@@ -43,7 +43,7 @@ customerSaveRequest
 
 You can also configure extension-method mappings inline, for example:
 
-```C#
+```cs
 var customerSaveRequest = customerDto.Map().ToANew<CustomerSaveRequest>(cfg => cfg
     .Map((dto, csr) => dto.Id)
     .To(csr => csr.CustomerId));
@@ -51,7 +51,7 @@ var customerSaveRequest = customerDto.Map().ToANew<CustomerSaveRequest>(cfg => c
 
 ...and combine that with an instance-scoped mapper, for example:
 
-```C#
+```cs
 customerSaveRequest
     .MapUsing(instanceMapper)
     .Over(customer, cfg => cfg

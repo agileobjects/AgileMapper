@@ -4,7 +4,7 @@ Mappings are performed by creating an [expression tree](https://msdn.microsoft.c
 
 To cache an execution plan, use:
 
-```C#
+```cs
 // Cache the plan to map a PersonViewModel to a new instance of a Person:
 Mapper.GetPlanFor<PersonViewModel>().ToANew<Person>();
 
@@ -40,13 +40,13 @@ Viewing an execution plan can help you:
 
 To view a plan, assign the result of the call to an explicitly-typed string variable and view it in the debugger:
 
-```C#
+```cs
 string plan = Mapper.GetPlanFor<PersonViewModel>().ToANew<Person>();
 ```
 
 To view all the plans cached in a mapper, use:
 
-```C#
+```cs
 Mapper.GetPlansFor<Person>.ToANew<PersonViewModel>();
 Mapper.GetPlansFor<PersonViewModel>.To<Person>();
 

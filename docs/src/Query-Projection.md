@@ -4,7 +4,7 @@ Query projection supports a subset of regular mapping [configuration](Query-Proj
 
 To project a query, use:
 
-```C#
+```cs
 // Using an EF Core DbContext:
 var orderDtos = await context
     .Orders
@@ -14,7 +14,7 @@ var orderDtos = await context
 
 `.Project()` uses the default mapper - the one used behind the scenes by the [static](Static-vs-Instance-Mappers) `Mapper` API. To project a query using an instance-scoped mapper, use:
 
-```C#
+```cs
 var orderDtos = await context
     .Orders
     .ProjectUsing(mapper).To<OrderDto>()
@@ -27,7 +27,7 @@ The [plan](Using-Execution-Plans) for a query projection can be viewed and cache
 
 For example:
 
-```C#
+```cs
 // Cache the plan to project a Person to a PersonDto;
 Mapper.GetPlanForProjecting(context.People).To<PersonDto>();
 ```

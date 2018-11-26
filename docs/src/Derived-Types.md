@@ -2,7 +2,7 @@ For most cases, derived types are supported without configuration.
 
 For example, with the following classes:
 
-```C#
+```cs
 public class Person {}
 public class Customer : Person
 {
@@ -18,7 +18,7 @@ public class CustomerViewModel : PersonViewModel
 
 ...the derived `Customer` type is recognised and mapped to a `CustomerViewModel`, even though the source variable is of type `Person` and the requested target type is `PersonViewModel`:
 
-```C#
+```cs
 var person = new Customer { Discount = 0.1f } as Person;
 var viewModel = Mapper.Map(person).ToANew<PersonViewModel>();
 // viewModel is of type CustomerViewModel
@@ -27,7 +27,7 @@ var viewModel = Mapper.Map(person).ToANew<PersonViewModel>();
 
 Derived types are also paired up automatically - for example, with the following classes:
 
-```C#
+```cs
 public class Animal {}
 public class Dog : Animal {}
 public class Cat : Animal {}
@@ -39,7 +39,7 @@ public class CatDto : AnimalDto {}
 
 The following mappings are performed:
 
-```C#
+```cs
 var sourceAnimal = new Dog() as Animal;
 var resultAnimal = Mapper.Map(sourceDog).ToANew<Animal>();
 // resultAnimal is of type Dog

@@ -1,6 +1,6 @@
 If your [`IQueryProvider`](https://docs.microsoft.com/en-us/dotnet/api/system.linq.iqueryprovider) [supports](Entity-Framework#derived-types) casting projected instances to a base Type, you can project to derived Types via configured conditions. For example:
 
-```C#
+```cs
 // Using an EF Core DbContext:
 var animalDtos = await context
     .Animals

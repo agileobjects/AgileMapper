@@ -1,12 +1,12 @@
 Update an object's members with values from another using:
 
-```C#
+```cs
 Mapper.Map(customerViewModel).Over(customer);
 ```
 
 When updating a collection, objects are matched by id ([configurable](Configuring-Object-Identifiers) if necessary). For example:
 
-```C#
+```cs
 var source = new[]
 {
     new CustomerViewModel { Id = 1,    Name = "Rod" },

@@ -13,7 +13,7 @@ Value conversion is performed according to the following:
 
 - Enum values are parsed using a nested ternary operation with one branch per potential source enum value, e.g.
 
-```C#
+```cs
 target.EnumValue = source.Enum == SourceStatus.Complete
     ? TargetStatus.Complete
     : source.Enum == SourceStatus.InProgress

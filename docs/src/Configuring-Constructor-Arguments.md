@@ -4,7 +4,7 @@ Constructor arguments can be configured by type or name, and constant values or 
 
 For example, to configure mapping these types:
 
-```C#
+```cs
 public class CustomerDto
 {
     public string CustomerNum { get; set; }
@@ -21,7 +21,7 @@ public class Customer
 
 ...use:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<CustomerDto>()              // Apply to CustomerDto mappings
     .ToANew<Customer>()               // Apply to Customer creations
@@ -34,7 +34,7 @@ Mapper.WhenMapping
 
 ...or, if inline configuration is preferred:
 
-```C#
+```cs
 // Source, target and mapping types are implicit from the mapping:
 Mapper
     .Map(customerDto).ToANew<Customer>(cfg => cfg

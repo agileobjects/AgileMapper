@@ -1,6 +1,6 @@
 Configure a custom factory for a particular type using:
 
-```C#
+```cs
 Mapper.WhenMapping
     .InstancesOf<Customer>() // Apply to Customer creation, updates and merges
     .CreateUsing(ctx => new Customer
@@ -11,7 +11,7 @@ Mapper.WhenMapping
 
 Configure a custom factory for a particular type when mapping between particular types using:
 
-```C#
+```cs
 Mapper.WhenMapping
     .From<PersonViewModel>() // Apply to PersonViewModel mappings
     .To<Customer>()          // Apply to Customer creation, updates and merges
@@ -23,7 +23,7 @@ Mapper.WhenMapping
 
 Configure a conditional custom factory using ([inline](Inline-Configuration) example):
 
-```C#
+```cs
 Mapper.Map(customerViewModels).ToANew<Customer[]>(cfg => cfg
     .WhenMapping
     .From<CustomerViewModel>()
