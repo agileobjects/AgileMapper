@@ -1,7 +1,7 @@
 By default:
 
 * Writable fields and properties, single-parameter methods prefixed with 'Set', constructor parameters and non-null, readonly complex type or enumerable members (except arrays) are targeted
-* Target members are matched to [compatibly-typed](Type-Conversion) source members by name
+* Target members are matched to [compatibly-typed](/Type-Conversion) source members by name
 * Source members prefixed with 'Get' are matched without the prefix - [`GetHashCode`](https://msdn.microsoft.com/en-us/library/system.object.gethashcode%28v=vs.100%29.aspx) and [`GetType`](https://msdn.microsoft.com/en-us/library/system.object.gettype(v=vs.100).aspx) are ignored
 * Members named `Id`, `<Type name>Id`, `Identifier` or `<Type name>Identifier` are matched
 * Target members with no compatible source member are ignored.
@@ -37,7 +37,7 @@ public class Address
 When mapping `CustomerViewModel` to `Customer`:
 
  - `Customer.Name` is populated using `CustomerViewModel.Name`
- - The `Customer.CustomerId` Guid is populated using the [parsed](Type-Conversion) `CustomerViewModel.Id` string
+ - The `Customer.CustomerId` Guid is populated using the [parsed](/Type-Conversion) `CustomerViewModel.Id` string
  - `Customer.HomeAddress` is populated with a new `Address` instance if one does not already exist
  - `Customer.HomeAddress.Line1` is populated using `CustomerViewModel.HomeAddressLine1`
  - `Customer.WorkAddress` is get-only, so is ignored if it's null

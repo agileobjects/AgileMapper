@@ -4,7 +4,7 @@ Update an object's unpopulated members with values from another using:
 Mapper.Map(customerViewModel).OnTo(customer);
 ```
 
-When merging collections, objects are matched by id ([configurable](Configuring-Object-Identifiers) if necessary). For example:
+When merging collections, objects are matched by id ([configurable](/configuration/Object-Identifiers) if necessary). For example:
 
 ```cs
 var source = new Collection<CustomerViewModel>

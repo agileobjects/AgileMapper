@@ -1,8 +1,8 @@
-A mapper's [execution plans](Using-Execution-Plans) can be validated to ensure that:
+A mapper's [execution plans](/Using-Execution-Plans) can be validated to ensure that:
 
-- All target members have [matching](Member-Matching) source values
-- All target complex types can either be [constructed](Object-Construction), or have mappable target members
-- All members of any source [enums](Enum-Mapping) being mapped to target enums have matching members in the target enum type
+- All target members have [matching](/Member-Matching) source values
+- All target complex types can either be [constructed](/Object-Construction), or have mappable target members
+- All members of any source [enums](/Enum-Mapping) being mapped to target enums have matching members in the target enum type
 
 Mapping plan validation is intended to be used during development to make sure nothing is missed - you should remove it in production code.
 

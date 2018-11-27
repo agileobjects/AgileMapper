@@ -1,10 +1,10 @@
-AgileMapper matches nested members to source members with flattened names [as you'd expect](Member-Matching), but it also has a dedicated `.Unflatten()` API which unflattens objects in various ways. It is accessible:
+AgileMapper matches nested members to source members with flattened names [as you'd expect](/Member-Matching), but it also has a dedicated `.Unflatten()` API which unflattens objects in various ways. It is accessible:
 
-- Via the [static API](Static-vs-Instance-Mappers), using `Mapper.Unflatten(myObject)`
+- Via the [static API](/Static-vs-Instance-Mappers), using `Mapper.Unflatten(myObject)`
 - Via the instance API, using `myInstanceMapper.Unflatten(myObject)`
-- Via an [extension method](Mapping-Extension-Methods), using `myObject.Unflatten()`
+- Via an [extension method](/Mapping-Extension-Methods), using `myObject.Unflatten()`
 
-Unflattening produces an object populated using the source's [flattened](Object-Flattening) members.
+Unflattening produces an object populated using the source's [flattened](/Object-Flattening) members.
 
 For example, this Dictionary:
 

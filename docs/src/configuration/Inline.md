@@ -6,7 +6,7 @@ var dto = mapper
         .Map((p, d) => p.Spec).To(d => d.Specification));
 ```
 
-...which also works in [query projections](Query-Projection), for example:
+This also works in [query projections](/query-projection), for example:
 
 ```cs
 var dto = await context
@@ -46,7 +46,7 @@ var dto = mapper
         .Map((p, d) => p.Price).To(d => d.Cost));
 ```
 
-Inline configuration can be supplied via the [static](Static-vs-Instance-Mappers) or [instance](Static-vs-Instance-Mappers) APIs.
+Inline configuration can be supplied via the [static](/Static-vs-Instance-Mappers) or [instance](/Static-vs-Instance-Mappers) APIs.
 
 ### Invalid Configuration
 

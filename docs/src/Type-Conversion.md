@@ -2,7 +2,7 @@ Value conversion is performed according to the following:
 
 - Value types, nullable types and strings are all parsed and converted out of the box using the `TryParse` methods from the BCL.
 
-- `DateTime`s (and nullable `DateTime`s) are converted to strings using `value.ToString(CultureInfo.CurrentCulture.DateTimeFormat)`. Custom formatting strings [can be configured](To-String-Formatting) for to-string conversions.
+- `DateTime`s (and nullable `DateTime`s) are converted to strings using `value.ToString(CultureInfo.CurrentCulture.DateTimeFormat)`. Custom formatting strings [can be configured](/configuration/To-String-Formatting) for to-string conversions.
 
 - Implicit or explicit to-String operators are used to convert values to strings where they are available.
 
@@ -23,6 +23,6 @@ target.EnumValue = source.Enum == SourceStatus.Complete
             : default(TargetStatus)
 ```
 
-&nbsp; &nbsp; &nbsp; &nbsp; ...any configured [enum pairs](Enum-Mapping#configuring-enum-pairs) are used as the first values in the tree.
+&nbsp; &nbsp; &nbsp; &nbsp; ...any configured [enum pairs](/Enum-Mapping#configuring-enum-pairs) are used as the first values in the tree.
 
 - Numerics are mapped to booleans (and vice-versa) with 1 mapping to true, and not-1 mapping to false.

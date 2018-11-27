@@ -9,7 +9,7 @@ Flags enums are mapped automatically from numeric, string, enum and character so
 
 ### Enum Mapping Mismatches
 
-[Mapping plans](Using-Execution-Plans) warn you of enum mapping mismatches when mapping from one enum type to another. For example, a mapping between the following enums:
+[Mapping plans](/Using-Execution-Plans) warn you of enum mapping mismatches when mapping from one enum type to another. For example, a mapping between the following enums:
 
 ```cs
 // Source enum:
@@ -25,7 +25,7 @@ enum PaymentTypeUk { Cash, Card, Cheque }
 //  - PaymentTypeUs.Check matches no PaymentTypeUk
 ```
 
-`PaymentTypeUk.Cheque` also mismatches, but the mapping is going from `PaymentTypeUs` -> `PaymentTypeUk`, and it only matters that all *source* values can be mapped to target values. This mismatch would cause an exception if you use [mapping validation](Validating-Mappings).
+`PaymentTypeUk.Cheque` also mismatches, but the mapping is going from `PaymentTypeUs` -> `PaymentTypeUk`, and it only matters that all *source* values can be mapped to target values. This mismatch would cause an exception if you use [mapping validation](/Validating-Mappings).
 
 ## Configuring Enum Pairs
 
@@ -38,7 +38,7 @@ Mapper.WhenMapping
 
 ...which removes the enum mapping mismatch warning from the mapping plan, and stops the validation exception.
 
-Enum pairing can also be configured [inline](Inline-Configuration):
+Enum pairing can also be configured [inline](/configuration/Inline):
 
 ```cs
 Mapper.Map(usTransaction).ToANew<UkTransaction>(cfg => cfg

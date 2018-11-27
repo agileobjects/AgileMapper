@@ -21,7 +21,7 @@ Mapper.WhenMapping
     });
 ```
 
-Configure a conditional custom factory using ([inline](Inline-Configuration) example):
+Configure a conditional custom factory using ([inline](/configuration/Inline) example):
 
 ```cs
 Mapper.Map(customerViewModels).ToANew<Customer[]>(cfg => cfg

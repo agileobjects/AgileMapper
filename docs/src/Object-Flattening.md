@@ -1,8 +1,8 @@
-AgileMapper matches flattened member names [as you'd expect](Member-Matching), but it also has a dedicated `.Flatten()` API which flattens objects in various ways. It is accessible:
+AgileMapper matches flattened member names [as you'd expect](/Member-Matching), but it also has a dedicated `.Flatten()` API which flattens objects in various ways. It is accessible:
 
-- Via the [static API](Static-vs-Instance-Mappers), using `Mapper.Flatten(myObject)`
+- Via the [static API](/Static-vs-Instance-Mappers), using `Mapper.Flatten(myObject)`
 - Via the instance API, using `myInstanceMapper.Flatten(myObject)`
-- Via an [extension method](Mapping-Extension-Methods), using `myObject.Flatten()`
+- Via an [extension method](/Mapping-Extension-Methods), using `myObject.Flatten()`
 
 Flattening produces an object including all the source object's string or value-type members. For example:
 

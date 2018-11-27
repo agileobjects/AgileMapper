@@ -16,7 +16,7 @@ Mapper.WhenMapping
 
 ```
 
-**A source expression** (in this example, supplied [inline](Inline-Configuration)):
+**A source expression** (in this example, supplied [inline](/configuration/Inline)):
 
 ```cs
 // Source, target and mapping types are implicit from the mapping:
@@ -40,7 +40,7 @@ Mapper.WhenMapping
     .Map("Company ABC", p => p.CompanyName);
 ```
 
-**A value from an [injected service](Dependency-Injection)**:
+**A value from an [injected service](/configuration/Dependency-Injection)**:
 
 ```cs
 // Retrieve an IDateTimeProvider instance from a configured
@@ -52,7 +52,7 @@ Mapper.WhenMapping
     .To(o => o.DateCreated); // o is the Order
 ```
 
-**The result of a function call** ([inline](Inline-Configuration)):
+**The result of a function call** ([inline](/configuration/Inline)):
 
 ```cs
 Func<ProductDto, Product, string> companyNameFactory = 
@@ -77,7 +77,7 @@ Mapper.WhenMapping
     .To(p => p.CompanyName);            // p is the Product
 ```
 
-And in an [inline](Inline-Configuration) example:
+And in an [inline](/configuration/Inline) example:
 
 ```cs
 Mapper.Map(productDto).ToANew<Product>(cfg => cfg

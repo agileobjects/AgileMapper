@@ -1,4 +1,4 @@
-Derived type pairing matches particular derived sources types to particular derived target types. Most of the time [this is done automatically](Derived-Types), but if your derived types aren't consistently-named, or you want to make derived type mapping conditional, you can configure it.
+Derived type pairing matches particular derived sources types to particular derived target types. Most of the time [this is done automatically](/Derived-Types), but if your derived types aren't consistently-named, or you want to make derived type mapping conditional, you can configure it.
 
 For example:
 
@@ -31,7 +31,7 @@ var animals = Mapper.Map(animalViewModels).ToANew<List<Animal>>();
 // animals[1] is of type Dog
 ```
 
-...and can be applied conditionally ([inline](Inline-Configuration) example):
+...and can be applied conditionally ([inline](/configuration/Inline) example):
 
 ```cs
 Mapper
@@ -43,4 +43,4 @@ Mapper
         .MapTo<Dog>());                      // Create an instance of Dog
 ```
 
-Conditional derived type mappings can also be configured [for Dictionaries](Dictionary-Mapping#conditional-derived-types).
+Conditional derived type mappings can also be configured [for Dictionaries](/configuration/Dictionary-Mapping#conditional-derived-types).

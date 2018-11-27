@@ -1,4 +1,4 @@
-AgileMapper contains version-specific support for Entity Framework 5, [Entity Framework 6](https://docs.microsoft.com/en-us/ef/ef6), and [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core), extending each version's ability to support [query projection](Query-Projection).
+AgileMapper contains version-specific support for Entity Framework 5, [Entity Framework 6](https://docs.microsoft.com/en-us/ef/ef6), and [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core), extending each version's ability to support [query projection](/query-projection).
 
 ### Type Conversion
 
@@ -34,8 +34,8 @@ The following conversions are supported, along with the same projections from an
 | Recursion **           |<ul><li>- [x] </li></ul>|                        |                        |
 | Collection Members *** |<ul><li>- [x] </li></ul>|<ul><li>- [x] </li></ul>|                        |
 
-\* EF5 and EF6 do not support casting a projected Type to its base Type, so do not support projecting to [conditional derived types](Projecting-to-Derived-Types).
+\* EF5 and EF6 do not support casting a projected Type to its base Type, so do not support projecting to [conditional derived types](/query-projection/Derived-Types).
 
-\** EF5 and EF6 do not support creating instances of a projected Type with [differing numbers](https://stackoverflow.com/questions/39139402/the-type-appears-in-two-structurally-incompatible-initializations-within-a-singl) of member initialisations in the same query, so do not support projecting [recursive relationships](Projecting-Recursive-Relationships).
+\** EF5 and EF6 do not support creating instances of a projected Type with [differing numbers](https://stackoverflow.com/questions/39139402/the-type-appears-in-two-structurally-incompatible-initializations-within-a-singl) of member initialisations in the same query, so do not support projecting [recursive relationships](/query-projection/Recursive-Relationships).
 
 \*** EF5 can only project to `IEnumerable{T}` members, not `ICollection{T}`, `List{T}`, `T[]`, etc.

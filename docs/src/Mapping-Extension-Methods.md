@@ -22,7 +22,7 @@ customerDto.Map().OnTo(customer);
 
 ### Using an Instance-Scoped Mapper
 
-Mappings performed via these extension methods use the default mapper - the same one you map with via the [static Mapper API](Static-vs-Instance-Mappers). To use an instance mapper with an extension method, use:
+Mappings performed via these extension methods use the default mapper - the same one you map with via the [static Mapper API](/Static-vs-Instance-Mappers). To use an instance mapper with an extension method, use:
 
 ```cs
 // Deep-clone a Customer using 

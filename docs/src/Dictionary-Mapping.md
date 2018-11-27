@@ -1,9 +1,9 @@
 AgileMapper has extensive support for mapping to and from Dictionaries. Out of the box:
 
 * Only dictionaries with string keys are supported
-* Dictionary keys must match target member names exactly, ignoring case ([configurable](Dictionary-Mapping-Configuration#configuring-keys))
-* Parent and child member names are matched to dictionary keys separated with a dot ([configurable](Dictionary-Mapping-Configuration#configuring-separators)), or flattened - with no separator
-* Enumerable elements are matched to dictionary keys by their index inside square brackets ([configurable](Dictionary-Mapping-Configuration#configuring-element-indexes))
+* Dictionary keys must match target member names exactly, ignoring case ([configurable](/configuration/Dictionary-Mapping#configuring-keys))
+* Parent and child member names are matched to dictionary keys separated with a dot ([configurable](/configuration/Dictionary-Mapping#configuring-separators)), or flattened - with no separator
+* Enumerable elements are matched to dictionary keys by their index inside square brackets ([configurable](/configuration/Dictionary-Mapping#configuring-element-indexes))
 * Dictionaries can contain all or a mixture of value type values, collections and complex types - anything with a matching key is used
 * Target members with no matching key in the dictionary are ignored
 
@@ -49,7 +49,7 @@ The created `contactDetails` will have the following property values:
     * "07890 654321" and
     * "01234 987654"
 * `Addresses` set to a new, 1-element `List<Address>` containing an `Address`:
-    * With `HouseNumber` set to '123' ([parsed](Type-Conversion) from the string)
+    * With `HouseNumber` set to '123' ([parsed](/Type-Conversion) from the string)
     * With `StreetName` set to "Dictionary Street"
 
 Note that the `StreetName` key had no separator, but the mapping works anyway.
@@ -91,4 +91,4 @@ The created `Dictionary` will have the following keys and values:
 
 ## Configuration
 
-Dictionary mapping is [highly configurable](Dictionary-Mapping-Configuration).
+Dictionary mapping is [highly configurable](/configuration/Dictionary-Mapping).
