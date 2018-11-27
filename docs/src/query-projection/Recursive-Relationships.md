@@ -1,4 +1,4 @@
-If your [`IQueryProvider`](https://docs.microsoft.com/en-us/dotnet/api/system.linq.iqueryprovider) [supports](Entity-Framework#recursion) it, you can project recursive relationships to a specified depth. For example, with these classes:
+If your [`IQueryProvider`](https://docs.microsoft.com/en-us/dotnet/api/system.linq.iqueryprovider) [supports](/query-projection/Entity-Framework#recursion) it, you can project recursive relationships to a specified depth. For example, with these classes:
 
 ```cs
 // Entity:
@@ -97,4 +97,4 @@ var stringsDto = await context
 
 ...and so on.
 
-Note that it is not possible to use [object tracking](Mapped-Object-Tracking) in query projections, so [identity integrity](Mapped-Object-Tracking#identity-integrity) is not maintained.
+Note that it is not possible to use [object tracking](/configuration/Mapped-Object-Tracking) in query projections, so [identity integrity](/configuration/Mapped-Object-Tracking#identity-integrity) is not maintained.

@@ -1,4 +1,4 @@
-Multiple, dedicated configuration classes can be created by deriving from the abstract `MapperConfiguration` base class. This enables configuration to be split up and placed nearer where mapping is performed (although [inline](Inline-Configuration) is nearer).
+Multiple, dedicated configuration classes can be created by deriving from the abstract `MapperConfiguration` base class. This enables configuration to be split up and placed nearer where mapping is performed (although [inline](/configuration/Inline) is nearer).
 
 `MapperConfiguration` provides the same configuration API, and exposes services you inject.
 
@@ -26,7 +26,7 @@ public class ProductMappingConfiguration : MapperConfiguration
 }
 ```
 
-In this example the default mapper is configured - the one used via the [static](Static-vs-Instance-Mappers) Mapper API.
+In this example the default mapper is configured - the one used via the [static](/Static-vs-Instance-Mappers) Mapper API.
 
 ### Applying Configurations
 
@@ -98,7 +98,7 @@ Chains of `ApplyAfter` attributes will be followed, with all configurations auto
 
 ### Accessing Services
 
-[Configured Service Providers](Dependency-Injection) are available to `MapperConfiguration` classes. For example:
+[Configured Service Providers](/configuration/Dependency-Injection) are available to `MapperConfiguration` classes. For example:
 
 ```cs
 // Get a Dependency Injection container:

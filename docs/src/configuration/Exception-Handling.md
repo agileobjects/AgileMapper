@@ -1,4 +1,4 @@
-By default, an `Exception` thrown during a mapping is wrapped in a [`MappingException`](/agileobjects/AgileMapper/blob/master/AgileMapper/MappingException.cs) and rethrown. To configure a mapper to swallow exceptions and return null instead, use:
+By default, an `Exception` thrown during a mapping is wrapped in a [`MappingException`](https://github.com/agileobjects/AgileMapper/blob/master/AgileMapper/MappingException.cs) and rethrown. To configure a mapper to swallow exceptions and return null instead, use:
 
 ```cs
 Mapper.WhenMapping

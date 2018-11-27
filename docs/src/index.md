@@ -1,10 +1,10 @@
 ## Overview
 
-AgileMapper is a zero-configuration, [highly-configurable](Configuration) object-object mapper with [viewable execution plans](Using-Execution-Plans), targetting [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) and .NET 3.5+. It performs [query projections](Query-Projection), object creation, deep clones, id-aware [updates](Performing-Updates) and [merges](Performing-Merges), and can be used via [extension methods](Mapping-Extension-Methods), or a [static or instance](Static-vs-Instance-Mappers) API.
+AgileMapper is a zero-configuration, [highly-configurable](/configuration) object-object mapper with [viewable execution plans](/Using-Execution-Plans), targetting [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) and .NET 3.5+. It performs [query projections](/query-projection), object creation, deep clones, id-aware [updates](/Performing-Updates) and [merges](/Performing-Merges), and can be used via [extension methods](/Mapping-Extension-Methods), or a [static or instance](/Static-vs-Instance-Mappers) API.
 
-Mapping functions are created and cached the first time two types are mapped - no up-front configuration is necessary. You can [cache up-front](Using-Execution-Plans) if you prefer, though.
+Mapping functions are created and cached the first time two types are mapped - no up-front configuration is necessary. You can [cache up-front](/Using-Execution-Plans) if you prefer, though.
 
-[Available via NuGet](https://www.nuget.org/packages/AgileObjects.AgileMapper) and licensed with the [MIT licence](/agileobjects/AgileMapper/blob/master/LICENCE.md), you can install it via the [package manager console](https://docs.nuget.org/consume/package-manager-console):
+[Available via NuGet](https://www.nuget.org/packages/AgileObjects.AgileMapper) and licensed with the [MIT licence](https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md), you can install it via the [package manager console](https://docs.nuget.org/consume/package-manager-console):
 
     PM> Install-Package AgileObjects.AgileMapper
 
@@ -24,7 +24,7 @@ var customer = customerViewModel.Map().ToANew<Customer>();
 
 ### Query Projection
 
-[Project](Query-Projection) entities to another Type using:
+[Project](/query-projection) entities to another Type using:
 
 ```cs
 var customerVm = await dbContext
@@ -45,7 +45,7 @@ var clonedCustomer = customerToBeCloned.DeepClone();
 
 ### Updating
 
-[Update](Performing-Updates) an object's members with values from another using:
+[Update](/Performing-Updates) an object's members with values from another using:
 
 ```cs
 Mapper.Map(customerSaveRequest).Over(customer);
@@ -55,7 +55,7 @@ customerSaveRequest.Map().Over(customer);
 
 ### Merging
 
-[Merge](Performing-Merges) an object's unpopulated members with values from another using:
+[Merge](/Performing-Merges) an object's unpopulated members with values from another using:
 
 ```cs
 Mapper.Map(customerDto).OnTo(customer);
@@ -65,7 +65,7 @@ customerDto.Map().OnTo(customer);
 
 ## View a Mapping Execution Plan
 
-View an [execution plan](Using-Execution-Plans) to see how two object types will be mapped; this also caches the plan, so you can use it to choose when to incur that cost. Use:
+View an [execution plan](/Using-Execution-Plans) to see how two object types will be mapped; this also caches the plan, so you can use it to choose when to incur that cost. Use:
 
 ```cs
 // For object creation:

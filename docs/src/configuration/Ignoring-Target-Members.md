@@ -1,4 +1,4 @@
-Target members which have no [matching](Member-Matching), [compatible](Type-Conversion) source member are ignored by default, but you can also tell a mapper to ignore members which would usually be mapped. For example:
+Target members which have no [matching](/Member-Matching), [compatible](/Type-Conversion) source member are ignored by default, but you can also tell a mapper to ignore members which would usually be mapped. For example:
 
 ```cs
 public class OrderDto
@@ -22,7 +22,7 @@ Mapper.WhenMapping
     .Ignore(o => o.Id); // Ignore the Order.Id property
 ```
 
-Multiple fields can be ignored with a single configuration, and ignores can be made conditional. Here's an [inline configuration](Inline-Configuration) example:
+Multiple fields can be ignored with a single configuration, and ignores can be made conditional. Here's an [inline configuration](/configuration/Inline) example:
 
 ```cs
 // Source, target and mapping types are implicit from the mapping:
@@ -116,4 +116,4 @@ Mapper.WhenMapping
         m.IsPropertyMatching(p => p.IsAssembly)); // Ignore
 ```
 
-Again, all ignores can alternatively be configured [inline](Inline-Configuration).
+Again, all ignores can alternatively be configured [inline](/configuration/Inline).

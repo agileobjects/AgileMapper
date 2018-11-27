@@ -136,4 +136,4 @@ Mapper.WhenMapping
     .Ignore(cd => cd.PhoneNumbers);
 ```
 
-Dictionary mapping configuration also supports custom and conditional [object creation](Configuring-Object-Creation), [mapping callbacks](Configuring-Mapping-Callbacks), [target member values](Configuring-Member-Values), etc.
+Dictionary mapping configuration also supports custom and conditional [object creation](/configuration/Object-Construction), [mapping callbacks](/configuration/Mapping-Callbacks), [target member values](/configuration/Member-Values), etc.

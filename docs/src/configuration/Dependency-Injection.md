@@ -58,11 +58,11 @@ Mapper.Before.MappingBegins
     .Call(ctx => ctx.GetService<ILogger>("PostLogger").Log("Mapping complete"));
 ```
 
-To retrieve the originally-configured provider, use `ctx.GetServiceProvider<TServiceProvider>()`. Service providers and services are available in configured [member values](Configuring-Member-Values), [Exception handlers](Configuring-Exception-Handling), [mapping callbacks](Configuring-Mapping-Callbacks) and custom [object factories](Configuring-Object-Construction).
+To retrieve the originally-configured provider, use `ctx.GetServiceProvider<TServiceProvider>()`. Service providers and services are available in configured [member values](/configuration/Member-Values), [Exception handlers](/configuration/Exception-Handling), [mapping callbacks](/configuration/Mapping-Callbacks) and custom [object factories](/configuration/Object-Construction).
 
 #### During Configuration
 
-To access services in a [MapperConfiguration](Configuration-Classes) instance, use:
+To access services in a [MapperConfiguration](/configuration/Classes) instance, use:
 
 ```cs
 public class MyMappingConfiguration : MapperConfiguration

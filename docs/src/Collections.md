@@ -12,12 +12,12 @@ The following collection types are supported by default:
 - `Collection<T>`
 - `HashSet<T>`
 - `ISet<T>`
-- [`Dictionary<string, T>`](Dictionary-Mapping)
-- [`IDictionary<string, T>`](Dictionary-Mapping)
+- [`Dictionary<string, T>`](/Dictionary-Mapping)
+- [`IDictionary<string, T>`](/Dictionary-Mapping)
 
 Generic `List<T>` instances are created for interface-type members except `ISet<T>`, which uses a `HashSet<T>`. If a member is already populated with a non-readonly collection (e.g. an array), the existing object will be reused.
 
-[Updates](Performing-Updates) and [merges](Performing-Merges) of collections of identifiable objects (i.e. Entities) are performed in an id-aware manner.
+[Updates](/Performing-Updates) and [merges](/Performing-Merges) of collections of identifiable objects (i.e. Entities) are performed in an id-aware manner.
 
 ## Null Source Collections
 

@@ -1,4 +1,4 @@
-For most cases, derived types are supported without configuration.
+For many cases, derived type mapping is supported without configuration.
 
 For example, with the following classes:
 
@@ -50,4 +50,4 @@ var resultAnimals = Mapper.Map(sourceAnimals).ToANew<AnimalDto[]>();
 // resultAnimals[1] is of type DogDto
 ```
 
-In the second example above, the `Dog` -> `DogDto` and `Cat` -> `CatDto` types are paired by convention based on the names of the original `Animal` -> `AnimalDto` pairing. You can configure [type pairs](Pairing-Derived-Types) which don't have a consistent naming convention, and [in which assemblies](Assembly-Scanning) to look for derived types.
+In the second example above, the `Dog` -> `DogDto` and `Cat` -> `CatDto` types are paired by convention based on the names of the original `Animal` -> `AnimalDto` pairing. You can configure [type pairs](/configuration/Pairing-Derived-Types) which don't have a consistent naming convention, and [in which assemblies](/configuration/Assembly-Scanning) to look for derived types.

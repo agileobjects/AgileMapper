@@ -27,7 +27,7 @@ Using the static API enables mapping in less flexible scenarios where you aren't
 
 ### Instance API
 
-Use the instance API via instance methods on an [`IMapper`](/agileobjects/AgileMapper/blob/master/AgileMapper/IMapper.cs) object, for example:
+Use the instance API via instance methods on an [`IMapper`](https://github.com/agileobjects/AgileMapper/blob/master/AgileMapper/IMapper.cs) object, for example:
 
 ```cs
 // Configuration - done once at start-up:

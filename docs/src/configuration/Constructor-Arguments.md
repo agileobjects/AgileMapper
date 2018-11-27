@@ -1,4 +1,4 @@
-By default, types are created using the 'greediest' public constructor - the one with the most parameters that have [matching](Member-Matching) source members. If there are no available constructors whose parameters can all be matched - and no parameterless constructor - the member for which the type would be created is ignored.
+By default, types are created using the 'greediest' public constructor - the one with the most parameters that have [matching](/Member-Matching) source members. If there are no available constructors whose parameters can all be matched - and no parameterless constructor - the member for which the type would be created is ignored.
 
 Constructor arguments can be configured by type or name, and constant values or expressions can be specified. 
 
@@ -45,6 +45,6 @@ Mapper
         .ToCtor("customerName"));         // To Customer's 'customerName' param
 ```
 
-In these examples the `string` `CustomerNum` is parsed and [converted](Type-Conversion) to the `Guid` `customerId` out of the box.
+In these examples the `string` `CustomerNum` is parsed and [converted](/Type-Conversion) to the `Guid` `customerId` out of the box.
 
-If configuring constructor parameters is awkward (perhaps because there's a lot of them), you can also [configure an object factory](Configuring-Object-Creation) for a particular object type.
+If configuring constructor parameters is awkward (perhaps because there's a lot of them), you can also [configure an object factory](/configuration/Object-Construction) for a particular object type.

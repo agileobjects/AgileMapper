@@ -1,10 +1,10 @@
-AgileMapper's [dictionary mapping](Dictionary-Mapping) also applies to [ExpandoObject](https://docs.microsoft.com/en-us/dotnet/api/system.dynamic.expandoobject?view=netframework-4.7.1)s, which are mapped using their `IDictionary<string, object>` interface.
+AgileMapper's [dictionary mapping](/Dictionary-Mapping) also applies to [ExpandoObject](https://docs.microsoft.com/en-us/dotnet/api/system.dynamic.expandoobject?view=netframework-4.7.1)s, which are mapped using their `IDictionary<string, object>` interface.
 
 Out of the box:
 
-* Member names must match target member names exactly, ignoring case ([configurable](Dynamic-Mapping-Configuration#configuring-member-names))
-* Parent and child member names are matched to ExpandoObject member names separated with an underscore ([configurable](Dynamic-Mapping-Configuration#configuring-separators)), or flattened - with no separator
-* Enumerable elements are matched to ExpandoObject member names by their index separated by underscores ([configurable](Dynamic-Mapping-Configuration#configuring-element-indexes))
+* Member names must match target member names exactly, ignoring case ([configurable](/configuration/Dynamic-Mapping#configuring-member-names))
+* Parent and child member names are matched to ExpandoObject member names separated with an underscore ([configurable](/configuration/Dynamic-Mapping#configuring-separators)), or flattened - with no separator
+* Enumerable elements are matched to ExpandoObject member names by their index separated by underscores ([configurable](/configuration/Dynamic-Mapping#configuring-element-indexes))
 * ExpandoObjects can contain all or a mixture of value type values, collections and complex types - anything with a matching member name is used
 * Target members with no matching member in the ExpandoObject are ignored
 
@@ -89,4 +89,4 @@ The created `ExpandoObject` (in both cases) will have the following member names
 
 ## Configuration
 
-Dynamic mapping is [highly configurable](Dynamic-Mapping-Configuration).
+Dynamic mapping is [highly configurable](/configuration/Dynamic-Mapping).

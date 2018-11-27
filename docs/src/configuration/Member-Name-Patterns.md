@@ -1,4 +1,4 @@
-If a naming convention prevents normal [member matching](Member-Matching), you can configure naming patterns to use to match names up. For example:
+If a naming convention prevents normal [member matching](/Member-Matching), you can configure naming patterns to use to match names up. For example:
 
 ```cs
 public class ProductDto
@@ -36,7 +36,7 @@ Mapper.WhenMapping
 
 Configured regex patterns must start with `^` and end with `$`, contain the capturing group `(.+)` to provide the part of a name to use for matching, and have a prefix and / or suffix.
 
-Naming patterns can also be configured [inline](Inline-Configuration)
+Naming patterns can also be configured [inline](/configuration/Inline)
 
 ```cs
 var anonSource = new { _PriceValue = default(double) };

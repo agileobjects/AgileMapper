@@ -1,4 +1,4 @@
-[Query projection](Query-Projection) supports a subset of regular mapping [configuration](Configuration). Anything [applicable](#limitations) configured using a `Mapper.WhenMapping` API - [static](Static-vs-Instance-Mappers) or instance - will also be applied to query projections.
+[Query projection](/query-projection) supports a subset of regular mapping [configuration](/configuration). Anything [applicable](#limitations) configured using a `Mapper.WhenMapping` API - [static](/Static-vs-Instance-Mappers) or instance - will also be applied to query projections.
 
 ### Static API
 
@@ -20,7 +20,7 @@ var productDtos = await context
     .ToArrayAsync();
 ```
 
-In this case, the `Product.Spec` -> `ProductDto.Specification` custom [member value](Configuring-Member-Values) will be used in the projection because both the configuration and projection are performed using the default mapper.
+In this case, the `Product.Spec` -> `ProductDto.Specification` custom [member value](/configuration/Member-Values) will be used in the projection because both the configuration and projection are performed using the default mapper.
 
 ### Instance API
 
@@ -54,22 +54,22 @@ var productDtos = await context
 
 Because projections are performed by [IQueryProvider](https://docs.microsoft.com/en-us/dotnet/api/system.linq.iqueryprovider)s, only the following configuration options are applied:
 
-- Custom [member values](Configuring-Member-Values), as above
+- Custom [member values](/configuration/Member-Values), as above
 
-- Custom [constructor arguments](Configuring-Constructor-Arguments)
+- Custom [constructor arguments](/configuration/Constructor-Arguments)
 
-- Custom [naming patterns](Configuring-Member-Name-Patterns)
+- Custom [naming patterns](/configuration/Member-Name-Patterns)
 
-- To-String [formatting](To-String-Formatting)
+- To-String [formatting](/configuration/To-String-Formatting)
 
-- Enum [pairing](Enum-Mapping#configuring-enum-pairs)
+- Enum [pairing](/configuration/Enum-Mapping#configuring-enum-pairs)
 
-- [Ignored](Ignoring-Target-Members) members
+- [Ignored](/configuration/Ignoring-Target-Members) members
 
-- Object [factories](Configuring-Object-Construction)
+- Object [factories](/configuration/Object-Construction)
 
-- Null [mapping results](Null-Results)
+- Null [mapping results](/configuration/Null-Results)
 
-Most notably, [callbacks](Configuring-Mapping-Callbacks), [object tracking](Mapped-Object-Tracking) and [derived type pairing](Pairing-Derived-Types) are not supported - although you can [project to derived types](Projecting-to-Derived-Types) conditionally.
+Most notably, [callbacks](/configuration/Mapping-Callbacks), [object tracking](/configuration/Mapped-Object-Tracking) and [derived type pairing](/configuration/Pairing-Derived-Types) are not supported - although you can [project to derived types](/query-projection/Derived-Types) conditionally.
 
 In every case, it is up to you to configure values your IQueryProvider can support - configured values which will definitely be unsupported - like function invocations - are automatically filtered out of query projections.

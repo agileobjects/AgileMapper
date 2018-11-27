@@ -25,7 +25,7 @@ class AccountDto
 
 - `FirstDeliveryAddressHasPostcode` - whether the first element in the source `DeliveryAddresses` collection has a non-default `Postcode` property value
 
-Meta members are also supported in [query projections](Query-Projection).
+Meta members are also supported in [query projections](/query-projection).
 
 ## Types of Meta Member
 
