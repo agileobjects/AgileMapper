@@ -45,6 +45,7 @@ nav:
         - Dependency injection: configuration/Dependency-Injection.md
         - Member values: configuration/Member-Values.md
         - Constructor arguments: configuration/Constructor-Arguments.md
+        - Entity mapping: configuration/Entity-Mapping.md
         - Member name patterns: configuration/Member-Name-Patterns.md
         - To-string formatting: configuration/To-String-Formatting.md
         - Enum pairing: Enum-Mapping/#configuring-enum-pairs
