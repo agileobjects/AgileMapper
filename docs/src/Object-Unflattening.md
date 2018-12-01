@@ -12,7 +12,7 @@ For example, this Dictionary:
 var dictionary = new Dictionary<string, object>
 {
     ["Name"] = "Mrs Customer"
-    ["Dob"] = * DateTime 1985/11/05 *
+    ["Dob"] = new DateTime(1985, 11, 05),
     ["Address.Line1"] = "1 Street"
     ["Address.Postcode"] = "XY3 8HW"
 };

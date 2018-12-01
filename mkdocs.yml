@@ -10,6 +10,9 @@ extra_css:
     - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/vs2015.min.css
     - css/styles.css
 
+extra_javascript:
+    - scripts/docs.js
+
 nav:
     - General Use:
         - Member matching: Member-Matching.md
