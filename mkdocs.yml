@@ -8,10 +8,10 @@ site_dir: 'docs/site'
 
 extra_css:
     - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/vs2015.min.css
-    - css/styles.css
+    - css/styles.min.css
 
 extra_javascript:
-    - scripts/docs.js
+    - scripts/docs.min.js
 
 nav:
     - General Use:

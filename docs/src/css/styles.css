@@ -53,6 +53,10 @@ li.current {
     border-bottom: 1px solid #010101;
 }
 
-.hljs-type, .hljs-keyword, .hljs-title {
-    font-weight: normal;
+.hljs-type, .hljs-keyword, .hljs-title, .hljs-meta-string, .hljs-meta {
+    font-weight: normal !important;
+}
+
+.hljs-meta {
+    color: #4EC9B0;
 }

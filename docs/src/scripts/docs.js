@@ -1,12 +1,13 @@
-$(document).ready(function () {
+$(function () {
     var hlCode = document.querySelectorAll('pre code.cs'),
-        i,
+        i, l,
         hlLength = hlCode.length,
-        mapperRegex = new RegExp('\\bMapper\\b', 'g'),
-        typeRegex = new RegExp('(new</span>\\W+|class</span> <span class="hljs-title">|&lt;)([A-Z][^&\\\( ]+)( |{|\\\(|&gt;)', 'g'),
-        genericTypeRegex = new RegExp('(IDictionary|Dictionary|IEnumerable|IReadOnlyCollection|Collection|List)&lt;', 'g'),
+        mapperRegex = /\bMapper\b/g,
+        typeRegex = /(new<\/span>\W+|class<\/span> <span class="hljs-title">|public<\/span>\W+|: <span class="hljs-title">|&lt;)([A-Z][^& \(\[\]]+)( |{|\(|\[\]&gt;|&gt;)/g,
+        genericTypeRegex = /(I{0,1}Dictionary|IEnumerable|IReadOnlyCollection|I{0,1}Collection|I{0,1}List)&lt;/g,
         observer = new MutationObserver(function (mutations) {
-            for (var mutation of mutations) {
+            for (i = 0, l = mutations.length; i < l; ++i) {
+                var mutation = mutations[i];
                 if (mutation.attributeName === 'class') {
                     var innerHTML = mutation.target.innerHTML
                         .replace(mapperRegex, '<span class="hljs-type">Mapper</span>')
