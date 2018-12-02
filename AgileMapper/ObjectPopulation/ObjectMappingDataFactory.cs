@@ -411,7 +411,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
 
                 var targetParameterValue = TypeExtensionsPolyfill.IsPrimitive(k.RuntimeTargetType)
-                    ? Expression.Coalesce(targetParameter, typeof(int).ToDefaultExpression())
+                    ? Expression.Coalesce(targetParameter, k.RuntimeTargetType.ToDefaultExpression())
                     : (Expression)targetParameter;
 
                 var constructorCall = Expression.New(

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Extensions;
     using Common;
     using TestClasses;
 #if !NET35
@@ -208,6 +209,38 @@
 
             result.Value.ContainsKey("Test").ShouldBeTrue();
             result.Value["Test"].ShouldBe("Hello!");
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/110
+        [Fact]
+        public void ShouldCloneSimpleTypeValuesInAnObjectDictionary()
+        {
+            var source = new PublicTwoFields<int, Dictionary<string, object>>
+            {
+                Value1 = 6372,
+                Value2 = new Dictionary<string, object>
+                {
+                    ["QueryName"] = "References",
+                    ["IsDefault"] = false,
+                    ["QueryId"] = 155,
+                    ["WorkspaceTypeId"] = 1,
+                    ["IsUserDefined"] = true,
+                    ["QueryTypeId"] = 2
+                }
+            };
+
+            var result = source.DeepClone();
+
+            result.Value1.ShouldBe(6372);
+            result.Value2.ShouldNotBeNull();
+            result.Value2.ShouldNotBeSameAs(source.Value2);
+            result.Value2.Count.ShouldBe(source.Value2.Count);
+            result.Value2.ShouldContainKeyAndValue("QueryName", "References");
+            result.Value2.ShouldContainKeyAndValue("IsDefault", false);
+            result.Value2.ShouldContainKeyAndValue("QueryId", 155);
+            result.Value2.ShouldContainKeyAndValue("WorkspaceTypeId", 1);
+            result.Value2.ShouldContainKeyAndValue("IsUserDefined", true);
+            result.Value2.ShouldContainKeyAndValue("QueryTypeId", 2);
         }
 
         [Fact]
