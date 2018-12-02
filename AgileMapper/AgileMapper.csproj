@@ -19,11 +19,8 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2018</Copyright>
-    <PackageReleaseNotes>- Making entity key mapping behaviour configurable
-- Support for auto-reversal of configured data sources
-- Updating to use ReadableExpressions v2.0
-- Added shorthand .Map(s =&gt; s.Value, t =&gt; t.Value) API method
-- Performance and memory use improvements</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixing object-to-object Dictionary mapping bug #110</PackageReleaseNotes>
+    <Version>1.1.0-preview</Version>
   </PropertyGroup>
 
   <ItemGroup>
