@@ -265,7 +265,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return flattening;
             }
 
-            var keyedAccess = this.GetAccess(mapperData);
+            var keyedAccess = GetKeyedAccess(mapperData);
 
             var convertedValue =
                 GetCheckedValueOrNull(value, keyedAccess, mapperData) ??
@@ -313,8 +313,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return GetCheckedTryCatch((TryExpression)value, keyedAccess, checkedAccess, existingValue);
             }
 
-            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValue };
-            var checkedValue = ((BlockExpression)value).Replace(replacements);
+            var checkedValue = ((BlockExpression)value).Replace(keyedAccess, existingValue);
 
             return checkedValue.Update(
                 checkedValue.Variables.Append(existingValue),

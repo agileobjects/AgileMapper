@@ -106,6 +106,7 @@
                 Value = new[]
                 {
                     new [] { 1, 2, 3 },
+                    null,
                     new [] { 4, 5, 6 }
                 }
             };
@@ -114,7 +115,8 @@
             result.Value.ShouldNotContainKey("[0][0]");
 
             result.Value["[0]"].ShouldBe("1", "2", "3");
-            result.Value["[1]"].ShouldBe("4", "5", "6");
+            result.Value["[1]"].ShouldBeDefault();
+            result.Value["[2]"].ShouldBe("4", "5", "6");
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/8
