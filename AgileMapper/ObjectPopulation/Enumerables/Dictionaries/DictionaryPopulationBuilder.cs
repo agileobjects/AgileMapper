@@ -119,11 +119,11 @@
                 return GetPopulation(loopData, dictionaryEntryMember, mappingData);
             }
 
-            var derivedSourceTypes = mappingData.MapperData.GetDerivedSourceTypes();
-            var hasDerivedSourceTypes = derivedSourceTypes.Any();
-
             List<ParameterExpression> typedVariables;
             List<Expression> mappingExpressions;
+
+            var derivedSourceTypes = mappingData.MapperData.GetDerivedSourceTypes();
+            var hasDerivedSourceTypes = derivedSourceTypes.Any();
 
             if (hasDerivedSourceTypes)
             {
@@ -144,7 +144,11 @@
                 mappingExpressions = new List<Expression>(2);
             }
 
-            InsertSourceElementNullCheck(loopData, mappingExpressions);
+            InsertSourceElementNullCheck(
+                loopData,
+                dictionaryEntryMember,
+                mappingData.MapperData,
+                mappingExpressions);
 
             mappingExpressions.Add(GetPopulation(loopData, dictionaryEntryMember, mappingData));
 
@@ -187,7 +191,10 @@
             }
         }
 
-        private static void InsertSourceElementNullCheck(IPopulationLoopData loopData, IList<Expression> mappingExpressions)
+        private void InsertSourceElementNullCheck(IPopulationLoopData loopData,
+            DictionaryTargetMember dictionaryEntryMember,
+            IMemberMapperData mapperData,
+            IList<Expression> mappingExpressions)
         {
             var sourceElement = loopData.GetSourceElementValue();
 
@@ -199,8 +206,16 @@
             loopData.NeedsContinueTarget = true;
 
             var sourceElementIsNull = sourceElement.GetIsDefaultComparison();
-            var continueLoop = Expression.Continue(loopData.ContinueLoopTarget);
-            var ifNullContinue = Expression.IfThen(sourceElementIsNull, continueLoop);
+            Expression nullEntryAction = Expression.Continue(loopData.ContinueLoopTarget);
+
+            if (HasSourceDictionary)
+            {
+                var nullTargetValue = dictionaryEntryMember.ValueType.ToDefaultExpression();
+                var addNullEntry = dictionaryEntryMember.GetPopulation(nullTargetValue, mapperData);
+                nullEntryAction = Expression.Block(addNullEntry, nullEntryAction);
+            }
+
+            var ifNullContinue = Expression.IfThen(sourceElementIsNull, nullEntryAction);
 
             mappingExpressions.Insert(0, ifNullContinue);
         }

@@ -225,7 +225,8 @@
                     ["QueryId"] = 155,
                     ["WorkspaceTypeId"] = 1,
                     ["IsUserDefined"] = true,
-                    ["QueryTypeId"] = 2
+                    ["QueryTypeId"] = 2,
+                    ["Test"] = default(int?)
                 }
             };
 
@@ -241,6 +242,7 @@
             result.Value2.ShouldContainKeyAndValue("WorkspaceTypeId", 1);
             result.Value2.ShouldContainKeyAndValue("IsUserDefined", true);
             result.Value2.ShouldContainKeyAndValue("QueryTypeId", 2);
+            result.Value2.ShouldContainKeyAndValue("Test", null);
         }
 
         [Fact]
