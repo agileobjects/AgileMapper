@@ -274,6 +274,7 @@
                             Line2 = "That place",
                         }
                     },
+                    default(Customer),
                     new MysteryCustomer
                     {
                         Id = Guid.NewGuid(),
@@ -296,14 +297,14 @@
             result.Value["[0].Address.Line1"].ShouldBe("This place");
             result.Value["[0].Address.Line2"].ShouldBe("That place");
 
-            result.Value["[1].Id"].ShouldBe(source.Value.Second().Id);
-            result.Value["[1].Title"].ShouldBe(Title.Dr);
-            result.Value["[1].Name"].ShouldBe("Customer 2");
-            result.Value["[1].Discount"].ShouldBe(0.3m);
-            result.Value["[1].Report"].ShouldBe("It was all a mystery :o");
-            result.Value.ShouldNotContainKey("[1].Address");
-            result.Value.ShouldNotContainKey("[1].Address.Line1");
-            result.Value.ShouldNotContainKey("[1].Address.Line2");
+            result.Value["[2].Id"].ShouldBe(source.Value.Third().Id);
+            result.Value["[2].Title"].ShouldBe(Title.Dr);
+            result.Value["[2].Name"].ShouldBe("Customer 2");
+            result.Value["[2].Discount"].ShouldBe(0.3m);
+            result.Value["[2].Report"].ShouldBe("It was all a mystery :o");
+            result.Value.ShouldNotContainKey("[2].Address");
+            result.Value.ShouldNotContainKey("[2].Address.Line1");
+            result.Value.ShouldNotContainKey("[2].Address.Line2");
 
         }
 

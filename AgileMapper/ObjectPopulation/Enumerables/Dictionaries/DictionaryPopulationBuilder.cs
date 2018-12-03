@@ -206,16 +206,24 @@
             loopData.NeedsContinueTarget = true;
 
             var sourceElementIsNull = sourceElement.GetIsDefaultComparison();
-            Expression nullEntryAction = Expression.Continue(loopData.ContinueLoopTarget);
+            var incrementCounter = _wrappedBuilder.GetCounterIncrement();
+            var continueLoop = Expression.Continue(loopData.ContinueLoopTarget);
+
+            BlockExpression nullEntryActions;
 
             if (HasSourceDictionary)
             {
                 var nullTargetValue = dictionaryEntryMember.ValueType.ToDefaultExpression();
                 var addNullEntry = dictionaryEntryMember.GetPopulation(nullTargetValue, mapperData);
-                nullEntryAction = Expression.Block(addNullEntry, nullEntryAction);
+
+                nullEntryActions = Expression.Block(addNullEntry, incrementCounter, continueLoop);
+            }
+            else
+            {
+                nullEntryActions = Expression.Block(incrementCounter, continueLoop);
             }
 
-            var ifNullContinue = Expression.IfThen(sourceElementIsNull, nullEntryAction);
+            var ifNullContinue = Expression.IfThen(sourceElementIsNull, nullEntryActions);
 
             mappingExpressions.Insert(0, ifNullContinue);
         }
