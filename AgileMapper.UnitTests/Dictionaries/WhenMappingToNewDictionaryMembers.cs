@@ -163,6 +163,34 @@
             ((CustomerViewModel)result.Value["Object"]).Name.ShouldBe("Mr Yo Yo");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/110
+        [Fact]
+        public void ShouldMapSimpleTypeObjectValuesToSimpleTypeObjectValues()
+        {
+            var source = new PublicField<Dictionary<string, object>>
+            {
+                Value = new Dictionary<string, object>
+                {
+                    { "int", 1 },
+                    { "double", 1.0 },
+                    { "decimal", 1m },
+                    { "string", "hello" },
+                    { "bool", true }
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicProperty<Dictionary<string, object>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldNotBeSameAs(source.Value);
+            result.Value.Count.ShouldBe(source.Value.Count);
+            result.Value.ShouldContainKeyAndValue("int", 1);
+            result.Value.ShouldContainKeyAndValue("double", 1.0);
+            result.Value.ShouldContainKeyAndValue("decimal", 1m);
+            result.Value.ShouldContainKeyAndValue("string", "hello");
+            result.Value.ShouldContainKeyAndValue("bool", true);
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/10
         [Fact]
         public void ShouldMapADictionaryObjectValuesToNewDictionaryObjectValues()

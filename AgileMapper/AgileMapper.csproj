@@ -19,13 +19,14 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2018</Copyright>
-    <PackageReleaseNotes>- Fixing object-to-object Dictionary mapping bug #110</PackageReleaseNotes>
-    <Version>1.1.0-preview</Version>
+    <PackageReleaseNotes>- Fixing object-to-object Dictionary mapping bug #110
+- Updating to ReadableExpressions v2.1</PackageReleaseNotes>
+    <Version>1.1.0-preview2</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.0" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.0.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
