@@ -3,6 +3,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Dynamic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using Microsoft.Scripting.Utils;
+#else
+    using System.Linq.Expressions;
+#endif
     using Caching;
     using Enumerables;
     using Extensions.Internal;
@@ -10,12 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
-#if NET35
-    using Microsoft.Scripting.Ast;
-    using Microsoft.Scripting.Utils;
-#else
-    using System.Linq.Expressions;
-#endif
+    using ReadableExpressions.Extensions;
 
     internal class ObjectMappingDataFactory : IObjectMappingDataFactoryBridge
     {
@@ -410,7 +411,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
 
-                var targetParameterValue = TypeExtensionsPolyfill.IsPrimitive(k.RuntimeTargetType)
+                var targetParameterValue = TypeExtensionsPolyfill.IsValueType(k.RuntimeTargetType) && k.DeclaredTargetType.CanBeNull()
                     ? Expression.Coalesce(targetParameter, k.RuntimeTargetType.ToDefaultExpression())
                     : (Expression)targetParameter;
 
