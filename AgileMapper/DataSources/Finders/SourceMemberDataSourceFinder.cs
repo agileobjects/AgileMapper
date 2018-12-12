@@ -35,6 +35,17 @@
                 yield break;
             }
 
+            if (matchingSourceMemberDataSource.SourceMember.IsSimple &&
+                context.MapperData.MapperContext.UserConfigurations.HasConfiguredRootDataSources)
+            {
+                var updatedMapperData = new ChildMemberMapperData(
+                    matchingSourceMemberDataSource.SourceMember,
+                    targetMember,
+                    context.MapperData.Parent);
+
+                context.MapperData.MapperContext.UserConfigurations.GetDataSources(updatedMapperData);
+            }
+
             yield return matchingSourceMemberDataSource;
 
             if (!targetMember.IsReadOnly &&

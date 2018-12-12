@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
     internal struct RootMapperKeyFactory : IRootMapperKeyFactory
     {
-        public ObjectMapperKeyBase CreateRootKeyFor<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
+        public ObjectMapperKeyBase CreateRootKeyFor(IObjectMappingData mappingData)
         {
             return new RootObjectMapperKey(mappingData.MappingTypes, mappingData.MappingContext)
             {

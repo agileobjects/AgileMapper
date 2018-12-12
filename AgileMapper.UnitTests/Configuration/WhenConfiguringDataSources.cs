@@ -148,6 +148,25 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/111
+        [Fact]
+        public void ShouldConditionallyApplyAConfiguredSimpleTypeConstant()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().ToANew<string>()
+                    .If(ctx => string.IsNullOrEmpty(ctx.Source))
+                    .Map(default(string)).ToTarget();
+
+                var source = new Address { Line1 = "Here", Line2 = string.Empty };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("Here");
+                result.Line2.ShouldBeNull();
+            }
+        }
+
         [Fact]
         public void ShouldConditionallyApplyAConfiguredMember()
         {

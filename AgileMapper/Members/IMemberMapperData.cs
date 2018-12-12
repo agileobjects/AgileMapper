@@ -13,8 +13,6 @@
 
         bool IsEntryPoint { get; }
 
-        bool IsRepeatMapping { get; }
-
         new ObjectMapperData Parent { get; }
 
         MapperDataContext Context { get; }
