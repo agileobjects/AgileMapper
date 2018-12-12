@@ -1,8 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
-    using System.Collections.Generic;
     using Extensions.Internal;
     using Members;
+    using System.Collections.Generic;
 
     internal struct SourceMemberDataSourceFinder : IDataSourceFinder
     {
@@ -43,7 +43,16 @@
                     targetMember,
                     context.MapperData.Parent);
 
-                context.MapperData.MapperContext.UserConfigurations.GetDataSources(updatedMapperData);
+                var configuredRootDataSources = context
+                    .MapperData
+                    .MapperContext
+                    .UserConfigurations
+                    .GetDataSources(updatedMapperData);
+
+                foreach (var configuredRootDataSource in configuredRootDataSources)
+                {
+                    yield return configuredRootDataSource;
+                }
             }
 
             yield return matchingSourceMemberDataSource;
@@ -73,7 +82,7 @@
             return context.GetFinalDataSource(sourceMemberDataSource, contextMappingData);
         }
 
-        private static bool UseFallbackComplexTypeMappingDataSource(QualifiedMember targetMember) 
+        private static bool UseFallbackComplexTypeMappingDataSource(QualifiedMember targetMember)
             => targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
     }
 }

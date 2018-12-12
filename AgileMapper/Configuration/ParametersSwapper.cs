@@ -92,7 +92,6 @@ namespace AgileObjects.AgileMapper.Configuration
                 return swapArgs.Lambda.ReplaceParameterWith(swapArgs.MapperData.MappingDataObject);
             }
 
-            var contextTypes = contextType.GetGenericTypeArguments();
             var contextInfo = GetAppropriateMappingContext(swapArgs);
 
             if (swapArgs.Lambda.Body.NodeType == ExpressionType.Invoke)
@@ -100,6 +99,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 return GetInvocationContextArgument(contextInfo, swapArgs.Lambda);
             }
 
+            var contextTypes = contextType.GetGenericTypeArguments();
             var memberContextType = IsCallbackContext(contextTypes) ? contextType : contextType.GetAllInterfaces().First();
             var sourceProperty = memberContextType.GetPublicInstanceProperty(RootSourceMemberName);
             var targetProperty = memberContextType.GetPublicInstanceProperty(RootTargetMemberName);
@@ -169,6 +169,17 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private static MappingContextInfo GetAppropriateMappingContext(SwapArgs swapArgs)
         {
+            if (swapArgs.ContextTypes.All(type => type.IsSimple()))
+            {
+                var mapperData = swapArgs.MapperData;
+
+                return new MappingContextInfo(
+                    swapArgs,
+                    mapperData.MappingDataObject,
+                    mapperData.SourceMember.GetQualifiedAccess(mapperData.SourceObject),
+                    mapperData.TargetMember.GetQualifiedAccess(mapperData.TargetInstance));
+            }
+
             if (swapArgs.ContextTypesMatch())
             {
                 return new MappingContextInfo(swapArgs);
@@ -252,12 +263,25 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             public MappingContextInfo(SwapArgs swapArgs, Expression contextAccess)
+                : this(
+                    swapArgs,
+                    contextAccess,
+                    GetValueAccess(swapArgs.GetSourceAccess(contextAccess), swapArgs.ContextTypes[0]),
+                    GetValueAccess(swapArgs.GetTargetAccess(contextAccess), swapArgs.ContextTypes[1]))
+            {
+            }
+
+            public MappingContextInfo(
+                SwapArgs swapArgs,
+                Expression contextAccess,
+                Expression sourceAccess,
+                Expression targetAccess)
             {
                 _swapArgs = swapArgs;
 
                 CreatedObject = GetCreatedObject(swapArgs);
-                SourceAccess = GetValueAccess(swapArgs.GetSourceAccess(contextAccess), ContextTypes[0]);
-                TargetAccess = GetValueAccess(swapArgs.GetTargetAccess(contextAccess), ContextTypes[1]);
+                SourceAccess = sourceAccess;
+                TargetAccess = targetAccess;
                 MappingDataAccess = swapArgs.GetTypedContextAccess(contextAccess);
             }
 
