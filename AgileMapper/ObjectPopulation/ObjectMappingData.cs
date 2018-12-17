@@ -302,10 +302,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }
 
-            return Parent.MapRepeated(
-                sourceElement,
-                targetElement,
-                enumerableIndex);
+            return Parent.MapRepeated(sourceElement, targetElement, enumerableIndex);
         }
 
         #endregion
@@ -361,7 +358,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var sourceMemberRuntimeType = GetSourceMemberRuntimeType(newSourceMember);
 
-            return WithTypes(sourceMemberRuntimeType, MapperData.TargetType, isForDerivedTypeMapping: false);
+            var newSourceMappingData = WithTypes(sourceMemberRuntimeType, MapperData.TargetType, isForDerivedTypeMapping: false);
+
+            newSourceMappingData.MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.CreateRootKeyFor(newSourceMappingData);
+
+            return newSourceMappingData;
         }
 
         public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType, bool isForDerivedTypeMapping)

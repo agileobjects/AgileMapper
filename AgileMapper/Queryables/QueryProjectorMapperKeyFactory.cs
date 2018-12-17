@@ -6,11 +6,11 @@
 
     internal struct QueryProjectorMapperKeyFactory : IRootMapperKeyFactory
     {
-        public ObjectMapperKeyBase CreateRootKeyFor<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
+        public ObjectMapperKeyBase CreateRootKeyFor(IObjectMappingData mappingData)
         {
-            var providerType = ((IQueryable)mappingData.Source).Provider.GetType();
+            var providerType = mappingData.GetSource<IQueryable>().Provider.GetType();
 
-            return new QueryProjectorKey(mappingData.MappingTypes, providerType, mappingData.MapperContext)
+            return new QueryProjectorKey(mappingData.MappingTypes, providerType, mappingData.MappingContext.MapperContext)
             {
                 MappingData = mappingData
             };

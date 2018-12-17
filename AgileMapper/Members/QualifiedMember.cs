@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq;
     using Caching;
     using Dictionaries;
-    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
@@ -146,6 +145,8 @@ namespace AgileObjects.AgileMapper.Members
         public Member LeafMember { get; }
 
         public Type Type => LeafMember?.Type;
+
+        public Type RootType => MemberChain[0].Type;
 
         public string GetFriendlyTypeName() => Type.GetFriendlyName();
 

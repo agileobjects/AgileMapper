@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         {
         }
 
-        public DictionaryEntrySourceMember(DictionaryEntrySourceMember parent, Member childMember)
+        private DictionaryEntrySourceMember(DictionaryEntrySourceMember parent, Member childMember)
             : this(
                 childMember.Type,
                 () => parent.GetPath() + "." + childMember.Name,
@@ -67,6 +67,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         public bool IsRoot => false;
 
         public Type Type { get; }
+
+        public Type RootType => Parent.Type;
 
         public string GetFriendlyTypeName() => Type.GetFriendlyName();
 

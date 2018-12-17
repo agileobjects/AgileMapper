@@ -358,10 +358,14 @@
         public bool HasConfiguredRootDataSources { get; private set; }
 
         public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
-            => QueryDataSourceFactories(mapperData).Project(dsf => dsf.Create(mapperData)).ToArray();
+        {
+            return (_dataSourceFactories != null)
+                ? QueryDataSourceFactories(mapperData).Project(dsf => dsf.Create(mapperData)).ToArray()
+                : Enumerable<IConfiguredDataSource>.EmptyArray;
+        }
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)
-            => _dataSourceFactories?.FindMatches(mapperData) ?? Enumerable<ConfiguredDataSourceFactory>.Empty;
+            => _dataSourceFactories.FindMatches(mapperData);
 
         #endregion
 

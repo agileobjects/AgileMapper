@@ -148,6 +148,66 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/111
+        [Fact]
+        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeConstant()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().ToANew<string>()
+                    .If(ctx => string.IsNullOrEmpty(ctx.Source))
+                    .Map(default(string)).ToTarget();
+
+                var source = new Address { Line1 = "Here", Line2 = string.Empty };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("Here");
+                result.Line2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAToTargetConfiguredSimpleTypeConstant()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().ToANew<string>()
+                    .Map((s, t) => string.IsNullOrEmpty(s) ? null : s).ToTarget();
+
+                var source = new Address { Line1 = "There", Line2 = string.Empty };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("There");
+                result.Line2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldConditionallyApplyAToTargetConfiguredNestedSimpleTypeExpression()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<int>().ToANew<int>()
+                    .If(ctx => ctx.Source % 2 == 0)
+                    .Map(ctx => ctx.Source * 2).ToTarget();
+
+                var nonMatchingSource = new { ValueValue = 3 };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<PublicField<int>>>();
+
+                nonMatchingResult.Value.ShouldNotBeNull();
+                nonMatchingResult.Value.Value.ShouldBe(3);
+
+                var matchingSource = new { ValueValue = 4 };
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<PublicField<int>>>();
+
+                matchingResult.Value.ShouldNotBeNull();
+                matchingResult.Value.Value.ShouldBe(8);
+            }
+        }
+
         [Fact]
         public void ShouldConditionallyApplyAConfiguredMember()
         {

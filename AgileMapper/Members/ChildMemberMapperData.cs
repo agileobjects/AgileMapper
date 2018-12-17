@@ -9,21 +9,29 @@
 
     internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
     {
+        private readonly bool _useParentForTypeCheck;
         private bool? _isRepeatMapping;
 
         public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
-            : this(
+            : base(
+                parent.RuleSet,
+                parent.SourceType,
+                parent.TargetType,
                 parent.SourceMember,
                 targetMember,
                 parent)
         {
+            _useParentForTypeCheck = true;
+            SourceMember = parent.SourceMember;
+            Parent = parent;
+            Context = new MapperDataContext(this);
         }
 
         public ChildMemberMapperData(IQualifiedMember sourceMember, QualifiedMember targetMember, ObjectMapperData parent)
             : base(
                 parent.RuleSet,
-                parent.SourceType,
-                parent.TargetType,
+                sourceMember.Type,
+                targetMember.Type,
                 sourceMember,
                 targetMember,
                 parent)
@@ -37,7 +45,7 @@
 
         public bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
 
-        public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
+        private bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
         public ObjectMapperData Parent { get; }
 
@@ -61,6 +69,11 @@
 
         public ExpressionInfoFinder ExpressionInfoFinder => Parent.ExpressionInfoFinder;
 
-        public override bool HasCompatibleTypes(ITypePair typePair) => Parent.HasCompatibleTypes(typePair);
+        public override bool HasCompatibleTypes(ITypePair typePair)
+        {
+            return _useParentForTypeCheck
+                ? Parent.HasCompatibleTypes(typePair)
+                : typePair.HasCompatibleTypes(this, SourceMember, TargetMember);
+        }
     }
 }

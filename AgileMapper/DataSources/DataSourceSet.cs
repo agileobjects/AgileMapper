@@ -78,9 +78,9 @@ namespace AgileObjects.AgileMapper.DataSources
         {
             var value = default(Expression);
 
-            for (var i = _dataSources.Count - 1; i >= 0; --i)
+            for (var i = _dataSources.Count - 1; i >= 0;)
             {
-                var dataSource = _dataSources[i];
+                var dataSource = _dataSources[i--];
 
                 value = dataSource.AddPreConditionIfNecessary(value == default(Expression)
                     ? dataSource.Value
