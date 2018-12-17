@@ -209,6 +209,32 @@
         }
 
         [Fact]
+        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeExpressionInAComplexTypeList()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<int>().ToANew<int>()
+                    .If((s, t) => s % 2 == 0)
+                    .Map(ctx => ctx.Source * 2).ToTarget();
+
+                var source = new PublicField<List<PublicField<int>>>
+                {
+                    Value = new List<PublicField<int>>
+                    {
+                        new PublicField<int> { Value = 1 },
+                        new PublicField<int> { Value = 2 },
+                        new PublicField<int> { Value = 3 }
+                    }
+                };
+                var result = mapper.Map(source).ToANew<PublicField<List<PublicField<int>>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBe(pf => pf.Value, 1, 4, 3);
+            }
+        }
+
+        [Fact]
         public void ShouldConditionallyApplyAConfiguredMember()
         {
             using (var mapper = Mapper.CreateNew())

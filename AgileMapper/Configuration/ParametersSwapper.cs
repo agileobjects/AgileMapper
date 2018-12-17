@@ -171,17 +171,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             if (swapArgs.ContextTypes.All(t => t.IsSimple()))
             {
-                var mapperData = swapArgs.MapperData;
-
-                var context = mapperData.GetAppropriateMappingContext(
-                    mapperData.SourceMember.RootType,
-                    mapperData.TargetMember.RootType);
-
-                return new MappingContextInfo(
-                    swapArgs,
-                    mapperData.MappingDataObject,
-                    mapperData.SourceMember.GetQualifiedAccess(context.SourceObject),
-                    mapperData.TargetMember.GetQualifiedAccess(context.TargetInstance));
+                return GetSimpleTypesMappingContextInfo(swapArgs);
             }
 
             if (swapArgs.ContextTypesMatch())
@@ -192,6 +182,43 @@ namespace AgileObjects.AgileMapper.Configuration
             var contextAccess = swapArgs.GetAppropriateMappingContextAccess();
 
             return new MappingContextInfo(swapArgs, contextAccess);
+        }
+
+        private static MappingContextInfo GetSimpleTypesMappingContextInfo(SwapArgs swapArgs)
+        {
+            var mapperData = swapArgs.MapperData;
+            IMemberMapperData contextMapperData = mapperData.Parent;
+
+            IQualifiedMember targetMember;
+
+            while (true)
+            {
+                if (contextMapperData.TargetMemberIsEnumerableElement())
+                {
+                    targetMember = mapperData.TargetMember.RelativeTo(contextMapperData.TargetMember);
+                    break;
+                }
+
+                if (!contextMapperData.IsRoot)
+                {
+                    contextMapperData = contextMapperData.Parent;
+                    continue;
+                }
+
+                targetMember = mapperData.TargetMember;
+
+                contextMapperData = mapperData.GetAppropriateMappingContext(
+                    mapperData.SourceMember.RootType,
+                    targetMember.RootType);
+
+                break;
+            }
+
+            return new MappingContextInfo(
+                swapArgs,
+                mapperData.MappingDataObject,
+                mapperData.SourceMember.GetQualifiedAccess(contextMapperData.SourceObject),
+                targetMember.GetQualifiedAccess(contextMapperData.TargetInstance));
         }
 
         #endregion
