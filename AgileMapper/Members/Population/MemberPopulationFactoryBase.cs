@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Members.Population
 {
+    using System.Collections.Generic;
     using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -27,10 +28,27 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             if (context.DataSources.Variables.Any())
             {
-                population = Expression.Block(context.DataSources.Variables, population);
+                population = GetPopulationWithVariables(population, context.DataSources.Variables);
             }
 
             return GetGuardedPopulation(population, populationGuard, useSingleExpression);
+        }
+
+        private static Expression GetPopulationWithVariables(Expression population, IList<ParameterExpression> variables)
+        {
+            if (population.NodeType != ExpressionType.Block)
+            {
+                return Expression.Block(variables, population);
+            }
+
+            var populationBlock = (BlockExpression)population;
+
+            if (populationBlock.Variables.Any())
+            {
+                variables = variables.Append(populationBlock.Variables);
+            }
+
+            return populationBlock.Update(variables, populationBlock.Expressions);
         }
 
         protected abstract Expression GetPopulationGuard(IMemberPopulationContext context);
