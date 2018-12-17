@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System;
     using System.Dynamic;
     using Caching;
-    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;

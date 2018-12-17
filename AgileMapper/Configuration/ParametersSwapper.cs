@@ -169,15 +169,19 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private static MappingContextInfo GetAppropriateMappingContext(SwapArgs swapArgs)
         {
-            if (swapArgs.ContextTypes.All(type => type.IsSimple()))
+            if (swapArgs.ContextTypes.All(t => t.IsSimple()))
             {
                 var mapperData = swapArgs.MapperData;
+
+                var context = mapperData.GetAppropriateMappingContext(
+                    mapperData.SourceMember.RootType,
+                    mapperData.TargetMember.RootType);
 
                 return new MappingContextInfo(
                     swapArgs,
                     mapperData.MappingDataObject,
-                    mapperData.SourceMember.GetQualifiedAccess(mapperData.SourceObject),
-                    mapperData.TargetMember.GetQualifiedAccess(mapperData.TargetInstance));
+                    mapperData.SourceMember.GetQualifiedAccess(context.SourceObject),
+                    mapperData.TargetMember.GetQualifiedAccess(context.TargetInstance));
             }
 
             if (swapArgs.ContextTypesMatch())
@@ -185,9 +189,9 @@ namespace AgileObjects.AgileMapper.Configuration
                 return new MappingContextInfo(swapArgs);
             }
 
-            var dataAccess = swapArgs.GetAppropriateMappingContextAccess();
+            var contextAccess = swapArgs.GetAppropriateMappingContextAccess();
 
-            return new MappingContextInfo(swapArgs, dataAccess);
+            return new MappingContextInfo(swapArgs, contextAccess);
         }
 
         #endregion
@@ -345,7 +349,10 @@ namespace AgileObjects.AgileMapper.Configuration
             public bool ContextTypesMatch() => MapperData.TypesMatch(ContextTypes);
 
             public Expression GetAppropriateMappingContextAccess()
-                => MapperData.GetAppropriateMappingContextAccess(ContextTypes);
+                => GetAppropriateMappingContextAccess(ContextTypes);
+
+            public Expression GetAppropriateMappingContextAccess(params Type[] contextTypes)
+                => MapperData.GetAppropriateMappingContextAccess(contextTypes);
 
             public Expression GetTypedContextAccess(Expression contextAccess)
                 => MapperData.GetTypedContextAccess(contextAccess, ContextTypes);

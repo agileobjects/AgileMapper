@@ -427,7 +427,7 @@ namespace AgileObjects.AgileMapper.Members
             return dataAccess;
         }
 
-        public static IMemberMapperData GetAppropriateMappingContext(this IMemberMapperData mapperData, Type[] contextTypes)
+        public static IMemberMapperData GetAppropriateMappingContext(this IMemberMapperData mapperData, params Type[] contextTypes)
         {
             if (mapperData.TypesMatch(contextTypes))
             {
