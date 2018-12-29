@@ -526,6 +526,24 @@
             factoryEx.Message.ShouldContain("has already been configured");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/114
+        [Fact]
+        public void ShouldErrorIfPrimitiveTargetTypeSpecified()
+        {
+            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<string>()
+                        .To<int>()
+                        .CreateInstancesUsing(ctx => 123);
+                }
+            });
+
+            factoryEx.Message.ShouldContain("primitive type 'int'");
+        }
+
         #region Helper Classes
 
         private class CustomerCtor : Person

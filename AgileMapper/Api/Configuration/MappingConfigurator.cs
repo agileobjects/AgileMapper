@@ -12,7 +12,9 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using Projection;
+    using ReadableExpressions.Extensions;
     using Validation;
 
     internal class MappingConfigurator<TSource, TTarget> :
@@ -195,7 +197,15 @@
             => CreateFactorySpecifier<TObject>();
 
         private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>()
-            => new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
+        {
+            if (typeof(TObject).IsPrimitive())
+            {
+                throw new MappingConfigurationException(
+                    $"Unable to configure the creation of primitive type '{typeof(TObject).GetFriendlyName()}'");
+            }
+
+            return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
+        }
 
         #endregion
 
@@ -233,7 +243,7 @@
             return this;
         }
 
-        public IFullMappingSettings<TSource, TTarget> AutoReverseConfiguredDataSources() 
+        public IFullMappingSettings<TSource, TTarget> AutoReverseConfiguredDataSources()
             => SetDataSourceReversal(reverse: true);
 
         public IFullMappingSettings<TSource, TTarget> DoNotAutoReverseConfiguredDataSources()
