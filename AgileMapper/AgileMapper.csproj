@@ -20,10 +20,11 @@
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2018</Copyright>
     <PackageReleaseNotes>- Support for simple type .ToTarget() configuration
+- Support for automatic use of user-defined operators
 - Fixing object-to-object Dictionary mapping bug #110
 - Performance improvements
 - Updating to ReadableExpressions v2.1</PackageReleaseNotes>
-    <Version>1.1.0-preview3</Version>
+    <Version>1.1.0-preview4</Version>
   </PropertyGroup>
 
   <ItemGroup>
