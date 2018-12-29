@@ -20,12 +20,30 @@ namespace AgileObjects.AgileMapper.TypeConversion
             Type nonNullableSourceType,
             Type nonNullableTargetType)
         {
-            var operatorMethod = nonNullableSourceType
-                .GetOperators()
-                .FirstOrDefault(o => o.ReturnType == nonNullableTargetType);
+            if (!nonNullableSourceType.IsPrimitive())
+            {
+                var operatorMethod = GetOperatorOrNull(
+                    nonNullableSourceType,
+                    o => o.ReturnType == nonNullableTargetType);
 
-            return operatorMethod;
+                if (operatorMethod != null)
+                {
+                    return operatorMethod;
+                }
+            }
+
+            if (nonNullableTargetType.IsPrimitive())
+            {
+                return null;
+            }
+
+            return GetOperatorOrNull(
+                nonNullableTargetType,
+                o => o.GetParameters()[0].ParameterType == nonNullableSourceType);
         }
+
+        private static MethodInfo GetOperatorOrNull(Type subjectType, Func<MethodInfo, bool> matcher)
+            => subjectType.GetOperators().FirstOrDefault(matcher.Invoke);
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
         {
@@ -33,7 +51,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
             var nonNullableTargetType = targetType.GetNonNullableType();
             var operatorMethod = GetOperatorOrNull(nonNullableSourceType, nonNullableTargetType);
 
-            return Expression.Call(operatorMethod, sourceValue);
+            return Expression.Convert(sourceValue, nonNullableTargetType, operatorMethod);
         }
     }
 }

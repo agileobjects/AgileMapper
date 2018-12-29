@@ -68,6 +68,12 @@
                 return !dataSource.SourceMember.Type.IsSimple();
             }
 
+            if ((dataSource.Value.Type == targetMember.Type) &&
+                (dataSource.SourceMember.Type != targetMember.Type))
+            {
+                return false;
+            }
+
             return !targetMember.Type.IsFromBcl();
         }
     }
