@@ -324,5 +324,43 @@
 
             result.ShouldBe(1, 2, 3);
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/114
+        [Fact]
+        public void ShouldUseUserDefinedToIntOperators()
+        {
+            var source = new PublicField<UserId> { Value = new UserId(123) };
+            var result = Mapper.Map(source).ToANew<PublicProperty<int>>();
+
+            result.Value.ShouldBe(123);
+        }
+
+        [Fact]
+        public void ShouldUseUserDefinedFromIntOperators()
+        {
+            var source = new PublicField<int> { Value = 456 };
+            var result = Mapper.Map(source).ToANew<PublicProperty<UserId>>();
+
+            result.Value.Equals(new UserId(456)).ShouldBeTrue();
+        }
+
+        #region Helper Members
+
+        private struct UserId
+        {
+            private readonly int _value;
+
+            public UserId(int value) => _value = value;
+
+            public static implicit operator UserId(int value) => new UserId(value);
+            public static explicit operator int(UserId userId) => userId._value;
+
+            public override bool Equals(object obj)
+                => obj is UserId other && _value.Equals(other._value);
+
+            public override int GetHashCode() => _value.GetHashCode();
+        }
+
+        #endregion
     }
 }

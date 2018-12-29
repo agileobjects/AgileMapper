@@ -38,6 +38,7 @@
                 ToNumericConverter<short>.Instance,
                 ToNumericConverter<byte>.Instance,
                 TryParseConverter.Instance,
+                default(OperatorConverter),
                 default(FallbackNonSimpleTypeValueConverter)
             };
         }
