@@ -251,25 +251,58 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if (GetTargetMembers(mapperData.TargetType).All(tm => tm.IsSimple))
+            if (TargetMemberHasRecursiveObjectGraph(mapperData.TargetMember) == false)
             {
                 return false;
             }
 
-            // The target member we're mapping right now isn't recursive, but 
-            // it might recurse elsewhere within the mapping graph. 
-            // We therefore check if this member ever recurses; if so we'll 
-            // map it by calling MapRepeated, and it'll be the entry point of 
-            // the RepeatedMapperFunc which performs the repeated mapping:
+            // The target member we're mapping right now isn't recursive, but it has recursion
+            // within its child members, and its mapping might be repeated elsewhere within the
+            // mapping graph. We therefore check if this member ever repeats; if so we'll map it
+            // by calling MapRepeated, and it'll be the entry point of the RepeatedMapperFunc
+            // which performs the repeated mapping:
             var rootMember = mapperData.GetRootMapperData().TargetMember;
 
-            return TargetMemberEverRecursesWithin(rootMember, mapperData.TargetMember);
+            return TargetMemberEverRepeatsWithin(rootMember, mapperData.TargetMember);
         }
 
-        private static IList<Member> GetTargetMembers(Type targetType)
+        private static IEnumerable<Member> GetTargetMembers(Type targetType)
             => GlobalContext.Instance.MemberCache.GetTargetMembers(targetType);
 
-        private static bool TargetMemberEverRecursesWithin(QualifiedMember parentMember, QualifiedMember subjectMember)
+        private static bool TargetMemberHasRecursiveObjectGraph(QualifiedMember targetMember)
+        {
+            while (true)
+            {
+                var mappingType = targetMember.IsEnumerable ? targetMember.ElementType : targetMember.Type;
+
+                var nonSimpleChildMembers = GetTargetMembers(mappingType)
+                    .Filter(m => !m.IsSimple)
+                    .Project(cm => GetNonEnumerableChildMember(targetMember, cm))
+                    .ToArray();
+
+                if (nonSimpleChildMembers.None())
+                {
+                    return false;
+                }
+
+                if (nonSimpleChildMembers.Any(cm => cm.IsRecursion))
+                {
+                    return true;
+                }
+
+                foreach (var childMember in nonSimpleChildMembers)
+                {
+                    if (TargetMemberHasRecursiveObjectGraph(childMember))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        private static bool TargetMemberEverRepeatsWithin(QualifiedMember parentMember, IQualifiedMember subjectMember)
         {
             while (true)
             {
@@ -302,7 +335,7 @@ namespace AgileObjects.AgileMapper.Members
                         continue;
                     }
 
-                    if (TargetMemberEverRecursesWithin(qualifiedChildMember, subjectMember))
+                    if (TargetMemberEverRepeatsWithin(qualifiedChildMember, subjectMember))
                     {
                         return true;
                     }

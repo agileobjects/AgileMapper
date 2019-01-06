@@ -533,5 +533,108 @@
                 nonMatchingResult.Value.ShouldBeEmpty();
             }
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/115
+        [Fact]
+        public void ShouldMapNestedLists()
+        {
+            var source = new Issue115.A2
+            {
+                Id = 2,
+                BB = new Issue115.B
+                {
+                    Id = 11,
+                    CC = new List<Issue115.C>
+                    {
+                        new Issue115.C
+                        {
+                            Id = 111,
+                            DD = new Issue115.D { Id = 111 }
+                        }
+                    }
+                },
+                CC = new Issue115.C
+                {
+                    Id = 111,
+                    DD = new Issue115.D { Id = 112 }
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<Issue115.A2Dto>();
+
+            result.Id.ShouldBe(2);
+            
+            result.BB.ShouldNotBeNull();
+            result.BB.Id.ShouldBe(11);
+            result.BB.CC.ShouldHaveSingleItem();
+            result.BB.CC[0].Id.ShouldBe(111);
+            result.BB.CC[0].DD.ShouldNotBeNull().Id.ShouldBe(111);
+            
+            result.CC.ShouldNotBeNull();
+            result.CC.Id.ShouldBe(111);
+            result.CC.DD.ShouldNotBeNull().Id.ShouldBe(112);
+
+        }
+
+        private static class Issue115
+        {
+            // ReSharper disable InconsistentNaming
+            public class A2
+            {
+                public int Id { get; set; }
+
+                public B BB { get; set; }
+
+                public C CC { get; set; }
+            }
+
+            public class B
+            {
+                public int Id { get; set; }
+
+                public IList<C> CC { get; set; }
+            }
+
+            public class C
+            {
+                public int Id { get; set; }
+
+                public D DD { get; set; }
+            }
+
+            public class D
+            {
+                public int Id { get; set; }
+            }
+
+            public class A2Dto
+            {
+                public int Id { get; set; }
+
+                public BDto BB { get; set; }
+
+                public CDto CC { get; set; }
+            }
+
+            public class BDto
+            {
+                public int Id { get; set; }
+                
+                public IList<CDto> CC { get; set; }
+            }
+
+            public class CDto
+            {
+                public int Id { get; set; }
+
+                public DDto DD { get; set; }
+            }
+
+            public class DDto
+            {
+                public int Id { get; set; }
+            }
+            // ReSharper restore InconsistentNaming
+        }
     }
 }
