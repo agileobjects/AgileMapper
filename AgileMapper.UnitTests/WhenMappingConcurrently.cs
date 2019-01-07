@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
     using Common;
     using static WhenMappingCircularReferences;
@@ -54,6 +55,20 @@
                     // ReSharper disable once PossibleNullReferenceException
                     product.Warehouses.Count.ShouldBe(counts.Warehouses * counts.WarehouseProducts);
                 });
+
+            var branchMapper = Mapper
+                .Default
+                .Context
+                .ObjectMapperFactory
+                .RootMappers
+                .FirstOrDefault(mapper =>
+                    (mapper.MapperData.SourceType == typeof(Issue77.Branch)) &&
+                    (mapper.MapperData.TargetType == typeof(Issue77.Branch)));
+
+            branchMapper.ShouldNotBeNull();
+
+            // ReSharper disable once PossibleNullReferenceException
+            branchMapper.RepeatedMappingFuncs.Count().ShouldBe(11);
         }
 
         #region Helper Members

@@ -497,43 +497,6 @@
             result.Value.ShouldBeEmpty();
         }
 
-        [Fact]
-        public void ShouldMapCollectionsToNullIfConfiguredGlobally()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .MapNullCollectionsToNull();
-
-                var source = new PublicField<Collection<byte>> { Value = null };
-                var result = mapper.Map(source).ToANew<PublicSetMethod<IEnumerable<string>>>();
-
-                result.Value.ShouldBeNull();
-            }
-        }
-
-        [Fact]
-        public void ShouldMapCollectionsToNullIfConfiguredByType()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicProperty<IEnumerable<int>>>()
-                    .To<PublicField<List<string>>>()
-                    .MapNullCollectionsToNull();
-
-                var matchingSource = new PublicProperty<IEnumerable<int>> { Value = null };
-                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<List<string>>>();
-
-                matchingResult.Value.ShouldBeNull();
-
-                var nonMatchingSource = new PublicProperty<IEnumerable<long>> { Value = null };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<List<string>>>();
-
-                nonMatchingResult.Value.ShouldBeEmpty();
-            }
-        }
-
         // See https://github.com/agileobjects/AgileMapper/issues/115
         [Fact]
         public void ShouldMapNestedLists()
@@ -563,13 +526,13 @@
             var result = Mapper.Map(source).ToANew<Issue115.A2Dto>();
 
             result.Id.ShouldBe(2);
-            
+
             result.BB.ShouldNotBeNull();
             result.BB.Id.ShouldBe(11);
             result.BB.CC.ShouldHaveSingleItem();
             result.BB.CC[0].Id.ShouldBe(111);
             result.BB.CC[0].DD.ShouldNotBeNull().Id.ShouldBe(111);
-            
+
             result.CC.ShouldNotBeNull();
             result.CC.Id.ShouldBe(111);
             result.CC.DD.ShouldNotBeNull().Id.ShouldBe(112);
@@ -578,7 +541,10 @@
 
         private static class Issue115
         {
+            // ReSharper disable ClassNeverInstantiated.Local
             // ReSharper disable InconsistentNaming
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
+            // ReSharper disable CollectionNeverUpdated.Local
             public class A2
             {
                 public int Id { get; set; }
@@ -619,7 +585,7 @@
             public class BDto
             {
                 public int Id { get; set; }
-                
+
                 public IList<CDto> CC { get; set; }
             }
 
@@ -634,7 +600,10 @@
             {
                 public int Id { get; set; }
             }
+            // ReSharper restore CollectionNeverUpdated.Local
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
             // ReSharper restore InconsistentNaming
+            // ReSharper restore ClassNeverInstantiated.Local
         }
     }
 }

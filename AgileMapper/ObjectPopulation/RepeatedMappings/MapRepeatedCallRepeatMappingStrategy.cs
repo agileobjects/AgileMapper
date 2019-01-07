@@ -15,6 +15,11 @@
 
         public bool WillNotMap(IBasicMapperData mapperData)
         {
+            if (!mapperData.TargetMember.IsRecursion)
+            {
+                return false;
+            }
+
             if (mapperData.SourceType.IsDictionary())
             {
                 return mapperData.TargetMember.Depth > 3;

@@ -773,6 +773,51 @@
         }
 
         [Fact]
+        public void ShouldPerformRepeatedComplexTypeMemberAndElementMappings()
+        {
+            var c = new Issue115.C { Id = 222 };
+
+            var source = new Issue115.A
+            {
+                Id = 1,
+                B = new Issue115.B
+                {
+                    Id = 11,
+                    Cs = new[]
+                    {
+                        new Issue115.C
+                        {
+                            Id = 111,
+                            Parent = c
+                        }
+                    }
+                },
+                C = new Issue115.C
+                {
+                    Id = 12,
+                    Parent = c
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<Issue115.ADto>();
+
+            result.Id.ShouldBe(1);
+
+            result.B.ShouldNotBeNull();
+            result.B.Id.ShouldBe(11);
+            result.B.Cs.ShouldHaveSingleItem();
+            result.B.Cs[0].Parent.ShouldNotBeNull();
+            result.B.Cs[0].Parent.Id.ShouldBe(222);
+            result.B.Cs[0].Parent.Parent.ShouldBeNull();
+
+            result.C.ShouldNotBeNull();
+            result.C.Id.ShouldBe(12);
+            result.C.Parent.ShouldNotBeNull();
+            result.C.Parent.Id.ShouldBe(222);
+            result.C.Parent.Parent.ShouldBeNull();
+        }
+
+        [Fact]
         public void ShouldGenerateAMappingPlanForLinkRelationships()
         {
             string plan = Mapper.GetPlanFor<Video>().Over<Video>();
@@ -1128,6 +1173,57 @@
                 public Product Product { get; set; }
 
                 public HashSet<WarehouseProductTag> Tags { get; set; } = new HashSet<WarehouseProductTag>();
+            }
+        }
+
+        public static class Issue115
+        {
+            public class A
+            {
+                public int Id { get; set; }
+
+                public B B { get; set; }
+
+                public C C { get; set; }
+            }
+
+            public class B
+            {
+                public int Id { get; set; }
+
+                public C[] Cs { get; set; }
+            }
+
+            public class C
+            {
+                public int Id { get; set; }
+
+                public C Parent { get; set; }
+            }
+
+            public class ADto
+            {
+                public int Id { get; set; }
+
+                // ReSharper disable MemberHidesStaticFromOuterClass
+                public BDto B { get; set; }
+
+                public CDto C { get; set; }
+                // ReSharper restore MemberHidesStaticFromOuterClass
+            }
+
+            public class BDto
+            {
+                public int Id { get; set; }
+
+                public CDto[] Cs { get; set; }
+            }
+
+            public class CDto
+            {
+                public int Id { get; set; }
+
+                public CDto Parent { get; set; }
             }
         }
 

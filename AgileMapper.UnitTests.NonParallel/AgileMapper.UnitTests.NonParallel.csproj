@@ -75,6 +75,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
+    <Compile Include="Configuration\Inline\WhenConfiguringDerivedTypesInline.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringDataSources.cs" />

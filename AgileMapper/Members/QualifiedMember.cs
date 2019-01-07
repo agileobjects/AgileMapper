@@ -108,8 +108,12 @@ namespace AgileObjects.AgileMapper.Members
 
             for (var i = Depth - 2; i >= 0; --i)
             {
-                if (LeafMember.Type == MemberChain[i].Type)
+                if ((LeafMember.Type == MemberChain[i].Type) &&
+                   ((Depth - i > 2) || LeafMember.Equals(MemberChain[i])))
                 {
+                    // Recursion if the types match and either:
+                    //  1. It's via an intermediate object, e.g. Order.OrderItem.Order, or
+                    //  2. It's the same member, e.g. root.Parent.Parent
                     return true;
                 }
             }

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using AgileMapper.Configuration;
     using AgileMapper.Extensions.Internal;
@@ -183,6 +184,43 @@
                 result.First().Address.ShouldBeNull();
                 result.Second().Address.ShouldNotBeNull();
                 result.Second().Address.Line1.ShouldBe("Hello!");
+            }
+        }
+
+        [Fact]
+        public void ShouldMapCollectionsToNullIfConfiguredGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .MapNullCollectionsToNull();
+
+                var source = new PublicField<Collection<byte>> { Value = null };
+                var result = mapper.Map(source).ToANew<PublicSetMethod<IEnumerable<string>>>();
+
+                result.Value.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldMapCollectionsToNullIfConfiguredByType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<IEnumerable<int>>>()
+                    .To<PublicField<List<string>>>()
+                    .MapNullCollectionsToNull();
+
+                var matchingSource = new PublicProperty<IEnumerable<int>> { Value = null };
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<List<string>>>();
+
+                matchingResult.Value.ShouldBeNull();
+
+                var nonMatchingSource = new PublicProperty<IEnumerable<long>> { Value = null };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<List<string>>>();
+
+                nonMatchingResult.Value.ShouldBeEmpty();
             }
         }
 
