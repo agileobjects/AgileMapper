@@ -19,16 +19,18 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2018</Copyright>
-    <PackageReleaseNotes>- Making entity key mapping behaviour configurable
-- Support for auto-reversal of configured data sources
-- Updating to use ReadableExpressions v2.0
-- Added shorthand .Map(s =&gt; s.Value, t =&gt; t.Value) API method
-- Performance and memory use improvements</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support for simple type .ToTarget() configuration
+- Support for automatic use of user-defined operators
+- Fixing object-to-object Dictionary mapping bug #110
+- Fixing repeated DTO mapping bug #115
+- Performance improvements
+- Updating to ReadableExpressions v2.1</PackageReleaseNotes>
+    <Version>1.1.0-preview5</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.0" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.0.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">

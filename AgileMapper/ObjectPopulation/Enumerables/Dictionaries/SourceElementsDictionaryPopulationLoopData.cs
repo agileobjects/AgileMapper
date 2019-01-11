@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     using System;
     using System.Collections.Generic;
     using DataSources;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
 #if NET35

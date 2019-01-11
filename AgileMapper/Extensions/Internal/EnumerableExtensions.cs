@@ -232,9 +232,9 @@
             return newArray;
         }
 
-        public static T[] Append<T>(this T[] array, T extraItem)
+        public static T[] Append<T>(this IList<T> array, T extraItem)
         {
-            switch (array.Length)
+            switch (array.Count)
             {
                 case 0:
                     return new[] { extraItem };
@@ -246,21 +246,28 @@
                     return new[] { array[0], array[1], extraItem };
 
                 default:
-                    var newArray = new T[array.Length + 1];
+                    var newArray = new T[array.Count + 1];
 
                     newArray.CopyFrom(array);
 
-                    newArray[array.Length] = extraItem;
+                    newArray[array.Count] = extraItem;
 
                     return newArray;
             }
         }
 
-        public static T[] Append<T>(this IList<T> array, params T[] extraItems)
-            => Append(array, (IList<T>)extraItems);
-
         public static T[] Append<T>(this IList<T> array, IList<T> extraItems)
         {
+            if (array.Count == 1)
+            {
+                return Prepend(extraItems, array[0]);
+            }
+
+            if (extraItems.Count == 1)
+            {
+                return Append(array, extraItems[0]);
+            }
+
             var combinedArray = new T[array.Count + extraItems.Count];
 
             combinedArray.CopyFrom(array);

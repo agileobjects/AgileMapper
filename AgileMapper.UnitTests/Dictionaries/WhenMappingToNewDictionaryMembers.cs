@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Extensions;
     using Common;
     using TestClasses;
 #if !NET35
@@ -105,6 +106,7 @@
                 Value = new[]
                 {
                     new [] { 1, 2, 3 },
+                    null,
                     new [] { 4, 5, 6 }
                 }
             };
@@ -113,7 +115,8 @@
             result.Value.ShouldNotContainKey("[0][0]");
 
             result.Value["[0]"].ShouldBe("1", "2", "3");
-            result.Value["[1]"].ShouldBe("4", "5", "6");
+            result.Value["[1]"].ShouldBeDefault();
+            result.Value["[2]"].ShouldBe("4", "5", "6");
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/8
@@ -158,6 +161,34 @@
             result.Value["Object"].ShouldBeOfType<CustomerViewModel>();
             result.Value["Object"].ShouldNotBeSameAs(source.Value["Object"]);
             ((CustomerViewModel)result.Value["Object"]).Name.ShouldBe("Mr Yo Yo");
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/110
+        [Fact]
+        public void ShouldMapSimpleTypeObjectValuesToSimpleTypeObjectValues()
+        {
+            var source = new PublicField<Dictionary<string, object>>
+            {
+                Value = new Dictionary<string, object>
+                {
+                    { "int", 1 },
+                    { "double", 1.0 },
+                    { "decimal", 1m },
+                    { "string", "hello" },
+                    { "bool", true }
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicProperty<Dictionary<string, object>>>();
+
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldNotBeSameAs(source.Value);
+            result.Value.Count.ShouldBe(source.Value.Count);
+            result.Value.ShouldContainKeyAndValue("int", 1);
+            result.Value.ShouldContainKeyAndValue("double", 1.0);
+            result.Value.ShouldContainKeyAndValue("decimal", 1m);
+            result.Value.ShouldContainKeyAndValue("string", "hello");
+            result.Value.ShouldContainKeyAndValue("bool", true);
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/10
@@ -210,6 +241,40 @@
             result.Value["Test"].ShouldBe("Hello!");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/110
+        [Fact]
+        public void ShouldCloneSimpleTypeValuesInAnObjectDictionary()
+        {
+            var source = new PublicTwoFields<int, Dictionary<string, object>>
+            {
+                Value1 = 6372,
+                Value2 = new Dictionary<string, object>
+                {
+                    ["QueryName"] = "References",
+                    ["IsDefault"] = false,
+                    ["QueryId"] = 155,
+                    ["WorkspaceTypeId"] = 1,
+                    ["IsUserDefined"] = true,
+                    ["QueryTypeId"] = 2,
+                    ["Test"] = default(int?)
+                }
+            };
+
+            var result = source.DeepClone();
+
+            result.Value1.ShouldBe(6372);
+            result.Value2.ShouldNotBeNull();
+            result.Value2.ShouldNotBeSameAs(source.Value2);
+            result.Value2.Count.ShouldBe(source.Value2.Count);
+            result.Value2.ShouldContainKeyAndValue("QueryName", "References");
+            result.Value2.ShouldContainKeyAndValue("IsDefault", false);
+            result.Value2.ShouldContainKeyAndValue("QueryId", 155);
+            result.Value2.ShouldContainKeyAndValue("WorkspaceTypeId", 1);
+            result.Value2.ShouldContainKeyAndValue("IsUserDefined", true);
+            result.Value2.ShouldContainKeyAndValue("QueryTypeId", 2);
+            result.Value2.ShouldContainKeyAndValue("Test", null);
+        }
+
         [Fact]
         public void ShouldNotCreateDictionaryAsFallbackComplexType()
         {
@@ -239,6 +304,7 @@
                             Line2 = "That place",
                         }
                     },
+                    default(Customer),
                     new MysteryCustomer
                     {
                         Id = Guid.NewGuid(),
@@ -261,14 +327,14 @@
             result.Value["[0].Address.Line1"].ShouldBe("This place");
             result.Value["[0].Address.Line2"].ShouldBe("That place");
 
-            result.Value["[1].Id"].ShouldBe(source.Value.Second().Id);
-            result.Value["[1].Title"].ShouldBe(Title.Dr);
-            result.Value["[1].Name"].ShouldBe("Customer 2");
-            result.Value["[1].Discount"].ShouldBe(0.3m);
-            result.Value["[1].Report"].ShouldBe("It was all a mystery :o");
-            result.Value.ShouldNotContainKey("[1].Address");
-            result.Value.ShouldNotContainKey("[1].Address.Line1");
-            result.Value.ShouldNotContainKey("[1].Address.Line2");
+            result.Value["[2].Id"].ShouldBe(source.Value.Third().Id);
+            result.Value["[2].Title"].ShouldBe(Title.Dr);
+            result.Value["[2].Name"].ShouldBe("Customer 2");
+            result.Value["[2].Discount"].ShouldBe(0.3m);
+            result.Value["[2].Report"].ShouldBe("It was all a mystery :o");
+            result.Value.ShouldNotContainKey("[2].Address");
+            result.Value.ShouldNotContainKey("[2].Address.Line1");
+            result.Value.ShouldNotContainKey("[2].Address.Line2");
 
         }
 

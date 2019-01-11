@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Linq;
     using Caching;
+    using Extensions;
     using Extensions.Internal;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -81,6 +82,7 @@ namespace AgileObjects.AgileMapper.Members
                     : type.GetEnumerableElementType();
             }
 
+            // TODO: Lazy-load this:
             _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>(
                 default(HashCodeComparer<Member>));
         }
@@ -88,6 +90,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsRoot => false;
 
         public Type Type { get; }
+
+        public Type RootType => _childMembers[0].Type;
 
         public Type ElementType { get; }
 

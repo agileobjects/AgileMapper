@@ -30,9 +30,8 @@
 
         private static bool HasToStringOperator(Type nonNullableSourceType, out MethodInfo operatorMethod)
         {
-            operatorMethod = nonNullableSourceType
-                .GetOperators(o => o.To<string>())
-                .FirstOrDefault();
+            operatorMethod = OperatorConverter
+                .GetOperatorOrNull(nonNullableSourceType, typeof(string));
 
             return operatorMethod != null;
         }

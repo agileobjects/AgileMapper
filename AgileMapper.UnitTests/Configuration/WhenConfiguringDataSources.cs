@@ -148,6 +148,92 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/111
+        [Fact]
+        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeConstant()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().ToANew<string>()
+                    .If(ctx => string.IsNullOrEmpty(ctx.Source))
+                    .Map(default(string)).ToTarget();
+
+                var source = new Address { Line1 = "Here", Line2 = string.Empty };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("Here");
+                result.Line2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAToTargetConfiguredSimpleTypeConstant()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().ToANew<string>()
+                    .Map((s, t) => string.IsNullOrEmpty(s) ? null : s).ToTarget();
+
+                var source = new Address { Line1 = "There", Line2 = string.Empty };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("There");
+                result.Line2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldConditionallyApplyAToTargetConfiguredNestedSimpleTypeExpression()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<int>().ToANew<int>()
+                    .If(ctx => ctx.Source % 2 == 0)
+                    .Map(ctx => ctx.Source * 2).ToTarget();
+
+                var nonMatchingSource = new { ValueValue = 3 };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<PublicField<int>>>();
+
+                nonMatchingResult.Value.ShouldNotBeNull();
+                nonMatchingResult.Value.Value.ShouldBe(3);
+
+                var matchingSource = new { ValueValue = 4 };
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<PublicField<int>>>();
+
+                matchingResult.Value.ShouldNotBeNull();
+                matchingResult.Value.Value.ShouldBe(8);
+            }
+        }
+
+        [Fact]
+        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeExpressionInAComplexTypeList()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<int>().ToANew<int>()
+                    .If((s, t) => s % 2 == 0)
+                    .Map(ctx => ctx.Source * 2).ToTarget();
+
+                var source = new PublicField<List<PublicField<int>>>
+                {
+                    Value = new List<PublicField<int>>
+                    {
+                        new PublicField<int> { Value = 1 },
+                        new PublicField<int> { Value = 2 },
+                        new PublicField<int> { Value = 3 }
+                    }
+                };
+                var result = mapper.Map(source).ToANew<PublicField<List<PublicField<int>>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBe(pf => pf.Value, 1, 4, 3);
+            }
+        }
+
         [Fact]
         public void ShouldConditionallyApplyAConfiguredMember()
         {
@@ -737,6 +823,62 @@
                 var defaultResult = mapper.Map(source).Over(defaultTarget);
 
                 defaultResult.Value.Value.ShouldBe(0);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/113
+        [Fact]
+        public void ShouldApplyAConfiguredComplexToSimpleTypeEnumerableProjection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<int>[]>>()
+                    .To<PublicField<int[]>>()
+                    .Map(
+                        pfpfi => pfpfi.Value.Select(v => v.Value),
+                        pfi => pfi.Value);
+
+                var source = new PublicField<PublicField<int>[]>
+                {
+                    Value = new[]
+                    {
+                        new PublicField<int> { Value = 1 },
+                        new PublicField<int> { Value = 2 },
+                        new PublicField<int> { Value = 3 }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
+
+                result.Value.ShouldNotBeEmpty();
+                result.Value.ShouldBe(1, 2, 3);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/113
+        [Fact]
+        public void ShouldApplyAConfiguredComplexToSimpleTypeEnumerableProjectionToTheRootTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>[]>()
+                    .To<int[]>()
+                    .Map(ctx => ctx.Source.Select(v => v.Value))
+                    .ToTarget();
+
+                var source = new[]
+                {
+                    new PublicField<int> { Value = 1 },
+                    new PublicField<int> { Value = 2 },
+                    new PublicField<int> { Value = 3 }
+                };
+
+                var result = mapper.Map(source).ToANew<int[]>();
+
+                result.ShouldNotBeEmpty();
+                result.ShouldBe(1, 2, 3);
             }
         }
 

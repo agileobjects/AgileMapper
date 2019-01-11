@@ -13,6 +13,8 @@ namespace AgileObjects.AgileMapper.Members
 
         Type Type { get; }
 
+        Type RootType { get; }
+
         Type ElementType { get; }
 
         string GetFriendlyTypeName();

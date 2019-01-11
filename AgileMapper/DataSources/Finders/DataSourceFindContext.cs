@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
     using System.Collections.Generic;
+    using Extensions;
     using Extensions.Internal;
     using Members;
 
@@ -66,6 +67,12 @@
             if (targetMember.Type == typeof(object))
             {
                 return !dataSource.SourceMember.Type.IsSimple();
+            }
+
+            if ((dataSource.Value.Type == targetMember.Type) &&
+                (dataSource.SourceMember.Type != targetMember.Type))
+            {
+                return false;
             }
 
             return !targetMember.Type.IsFromBcl();

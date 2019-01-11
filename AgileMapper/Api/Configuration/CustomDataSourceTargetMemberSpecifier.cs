@@ -291,7 +291,7 @@
 
         public IMappingConfigContinuation<TSource, TTarget> ToTarget()
         {
-            ThrowIfSimpleSource(typeof(TTarget));
+            ThrowIfSimpleSourceForNonSimpleTargetMember(typeof(TTarget));
             ThrowIfEnumerableSourceAndTargetMismatch(typeof(TTarget));
 
             return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(

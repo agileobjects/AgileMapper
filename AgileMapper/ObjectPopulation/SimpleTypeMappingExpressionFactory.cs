@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
+    using Extensions;
     using Members;
 #if NET35
     using Microsoft.Scripting.Ast;

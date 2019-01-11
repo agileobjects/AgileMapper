@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal abstract class PopulationExpressionFactoryBase
     {
-        public IEnumerable<Expression> GetPopulation(MappingExpressionFactoryBase.MappingCreationContext context)
+        public IEnumerable<Expression> GetPopulation(MappingCreationContext context)
         {
             var mappingData = context.MappingData;
             var mapperData = context.MapperData;
@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static void GetCreationCallbacks(
-            MappingExpressionFactoryBase.MappingCreationContext context,
+            MappingCreationContext context,
             out Expression preCreationCallback,
             out Expression postCreationCallback)
         {

@@ -99,11 +99,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void Reset()
         {
-            foreach (var mappingExpressionFactory in _mappingExpressionFactories)
-            {
-                mappingExpressionFactory.Reset();
-            }
-
             foreach (var mapper in _rootMappersCache.Values)
             {
                 mapper.Reset();

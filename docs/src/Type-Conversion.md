@@ -1,10 +1,10 @@
 Value conversion is performed according to the following:
 
+- Implicit or explicit operators are used to convert values where they are available.
+
 - Value types, nullable types and strings are all parsed and converted out of the box using the `TryParse` methods from the BCL.
 
 - `DateTime`s (and nullable `DateTime`s) are converted to strings using `value.ToString(CultureInfo.CurrentCulture.DateTimeFormat)`. Custom formatting strings [can be configured](/configuration/To-String-Formatting) for to-string conversions.
-
-- Implicit or explicit to-String operators are used to convert values to strings where they are available.
 
 - When parsing numerics, the default value is applied in the following circumstances:
   - If a value larger or smaller than the target type can contain is parsed - e.g. `double.MaxValue` being mapped to an int

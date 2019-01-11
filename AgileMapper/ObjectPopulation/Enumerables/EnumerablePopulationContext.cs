@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;

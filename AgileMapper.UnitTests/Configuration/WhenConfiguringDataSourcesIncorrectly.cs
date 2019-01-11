@@ -301,6 +301,24 @@
         }
 
         [Fact]
+        public void ShouldErrorIfUnconvertibleEnumerableElementTypeConfigured()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<PublicField<int>[]>>()
+                        .To<PublicField<int[]>>()
+                        .Map(s => s.Value, t => t.Value);
+                }
+            });
+
+            configurationException.Message.ShouldContain(
+                "Unable to convert configured 'PublicField<int>' to target type 'int'");
+        }
+
+        [Fact]
         public void ShouldErrorIfTargetParameterConfiguredAsTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
@@ -319,7 +337,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfRootTargetSimpleTypeConstantDataSourceConfigured()
+        public void ShouldErrorIfSimpleTypeConstantConfiguredForRootTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -338,7 +356,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfRootTargetSimpleTypeMemberDataSourceConfigured()
+        public void ShouldErrorIfSimpleTypeMemberConfiguredForRootTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -357,7 +375,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfRootEnumerableTargetNonEnumerableTypeMemberDataSourceConfigured()
+        public void ShouldErrorIfNonEnumerableTypeMemberConfiguredForRootEnumerableTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -376,7 +394,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfRootNonEnumerableTargetEnumerableTypeMemberDataSourceConfigured()
+        public void ShouldErrorIfEnumerableTypeMemberConfiguredForRootNonEnumerableTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -392,6 +410,25 @@
 
             configurationException.Message.ShouldContain("Enumerable PublicField<List<Customer>>.Value");
             configurationException.Message.ShouldContain("cannot be mapped to non-enumerable target type 'PublicProperty<Customer>'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfUnconvertibleEnumerableElementTypeConfiguredForRootTarget()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<PublicField<decimal>[]>>()
+                        .To<decimal[]>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToTarget();
+                }
+            });
+
+            configurationException.Message.ShouldContain(
+                "Unable to convert configured 'PublicField<decimal>' to target type 'decimal'");
         }
 
         [Fact]

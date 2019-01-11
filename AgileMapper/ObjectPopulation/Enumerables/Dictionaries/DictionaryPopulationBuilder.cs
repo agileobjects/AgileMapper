@@ -90,7 +90,16 @@
             var dictionaryEntryMember = _targetDictionaryMember.Append(keyVariable);
             var targetEntryAssignment = AssignDictionaryEntry(loopData, dictionaryEntryMember, mappingData);
 
-            return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
+            if (targetEntryAssignment.NodeType != ExpressionType.Block)
+            {
+                return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
+            }
+
+            var targetEntryAssignmentBlock = (BlockExpression)targetEntryAssignment;
+
+            return Expression.Block(
+                targetEntryAssignmentBlock.Variables.Prepend(keyVariable),
+                targetEntryAssignmentBlock.Expressions.Prepend(keyAssignment));
         }
 
         private Expression AssignDictionaryEntry(IPopulationLoopData loopData, IObjectMappingData mappingData)
@@ -119,11 +128,11 @@
                 return GetPopulation(loopData, dictionaryEntryMember, mappingData);
             }
 
-            var derivedSourceTypes = mappingData.MapperData.GetDerivedSourceTypes();
-            var hasDerivedSourceTypes = derivedSourceTypes.Any();
-
             List<ParameterExpression> typedVariables;
             List<Expression> mappingExpressions;
+
+            var derivedSourceTypes = mappingData.MapperData.GetDerivedSourceTypes();
+            var hasDerivedSourceTypes = derivedSourceTypes.Any();
 
             if (hasDerivedSourceTypes)
             {
@@ -144,9 +153,13 @@
                 mappingExpressions = new List<Expression>(2);
             }
 
-            InsertSourceElementNullCheck(loopData, mappingExpressions);
-
             mappingExpressions.Add(GetPopulation(loopData, dictionaryEntryMember, mappingData));
+
+            InsertSourceElementNullCheck(
+                loopData,
+                dictionaryEntryMember,
+                mappingData.MapperData,
+                mappingExpressions);
 
             var mappingBlock = hasDerivedSourceTypes
                 ? Expression.Block(typedVariables, mappingExpressions)
@@ -187,7 +200,11 @@
             }
         }
 
-        private static void InsertSourceElementNullCheck(IPopulationLoopData loopData, IList<Expression> mappingExpressions)
+        private void InsertSourceElementNullCheck(
+            IPopulationLoopData loopData,
+            DictionaryTargetMember dictionaryEntryMember,
+            IMemberMapperData mapperData,
+            IList<Expression> mappingExpressions)
         {
             var sourceElement = loopData.GetSourceElementValue();
 
@@ -199,8 +216,16 @@
             loopData.NeedsContinueTarget = true;
 
             var sourceElementIsNull = sourceElement.GetIsDefaultComparison();
+
+            var nullTargetValue = dictionaryEntryMember.ValueType.ToDefaultExpression();
+            var addNullEntry = dictionaryEntryMember.GetPopulation(nullTargetValue, mapperData);
+
+            var incrementCounter = _wrappedBuilder.GetCounterIncrement();
             var continueLoop = Expression.Continue(loopData.ContinueLoopTarget);
-            var ifNullContinue = Expression.IfThen(sourceElementIsNull, continueLoop);
+
+            var nullEntryActions = Expression.Block(addNullEntry, incrementCounter, continueLoop);
+
+            var ifNullContinue = Expression.IfThen(sourceElementIsNull, nullEntryActions);
 
             mappingExpressions.Insert(0, ifNullContinue);
         }

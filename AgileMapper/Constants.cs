@@ -58,7 +58,7 @@
         };
 
         public static readonly Type[] NumericTypes = WholeNumberNumericTypes
-            .Append(typeof(float), typeof(decimal), typeof(double));
+            .Append(new[] { typeof(float), typeof(decimal), typeof(double) });
 
         public static readonly IDictionary<Type, double> NumericTypeMaxValuesByType = GetValuesByType("MaxValue");
         public static readonly IDictionary<Type, double> NumericTypeMinValuesByType = GetValuesByType("MinValue");

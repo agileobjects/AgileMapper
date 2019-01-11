@@ -13,7 +13,6 @@ namespace AgileObjects.AgileMapper.DataSources
     internal class DataSourceSet : IEnumerable<IDataSource>
     {
         private readonly IList<IDataSource> _dataSources;
-        private readonly IList<ParameterExpression> _variables;
         private Expression _value;
 
         public DataSourceSet(IMemberMapperData mapperData, params IDataSource[] dataSources)
@@ -24,13 +23,13 @@ namespace AgileObjects.AgileMapper.DataSources
 
             if (None)
             {
-                _variables = Enumerable<ParameterExpression>.EmptyArray;
+                Variables = Enumerable<ParameterExpression>.EmptyArray;
                 return;
             }
 
             var variables = new List<ParameterExpression>();
 
-            for (var i = 0; i < dataSources.Length; )
+            for (var i = 0; i < dataSources.Length;)
             {
                 var dataSource = dataSources[i++];
 
@@ -55,7 +54,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 }
             }
 
-            _variables = variables;
+            Variables = variables;
         }
 
         public IMemberMapperData MapperData { get; }
@@ -68,7 +67,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression SourceMemberTypeTest { get; }
 
-        public ICollection<ParameterExpression> Variables => _variables;
+        public IList<ParameterExpression> Variables { get; }
 
         public IDataSource this[int index] => _dataSources[index];
 
@@ -78,9 +77,9 @@ namespace AgileObjects.AgileMapper.DataSources
         {
             var value = default(Expression);
 
-            for (var i = _dataSources.Count - 1; i >= 0; --i)
+            for (var i = _dataSources.Count - 1; i >= 0;)
             {
-                var dataSource = _dataSources[i];
+                var dataSource = _dataSources[i--];
 
                 value = dataSource.AddPreConditionIfNecessary(value == default(Expression)
                     ? dataSource.Value

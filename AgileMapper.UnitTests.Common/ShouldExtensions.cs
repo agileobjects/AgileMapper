@@ -400,7 +400,7 @@
                 Asplode("Dictionary with key " + expectedKey, "No contained key");
             }
 
-            value.ShouldBeSameAs(expectedValue);
+            value.ShouldBe(expectedValue);
 
             return dictionary;
         }

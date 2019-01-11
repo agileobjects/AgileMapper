@@ -153,6 +153,20 @@
         }
 #endif
         [Fact]
+        public void ShouldHandleAnUnconvertibleElementType()
+        {
+            var source = new[]
+            {
+                new PublicField<int> { Value = 1 },
+                new PublicField<int> { Value = 2 }
+            };
+
+            var result = Mapper.Map(source).ToANew<int[]>();
+
+            result.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeElement()
         {
             var source = new List<Product>
@@ -167,6 +181,25 @@
             result.ShouldNotBeNull();
             result.ShouldNotBe(source);
             result.Second().ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleANullObjectElement()
+        {
+            var source = new List<object>
+            {
+                123,
+                null,
+                new MegaProduct { ProductId = "Boomstick" }
+            };
+
+            var result = Mapper.Map(source).ToANew<List<object>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldNotBe(source);
+            result.First().ShouldBe(123);
+            result.Second().ShouldBeNull();
+            result.Third().ShouldBeOfType<MegaProduct>();
         }
 
         [Fact]

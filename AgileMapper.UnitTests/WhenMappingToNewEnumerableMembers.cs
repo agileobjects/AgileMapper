@@ -497,41 +497,117 @@
             result.Value.ShouldBeEmpty();
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/115
         [Fact]
-        public void ShouldMapCollectionsToNullIfConfiguredGlobally()
+        public void ShouldMapNestedLists()
         {
-            using (var mapper = Mapper.CreateNew())
+            var source = new Issue115.A2
             {
-                mapper.WhenMapping
-                    .MapNullCollectionsToNull();
+                Id = 2,
+                BB = new Issue115.B
+                {
+                    Id = 11,
+                    CC = new List<Issue115.C>
+                    {
+                        new Issue115.C
+                        {
+                            Id = 111,
+                            DD = new Issue115.D { Id = 111 }
+                        }
+                    }
+                },
+                CC = new Issue115.C
+                {
+                    Id = 111,
+                    DD = new Issue115.D { Id = 112 }
+                }
+            };
 
-                var source = new PublicField<Collection<byte>> { Value = null };
-                var result = mapper.Map(source).ToANew<PublicSetMethod<IEnumerable<string>>>();
+            var result = Mapper.Map(source).ToANew<Issue115.A2Dto>();
 
-                result.Value.ShouldBeNull();
-            }
+            result.Id.ShouldBe(2);
+
+            result.BB.ShouldNotBeNull();
+            result.BB.Id.ShouldBe(11);
+            result.BB.CC.ShouldHaveSingleItem();
+            result.BB.CC[0].Id.ShouldBe(111);
+            result.BB.CC[0].DD.ShouldNotBeNull().Id.ShouldBe(111);
+
+            result.CC.ShouldNotBeNull();
+            result.CC.Id.ShouldBe(111);
+            result.CC.DD.ShouldNotBeNull().Id.ShouldBe(112);
+
         }
 
-        [Fact]
-        public void ShouldMapCollectionsToNullIfConfiguredByType()
+        #region Helper Members
+
+        private static class Issue115
         {
-            using (var mapper = Mapper.CreateNew())
+            // ReSharper disable ClassNeverInstantiated.Local
+            // ReSharper disable InconsistentNaming
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
+            // ReSharper disable CollectionNeverUpdated.Local
+            public class A2
             {
-                mapper.WhenMapping
-                    .From<PublicProperty<IEnumerable<int>>>()
-                    .To<PublicField<List<string>>>()
-                    .MapNullCollectionsToNull();
+                public int Id { get; set; }
 
-                var matchingSource = new PublicProperty<IEnumerable<int>> { Value = null };
-                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<List<string>>>();
+                public B BB { get; set; }
 
-                matchingResult.Value.ShouldBeNull();
-
-                var nonMatchingSource = new PublicProperty<IEnumerable<long>> { Value = null };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<List<string>>>();
-
-                nonMatchingResult.Value.ShouldBeEmpty();
+                public C CC { get; set; }
             }
+
+            public class B
+            {
+                public int Id { get; set; }
+
+                public IList<C> CC { get; set; }
+            }
+
+            public class C
+            {
+                public int Id { get; set; }
+
+                public D DD { get; set; }
+            }
+
+            public class D
+            {
+                public int Id { get; set; }
+            }
+
+            public class A2Dto
+            {
+                public int Id { get; set; }
+
+                public BDto BB { get; set; }
+
+                public CDto CC { get; set; }
+            }
+
+            public class BDto
+            {
+                public int Id { get; set; }
+
+                public IList<CDto> CC { get; set; }
+            }
+
+            public class CDto
+            {
+                public int Id { get; set; }
+
+                public DDto DD { get; set; }
+            }
+
+            public class DDto
+            {
+                public int Id { get; set; }
+            }
+            // ReSharper restore CollectionNeverUpdated.Local
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
+            // ReSharper restore InconsistentNaming
+            // ReSharper restore ClassNeverInstantiated.Local
         }
+
+        #endregion
     }
 }

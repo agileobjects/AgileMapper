@@ -6,9 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using DataSources;
     using Extensions;
     using Extensions.Internal;
-    using MapperKeys;
     using Members;
-    using Members.Sources;
     using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -49,7 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             context.MappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
-            context.MappingExpressions.AddRange(GetObjectPopulation(context).WhereNotNull());
+            context.MappingExpressions.AddRange(GetNonNullObjectPopulation(context));
             context.MappingExpressions.AddRange(GetConfiguredRootDataSourcePopulations(context));
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
 
@@ -119,6 +117,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.GetMapToNullConditionOrNull(mapperData);
 
+        private IEnumerable<Expression> GetNonNullObjectPopulation(MappingCreationContext context)
+            => GetObjectPopulation(context).WhereNotNull();
+
         protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
 
         private IEnumerable<Expression> GetConfiguredRootDataSourcePopulations(MappingCreationContext context)
@@ -133,7 +134,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var configuredRootDataSource = configuredRootDataSources[i];
                 var newSourceContext = context.WithDataSource(configuredRootDataSource);
 
-                var memberPopulations = GetObjectPopulation(newSourceContext).WhereNotNull().ToArray();
+                var memberPopulations = GetNonNullObjectPopulation(newSourceContext).ToArray();
 
                 if (memberPopulations.None())
                 {
@@ -303,7 +304,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return returnExpression;
             }
 
-        CreateFullMappingBlock:
+            CreateFullMappingBlock:
 
             returnExpression = GetReturnExpression(GetReturnValue(context.MapperData), context);
 
@@ -388,156 +389,55 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
             var exceptionVariable = Parameters.Create<Exception>("ex");
 
-            Expression catchBody;
-
-            if (configuredCallback != null)
+            if (configuredCallback == null)
             {
-                var callbackActionType = configuredCallback.Type.GetGenericTypeArguments()[0];
+                var catchBody = Expression.Throw(
+                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
+                    mappingBlock.Type);
 
-                Type[] contextTypes;
-                Expression contextAccess;
+                return CreateTryCatch(mappingBlock, exceptionVariable, catchBody);
+            }
 
-                if (callbackActionType.IsGenericType())
-                {
-                    contextTypes = callbackActionType.GetGenericTypeArguments();
-                    contextAccess = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
-                }
-                else
-                {
-                    contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
-                    contextAccess = mapperData.MappingDataObject;
-                }
+            var callbackActionType = configuredCallback.Type.GetGenericTypeArguments()[0];
 
-                var exceptionContextCreateMethod = ObjectMappingExceptionData
-                    .CreateMethod
-                    .MakeGenericMethod(contextTypes);
+            Type[] contextTypes;
+            Expression contextAccess;
 
-                var exceptionContextCreateCall = Expression.Call(
-                    exceptionContextCreateMethod,
-                    contextAccess,
-                    exceptionVariable);
-
-                var callbackInvocation = Expression.Invoke(configuredCallback, exceptionContextCreateCall);
-                var returnDefault = mappingBlock.Type.ToDefaultExpression();
-                catchBody = Expression.Block(callbackInvocation, returnDefault);
+            if (callbackActionType.IsGenericType())
+            {
+                contextTypes = callbackActionType.GetGenericTypeArguments();
+                contextAccess = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
             }
             else
             {
-                catchBody = Expression.Throw(
-                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
-                    mappingBlock.Type);
+                contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
+                contextAccess = mapperData.MappingDataObject;
             }
 
+            var exceptionContextCreateMethod = ObjectMappingExceptionData
+                .CreateMethod
+                .MakeGenericMethod(contextTypes);
+
+            var createExceptionContextCall = Expression.Call(
+                exceptionContextCreateMethod,
+                contextAccess,
+                exceptionVariable);
+
+            var callbackInvocation = Expression.Invoke(configuredCallback, createExceptionContextCall);
+            var returnDefault = mappingBlock.Type.ToDefaultExpression();
+            var configuredCatchBody = Expression.Block(callbackInvocation, returnDefault);
+
+            return CreateTryCatch(mappingBlock, exceptionVariable, configuredCatchBody);
+        }
+
+        private static Expression CreateTryCatch(
+            Expression mappingBlock,
+            ParameterExpression exceptionVariable,
+            Expression catchBody)
+        {
             var catchBlock = Expression.Catch(exceptionVariable, catchBody);
 
             return Expression.TryCatch(mappingBlock, catchBlock);
         }
-
-        public virtual void Reset()
-        {
-        }
-
-        #region Helper Class
-
-        internal class MappingCreationContext
-        {
-            private bool _mapperDataHasRootEnumerableVariables;
-
-            public MappingCreationContext(
-                IObjectMappingData mappingData,
-                Expression mapToNullCondition = null,
-                List<Expression> mappingExpressions = null)
-                : this(mappingData, null, null, mapToNullCondition, mappingExpressions)
-            {
-            }
-
-            public MappingCreationContext(
-                IObjectMappingData mappingData,
-                Expression preMappingCallback,
-                Expression postMappingCallback,
-                Expression mapToNullCondition,
-                List<Expression> mappingExpressions = null)
-            {
-                MappingData = mappingData;
-                PreMappingCallback = preMappingCallback;
-                PostMappingCallback = postMappingCallback;
-                MapToNullCondition = mapToNullCondition;
-                InstantiateLocalVariable = true;
-                MappingExpressions = mappingExpressions ?? new List<Expression>();
-            }
-
-            public MapperContext MapperContext => MapperData.MapperContext;
-
-            public MappingRuleSet RuleSet => MappingData.MappingContext.RuleSet;
-
-            public ObjectMapperData MapperData => MappingData.MapperData;
-
-            public QualifiedMember TargetMember => MapperData.TargetMember;
-
-            public bool IsRoot => MappingData.IsRoot;
-
-            public IObjectMappingData MappingData { get; }
-
-            public Expression PreMappingCallback { get; }
-
-            public Expression PostMappingCallback { get; }
-
-            public Expression MapToNullCondition { get; }
-
-            public List<Expression> MappingExpressions { get; }
-
-            public bool InstantiateLocalVariable { get; set; }
-
-            public MappingCreationContext WithDataSource(IDataSource newDataSource)
-            {
-                var newSourceMappingData = MappingData.WithSource(newDataSource.SourceMember);
-
-                newSourceMappingData.MapperKey = new RootObjectMapperKey(
-                    RuleSet,
-                    newSourceMappingData.MappingTypes,
-                    new FixedMembersMembersSource(newDataSource.SourceMember, TargetMember));
-
-                var newContext = new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions)
-                {
-                    InstantiateLocalVariable = false
-                };
-
-                newContext.MapperData.SourceObject = newDataSource.Value;
-                newContext.MapperData.TargetObject = MapperData.TargetObject;
-
-                if (TargetMember.IsComplex)
-                {
-                    newContext.MapperData.TargetInstance = MapperData.TargetInstance;
-                }
-                else if (_mapperDataHasRootEnumerableVariables)
-                {
-                    UpdateEnumerableVariables(MapperData, newContext.MapperData);
-                }
-
-                return newContext;
-            }
-
-            public void UpdateFrom(MappingCreationContext childSourceContext)
-            {
-                MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(childSourceContext.MappingData);
-
-                if (TargetMember.IsComplex || _mapperDataHasRootEnumerableVariables)
-                {
-                    return;
-                }
-
-                _mapperDataHasRootEnumerableVariables = true;
-
-                UpdateEnumerableVariables(childSourceContext.MapperData, MapperData);
-            }
-
-            private static void UpdateEnumerableVariables(ObjectMapperData sourceMapperData, ObjectMapperData targetMapperData)
-            {
-                targetMapperData.LocalVariable = sourceMapperData.LocalVariable;
-                targetMapperData.EnumerablePopulationBuilder.TargetVariable = sourceMapperData.EnumerablePopulationBuilder.TargetVariable;
-            }
-        }
-
-        #endregion
     }
 }
