@@ -826,6 +826,62 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/113
+        [Fact]
+        public void ShouldApplyAConfiguredComplexToSimpleTypeEnumerableProjection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<int>[]>>()
+                    .To<PublicField<int[]>>()
+                    .Map(
+                        pfpfi => pfpfi.Value.Select(v => v.Value),
+                        pfi => pfi.Value);
+
+                var source = new PublicField<PublicField<int>[]>
+                {
+                    Value = new[]
+                    {
+                        new PublicField<int> { Value = 1 },
+                        new PublicField<int> { Value = 2 },
+                        new PublicField<int> { Value = 3 }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
+
+                result.Value.ShouldNotBeEmpty();
+                result.Value.ShouldBe(1, 2, 3);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/113
+        [Fact]
+        public void ShouldApplyAConfiguredComplexToSimpleTypeEnumerableProjectionToTheRootTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>[]>()
+                    .To<int[]>()
+                    .Map(ctx => ctx.Source.Select(v => v.Value))
+                    .ToTarget();
+
+                var source = new[]
+                {
+                    new PublicField<int> { Value = 1 },
+                    new PublicField<int> { Value = 2 },
+                    new PublicField<int> { Value = 3 }
+                };
+
+                var result = mapper.Map(source).ToANew<int[]>();
+
+                result.ShouldNotBeEmpty();
+                result.ShouldBe(1, 2, 3);
+            }
+        }
+
         [Fact]
         public void ShouldApplyAConfiguredSourceAndTargetFunction()
         {

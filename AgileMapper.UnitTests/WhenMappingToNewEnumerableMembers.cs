@@ -539,6 +539,8 @@
 
         }
 
+        #region Helper Members
+
         private static class Issue115
         {
             // ReSharper disable ClassNeverInstantiated.Local
@@ -605,5 +607,7 @@
             // ReSharper restore InconsistentNaming
             // ReSharper restore ClassNeverInstantiated.Local
         }
+
+        #endregion
     }
 }

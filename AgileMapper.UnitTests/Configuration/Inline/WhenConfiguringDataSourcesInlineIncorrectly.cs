@@ -28,7 +28,7 @@
                 }
             });
 
-            inlineConfigEx.Message.ShouldContain("Unable to convert configured decimal? ");
+            inlineConfigEx.Message.ShouldContain("Unable to convert configured 'decimal?' ");
         }
 
         [Fact]

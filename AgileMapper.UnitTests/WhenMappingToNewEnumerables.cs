@@ -153,6 +153,20 @@
         }
 #endif
         [Fact]
+        public void ShouldHandleAnUnconvertibleElementType()
+        {
+            var source = new[]
+            {
+                new PublicField<int> { Value = 1 },
+                new PublicField<int> { Value = 2 }
+            };
+
+            var result = Mapper.Map(source).ToANew<int[]>();
+
+            result.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldHandleANullComplexTypeElement()
         {
             var source = new List<Product>

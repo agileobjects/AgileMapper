@@ -47,6 +47,12 @@
 
         public void ThrowIfUnconvertible(Type sourceType, Type targetType)
         {
+            if (sourceType.IsEnumerable() && targetType.IsEnumerable())
+            {
+                sourceType = sourceType.GetEnumerableElementType();
+                targetType = targetType.GetEnumerableElementType();
+            }
+
             if (CanConvert(sourceType, targetType))
             {
                 return;
@@ -56,7 +62,7 @@
             var targetTypeName = targetType.GetFriendlyName();
 
             throw new MappingConfigurationException(
-                $"Unable to convert configured {sourceTypeName} to target type {targetTypeName}");
+                $"Unable to convert configured '{sourceTypeName}' to target type '{targetTypeName}'");
         }
 
         public bool CanConvert(Type sourceType, Type targetType)
