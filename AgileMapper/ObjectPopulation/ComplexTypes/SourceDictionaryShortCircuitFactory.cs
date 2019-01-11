@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using DataSources;
+    using Extensions;
     using Extensions.Internal;
     using Members;
 #if NET35

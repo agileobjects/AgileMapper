@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Configuration;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;

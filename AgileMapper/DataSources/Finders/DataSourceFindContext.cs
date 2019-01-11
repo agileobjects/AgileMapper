@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
     using System.Collections.Generic;
+    using Extensions;
     using Extensions.Internal;
     using Members;
 

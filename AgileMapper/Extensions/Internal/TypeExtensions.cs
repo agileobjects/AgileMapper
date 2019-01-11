@@ -114,30 +114,6 @@
 
         public static bool IsComplex(this Type type) => !type.IsSimple() && !type.IsEnumerable();
 
-        public static bool IsSimple(this Type type)
-        {
-            type = type.GetNonNullableType();
-
-            if (type == typeof(ValueType))
-            {
-                return true;
-            }
-
-            if (type.GetTypeCode() != NetStandardTypeCode.Object)
-            {
-                return true;
-            }
-
-            if ((type == typeof(Guid)) ||
-                (type == typeof(TimeSpan)) ||
-                (type == typeof(DateTimeOffset)))
-            {
-                return true;
-            }
-
-            return type.IsValueType() && type.IsFromBcl();
-        }
-
         public static Type[] GetCoercibleNumericTypes(this Type numericType)
         {
             var typeMaxValue = Constants.NumericTypeMaxValuesByType[numericType];

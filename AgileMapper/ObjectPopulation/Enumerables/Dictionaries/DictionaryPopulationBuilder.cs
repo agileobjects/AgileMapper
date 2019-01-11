@@ -90,7 +90,16 @@
             var dictionaryEntryMember = _targetDictionaryMember.Append(keyVariable);
             var targetEntryAssignment = AssignDictionaryEntry(loopData, dictionaryEntryMember, mappingData);
 
-            return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
+            if (targetEntryAssignment.NodeType != ExpressionType.Block)
+            {
+                return Expression.Block(new[] { keyVariable }, keyAssignment, targetEntryAssignment);
+            }
+
+            var targetEntryAssignmentBlock = (BlockExpression)targetEntryAssignment;
+
+            return Expression.Block(
+                targetEntryAssignmentBlock.Variables.Prepend(keyVariable),
+                targetEntryAssignmentBlock.Expressions.Prepend(keyAssignment));
         }
 
         private Expression AssignDictionaryEntry(IPopulationLoopData loopData, IObjectMappingData mappingData)
@@ -191,7 +200,8 @@
             }
         }
 
-        private void InsertSourceElementNullCheck(IPopulationLoopData loopData,
+        private void InsertSourceElementNullCheck(
+            IPopulationLoopData loopData,
             DictionaryTargetMember dictionaryEntryMember,
             IMemberMapperData mapperData,
             IList<Expression> mappingExpressions)
@@ -209,7 +219,7 @@
 
             var nullTargetValue = dictionaryEntryMember.ValueType.ToDefaultExpression();
             var addNullEntry = dictionaryEntryMember.GetPopulation(nullTargetValue, mapperData);
-            
+
             var incrementCounter = _wrappedBuilder.GetCounterIncrement();
             var continueLoop = Expression.Continue(loopData.ContinueLoopTarget);
 

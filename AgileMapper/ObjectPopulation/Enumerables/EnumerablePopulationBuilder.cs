@@ -522,7 +522,7 @@
                 return;
             }
 
-            BuildPopulationLoop((ld, md) => GetTargetMethodCall("Add", ld.GetElementMapping(md)), mappingData);
+            BuildPopulationLoop(GetElementPopulation, mappingData);
         }
 
         public void BuildPopulationLoop(
@@ -537,6 +537,34 @@
                 elementPopulationFactory);
 
             _populationExpressions.Add(populationLoop);
+        }
+
+        private Expression GetElementPopulation(IPopulationLoopData loopData, IObjectMappingData mappingData)
+        {
+            var elementMapping = loopData.GetElementMapping(mappingData);
+
+            if (InsertSourceObjectElementNullCheck(loopData, out var sourceElement))
+            {
+                elementMapping = Expression.Condition(
+                    sourceElement.GetIsDefaultComparison(),
+                    typeof(object).ToDefaultExpression(),
+                    elementMapping);
+            }
+
+            return GetTargetMethodCall("Add", elementMapping);
+        }
+
+        private bool InsertSourceObjectElementNullCheck(IPopulationLoopData loopData, out Expression sourceElement)
+        {
+            if (TargetTypeHelper.ElementType != typeof(object))
+            {
+                sourceElement = null;
+                return false;
+            }
+
+            sourceElement = loopData.GetSourceElementValue();
+
+            return sourceElement.Type == typeof(object);
         }
 
         public Expression GetElementConversion(Expression sourceElement, IObjectMappingData mappingData)

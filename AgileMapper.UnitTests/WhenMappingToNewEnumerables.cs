@@ -184,6 +184,25 @@
         }
 
         [Fact]
+        public void ShouldHandleANullObjectElement()
+        {
+            var source = new List<object>
+            {
+                123,
+                null,
+                new MegaProduct { ProductId = "Boomstick" }
+            };
+
+            var result = Mapper.Map(source).ToANew<List<object>>();
+
+            result.ShouldNotBeNull();
+            result.ShouldNotBe(source);
+            result.First().ShouldBe(123);
+            result.Second().ShouldBeNull();
+            result.Third().ShouldBeOfType<MegaProduct>();
+        }
+
+        [Fact]
         public void ShouldCreateAnEmptyListByDefault()
         {
             var source = new PublicProperty<string>();

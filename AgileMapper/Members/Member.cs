@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Reflection;
     using Dictionaries;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;

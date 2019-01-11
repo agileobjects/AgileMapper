@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Reflection;
     using DataSources;
     using Enumerables;
+    using Extensions;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
@@ -509,7 +510,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapCall;
         }
 
-        public MethodCallExpression GetMapCall(Expression sourceElement, Expression targetElement)
+        public Expression GetMapCall(Expression sourceElement, Expression targetElement)
         {
             if (!TargetMember.IsEnumerable && this.TargetMemberIsEnumerableElement())
             {
@@ -526,7 +527,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 targetElement,
                 EnumerablePopulationBuilder.Counter);
 
-            return mapCall;
+            if ((sourceElement.Type != typeof(object)) || (targetElement.Type != typeof(object)))
+            {
+                return mapCall;
+            }
+
+            var sourceObjectGetTypeMethod = typeof(object).GetPublicInstanceMethod("GetType");
+            var sourceObjectGetTypeCall = Expression.Call(sourceElement, sourceObjectGetTypeMethod);
+            var isSimpleMethod = Extensions.PublicTypeExtensions.IsSimpleMethod;
+            var sourceObjectTypeIsSimpleCall = Expression.Call(isSimpleMethod, sourceObjectGetTypeCall);
+
+            var simpleSourceTypeOrMapCall = Expression.Condition(
+                sourceObjectTypeIsSimpleCall,
+                sourceElement,
+                mapCall);
+
+            return simpleSourceTypeOrMapCall;
         }
 
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
