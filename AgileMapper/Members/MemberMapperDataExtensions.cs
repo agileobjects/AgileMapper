@@ -210,16 +210,26 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if ((mapperData.TargetType != mapperData.SourceType) &&
-                 targetMember.LeafMember.IsEntityId() &&
-                !userConfigurations.MapEntityKeys(mapperData) &&
-                 configuredDataSourcesFactory.Invoke(mapperData).None())
+            if (!targetMember.LeafMember.IsEntityId() ||
+                 userConfigurations.MapEntityKeys(mapperData) ||
+                 configuredDataSourcesFactory.Invoke(mapperData).Any())
             {
-                reason = "Entity key member";
-                return true;
+                return targetMember.IsUnmappable(out reason);
             }
 
-            return targetMember.IsUnmappable(out reason);
+            // If we're here:
+            //   1. TargetMember is an Entity key
+            //   2. No configuration exists to allow Entity key Mapping
+            //   3. No configured data sources exist
+
+            if (mapperData.RuleSet.Settings.AllowCloneEntityKeyMapping &&
+               (mapperData.SourceType == mapperData.TargetType))
+            {
+                return targetMember.IsUnmappable(out reason);
+            }
+
+            reason = "Entity key member";
+            return true;
         }
 
         [DebuggerStepThrough]

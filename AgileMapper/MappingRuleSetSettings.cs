@@ -9,7 +9,9 @@ namespace AgileObjects.AgileMapper
 
     internal class MappingRuleSetSettings
     {
-        public static MappingRuleSetSettings ForInMemoryMapping(bool rootHasPopulatedTarget = false)
+        public static MappingRuleSetSettings ForInMemoryMapping(
+            bool rootHasPopulatedTarget = false,
+            bool allowCloneEntityKeyMapping = false)
         {
             return new MappingRuleSetSettings
             {
@@ -18,6 +20,7 @@ namespace AgileObjects.AgileMapper
                 SourceElementsCouldBeNull = true,
                 UseTryCatch = true,
                 CheckDerivedSourceTypes = true,
+                AllowCloneEntityKeyMapping = allowCloneEntityKeyMapping,
                 GuardAccessTo = value => true,
                 ExpressionIsSupported = value => true,
                 AllowObjectTracking = true,
@@ -40,6 +43,8 @@ namespace AgileObjects.AgileMapper
         public bool UseTryCatch { get; set; }
 
         public bool CheckDerivedSourceTypes { get; set; }
+
+        public bool AllowCloneEntityKeyMapping { get; set; }
 
         public Func<Expression, bool> GuardAccessTo { get; set; }
 

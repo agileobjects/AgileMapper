@@ -53,6 +53,8 @@
 
                     mapper.Map(updatedPersons).Over(localPersons);
 
+                    await readContext.SaveChangesAsync();
+
                     localPersons.Count.ShouldBe(4);
                     localPersons.First().Name.ShouldBe("One");
                     localPersons.First().Address.ShouldBeNull();
