@@ -394,7 +394,7 @@
             {
                 nonNullTargetVariableValue = GetNonNullEnumerableTargetVariableValue();
             }
-            else if (TargetTypeHelper.HasCollectionInterface && TargetTypeHelper.CouldBeReadOnly)
+            else if (TargetTypeHelper.HasCollectionInterface && TargetTypeHelper.CouldBeReadOnly())
             {
                 var isReadOnlyProperty = TargetTypeHelper
                     .CollectionInterfaceType
@@ -505,7 +505,7 @@
         }
 
         private bool TargetCouldBeUnusable()
-            => !MapperData.TargetMember.LeafMember.IsWriteable && TargetTypeHelper.CouldBeReadOnly;
+            => !MapperData.TargetMember.LeafMember.IsWriteable && TargetTypeHelper.CouldBeReadOnly();
 
         #endregion
 

@@ -179,6 +179,7 @@
     <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
+    <Compile Include="WhenMappingOverEnumerables.cs" />
     <Compile Include="WhenProjectingToMetaMembers.cs" />
     <Compile Include="WhenValidatingProjections.cs" />
     <Compile Include="WhenCreatingProjections.cs" />
