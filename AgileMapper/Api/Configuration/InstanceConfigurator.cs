@@ -1,11 +1,16 @@
 namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
-    using AgileMapper.Configuration;
 #if NET35
-    using Extensions.Internal;
+    using Dlr = Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.Expression;
+#else
+    using static System.Linq.Expressions.Expression;
 #endif
+    using AgileMapper.Configuration;
+    using Extensions.Internal;
     using Members;
 
     /// <summary>
@@ -39,6 +44,39 @@ namespace AgileObjects.AgileMapper.Api.Configuration
                 .ToDlrExpression()
 #endif
             );
+        }
+
+        /// <summary>
+        /// Use a composite identifier composed of the given <paramref name="idExpressions"/> to
+        /// uniquely identify instances of the type being configured.
+        /// </summary>
+        /// <param name="idExpressions">
+        /// The expressions to use to uniquely identify instances of the type being configured.
+        /// </param>
+        public void IdentifyUsing(params Expression<Func<TObject, object>>[] idExpressions)
+        {
+#if NET35
+            var idParts = idExpressions.ProjectToArray(id => id.ToDlrExpression());
+            var compositeIdParts = new List<Dlr.Expression>(idParts.Length);
+#else
+            var idParts = idExpressions;
+            var compositeIdParts = new List<Expression>((idParts.Length * 2) - 1);
+#endif
+            var entityParameter = idParts.First().Parameters.First();
+
+            compositeIdParts.Add(idParts.First().Body);
+
+            for (var i = 1; i < idParts.Length;)
+            {
+                compositeIdParts.Add(StringExpressionExtensions.Underscore);
+                compositeIdParts.Add(idParts[i++].ReplaceParameterWith(entityParameter));
+            }
+
+            var compositeId = compositeIdParts.GetStringConcatCall();
+
+            var compositeIdLambda = Lambda<Func<TObject, string>>(compositeId, entityParameter);
+
+            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), compositeIdLambda);
         }
 
         /// <summary>

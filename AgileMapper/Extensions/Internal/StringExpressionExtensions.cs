@@ -13,6 +13,8 @@
 
     internal static class StringExpressionExtensions
     {
+        public static readonly Expression Underscore = "_".ToConstantExpression();
+
         private static readonly MethodInfo _stringJoinMethod;
         private static readonly MethodInfo[] _stringConcatMethods;
 
@@ -106,7 +108,10 @@
                 currentNamePart = string.Empty;
             }
 
-            expressions.Insert(0, currentNamePart.ToConstantExpression());
+            if (currentNamePart != string.Empty)
+            {
+                expressions.Insert(0, currentNamePart.ToConstantExpression());
+            }
         }
 
         public static Expression GetFirstOrDefaultCall(this Expression stringAccess)

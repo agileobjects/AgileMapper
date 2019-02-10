@@ -81,5 +81,66 @@
                 mapper.InlineContexts().ShouldHaveSingleItem();
             }
         }
+
+        [Fact]
+        public void ShouldUseACompositeIdentifierInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new[]
+                {
+                    new WeddingDto
+                    {
+                        BrideName = "Nat",
+                        GroomName = "Andy",
+                        BrideAddressLine1 = "Nat + Andy's House",
+                        GroomAddressLine1 = "Nat + Andy's House"
+                    },
+                    new WeddingDto
+                    {
+                        BrideName = "Timea",
+                        GroomName = "David",
+                        BrideAddressLine1 = "Timea + David's House",
+                        GroomAddressLine1 = "Timea + David's House"
+                    }
+                };
+
+                var target = new List<WeddingDto>
+                {
+                    new WeddingDto
+                    {
+                        BrideName = "Nat",
+                        GroomName = "Andy"
+                    },
+                    new WeddingDto
+                    {
+                        BrideName = "Kate",
+                        GroomName = "Steve"
+                    }
+                };
+
+                mapper.Map(source).OnTo(target, cfg => cfg
+                    .WhenMapping
+                    .InstancesOf<WeddingDto>()
+                    .IdentifyUsing(a => a.BrideName, a => a.GroomName));
+
+                target.Count.ShouldBe(3);
+                
+                target.First().BrideName.ShouldBe("Nat");
+                target.First().GroomName.ShouldBe("Andy");
+                target.First().BrideAddressLine1.ShouldBe("Nat + Andy's House");
+                target.First().GroomAddressLine1.ShouldBe("Nat + Andy's House");
+                
+                target.Second().BrideName.ShouldBe("Kate");
+                target.Second().GroomName.ShouldBe("Steve");
+                target.Second().BrideAddressLine1.ShouldBeNull();
+                target.Second().GroomAddressLine1.ShouldBeNull();
+                
+                target.Third().BrideName.ShouldBe("Timea");
+                target.Third().GroomName.ShouldBe("David");
+                target.Third().BrideAddressLine1.ShouldBe("Timea + David's House");
+                target.Third().GroomAddressLine1.ShouldBe("Timea + David's House");
+            }
+        }
     }
 }
