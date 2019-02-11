@@ -401,7 +401,7 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);
 
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
-            => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);
+            => mapperData.MapperContext.GetValueConversion(value, targetType);
 
         public static Expression GetMappingCallbackOrNull(
             this IBasicMapperData basicData,

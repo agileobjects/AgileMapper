@@ -35,11 +35,13 @@
 
                     var localPersons = readContext.Persons.Local;
 
-                    localPersons.Count.ShouldBe(4);
-                    localPersons.First().Name.ShouldBe("One");
-                    localPersons.Second().Name.ShouldBe("Two");
-                    localPersons.Third().Name.ShouldBe("Three");
-                    localPersons.Fourth().Name.ShouldBe("Four");
+                    var orderedPersons = localPersons.OrderBy(p => p.PersonId).ToArray();
+
+                    orderedPersons.Length.ShouldBe(4);
+                    orderedPersons.First().Name.ShouldBe("One");
+                    orderedPersons.Second().Name.ShouldBe("Two");
+                    orderedPersons.Third().Name.ShouldBe("Three");
+                    orderedPersons.Fourth().Name.ShouldBe("Four");
 
                     mapper.WhenMapping.InstancesOf<Person>().IdentifyUsing(p => p.Name);
 
@@ -55,24 +57,26 @@
 
                     await readContext.SaveChangesAsync();
 
-                    localPersons.Count.ShouldBe(4);
-                    localPersons.First().Name.ShouldBe("One");
-                    localPersons.First().Address.ShouldBeNull();
+                    orderedPersons = localPersons.OrderBy(p => p.PersonId).ToArray();
 
-                    localPersons.Second().Name.ShouldBe("Two");
-                    localPersons.Second().Address.ShouldNotBeNull();
-                    localPersons.Second().Address.Line1.ShouldBe("Two Line 1");
-                    localPersons.Second().Address.Line2.ShouldBeNull();
+                    orderedPersons.Length.ShouldBe(4);
+                    orderedPersons.First().Name.ShouldBe("One");
+                    orderedPersons.First().Address.ShouldBeNull();
 
-                    localPersons.Third().Name.ShouldBe("Three");
-                    localPersons.Third().Address.ShouldNotBeNull();
-                    localPersons.Third().Address.Line1.ShouldBe("Three Line 1");
-                    localPersons.Third().Address.Line2.ShouldBe("Three Line 2");
+                    orderedPersons.Second().Name.ShouldBe("Two");
+                    orderedPersons.Second().Address.ShouldNotBeNull();
+                    orderedPersons.Second().Address.Line1.ShouldBe("Two Line 1");
+                    orderedPersons.Second().Address.Line2.ShouldBeNull();
 
-                    localPersons.Fourth().Name.ShouldBe("Five");
-                    localPersons.Fourth().Address.ShouldNotBeNull();
-                    localPersons.Fourth().Address.Line1.ShouldBe("Five Line 1");
-                    localPersons.Fourth().Address.Line2.ShouldBeNull();
+                    orderedPersons.Third().Name.ShouldBe("Three");
+                    orderedPersons.Third().Address.ShouldNotBeNull();
+                    orderedPersons.Third().Address.Line1.ShouldBe("Three Line 1");
+                    orderedPersons.Third().Address.Line2.ShouldBe("Three Line 2");
+
+                    orderedPersons.Fourth().Name.ShouldBe("Five");
+                    orderedPersons.Fourth().Address.ShouldNotBeNull();
+                    orderedPersons.Fourth().Address.Line1.ShouldBe("Five Line 1");
+                    orderedPersons.Fourth().Address.Line2.ShouldBeNull();
                 }
             });
         }

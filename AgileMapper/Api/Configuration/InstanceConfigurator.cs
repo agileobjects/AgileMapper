@@ -2,16 +2,22 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq.Expressions;
-#if NET35
-    using Dlr = Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.Expression;
-#else
-    using static System.Linq.Expressions.Expression;
-#endif
     using AgileMapper.Configuration;
+    using Extensions;
     using Extensions.Internal;
     using Members;
+    using System.Linq.Expressions;
+#if NET35
+    using static Microsoft.Scripting.Ast.Expression;
+    using Expression = Microsoft.Scripting.Ast.Expression;
+    using ExpressionType = Microsoft.Scripting.Ast.ExpressionType;
+    using UnaryExpression = Microsoft.Scripting.Ast.UnaryExpression;
+#else
+    using static System.Linq.Expressions.Expression;
+    using Expression = System.Linq.Expressions.Expression;
+    using ExpressionType = System.Linq.Expressions.ExpressionType;
+    using UnaryExpression = System.Linq.Expressions.UnaryExpression;
+#endif
 
     /// <summary>
     /// Provides options for configuring mappings of the type specified by the type argument.
@@ -55,21 +61,37 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// </param>
         public void IdentifyUsing(params Expression<Func<TObject, object>>[] idExpressions)
         {
+            if (idExpressions.NoneOrNull())
+            {
+                throw new MappingConfigurationException(
+                    "Two or more composite identifier values must be specified.",
+                    new ArgumentException(nameof(idExpressions)));
+            }
+
+            if (idExpressions.Any(a => a == null))
+            {
+                throw new MappingConfigurationException(
+                    "All supplied composite identifier values must be non-null.",
+                    new ArgumentNullException(nameof(idExpressions)));
+            }
+
+            var idParts = idExpressions
 #if NET35
-            var idParts = idExpressions.ProjectToArray(id => id.ToDlrExpression());
-            var compositeIdParts = new List<Dlr.Expression>(idParts.Length);
+                .ProjectToArray(id => id.ToDlrExpression());
 #else
-            var idParts = idExpressions;
-            var compositeIdParts = new List<Expression>((idParts.Length * 2) - 1);
+                ;
 #endif
+            var compositeIdParts = new List<Expression>((idParts.Length * 2) - 1);
             var entityParameter = idParts.First().Parameters.First();
 
-            compositeIdParts.Add(idParts.First().Body);
+            compositeIdParts.Add(GetIdPart(idParts.First().Body));
 
             for (var i = 1; i < idParts.Length;)
             {
+                var idPart = GetIdPart(idParts[i++].ReplaceParameterWith(entityParameter));
+
                 compositeIdParts.Add(StringExpressionExtensions.Underscore);
-                compositeIdParts.Add(idParts[i++].ReplaceParameterWith(entityParameter));
+                compositeIdParts.Add(idPart);
             }
 
             var compositeId = compositeIdParts.GetStringConcatCall();
@@ -77,6 +99,37 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             var compositeIdLambda = Lambda<Func<TObject, string>>(compositeId, entityParameter);
 
             _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), compositeIdLambda);
+        }
+
+        private Expression GetIdPart(Expression idPart)
+        {
+            if ((idPart.NodeType == ExpressionType.Convert))
+            {
+                return GetStringIdPart(((UnaryExpression)idPart).Operand);
+            }
+
+            if (idPart.Type.IsSimple())
+            {
+                return GetStringIdPart(idPart);
+            }
+
+            var typeIdentifier = _configInfo
+                .MapperContext
+                .GetIdentifierOrNull(idPart);
+
+            if (typeIdentifier != null)
+            {
+                return GetStringIdPart(typeIdentifier);
+            }
+
+            throw new MappingConfigurationException();
+        }
+
+        private Expression GetStringIdPart(Expression idPart)
+        {
+            return (idPart.Type != typeof(string))
+                ? _configInfo.MapperContext.GetValueConversion(idPart, typeof(string))
+                : idPart;
         }
 
         /// <summary>
