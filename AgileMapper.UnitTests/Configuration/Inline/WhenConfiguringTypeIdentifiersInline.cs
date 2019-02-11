@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Configuration;
     using Common;
     using TestClasses;
 #if !NET35
@@ -125,22 +126,46 @@
                     .IdentifyUsing(a => a.BrideName, a => a.GroomName));
 
                 target.Count.ShouldBe(3);
-                
+
                 target.First().BrideName.ShouldBe("Nat");
                 target.First().GroomName.ShouldBe("Andy");
                 target.First().BrideAddressLine1.ShouldBe("Nat + Andy's House");
                 target.First().GroomAddressLine1.ShouldBe("Nat + Andy's House");
-                
+
                 target.Second().BrideName.ShouldBe("Kate");
                 target.Second().GroomName.ShouldBe("Steve");
                 target.Second().BrideAddressLine1.ShouldBeNull();
                 target.Second().GroomAddressLine1.ShouldBeNull();
-                
+
                 target.Third().BrideName.ShouldBe("Timea");
                 target.Third().GroomName.ShouldBe("David");
                 target.Third().BrideAddressLine1.ShouldBe("Timea + David's House");
                 target.Third().GroomAddressLine1.ShouldBe("Timea + David's House");
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfUnidentifiableComplexTypeIdentifierSupplied()
+        {
+            var idsEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    var source = new[]
+                    {
+                        new PublicTwoFields<int, PublicField<int>>()
+                    };
+
+                    mapper.Map(source).Over(new List<PublicTwoFields<int, PublicField<int>>>(1), cfg => cfg
+                        .WhenMapping
+                        .InstancesOf<PublicTwoFields<int, PublicField<int>>>()
+                        .IdentifyUsing(ptf => ptf.Value1, ptf => ptf.Value2));
+                }
+            });
+
+            idsEx.Message.ShouldContain("Unable to determine identifier");
+            idsEx.Message.ShouldContain("ptf.Value2 of Type 'PublicField<int>'");
+            idsEx.InnerException.ShouldBeOfType<ArgumentException>();
         }
     }
 }

@@ -7,6 +7,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using Extensions.Internal;
     using Members;
     using System.Linq.Expressions;
+    using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 #if NET35
     using static Microsoft.Scripting.Ast.Expression;
     using Expression = Microsoft.Scripting.Ast.Expression;
@@ -84,11 +86,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             var compositeIdParts = new List<Expression>((idParts.Length * 2) - 1);
             var entityParameter = idParts.First().Parameters.First();
 
-            compositeIdParts.Add(GetIdPart(idParts.First().Body));
+            compositeIdParts.Add(GetIdPartOrThrow(idParts.First().Body));
 
             for (var i = 1; i < idParts.Length;)
             {
-                var idPart = GetIdPart(idParts[i++].ReplaceParameterWith(entityParameter));
+                var idPart = GetIdPartOrThrow(idParts[i++].ReplaceParameterWith(entityParameter));
 
                 compositeIdParts.Add(StringExpressionExtensions.Underscore);
                 compositeIdParts.Add(idPart);
@@ -101,7 +103,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), compositeIdLambda);
         }
 
-        private Expression GetIdPart(Expression idPart)
+        private Expression GetIdPartOrThrow(Expression idPart)
         {
             if ((idPart.NodeType == ExpressionType.Convert))
             {
@@ -122,7 +124,11 @@ namespace AgileObjects.AgileMapper.Api.Configuration
                 return GetStringIdPart(typeIdentifier);
             }
 
-            throw new MappingConfigurationException();
+            // ReSharper disable once NotResolvedInText
+            throw new MappingConfigurationException(
+                 "Unable to determine identifier for composite identifier part " +
+                $"{idPart.ToReadableString()} of Type '{idPart.Type.GetFriendlyName()}'",
+                 new ArgumentNullException("idExpressions"));
         }
 
         private Expression GetStringIdPart(Expression idPart)
