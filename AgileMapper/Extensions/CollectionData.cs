@@ -8,7 +8,8 @@ namespace AgileObjects.AgileMapper.Extensions
     using NetStandardPolyfills;
 
     /// <summary>
-    /// Untyped factory class for creating <see cref="CollectionData{T, T}"/> instances.
+    /// Untyped factory class for creating <see cref="CollectionData{T, T}"/> instances. This class
+    /// supports mapping and is not intended to be used from your code.
     /// </summary>
     public static class CollectionData
     {
@@ -87,28 +88,22 @@ namespace AgileObjects.AgileMapper.Extensions
                     continue;
                 }
 
-                if (targetsById.TryGetValue(sourceItemId, out var targetsWithId))
-                {
-                    if (EqualityComparer<TId>.Default.Equals(sourceItemId, default(TId)))
-                    {
-                        newSourceItems.Add(sourceItem);
-                        continue;
-                    }
-
-                    var targetItem = targetsWithId[0];
-
-                    absentTargetItems.Remove(targetItem);
-                    intersection.Add(Tuple.Create(sourceItem, targetItem));
-                    targetsWithId.Remove(targetItem);
-
-                    if (targetsWithId.Count == 0)
-                    {
-                        targetsById.Remove(sourceItemId);
-                    }
-                }
-                else
+                if (!targetsById.TryGetValue(sourceItemId, out var targetsWithId) ||
+                    EqualityComparer<TId>.Default.Equals(sourceItemId, default(TId)))
                 {
                     newSourceItems.Add(sourceItem);
+                    continue;
+                }
+
+                var targetItem = targetsWithId[0];
+
+                absentTargetItems.Remove(targetItem);
+                intersection.Add(Tuple.Create(sourceItem, targetItem));
+                targetsWithId.Remove(targetItem);
+
+                if (targetsWithId.Count == 0)
+                {
+                    targetsById.Remove(sourceItemId);
                 }
             }
 
@@ -131,7 +126,8 @@ namespace AgileObjects.AgileMapper.Extensions
     }
 
     /// <summary>
-    /// Helper class for merging or updating collections.
+    /// Helper class for merging or updating collections. This class supports mapping and is not
+    /// intended to be used from your code.
     /// </summary>
     /// <typeparam name="TSource">The type of object stored in the source collection.</typeparam>
     /// <typeparam name="TTarget">The type of object stored in the target collection.</typeparam>

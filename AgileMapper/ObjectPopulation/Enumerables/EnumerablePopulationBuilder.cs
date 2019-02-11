@@ -179,8 +179,8 @@
 
         private bool DetermineIfElementsAreIdentifiable()
         {
-            if ((Context.SourceElementType == typeof(object)) ||
-                (Context.TargetElementType == typeof(object)))
+            if ((Context.SourceElementType == typeof(string)) ||
+                (Context.TargetElementType == typeof(string)))
             {
                 return false;
             }
@@ -190,9 +190,15 @@
             {
                 return false;
             }
+            
+            if ((Context.SourceElementType == typeof(object)) ||
+                (Context.TargetElementType == typeof(object)))
+            {
+                return false;
+            }
 
             var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>(default(HashCodeComparer<TypeKey>));
-            var sourceElementId = GetIdentifierOrNull(Context.SourceElementType, _sourceElementParameter, MapperData, typeIdsCache);
+            var sourceElementId = MapperData.MapperContext.GetIdentifierOrNull(_sourceElementParameter, typeIdsCache);
 
             if (sourceElementId == null)
             {
@@ -209,7 +215,7 @@
             }
 
             var targetElementParameter = Context.TargetElementType.GetOrCreateParameter();
-            var targetElementId = GetIdentifierOrNull(Context.TargetElementType, targetElementParameter, MapperData, typeIdsCache);
+            var targetElementId = MapperData.MapperContext.GetIdentifierOrNull(targetElementParameter, typeIdsCache);
 
             if (targetElementId == null)
             {
@@ -220,31 +226,6 @@
             _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
 
             return _targetElementIdLambda != null;
-        }
-
-        private static Expression GetIdentifierOrNull(
-            Type type,
-            Expression parameter,
-            IMemberMapperData mapperData,
-            ICache<TypeKey, Expression> cache)
-        {
-            return cache.GetOrAdd(TypeKey.ForTypeId(type), key =>
-            {
-                var configuredIdentifier =
-                    mapperData.MapperContext.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);
-
-                if (configuredIdentifier != null)
-                {
-                    return configuredIdentifier.ReplaceParameterWith(parameter);
-                }
-
-                var identifier = mapperData
-                    .MapperContext
-                    .Naming
-                    .GetIdentifierOrNull(key.Type);
-
-                return identifier?.GetAccess(parameter);
-            });
         }
 
         private LambdaExpression GetSourceElementIdLambda(

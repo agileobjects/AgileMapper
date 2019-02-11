@@ -24,11 +24,6 @@
         {
             type = type.GetNonNullableType();
 
-            if (type == typeof(ValueType))
-            {
-                return true;
-            }
-
             if (type.GetTypeCode() != NetStandardTypeCode.Object)
             {
                 return true;
@@ -36,7 +31,8 @@
 
             if ((type == typeof(Guid)) ||
                 (type == typeof(TimeSpan)) ||
-                (type == typeof(DateTimeOffset)))
+                (type == typeof(DateTimeOffset)) ||
+                (type == typeof(ValueType)))
             {
                 return true;
             }
