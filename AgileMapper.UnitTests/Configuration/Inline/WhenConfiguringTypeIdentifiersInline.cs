@@ -145,7 +145,58 @@
         }
 
         [Fact]
-        public void ShouldErrorIfUnidentifiableComplexTypeIdentifierSupplied()
+        public void ShouldUseConfiguredIdentifierInCompositeIdentifierInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .InstancesOf<PublicTwoFields<int, int>>()
+                    .IdentifyUsing(ptf => ptf.Value1);
+
+                var source = new[]
+                {
+                    new PublicTwoFields<object, PublicTwoFields<int, int>>
+                    {
+                        Value1 = 111,
+                        Value2 = new PublicTwoFields<int, int> { Value1 = 222, Value2 = 333 }
+                    },
+                    new PublicTwoFields<object, PublicTwoFields<int, int>>
+                    {
+                        Value1 = null,
+                        Value2 = null
+                    },
+                };
+
+                var target = new List<PublicTwoFields<object, PublicTwoFields<int, int>>>
+                {
+                    new PublicTwoFields<object, PublicTwoFields<int, int>>
+                    {
+                        Value1 = 111,
+                        Value2 = new PublicTwoFields<int, int> { Value1 = 222 }
+                    }
+                };
+
+                var itemOne = target.First();
+
+                mapper.Map(source).OnTo(target, cfg => cfg
+                    .WhenMapping
+                    .InstancesOf<PublicTwoFields<object, PublicTwoFields<int, int>>>()
+                    .IdentifyUsing(ptf => ptf.Value1, ptf => ptf.Value2));
+
+                target.Count.ShouldBe(2);
+
+                target.First().ShouldBeSameAs(itemOne);
+                target.First().Value1.ShouldBe(111);
+                target.First().Value2.ShouldNotBeNull();
+                target.First().Value2.Value1.ShouldBe(222);
+                target.First().Value2.Value2.ShouldBe(333);
+
+                target.Second().Value1.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfUnidentifiableComplexTypeIdentifierSuppliedInline()
         {
             var idsEx = Should.Throw<MappingConfigurationException>(() =>
             {

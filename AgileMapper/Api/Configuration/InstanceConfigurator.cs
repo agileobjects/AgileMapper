@@ -105,9 +105,14 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         private Expression GetIdPartOrThrow(Expression idPart)
         {
-            if ((idPart.NodeType == ExpressionType.Convert))
+            if (idPart.Type == typeof(object))
             {
-                return GetStringIdPart(((UnaryExpression)idPart).Operand);
+                if (idPart.NodeType == ExpressionType.Convert)
+                {
+                    idPart = ((UnaryExpression)idPart).Operand;
+                }
+
+                return GetStringIdPart(idPart);
             }
 
             if (idPart.Type.IsSimple())
@@ -133,9 +138,27 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         private Expression GetStringIdPart(Expression idPart)
         {
-            return (idPart.Type != typeof(string))
-                ? _configInfo.MapperContext.GetValueConversion(idPart, typeof(string))
-                : idPart;
+            if (idPart.Type != typeof(string))
+            {
+                idPart = _configInfo.MapperContext.GetValueConversion(idPart, typeof(string));
+            }
+
+            var idPartNestedAccessesChecks = _configInfo
+                .RuleSet
+                .GetExpressionInfoFor(idPart)
+                .NestedAccessChecks;
+
+            if (idPartNestedAccessesChecks == null)
+            {
+                return idPart;
+            }
+
+            idPart = Condition(
+                idPartNestedAccessesChecks,
+                idPart,
+                StringExpressionExtensions.EmptyString);
+
+            return idPart;
         }
 
         /// <summary>

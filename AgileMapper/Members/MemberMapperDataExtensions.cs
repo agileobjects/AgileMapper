@@ -134,8 +134,20 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.RuleSet.Settings.GuardAccessTo(value)
-                ? mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull)
+            return mapperData.RuleSet.GetExpressionInfoFor(
+                value,
+                mapperData.ExpressionInfoFinder,
+                targetCanBeNull);
+        }
+
+        public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
+            this MappingRuleSet ruleSet,
+            Expression value,
+            ExpressionInfoFinder infoFinder = null,
+            bool targetCanBeNull = false)
+        {
+            return ruleSet.Settings?.GuardAccessTo(value) != false
+                ? (infoFinder ?? ExpressionInfoFinder.Default).FindIn(value, targetCanBeNull)
                 : ExpressionInfoFinder.EmptyExpressionInfo;
         }
 

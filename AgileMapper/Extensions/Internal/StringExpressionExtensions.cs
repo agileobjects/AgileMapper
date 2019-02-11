@@ -13,6 +13,7 @@
 
     internal static class StringExpressionExtensions
     {
+        public static readonly Expression EmptyString = Expression.Field(null, typeof(string), "Empty");
         public static readonly Expression Underscore = "_".ToConstantExpression();
 
         private static readonly MethodInfo _stringJoinMethod;
@@ -73,10 +74,9 @@
                 return Expression.Call(null, concatMethod, expressions);
             }
 
-            var emptyString = Expression.Field(null, typeof(string), "Empty");
             var newStringArray = Expression.NewArrayInit(typeof(string), expressions);
 
-            return Expression.Call(null, _stringJoinMethod, emptyString, newStringArray);
+            return Expression.Call(null, _stringJoinMethod, EmptyString, newStringArray);
         }
 
         private static void OptimiseForStringConcat(IList<Expression> expressions)
