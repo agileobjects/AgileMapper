@@ -53,6 +53,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.PerformanceTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.PerformanceTester.NetCore21", "AgileMapper.PerformanceTester.NetCore21\AgileMapper.PerformanceTester.NetCore21.csproj", "{B5BA0B88-48C7-47AE-9236-719BFE67B0A9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore2.2", "AgileMapper.UnitTests.NetCore2.2\AgileMapper.UnitTests.NetCore2.2.csproj", "{D1AB8AB2-CFF5-4AB0-8D06-3ADAD78D6B43}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -139,6 +141,10 @@ Global
 		{B5BA0B88-48C7-47AE-9236-719BFE67B0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5BA0B88-48C7-47AE-9236-719BFE67B0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5BA0B88-48C7-47AE-9236-719BFE67B0A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1AB8AB2-CFF5-4AB0-8D06-3ADAD78D6B43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1AB8AB2-CFF5-4AB0-8D06-3ADAD78D6B43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1AB8AB2-CFF5-4AB0-8D06-3ADAD78D6B43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1AB8AB2-CFF5-4AB0-8D06-3ADAD78D6B43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
