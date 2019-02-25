@@ -12,22 +12,15 @@
     <Title>AgileMapper</Title>
     <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md</PackageLicenseUrl>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Support for simple type .ToTarget() configuration
-- Support for automatic use of user-defined operators
-- Support for configured complex-to-simple Type enumerable projection sources
-- Improved null or unconvertible enumerable element handling
-- Fixing object-to-object Dictionary mapping bug #110
-- Fixing repeated DTO mapping bug #115
-- Performance improvements
-- Updating to ReadableExpressions v2.1</PackageReleaseNotes>
-    <Version>1.1.0</Version>
+    <PackageReleaseNotes>- Improved support for non-standard collections
+- Support for composite keys in .IdentityUsing()
+- Updating to ReadableExpressions v2.1.1</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
