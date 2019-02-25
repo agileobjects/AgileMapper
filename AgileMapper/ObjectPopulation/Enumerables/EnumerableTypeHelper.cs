@@ -16,6 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     internal class EnumerableTypeHelper
     {
         private bool? _isDictionary;
+        private bool? _couldBeReadOnly;
         private Type _listType;
         private Type _listInterfaceType;
         private Type _collectionType;
@@ -48,8 +49,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsCollection => EnumerableType.IsAssignableTo(CollectionType);
 
-        private bool IsHashSet => EnumerableType == HashSetType;
-
         public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
 
         public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
@@ -59,14 +58,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 #if FEATURE_ISET
         private bool HasSetInterface => EnumerableType.IsAssignableTo(SetInterfaceType);
 #else
-        private bool HasSetInterface => IsHashSet;
+        private bool HasSetInterface => EnumerableType == HashSetType;
 #endif
         public bool IsReadOnly => IsArray || IsReadOnlyCollection;
 
         public bool IsDeclaredReadOnly
             => IsReadOnly || IsEnumerableInterface || IsReadOnlyCollectionInterface();
 
-        public bool CouldBeReadOnly => !(IsList || IsHashSet || IsCollection);
+        public bool CouldBeReadOnly()
+        {
+            if (_couldBeReadOnly.HasValue)
+            {
+                return _couldBeReadOnly.Value;
+            }
+
+            if (EnumerableType.IsInterface())
+            {
+                // If the declared Type is an interface it could have an 'Add' method
+                // while the underlying, implementing Type is actually readonly:
+                return (_couldBeReadOnly = true).Value;
+            }
+
+            // If the declared Type declares an 'Add' method, assume it's not readonly;
+            // Array implements ICollection<>, but its Add method is implemented explicitly:
+            return (_couldBeReadOnly = EnumerableType.GetPublicInstanceMethods("Add").None()).Value;
+        }
 
         private bool IsReadOnlyCollectionInterface()
         {

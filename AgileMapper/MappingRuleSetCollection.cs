@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper
 
         private static readonly MappingRuleSet _createNew = new MappingRuleSet(
             Constants.CreateNew,
-            MappingRuleSetSettings.ForInMemoryMapping(),
+            MappingRuleSetSettings.ForInMemoryMapping(allowCloneEntityKeyMapping: true),
             default(CopySourceEnumerablePopulationStrategy),
             default(MapRepeatedCallRepeatMappingStrategy),
             DefaultMemberPopulationFactory.Instance,
@@ -38,6 +38,7 @@ namespace AgileObjects.AgileMapper
             {
                 UseMemberInitialisation = true,
                 UseSingleRootMappingExpression = true,
+                AllowCloneEntityKeyMapping = true,
                 GuardAccessTo = value => value.Type.IsComplex(),
                 ExpressionIsSupported = value => value.CanBeProjected(),
                 AllowEnumerableAssignment = true

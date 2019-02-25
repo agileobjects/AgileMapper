@@ -45,7 +45,8 @@ namespace AgileObjects.AgileMapper.Members
 
             var defaultIdentifier = _mapperContext.Naming.GetIdentifierOrNull(type);
 
-            if (defaultIdentifier.Name != idMember.Body.GetMemberName())
+            if ((defaultIdentifier == null) ||
+                (defaultIdentifier.Name != idMember.Body.GetMemberName()))
             {
                 return;
             }

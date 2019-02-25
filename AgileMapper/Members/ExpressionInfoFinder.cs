@@ -22,6 +22,11 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly ExpressionInfo EmptyExpressionInfo =
             new ExpressionInfo(null, Enumerable<Expression>.EmptyArray);
 
+        public static ExpressionInfoFinder Default =>
+            _default ?? (_default = new ExpressionInfoFinder(mappingDataObject: null));
+
+        private static ExpressionInfoFinder _default;
+
         private readonly Expression _mappingDataObject;
 
         public ExpressionInfoFinder(Expression mappingDataObject)
@@ -355,7 +360,8 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                if (memberAccess.Type.CannotBeNull() || !memberAccess.IsRootedIn(_mappingDataObject))
+                if (memberAccess.Type.CannotBeNull() ||
+                 ((_mappingDataObject != null) && !memberAccess.IsRootedIn(_mappingDataObject)))
                 {
                     return false;
                 }

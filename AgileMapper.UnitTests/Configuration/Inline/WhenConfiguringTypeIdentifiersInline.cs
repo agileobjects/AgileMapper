@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Configuration;
     using Common;
     using TestClasses;
 #if !NET35
@@ -80,6 +81,142 @@
 
                 mapper.InlineContexts().ShouldHaveSingleItem();
             }
+        }
+
+        [Fact]
+        public void ShouldUseACompositeIdentifierInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new[]
+                {
+                    new WeddingDto
+                    {
+                        BrideName = "Nat",
+                        GroomName = "Andy",
+                        BrideAddressLine1 = "Nat + Andy's House",
+                        GroomAddressLine1 = "Nat + Andy's House"
+                    },
+                    new WeddingDto
+                    {
+                        BrideName = "Timea",
+                        GroomName = "David",
+                        BrideAddressLine1 = "Timea + David's House",
+                        GroomAddressLine1 = "Timea + David's House"
+                    }
+                };
+
+                var target = new List<WeddingDto>
+                {
+                    new WeddingDto
+                    {
+                        BrideName = "Nat",
+                        GroomName = "Andy"
+                    },
+                    new WeddingDto
+                    {
+                        BrideName = "Kate",
+                        GroomName = "Steve"
+                    }
+                };
+
+                mapper.Map(source).OnTo(target, cfg => cfg
+                    .WhenMapping
+                    .InstancesOf<WeddingDto>()
+                    .IdentifyUsing(a => a.BrideName, a => a.GroomName));
+
+                target.Count.ShouldBe(3);
+
+                target.First().BrideName.ShouldBe("Nat");
+                target.First().GroomName.ShouldBe("Andy");
+                target.First().BrideAddressLine1.ShouldBe("Nat + Andy's House");
+                target.First().GroomAddressLine1.ShouldBe("Nat + Andy's House");
+
+                target.Second().BrideName.ShouldBe("Kate");
+                target.Second().GroomName.ShouldBe("Steve");
+                target.Second().BrideAddressLine1.ShouldBeNull();
+                target.Second().GroomAddressLine1.ShouldBeNull();
+
+                target.Third().BrideName.ShouldBe("Timea");
+                target.Third().GroomName.ShouldBe("David");
+                target.Third().BrideAddressLine1.ShouldBe("Timea + David's House");
+                target.Third().GroomAddressLine1.ShouldBe("Timea + David's House");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseConfiguredIdentifierInCompositeIdentifierInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .InstancesOf<PublicTwoFields<int, int>>()
+                    .IdentifyUsing(ptf => ptf.Value1);
+
+                var source = new[]
+                {
+                    new PublicTwoFields<object, PublicTwoFields<int, int>>
+                    {
+                        Value1 = 111,
+                        Value2 = new PublicTwoFields<int, int> { Value1 = 222, Value2 = 333 }
+                    },
+                    new PublicTwoFields<object, PublicTwoFields<int, int>>
+                    {
+                        Value1 = null,
+                        Value2 = null
+                    },
+                };
+
+                var target = new List<PublicTwoFields<object, PublicTwoFields<int, int>>>
+                {
+                    new PublicTwoFields<object, PublicTwoFields<int, int>>
+                    {
+                        Value1 = 111,
+                        Value2 = new PublicTwoFields<int, int> { Value1 = 222 }
+                    }
+                };
+
+                var itemOne = target.First();
+
+                mapper.Map(source).OnTo(target, cfg => cfg
+                    .WhenMapping
+                    .InstancesOf<PublicTwoFields<object, PublicTwoFields<int, int>>>()
+                    .IdentifyUsing(ptf => ptf.Value1, ptf => ptf.Value2));
+
+                target.Count.ShouldBe(2);
+
+                target.First().ShouldBeSameAs(itemOne);
+                target.First().Value1.ShouldBe(111);
+                target.First().Value2.ShouldNotBeNull();
+                target.First().Value2.Value1.ShouldBe(222);
+                target.First().Value2.Value2.ShouldBe(333);
+
+                target.Second().Value1.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfUnidentifiableComplexTypeIdentifierSuppliedInline()
+        {
+            var idsEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    var source = new[]
+                    {
+                        new PublicTwoFields<int, PublicField<int>>()
+                    };
+
+                    mapper.Map(source).Over(new List<PublicTwoFields<int, PublicField<int>>>(1), cfg => cfg
+                        .WhenMapping
+                        .InstancesOf<PublicTwoFields<int, PublicField<int>>>()
+                        .IdentifyUsing(ptf => ptf.Value1, ptf => ptf.Value2));
+                }
+            });
+
+            idsEx.Message.ShouldContain("Unable to determine identifier");
+            idsEx.Message.ShouldContain("ptf.Value2 of Type 'PublicField<int>'");
+            idsEx.InnerException.ShouldBeOfType<ArgumentException>();
         }
     }
 }

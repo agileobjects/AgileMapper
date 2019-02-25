@@ -93,39 +93,129 @@
         }
 
         [Fact]
-        public void ShouldErrorIfRedundantIdentifierSpecified()
+        public void ShouldUseACompositeIdentifierWithAnEntityKey()
         {
             using (var mapper = Mapper.CreateNew())
             {
-                var idEx = Should.Throw<MappingConfigurationException>(() =>
-                    mapper.WhenMapping
-                        .InstancesOf<Person>()
-                        .IdentifyUsing(p => p.Id));
+                mapper.WhenMapping
+                    .InstancesOf<PublicTwoFields<int, Product>>()
+                    .IdentifyUsing(ptf => ptf.Value1, ptf => ptf.Value2);
 
-                idEx.Message.ShouldContain("Id is automatically used as the identifier");
-                idEx.Message.ShouldContain("does not need to be configured");
+                var source = new[]
+                {
+                    new PublicTwoFields<int, Product>
+                    {
+                        Value1 = 123,
+                        Value2 = new Product { ProductId = "321", Price = 99.99 }
+                    },
+                    new PublicTwoFields<int, Product>
+                    {
+                        Value1 = 456,
+                        Value2 = new Product { ProductId = "654", Price = 11.99 }
+                    }
+                };
+
+                var target = new List<PublicTwoFields<int, Product>>
+                {
+                    new PublicTwoFields<int, Product>
+                    {
+                        Value1 = 123,
+                        Value2 = new Product { ProductId = "333", Price = 10.99 }
+                    },
+                    new PublicTwoFields<int, Product>
+                    {
+                        Value1 = 456,
+                        Value2 = new Product { ProductId = "654", Price = 10.99 }
+                    }
+                };
+
+                var itemOne = target.First();
+                var itemTwo = target.Second();
+
+                mapper.Map(source).Over(target);
+
+                target.Count.ShouldBe(2);
+
+                target.First().ShouldBeSameAs(itemTwo);
+                target.First().Value1.ShouldBe(456);
+                target.First().Value2.ShouldNotBeNull();
+                target.First().Value2.ProductId.ShouldBe("654");
+                target.First().Value2.Price.ShouldBe(11.99);
+
+                target.Second().ShouldNotBeSameAs(itemOne);
+                target.Second().Value1.ShouldBe(123);
+                target.Second().Value2.ShouldNotBeNull();
+                target.Second().Value2.ProductId.ShouldBe("321");
+                target.Second().Value2.Price.ShouldBe(99.99);
             }
         }
 
         [Fact]
-        public void ShouldErrorIfRedundantCustomNamingIdentifierSpecified()
+        public void ShouldErrorIfNoCompositeIdentifiersSupplied()
         {
-            using (var mapper = Mapper.CreateNew())
+            var idsEx = Should.Throw<MappingConfigurationException>(() =>
             {
-                mapper.WhenMapping.UseNamePattern("^_(.+)_$");
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.InstancesOf<Person>().IdentifyUsing();
+                }
+            });
 
-                var idEx = Should.Throw<MappingConfigurationException>(() =>
+            idsEx.Message.ShouldContain("composite identifier values must be specified");
+            idsEx.InnerException.ShouldBeOfType<ArgumentException>();
+        }
+
+        [Fact]
+        public void ShouldErrorIfNullCompositeIdentifierSupplied()
+        {
+            var idsEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.InstancesOf<Person>().IdentifyUsing(p => p.Name, null);
+                }
+            });
+
+            idsEx.Message.ShouldContain("composite identifier values must be non-null");
+            idsEx.InnerException.ShouldBeOfType<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantIdentifierSupplied()
+        {
+            var idEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.InstancesOf<Person>().IdentifyUsing(p => p.Id);
+                }
+            });
+
+            idEx.Message.ShouldContain("Id is automatically used as the identifier");
+            idEx.Message.ShouldContain("does not need to be configured");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantCustomNamingIdentifierSupplied()
+        {
+            var idEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.UseNamePattern("^_(.+)_$");
+
                     mapper.WhenMapping
                         .InstancesOf(new { _Id_ = default(int) })
-                        .IdentifyUsing(d => d._Id_));
+                        .IdentifyUsing(d => d._Id_);
+                }
+            });
 
-                idEx.Message.ShouldContain("_Id_ is automatically used as the identifier");
-                idEx.Message.ShouldContain("does not need to be configured");
-            }
+            idEx.Message.ShouldContain("_Id_ is automatically used as the identifier");
+            idEx.Message.ShouldContain("does not need to be configured");
         }
 
         [Fact]
-        public void ShouldErrorIfMultipleIdentifiersSpecifiedForSameType()
+        public void ShouldErrorIfMultipleIdentifiersSuppliedForSameType()
         {
             Should.Throw<MappingConfigurationException>(() =>
             {

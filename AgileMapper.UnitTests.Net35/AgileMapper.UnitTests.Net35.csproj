@@ -37,8 +37,8 @@
     <Reference Include="AgileObjects.NetStandardPolyfills, Version=1.4.0.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
       <HintPath>..\packages\AgileObjects.NetStandardPolyfills.1.4.0\lib\net35\AgileObjects.NetStandardPolyfills.dll</HintPath>
     </Reference>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=2.1.0.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.2.1.0\lib\net35\AgileObjects.ReadableExpressions.dll</HintPath>
+    <Reference Include="AgileObjects.ReadableExpressions, Version=2.1.1.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
+      <HintPath>..\packages\AgileObjects.ReadableExpressions.2.1.1\lib\net35\AgileObjects.ReadableExpressions.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic, Version=1.1.2.22, Culture=neutral, PublicKeyToken=7f709c5b713576e1, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicLanguageRuntime.1.1.2\lib\Net35\Microsoft.Dynamic.dll</HintPath>

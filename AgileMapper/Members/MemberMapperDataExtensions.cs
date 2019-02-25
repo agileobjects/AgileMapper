@@ -134,8 +134,20 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.RuleSet.Settings.GuardAccessTo(value)
-                ? mapperData.ExpressionInfoFinder.FindIn(value, targetCanBeNull)
+            return mapperData.RuleSet.GetExpressionInfoFor(
+                value,
+                mapperData.ExpressionInfoFinder,
+                targetCanBeNull);
+        }
+
+        public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
+            this MappingRuleSet ruleSet,
+            Expression value,
+            ExpressionInfoFinder infoFinder = null,
+            bool targetCanBeNull = false)
+        {
+            return ruleSet.Settings?.GuardAccessTo(value) != false
+                ? (infoFinder ?? ExpressionInfoFinder.Default).FindIn(value, targetCanBeNull)
                 : ExpressionInfoFinder.EmptyExpressionInfo;
         }
 
@@ -210,16 +222,26 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            if ((mapperData.TargetType != mapperData.SourceType) &&
-                 targetMember.LeafMember.IsEntityId() &&
-                !userConfigurations.MapEntityKeys(mapperData) &&
-                 configuredDataSourcesFactory.Invoke(mapperData).None())
+            if (!targetMember.LeafMember.IsEntityId() ||
+                 userConfigurations.MapEntityKeys(mapperData) ||
+                 configuredDataSourcesFactory.Invoke(mapperData).Any())
             {
-                reason = "Entity key member";
-                return true;
+                return targetMember.IsUnmappable(out reason);
             }
 
-            return targetMember.IsUnmappable(out reason);
+            // If we're here:
+            //   1. TargetMember is an Entity key
+            //   2. No configuration exists to allow Entity key Mapping
+            //   3. No configured data sources exist
+
+            if (mapperData.RuleSet.Settings.AllowCloneEntityKeyMapping &&
+               (mapperData.SourceType == mapperData.TargetType))
+            {
+                return targetMember.IsUnmappable(out reason);
+            }
+
+            reason = "Entity key member";
+            return true;
         }
 
         [DebuggerStepThrough]
@@ -391,7 +413,7 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);
 
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
-            => mapperData.MapperContext.ValueConverters.GetConversion(value, targetType);
+            => mapperData.MapperContext.GetValueConversion(value, targetType);
 
         public static Expression GetMappingCallbackOrNull(
             this IBasicMapperData basicData,
