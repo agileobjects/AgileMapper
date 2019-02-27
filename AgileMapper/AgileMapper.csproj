@@ -18,9 +18,7 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Improved support for non-standard collections
-- Support for composite keys in .IdentityUsing()
-- Updating to ReadableExpressions v2.1.1</PackageReleaseNotes>
+    <PackageReleaseNotes>- Improved support for non-standard collections</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
