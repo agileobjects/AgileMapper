@@ -190,7 +190,7 @@
             {
                 return false;
             }
-            
+
             if ((Context.SourceElementType == typeof(object)) ||
                 (Context.TargetElementType == typeof(object)))
             {
@@ -413,20 +413,40 @@
 
         private Expression GetNullTargetConstruction()
         {
-            var nonNullTargetVariableType =
-               (TargetTypeHelper.IsDeclaredReadOnly ? TargetTypeHelper.ListType : MapperData.TargetType);
+            var nullTargetVariableType = GetNullTargetVariableType();
 
-            var nullTargetVariableType = GetNullTargetVariableType(nonNullTargetVariableType);
+            if (SourceTypeHelper.IsEnumerableInterface)
+            {
+                // Can't use a capacity constructor as unable to count source elements:
+                return Expression.New(nullTargetVariableType);
+            }
 
-#if FEATURE_COLLECTION_CAPACITY
-            return SourceTypeHelper.IsEnumerableInterface || TargetTypeHelper.IsCollection
+            var capacityConstructor = nullTargetVariableType.GetPublicInstanceConstructor(typeof(int));
+
+            return (capacityConstructor == null)
                 ? Expression.New(nullTargetVariableType)
-                : Expression.New(
-                    nullTargetVariableType.GetPublicInstanceConstructor(typeof(int)),
-                    GetSourceCountAccess());
+                : Expression.New(capacityConstructor, GetSourceCountAccess());
+        }
+
+        private Type GetNullTargetVariableType()
+        {
+            if (TargetTypeHelper.IsDeclaredReadOnly)
+            {
+                return TargetTypeHelper.ListType;
+            }
+
+            if (MapperData.TargetType.IsInterface())
+            {
+#if FEATURE_ISET
+                return MapperData.TargetType.IsClosedTypeOf(typeof(ISet<>))
+                    ? TargetTypeHelper.HashSetType
+                    : TargetTypeHelper.ListType;
 #else
-            return Expression.New(nullTargetVariableType);
+                return TargetTypeHelper.ListType;
 #endif
+            }
+
+            return MapperData.TargetType;
         }
 
         private Expression GetNonNullEnumerableTargetVariableValue()
@@ -471,19 +491,6 @@
 
         private Expression GetCopyIntoObjectConstruction()
             => TargetTypeHelper.GetCopyIntoObjectConstruction(MapperData.TargetObject);
-
-        private Type GetNullTargetVariableType(Type nonNullTargetVariableType)
-        {
-            return nonNullTargetVariableType.IsInterface()
-#if FEATURE_ISET
-                ? nonNullTargetVariableType.IsClosedTypeOf(typeof(ISet<>))
-                    ? TargetTypeHelper.HashSetType
-                    : TargetTypeHelper.ListType
-#else
-                ? TargetTypeHelper.ListType
-#endif
-                : nonNullTargetVariableType;
-        }
 
         private bool TargetCouldBeUnusable()
             => !MapperData.TargetMember.LeafMember.IsWriteable && TargetTypeHelper.CouldBeReadOnly();
@@ -735,9 +742,9 @@
 
         private Expression ConvertForReturnValue(Expression value)
         {
-            var allowSameValue = value.NodeType != ExpressionType.MemberAccess;
+            var doNotUseSameValue = value.NodeType == ExpressionType.MemberAccess;
 
-            if (!allowSameValue)
+            if (doNotUseSameValue)
             {
                 return GetEnumerableConversion(value);
             }

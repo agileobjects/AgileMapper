@@ -47,8 +47,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool HasListInterface => EnumerableType.IsAssignableTo(ListInterfaceType);
 
-        public bool IsCollection => EnumerableType.IsAssignableTo(CollectionType);
-
         public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
 
         public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
@@ -170,12 +168,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
             if (IsReadOnlyCollection)
             {
-                return instance.WithToReadOnlyCollectionCall(ElementType);
+                return instance.GetReadOnlyCollectionCreation(ElementType);
             }
 
-            if (IsCollection)
+            if (EnumerableType.IsAssignableTo(CollectionType))
             {
-                return instance.WithToCollectionCall(ElementType);
+                return instance.GetCollectionTypeCreation(ElementType);
             }
 
             if (HasSetInterface)
@@ -194,13 +192,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Type GetEmptyInstanceCreationFallbackType()
         {
-            return IsDictionary
-                ? EnumerableType.GetDictionaryConcreteType()
-                : IsCollection
-                    ? CollectionType
-                    : HasSetInterface
-                        ? HashSetType
-                        : ListType;
+            if (IsArray)
+            {
+                return ListType;
+            }
+
+            if (!EnumerableType.IsInterface())
+            {
+                return EnumerableType;
+            }
+
+            if (IsDictionary)
+            {
+                return typeof(Dictionary<,>).MakeGenericType(EnumerableType.GetGenericTypeArguments());
+            }
+
+            return HasSetInterface ? HashSetType : ListType;
         }
     }
 }

@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Linq;
     using Common;
     using TestClasses;
@@ -212,6 +213,24 @@
             result.Value.Second().Third().Name.ShouldBe("Jorma");
         }
 
+#if !NETCOREAPP1_0
+        // See https://github.com/agileobjects/AgileMapper/issues/120
+        [Fact]
+        public void ShouldMapABindingList()
+        {
+            var source = new PublicField<BindingList<PublicField<int>>>
+            {
+                Value = new BindingList<PublicField<int>>
+                {
+                    new PublicField<int> { Value = 123 }
+                }
+            };
+
+            var result = Mapper.DeepClone(source);
+
+            result.Value.ShouldHaveSingleItem().Value.ShouldBe(123);
+        }
+#endif
         [Fact]
         public void ShouldRetainAnExistingListItem()
         {
