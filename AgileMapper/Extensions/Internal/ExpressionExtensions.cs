@@ -44,6 +44,16 @@
         public static BinaryExpression AssignTo(this Expression subject, Expression value)
             => Expression.Assign(subject, value);
 
+        public static bool IsNullableHasValueAccess(this Expression expression)
+            => (expression.NodeType == MemberAccess) && IsNullableHasValueAccess((MemberExpression)expression);
+
+        public static bool IsNullableHasValueAccess(this MemberExpression memberAccess)
+        {
+            return (memberAccess.Expression != null) &&
+                   (memberAccess.Member.Name == "HasValue") &&
+                   (memberAccess.Expression.Type.IsNullableType());
+        }
+
         [DebuggerStepThrough]
         public static ConstantExpression ToConstantExpression<T>(this T item)
             => ToConstantExpression(item, typeof(T));

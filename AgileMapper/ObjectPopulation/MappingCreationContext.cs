@@ -1,17 +1,22 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
+    using static System.Linq.Expressions.ExpressionType;
 #endif
     using DataSources;
+    using Extensions;
     using Members;
 
     internal class MappingCreationContext
     {
         private bool _mapperDataHasRootEnumerableVariables;
+        private List<Expression> _memberMappingExpressions;
 
         public MappingCreationContext(
             IObjectMappingData mappingData,
@@ -57,6 +62,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public List<Expression> MappingExpressions { get; }
 
         public bool InstantiateLocalVariable { get; set; }
+
+        public List<Expression> GetMemberMappingExpressions()
+        {
+            if (_memberMappingExpressions?.Count == MappingExpressions.Count)
+            {
+                return _memberMappingExpressions ?? new List<Expression>(0);
+            }
+
+            return _memberMappingExpressions = MappingExpressions.Filter(IsMemberMapping).ToList();
+        }
+
+        private static bool IsMemberMapping(Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                case Constant:
+                    return false;
+
+                case Call when (
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.Register)) ||
+                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.TryGet))):
+
+                    return false;
+
+                case Assign when IsMapRepeatedCall(((BinaryExpression)expression).Right):
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsCallTo(Expression call, string methodName)
+            => ((MethodCallExpression)call).Method.Name == methodName;
+
+        private static bool IsMapRepeatedCall(Expression expression)
+        {
+            return (expression.NodeType == Call) &&
+                   IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRepeated));
+        }
 
         public MappingCreationContext WithDataSource(IDataSource newDataSource)
         {

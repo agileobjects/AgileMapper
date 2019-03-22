@@ -49,6 +49,28 @@
             result.Items.Second().Product.ShouldBeNull();
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/121
+        [Fact]
+        public void ShouldNotCreateAnEmptyForeignKeyIdOnlyMember()
+        {
+            var personDto = new Issue121.PersonDto { Id = 1, Name = "John" };
+            var person = personDto.Map().ToANew<Issue121.Person>();
+
+            person.Id.ShouldBe(1);
+            person.Name.ShouldBe("John");
+            person.Pet.ShouldBeNull();
+        }
+        [Fact]
+        public void ShouldNotCreateAnEmptyForeignKeyNullableIdOnlyMember()
+        {
+            var personDto = new Issue121.PersonDto { Id = 1, Name = "John" };
+            var person = personDto.Map().ToANew<Issue121.PersonNullableId>();
+
+            person.Id.ShouldBe(1);
+            person.Name.ShouldBe("John");
+            person.Pet.ShouldBeNull();
+        }
+
         [Fact]
         public void ShouldNotMapEntityId()
         {
@@ -198,5 +220,71 @@
             result.ParentId.ShouldBeNull();
             result.TopProductIdentifier.ShouldBe(0);
         }
+
+        #region Helper Classes
+
+        // ReSharper disable ClassNeverInstantiated.Local
+        // ReSharper disable UnusedMember.Local
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
+        private static class Issue121
+        {
+            public class Person
+            {
+                public int Id { get; set; }
+
+                public string Name { get; set; }
+
+                public int? PetId { get; set; }
+
+                public Pet Pet { get; set; }
+            }
+
+            public class PersonNullableId
+            {
+                public int? Id { get; set; }
+
+                public string Name { get; set; }
+
+                public int? PetId { get; set; }
+
+                // ReSharper disable once MemberHidesStaticFromOuterClass
+                public PetNullableId Pet { get; set; }
+            }
+
+            public class PersonDto
+            {
+                public int Id { get; set; }
+
+                public string Name { get; set; }
+
+                public int? PetId { get; set; }
+            }
+
+            public class Pet
+            {
+                public int Id { get; set; }
+
+                public string Name { get; set; }
+            }
+
+            public class PetNullableId
+            {
+                public int? Id { get; set; }
+
+                public string Name { get; set; }
+            }
+
+            public class PetDto
+            {
+                public int Id { get; set; }
+
+                public string Name { get; set; }
+            }
+        }
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
+        // ReSharper restore UnusedMember.Local
+        // ReSharper restore ClassNeverInstantiated.Local
+
+        #endregion
     }
 }

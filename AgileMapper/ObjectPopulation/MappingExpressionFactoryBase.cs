@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
     using static Microsoft.Scripting.Ast.ExpressionType;
@@ -188,10 +189,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool NothingIsBeingMapped(MappingCreationContext context)
         {
-            var mappingExpressions = context
-                .MappingExpressions
-                .Filter(IsMemberMapping)
-                .ToList();
+            var mappingExpressions = context.GetMemberMappingExpressions();
 
             if (mappingExpressions.None())
             {
@@ -220,53 +218,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            if (assignedValue.NodeType == Coalesce)
+            if (assignedValue.NodeType != Coalesce)
             {
-                var valueCoalesce = (BinaryExpression)assignedValue;
-
-                if ((valueCoalesce.Left == context.MapperData.TargetObject) &&
-                    (valueCoalesce.Right.NodeType == New))
-                {
-                    var objectNewing = (NewExpression)valueCoalesce.Right;
-
-                    if (objectNewing.Arguments.None() && (objectNewing.Type != typeof(object)))
-                    {
-                        return true;
-                    }
-                }
+                return false;
             }
 
-            return false;
-        }
+            var valueCoalesce = (BinaryExpression)assignedValue;
 
-        private static bool IsMemberMapping(Expression expression)
-        {
-            switch (expression.NodeType)
+            if ((valueCoalesce.Left != context.MapperData.TargetObject) ||
+                (valueCoalesce.Right.NodeType != New))
             {
-                case Constant:
-                    return false;
-
-                case Call when (
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.Register)) ||
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.TryGet))):
-
-                    return false;
-
-                case Assign when IsMapRepeatedCall(((BinaryExpression)expression).Right):
-                    return false;
-
-                default:
-                    return true;
+                return false;
             }
-        }
 
-        private static bool IsCallTo(Expression call, string methodName)
-            => ((MethodCallExpression)call).Method.Name == methodName;
+            var objectNewing = (NewExpression)valueCoalesce.Right;
 
-        private static bool IsMapRepeatedCall(Expression expression)
-        {
-            return (expression.NodeType == Call) &&
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRepeated));
+            return objectNewing.Arguments.None() && (objectNewing.Type != typeof(object));
         }
 
         private Expression GetMappingBlock(MappingCreationContext context)
@@ -304,7 +271,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return returnExpression;
             }
 
-            CreateFullMappingBlock:
+        CreateFullMappingBlock:
 
             returnExpression = GetReturnExpression(GetReturnValue(context.MapperData), context);
 
@@ -374,12 +341,81 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static Expression GetReturnExpression(Expression returnValue, MappingCreationContext context)
         {
-            return (context.MapToNullCondition != null)
+            var mapToNullCondition = GetMapToNullConditionOrNull(context);
+
+            return (mapToNullCondition != null)
                 ? Expression.Condition(
-                    context.MapToNullCondition,
+                    mapToNullCondition,
                     returnValue.Type.ToDefaultExpression(),
                     returnValue)
                 : returnValue;
+        }
+
+        private static Expression GetMapToNullConditionOrNull(MappingCreationContext context)
+        {
+            if (context.MapperData.IsRoot || (context.MapToNullCondition != null))
+            {
+                return context.MapToNullCondition;
+            }
+
+            var mappingExpressions = context.GetMemberMappingExpressions();
+
+            if (mappingExpressions.None())
+            {
+                return null;
+            }
+
+            var memberAssignments = mappingExpressions
+                .Project(m =>
+                {
+                    if (m.NodeType != Conditional)
+                    {
+                        return m;
+                    }
+
+                    var conditionalMapping = (ConditionalExpression)m;
+
+                    if (conditionalMapping.Test.IsNullableHasValueAccess() &&
+                       (conditionalMapping.IfTrue.NodeType == Assign))
+                    {
+                        return conditionalMapping.IfTrue;
+                    }
+
+                    return m;
+                })
+                .Filter(m => m.NodeType == Assign)
+                .Cast<BinaryExpression>()
+                .Filter(a => a.Left.NodeType == MemberAccess)
+                .ToArray();
+
+            if (memberAssignments.Length != 1)
+            {
+                return null;
+            }
+
+            var assignedMember = (MemberExpression)memberAssignments[0].Left;
+
+            var memberTypeIdentifier = context
+                .MapperContext
+                .Naming
+                .GetIdentifierOrNull(assignedMember.Member.DeclaringType);
+
+            if (!Equals(assignedMember.Member, memberTypeIdentifier?.MemberInfo))
+            {
+                return null;
+            }
+
+            var nonNullableIdType = assignedMember.Type.GetNonNullableType();
+
+            if ((nonNullableIdType == assignedMember.Type) || !nonNullableIdType.IsNumeric())
+            {
+                return assignedMember.GetIsDefaultComparison();
+            }
+
+            return Expression.Equal(
+                assignedMember.GetValueOrDefaultCall(),
+                0.ToConstantExpression(nonNullableIdType));
+
         }
 
         protected virtual Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;

@@ -177,7 +177,7 @@ namespace AgileObjects.AgileMapper.Members
                     return base.VisitMember(memberAccess);
                 }
 
-                if (IsNullableHasValueAccess(memberAccess))
+                if (memberAccess.IsNullableHasValueAccess())
                 {
                     AddExistingNullCheck(memberAccess.Expression);
                 }
@@ -215,13 +215,6 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 return _includeTargetNullChecking || (memberAccess.Member.Name != RootTargetMemberName);
-            }
-
-            private static bool IsNullableHasValueAccess(MemberExpression memberAccess)
-            {
-                return (memberAccess.Expression != null) &&
-                       (memberAccess.Member.Name == "HasValue") &&
-                       (memberAccess.Expression.Type.IsNullableType());
             }
 
             protected override Expression VisitIndex(IndexExpression indexAccess)
