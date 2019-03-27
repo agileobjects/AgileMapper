@@ -31,10 +31,14 @@ namespace AgileObjects.AgileMapper.Members
                   value.Type.IsSimple(),
                   value.ToReadableString(),
                   mapperData.TargetMember.JoinedNames,
-                  mapperData.MapperContext)
+                  mapperData.MapperContext,
+                  GetConfiguredMemberChainOrNull(value, mapperData))
         {
             _isMatchedToRootTarget = mapperData.TargetMember.IsRoot;
         }
+
+        private static Member[] GetConfiguredMemberChainOrNull(Expression value, IMemberMapperData mapperData)
+            => value.ToSourceMember(mapperData.MapperContext, nt => { })?.MemberChain;
 
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(

@@ -357,8 +357,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
         {
             var sourceMemberRuntimeType = GetSourceMemberRuntimeType(newSourceMember);
+            var isForDerivedTypeMapping = DeclaredTypeMappingData != null;
 
-            var newSourceMappingData = WithTypes(sourceMemberRuntimeType, MapperData.TargetType, isForDerivedTypeMapping: false);
+            var newSourceMappingData = WithTypes(sourceMemberRuntimeType, MapperData.TargetType, isForDerivedTypeMapping);
 
             newSourceMappingData.MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.CreateRootKeyFor(newSourceMappingData);
 
@@ -407,7 +408,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TNewTarget typedTarget,
             bool isForDerivedTypeMapping)
         {
-            var mapperKey = MapperKey.WithTypes<TNewSource, TNewTarget>();
+            var forceNewKey = isForDerivedTypeMapping && MapperKey.MappingTypes.TargetType.IsInterface();
+            var mapperKey = MapperKey.WithTypes(typeof(TNewSource), typeof(TNewTarget), forceNewKey);
 
             return new ObjectMappingData<TNewSource, TNewTarget>(
                 typedSource,

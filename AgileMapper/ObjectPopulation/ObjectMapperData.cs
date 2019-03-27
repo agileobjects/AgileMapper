@@ -435,14 +435,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ObjectMapperData GetNearestEntryPointObjectMapperData()
         {
-            var mapperData = DeclaredTypeMapperData ?? this;
+            var mapperData = GetEntryPointMapperDataCandidate(this);
 
             while (!mapperData.IsEntryPoint)
             {
-                mapperData = mapperData.Parent.DeclaredTypeMapperData ?? mapperData.Parent;
+                mapperData = GetEntryPointMapperDataCandidate(mapperData.Parent);
             }
 
             return mapperData;
+        }
+
+        private static ObjectMapperData GetEntryPointMapperDataCandidate(ObjectMapperData mapperData)
+        {
+            if ((mapperData.DeclaredTypeMapperData == null) ||
+               (!mapperData.DeclaredTypeMapperData.IsEntryPoint && mapperData.IsEntryPoint))
+            {
+                return mapperData;
+            }
+
+            return mapperData.DeclaredTypeMapperData;
         }
 
         public bool IsEntryPoint
@@ -532,7 +543,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapCall;
             }
 
-            var sourceObjectGetTypeMethod = typeof(object).GetPublicInstanceMethod("GetType");
+            var sourceObjectGetTypeMethod = typeof(object).GetPublicInstanceMethod(nameof(GetType));
             var sourceObjectGetTypeCall = Expression.Call(sourceElement, sourceObjectGetTypeMethod);
             var isSimpleMethod = Extensions.PublicTypeExtensions.IsSimpleMethod;
             var sourceObjectTypeIsSimpleCall = Expression.Call(isSimpleMethod, sourceObjectGetTypeCall);
@@ -546,10 +557,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
-        {
-            return mappingDataType
-                .GetPublicInstanceMethod("Map", numberOfArguments);
-        }
+            => mappingDataType.GetPublicInstanceMethod("Map", numberOfArguments);
 
         public MethodCallExpression GetMapRepeatedCall(
             QualifiedMember targetMember,
