@@ -42,4 +42,4 @@ In this case, the `CourseDto` contains a collection of `StudentDto`s, not a coll
 
 AgileMapper recognises this sort of relationship and projects via the join entity to the joined Type - in this case `StudentDto`.
 
-Projected joined entities are ordered using a join entity `Order` member if one exists, otherwise by using the joined Type's identifier. In this case because `CourseStudent` has no `Order` member, `Student.Id` will be used.
+Projected joined entities are ordered using a join entity `Order` or `DateCreated` member if one exists, otherwise by using the joined Type's identifier. In this case because `CourseStudent` has no `Order` member, `Student.Id` will be used.

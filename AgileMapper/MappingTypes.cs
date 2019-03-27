@@ -101,18 +101,8 @@ namespace AgileObjects.AgileMapper
 
         public override int GetHashCode() => _hashCode;
 
-        public MappingTypes WithTypes<TNewSource, TNewTarget>()
-        {
-            if (RuntimeTypesAreTheSame)
-            {
-                return this;
-            }
-
-            return new MappingTypes(
-                typeof(TNewSource),
-                typeof(TNewTarget),
-                RuntimeTypesAreTheSame);
-        }
+        public MappingTypes WithTypes(Type newSourceType, Type newTargetType)
+            => new MappingTypes(newSourceType, newTargetType, RuntimeTypesAreTheSame);
     }
 
     internal static class MappingTypes<TSource, TTarget>

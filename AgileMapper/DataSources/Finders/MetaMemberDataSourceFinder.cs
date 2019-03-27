@@ -477,10 +477,7 @@
                     return GetLinqMethodCall(LinqSelectionMethodName, enumerableAccess, helper);
                 }
 
-                var orderMember =
-                    elementType.GetPublicInstanceMember("Order") ??
-                    elementType.GetPublicInstanceMember("DateCreated") ??
-                    MapperData.MapperContext.Naming.GetIdentifierOrNull(elementType)?.MemberInfo;
+                var orderMember = MapperData.GetOrderMember(elementType);
 
                 if (orderMember == null)
                 {

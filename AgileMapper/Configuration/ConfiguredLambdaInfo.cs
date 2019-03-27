@@ -158,7 +158,7 @@
 
             var memberAccesses = _lambda.Body.GetMemberAccessChain(nt => { }, out var rootExpression);
 
-            if (memberAccesses == null)
+            if (memberAccesses.None())
             {
                 sourceMemberLambda = null;
                 return false;
