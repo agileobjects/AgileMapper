@@ -136,9 +136,9 @@ Mapper.WhenMapping
     .ButNotViceVersa();
 ```
 
-### Mapping Data Sources to the Root Target
+### Mapping Nested Data Sources to the Target
 
-To map a data source to the root target object, use, *e.g*:
+To map a nested member to the target object, use, *e.g*:
 
 ```cs
 // Source class - has a nested member 'Statistics':
@@ -154,7 +154,7 @@ class VideoStatistics
 }
 
 // Target class:
-public class VideoDto
+class VideoDto
 {
     public string Title { get; set; }
     public int LengthInSeconds { get; set; }
