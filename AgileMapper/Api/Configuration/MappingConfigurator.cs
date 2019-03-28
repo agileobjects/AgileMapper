@@ -396,8 +396,15 @@
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetValueFactoryTargetMemberSpecifier<TSourceValue>(
             LambdaExpression valueFactoryExpression)
         {
+            return GetValueFactoryTargetMemberSpecifier(valueFactoryExpression, typeof(TSourceValue));
+        }
+
+        internal CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetValueFactoryTargetMemberSpecifier(
+            LambdaExpression valueFactoryExpression,
+            Type sourceValueType)
+        {
             return new CustomDataSourceTargetMemberSpecifier<TSource, TTarget>(
-                ConfigInfo.ForSourceValueType<TSourceValue>(),
+                ConfigInfo.ForSourceValueType(sourceValueType),
                 valueFactoryExpression,
                 valueCouldBeSourceMember: true);
         }

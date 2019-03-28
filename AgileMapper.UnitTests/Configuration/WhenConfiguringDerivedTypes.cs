@@ -203,6 +203,32 @@
             }
         }
 
+        [Fact]
+        public void ShouldUseATypedToTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.IComposite>()
+                    .If(ctx => ctx.Source.Type == Issue123.CompositeType.Leaf)
+                    .Map(ctx => ctx.Source.Leaf)
+                    .ToTarget<Issue123.Leaf>();
+
+                var leafDto = new Issue123.CompositeDto
+                {
+                    Type = Issue123.CompositeType.Leaf,
+                    Leaf = new Issue123.LeafDto { Description = "I am a leaf" }
+                };
+
+                var leaf = mapper.Map(leafDto).ToANew<Issue123.IComposite>() as Issue123.Leaf;
+
+                leaf.ShouldNotBeNull();
+
+                // ReSharper disable once PossibleNullReferenceException
+                leaf.Description.ShouldBe("I am a leaf");
+            }
+        }
+
         #region Helper Classes
 
         // ReSharper disable ClassNeverInstantiated.Local
@@ -212,7 +238,7 @@
         // ReSharper disable UnusedMember.Local
         // ReSharper disable CollectionNeverUpdated.Local
         // ReSharper disable CollectionNeverQueried.Local
-        private class Issue123
+        internal class Issue123
         {
             public enum CompositeType
             {
@@ -250,7 +276,14 @@
             {
             }
 
-            public class Group : IComposite
+            public interface IGroup : IComposite
+            {
+                string Name { get; }
+
+                IList<IComposite> Children { get; }
+            }
+
+            public class Group : IGroup
             {
                 public Group()
                 {
@@ -262,7 +295,12 @@
                 public IList<IComposite> Children { get; }
             }
 
-            public class Leaf : IComposite
+            public interface ILeaf : IComposite
+            {
+                string Description { get; }
+            }
+
+            public class Leaf : ILeaf
             {
                 public string Description { get; set; }
             }

@@ -86,16 +86,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         private void ThrowIfRedundantFactoryConfiguration(LambdaExpr factoryLambda)
         {
-            var ruleSet = _configInfo.IsForAllRuleSets
-                ? _configInfo.MapperContext.RuleSets.CreateNew
-                : _configInfo.RuleSet;
-
-            var mappingContext = new SimpleMappingContext(
-                ruleSet,
-                _configInfo.MapperContext);
-
-            var mappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes<TSource, TObject>(mappingContext, createMapper: false);
+            var mappingData = _configInfo.ToMappingData<TSource, TObject>();
 
             var factoryMethodObjectCreation = _configInfo
                 .MapperContext
