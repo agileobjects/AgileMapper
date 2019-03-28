@@ -238,7 +238,7 @@
         // ReSharper disable UnusedMember.Local
         // ReSharper disable CollectionNeverUpdated.Local
         // ReSharper disable CollectionNeverQueried.Local
-        private class Issue123
+        internal class Issue123
         {
             public enum CompositeType
             {
@@ -276,7 +276,14 @@
             {
             }
 
-            public class Group : IComposite
+            public interface IGroup : IComposite
+            {
+                string Name { get; }
+
+                IList<IComposite> Children { get; }
+            }
+
+            public class Group : IGroup
             {
                 public Group()
                 {
@@ -288,7 +295,12 @@
                 public IList<IComposite> Children { get; }
             }
 
-            public class Leaf : IComposite
+            public interface ILeaf : IComposite
+            {
+                string Description { get; }
+            }
+
+            public class Leaf : ILeaf
             {
                 public string Description { get; set; }
             }

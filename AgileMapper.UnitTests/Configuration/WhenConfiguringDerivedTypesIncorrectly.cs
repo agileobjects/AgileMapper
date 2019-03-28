@@ -5,6 +5,7 @@
     using AgileMapper.Configuration;
     using Common;
     using TestClasses;
+    using static WhenConfiguringDerivedTypes;
 #if !NET35
     using Xunit;
 #else
@@ -101,6 +102,21 @@
             pairingEx.Message.ShouldContain("Customer is automatically mapped to CustomerViewModel");
             pairingEx.Message.ShouldContain("when mapping Person to PersonViewModel");
             pairingEx.Message.ShouldContain("does not need to be configured");
+        }
+
+        [Fact]
+        public void ShouldErrorIfInterfaceTypeSpecified()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Issue123.CompositeDto>().To<Issue123.IComposite>()
+                        .If(ctx => ctx.Source.Type == Issue123.CompositeType.Leaf)
+                        .MapTo<Issue123.ILeaf>();
+                }
+            });
         }
     }
 }

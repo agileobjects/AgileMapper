@@ -306,7 +306,7 @@
         {
             new MappingConfigurator<TSource, TTarget>(_configInfo).MapTo<TDerivedTarget>();
 
-            var derivedTypeConfigInfo = _configInfo.Copy();
+            var derivedTypeConfigInfo = _configInfo.Copy().ForTargetType<TDerivedTarget>();
 
             typeof(CustomDataSourceTargetMemberSpecifier<TSource, TTarget>)
                 .GetNonPublicInstanceMethod(nameof(SetDerivedToTargetSource))

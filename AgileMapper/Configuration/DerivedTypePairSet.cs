@@ -111,13 +111,14 @@
             var rootSourceType = GetRootType(mapperData.SourceType);
             var rootTargetType = GetRootType(mapperData.TargetType);
             var typesKey = new SourceAndTargetTypesKey(rootSourceType, rootTargetType);
-            var currentTypeCount = CheckedTypesCount;
 
-            // ReSharper disable once InconsistentlySynchronizedField
             if (TypesChecked(typesKey, 0))
             {
                 return;
             }
+
+            // ReSharper disable once InconsistentlySynchronizedField
+            var currentTypeCount = CheckedTypesCount;
 
             lock (_lookupSync)
             {
@@ -184,9 +185,9 @@
             }
         }
 
-        // ReSharper disable InconsistentlySynchronizedField
         private bool TypesChecked(SourceAndTargetTypesKey typesKey, int startIndex)
         {
+            // ReSharper disable InconsistentlySynchronizedField
             if (CheckedTypesCount == 0)
             {
                 return false;
