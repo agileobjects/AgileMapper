@@ -58,9 +58,25 @@
         /// Apply the configured source value to the target object being configured.
         /// </summary>
         /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
-        /// and target type being configured.
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> ToTarget();
+
+        /// <summary>
+        /// Apply the configured source value to the target object being configured, mapping to a
+        /// <typeparamref name="TDerivedTarget"/> instance. This convenience method supports configuring
+        /// a custom to-target mapping at the same time as specifying a derived target Type, if a
+        /// derived Type pairing is being configured.
+        /// </summary>
+        /// <typeparam name="TDerivedTarget">
+        /// The <typeparamref name="TTarget"/>-derived Type to which to map the source object.
+        /// </typeparam>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TDerivedTarget> ToTarget<TDerivedTarget>()
+            where TDerivedTarget : TTarget;
     }
 }
