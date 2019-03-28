@@ -359,12 +359,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var newSourceMappingData = WithTypes(
                 GetSourceMemberRuntimeType(newSourceMember),
                 MapperData.TargetType,
-                isForDerivedTypeMapping: true);
+                IsPartOfDerivedTypeMapping);
 
             newSourceMappingData.MapperKey = MappingContext
                 .RuleSet
                 .RootMapperKeyFactory
                 .CreateRootKeyFor(newSourceMappingData);
+
+            newSourceMappingData.MapperData.OriginalMapperData = MapperData;
 
             return newSourceMappingData;
         }

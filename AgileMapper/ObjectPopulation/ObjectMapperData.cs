@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent)
         {
             MapperContext = mappingData.MappingContext.MapperContext;
-            DeclaredTypeMapperData = declaredTypeMapperData;
+            DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
             _childMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
@@ -332,6 +332,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData DeclaredTypeMapperData { get; }
 
+        public ObjectMapperData OriginalMapperData { get; set; }
+
         public IList<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
 
         public int DataSourceIndex { get; set; }
@@ -447,13 +449,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static ObjectMapperData GetEntryPointMapperDataCandidate(ObjectMapperData mapperData)
         {
-            if ((mapperData.DeclaredTypeMapperData == null) ||
-               (!mapperData.DeclaredTypeMapperData.IsEntryPoint && mapperData.IsEntryPoint))
+            if ((mapperData.OriginalMapperData == null) ||
+               (!mapperData.OriginalMapperData.IsEntryPoint && mapperData.IsEntryPoint))
             {
                 return mapperData;
             }
 
-            return mapperData.DeclaredTypeMapperData;
+            return mapperData.OriginalMapperData;
         }
 
         public bool IsEntryPoint
