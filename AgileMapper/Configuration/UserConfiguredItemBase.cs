@@ -135,17 +135,32 @@
 
         protected bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
         {
-            while (mapperData != null)
+            if (mapperData.HasCompatibleTypes(ConfigInfo))
             {
-                if (mapperData.HasCompatibleTypes(ConfigInfo))
+                return true;
+            }
+
+            if (mapperData.IsRoot)
+            {
+                return false;
+            }
+
+            var objectMapperData = (IMemberMapperData)mapperData.Parent;
+
+            while (true)
+            {
+                if (objectMapperData.HasCompatibleTypes(ConfigInfo))
                 {
                     return true;
                 }
 
-                mapperData = mapperData.Parent;
-            }
+                if (objectMapperData.IsEntryPoint)
+                {
+                    return false;
+                }
 
-            return false;
+                objectMapperData = objectMapperData.Parent;
+            }
         }
 
         int IComparable<UserConfiguredItemBase>.CompareTo(UserConfiguredItemBase other)

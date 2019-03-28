@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -19,7 +20,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
-            if (declaredTypeMapperData.Context.IsForDerivedType || declaredTypeMapperData.HasSameSourceAsParent())
+            if (DoNotMapDerivedTypes(declaredTypeMapperData))
             {
                 return Constants.EmptyExpression;
             }
@@ -72,6 +73,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 : derivedTypeMappingExpressions.HasOne()
                     ? derivedTypeMappingExpressions.First()
                     : Expression.Block(derivedTypeMappingExpressions);
+        }
+
+        private static bool DoNotMapDerivedTypes(IMemberMapperData mapperData)
+        {
+            if (mapperData.Context.IsForDerivedType)
+            {
+                return !mapperData.TargetType.IsInterface();
+            }
+
+            return mapperData.HasSameSourceAsParent();
         }
 
         private static ICollection<Type> GetDerivedTargetTypesIfNecessary(IObjectMappingData mappingData)

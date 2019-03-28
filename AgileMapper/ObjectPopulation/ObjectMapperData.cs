@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent)
         {
             MapperContext = mappingData.MappingContext.MapperContext;
-            DeclaredTypeMapperData = declaredTypeMapperData;
+            DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
             _childMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
@@ -332,6 +332,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData DeclaredTypeMapperData { get; }
 
+        public ObjectMapperData OriginalMapperData { get; set; }
+
         public IList<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
 
         public int DataSourceIndex { get; set; }
@@ -435,14 +437,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private ObjectMapperData GetNearestEntryPointObjectMapperData()
         {
-            var mapperData = DeclaredTypeMapperData ?? this;
+            var mapperData = GetEntryPointMapperDataCandidate(this);
 
             while (!mapperData.IsEntryPoint)
             {
-                mapperData = mapperData.Parent.DeclaredTypeMapperData ?? mapperData.Parent;
+                mapperData = GetEntryPointMapperDataCandidate(mapperData.Parent);
             }
 
             return mapperData;
+        }
+
+        private static ObjectMapperData GetEntryPointMapperDataCandidate(ObjectMapperData mapperData)
+        {
+            if ((mapperData.OriginalMapperData == null) ||
+               (!mapperData.OriginalMapperData.IsEntryPoint && mapperData.IsEntryPoint))
+            {
+                return mapperData;
+            }
+
+            return mapperData.OriginalMapperData;
         }
 
         public bool IsEntryPoint
@@ -450,7 +463,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             get => _isEntryPoint || IsRoot || Context.IsStandalone || IsRepeatMapping;
             set => _isEntryPoint = value;
         }
-
 
         public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
@@ -532,7 +544,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapCall;
             }
 
-            var sourceObjectGetTypeMethod = typeof(object).GetPublicInstanceMethod("GetType");
+            var sourceObjectGetTypeMethod = typeof(object).GetPublicInstanceMethod(nameof(GetType));
             var sourceObjectGetTypeCall = Expression.Call(sourceElement, sourceObjectGetTypeMethod);
             var isSimpleMethod = Extensions.PublicTypeExtensions.IsSimpleMethod;
             var sourceObjectTypeIsSimpleCall = Expression.Call(isSimpleMethod, sourceObjectGetTypeCall);
@@ -546,10 +558,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
-        {
-            return mappingDataType
-                .GetPublicInstanceMethod("Map", numberOfArguments);
-        }
+            => mappingDataType.GetPublicInstanceMethod("Map", numberOfArguments);
 
         public MethodCallExpression GetMapRepeatedCall(
             QualifiedMember targetMember,

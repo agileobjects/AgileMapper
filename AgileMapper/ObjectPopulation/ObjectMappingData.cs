@@ -356,11 +356,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
         {
-            var sourceMemberRuntimeType = GetSourceMemberRuntimeType(newSourceMember);
+            var newSourceMappingData = WithTypes(
+                GetSourceMemberRuntimeType(newSourceMember),
+                MapperData.TargetType,
+                IsPartOfDerivedTypeMapping);
 
-            var newSourceMappingData = WithTypes(sourceMemberRuntimeType, MapperData.TargetType, isForDerivedTypeMapping: false);
+            newSourceMappingData.MapperKey = MappingContext
+                .RuleSet
+                .RootMapperKeyFactory
+                .CreateRootKeyFor(newSourceMappingData);
 
-            newSourceMappingData.MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.CreateRootKeyFor(newSourceMappingData);
+            newSourceMappingData.MapperData.OriginalMapperData = MapperData;
 
             return newSourceMappingData;
         }
@@ -407,7 +413,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TNewTarget typedTarget,
             bool isForDerivedTypeMapping)
         {
-            var mapperKey = MapperKey.WithTypes<TNewSource, TNewTarget>();
+            var forceNewKey = isForDerivedTypeMapping && MapperKey.MappingTypes.TargetType.IsInterface();
+            var mapperKey = MapperKey.WithTypes(typeof(TNewSource), typeof(TNewTarget), forceNewKey);
 
             return new ObjectMappingData<TNewSource, TNewTarget>(
                 typedSource,

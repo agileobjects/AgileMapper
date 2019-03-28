@@ -15,6 +15,7 @@
             Type derivedTargetType)
             : base(configInfo)
         {
+            IsImplementationPairing = configInfo.TargetType.IsInterface();
             DerivedSourceType = derivedSourceType;
             DerivedTargetType = derivedTargetType;
         }
@@ -77,6 +78,8 @@
         }
 
         #endregion
+
+        public bool IsImplementationPairing { get; }
 
         public Type DerivedSourceType { get; }
 

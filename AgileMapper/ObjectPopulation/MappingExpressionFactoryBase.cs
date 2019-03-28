@@ -397,7 +397,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var memberTypeIdentifier = context
                 .MapperContext
-                .Naming
                 .GetIdentifierOrNull(assignedMember.Member.DeclaringType);
 
             if (!Equals(assignedMember.Member, memberTypeIdentifier?.MemberInfo))

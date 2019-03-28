@@ -115,15 +115,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
         {
-            if (!mapperData.RuleSet.Settings.AllowObjectTracking ||
-                !mapperData.CacheMappedObjects ||
-                 mapperData.TargetTypeWillNotBeMappedAgain)
+            if (mapperData.TargetTypeWillNotBeMappedAgain ||
+               !mapperData.CacheMappedObjects ||
+               !mapperData.RuleSet.Settings.AllowObjectTracking)
             {
                 return null;
             }
 
             var registerMethod = typeof(IObjectMappingDataUntyped)
-                .GetPublicInstanceMethod("Register")
+                .GetPublicInstanceMethod(nameof(IObjectMappingDataUntyped.Register))
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             return Expression.Call(

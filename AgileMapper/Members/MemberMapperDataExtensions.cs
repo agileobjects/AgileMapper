@@ -35,10 +35,7 @@ namespace AgileObjects.AgileMapper.Members
                 return false;
             }
 
-            idMember = mapperData
-                .MapperContext
-                .Naming
-                .GetIdentifierOrNull(type);
+            idMember = mapperData.GetIdentifierOrNull(type);
 
             return idMember?.IsEntityId() == true;
         }
@@ -110,6 +107,16 @@ namespace AgileObjects.AgileMapper.Members
 
             return mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
         }
+
+        public static MemberInfo GetOrderMember(this IMemberMapperData mapperData, Type type)
+        {
+            return type.GetPublicInstanceMember("Order") ??
+                   type.GetPublicInstanceMember("DateCreated") ??
+                   mapperData.GetIdentifierOrNull(type)?.MemberInfo;
+        }
+
+        public static Member GetIdentifierOrNull(this IMemberMapperData mapperData, Type type)
+            => mapperData.MapperContext.GetIdentifierOrNull(type);
 
         public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
         {

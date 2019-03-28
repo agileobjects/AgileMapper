@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System.Collections.Generic;
     using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
@@ -90,5 +91,190 @@
                 personResult.Name.ShouldBe("Datey");
             }
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/123
+        [Fact]
+        public void ShouldMapToAnInterfaceConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue123.GroupDto>()
+                    .To<Issue123.Group>()
+                    .Map(dto => dto.Eman, g => g.Name);
+
+                mapper.WhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.IComposite>()
+                    .If(ctx => ctx.Source.Type == Issue123.CompositeType.Group)
+                    .MapTo<Issue123.Group>()
+                    .And
+                    .If(ctx => ctx.Source.Type == Issue123.CompositeType.Leaf)
+                    .MapTo<Issue123.Leaf>();
+
+                mapper.WhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.Group>()
+                    .Map(ctx => ctx.Source.Group).ToTarget();
+
+                mapper.WhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.Leaf>()
+                    .Map(ctx => ctx.Source.Leaf).ToTarget();
+
+                var groupDto = new Issue123.CompositeDto
+                {
+                    Type = Issue123.CompositeType.Group,
+                    Group = new Issue123.GroupDto { Eman = "composite group" }
+                };
+
+                var group = mapper.Map(groupDto).ToANew<Issue123.IComposite>() as Issue123.Group;
+
+                group.ShouldNotBeNull();
+
+                // ReSharper disable once PossibleNullReferenceException
+                group.Name.ShouldBe("composite group");
+                group.Children.ShouldBeEmpty();
+
+                var leafDto = new Issue123.CompositeDto
+                {
+                    Type = Issue123.CompositeType.Leaf,
+                    Leaf = new Issue123.LeafDto { Description = "Leaf" }
+                };
+
+                var leaf = mapper.Map(leafDto).ToANew<Issue123.IComposite>() as Issue123.Leaf;
+
+                leaf.ShouldNotBeNull();
+
+                // ReSharper disable once PossibleNullReferenceException
+                leaf.Description.ShouldBe("Leaf");
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/123
+        [Fact]
+        public void ShouldMapToAnInterfaceInAListConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue123.GroupDto>()
+                    .To<Issue123.Group>()
+                    .Map(dto => dto.Eman, g => g.Name);
+
+                mapper.WhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.IComposite>()
+                    .If(ctx => ctx.Source.Type == Issue123.CompositeType.Group)
+                    .MapTo<Issue123.Group>()
+                    .And
+                    .If(ctx => ctx.Source.Type == Issue123.CompositeType.Leaf)
+                    .MapTo<Issue123.Leaf>();
+
+                mapper.WhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.Group>()
+                    .Map(ctx => ctx.Source.Group).ToTarget();
+
+                mapper.WhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.Leaf>()
+                    .Map(ctx => ctx.Source.Leaf).ToTarget();
+
+                var groupDto = new Issue123.GroupDto
+                {
+                    Eman = "outer group",
+                    Children =
+                    {
+                        new Issue123.CompositeDto
+                        {
+                            Type = Issue123.CompositeType.Group,
+                            Group = new Issue123.GroupDto { Eman = "inner group" }
+                        },
+                        new Issue123.CompositeDto
+                        {
+                            Type = Issue123.CompositeType.Leaf,
+                            Leaf = new Issue123.LeafDto { Description = "Leaf" }
+                        }
+                    }
+                };
+
+                var group = mapper.Map(groupDto).ToANew<Issue123.Group>();
+
+                group.ShouldNotBeNull();
+                group.Children.Count.ShouldBe(2);
+
+                group.Children.First().ShouldBeOfType<Issue123.Group>();
+                group.Children.Second().ShouldBeOfType<Issue123.Leaf>();
+            }
+        }
+
+        #region Helper Classes
+
+        // ReSharper disable ClassNeverInstantiated.Local
+        // ReSharper disable MemberHidesStaticFromOuterClass
+        // ReSharper disable MemberCanBePrivate.Local
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
+        // ReSharper disable UnusedMember.Local
+        // ReSharper disable CollectionNeverUpdated.Local
+        // ReSharper disable CollectionNeverQueried.Local
+        private class Issue123
+        {
+            public enum CompositeType
+            {
+                Group,
+                Leaf
+            }
+
+            public class CompositeDto
+            {
+                public CompositeType Type { get; set; }
+
+                public GroupDto Group { get; set; }
+
+                public LeafDto Leaf { get; set; }
+            }
+
+            public class GroupDto
+            {
+                public GroupDto()
+                {
+                    Children = new List<CompositeDto>();
+                }
+
+                public string Eman { get; set; }
+
+                public IList<CompositeDto> Children { get; }
+            }
+
+            public class LeafDto
+            {
+                public string Description { get; set; }
+            }
+
+            public interface IComposite
+            {
+            }
+
+            public class Group : IComposite
+            {
+                public Group()
+                {
+                    Children = new List<IComposite>();
+                }
+
+                public string Name { get; set; }
+
+                public IList<IComposite> Children { get; }
+            }
+
+            public class Leaf : IComposite
+            {
+                public string Description { get; set; }
+            }
+        }
+        // ReSharper restore CollectionNeverQueried.Local
+        // ReSharper restore CollectionNeverUpdated.Local
+        // ReSharper restore UnusedMember.Local
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
+        // ReSharper restore MemberCanBePrivate.Local
+        // ReSharper restore MemberHidesStaticFromOuterClass
+        // ReSharper restore ClassNeverInstantiated.Local
+
+        #endregion
     }
 }
