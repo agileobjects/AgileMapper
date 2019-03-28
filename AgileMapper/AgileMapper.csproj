@@ -18,7 +18,9 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Improved support for non-standard collections</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support for using .MapTo&lt;T&gt;() to specify interface implementations (re: #123)
+- Improved support for non-standard collections
+- Automatically mapping complex type members to null if only an identifier is populated, with a non-default value (re: #121)</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
