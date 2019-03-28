@@ -462,7 +462,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             set => _isEntryPoint = value;
         }
 
-
         public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
         public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)

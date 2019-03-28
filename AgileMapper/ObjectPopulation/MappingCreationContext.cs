@@ -81,8 +81,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return false;
 
                 case Call when (
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.Register)) ||
-                    IsCallTo(expression, nameof(IObjectMappingDataUntyped.TryGet))):
+                    IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
+                    IsCallTo(nameof(IObjectMappingDataUntyped.TryGet), expression)):
 
                     return false;
 
@@ -93,13 +93,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        private static bool IsCallTo(Expression call, string methodName)
+        private static bool IsCallTo(string methodName, Expression call)
             => ((MethodCallExpression)call).Method.Name == methodName;
 
         private static bool IsMapRepeatedCall(Expression expression)
         {
             return (expression.NodeType == Call) &&
-                   IsCallTo(expression, nameof(IObjectMappingDataUntyped.MapRepeated));
+                    IsCallTo(nameof(IObjectMappingDataUntyped.MapRepeated), expression);
         }
 
         public MappingCreationContext WithDataSource(IDataSource newDataSource)
