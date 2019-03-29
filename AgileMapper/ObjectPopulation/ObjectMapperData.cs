@@ -466,15 +466,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
-        public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
+        public void RegisterRepeatedMapperFunc(IObjectMappingData mappingData)
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
 
-            if (nearestStandaloneMapperData.RequiredMapperFuncKeys == null)
+            if (nearestStandaloneMapperData.RepeatedMapperFuncKeys == null)
             {
-                nearestStandaloneMapperData.RequiredMapperFuncKeys = new List<ObjectMapperKeyBase>();
+                nearestStandaloneMapperData.RepeatedMapperFuncKeys = new List<ObjectMapperKeyBase>();
             }
-            else if (nearestStandaloneMapperData.RequiredMapperFuncKeys.Contains(mappingData.MapperKey))
+            else if (nearestStandaloneMapperData.RepeatedMapperFuncKeys.Contains(mappingData.MapperKey))
             {
                 return;
             }
@@ -482,7 +482,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingData.MapperKey.MapperData = mappingData.MapperData;
             mappingData.MapperKey.MappingData = mappingData;
 
-            nearestStandaloneMapperData.RequiredMapperFuncKeys.Add(mappingData.MapperKey);
+            nearestStandaloneMapperData.RepeatedMapperFuncKeys.Add(mappingData.MapperKey);
         }
 
         public ObjectMapperData GetNearestStandaloneMapperData()
@@ -497,9 +497,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => RequiredMapperFuncKeys?.Any() == true;
+        public bool HasRepeatedMapperFuncs => RepeatedMapperFuncKeys?.Any() == true;
 
-        public IList<ObjectMapperKeyBase> RequiredMapperFuncKeys { get; private set; }
+        public IList<ObjectMapperKeyBase> RepeatedMapperFuncKeys { get; private set; }
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 

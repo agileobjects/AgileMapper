@@ -55,7 +55,7 @@
 
             childMapperData.CacheMappedObjects = true;
 
-            childMapperData.RegisterRequiredMapperFunc(mappingData);
+            childMapperData.RegisterRepeatedMapperFunc(mappingData);
 
             var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
                 childMapperData.TargetMember,

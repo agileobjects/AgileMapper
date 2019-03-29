@@ -21,7 +21,7 @@
                 new RootMapperMappingPlanFunction(cachedMapper)
             };
 
-            if (cachedMapper.MapperData.HasMapperFuncs)
+            if (cachedMapper.MapperData.HasRepeatedMapperFuncs)
             {
                 _mappingPlanFunctions.AddRange(cachedMapper
                     .RepeatedMappingFuncs
