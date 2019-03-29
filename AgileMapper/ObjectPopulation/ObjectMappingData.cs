@@ -120,7 +120,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData MapperData
         {
-            get => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For<TSource, TTarget>(this));
+            get => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For(this));
             set => _mapperData = value;
         }
 
@@ -133,6 +133,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingData Parent { get; }
 
         IObjectMappingDataUntyped IObjectMappingData<TSource, TTarget>.Parent => Parent;
+
+        public bool IsPartOfRepeatedMapping { get; set; }
 
         public bool IsPartOfDerivedTypeMapping => DeclaredTypeMappingData != null;
 
@@ -209,14 +211,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
-            string targetMemberName,
+            string targetMemberRegistrationName,
             int dataSourceIndex)
         {
             var childMappingData = GetChildMappingData(
                 sourceValue,
                 targetValue,
                 GetEnumerableIndex(),
-                targetMemberName,
+                targetMemberRegistrationName,
                 dataSourceIndex);
 
             return (TDeclaredTarget)_mapper.MapSubObject(childMappingData);
@@ -226,14 +228,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? enumerableIndex,
-            string targetMemberName,
+            string targetMemberRegistrationName,
             int dataSourceIndex)
         {
             return ObjectMappingDataFactory.ForChild(
                 sourceValue,
                 targetValue,
                 enumerableIndex,
-                targetMemberName,
+                targetMemberRegistrationName,
                 dataSourceIndex,
                 this);
         }
@@ -264,7 +266,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? enumerableIndex,
-            string targetMemberName,
+            string targetMemberRegistrationName,
             int dataSourceIndex)
         {
             if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
@@ -273,8 +275,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceValue,
                     targetValue,
                     enumerableIndex,
-                    targetMemberName,
+                    targetMemberRegistrationName,
                     dataSourceIndex);
+
+                childMappingData.IsPartOfRepeatedMapping = true;
 
                 return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }
@@ -283,7 +287,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceValue,
                 targetValue,
                 enumerableIndex,
-                targetMemberName,
+                targetMemberRegistrationName,
                 dataSourceIndex);
         }
 
@@ -298,6 +302,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceElement,
                     targetElement,
                     enumerableIndex);
+
+                childMappingData.IsPartOfRepeatedMapping = true;
 
                 return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }

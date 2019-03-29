@@ -1467,7 +1467,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/125
         [Fact]
-        public void ShouldHandleDeepNestedRuntimeTypedMembers()
+        public void ShouldHandleDeepNestedRuntimeTypedMembersWithACachedMappingPlan()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1476,6 +1476,11 @@
                     .Map(ctxt => ctxt.Source.ParamObj)
                     .ToCtor<Issue125.Target.ParamObj>()
                     .And.Ignore(t => t.ParamObj);
+
+                // Bug only happens when the mapping plan is cached up-front
+                string mappingPlan = mapper
+                    .GetPlanFor<Issue125.Source.ParamSet>()
+                    .ToANew<Issue125.Target.ParamSet>();
 
                 var source = new Issue125.Source.ParamSet
                 {
@@ -1573,7 +1578,7 @@
         // ReSharper disable CollectionNeverQueried.Local
         // ReSharper disable MemberCanBePrivate.Local
         // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
-        private static class Issue125
+        internal static class Issue125
         {
             // ReSharper disable UnusedAutoPropertyAccessor.Local
             public static class Source
