@@ -367,6 +367,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .CreateRootKeyFor(newSourceMappingData);
 
             newSourceMappingData.MapperData.OriginalMapperData = MapperData;
+            newSourceMappingData.MapperData.Context.IsForToTargetMapping = true;
 
             return newSourceMappingData;
         }

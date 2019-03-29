@@ -53,6 +53,9 @@
         private string GetDataSourceDescription()
             => UserConfigurations.GetDataSourceFactoryFor(_configInfo).GetDescription();
 
+        public MappingConfigStartingPoint AndWhenMapping
+            => new MappingConfigStartingPoint(_configInfo.MapperContext);
+
         public IFullMappingConfigurator<TSource, TTarget> And => CreateNewConfigurator();
 
         IFullProjectionConfigurator<TSource, TTarget> IProjectionConfigContinuation<TSource, TTarget>.And

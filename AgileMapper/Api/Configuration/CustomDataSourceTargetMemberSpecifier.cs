@@ -301,11 +301,9 @@
                 CreateRootTargetQualifiedMember()));
         }
 
-        public IMappingConfigContinuation<TSource, TDerivedTarget> ToTarget<TDerivedTarget>()
+        public IMappingConfigContinuation<TSource, TTarget> ToTarget<TDerivedTarget>()
             where TDerivedTarget : TTarget
         {
-            new MappingConfigurator<TSource, TTarget>(_configInfo).MapTo<TDerivedTarget>();
-
             var derivedTypeConfigInfo = _configInfo.Copy().ForTargetType<TDerivedTarget>();
 
             typeof(CustomDataSourceTargetMemberSpecifier<TSource, TTarget>)
@@ -313,7 +311,7 @@
                 .MakeGenericMethod(typeof(TDerivedTarget))
                 .Invoke(this, new object[] { derivedTypeConfigInfo });
 
-            return new MappingConfigContinuation<TSource, TDerivedTarget>(derivedTypeConfigInfo);
+            return new MappingConfigurator<TSource, TTarget>(_configInfo).MapTo<TDerivedTarget>();
         }
 
         // ReSharper disable once UnusedMember.Local

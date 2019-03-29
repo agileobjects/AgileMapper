@@ -11,10 +11,27 @@
         {
             ChildMappingData = childMappingData;
 
-            ConfiguredDataSources = MapperData
+            ConfiguredDataSources = GetConfiguredDataSources(MapperData);
+
+            if (!MapperData.Parent.Context.IsForToTargetMapping)
+            {
+                return;
+            }
+
+            var originalChildMapperData = new ChildMemberMapperData(
+                MapperData.TargetMember,
+                MapperData.Parent.OriginalMapperData);
+
+            ConfiguredDataSources = ConfiguredDataSources.Append(
+                GetConfiguredDataSources(originalChildMapperData));
+        }
+
+        private IList<IConfiguredDataSource> GetConfiguredDataSources(IMemberMapperData mapperData)
+        {
+            return MapperData
                 .MapperContext
                 .UserConfigurations
-                .GetDataSources(MapperData);
+                .GetDataSources(mapperData);
         }
 
         public IChildMemberMappingData ChildMappingData { get; }

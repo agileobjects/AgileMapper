@@ -212,7 +212,11 @@
                     .From<Issue123.CompositeDto>().To<Issue123.IComposite>()
                     .If(ctx => ctx.Source.Type == Issue123.CompositeType.Leaf)
                     .Map(ctx => ctx.Source.Leaf)
-                    .ToTarget<Issue123.Leaf>();
+                    .ToTarget<Issue123.Leaf>()
+                    .AndWhenMapping
+                    .From<Issue123.CompositeDto>().To<Issue123.Leaf>()
+                    .Map((dto, l) => dto.Leaf.Description + "!")
+                    .To(l => l.Description);
 
                 var leafDto = new Issue123.CompositeDto
                 {
@@ -225,7 +229,7 @@
                 leaf.ShouldNotBeNull();
 
                 // ReSharper disable once PossibleNullReferenceException
-                leaf.Description.ShouldBe("I am a leaf");
+                leaf.Description.ShouldBe("I am a leaf!");
             }
         }
 

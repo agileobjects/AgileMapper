@@ -76,7 +76,7 @@
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
         /// source and target type being configured.
         /// </returns>
-        IMappingConfigContinuation<TSource, TDerivedTarget> ToTarget<TDerivedTarget>()
+        IMappingConfigContinuation<TSource, TTarget> ToTarget<TDerivedTarget>()
             where TDerivedTarget : TTarget;
     }
 }
