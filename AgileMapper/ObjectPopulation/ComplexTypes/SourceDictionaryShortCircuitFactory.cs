@@ -92,7 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static Expression GetMapValueCall(Expression sourceValue, IMemberMapperData mapperData)
-            => mapperData.Parent.GetMapCall(sourceValue, mapperData.TargetMember, dataSourceIndex: 0);
+            => mapperData.Parent.GetRuntimeTypedMapping(sourceValue, mapperData.TargetMember, dataSourceIndex: 0);
 
         private static Expression GetFallbackValue(IObjectMappingData mappingData)
         {

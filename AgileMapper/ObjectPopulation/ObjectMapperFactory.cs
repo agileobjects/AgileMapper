@@ -26,7 +26,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 QueryProjectionExpressionFactory.Instance,
                 DictionaryMappingExpressionFactory.Instance,
-                SimpleTypeMappingExpressionFactory.Instance,
                 EnumerableMappingExpressionFactory.Instance,
                 ComplexTypeMappingExpressionFactory.Instance
             };

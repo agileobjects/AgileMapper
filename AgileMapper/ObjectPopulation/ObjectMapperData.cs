@@ -582,11 +582,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 
-        public Expression GetMapCall(
+        public Expression GetRuntimeTypedMapping(
             Expression sourceObject,
             QualifiedMember targetMember,
             int dataSourceIndex)
         {
+            if (IsSimpleTypeToObjectMapping(sourceObject, targetMember.Type))
+            {
+                return sourceObject;
+            }
+
             Context.SubMappingNeeded();
 
             var mapCall = Expression.Call(
@@ -601,11 +606,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return GetSimpleTypeCheckedMapCall(sourceObject, targetMember.Type, mapCall);
         }
 
-        public Expression GetMapCall(Expression sourceElement, Expression targetElement)
+        public Expression GetRuntimeTypedMapping(Expression sourceElement, Expression targetElement)
         {
             if (!TargetMember.IsEnumerable && this.TargetMemberIsEnumerableElement())
             {
-                return Parent.GetMapCall(sourceElement, targetElement);
+                return Parent.GetRuntimeTypedMapping(sourceElement, targetElement);
+            }
+
+            if (IsSimpleTypeToObjectMapping(sourceElement, targetElement.Type))
+            {
+                return sourceElement;
             }
 
             Context.SubMappingNeeded();
@@ -620,6 +630,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return GetSimpleTypeCheckedMapCall(sourceElement, targetElement.Type, mapCall);
         }
+
+        private static bool IsSimpleTypeToObjectMapping(Expression sourceObject, Type targetType)
+            => sourceObject.Type.IsSimple() && (targetType == typeof(object));
 
         private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
             => mappingDataType.GetPublicInstanceMethod("Map", numberOfArguments);

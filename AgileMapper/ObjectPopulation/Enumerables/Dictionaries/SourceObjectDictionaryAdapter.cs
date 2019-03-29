@@ -78,7 +78,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             }
             else
             {
-                sourceItemsProjection = Builder.MapperData.Parent.GetMapCall(
+                sourceItemsProjection = Builder.MapperData.Parent.GetRuntimeTypedMapping(
                     untypedEnumerableVariable,
                     Builder.MapperData.TargetMember,
                     dataSourceIndex: 0);
