@@ -290,7 +290,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Factory Method
 
-        public static ObjectMapperData For<TSource, TTarget>(IObjectMappingData mappingData)
+        public static ObjectMapperData For<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
             int? dataSourceIndex;
             ObjectMapperData parentMapperData;
@@ -301,6 +301,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parentMapperData = null;
                 membersSource = mappingData.MappingContext.MapperContext.RootMembersSource;
                 dataSourceIndex = null;
+            }
+            else if (UseExistingMapperData(mappingData, out var existingMapperData))
+            {
+                return existingMapperData;
             }
             else
             {
@@ -320,6 +324,71 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData.DeclaredTypeMappingData?.MapperData,
                 parentMapperData,
                 mappingData.IsStandalone());
+        }
+
+        private static bool UseExistingMapperData<TSource, TTarget>(
+            ObjectMappingData<TSource, TTarget> mappingData,
+            out ObjectMapperData existingMapperData)
+        {
+            if (!mappingData.IsPartOfRepeatedMapping)
+            {
+                existingMapperData = null;
+                return false;
+            }
+
+            // RepeatedMappings are invoked through the entry point MapperData, which assigns
+            // itself as the ObjectMappingData's parent. If a repeated mapping then needs to
+            // do a runtime-typed child mapping, we're able to reuse the parent MapperData 
+            // by finding it from the entry point:
+            var parentMapperData = mappingData.Parent.MapperData;
+
+            if (parentMapperData.ChildMapperDatas.None())
+            {
+                existingMapperData = null;
+                return false;
+            }
+
+            var membersSource = mappingData.MapperKey.GetMembersSource(parentMapperData);
+
+            if (!(membersSource is IChildMembersSource childMembersSource))
+            {
+                existingMapperData = null;
+                return false;
+            }
+
+            var mapperTypes = new[] { typeof(TSource), typeof(TTarget) };
+
+            existingMapperData = GetMapperDataOrNull(
+                parentMapperData.ChildMapperDatas,
+                mapperTypes,
+                childMembersSource.TargetMemberRegistrationName);
+
+            return existingMapperData != null;
+        }
+
+        private static ObjectMapperData GetMapperDataOrNull(
+            IEnumerable<ObjectMapperData> mapperDatas,
+            IList<Type> mapperTypes,
+            string targetMemberRegistrationName)
+        {
+            foreach (var mapperData in mapperDatas)
+            {
+                if ((mapperData.TypesMatch(mapperTypes)) &&
+                    (mapperData.TargetMember.RegistrationName == targetMemberRegistrationName))
+                {
+                    return mapperData;
+                }
+
+                if (mapperData.ChildMapperDatas.Any())
+                {
+                    return GetMapperDataOrNull(
+                        mapperData.ChildMapperDatas,
+                        mapperTypes,
+                        targetMemberRegistrationName);
+                }
+            }
+
+            return null;
         }
 
         #endregion
@@ -345,11 +414,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
         {
-            var targetMember = DataSourcesByTargetMember
-                .Keys
-                .First(k => k.RegistrationName == targetMemberRegistrationName);
+            var targetMember = GetTargetMember(targetMemberRegistrationName, this);
 
             return DataSourcesByTargetMember[targetMember][dataSourceIndex].SourceMember;
+        }
+
+        private static QualifiedMember GetTargetMember(
+            string targetMemberRegistrationName,
+            ObjectMapperData mapperData)
+        {
+            var targetMember = mapperData
+                .DataSourcesByTargetMember
+                .Keys
+                .FirstOrDefault(k => k.RegistrationName == targetMemberRegistrationName);
+
+            return targetMember;
         }
 
         public QualifiedMember GetTargetMemberFor(string targetMemberRegistrationName)
@@ -466,15 +545,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 
-        public void RegisterRequiredMapperFunc(IObjectMappingData mappingData)
+        public void RegisterRepeatedMapperFunc(IObjectMappingData mappingData)
         {
             var nearestStandaloneMapperData = GetNearestStandaloneMapperData();
 
-            if (nearestStandaloneMapperData.RequiredMapperFuncKeys == null)
+            if (nearestStandaloneMapperData.RepeatedMapperFuncKeys == null)
             {
-                nearestStandaloneMapperData.RequiredMapperFuncKeys = new List<ObjectMapperKeyBase>();
+                nearestStandaloneMapperData.RepeatedMapperFuncKeys = new List<ObjectMapperKeyBase>();
             }
-            else if (nearestStandaloneMapperData.RequiredMapperFuncKeys.Contains(mappingData.MapperKey))
+            else if (nearestStandaloneMapperData.RepeatedMapperFuncKeys.Contains(mappingData.MapperKey))
             {
                 return;
             }
@@ -482,7 +561,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingData.MapperKey.MapperData = mappingData.MapperData;
             mappingData.MapperKey.MappingData = mappingData;
 
-            nearestStandaloneMapperData.RequiredMapperFuncKeys.Add(mappingData.MapperKey);
+            nearestStandaloneMapperData.RepeatedMapperFuncKeys.Add(mappingData.MapperKey);
         }
 
         public ObjectMapperData GetNearestStandaloneMapperData()
@@ -497,9 +576,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData;
         }
 
-        public bool HasMapperFuncs => RequiredMapperFuncKeys?.Any() == true;
+        public bool HasRepeatedMapperFuncs => RepeatedMapperFuncKeys?.Any() == true;
 
-        public IList<ObjectMapperKeyBase> RequiredMapperFuncKeys { get; private set; }
+        public IList<ObjectMapperKeyBase> RepeatedMapperFuncKeys { get; private set; }
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 

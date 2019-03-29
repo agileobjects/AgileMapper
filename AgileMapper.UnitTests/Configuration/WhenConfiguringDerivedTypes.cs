@@ -235,13 +235,6 @@
 
         #region Helper Classes
 
-        // ReSharper disable ClassNeverInstantiated.Local
-        // ReSharper disable MemberHidesStaticFromOuterClass
-        // ReSharper disable MemberCanBePrivate.Local
-        // ReSharper disable UnusedAutoPropertyAccessor.Local
-        // ReSharper disable UnusedMember.Local
-        // ReSharper disable CollectionNeverUpdated.Local
-        // ReSharper disable CollectionNeverQueried.Local
         internal class Issue123
         {
             public enum CompositeType
@@ -250,6 +243,7 @@
                 Leaf
             }
 
+            // ReSharper disable MemberHidesStaticFromOuterClass
             public class CompositeDto
             {
                 public CompositeType Type { get; set; }
@@ -258,6 +252,7 @@
 
                 public LeafDto Leaf { get; set; }
             }
+            // ReSharper restore MemberHidesStaticFromOuterClass
 
             public class GroupDto
             {
@@ -283,8 +278,6 @@
             public interface IGroup : IComposite
             {
                 string Name { get; }
-
-                IList<IComposite> Children { get; }
             }
 
             public class Group : IGroup
@@ -309,13 +302,6 @@
                 public string Description { get; set; }
             }
         }
-        // ReSharper restore CollectionNeverQueried.Local
-        // ReSharper restore CollectionNeverUpdated.Local
-        // ReSharper restore UnusedMember.Local
-        // ReSharper restore UnusedAutoPropertyAccessor.Local
-        // ReSharper restore MemberCanBePrivate.Local
-        // ReSharper restore MemberHidesStaticFromOuterClass
-        // ReSharper restore ClassNeverInstantiated.Local
 
         #endregion
     }

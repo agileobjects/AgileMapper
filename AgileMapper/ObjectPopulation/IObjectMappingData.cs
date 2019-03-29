@@ -12,6 +12,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         new IObjectMappingData Parent { get; }
 
+        bool IsPartOfRepeatedMapping { get; set; }
+
         bool IsPartOfDerivedTypeMapping { get; }
 
         IObjectMappingData DeclaredTypeMappingData { get; }
