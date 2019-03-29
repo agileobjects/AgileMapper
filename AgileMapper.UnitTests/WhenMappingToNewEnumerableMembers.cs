@@ -4,6 +4,7 @@
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.Linq;
+    using AgileMapper.Extensions;
     using Common;
     using TestClasses;
 #if !NET35
@@ -271,28 +272,6 @@
 
                 result.Value.ShouldBeSameAs(existingCollection);
                 result.Value.ShouldBe("6", "7", "8");
-            }
-        }
-
-        [Fact]
-        public void ShouldApplyAConfiguredExpressionToAnArray()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicProperty<string>>()
-                    .To<PublicField<int[]>>()
-#if NETCOREAPP2_0
-                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
-#else
-                    .Map(ctx => ctx.Source.Value.Split(':'))
-#endif
-                    .To(x => x.Value);
-
-                var source = new PublicProperty<string> { Value = "8:7:6:5" };
-                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
-
-                result.Value.ShouldBe(8, 7, 6, 5);
             }
         }
 
