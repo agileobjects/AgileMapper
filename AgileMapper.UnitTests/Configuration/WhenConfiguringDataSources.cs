@@ -1478,7 +1478,7 @@
                     .And.Ignore(t => t.ParamObj);
 
                 // Bug only happens when the mapping plan is cached up-front
-                string mappingPlan = mapper
+                mapper
                     .GetPlanFor<Issue125.Source.ParamSet>()
                     .ToANew<Issue125.Target.ParamSet>();
 

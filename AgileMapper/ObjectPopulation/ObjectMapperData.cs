@@ -582,7 +582,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
 
-        public MethodCallExpression GetMapCall(
+        public Expression GetMapCall(
             Expression sourceObject,
             QualifiedMember targetMember,
             int dataSourceIndex)
@@ -598,7 +598,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression());
 
-            return mapCall;
+            return GetSimpleTypeCheckedMapCall(sourceObject, targetMember.Type, mapCall);
         }
 
         public Expression GetMapCall(Expression sourceElement, Expression targetElement)
@@ -618,26 +618,34 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 targetElement,
                 EnumerablePopulationBuilder.Counter);
 
-            if ((sourceElement.Type != typeof(object)) || (targetElement.Type != typeof(object)))
+            return GetSimpleTypeCheckedMapCall(sourceElement, targetElement.Type, mapCall);
+        }
+
+        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
+            => mappingDataType.GetPublicInstanceMethod("Map", numberOfArguments);
+
+        private static Expression GetSimpleTypeCheckedMapCall(
+            Expression sourceObject,
+            Type targetObjectType,
+            Expression mapCall)
+        {
+            if ((sourceObject.Type != typeof(object)) || (targetObjectType != typeof(object)))
             {
                 return mapCall;
             }
 
             var sourceObjectGetTypeMethod = typeof(object).GetPublicInstanceMethod(nameof(GetType));
-            var sourceObjectGetTypeCall = Expression.Call(sourceElement, sourceObjectGetTypeMethod);
+            var sourceObjectGetTypeCall = Expression.Call(sourceObject, sourceObjectGetTypeMethod);
             var isSimpleMethod = Extensions.PublicTypeExtensions.IsSimpleMethod;
             var sourceObjectTypeIsSimpleCall = Expression.Call(isSimpleMethod, sourceObjectGetTypeCall);
 
             var simpleSourceTypeOrMapCall = Expression.Condition(
                 sourceObjectTypeIsSimpleCall,
-                sourceElement,
+                sourceObject,
                 mapCall);
 
             return simpleSourceTypeOrMapCall;
         }
-
-        private static MethodInfo GetMapMethod(Type mappingDataType, int numberOfArguments)
-            => mappingDataType.GetPublicInstanceMethod("Map", numberOfArguments);
 
         public MethodCallExpression GetMapRepeatedCall(
             QualifiedMember targetMember,
