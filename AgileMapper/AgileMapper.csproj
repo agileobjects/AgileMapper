@@ -22,7 +22,7 @@
 - Improved support for non-standard collections
 - Improved detection of join entities
 - Automatically mapping complex type members to null if only an identifier is populated, with a non-default value (re: #121)</PackageReleaseNotes>
-    <Version>1.3.0-preview2</Version>
+    <Version>1.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
