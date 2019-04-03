@@ -65,6 +65,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsForDerivedType { get; }
 
+        public bool IsForToTargetMapping { get; set; }
+
         public bool IsForNewElement { get; set; }
 
         public bool NeedsSubMapping { get; private set; }
@@ -77,12 +79,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             NeedsSubMapping = true;
-            BubbleMappingNeededToParent();
+            BubbleSubMappingNeededToEntryPoint();
         }
 
-        private void BubbleMappingNeededToParent()
+        private void BubbleSubMappingNeededToEntryPoint()
         {
-            if (!_mapperData.IsRoot)
+            if (!_mapperData.IsEntryPoint)
             {
                 _mapperData.Parent.Context.SubMappingNeeded();
             }
@@ -91,7 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool UseLocalVariable { get; }
 
         public bool UseMappingTryCatch
-            => _mapperData.RuleSet.Settings.UseTryCatch && (_mapperData.IsRoot || !IsPartOfUserStructMapping());
+            => _mapperData.RuleSet.Settings.UseTryCatch && (_mapperData.IsEntryPoint || !IsPartOfUserStructMapping());
 
         public bool IsPartOfUserStructMapping()
             => CheckHierarchy(mapperData => mapperData.TargetMemberIsUserStruct());
@@ -137,7 +139,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return (_isMappingDataObjectNeeded ??
                        (_isMappingDataObjectNeeded =
                            NeedsSubMapping || UsesMappingDataObjectAsParameter ||
-                           _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObject))).Value;
+                          _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObject))).Value;
             }
         }
 

@@ -96,7 +96,7 @@
 
         private ConfiguredDataSourceFactory CreateFromLambda<TTargetValue>(LambdaExpression targetMemberLambda)
         {
-            var valueLambdaInfo = GetValueLambdaInfo<TTargetValue>();
+            var valueLambdaInfo = GetValueLambdaInfo(typeof(TTargetValue));
 
             if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
             {
@@ -106,7 +106,7 @@
             return CreateDataSourceFactory(valueLambdaInfo, targetMemberLambda);
         }
 
-        private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
+        private ConfiguredLambdaInfo GetValueLambdaInfo(Type targetValueType)
         {
             if (_customValueLambdaInfo != null)
             {
@@ -121,8 +121,8 @@
             const ExpressionType CONSTANT = ExpressionType.Constant;
 #endif
             if ((customValueLambda.Body.NodeType != CONSTANT) ||
-                (typeof(TTargetValue) == typeof(object)) ||
-                 customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
+                (targetValueType == typeof(object)) ||
+                 customValueLambda.ReturnType.IsAssignableTo(targetValueType))
             {
                 return ConfiguredLambdaInfo.For(customValueLambda);
             }
@@ -130,12 +130,13 @@
             var convertedConstantValue = _configInfo
                 .MapperContext
                 .ValueConverters
-                .GetConversion(customValueLambda.Body, typeof(TTargetValue));
+                .GetConversion(customValueLambda.Body, targetValueType);
 
-            var valueLambda = Lambda<Func<TTargetValue>>(convertedConstantValue);
+            var funcType = GetFuncType(targetValueType);
+            var valueLambda = Lambda(funcType, convertedConstantValue);
             var valueFunc = valueLambda.Compile();
-            var value = valueFunc.Invoke().ToConstantExpression(typeof(TTargetValue));
-            var constantValueLambda = Lambda<Func<TTargetValue>>(value);
+            var value = valueFunc.DynamicInvoke().ToConstantExpression(targetValueType);
+            var constantValueLambda = Lambda(funcType, value);
             var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
 
             return valueLambdaInfo;
@@ -281,7 +282,7 @@
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>(ParameterInfo parameter)
         {
-            var valueLambda = GetValueLambdaInfo<TParam>();
+            var valueLambda = GetValueLambdaInfo(typeof(TParam));
             var constructorParameter = CreateRootTargetQualifiedMember().Append(Member.ConstructorParameter(parameter));
 
             return new ConfiguredDataSourceFactory(_configInfo, valueLambda, constructorParameter);
@@ -296,8 +297,29 @@
 
             return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
                 _configInfo,
-                GetValueLambdaInfo<TTarget>(),
+                GetValueLambdaInfo(typeof(TTarget)),
                 CreateRootTargetQualifiedMember()));
+        }
+
+        public IMappingConfigContinuation<TSource, TTarget> ToTarget<TDerivedTarget>()
+            where TDerivedTarget : TTarget
+        {
+            var derivedTypeConfigInfo = _configInfo.Copy().ForTargetType<TDerivedTarget>();
+
+            typeof(CustomDataSourceTargetMemberSpecifier<TSource, TTarget>)
+                .GetNonPublicInstanceMethod(nameof(SetDerivedToTargetSource))
+                .MakeGenericMethod(typeof(TDerivedTarget))
+                .Invoke(this, new object[] { derivedTypeConfigInfo });
+
+            return new MappingConfigurator<TSource, TTarget>(_configInfo).MapTo<TDerivedTarget>();
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private void SetDerivedToTargetSource<TDerivedTarget>(MappingConfigInfo derivedTypeConfigInfo)
+        {
+            new MappingConfigurator<TSource, TDerivedTarget>(derivedTypeConfigInfo)
+                .GetValueFactoryTargetMemberSpecifier(_customValueLambda, _customValueLambda.Type)
+                .ToTarget();
         }
 
         private void ThrowIfSimpleSource(Type targetMemberType)

@@ -76,7 +76,7 @@
         }
 
         [Fact]
-        public void ShouldMapToANewOneToManyViaIntermediateRelationship()
+        public void ShouldMapToANewOneToManyViaIntermediateEntity()
         {
             var pilot = new Pilot
             {
@@ -112,7 +112,7 @@
         }
 
         [Fact]
-        public void ShouldMapToANewOneToManyViaIntermediateRelationshipWithObjectTrackingDisabled()
+        public void ShouldMapToANewOneToManyViaIntermediateEntityWithObjectTrackingDisabled()
         {
             using (var mapper = Mapper.CreateNew())
             {

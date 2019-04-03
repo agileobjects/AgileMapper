@@ -44,6 +44,16 @@
         public static BinaryExpression AssignTo(this Expression subject, Expression value)
             => Expression.Assign(subject, value);
 
+        public static bool IsNullableHasValueAccess(this Expression expression)
+            => (expression.NodeType == MemberAccess) && IsNullableHasValueAccess((MemberExpression)expression);
+
+        public static bool IsNullableHasValueAccess(this MemberExpression memberAccess)
+        {
+            return (memberAccess.Expression != null) &&
+                   (memberAccess.Member.Name == "HasValue") &&
+                   (memberAccess.Expression.Type.IsNullableType());
+        }
+
         [DebuggerStepThrough]
         public static ConstantExpression ToConstantExpression<T>(this T item)
             => ToConstantExpression(item, typeof(T));
@@ -298,13 +308,12 @@
         public static MethodCallExpression WithToStringCall(this Expression value)
             => Expression.Call(value, value.Type.GetPublicInstanceMethod("ToString", parameterCount: 0));
 
-        public static Expression WithToReadOnlyCollectionCall(this Expression enumerable, Type elementType)
+        public static Expression GetReadOnlyCollectionCreation(this Expression enumerable, Type elementType)
         {
             var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
 
             if (TryGetWrapperMethod(typeHelper, "ToReadOnlyCollection", out var method))
             {
-
                 return GetToEnumerableCall(enumerable, method, typeHelper.ElementType);
             }
 
@@ -324,20 +333,23 @@
             return GetReadOnlyCollectionCreation(typeHelper, toArrayCall);
         }
 
-        public static Expression WithToCollectionCall(this Expression enumerable, Type elementType)
+        public static Expression GetCollectionTypeCreation(this Expression enumerable, Type elementType)
         {
             var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
 
             if (typeHelper.HasListInterface)
             {
-                return GetCollectionCreation(typeHelper, enumerable.GetConversionTo(typeHelper.ListInterfaceType));
+                return GetCollectionTypeCreation(typeHelper, enumerable.GetConversionTo(typeHelper.ListInterfaceType));
             }
 
             var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
             var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, typeHelper.ElementType);
 
-            return GetCollectionCreation(typeHelper, toArrayCall);
+            return GetCollectionTypeCreation(typeHelper, toArrayCall);
         }
+
+        private static Expression GetCollectionTypeCreation(EnumerableTypeHelper typeHelper, Expression list)
+            => GetCopyListCollectionCreation(typeHelper, typeHelper.CollectionType, list);
 
         public static Expression WithToListLinqCall(this Expression enumerable, Type elementType)
             => GetToEnumerableCall(enumerable, _linqToListMethod, elementType);
@@ -391,26 +403,18 @@
              => Expression.Field(null, typeof(Enumerable<>).MakeGenericType(elementType), "EmptyArray");
 
         private static Expression GetReadOnlyCollectionCreation(EnumerableTypeHelper typeHelper, Expression list)
-        {
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.New(
-                typeHelper.ReadOnlyCollectionType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType),
-                list);
-        }
+            => GetCopyListCollectionCreation(typeHelper, typeHelper.ReadOnlyCollectionType, list);
 
-        private static Expression GetCollectionCreation(EnumerableTypeHelper typeHelper, Expression list)
+        private static Expression GetCopyListCollectionCreation(
+            EnumerableTypeHelper typeHelper,
+            Type collectonType,
+            Expression list)
         {
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.New(
-                typeHelper.CollectionType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType),
-                list);
-        }
+            var copyListConstructor = collectonType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType);
 
-        public static Type GetDictionaryConcreteType(this Type dictionaryType)
-        {
-            return dictionaryType.IsInterface()
-                ? typeof(Dictionary<,>).MakeGenericType(dictionaryType.GetGenericTypeArguments())
-                : dictionaryType;
+            return (copyListConstructor != null)
+                ? Expression.New(copyListConstructor, list)
+                : Expression.New(collectonType);
         }
 
         public static bool IsRootedIn(this Expression expression, Expression possibleParent)

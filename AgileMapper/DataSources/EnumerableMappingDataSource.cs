@@ -5,7 +5,6 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
-    using NetStandardPolyfills;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
 #if NET35
@@ -81,7 +80,7 @@
 
             if ((sourceElementType == mapperData.TargetMember.ElementType) ||
                 !sourceElementType.IsComplex() ||
-                (mapperData.MapperContext.Naming.GetIdentifierOrNull(sourceElementType) != null))
+                (mapperData.GetIdentifierOrNull(sourceElementType) != null))
             {
                 forwardLink = null;
                 return true;
@@ -101,10 +100,11 @@
             }
 
             var otherComplexTypeMembers = sourceElementMembers
-                .Filter(m => m.IsComplex && m.Type != mapperData.SourceType)
+                .Filter(m => m.IsComplex && (m.Type != mapperData.SourceType))
                 .ToArray();
 
-            if (otherComplexTypeMembers.Length != 1)
+            if ((otherComplexTypeMembers.Length != 1) ||
+                (mapperData.GetIdentifierOrNull(otherComplexTypeMembers[0].Type) == null))
             {
                 forwardLink = null;
                 return true;
@@ -142,8 +142,8 @@
             IMemberMapperData mapperData)
         {
             var orderMember =
-                mapperData.MapperContext.Naming.GetIdentifierOrNull(forwardLink.Type)?.MemberInfo ??
-                linkParameter.Type.GetPublicInstanceMember("Order");
+                mapperData.GetOrderMember(linkParameter.Type) ??
+                mapperData.GetIdentifierOrNull(forwardLink.Type)?.MemberInfo;
 
             if (orderMember == null)
             {

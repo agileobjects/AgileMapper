@@ -501,6 +501,28 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredExpressionToAnArray()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<int[]>>()
+#if NETCOREAPP2_0
+                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
+#else
+                    .Map(ctx => ctx.Source.Value.Split(':'))
+#endif
+                    .To(x => x.Value);
+
+                var source = new PublicProperty<string> { Value = "8:7:6:5" };
+                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
+
+                result.Value.ShouldBe(8, 7, 6, 5);
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConfiguredExpressionInAMemberNonGenericEnumerableConditionally()
         {
             using (var mapper = Mapper.CreateNew())
@@ -1443,6 +1465,86 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/125
+        [Fact]
+        public void ShouldHandleDeepNestedRuntimeTypedMembersWithACachedMappingPlan()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue125.Source.ParamSet>().To<Issue125.Target.ParamSet>()
+                    .Map(ctxt => ctxt.Source.ParamObj)
+                    .ToCtor<Issue125.Target.ParamObj>()
+                    .And.Ignore(t => t.ParamObj);
+
+                // Bug only happens when the mapping plan is cached up-front
+                mapper
+                    .GetPlanFor<Issue125.Source.ParamSet>()
+                    .ToANew<Issue125.Target.ParamSet>();
+
+                var source = new Issue125.Source.ParamSet
+                {
+                    ParamObj = new Issue125.Source.ParamObj
+                    {
+                        Name = "Test PO",
+                        Collection = new Issue125.Source.ParamCol
+                        {
+                            Children =
+                            {
+                                new Issue125.Source.ParamValue
+                                {
+                                    Definition = Issue125.Source.ParamDef.Create(),
+                                    Values = { 1, 2, 3, 4, 5, 6 }
+                                }
+                            }
+                        }
+                    },
+                    ParamValues =
+                    {
+                        new Issue125.Source.ParamValue
+                        {
+                            Definition = Issue125.Source.ParamDef.Create(),
+                            Values = { 2, 4, 6, 8, 10, 12 }
+                        }
+                    }
+                };
+
+                var result = source.MapUsing(mapper).ToANew<Issue125.Target.ParamSet>();
+
+                result.ShouldNotBeNull();
+
+                result.ParamObj.ShouldNotBeNull();
+                result.ParamObj.Name.ShouldBe("Test PO");
+                result.ParamObj.Collection.ShouldNotBeNull();
+
+                result.ParamObj.Collection.ParamObj.ShouldBeNull();
+                result.ParamObj.Collection.Children.ShouldNotBeNull();
+                result.ParamObj.Collection.Children.ShouldHaveSingleItem();
+                result.ParamObj.Collection.Children.First().Definition.ShouldNotBeNull();
+                result.ParamObj.Collection.Children.First().Definition.Identification.ShouldBe("Test ParamDef");
+                result.ParamObj.Collection.Children.First().Definition.Default.ShouldBe(42);
+                result.ParamObj.Collection.Children.First().Definition.Min.ShouldBe(0);
+                result.ParamObj.Collection.Children.First().Definition.Max.ShouldBe(100);
+                result.ParamObj.Collection.Children.First().Definition.Type.ShouldBe("Integer");
+                result.ParamObj.Collection.Children.First().Values.ShouldNotBeNull();
+                result.ParamObj.Collection.Children.First().Values.ShouldBe(1, 2, 3, 4, 5, 6);
+
+                result.ParamValues.ShouldNotBeNull();
+                result.ParamValues.ShouldHaveSingleItem();
+                result.ParamValues.First().Definition.ShouldNotBeNull();
+                result.ParamValues.First().Definition.Identification.ShouldBe("Test ParamDef");
+                result.ParamValues.First().Definition.Default.ShouldBe(42);
+                result.ParamValues.First().Definition.Min.ShouldBe(0);
+                result.ParamValues.First().Definition.Max.ShouldBe(100);
+                result.ParamValues.First().Definition.Type.ShouldBe("Integer");
+                result.ParamValues.First().Values.ShouldNotBeNull();
+                result.ParamValues.First().Values.ShouldBe(2, 4, 6, 8, 10, 12);
+
+                result.ParamObj.Collection.Children.First().Definition.ShouldNotBeSameAs(
+                    result.ParamValues.First().Definition);
+            }
+        }
+
         internal class IdTester
         {
             public int ClassId { get; set; }
@@ -1472,5 +1574,149 @@
 
             public string SomeOtherRankingStuff { get; set; }
         }
+
+        // ReSharper disable CollectionNeverQueried.Local
+        // ReSharper disable MemberCanBePrivate.Local
+        // ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+        internal static class Issue125
+        {
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
+            public static class Source
+            {
+                public class ParamSet
+                {
+                    public ParamSet()
+                    {
+                        ParamValues = new List<ParamValue>();
+                    }
+
+                    public ParamObj ParamObj { get; set; }
+
+                    public IList<ParamValue> ParamValues { get; }
+                }
+
+                public class ParamObj
+                {
+                    public string Name { get; set; }
+
+                    public ParamCol Collection { get; set; }
+                }
+
+                public class ParamCol
+                {
+                    public ParamCol()
+                    {
+                        Children = new List<ParamValue>();
+                    }
+
+                    public IList<ParamValue> Children { get; }
+                }
+
+                public class ParamValue
+                {
+                    public ParamValue()
+                    {
+                        Values = new List<object>();
+                    }
+
+                    public ParamDef Definition { get; set; }
+
+                    public IList<object> Values { get; }
+                }
+
+                public class ParamDef
+                {
+                    public static ParamDef Create()
+                    {
+                        return new ParamDef
+                        {
+                            Identification = "Test ParamDef",
+                            Default = 42,
+                            Min = 0,
+                            Max = 100,
+                            Type = "Integer"
+                        };
+                    }
+
+                    public object Default { get; set; }
+
+                    public object Min { get; set; }
+
+                    public object Max { get; set; }
+
+                    public string Type { get; set; }
+
+                    public string Identification { get; set; }
+                }
+            }
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
+
+            // ReSharper disable ClassNeverInstantiated.Local
+            // ReSharper disable UnusedAutoPropertyAccessor.Local
+            public static class Target
+            {
+                public class ParamSet
+                {
+                    public ParamSet(ParamObj po)
+                    {
+                        ParamObj = po;
+                        ParamValues = new List<ParamValue>();
+                    }
+
+                    public ParamObj ParamObj { get; set; }
+
+                    public IList<ParamValue> ParamValues { get; }
+                }
+
+                public class ParamObj
+                {
+                    public string Name { get; set; }
+
+                    public ParamCol Collection { get; set; }
+                }
+
+                public class ParamCol
+                {
+                    public ParamCol()
+                    {
+                        Children = new List<ParamValue>();
+                    }
+
+                    public ParamObj ParamObj { get; set; }
+
+                    public IList<ParamValue> Children { get; }
+                }
+
+                public class ParamValue
+                {
+                    public ParamValue()
+                    {
+                        Values = new List<object>();
+                    }
+
+                    public ParamDef Definition { get; set; }
+
+                    public IList<object> Values { get; }
+                }
+
+                public class ParamDef
+                {
+                    public object Default { get; set; }
+
+                    public object Min { get; set; }
+
+                    public object Max { get; set; }
+
+                    public string Type { get; set; }
+
+                    public string Identification { get; set; }
+                }
+            }
+            // ReSharper restore UnusedAutoPropertyAccessor.Local
+            // ReSharper restore ClassNeverInstantiated.Local
+        }
+        // ReSharper restore AutoPropertyCanBeMadeGetOnly.Local
+        // ReSharper restore MemberCanBePrivate.Local
+        // ReSharper restore CollectionNeverQueried.Local
     }
 }

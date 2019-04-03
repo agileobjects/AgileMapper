@@ -26,24 +26,31 @@
 
         public void Add(DerivedTypePair typePair)
         {
-            var parentType = typePair.DerivedTargetType.GetBaseType();
-
-            while (parentType != typeof(object))
+            if (typePair.IsImplementationPairing)
             {
-                // ReSharper disable once AssignNullToNotNullAttribute
-                if (_typePairsByTargetType.TryGetValue(parentType, out var typePairs))
-                {
-                    RemoveConflictingPairIfAppropriate(typePair, typePairs);
-
-                    typePairs.AddSorted(typePair);
-                }
-                else
-                {
-                    _typePairsByTargetType[parentType] = new List<DerivedTypePair> { typePair };
-                }
-
-                parentType = parentType.GetBaseType();
+                AddTypePairFor(typePair.ConfigInfo.TargetType, typePair);
+                return;
             }
+
+            var targetType = typePair.DerivedTargetType.GetBaseType();
+
+            while (targetType != typeof(object))
+            {
+                AddTypePairFor(targetType, typePair);
+                targetType = targetType.GetBaseType();
+            }
+        }
+
+        private void AddTypePairFor(Type targetType, DerivedTypePair typePair)
+        {
+            if (_typePairsByTargetType.TryGetValue(targetType, out var typePairs))
+            {
+                RemoveConflictingPairIfAppropriate(typePair, typePairs);
+                typePairs.AddSorted(typePair);
+                return;
+            }
+
+            _typePairsByTargetType[targetType] = new List<DerivedTypePair> { typePair };
         }
 
         private static void RemoveConflictingPairIfAppropriate(
@@ -62,6 +69,20 @@
             {
                 typePairs.Remove(existingTypePair);
             }
+        }
+
+        public IList<DerivedTypePair> GetImplementationTypePairsFor(
+            IBasicMapperData mapperData,
+            MapperContext mapperContext)
+        {
+            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
+            {
+                return typePairs
+                    .Filter(tp => tp.IsImplementationPairing && tp.AppliesTo(mapperData))
+                    .ToArray();
+            }
+
+            return Enumerable<DerivedTypePair>.EmptyArray;
         }
 
         public IList<DerivedTypePair> GetDerivedTypePairsFor(
@@ -90,13 +111,14 @@
             var rootSourceType = GetRootType(mapperData.SourceType);
             var rootTargetType = GetRootType(mapperData.TargetType);
             var typesKey = new SourceAndTargetTypesKey(rootSourceType, rootTargetType);
-            var currentTypeCount = CheckedTypesCount;
 
-            // ReSharper disable once InconsistentlySynchronizedField
             if (TypesChecked(typesKey, 0))
             {
                 return;
             }
+
+            // ReSharper disable once InconsistentlySynchronizedField
+            var currentTypeCount = CheckedTypesCount;
 
             lock (_lookupSync)
             {
@@ -163,9 +185,9 @@
             }
         }
 
-        // ReSharper disable InconsistentlySynchronizedField
         private bool TypesChecked(SourceAndTargetTypesKey typesKey, int startIndex)
         {
+            // ReSharper disable InconsistentlySynchronizedField
             if (CheckedTypesCount == 0)
             {
                 return false;

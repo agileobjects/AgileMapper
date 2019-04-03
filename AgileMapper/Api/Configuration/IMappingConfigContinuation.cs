@@ -8,14 +8,22 @@
     public interface IMappingConfigContinuation<TSource, TTarget>
     {
         /// <summary>
-        /// Perform another configuration of how this mapper maps to and from the source and target types
-        /// being configured. This property exists purely to provide a more fluent configuration interface.
+        /// Perform further configuration of how this mapper maps to and from a pair of source and
+        /// target types. This property exists purely to provide a more fluent configuration interface.
+        /// </summary>
+        MappingConfigStartingPoint AndWhenMapping { get; }
+
+        /// <summary>
+        /// Perform another configuration of how this mapper maps to and from the source and target
+        /// types being configured. This property exists purely to provide a more fluent configuration
+        /// interface.
         /// </summary>
         IFullMappingConfigurator<TSource, TTarget> And { get; }
 
         /// <summary>
-        /// Perform an alternative configuration of how this mapper maps to and from the source and target types
-        /// being configured. This property exists purely to provide a more fluent configuration interface.
+        /// Perform an alternative configuration of how this mapper maps to and from the source and
+        /// target types being configured. This property exists purely to provide a more fluent configuration
+        /// interface.
         /// </summary>
         IFullMappingConfigurator<TSource, TTarget> But { get; }
     }

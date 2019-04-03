@@ -2,7 +2,9 @@
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.Linq;
+    using AgileMapper.Extensions;
     using Common;
     using TestClasses;
 #if !NET35
@@ -212,6 +214,24 @@
             result.Value.Second().Third().Name.ShouldBe("Jorma");
         }
 
+#if !NETCOREAPP1_0
+        // See https://github.com/agileobjects/AgileMapper/issues/120
+        [Fact]
+        public void ShouldMapABindingList()
+        {
+            var source = new PublicField<BindingList<PublicField<int>>>
+            {
+                Value = new BindingList<PublicField<int>>
+                {
+                    new PublicField<int> { Value = 123 }
+                }
+            };
+
+            var result = Mapper.DeepClone(source);
+
+            result.Value.ShouldHaveSingleItem().Value.ShouldBe(123);
+        }
+#endif
         [Fact]
         public void ShouldRetainAnExistingListItem()
         {
@@ -252,28 +272,6 @@
 
                 result.Value.ShouldBeSameAs(existingCollection);
                 result.Value.ShouldBe("6", "7", "8");
-            }
-        }
-
-        [Fact]
-        public void ShouldApplyAConfiguredExpressionToAnArray()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicProperty<string>>()
-                    .To<PublicField<int[]>>()
-#if NETCOREAPP2_0
-                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
-#else
-                    .Map(ctx => ctx.Source.Value.Split(':'))
-#endif
-                    .To(x => x.Value);
-
-                var source = new PublicProperty<string> { Value = "8:7:6:5" };
-                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
-
-                result.Value.ShouldBe(8, 7, 6, 5);
             }
         }
 

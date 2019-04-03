@@ -24,6 +24,7 @@
         private ConfiguredLambdaInfo _conditionLambda;
         private bool _negateCondition;
         private Dictionary<Type, object> _data;
+        private IObjectMappingData _mappingData;
 
         public MappingConfigInfo(MapperContext mapperContext)
         {
@@ -91,8 +92,6 @@
             => (RuleSet == _allRuleSets) || (mappingRuleSet == _allRuleSets) || (mappingRuleSet == RuleSet);
 
         public Type SourceValueType { get; private set; }
-
-        public MappingConfigInfo ForSourceValueType<TSourceValue>() => ForSourceValueType(typeof(TSourceValue));
 
         public MappingConfigInfo ForSourceValueType(Type sourceValueType)
         {
@@ -197,6 +196,25 @@
         }
 
         private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
+
+        public IObjectMappingData ToMappingData<TSource, TTarget>()
+        {
+            if (_mappingData != null)
+            {
+                return _mappingData;
+            }
+
+            var ruleSet = IsForAllRuleSets
+                ? MapperContext.RuleSets.CreateNew
+                : RuleSet;
+
+            var mappingContext = new SimpleMappingContext(ruleSet, MapperContext);
+
+            _mappingData = ObjectMappingDataFactory
+                .ForRootFixedTypes<TSource, TTarget>(mappingContext, createMapper: false);
+
+            return _mappingData;
+        }
 
         public IBasicMapperData ToMapperData(QualifiedMember targetMember = null)
         {

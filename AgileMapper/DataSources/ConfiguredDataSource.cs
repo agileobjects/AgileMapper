@@ -49,7 +49,7 @@
 
         #endregion
 
-        public ConfiguredDataSource(
+        private ConfiguredDataSource(
             IQualifiedMember sourceMember,
             Expression configuredCondition,
             Expression convertedValue,

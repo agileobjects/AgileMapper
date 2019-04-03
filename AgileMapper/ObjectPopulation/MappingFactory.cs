@@ -36,7 +36,7 @@
 
             if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
-                return childMapperData.Parent.GetMapCall(
+                return childMapperData.Parent.GetRuntimeTypedMapping(
                     mappingValues.SourceValue,
                     childMapperData.TargetMember,
                     dataSourceIndex);
@@ -96,7 +96,7 @@
 
             if (mappingData.MappingTypes.RuntimeTypesNeeded)
             {
-                return mapperData.GetMapCall(sourceElementValue, targetElementValue);
+                return mapperData.GetRuntimeTypedMapping(sourceElementValue, targetElementValue);
             }
 
             return GetElementMapping(mappingData, sourceElementValue, targetElementValue);

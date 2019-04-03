@@ -80,7 +80,8 @@
 
             var unconstructableSource = new { Val = (object)123, Value2 = (object)456 };
 
-            var unconstructableResult = Mapper.Map(unconstructableSource)
+            var unconstructableResult = Mapper
+                .Map(unconstructableSource)
                 .ToANew<PublicTwoParamCtor<string, PublicPropertyStruct<int>>>();
 
             unconstructableResult.ShouldBeNull();

@@ -29,11 +29,14 @@
                     return configuredIdentifier.ReplaceParameterWith(subject);
                 }
 
-                var identifier = context.Naming.GetIdentifierOrNull(key.Type);
+                var identifier = context.GetIdentifierOrNull(key.Type);
 
                 return identifier?.GetAccess(subject);
             });
         }
+
+        public static Member GetIdentifierOrNull(this MapperContext context, Type type)
+            => context.Naming.GetIdentifierOrNull(type);
 
         public static Expression GetValueConversion(this MapperContext context, Expression value, Type targetType)
             => context.ValueConverters.GetConversion(value, targetType);

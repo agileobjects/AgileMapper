@@ -43,7 +43,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
 
-            if (MapperData.HasMapperFuncs)
+            if (MapperData.HasRepeatedMapperFuncs)
             {
                 _repeatedMappingFuncsByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRepeatedMapperFunc>();
                 MapperData.Mapper = this;
@@ -58,9 +58,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             // Using a for loop here because creation of a repeated mapping func can
             // cause additions to MapperData.RequiredMapperFuncKeys
-            for (var i = _repeatedMappingFuncsByKey.Count; i < MapperData.RequiredMapperFuncKeys.Count; i++)
+            for (var i = _repeatedMappingFuncsByKey.Count; i < MapperData.RepeatedMapperFuncKeys.Count; i++)
             {
-                var mapperKey = MapperData.RequiredMapperFuncKeys[i];
+                var mapperKey = MapperData.RepeatedMapperFuncKeys[i];
 
                 var typesKey = new SourceAndTargetTypesKey(
                     mapperKey.MapperData.SourceType,
