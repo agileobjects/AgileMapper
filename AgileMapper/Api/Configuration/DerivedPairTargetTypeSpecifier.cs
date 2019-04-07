@@ -1,8 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System;
     using AgileMapper.Configuration;
+    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using Projection;
     using ReadableExpressions.Extensions;
 
@@ -16,6 +19,8 @@
         {
             _configInfo = configInfo;
         }
+
+        private MapperContext MapperContext => _configInfo.MapperContext;
 
         public IMappingConfigContinuation<TSource, TTarget> To<TDerivedTarget>()
             where TDerivedTarget : TTarget
@@ -33,7 +38,7 @@
             var derivedTypePair = DerivedTypePair
                 .For<TDerivedSource, TTarget, TDerivedTarget>(_configInfo);
 
-            _configInfo.MapperContext.UserConfigurations.DerivedTypes.Add(derivedTypePair);
+            MapperContext.UserConfigurations.DerivedTypes.Add(derivedTypePair);
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
@@ -42,12 +47,12 @@
         {
             var mappingData = _configInfo.ToMappingData<TSource, TDerivedTarget>();
 
-            var objectCreation = _configInfo
-                .MapperContext
-                .ConstructionFactory
-                .GetNewObjectCreation(mappingData);
+            if (IsConstructableUsing(mappingData))
+            {
+                return;
+            }
 
-            if (objectCreation != null)
+            if (IsConstructableFromToTargetDataSources(mappingData, typeof(TDerivedTarget)))
             {
                 return;
             }
@@ -57,17 +62,61 @@
                 ThrowUnableToCreate<TDerivedTarget>();
             }
 
-            var configuredImplementationPairings = _configInfo
-                .MapperContext
+            var configuredImplementationPairings = MapperContext
                 .UserConfigurations
                 .DerivedTypes.GetImplementationTypePairsFor(
                     _configInfo.ToMapperData(),
-                    _configInfo.MapperContext);
+                    MapperContext);
 
             if (configuredImplementationPairings.None())
             {
                 ThrowUnableToCreate<TDerivedTarget>();
             }
+        }
+
+        private bool IsConstructableUsing(IObjectMappingData mappingData)
+            => MapperContext.ConstructionFactory.GetNewObjectCreation(mappingData) != null;
+
+        private bool IsConstructableFromToTargetDataSources(IObjectMappingData mappingData, Type derivedTargetType)
+        {
+            if (!MapperContext.UserConfigurations.HasConfiguredRootDataSources)
+            {
+                return false;
+            }
+
+            var toTargetDataSources = MapperContext
+                .UserConfigurations
+                .GetDataSources(mappingData.MapperData)
+                .ToArray();
+
+            if (toTargetDataSources.None())
+            {
+                return false;
+            }
+
+            var constructionCheckMethod = typeof(DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>)
+                .GetNonPublicInstanceMethod(nameof(IsConstructableFromDataSource));
+
+            foreach (var dataSource in toTargetDataSources)
+            {
+                var isConstructable = (bool)constructionCheckMethod
+                    .MakeGenericMethod(dataSource.SourceMember.Type, derivedTargetType)
+                    .Invoke(this, Enumerable<object>.EmptyArray);
+
+                if (isConstructable)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool IsConstructableFromDataSource<TDataSource, TDerivedTarget>()
+        {
+            var mappingData = _configInfo.ToMappingData<TDataSource, TDerivedTarget>();
+
+            return IsConstructableUsing(mappingData);
         }
 
         private static void ThrowUnableToCreate<TDerivedTarget>()

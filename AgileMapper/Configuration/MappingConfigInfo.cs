@@ -199,7 +199,8 @@
 
         public IObjectMappingData ToMappingData<TSource, TTarget>()
         {
-            if (_mappingData != null)
+            if ((_mappingData != null) &&
+                 _mappingData.MappingTypes.Equals(MappingTypes<TSource, TTarget>.Fixed))
             {
                 return _mappingData;
             }

@@ -233,6 +233,37 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/129
+        [Fact]
+        public void ShouldUseAConfiguredCtorParameterWithATypedToTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue129.Source.SituationObject>()
+                    .To<Issue129.Target.SituationObject>()
+                    .Map(d => d.Source.CurrentClass)
+                    .ToCtor<Issue129.Target.SituationClass>();
+
+                mapper.WhenMapping
+                    .From<Issue129.Source.ActionObject>()
+                    .To<Issue129.Target.ActionObject>()
+                    .Map(new Issue129.Target.ActionClass())
+                    .ToCtor<Issue129.Target.ActionClass>();
+
+                mapper.WhenMapping
+                    .From<Issue129.Source.Wrapper>()
+                    .To<Issue129.Target.ITrafficObj>()
+                    .If(d => d.Source.ConcreteValue == Issue129.Source.Wrapper.ConcreteValueType.Action)
+                    .Map(d => d.Source.ActionValue)
+                    .ToTarget<Issue129.Target.ActionObject>()
+                    .And
+                    .If(d => d.Source.ConcreteValue == Issue129.Source.Wrapper.ConcreteValueType.Situation)
+                    .Map(d => d.Source.SituationValue)
+                    .ToTarget<Issue129.Target.SituationObject>();
+            }
+        }
+
         #region Helper Classes
 
         internal class Issue123
@@ -300,6 +331,65 @@
             public class Leaf : ILeaf
             {
                 public string Description { get; set; }
+            }
+        }
+
+        internal class Issue129
+        {
+            public static class Source
+            {
+                public class SituationClass
+                {
+                    public string Name { get; set; }
+                }
+
+                public class SituationObject
+                {
+                    public string Name { get; set; }
+
+                    public SituationClass CurrentClass { get; set; }
+
+                }
+                public class ActionObject
+                {
+                    public string Name { get; set; }
+                }
+
+                public class Wrapper
+                {
+                    public enum ConcreteValueType { Situation, Action }
+
+                    public ConcreteValueType ConcreteValue { get; set; }
+
+                    public SituationObject SituationValue { get; set; }
+
+                    public ActionObject ActionValue { get; set; }
+                }
+            }
+
+            public static class Target
+            {
+                public interface ITrafficObj { ITrafficClass CurrentClass { get; } }
+
+                public interface ITrafficClass { string Name { get; } }
+
+                public class SituationClass : ITrafficClass { public string Name { get; set; } }
+
+                public class ActionClass : ITrafficClass { public string Name { get; set; } }
+
+                public class SituationObject : ITrafficObj
+                {
+                    public SituationObject(SituationClass clazz) { CurrentClass = clazz; }
+
+                    public ITrafficClass CurrentClass { get; private set; }
+                }
+
+                public class ActionObject : ITrafficObj
+                {
+                    public ActionObject(ActionClass clazz) { CurrentClass = clazz; }
+
+                    public ITrafficClass CurrentClass { get; private set; }
+                }
             }
         }
 
