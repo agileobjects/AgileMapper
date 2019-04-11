@@ -358,10 +358,27 @@
         public bool HasConfiguredRootDataSources { get; private set; }
 
         public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
+            => GetDataSources(QueryDataSourceFactories(mapperData), mapperData);
+
+        public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
         {
-            return (_dataSourceFactories != null)
-                ? QueryDataSourceFactories(mapperData).Project(dsf => dsf.Create(mapperData)).ToArray()
-                : Enumerable<IConfiguredDataSource>.EmptyArray;
+            if (!HasConfiguredRootDataSources)
+            {
+                return Enumerable<IConfiguredDataSource>.EmptyArray;
+            }
+
+            var toTargetDataSourceFactories =
+                QueryDataSourceFactories(mapperData)
+                    .Filter(dsf => dsf.TargetMember.IsRoot);
+
+            return GetDataSources(toTargetDataSourceFactories, mapperData);
+        }
+
+        private static IList<IConfiguredDataSource> GetDataSources(
+            IEnumerable<ConfiguredDataSourceFactory> factories,
+            IMemberMapperData mapperData)
+        {
+            return factories.Project(dsf => dsf.Create(mapperData)).ToArray();
         }
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)
