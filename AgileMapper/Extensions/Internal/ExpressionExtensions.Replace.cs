@@ -48,6 +48,11 @@
             IEqualityComparer<Expression> comparer = null)
             where TExpression : Expression
         {
+            if (target == replacement)
+            {
+                return expression;
+            }
+
             if (expression == null)
             {
                 return null;
