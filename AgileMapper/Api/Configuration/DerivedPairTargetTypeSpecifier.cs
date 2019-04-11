@@ -2,7 +2,6 @@
 {
     using System;
     using AgileMapper.Configuration;
-    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
@@ -79,15 +78,9 @@
 
         private bool IsConstructableFromToTargetDataSources(IObjectMappingData mappingData, Type derivedTargetType)
         {
-            if (!MapperContext.UserConfigurations.HasConfiguredRootDataSources)
-            {
-                return false;
-            }
-
             var toTargetDataSources = MapperContext
                 .UserConfigurations
-                .GetDataSources(mappingData.MapperData)
-                .ToArray();
+                .GetDataSourcesForToTarget(mappingData.MapperData);
 
             if (toTargetDataSources.None())
             {

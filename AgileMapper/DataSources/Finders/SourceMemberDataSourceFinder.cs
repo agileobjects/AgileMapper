@@ -47,7 +47,7 @@
                     .MapperData
                     .MapperContext
                     .UserConfigurations
-                    .GetDataSources(updatedMapperData);
+                    .GetDataSourcesForToTarget(updatedMapperData);
 
                 foreach (var configuredRootDataSource in configuredRootDataSources)
                 {

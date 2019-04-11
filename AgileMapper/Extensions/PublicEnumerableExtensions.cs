@@ -150,29 +150,28 @@
             => items.All(item => !predicate.Invoke(item));
 
         /// <summary>
-        /// Convert this list of <paramref name="items"/> to an array.
+        /// Copies this list of <paramref name="items"/> into a new array.
         /// </summary>
         /// <typeparam name="T">The type of object stored in the list.</typeparam>
         /// <param name="items">The list of items to convert.</param>
         /// <returns>This list of items, converted to an array.</returns>
-        public static T[] ToArray<T>(this IList<T> items)
-        {
-            var array = new T[items.Count];
-
-            array.CopyFrom(items);
-
-            return array;
-        }
+        public static T[] ToArray<T>(this IList<T> items) => items.CopyToArray();
 
         /// <summary>
-        /// Convert this collection of <paramref name="items"/> to an array.
+        /// Copies this collection of <paramref name="items"/> into a new array, or returns this
+        /// object if it is an array.
         /// </summary>
         /// <typeparam name="T">The type of object stored in the list.</typeparam>
         /// <param name="items">The collection of items to convert.</param>
         /// <returns>This collection of items, converted to an array.</returns>
         public static T[] ToArray<T>(this ICollection<T> items)
         {
-            var array = new T[items.Count];
+            if (items is T[] array)
+            {
+                return array;
+            }
+
+            array = new T[items.Count];
 
             items.CopyTo(array, 0);
 

@@ -172,17 +172,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected static bool HasConfiguredRootDataSources(IMemberMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
         {
-            if (!mapperData.MapperContext.UserConfigurations.HasConfiguredRootDataSources)
-            {
-                dataSources = null;
-                return false;
-            }
-
             dataSources = mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetDataSources(mapperData)
-                .ToArray();
+                .GetDataSourcesForToTarget(mapperData);
 
             return dataSources.Any();
         }
