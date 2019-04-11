@@ -97,26 +97,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static MappingCreationContext GetCreationContext(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
-            var mapToNullCondition = GetMapToNullConditionOrNull(mapperData);
 
             if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
             {
-                return new MappingCreationContext(mappingData, mapToNullCondition);
+                return new MappingCreationContext(mappingData);
             }
 
             var basicMapperData = mapperData.WithNoTargetMember();
-            var preMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, mapperData);
-            var postMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, mapperData);
 
             return new MappingCreationContext(
                 mappingData,
-                preMappingCallback,
-                postMappingCallback,
-                mapToNullCondition);
+                basicMapperData.GetMappingCallbackOrNull(Before, mapperData),
+                basicMapperData.GetMappingCallbackOrNull(After, mapperData));
         }
-
-        private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.GetMapToNullConditionOrNull(mapperData);
 
         private IEnumerable<Expression> GetNonNullObjectPopulation(MappingCreationContext context)
             => GetObjectPopulation(context).WhereNotNull();

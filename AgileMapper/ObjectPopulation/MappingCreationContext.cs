@@ -18,27 +18,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool _mapperDataHasRootEnumerableVariables;
         private List<Expression> _memberMappingExpressions;
 
-        public MappingCreationContext(
-            IObjectMappingData mappingData,
-            Expression mapToNullCondition = null,
-            List<Expression> mappingExpressions = null)
-            : this(mappingData, null, null, mapToNullCondition, mappingExpressions)
+        public MappingCreationContext(IObjectMappingData mappingData)
+            : this(mappingData, null, null)
         {
         }
 
         public MappingCreationContext(
             IObjectMappingData mappingData,
             Expression preMappingCallback,
+            Expression postMappingCallback)
+            : this(
+                mappingData,
+                preMappingCallback,
+                postMappingCallback,
+                GetMapToNullConditionOrNull(mappingData.MapperData),
+                new List<Expression>())
+        {
+        }
+
+        private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.GetMapToNullConditionOrNull(mapperData);
+
+        private MappingCreationContext(IObjectMappingData mappingData, List<Expression> mappingExpressions)
+            : this(mappingData, null, null, null, mappingExpressions)
+        {
+        }
+
+        private MappingCreationContext(
+            IObjectMappingData mappingData,
+            Expression preMappingCallback,
             Expression postMappingCallback,
             Expression mapToNullCondition,
-            List<Expression> mappingExpressions = null)
+            List<Expression> mappingExpressions)
         {
             MappingData = mappingData;
             PreMappingCallback = preMappingCallback;
             PostMappingCallback = postMappingCallback;
             MapToNullCondition = mapToNullCondition;
             InstantiateLocalVariable = true;
-            MappingExpressions = mappingExpressions ?? new List<Expression>();
+            MappingExpressions = mappingExpressions;
         }
 
         public MapperContext MapperContext => MapperData.MapperContext;
@@ -106,7 +124,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var newSourceMappingData = MappingData.WithSource(newDataSource.SourceMember);
 
-            var newContext = new MappingCreationContext(newSourceMappingData, mappingExpressions: MappingExpressions)
+            var newContext = new MappingCreationContext(newSourceMappingData, MappingExpressions)
             {
                 InstantiateLocalVariable = false
             };
