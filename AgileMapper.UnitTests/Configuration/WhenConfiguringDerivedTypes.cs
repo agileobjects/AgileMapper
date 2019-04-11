@@ -261,6 +261,21 @@
                     .If(d => d.Source.ConcreteValue == Issue129.Source.Wrapper.ConcreteValueType.Situation)
                     .Map(d => d.Source.SituationValue)
                     .ToTarget<Issue129.Target.SituationObject>();
+
+                var situationSource = new Issue129.Source.Wrapper
+                {
+                    ConcreteValue = Issue129.Source.Wrapper.ConcreteValueType.Situation,
+                    SituationValue = new Issue129.Source.SituationObject
+                    {
+                        Name = "Situation Object",
+                        CurrentClass = new Issue129.Source.SituationClass
+                        {
+                            Name = "Situation Class"
+                        }
+                    }
+                };
+
+                var situationResult = mapper.Map(situationSource).ToANew<Issue129.Target.ITrafficObj>();
             }
         }
 
@@ -334,7 +349,7 @@
             }
         }
 
-        internal class Issue129
+        internal static class Issue129
         {
             public static class Source
             {

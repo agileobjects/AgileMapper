@@ -342,7 +342,7 @@
 
             if (dataSourceFactory.TargetMember.IsRoot)
             {
-                HasConfiguredRootDataSources = true;
+                HasConfiguredToTargetDataSources = true;
                 return;
             }
 
@@ -355,14 +355,14 @@
         public ConfiguredDataSourceFactory GetDataSourceFactoryFor(MappingConfigInfo configInfo)
             => _dataSourceFactories.First(dsf => dsf.ConfigInfo == configInfo);
 
-        public bool HasConfiguredRootDataSources { get; private set; }
+        public bool HasConfiguredToTargetDataSources { get; private set; }
 
         public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
             => GetDataSources(QueryDataSourceFactories(mapperData), mapperData);
 
         public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
         {
-            if (!HasConfiguredRootDataSources)
+            if (!HasConfiguredToTargetDataSources)
             {
                 return Enumerable<IConfiguredDataSource>.EmptyArray;
             }

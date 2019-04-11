@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             context.MappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
             context.MappingExpressions.AddRange(GetNonNullObjectPopulation(context));
-            context.MappingExpressions.AddRange(GetConfiguredRootDataSourcePopulations(context));
+            context.MappingExpressions.AddRange(GetConfiguredToTargetDataSourcePopulations(context));
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
 
             if (NothingIsBeingMapped(context))
@@ -123,16 +123,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
 
-        private IEnumerable<Expression> GetConfiguredRootDataSourcePopulations(MappingCreationContext context)
+        private IEnumerable<Expression> GetConfiguredToTargetDataSourcePopulations(MappingCreationContext context)
         {
-            if (!HasConfiguredRootDataSources(context.MapperData, out var configuredRootDataSources))
+            if (!HasConfiguredToTargetDataSources(context.MapperData, out var configuredToTargetDataSources))
             {
                 yield break;
             }
 
-            for (var i = 0; i < configuredRootDataSources.Count; ++i)
+            for (var i = 0; i < configuredToTargetDataSources.Count; ++i)
             {
-                var configuredRootDataSource = configuredRootDataSources[i];
+                var configuredRootDataSource = configuredToTargetDataSources[i];
                 var newSourceContext = context.WithDataSource(configuredRootDataSource);
 
                 var memberPopulations = GetNonNullObjectPopulation(newSourceContext).ToArray();
@@ -170,7 +170,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        protected static bool HasConfiguredRootDataSources(IMemberMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
+        protected static bool HasConfiguredToTargetDataSources(IMemberMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
         {
             dataSources = mapperData
                 .MapperContext
