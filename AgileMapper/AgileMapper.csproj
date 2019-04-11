@@ -18,7 +18,8 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixing constructability check for .ToTarget() data sources re: #129
+- Performance improvements</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
