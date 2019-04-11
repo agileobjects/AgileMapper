@@ -355,5 +355,37 @@
                 result.Value.Value.ShouldBe("Hello!");
             }
         }
+
+        [Fact]
+        public void ShouldExecuteAPreMappingCallbackInAToTargetMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var callbackCalled = false;
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<PublicField<int>, int>>()
+                    .To<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Value1)
+                    .ToTarget();
+
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicField<int>>()
+                    .Before.MappingBegins
+                    .Call(md => callbackCalled = true);
+
+                var source = new PublicTwoFields<PublicField<int>, int>
+                {
+                    Value1 = new PublicField<int> { Value = 123 },
+                    Value2 = 456
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<int>>();
+
+                result.Value.ShouldBe(123);
+                callbackCalled.ShouldBeTrue();
+            }
+        }
     }
 }

@@ -87,29 +87,17 @@
                 return false;
             }
 
-            var constructionCheckMethod = typeof(DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>)
-                .GetNonPublicInstanceMethod(nameof(IsConstructableFromDataSource));
-
             foreach (var dataSource in toTargetDataSources)
             {
-                var isConstructable = (bool)constructionCheckMethod
-                    .MakeGenericMethod(dataSource.SourceMember.Type, derivedTargetType)
-                    .Invoke(this, Enumerable<object>.EmptyArray);
+                mappingData = _configInfo.ToMappingData(dataSource.SourceMember.Type, derivedTargetType);
 
-                if (isConstructable)
+                if (IsConstructableUsing(mappingData))
                 {
                     return true;
                 }
             }
 
             return false;
-        }
-
-        private bool IsConstructableFromDataSource<TDataSource, TDerivedTarget>()
-        {
-            var mappingData = _configInfo.ToMappingData<TDataSource, TDerivedTarget>();
-
-            return IsConstructableUsing(mappingData);
         }
 
         private static void ThrowUnableToCreate<TDerivedTarget>()

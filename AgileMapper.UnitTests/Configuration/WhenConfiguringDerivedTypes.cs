@@ -276,6 +276,16 @@
                 };
 
                 var situationResult = mapper.Map(situationSource).ToANew<Issue129.Target.ITrafficObj>();
+
+                situationResult.ShouldNotBeNull();
+                situationResult.ShouldBeOfType<Issue129.Target.SituationObject>();
+
+                var situationObject = (Issue129.Target.SituationObject)situationResult;
+                situationObject.CurrentClass.ShouldNotBeNull();
+                situationObject.CurrentClass.ShouldBeOfType<Issue129.Target.SituationClass>();
+
+                var situationClass = (Issue129.Target.SituationClass)situationObject.CurrentClass;
+                situationClass.Name.ShouldBe("Situation Class");
             }
         }
 
