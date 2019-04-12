@@ -28,7 +28,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             InstantiateLocalVariable = true;
             MappingExpressions = new List<Expression>();
 
-
             if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
             {
                 return;

@@ -433,7 +433,6 @@ namespace AgileObjects.AgileMapper.Members
                 .GetCallbackOrNull(callbackPosition, basicData, mapperData);
         }
 
-
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
             => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
 

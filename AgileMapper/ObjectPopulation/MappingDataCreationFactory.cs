@@ -50,16 +50,13 @@
                 .ForChildMethod
                 .MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType);
 
-            var targetMemberRegistrationName = childMapperData.TargetMember.RegistrationName.ToConstantExpression();
-            var dataSourceIndexConstant = dataSourceIndex.ToConstantExpression();
-
             var createCall = Expression.Call(
                 createMethod,
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
                 mappingValues.EnumerableIndex,
-                targetMemberRegistrationName,
-                dataSourceIndexConstant,
+                childMapperData.TargetMember.RegistrationName.ToConstantExpression(),
+                dataSourceIndex.ToConstantExpression(),
                 childMapperData.Parent.MappingDataObject);
 
             return createCall;
