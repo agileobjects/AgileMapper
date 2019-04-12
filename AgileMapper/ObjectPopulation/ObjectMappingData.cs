@@ -351,13 +351,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingData<TNewSource, TNewTarget> WithSourceType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewSource : class
         {
-            return As(Source as TNewSource, default(TNewTarget), isForDerivedTypeMapping);
+            return With(Source as TNewSource, default(TNewTarget), isForDerivedTypeMapping);
         }
 
         public IObjectMappingData<TNewSource, TNewTarget> WithTargetType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewTarget : class
         {
-            return As(default(TNewSource), Target as TNewTarget, isForDerivedTypeMapping);
+            return With(default(TNewSource), Target as TNewTarget, isForDerivedTypeMapping);
         }
 
         public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
@@ -401,21 +401,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return (IObjectMappingData)typedAsCaller.Invoke(this, isForDerivedTypeMapping);
         }
 
-        public IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>()
-            where TNewSource : class
-            where TNewTarget : class
-        {
-            return As<TNewSource, TNewTarget>(isForDerivedTypeMapping: true);
-        }
-
         public IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewSource : class
             where TNewTarget : class
         {
-            return As(Source as TNewSource, Target as TNewTarget, isForDerivedTypeMapping);
+            return With(Source as TNewSource, Target as TNewTarget, isForDerivedTypeMapping);
         }
 
-        private IObjectMappingData<TNewSource, TNewTarget> As<TNewSource, TNewTarget>(
+        private IObjectMappingData<TNewSource, TNewTarget> With<TNewSource, TNewTarget>(
             TNewSource typedSource,
             TNewTarget typedTarget,
             bool isForDerivedTypeMapping)

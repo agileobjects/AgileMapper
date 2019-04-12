@@ -571,7 +571,7 @@ namespace AgileObjects.AgileMapper.Members
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
-            => GetAsCall(subject, null, contextTypes);
+            => GetAsCall(subject, true.ToConstantExpression(), contextTypes);
 
         public static Expression GetAsCall(this Expression subject, Expression isForDerivedTypeArgument, params Type[] contextTypes)
         {
@@ -583,12 +583,9 @@ namespace AgileObjects.AgileMapper.Members
 
             if (subject.Type == typeof(IMappingData))
             {
-                return GetAsCall(subject, typeof(IMappingData).GetPublicInstanceMethod("As"), contextTypes);
-            }
-
-            if (isForDerivedTypeArgument == null)
-            {
-                isForDerivedTypeArgument = true.ToConstantExpression();
+                return Expression.Call(
+                    subject,
+                    typeof(IMappingData).GetPublicInstanceMethod("As").MakeGenericMethod(contextTypes));
             }
 
             MethodInfo conversionMethod;
@@ -606,18 +603,10 @@ namespace AgileObjects.AgileMapper.Members
                 conversionMethod = typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
             }
 
-            return GetAsCall(subject, conversionMethod, contextTypes, isForDerivedTypeArgument);
-        }
-
-        private static Expression GetAsCall(
-            Expression subject,
-            MethodInfo asMethod,
-            Type[] typeArguments,
-            Expression isForDerivedTypeArgument = null)
-        {
-            return (isForDerivedTypeArgument != null)
-                ? Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments), isForDerivedTypeArgument)
-                : Expression.Call(subject, asMethod.MakeGenericMethod(typeArguments));
+            return Expression.Call(
+                subject,
+                conversionMethod.MakeGenericMethod(contextTypes),
+                isForDerivedTypeArgument);
         }
 
         public static Expression GetSourceAccess(
