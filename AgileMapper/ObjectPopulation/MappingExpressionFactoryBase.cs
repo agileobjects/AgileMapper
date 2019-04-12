@@ -16,7 +16,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
-    using static CallbackPosition;
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -44,13 +43,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     : derivedTypeMappings;
             }
 
-            var context = GetCreationContext(mappingData);
+            var context = new MappingCreationContext(mappingData);
 
             context.MappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
-            context.MappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
-            context.MappingExpressions.AddRange(GetNonNullObjectPopulation(context));
-            context.MappingExpressions.AddRange(GetConfiguredToTargetDataSourcePopulations(context));
-            context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
+
+            AddPopulationsAndCallbacks(context);
 
             if (NothingIsBeingMapped(context))
             {
@@ -94,21 +91,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected virtual IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
             => Enumerable<Expression>.Empty;
 
-        private static MappingCreationContext GetCreationContext(IObjectMappingData mappingData)
+        private void AddPopulationsAndCallbacks(MappingCreationContext context)
         {
-            var mapperData = mappingData.MapperData;
-
-            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
-            {
-                return new MappingCreationContext(mappingData);
-            }
-
-            var basicMapperData = mapperData.WithNoTargetMember();
-
-            return new MappingCreationContext(
-                mappingData,
-                basicMapperData.GetMappingCallbackOrNull(Before, mapperData),
-                basicMapperData.GetMappingCallbackOrNull(After, mapperData));
+            context.MappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
+            context.MappingExpressions.AddRange(GetNonNullObjectPopulation(context));
+            context.MappingExpressions.AddRange(GetConfiguredToTargetDataSourceMappings(context));
+            context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
         }
 
         private IEnumerable<Expression> GetNonNullObjectPopulation(MappingCreationContext context)
@@ -116,30 +104,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
 
-        private IEnumerable<Expression> GetConfiguredToTargetDataSourcePopulations(MappingCreationContext context)
+        private IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(MappingCreationContext context)
         {
             if (!HasConfiguredToTargetDataSources(context.MapperData, out var configuredToTargetDataSources))
             {
                 yield break;
             }
 
-            for (var i = 0; i < configuredToTargetDataSources.Count; ++i)
+            for (var i = 0; i < configuredToTargetDataSources.Count;)
             {
-                var configuredRootDataSource = configuredToTargetDataSources[i];
+                var configuredRootDataSource = configuredToTargetDataSources[i++];
                 var newSourceContext = context.WithDataSource(configuredRootDataSource);
 
-                var memberPopulations = GetNonNullObjectPopulation(newSourceContext).ToArray();
+                AddPopulationsAndCallbacks(newSourceContext);
 
-                if (memberPopulations.None())
+                if (newSourceContext.MappingExpressions.None())
                 {
                     continue;
                 }
 
                 context.UpdateFrom(newSourceContext);
 
-                var mapping = memberPopulations.HasOne()
-                    ? memberPopulations.First()
-                    : Expression.Block(memberPopulations);
+                var mapping = newSourceContext.MappingExpressions.HasOne()
+                    ? newSourceContext.MappingExpressions.First()
+                    : Expression.Block(newSourceContext.MappingExpressions);
 
                 if (!configuredRootDataSource.IsConditional)
                 {
@@ -147,7 +135,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                if (context.MapperData.TargetMember.IsComplex || (i > 0))
+                if (context.MapperData.TargetMember.IsComplex || (i > 1))
                 {
                     yield return Expression.IfThen(configuredRootDataSource.Condition, mapping);
                     continue;

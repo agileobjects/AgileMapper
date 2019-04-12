@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using DataSources;
     using Extensions;
     using Members;
+    using static CallbackPosition;
 
     internal class MappingCreationContext
     {
@@ -19,45 +20,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private List<Expression> _memberMappingExpressions;
 
         public MappingCreationContext(IObjectMappingData mappingData)
-            : this(mappingData, null, null)
         {
-        }
+            var mapperData = mappingData.MapperData;
 
-        public MappingCreationContext(
-            IObjectMappingData mappingData,
-            Expression preMappingCallback,
-            Expression postMappingCallback)
-            : this(
-                mappingData,
-                preMappingCallback,
-                postMappingCallback,
-                GetMapToNullConditionOrNull(mappingData.MapperData),
-                new List<Expression>())
-        {
+            MappingData = mappingData;
+            MapToNullCondition = GetMapToNullConditionOrNull(mapperData);
+            InstantiateLocalVariable = true;
+            MappingExpressions = new List<Expression>();
+
+
+            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
+            {
+                return;
+            }
+
+            var basicMapperData = mapperData.WithNoTargetMember();
+
+            PreMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, mapperData);
+            PostMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, mapperData);
         }
 
         private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
             => mapperData.MapperContext.UserConfigurations.GetMapToNullConditionOrNull(mapperData);
-
-        private MappingCreationContext(IObjectMappingData mappingData, List<Expression> mappingExpressions)
-            : this(mappingData, null, null, null, mappingExpressions)
-        {
-        }
-
-        private MappingCreationContext(
-            IObjectMappingData mappingData,
-            Expression preMappingCallback,
-            Expression postMappingCallback,
-            Expression mapToNullCondition,
-            List<Expression> mappingExpressions)
-        {
-            MappingData = mappingData;
-            PreMappingCallback = preMappingCallback;
-            PostMappingCallback = postMappingCallback;
-            MapToNullCondition = mapToNullCondition;
-            InstantiateLocalVariable = true;
-            MappingExpressions = mappingExpressions;
-        }
 
         public MapperContext MapperContext => MapperData.MapperContext;
 
@@ -124,7 +108,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var newSourceMappingData = MappingData.WithSource(newDataSource.SourceMember);
 
-            var newContext = new MappingCreationContext(newSourceMappingData, MappingExpressions)
+            var newContext = new MappingCreationContext(newSourceMappingData)
             {
                 InstantiateLocalVariable = false
             };
