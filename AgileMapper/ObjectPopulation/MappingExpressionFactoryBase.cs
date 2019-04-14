@@ -113,8 +113,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             for (var i = 0; i < configuredToTargetDataSources.Count;)
             {
-                var configuredRootDataSource = configuredToTargetDataSources[i++];
-                var newSourceContext = context.WithDataSource(configuredRootDataSource);
+                var configuredToTargetDataSource = configuredToTargetDataSources[i++];
+                var newSourceContext = context.WithDataSource(configuredToTargetDataSource);
 
                 AddPopulationsAndCallbacks(newSourceContext);
 
@@ -129,7 +129,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     ? newSourceContext.MappingExpressions.First()
                     : Expression.Block(newSourceContext.MappingExpressions);
 
-                if (!configuredRootDataSource.IsConditional)
+                if (newSourceContext.MapperData.Context.UsesMappingDataObject)
+                {
+                    mapping = MappingFactory.UseLocalValueVariable(
+                        newSourceContext.MapperData.MappingDataObject,
+                        GetCreateToTargetMappingDataCall(context, configuredToTargetDataSource),
+                        mapping);
+                }
+
+                if (!configuredToTargetDataSource.IsConditional)
                 {
                     yield return mapping;
                     continue;
@@ -137,7 +145,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (context.MapperData.TargetMember.IsComplex || (i > 1))
                 {
-                    yield return Expression.IfThen(configuredRootDataSource.Condition, mapping);
+                    yield return Expression.IfThen(configuredToTargetDataSource.Condition, mapping);
                     continue;
                 }
 
@@ -147,7 +155,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var assignFallback = context.MapperData.LocalVariable.AssignTo(fallback);
 
-                yield return Expression.IfThenElse(configuredRootDataSource.Condition, mapping, assignFallback);
+                yield return Expression.IfThenElse(configuredToTargetDataSource.Condition, mapping, assignFallback);
             }
         }
 
@@ -159,6 +167,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GetDataSourcesForToTarget(mapperData);
 
             return dataSources.Any();
+        }
+
+        private static Expression GetCreateToTargetMappingDataCall(
+            MappingCreationContext context,
+            IConfiguredDataSource toTargetDataSource)
+        {
+            return MappingDataCreationFactory
+                .ForToTarget(context.MapperData, toTargetDataSource.Value);
         }
 
         private static bool NothingIsBeingMapped(MappingCreationContext context)

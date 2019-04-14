@@ -348,6 +348,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappedObjectsBySource[key] = new List<object> { complexType };
         }
 
+        public IObjectMappingData<TNewSource, TTarget> WithSource<TNewSource>(TNewSource newSource)
+            => With(newSource, Target, isForDerivedTypeMapping: false);
+
         public IObjectMappingData<TNewSource, TNewTarget> WithSourceType<TNewSource, TNewTarget>(bool isForDerivedTypeMapping)
             where TNewSource : class
         {
