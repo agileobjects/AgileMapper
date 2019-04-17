@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var derivedSourceTypes = declaredTypeMapperData.RuleSet.Settings.CheckDerivedSourceTypes
                 ? declaredTypeMapperData.GetDerivedSourceTypes()
-                : Enumerable<Type>.EmptyArray;
+                : Constants.EmptyTypeArray;
 
             var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMappingData);
             var derivedTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
@@ -89,7 +89,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (mappingData.MapperData.TargetIsDefinitelyUnpopulated())
             {
-                return Enumerable<Type>.EmptyArray;
+                return Constants.EmptyTypeArray;
             }
 
             return mappingData.MapperData.GetDerivedTargetTypes();
@@ -112,7 +112,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var derivedTypeMapping = DerivedMappingFactory.GetDerivedTypeMapping(
                     declaredTypeMappingData,
-                    declaredTypeMapperData.SourceObject,
+                    GetTypePairSourceObject(derivedTypePair, declaredTypeMappingData),
                     derivedTypePair.DerivedTargetType);
 
                 var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
@@ -144,6 +144,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var pairCondition = derivedTypePair.GetConditionOrNull(mapperData);
 
             return (condition != null) ? Expression.AndAlso(pairCondition, condition) : pairCondition;
+        }
+
+        private static Expression GetTypePairSourceObject(DerivedTypePair derivedTypePair, IObjectMappingData mappingData)
+        {
+            if (!derivedTypePair.IsImplementationPairing || mappingData.IsTargetConstructable())
+            {
+                return mappingData.MapperData.SourceObject;
+            }
+
+            // Derived Type is an implementation Type for an abstract or
+            // unconstructable target Type; only way we get here is if a
+            // ToTarget data source has been configured:
+            var implementationMappingData = mappingData
+                .WithTypes(derivedTypePair.DerivedSourceType, derivedTypePair.DerivedTargetType);
+
+            var toTargetDataSource = implementationMappingData
+                .GetToTargetDataSourceOrNullForTargetType();
+
+            return toTargetDataSource.Value.Replace(
+                implementationMappingData.MapperData.MappingDataObject,
+                mappingData.MapperData.MappingDataObject);
         }
 
         private static void AddDerivedSourceTypeMappings(

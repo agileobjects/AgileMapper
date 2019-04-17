@@ -3,19 +3,18 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
-    using ObjectPopulation;
-    using ReadableExpressions;
 #if NET35
     using LinqExp = System.Linq.Expressions;
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using ObjectPopulation;
+    using ReadableExpressions;
 
-    internal class MappingConfigInfo : ITypePair, IObjectMappingDataSource
+    internal class MappingConfigInfo : ITypePair
     {
         private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null, null, null);
 
@@ -197,33 +196,6 @@
         }
 
         private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
-
-        public IObjectMappingData ToMappingData(Type sourceType, Type targetType)
-        {
-            var callerKey = new SourceAndTargetTypesKey(sourceType, targetType);
-
-            var typedToMappingDataCaller = GlobalContext.Instance.Cache.GetOrAdd(callerKey, key =>
-            {
-                var sourceParameter = typeof(IObjectMappingDataSource).GetOrCreateParameter();
-
-                var toMappingDataMethod = typeof(IObjectMappingDataSource)
-                    .GetPublicInstanceMethod(nameof(ToMappingData))
-                    .MakeGenericMethod(key.SourceType, key.TargetType);
-
-                var toMappingDataCall = Expression.Call(sourceParameter, toMappingDataMethod);
-
-                var toMappingDataLambda = Expression.Lambda<Func<IObjectMappingDataSource, IObjectMappingDataUntyped>>(
-                    toMappingDataCall,
-                    sourceParameter);
-
-                return toMappingDataLambda.Compile();
-            });
-
-            return (IObjectMappingData)typedToMappingDataCaller.Invoke(this);
-        }
-
-        IObjectMappingDataUntyped IObjectMappingDataSource.ToMappingData<TSource, TTarget>()
-            => ToMappingData<TSource, TTarget>();
 
         public IObjectMappingData ToMappingData<TSource, TTarget>()
         {

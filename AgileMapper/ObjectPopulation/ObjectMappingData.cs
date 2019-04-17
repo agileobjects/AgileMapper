@@ -416,6 +416,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TNewTarget typedTarget,
             bool isForDerivedTypeMapping)
         {
+            if (MapperKey == null)
+            {
+                EnsureRootMapperKey();
+            }
+
             var forceNewKey = isForDerivedTypeMapping && MapperKey.MappingTypes.TargetType.IsInterface();
             var mapperKey = MapperKey.WithTypes(typeof(TNewSource), typeof(TNewTarget), forceNewKey);
 
