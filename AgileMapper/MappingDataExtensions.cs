@@ -7,6 +7,7 @@
 #endif
     using DataSources;
     using Extensions.Internal;
+    using NetStandardPolyfills;
     using ObjectPopulation;
 
     internal static class MappingDataExtensions
@@ -15,7 +16,7 @@
             => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 
         public static bool IsTargetConstructable(this IObjectMappingData mappingData)
-            => mappingData.GetTargetObjectCreation() != null;
+            => !mappingData.MapperData.TargetType.IsAbstract() && mappingData.GetTargetObjectCreation() != null;
 
         public static bool IsConstructableFromToTargetDataSource(this IObjectMappingData mappingData)
             => mappingData.GetToTargetDataSourceOrNullForTargetType() != null;

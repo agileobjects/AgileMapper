@@ -2,9 +2,15 @@
 {
     using System;
     using System.Globalization;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal class DerivedTypePair : UserConfiguredItemBase, IComparable<DerivedTypePair>
@@ -84,6 +90,22 @@
         public Type DerivedSourceType { get; }
 
         public Type DerivedTargetType { get; }
+
+        public Expression GetSourceValue(IObjectMappingData declaredTypeMappingData)
+        {
+            // Derived Type is an implementation Type for an unconstructable target Type;
+            // only way we get here is if a ToTarget data source has been configured:
+            var implementationMappingData = declaredTypeMappingData
+                .WithTypes(DerivedSourceType, DerivedTargetType);
+
+            var toTargetDataSource = implementationMappingData
+                .GetToTargetDataSourceOrNullForTargetType();
+
+            return toTargetDataSource.Value.Replace(
+                implementationMappingData.MapperData.SourceObject,
+                declaredTypeMappingData.MapperData.SourceObject,
+                ExpressionEvaluation.Equivalator);
+        }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
             => mapperData.SourceType.IsAssignableTo(DerivedSourceType) && base.AppliesTo(mapperData);

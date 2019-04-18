@@ -289,7 +289,24 @@
                 performValueReplacement: true);
         }
 
-        public static Expression UseLocalValueVariable(
+        public static Expression UseLocalToTargetDataSourceVariableIfAppropriate(
+            ObjectMapperData mapperData,
+            ObjectMapperData toTargetMapperData,
+            Expression toTargetDataSourceValue,
+            Expression mappingExpression)
+        {
+            if (!toTargetMapperData.Context.UsesMappingDataObject)
+            {
+                return mappingExpression;
+            }
+
+            return UseLocalValueVariable(
+                toTargetMapperData.MappingDataObject,
+                MappingDataCreationFactory.ForToTarget(mapperData, toTargetDataSourceValue),
+                mappingExpression);
+        }
+
+        private static Expression UseLocalValueVariable(
             ParameterExpression variable,
             Expression variableValue,
             Expression body,

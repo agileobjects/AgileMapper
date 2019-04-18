@@ -3,16 +3,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Configuration;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
 
     internal static class DerivedComplexTypeMappingsFactory
     {
@@ -102,6 +102,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             out bool declaredTypeHasUnconditionalTypePair)
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
+            var targetTypeIsConstructable = declaredTypeMappingData.IsTargetConstructable();
 
             derivedTypePairs = derivedTypePairs
                 .OrderBy(tp => tp.DerivedSourceType, TypeComparer.MostToLeastDerived);
@@ -110,12 +111,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var condition = GetTypePairCondition(derivedTypePair, declaredTypeMapperData);
 
+                var derivedTypeMappingSource = targetTypeIsConstructable
+                    ? declaredTypeMapperData.SourceObject
+                    : derivedTypePair.GetSourceValue(declaredTypeMappingData);
+
                 var derivedTypeMapping = DerivedMappingFactory.GetDerivedTypeMapping(
                     declaredTypeMappingData,
-                    GetTypePairSourceObject(derivedTypePair, declaredTypeMappingData),
+                    derivedTypeMappingSource,
                     derivedTypePair.DerivedTargetType);
 
                 var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
+
+                if (!targetTypeIsConstructable)
+                {
+                    //derivedTypeMapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
+                    //    )
+                    
+                }
+
                 declaredTypeHasUnconditionalTypePair = (condition == null);
 
                 if (declaredTypeHasUnconditionalTypePair)
@@ -144,27 +157,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var pairCondition = derivedTypePair.GetConditionOrNull(mapperData);
 
             return (condition != null) ? Expression.AndAlso(pairCondition, condition) : pairCondition;
-        }
-
-        private static Expression GetTypePairSourceObject(DerivedTypePair derivedTypePair, IObjectMappingData mappingData)
-        {
-            if (!derivedTypePair.IsImplementationPairing || mappingData.IsTargetConstructable())
-            {
-                return mappingData.MapperData.SourceObject;
-            }
-
-            // Derived Type is an implementation Type for an abstract or
-            // unconstructable target Type; only way we get here is if a
-            // ToTarget data source has been configured:
-            var implementationMappingData = mappingData
-                .WithTypes(derivedTypePair.DerivedSourceType, derivedTypePair.DerivedTargetType);
-
-            var toTargetDataSource = implementationMappingData
-                .GetToTargetDataSourceOrNullForTargetType();
-
-            return toTargetDataSource.Value.Replace(
-                implementationMappingData.MapperData.MappingDataObject,
-                mappingData.MapperData.MappingDataObject);
         }
 
         private static void AddDerivedSourceTypeMappings(

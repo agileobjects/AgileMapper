@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using AgileMapper.Extensions.Internal;
     using Common;
@@ -214,8 +215,8 @@
                     .Map(ctx => ctx.Source.Leaf)
                     .ToTarget<Issue123.Leaf>()
                     .AndWhenMapping
-                    .From<Issue123.CompositeDto>().To<Issue123.Leaf>()
-                    .Map((dto, l) => dto.Leaf.Description + "!")
+                    .From<Issue123.LeafDto>().To<Issue123.Leaf>()
+                    .Map((dto, l) => dto.Description + "!")
                     .To(l => l.Description);
 
                 var leafDto = new Issue123.CompositeDto
@@ -230,6 +231,43 @@
 
                 // ReSharper disable once PossibleNullReferenceException
                 leaf.Description.ShouldBe("I am a leaf!");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseACtorParameterWithATypedToTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue129.Source.Wrapper>()
+                    .To<Issue129.Target.ITrafficObj>()
+                    .If(d => d.Source.ConcreteValue == Issue129.Source.Wrapper.ConcreteValueType.Delay)
+                    .Map(d => d.Source.DelayValue)
+                    .ToTarget<Issue129.Target.DelayObject>();
+
+                var delaySource = new Issue129.Source.Wrapper
+                {
+                    ConcreteValue = Issue129.Source.Wrapper.ConcreteValueType.Delay,
+                    DelayValue = new Issue129.Source.DelayObject
+                    {
+                        Name = "Situation Object",
+                        Duration = TimeSpan.FromHours(2).ToString()
+                    }
+                };
+
+                var delayResult = mapper.Map(delaySource).ToANew<Issue129.Target.ITrafficObj>();
+
+                delayResult.ShouldNotBeNull();
+                delayResult.ShouldBeOfType<Issue129.Target.DelayObject>();
+
+                var delayObject = (Issue129.Target.DelayObject)delayResult;
+                delayObject.CurrentClass.ShouldNotBeNull();
+                delayObject.CurrentClass.ShouldBeOfType<Issue129.Target.DelayClass>();
+
+                var delayClass = (Issue129.Target.DelayClass)delayObject.CurrentClass;
+                delayClass.Name.ShouldBe("Delay");
+                delayClass.Duration.ShouldBe(TimeSpan.FromHours(2));
             }
         }
 
@@ -373,22 +411,31 @@
                     public string Name { get; set; }
 
                     public SituationClass CurrentClass { get; set; }
-
                 }
+
                 public class ActionObject
                 {
                     public string Name { get; set; }
                 }
 
+                public class DelayObject
+                {
+                    public string Name { get; set; }
+
+                    public string Duration { get; set; }
+                }
+
                 public class Wrapper
                 {
-                    public enum ConcreteValueType { Situation, Action }
+                    public enum ConcreteValueType { Situation, Action, Delay }
 
                     public ConcreteValueType ConcreteValue { get; set; }
 
                     public SituationObject SituationValue { get; set; }
 
                     public ActionObject ActionValue { get; set; }
+
+                    public DelayObject DelayValue { get; set; }
                 }
             }
 
@@ -398,22 +445,49 @@
 
                 public interface ITrafficClass { string Name { get; } }
 
-                public class SituationClass : ITrafficClass { public string Name { get; set; } }
+                public class SituationClass : ITrafficClass
+                {
+                    public string Name { get; set; }
+                }
 
-                public class ActionClass : ITrafficClass { public string Name { get; set; } }
+                public class ActionClass : ITrafficClass
+                {
+                    public string Name { get; set; }
+                }
+
+                public class DelayClass : ITrafficClass
+                {
+                    public string Name { get; set; }
+
+                    public TimeSpan Duration { get; set; }
+                }
 
                 public class SituationObject : ITrafficObj
                 {
                     public SituationObject(SituationClass clazz) { CurrentClass = clazz; }
 
-                    public ITrafficClass CurrentClass { get; private set; }
+                    public ITrafficClass CurrentClass { get; }
                 }
 
                 public class ActionObject : ITrafficObj
                 {
                     public ActionObject(ActionClass clazz) { CurrentClass = clazz; }
 
-                    public ITrafficClass CurrentClass { get; private set; }
+                    public ITrafficClass CurrentClass { get; }
+                }
+
+                public class DelayObject : ITrafficObj
+                {
+                    public DelayObject(TimeSpan duration)
+                    {
+                        CurrentClass = new DelayClass
+                        {
+                            Name = "Delay",
+                            Duration = duration
+                        };
+                    }
+
+                    public ITrafficClass CurrentClass { get; }
                 }
             }
         }

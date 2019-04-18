@@ -129,13 +129,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     ? newSourceContext.MappingExpressions.First()
                     : Expression.Block(newSourceContext.MappingExpressions);
 
-                if (newSourceContext.MapperData.Context.UsesMappingDataObject)
-                {
-                    mapping = MappingFactory.UseLocalValueVariable(
-                        newSourceContext.MapperData.MappingDataObject,
-                        GetCreateToTargetMappingDataCall(context, configuredToTargetDataSource),
-                        mapping);
-                }
+                mapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
+                    context.MapperData,
+                    newSourceContext.MapperData,
+                    configuredToTargetDataSource.Value,
+                    mapping);
 
                 if (!configuredToTargetDataSource.IsConditional)
                 {
@@ -167,14 +165,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .GetDataSourcesForToTarget(mapperData);
 
             return dataSources.Any();
-        }
-
-        private static Expression GetCreateToTargetMappingDataCall(
-            MappingCreationContext context,
-            IConfiguredDataSource toTargetDataSource)
-        {
-            return MappingDataCreationFactory
-                .ForToTarget(context.MapperData, toTargetDataSource.Value);
         }
 
         private static bool NothingIsBeingMapped(MappingCreationContext context)
