@@ -271,6 +271,29 @@
             }
         }
 
+        [Fact]
+        public void ShouldHandleANullTypedToTargetSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue129.Source.Wrapper>()
+                    .To<Issue129.Target.ITrafficObj>()
+                    .If(d => d.Source.ConcreteValue == Issue129.Source.Wrapper.ConcreteValueType.Delay)
+                    .Map(d => d.Source.DelayValue)
+                    .ToTarget<Issue129.Target.DelayObject>();
+
+                var nullDelaySource = new Issue129.Source.Wrapper
+                {
+                    ConcreteValue = Issue129.Source.Wrapper.ConcreteValueType.Delay
+                };
+
+                var delayResult = mapper.Map(nullDelaySource).ToANew<Issue129.Target.ITrafficObj>();
+
+                delayResult.ShouldBeNull();
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/129
         [Fact]
         public void ShouldUseAConfiguredCtorParameterWithATypedToTarget()
@@ -286,7 +309,7 @@
                 mapper.WhenMapping
                     .From<Issue129.Source.ActionObject>()
                     .To<Issue129.Target.ActionObject>()
-                    .Map(new Issue129.Target.ActionClass())
+                    .Map(ctx => new Issue129.Target.ActionClass())
                     .ToCtor<Issue129.Target.ActionClass>();
 
                 mapper.WhenMapping

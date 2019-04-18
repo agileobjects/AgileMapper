@@ -110,10 +110,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var condition = GetTypePairCondition(derivedTypePair, declaredTypeMapperData);
 
+                var sourceValue = GetDerivedTypeSourceValue(
+                    derivedTypePair,
+                    declaredTypeMappingData,
+                    out var sourceValueCondition);
+
                 var derivedTypeMapping = DerivedMappingFactory.GetDerivedTypeMapping(
                     declaredTypeMappingData,
-                    GetDerivedTypeSourceValue(derivedTypePair, declaredTypeMappingData),
+                    sourceValue,
                     derivedTypePair.DerivedTargetType);
+
+                if (sourceValueCondition != null)
+                {
+                    derivedTypeMapping = Expression.Condition(
+                        sourceValueCondition,
+                        derivedTypeMapping,
+                        derivedTypeMapping.Type.ToDefaultExpression());
+                }
 
                 var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
 
@@ -147,10 +160,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return (condition != null) ? Expression.AndAlso(pairCondition, condition) : pairCondition;
         }
 
-        private static Expression GetDerivedTypeSourceValue(DerivedTypePair derivedTypePair, IObjectMappingData declaredTypeMappingData)
+        private static Expression GetDerivedTypeSourceValue(
+            DerivedTypePair derivedTypePair,
+            IObjectMappingData declaredTypeMappingData,
+            out Expression sourceValueCondition)
         {
             if (!derivedTypePair.IsImplementationPairing)
             {
+                sourceValueCondition = null;
                 return declaredTypeMappingData.MapperData.SourceObject;
             }
 
@@ -159,6 +176,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (implementationMappingData.IsTargetConstructable())
             {
+                sourceValueCondition = null;
                 return declaredTypeMappingData.MapperData.SourceObject;
             }
 
@@ -167,6 +185,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             // source has been configured:
             var toTargetDataSource = implementationMappingData
                 .GetToTargetDataSourceOrNullForTargetType();
+
+            sourceValueCondition = toTargetDataSource.IsConditional
+                ? toTargetDataSource.Condition.Replace(
+                    implementationMappingData.MapperData.SourceObject,
+                    declaredTypeMappingData.MapperData.SourceObject,
+                    ExpressionEvaluation.Equivalator)
+                : null;
 
             return toTargetDataSource.Value.Replace(
                 implementationMappingData.MapperData.SourceObject,
