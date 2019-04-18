@@ -1,10 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using System;
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using Projection;
     using ReadableExpressions.Extensions;
 
@@ -46,12 +44,8 @@
         {
             var mappingData = _configInfo.ToMappingData<TSource, TDerivedTarget>();
 
-            if (IsConstructableUsing(mappingData))
-            {
-                return;
-            }
-
-            if (IsConstructableFromToTargetDataSources(mappingData, typeof(TDerivedTarget)))
+            if (mappingData.IsTargetConstructable() ||
+                mappingData.IsConstructableFromToTargetDataSource())
             {
                 return;
             }
@@ -63,53 +57,13 @@
 
             var configuredImplementationPairings = MapperContext
                 .UserConfigurations
-                .DerivedTypes.GetImplementationTypePairsFor(
-                    _configInfo.ToMapperData(),
-                    MapperContext);
+                .DerivedTypes
+                .GetImplementationTypePairsFor(_configInfo.ToMapperData(), MapperContext);
 
             if (configuredImplementationPairings.None())
             {
                 ThrowUnableToCreate<TDerivedTarget>();
             }
-        }
-
-        private bool IsConstructableUsing(IObjectMappingData mappingData)
-            => MapperContext.ConstructionFactory.GetNewObjectCreation(mappingData) != null;
-
-        private bool IsConstructableFromToTargetDataSources(IObjectMappingData mappingData, Type derivedTargetType)
-        {
-            var toTargetDataSources = MapperContext
-                .UserConfigurations
-                .GetDataSourcesForToTarget(mappingData.MapperData);
-
-            if (toTargetDataSources.None())
-            {
-                return false;
-            }
-
-            var constructionCheckMethod = typeof(DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>)
-                .GetNonPublicInstanceMethod(nameof(IsConstructableFromDataSource));
-
-            foreach (var dataSource in toTargetDataSources)
-            {
-                var isConstructable = (bool)constructionCheckMethod
-                    .MakeGenericMethod(dataSource.SourceMember.Type, derivedTargetType)
-                    .Invoke(this, Enumerable<object>.EmptyArray);
-
-                if (isConstructable)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private bool IsConstructableFromDataSource<TDataSource, TDerivedTarget>()
-        {
-            var mappingData = _configInfo.ToMappingData<TDataSource, TDerivedTarget>();
-
-            return IsConstructableUsing(mappingData);
         }
 
         private static void ThrowUnableToCreate<TDerivedTarget>()

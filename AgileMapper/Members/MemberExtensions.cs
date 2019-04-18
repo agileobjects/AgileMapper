@@ -252,7 +252,7 @@
             => targetMember.GetAccess(instance).AssignTo(value);
 
         private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
-            => Expression.Call(instance, targetMember.Name, NoTypeArguments, value);
+            => Expression.Call(instance, targetMember.Name, EmptyTypeArray, value);
 
         #endregion
 

@@ -92,7 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int enumerableIndex);
 
         /// <summary>
-        /// Gets the <see cref="IObjectMappingDataUntyped"/> typed as a 
+        /// Gets the <see cref="IObjectMappingDataUntyped"/> typed as an 
         /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/>.
         /// </summary>
         /// <typeparam name="TNewSource">The type of source object being mapped in the current context.</typeparam>

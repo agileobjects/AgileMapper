@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
 #if !NET35
@@ -353,6 +354,117 @@
 
                 result.Value.ShouldNotBeNull();
                 result.Value.Value.ShouldBe("Hello!");
+            }
+        }
+
+        [Fact]
+        public void ShouldExecuteAPreMappingCallbackInARootToTargetMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var callbackCalled = false;
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<PublicField<int>, int>>()
+                    .To<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Value1)
+                    .ToTarget();
+
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicField<int>>()
+                    .Before.MappingBegins
+                    .Call(md => callbackCalled = true);
+
+                var source = new PublicTwoFields<PublicField<int>, int>
+                {
+                    Value1 = new PublicField<int> { Value = 123 },
+                    Value2 = 456
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<int>>();
+
+                result.Value.ShouldBe(123);
+                callbackCalled.ShouldBeTrue();
+            }
+        }
+
+        [Fact]
+        public void ShouldExecuteAPreMappingCallbackInAChildToTargetMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var callbackCalled = false;
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<PublicField<int>, int>>()
+                    .To<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Value1)
+                    .ToTarget();
+
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicField<int>>()
+                    .After.MappingEnds
+                    .Call(md => callbackCalled = true);
+
+                var source = new PublicProperty<PublicTwoFields<PublicField<int>, int>>
+                {
+                    Value = new PublicTwoFields<PublicField<int>, int>
+                    {
+                        Value1 = new PublicField<int> { Value = 456 },
+                        Value2 = 123
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicSetMethod<PublicField<int>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldBe(456);
+                callbackCalled.ShouldBeTrue();
+            }
+        }
+
+        [Fact]
+        public void ShouldExecuteAPreMappingCallbackInAnElementToTargetMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var callbackCount = 0;
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, PublicField<int>>>()
+                    .To<PublicField<int>>()
+                    .Map(ctx => ctx.Source.Value2)
+                    .ToTarget();
+
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicField<int>>()
+                    .After.MappingEnds
+                    .Call(md => ++callbackCount);
+
+                var source = new[]
+                {
+                    new PublicTwoFields<int, PublicField<int>>
+                    {
+                        Value1 = 111,
+                        Value2 = new PublicField<int> { Value = 222 },
+                    },
+                    new PublicTwoFields<int, PublicField<int>>
+                    {
+                        Value1 = 333,
+                        Value2 = new PublicField<int> { Value = 444 },
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<int>[]>();
+
+                result.ShouldNotBeNull();
+                result.Length.ShouldBe(2);
+                result.First().Value.ShouldBe(222);
+                result.Second().Value.ShouldBe(444);
+                callbackCount.ShouldBe(2);
             }
         }
     }

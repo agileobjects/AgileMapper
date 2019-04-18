@@ -36,7 +36,7 @@
         {
             if (type.IsSealed() || type.IsFromBcl())
             {
-                return Enumerable<Type>.EmptyArray;
+                return Constants.EmptyTypeArray;
             }
 
             return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
@@ -63,7 +63,7 @@
 
             if (derivedTypes.None())
             {
-                return Enumerable<Type>.EmptyArray;
+                return Constants.EmptyTypeArray;
             }
 
             var derivedTypesList = derivedTypes

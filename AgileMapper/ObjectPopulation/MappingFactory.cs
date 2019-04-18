@@ -182,7 +182,7 @@
 
             if (mapper.MapperData.Context.UsesMappingDataObject)
             {
-                return UseLocalSourceValueVariable(
+                return UseLocalValueVariable(
                     mapper.MapperData.MappingDataObject,
                     createMappingDataCall,
                     mapper.MappingExpression);
@@ -230,7 +230,7 @@
                 .Replace(mapperData.MappingDataObject, createMappingDataCall);
 
             return useLocalSourceValueVariable
-                ? UseLocalSourceValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, mapping)
+                ? UseLocalValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, mapping)
                 : mapping;
         }
 
@@ -282,14 +282,31 @@
             var sourceValueVariableName = GetSourceValueVariableName(mapperData);
             var sourceValueVariable = Expression.Variable(mapperData.SourceType, sourceValueVariableName);
 
-            return UseLocalSourceValueVariable(
+            return UseLocalValueVariable(
                 sourceValueVariable,
                 mapperData.SourceObject,
                 mappingExpression,
                 performValueReplacement: true);
         }
 
-        private static Expression UseLocalSourceValueVariable(
+        public static Expression UseLocalToTargetDataSourceVariableIfAppropriate(
+            ObjectMapperData mapperData,
+            ObjectMapperData toTargetMapperData,
+            Expression toTargetDataSourceValue,
+            Expression mappingExpression)
+        {
+            if (!toTargetMapperData.Context.UsesMappingDataObject)
+            {
+                return mappingExpression;
+            }
+
+            return UseLocalValueVariable(
+                toTargetMapperData.MappingDataObject,
+                MappingDataCreationFactory.ForToTarget(mapperData, toTargetDataSourceValue),
+                mappingExpression);
+        }
+
+        private static Expression UseLocalValueVariable(
             ParameterExpression variable,
             Expression variableValue,
             Expression body,

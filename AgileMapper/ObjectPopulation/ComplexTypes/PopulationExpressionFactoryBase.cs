@@ -104,11 +104,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IObjectMappingData mappingData,
             IList<Expression> memberPopulations)
         {
-            return mappingData
-                .MapperData
-                .MapperContext
-                .ConstructionFactory
-                .GetNewObjectCreation(mappingData);
+            return mappingData.GetTargetObjectCreation();
         }
 
         #region Object Registration

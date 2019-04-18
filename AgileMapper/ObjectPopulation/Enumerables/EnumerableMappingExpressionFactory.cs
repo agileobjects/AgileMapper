@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
-            if (HasConfiguredRootDataSources(mapperData, out var configuredRootDataSources) &&
+            if (HasConfiguredToTargetDataSources(mapperData, out var configuredRootDataSources) &&
                 configuredRootDataSources.Any(ds => ds.SourceMember.IsEnumerable))
             {
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
