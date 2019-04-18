@@ -122,13 +122,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
 
-                if (!targetTypeIsConstructable)
-                {
-                    //derivedTypeMapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
-                    //    )
-                    
-                }
-
                 declaredTypeHasUnconditionalTypePair = (condition == null);
 
                 if (declaredTypeHasUnconditionalTypePair)
