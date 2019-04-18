@@ -102,7 +102,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             out bool declaredTypeHasUnconditionalTypePair)
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
-            var targetTypeIsConstructable = declaredTypeMappingData.IsTargetConstructable();
 
             derivedTypePairs = derivedTypePairs
                 .OrderBy(tp => tp.DerivedSourceType, TypeComparer.MostToLeastDerived);
@@ -111,13 +110,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var condition = GetTypePairCondition(derivedTypePair, declaredTypeMapperData);
 
-                var derivedTypeMappingSource = targetTypeIsConstructable
-                    ? declaredTypeMapperData.SourceObject
-                    : derivedTypePair.GetSourceValue(declaredTypeMappingData);
-
                 var derivedTypeMapping = DerivedMappingFactory.GetDerivedTypeMapping(
                     declaredTypeMappingData,
-                    derivedTypeMappingSource,
+                    GetDerivedTypeSourceValue(derivedTypePair, declaredTypeMappingData),
                     derivedTypePair.DerivedTargetType);
 
                 var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
@@ -138,18 +133,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             declaredTypeHasUnconditionalTypePair = false;
         }
 
-        private static Expression GetTypePairCondition(DerivedTypePair derivedTypePair, IMemberMapperData mapperData)
+        private static Expression GetTypePairCondition(DerivedTypePair derivedTypePair, IMemberMapperData declaredTypeMapperData)
         {
-            var condition = GetTargetValidCheckOrNull(derivedTypePair.DerivedTargetType, mapperData);
+            var condition = GetTargetValidCheckOrNull(derivedTypePair.DerivedTargetType, declaredTypeMapperData);
 
             if (!derivedTypePair.HasConfiguredCondition)
             {
                 return condition;
             }
 
-            var pairCondition = derivedTypePair.GetConditionOrNull(mapperData);
+            var pairCondition = derivedTypePair.GetConditionOrNull(declaredTypeMapperData);
 
             return (condition != null) ? Expression.AndAlso(pairCondition, condition) : pairCondition;
+        }
+
+        private static Expression GetDerivedTypeSourceValue(DerivedTypePair derivedTypePair, IObjectMappingData declaredTypeMappingData)
+        {
+            if (!derivedTypePair.IsImplementationPairing)
+            {
+                return declaredTypeMappingData.MapperData.SourceObject;
+            }
+
+            var implementationMappingData = declaredTypeMappingData
+                .WithTypes(derivedTypePair.DerivedSourceType, derivedTypePair.DerivedTargetType);
+
+            if (implementationMappingData.IsTargetConstructable())
+            {
+                return declaredTypeMappingData.MapperData.SourceObject;
+            }
+
+            // Derived Type is an implementation Type for an unconstructable target Type,
+            // and is itself unconstructable; only way we get here is if a ToTarget data
+            // source has been configured:
+            var toTargetDataSource = implementationMappingData
+                .GetToTargetDataSourceOrNullForTargetType();
+
+            return toTargetDataSource.Value.Replace(
+                implementationMappingData.MapperData.SourceObject,
+                declaredTypeMappingData.MapperData.SourceObject,
+                ExpressionEvaluation.Equivalator);
         }
 
         private static void AddDerivedSourceTypeMappings(
