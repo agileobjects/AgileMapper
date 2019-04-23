@@ -206,13 +206,13 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .From<PublicProperty<string>>()
+                        .From<PublicTwoFields<string, string>>()
                         .To<PublicField<int>>()
-                        .If((s, t) => int.Parse(s.Value) > 0)
-                        .Map(ctx => ctx.Source.Value)
+                        .If((s, t) => int.Parse(s.Value1) > 0)
+                        .Map(ctx => ctx.Source.Value1)
                         .To(x => x.Value);
 
-                    var source = new PublicProperty<string> { Value = "CantParseThis" };
+                    var source = new PublicTwoFields<string, string> { Value1 = "CantParseThis" };
 
                     mapper.Map(source).ToANew<PublicField<int>>();
                 }

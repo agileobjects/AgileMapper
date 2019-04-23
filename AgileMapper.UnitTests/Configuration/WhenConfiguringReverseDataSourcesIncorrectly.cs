@@ -213,9 +213,9 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .From<PublicProperty<decimal>>()
+                        .From<PublicTwoFields<decimal, decimal>>()
                         .To<PublicWriteOnlyProperty<int>>()
-                        .Map((pp, pwop) => pp.Value).To(pwop => pwop.Value)
+                        .Map((pp, pwop) => pp.Value1).To(pwop => pwop.Value)
                         .AndViceVersa();
                 }
             });

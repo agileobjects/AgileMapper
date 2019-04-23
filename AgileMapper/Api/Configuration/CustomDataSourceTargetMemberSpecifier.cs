@@ -29,7 +29,7 @@
         private readonly MappingConfigInfo _configInfo;
         private readonly LambdaExpression _customValueLambda;
         private readonly bool _valueCouldBeSourceMember;
-        private readonly ConfiguredLambdaInfo _customValueLambdaInfo;
+        private ConfiguredLambdaInfo _customValueLambdaInfo;
 
         public CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
@@ -49,11 +49,14 @@
             _customValueLambdaInfo = customValueLambda;
         }
 
+        private MapperContext MapperContext => _configInfo.MapperContext;
+
         public ICustomDataSourceMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             ThrowIfTargetParameterSpecified(targetMember);
             ThrowIfSimpleSourceForNonSimpleTargetMember(typeof(TTargetValue));
+            ThrowIfRedundantSourceMemberSpecified<TTargetValue>(targetMember);
 
             return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
         }
@@ -94,9 +97,56 @@
             }
         }
 
+        private void ThrowIfRedundantSourceMemberSpecified<TTargetValue>(LambdaExpression targetMemberLambda)
+        {
+            if (!_valueCouldBeSourceMember)
+            {
+                return;
+            }
+
+            var targetMember = targetMemberLambda.ToTargetMember(MapperContext, nt => { });
+
+            if (targetMember == null)
+            {
+                return;
+            }
+
+            var valueLambdaInfo = GetValueLambdaInfo<TTargetValue>();
+
+            if (!valueLambdaInfo.IsSourceMember(out var sourceMemberLambda))
+            {
+                return;
+            }
+
+            var mappingData = _configInfo.ToMappingData<TSource, TTarget>();
+
+            var targetMemberMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
+            var targetMemberMappingData = mappingData.GetChildMappingData(targetMemberMapperData);
+            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(targetMemberMappingData, out _);
+
+            if (bestMatchingSourceMember == null)
+            {
+                return;
+            }
+
+            var sourceMember = sourceMemberLambda.ToSourceMember(MapperContext);
+
+            if (!bestMatchingSourceMember.Matches(sourceMember))
+            {
+                return;
+            }
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "Source member {0} will automatically be mapped to target member {1}, " +
+                "and does not need to be configured",
+                GetSourceMemberDescription(sourceMember),
+                targetMember.GetFriendlyTargetPath(_configInfo)));
+        }
+
         private ConfiguredDataSourceFactory CreateFromLambda<TTargetValue>(LambdaExpression targetMemberLambda)
         {
-            var valueLambdaInfo = GetValueLambdaInfo(typeof(TTargetValue));
+            var valueLambdaInfo = GetValueLambdaInfo<TTargetValue>();
 
             if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
             {
@@ -106,7 +156,7 @@
             return CreateDataSourceFactory(valueLambdaInfo, targetMemberLambda);
         }
 
-        private ConfiguredLambdaInfo GetValueLambdaInfo(Type targetValueType)
+        private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>()
         {
             if (_customValueLambdaInfo != null)
             {
@@ -121,25 +171,24 @@
             const ExpressionType CONSTANT = ExpressionType.Constant;
 #endif
             if ((customValueLambda.Body.NodeType != CONSTANT) ||
-                (targetValueType == typeof(object)) ||
-                 customValueLambda.ReturnType.IsAssignableTo(targetValueType))
+                (typeof(TTargetValue) == typeof(object)) ||
+                 customValueLambda.ReturnType.IsAssignableTo(typeof(TTargetValue)))
             {
-                return ConfiguredLambdaInfo.For(customValueLambda);
+                return _customValueLambdaInfo = ConfiguredLambdaInfo.For(customValueLambda);
             }
 
-            var convertedConstantValue = _configInfo
-                .MapperContext
+            var convertedConstantValue = MapperContext
                 .ValueConverters
-                .GetConversion(customValueLambda.Body, targetValueType);
+                .GetConversion(customValueLambda.Body, typeof(TTargetValue));
 
-            var funcType = GetFuncType(targetValueType);
+            var funcType = GetFuncType(typeof(TTargetValue));
             var valueLambda = Lambda(funcType, convertedConstantValue);
             var valueFunc = valueLambda.Compile();
-            var value = valueFunc.DynamicInvoke().ToConstantExpression(targetValueType);
+            var value = valueFunc.DynamicInvoke().ToConstantExpression(typeof(TTargetValue));
             var constantValueLambda = Lambda(funcType, value);
             var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
 
-            return valueLambdaInfo;
+            return _customValueLambdaInfo = valueLambdaInfo;
         }
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
@@ -180,8 +229,8 @@
         private QualifiedMember CreateRootTargetQualifiedMember()
         {
             return (_configInfo.TargetType == typeof(ExpandoObject))
-                ? _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, ExpandoObject>()
-                : _configInfo.MapperContext.QualifiedMemberFactory.RootTarget<TSource, TTarget>();
+                ? MapperContext.QualifiedMemberFactory.RootTarget<TSource, ExpandoObject>()
+                : MapperContext.QualifiedMemberFactory.RootTarget<TSource, TTarget>();
         }
 
         private ConfiguredDataSourceFactory CreateDataSourceFactory(
@@ -282,7 +331,7 @@
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>(ParameterInfo parameter)
         {
-            var valueLambda = GetValueLambdaInfo(typeof(TParam));
+            var valueLambda = GetValueLambdaInfo<TParam>();
             var constructorParameter = CreateRootTargetQualifiedMember().Append(Member.ConstructorParameter(parameter));
 
             return new ConfiguredDataSourceFactory(_configInfo, valueLambda, constructorParameter);
@@ -297,7 +346,7 @@
 
             return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
                 _configInfo,
-                GetValueLambdaInfo(typeof(TTarget)),
+                GetValueLambdaInfo<TTarget>(),
                 CreateRootTargetQualifiedMember()));
         }
 
@@ -331,13 +380,12 @@
                 return;
             }
 
-            var sourceValue = GetSourceValue(customValue);
+            var sourceValue = GetSourceValueDescription(customValue);
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
-                "{0}'{1}' cannot be mapped to target type '{2}'",
+                "{0} cannot be mapped to target type '{1}'",
                 sourceValue,
-                customValue.Type.GetFriendlyName(),
                 targetMemberType.GetFriendlyName()));
         }
 
@@ -364,30 +412,35 @@
                 targetEnumerableState = "non-enumerable";
             }
 
-            var sourceValue = GetSourceValue(customValue);
+            var sourceValue = GetSourceValueDescription(customValue);
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
-                "{0} {1}'{2}' cannot be mapped to {3} target type '{4}'",
+                "{0} {1} cannot be mapped to {2} target type '{3}'",
                 sourceEnumerableState,
                 sourceValue,
-                customValue.Type.GetFriendlyName(),
                 targetEnumerableState,
                 targetMemberType.GetFriendlyName()));
         }
 
-        private string GetSourceValue(Expression customValue)
+        private string GetSourceValueDescription(Expression customValue)
         {
             if (customValue.NodeType != ExpressionType.MemberAccess)
             {
-                return "Source type ";
+                return $"Source type '{customValue.Type.GetFriendlyName()}'";
             }
 
-            var rootSourceMember = _configInfo.MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
-            var sourceMember = customValue.ToSourceMember(_configInfo.MapperContext);
-            var sourceValue = sourceMember.GetFriendlyMemberPath(rootSourceMember) + " of type ";
+            var sourceMember = customValue.ToSourceMember(MapperContext);
 
-            return sourceValue;
+            return GetSourceMemberDescription(sourceMember);
+        }
+
+        private string GetSourceMemberDescription(IQualifiedMember sourceMember)
+        {
+            var rootSourceMember = MapperContext.QualifiedMemberFactory.RootSource<TSource, TTarget>();
+            var sourceMemberPath = sourceMember.GetFriendlyMemberPath(rootSourceMember);
+
+            return $"{sourceMemberPath} of type '{sourceMember.Type.GetFriendlyName()}'";
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(

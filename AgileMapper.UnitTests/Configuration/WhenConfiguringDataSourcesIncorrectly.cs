@@ -112,7 +112,26 @@
         [Fact]
         public void ShouldErrorIfRedundantDataSourceIsConfigured()
         {
-            Should.Throw<MappingConfigurationException>(() =>
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicField<string>>()
+                        .Map(pp => pp.Value, pf => pf.Value);
+                }
+            });
+
+            configEx.Message.ShouldContain("PublicProperty<int>.Value");
+            configEx.Message.ShouldContain("PublicField<string>.Value");
+            configEx.Message.ShouldContain("does not need to be configured");
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantDerivedTypeDataSourceIsConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
@@ -129,6 +148,8 @@
                         .To(x => x.Value);
                 }
             });
+
+            configEx.Message.ShouldContain("already has configured data source");
         }
 
         [Fact]
@@ -308,9 +329,9 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .From<PublicField<PublicField<int>[]>>()
+                        .From<PublicTwoFields<PublicField<int>[], int[]>>()
                         .To<PublicField<int[]>>()
-                        .Map(s => s.Value, t => t.Value);
+                        .Map(s => s.Value1, t => t.Value);
                 }
             });
 
