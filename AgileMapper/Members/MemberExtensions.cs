@@ -321,6 +321,14 @@
 #if NET35
         public static QualifiedMember ToTargetMember(this LinqExp.LambdaExpression memberAccess, MapperContext mapperContext)
             => memberAccess.ToDlrExpression().ToTargetMember(mapperContext);
+
+        public static QualifiedMember ToTargetMember(
+            this LinqExp.LambdaExpression memberAccess,
+            MapperContext mapperContext,
+            Action<ExpressionType> nonMemberAction)
+        {
+            return memberAccess.ToDlrExpression().ToTargetMember(mapperContext, nonMemberAction);
+        }
 #endif
         public static QualifiedMember ToTargetMember(
             this LambdaExpression memberAccess,
@@ -443,6 +451,12 @@
             }
 
             var mappingDataRoot = memberAccesses[0];
+
+            if (mappingDataRoot.NodeType != ExpressionType.MemberAccess)
+            {
+                return;
+            }
+
             expression = Parameters.Create(mappingDataRoot.Type);
 
             memberAccesses.RemoveAt(0);

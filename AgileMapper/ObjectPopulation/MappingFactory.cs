@@ -177,6 +177,12 @@
 
             if (mapper == null)
             {
+                if (mappingData.HasSameTypedConfiguredDataSource())
+                {
+                    // Configured data source for an otherwise-unconstructable complex type:
+                    return mappingValues.SourceValue;
+                }
+
                 return Constants.EmptyExpression;
             }
 

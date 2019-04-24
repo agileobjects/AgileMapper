@@ -7,6 +7,7 @@
 #endif
     using DataSources;
     using Extensions.Internal;
+    using Members;
     using ObjectPopulation;
 
     internal static class MappingDataExtensions
@@ -53,6 +54,13 @@
                 .MapperContext
                 .ConstructionFactory
                 .GetNewObjectCreation(mappingData);
+        }
+
+        public static bool HasSameTypedConfiguredDataSource(this IObjectMappingData mappingData)
+        {
+            return
+                (mappingData.MapperData.SourceType == mappingData.MapperData.TargetType) &&
+                (mappingData.MapperData.SourceMember is ConfiguredSourceMember);
         }
     }
 }
