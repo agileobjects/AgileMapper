@@ -99,8 +99,8 @@
             return this;
         }
 
-        public void ThrowIfSourceTypeUnconvertible<TTargetValue>()
-            => MapperContext.ValueConverters.ThrowIfUnconvertible(SourceValueType, typeof(TTargetValue));
+        public void ThrowIfSourceTypeUnconvertible(Type targetValueType)
+            => MapperContext.ValueConverters.ThrowIfUnconvertible(SourceValueType, targetValueType);
 
         #region Conditions
 

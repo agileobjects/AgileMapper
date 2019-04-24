@@ -129,6 +129,28 @@
         }
 
         [Fact]
+        public void ShouldErrorIfRedundantConstructorParameterDataSourceIsConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<string>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToCtor<string>();
+                }
+            });
+
+            configEx.Message.ShouldContain("PublicProperty<int>.Value");
+            configEx.Message.ShouldContain("will automatically be mapped");
+            configEx.Message.ShouldContain("target constructor parameter");
+            configEx.Message.ShouldContain("PublicCtor<string>.value");
+            configEx.Message.ShouldContain("does not need to be configured");
+        }
+
+        [Fact]
         public void ShouldErrorIfRedundantDerivedTypeDataSourceIsConfigured()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
@@ -284,6 +306,24 @@
         }
 
         [Fact]
+        public void ShouldErrorIfUnconvertibleConstructorSourceValueSpecified()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicProperty<int>>()
+                        .To<PublicCtor<Guid>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToCtor<Guid>();
+                }
+            });
+
+            configurationException.Message.ShouldContain("Unable to convert");
+        }
+
+        [Fact]
         public void ShouldErrorIfSimpleTypeConfiguredForComplexTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
@@ -303,6 +343,25 @@
         }
 
         [Fact]
+        public void ShouldErrorIfSimpleTypeConfiguredForComplexConstructorParameter()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<int>>()
+                        .To<PublicCtor<Address>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToCtor<Address>();
+                }
+            });
+
+            configurationException.Message.ShouldContain(
+                "PublicField<int>.Value of type 'int' cannot be mapped to target type 'Address'");
+        }
+
+        [Fact]
         public void ShouldErrorIfSimpleTypeConfiguredForEnumerableTarget()
         {
             var configurationException = Should.Throw<MappingConfigurationException>(() =>
@@ -319,6 +378,25 @@
 
             configurationException.Message.ShouldContain(
                 "PublicField<int>.Value of type 'int' cannot be mapped to target type 'int[]'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfSimpleTypeConfiguredForEnumerableConstructorParameter()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicField<string>>()
+                        .To<PublicCtor<int[]>>()
+                        .Map(ctx => ctx.Source.Value)
+                        .ToCtor("value");
+                }
+            });
+
+            configurationException.Message.ShouldContain(
+                "PublicField<string>.Value of type 'string' cannot be mapped to target type 'int[]'");
         }
 
         [Fact]

@@ -37,6 +37,25 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredFactoryWithASimpleSourceType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string>>()
+                    .ToANew<PublicProperty<PublicCtor<string>>>()
+                    .Map(ctx => new PublicCtor<string>(ctx.Source.Value))
+                    .To(t => t.Value);
+
+                var source = new PublicField<string> { Value = "Hello!" };
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicCtor<string>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldBe("Hello!");
+            }
+        }
+
+        [Fact]
         public void ShouldUseAConfiguredFactoryWithAComplexTypeMemberBinding()
         {
             using (var mapper = Mapper.CreateNew())
