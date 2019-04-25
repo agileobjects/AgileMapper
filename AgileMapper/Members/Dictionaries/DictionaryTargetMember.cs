@@ -299,7 +299,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return value.GetConversionTo(ValueType);
             }
 
-
             if ((value.NodeType != Block) && (value.NodeType != Try))
             {
                 return null;
@@ -308,7 +307,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             var checkedAccess = GetAccessChecked(mapperData);
             var existingValue = checkedAccess.Variables.First();
 
-            if (value.NodeType != Block)
+            if (value.NodeType == Try)
             {
                 return GetCheckedTryCatch((TryExpression)value, keyedAccess, checkedAccess, existingValue);
             }

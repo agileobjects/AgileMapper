@@ -36,5 +36,65 @@
                 result.Address.Line1.ShouldBe("6478 Nested Drive");
             }
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/133
+        [Fact]
+        public void ShouldApplyANestedDictionaryToARootTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue133.Source.Wrapper>()
+                    .ToDictionaries
+                    .Map(ctx => ctx.Source.Map)
+                    .ToTarget();
+
+                var source = new Issue133.Source.Wrapper
+                {
+                    Map =
+                    {
+                        { "first", new Issue133.Source.Data { Name = "First" } },
+                        { "second", new Issue133.Source.Data { Name = "Second" } }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<Dictionary<string, Issue133.Target.Data>>();
+
+                result.ShouldNotBeNull();
+                result.Count.ShouldBe(3);
+
+                result.ShouldContainKey("Map");
+                result.ShouldContainKey("first");
+                result.ShouldContainKey("second");
+
+                result["Map"].Name.ShouldBeNull();
+                result["first"].Name.ShouldBe("First");
+                result["second"].Name.ShouldBe("Second");
+            }
+        }
+
+        private static class Issue133
+        {
+            public static class Source
+            {
+                public class Wrapper
+                {
+                    public IDictionary<string, Data> Map { get; } = new Dictionary<string, Data>();
+                }
+
+                public class Data
+                {
+                    public string Name { get; set; }
+                }
+            }
+
+            public static class Target
+            {
+                public class Data
+                {
+                    public string Name { get; set; }
+                }
+            }
+        }
     }
 }
