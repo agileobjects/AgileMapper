@@ -299,7 +299,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return value.GetConversionTo(ValueType);
             }
 
-            if ((value.NodeType != Block) && (value.NodeType != Try))
+            if ((value.NodeType != Block) && (value.NodeType != Try) || mapperData.TargetIsDefinitelyUnpopulated())
             {
                 return null;
             }
