@@ -20,8 +20,8 @@
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
     <PackageReleaseNotes>- Support for mapping callbacks in .ToTarget() data sources
 - Fixing constructability check for .ToTarget() data sources re: #129
+- Fixing .ToTarget() calls with source Dictionaries
 - Performance improvements</PackageReleaseNotes>
-    <Version>1.4.0-preview2</Version>
   </PropertyGroup>
 
   <ItemGroup>
