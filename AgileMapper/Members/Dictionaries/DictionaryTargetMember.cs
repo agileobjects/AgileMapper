@@ -304,6 +304,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return null;
             }
 
+            // TODO: Cover: Existing nested dictionaries?
             var checkedAccess = GetAccessChecked(mapperData);
             var existingValue = checkedAccess.Variables.First();
 

@@ -99,6 +99,7 @@ namespace AgileObjects.AgileMapper
 
         public bool Equals(MappingTypes otherTypes) => otherTypes._hashCode == _hashCode;
 
+        [ExcludeFromCodeCoverage]
         public override int GetHashCode() => _hashCode;
 
         public MappingTypes WithTypes(Type newSourceType, Type newTargetType)

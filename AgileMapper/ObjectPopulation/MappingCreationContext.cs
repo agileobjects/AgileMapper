@@ -50,8 +50,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public QualifiedMember TargetMember => MapperData.TargetMember;
 
-        public bool IsRoot => MappingData.IsRoot;
-
         public IObjectMappingData MappingData { get; }
 
         public Expression PreMappingCallback { get; }
