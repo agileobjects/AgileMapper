@@ -15,17 +15,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
         }
 
-        private ElementObjectMapperKey(MappingTypes mappingTypes, IMembersSource membersSource)
-            : this(mappingTypes)
-        {
-            _membersSource = membersSource;
-        }
-
         public override IMembersSource GetMembersSource(ObjectMapperData enumerableMapperData)
             => _membersSource ?? (_membersSource = new ElementMembersSource(enumerableMapperData));
 
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
-            => new ElementObjectMapperKey(newMappingTypes, _membersSource);
+            => new ElementObjectMapperKey(newMappingTypes) { _membersSource = _membersSource };
 
         public override bool Equals(object obj)
         {

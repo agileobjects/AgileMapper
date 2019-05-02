@@ -32,5 +32,39 @@
             target.Value["TWOah-ah-ah"].ShouldBe(guidTwo.ToString());
             target.Value["THREEah-ah-ah"].ShouldBe("gibblets");
         }
+
+        [Fact]
+        public void ShouldMapOnToAComplexTypeDictionary()
+        {
+            Address sourceWorkAddress, targetHomeAddress;
+
+            var source = new PublicField<Dictionary<string, Address>>
+            {
+                Value = new Dictionary<string, Address>
+                {
+                    ["Home"] = new Address { Line1 = "Home", Line2 = "My Town" },
+                    ["Work"] = sourceWorkAddress = new Address { Line1 = "Work", Line2 = "My City" }
+                }
+            };
+
+            var target = new PublicReadOnlyField<Dictionary<string, Address>>(new Dictionary<string, Address>
+            {
+                ["Home"] = targetHomeAddress = new Address { Line1 = "My Home" }
+            });
+
+            Mapper.Map(source).OnTo(target);
+
+            target.Value.Count.ShouldBe(2);
+
+            target.Value.ShouldContainKey("Home");
+            target.Value["Home"].ShouldBeSameAs(targetHomeAddress);
+            target.Value["Home"].Line1.ShouldBe("My Home");
+            target.Value["Home"].Line2.ShouldBe("My Town");
+
+            target.Value.ShouldContainKey("Work");
+            target.Value["Work"].ShouldNotBeSameAs(sourceWorkAddress);
+            target.Value["Work"].Line1.ShouldBe("Work");
+            target.Value["Work"].Line2.ShouldBe("My City");
+        }
     }
 }

@@ -232,10 +232,20 @@
 
         private Expression GetPopulation(
             IPopulationLoopData loopData,
-            QualifiedMember dictionaryEntryMember,
+            DictionaryTargetMember dictionaryEntryMember,
             IObjectMappingData dictionaryMappingData)
         {
             var elementMapping = loopData.GetElementMapping(dictionaryMappingData);
+
+            if (dictionaryEntryMember.HasKey && 
+                dictionaryEntryMember.CheckExistingElementValue &&
+                dictionaryMappingData.MapperData.TargetCouldBePopulated())
+            {
+                elementMapping = elementMapping.Replace(
+                    dictionaryMappingData.MapperData.GetTargetMemberDictionaryKey(),
+                    dictionaryEntryMember.Key,
+                    ExpressionEvaluation.Equivalator);
+            }
 
             return GetPopulation(elementMapping, dictionaryEntryMember, dictionaryMappingData);
         }

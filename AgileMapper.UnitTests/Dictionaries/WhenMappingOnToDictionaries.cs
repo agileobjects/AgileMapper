@@ -90,16 +90,22 @@
             };
             var target = new StringKeyedDictionary<ProductDto>
             {
-                ["One"] = new ProductDto { ProductId = "One!", Price = 99.99m }
+                ["One"] = new ProductDto { ProductId = "One!" }
             };
+
+            var targetProductDtoOne = target["One"];
 
             var result = Mapper.Map(source).OnTo(target);
 
+            result.ShouldBeSameAs(target);
             result.Count.ShouldBe(2);
 
+            result.ShouldContainKey("One");
+            result["One"].ShouldBeSameAs(targetProductDtoOne);
             result["One"].ProductId.ShouldBe("One!");
             result["One"].Price.ShouldBe(9.99m);
 
+            result.ShouldContainKey("Two");
             result["Two"].ProductId.ShouldBe("Two!");
             result["Two"].Price.ShouldBe(10.00m);
         }

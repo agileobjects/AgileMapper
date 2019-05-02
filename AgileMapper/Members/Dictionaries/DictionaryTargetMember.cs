@@ -19,7 +19,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     {
         private readonly DictionaryTargetMember _rootDictionaryMember;
         private bool _createDictionaryChildMembers;
-        private Expression _key;
 
         public DictionaryTargetMember(QualifiedMember wrappedTargetMember)
             : base(wrappedTargetMember.MemberChain, wrappedTargetMember)
@@ -51,6 +50,10 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         public Type KeyType { get; }
 
         public Type ValueType { get; }
+
+        public Expression Key { get; private set; }
+
+        public bool HasKey => Key != null;
 
         public bool HasObjectEntries => ValueType == typeof(object);
 
@@ -92,7 +95,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             var memberKey = new DictionaryMemberKey(ValueType, key.Name, this);
             var childMember = Append(memberKey);
 
-            childMember._key = key;
+            childMember.Key = key;
 
             return childMember;
         }
@@ -142,19 +145,12 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return new DictionaryTargetMember(runtimeTypedTargetEntryMember, _rootDictionaryMember)
             {
                 _createDictionaryChildMembers = _createDictionaryChildMembers,
-                _key = _key
+                Key = Key
             };
         }
 
         public override bool Matches(IQualifiedMember otherMember)
-        {
-            if (_key == null)
-            {
-                return base.Matches(otherMember);
-            }
-
-            return GetKeyNameOrNull() == otherMember.Name;
-        }
+            => HasKey ? GetKeyNameOrNull() == otherMember.Name : base.Matches(otherMember);
 
         public override Expression GetAccess(Expression instance, IMemberMapperData mapperData)
         {
@@ -184,9 +180,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         private Expression GetKey(IMemberMapperData mapperData)
         {
-            return (_key?.NodeType != Parameter)
+            return (Key?.NodeType != Parameter)
                 ? mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType)
-                : _key;
+                : Key;
         }
 
         private Expression GetDictionaryAccess(IMemberMapperData mapperData)
@@ -243,10 +239,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return tryGetValueCall;
         }
 
-        public void SetCustomKey(string key)
-        {
-            _key = key.ToConstantExpression();
-        }
+        public void SetCustomKey(string key) => Key = key.ToConstantExpression();
 
         public override Expression GetPopulation(Expression value, IMemberMapperData mapperData)
         {
@@ -278,13 +271,13 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         private bool ValueIsFlattening(Expression value, out Expression flattening)
         {
-            if (!(HasObjectEntries || HasSimpleEntries))
+            if (HasObjectEntries || HasSimpleEntries)
             {
-                flattening = null;
-                return false;
+                return value.TryGetMappingBody(out flattening);
             }
 
-            return value.TryGetMappingBody(out flattening);
+            flattening = null;
+            return false;
         }
 
         private Expression GetCheckedValueOrNull(Expression value, Expression keyedAccess, IMemberMapperData mapperData)
@@ -294,17 +287,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return null;
             }
 
-            if (mapperData.SourceMember.IsEnumerable)
-            {
-                return value.GetConversionTo(ValueType);
-            }
-
             if ((value.NodeType != Block) && (value.NodeType != Try) || mapperData.TargetIsDefinitelyUnpopulated())
             {
-                return null;
+                return mapperData.SourceMember.IsEnumerable ? value.GetConversionTo(ValueType) : null;
             }
 
-            // TODO: Cover: Existing nested dictionaries?
             var checkedAccess = GetAccessChecked(mapperData);
             var existingValue = checkedAccess.Variables.First();
 
@@ -397,7 +384,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return $"[\"{path}\"]: {Type.GetFriendlyName()}";
         }
 
-        private string GetKeyNameOrNull() => (string)((ConstantExpression)_key)?.Value;
+        private string GetKeyNameOrNull() => (string)((ConstantExpression)Key)?.Value;
 
         #region Helper Classes
 
