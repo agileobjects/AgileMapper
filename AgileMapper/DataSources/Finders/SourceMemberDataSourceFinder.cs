@@ -36,7 +36,7 @@
             }
 
             if (matchingSourceMemberDataSource.SourceMember.IsSimple &&
-                context.MapperData.MapperContext.UserConfigurations.HasConfiguredRootDataSources)
+                context.MapperData.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources)
             {
                 var updatedMapperData = new ChildMemberMapperData(
                     matchingSourceMemberDataSource.SourceMember,
@@ -47,7 +47,7 @@
                     .MapperData
                     .MapperContext
                     .UserConfigurations
-                    .GetDataSources(updatedMapperData);
+                    .GetDataSourcesForToTarget(updatedMapperData);
 
                 foreach (var configuredRootDataSource in configuredRootDataSources)
                 {

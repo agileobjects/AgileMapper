@@ -18,11 +18,11 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Support for using .MapTo&lt;T&gt;() to specify interface implementations (re: #123)
-- Improved support for non-standard collections
-- Improved detection of join entities
-- Automatically mapping complex type members to null if only an identifier is populated, with a non-default value (re: #121)</PackageReleaseNotes>
-    <Version>1.3.0</Version>
+    <PackageReleaseNotes>- Support for mapping callbacks in .ToTarget() data sources
+- Fixing constructability check for .ToTarget() data sources re: #129
+- Fixing .ToTarget() calls with source Dictionaries, re: #133
+- Fixing complex type Dictionary merging
+- Performance improvements</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

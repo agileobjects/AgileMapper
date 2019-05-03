@@ -1,16 +1,16 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
+    using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }
 
-            if (mappingData.MapperData.MapperContext.ConstructionFactory.GetNewObjectCreation(mappingData) != null)
+            if (mappingData.IsTargetConstructable())
             {
                 return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
             }

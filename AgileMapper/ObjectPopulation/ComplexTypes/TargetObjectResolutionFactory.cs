@@ -43,7 +43,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (objectValue == null)
             {
-                mapperData.TargetMember.IsReadOnly = true;
+                if (!mappingData.HasSameTypedConfiguredDataSource())
+                {
+                    mapperData.TargetMember.IsReadOnly = true;
+                }
 
                 // Use the existing target object if it might have a value and
                 // the mapper can't create an instance:

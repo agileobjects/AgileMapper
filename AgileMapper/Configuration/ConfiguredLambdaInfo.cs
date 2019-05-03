@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
@@ -243,7 +242,7 @@
                 (mapperData.TargetMember is DictionaryTargetMember dictionaryMember) &&
                 (dictionaryMember.HasCompatibleType(contextTypes[1])))
             {
-                contextTypes = contextTypes.ToArray();
+                contextTypes = contextTypes.CopyToArray();
                 contextTypes[1] = mapperData.TargetType;
             }
 

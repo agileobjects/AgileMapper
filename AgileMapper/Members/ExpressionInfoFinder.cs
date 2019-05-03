@@ -192,7 +192,7 @@ namespace AgileObjects.AgileMapper.Members
 
             private bool IsNotRootObject(MemberExpression memberAccess)
             {
-                if (memberAccess.Member.Name == "Parent")
+                if (memberAccess.Member.Name == nameof(IMappingData.Parent))
                 {
                     // ReSharper disable once PossibleNullReferenceException
                     return !memberAccess.Member.DeclaringType.Name
@@ -204,7 +204,7 @@ namespace AgileObjects.AgileMapper.Members
                     return true;
                 }
 
-                if (memberAccess.Member.Name == "EnumerableIndex")
+                if (memberAccess.Member.Name == nameof(IMappingData<int, int>.EnumerableIndex))
                 {
                     return false;
                 }
@@ -220,7 +220,7 @@ namespace AgileObjects.AgileMapper.Members
             protected override Expression VisitIndex(IndexExpression indexAccess)
             {
                 if ((indexAccess.Object.Type != typeof(string)) &&
-                     !indexAccess.Object.Type.IsDictionary() &&
+                    !indexAccess.Object.Type.IsDictionary() &&
                      IndexDoesNotUseParameter(indexAccess.Arguments[0]))
                 {
                     AddMemberAccess(indexAccess);
@@ -253,18 +253,20 @@ namespace AgileObjects.AgileMapper.Members
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)
             {
-                if ((methodCall.Object != _mappingDataObject) &&
-                    (methodCall.Method.DeclaringType != typeof(IMappingData)))
+                if ((methodCall.Object == _mappingDataObject) ||
+                    (methodCall.Method.DeclaringType == typeof(IMappingData)))
                 {
-                    if (IsNullableGetValueOrDefaultCall(methodCall))
-                    {
-                        AddExistingNullCheck(methodCall.Object);
-                    }
-
-                    AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
-                    AddInvocationIfNecessary(methodCall);
-                    AddMemberAccessIfAppropriate(methodCall);
+                    return base.VisitMethodCall(methodCall);
                 }
+
+                if (IsNullableGetValueOrDefaultCall(methodCall))
+                {
+                    AddExistingNullCheck(methodCall.Object);
+                }
+
+                AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
+                AddInvocationIfNecessary(methodCall);
+                AddMemberAccessIfAppropriate(methodCall);
 
                 return base.VisitMethodCall(methodCall);
             }
@@ -272,7 +274,7 @@ namespace AgileObjects.AgileMapper.Members
             private static bool IsNullableGetValueOrDefaultCall(MethodCallExpression methodCall)
             {
                 return (methodCall.Object != null) &&
-                       (methodCall.Method.Name == "GetValueOrDefault") &&
+                       (methodCall.Method.Name == nameof(Nullable<int>.GetValueOrDefault)) &&
                        (methodCall.Object.Type.IsNullableType());
             }
 
@@ -378,20 +380,20 @@ namespace AgileObjects.AgileMapper.Members
 
                 switch (method.Name)
                 {
-                    case "ToString" when method.DeclaringType == typeof(object):
-                    case "Split" when method.DeclaringType == typeof(string):
-                    case "GetEnumerator" when method.DeclaringType.IsClosedTypeOf(typeof(IEnumerable<>)):
+                    case nameof(string.ToString) when method.DeclaringType == typeof(object):
+                    case nameof(string.Split) when method.DeclaringType == typeof(string):
+                    case nameof(IEnumerable<int>.GetEnumerator) when method.DeclaringType.IsClosedTypeOf(typeof(IEnumerable<>)):
                         return true;
 
-                    case "Select":
-                    case "SelectMany":
-                    case "Project":
-                    case "Filter":
-                    case "Where":
-                    case "OrderBy":
-                    case "OrderByDescending":
-                    case "ToList":
-                    case "ToArray":
+                    case nameof(Enumerable.Select):
+                    case nameof(Enumerable.SelectMany):
+                    case nameof(PublicEnumerableExtensions.Project):
+                    case nameof(PublicEnumerableExtensions.Filter):
+                    case nameof(Enumerable.Where):
+                    case nameof(Enumerable.OrderBy):
+                    case nameof(Enumerable.OrderByDescending):
+                    case nameof(Enumerable.ToList):
+                    case nameof(Enumerable.ToArray):
                         return (method.DeclaringType == typeof(Enumerable)) ||
                                (method.DeclaringType == typeof(PublicEnumerableExtensions));
 

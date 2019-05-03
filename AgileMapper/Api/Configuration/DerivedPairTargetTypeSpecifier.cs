@@ -17,6 +17,8 @@
             _configInfo = configInfo;
         }
 
+        private MapperContext MapperContext => _configInfo.MapperContext;
+
         public IMappingConfigContinuation<TSource, TTarget> To<TDerivedTarget>()
             where TDerivedTarget : TTarget
         {
@@ -33,7 +35,7 @@
             var derivedTypePair = DerivedTypePair
                 .For<TDerivedSource, TTarget, TDerivedTarget>(_configInfo);
 
-            _configInfo.MapperContext.UserConfigurations.DerivedTypes.Add(derivedTypePair);
+            MapperContext.UserConfigurations.DerivedTypes.Add(derivedTypePair);
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
@@ -42,12 +44,8 @@
         {
             var mappingData = _configInfo.ToMappingData<TSource, TDerivedTarget>();
 
-            var objectCreation = _configInfo
-                .MapperContext
-                .ConstructionFactory
-                .GetNewObjectCreation(mappingData);
-
-            if (objectCreation != null)
+            if (mappingData.IsTargetConstructable() ||
+                mappingData.IsConstructableFromToTargetDataSource())
             {
                 return;
             }
@@ -57,12 +55,10 @@
                 ThrowUnableToCreate<TDerivedTarget>();
             }
 
-            var configuredImplementationPairings = _configInfo
-                .MapperContext
+            var configuredImplementationPairings = MapperContext
                 .UserConfigurations
-                .DerivedTypes.GetImplementationTypePairsFor(
-                    _configInfo.ToMapperData(),
-                    _configInfo.MapperContext);
+                .DerivedTypes
+                .GetImplementationTypePairsFor(_configInfo.ToMapperData(), MapperContext);
 
             if (configuredImplementationPairings.None())
             {

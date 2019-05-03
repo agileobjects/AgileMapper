@@ -104,6 +104,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int enumerableIndex);
 
         /// <summary>
+        /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> as an 
+        /// <see cref="IObjectMappingData{TNewSource, TTarget}"/> using the given
+        /// <paramref name="newSource"/>.
+        /// </summary>
+        /// <typeparam name="TNewSource">The type of the new source object to use.</typeparam>
+        /// <param name="newSource">The new source object to use.</param>
+        /// <returns>
+        /// The <see cref="IObjectMappingData{TSource, TTarget}"/> as a 
+        /// <see cref="IObjectMappingData{TNewSource, TTarget}"/>.
+        /// </returns>
+        IObjectMappingData<TNewSource, TTarget> WithSource<TNewSource>(TNewSource newSource);
+
+        /// <summary>
         /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> typed as a 
         /// <see cref="IObjectMappingData{TNewSource, TNewTarget}"/> when the target object definitely
         /// cannot be converted to the given <typeparamref name="TNewTarget"/>.

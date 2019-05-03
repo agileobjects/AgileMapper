@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
             SourceObject = GetMappingDataProperty(mappingDataType, RootSourceMemberName);
             TargetObject = GetMappingDataProperty(RootTargetMemberName);
-            CreatedObject = GetMappingDataProperty("CreatedObject");
+            CreatedObject = GetMappingDataProperty(nameof(CreatedObject));
 
             var isPartOfDerivedTypeMapping = declaredTypeMapperData != null;
 
@@ -75,8 +75,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                EnumerableIndex = GetMappingDataProperty(mappingDataType, "EnumerableIndex");
-                ParentObject = GetMappingDataProperty("Parent");
+                EnumerableIndex = GetMappingDataProperty(mappingDataType, nameof(EnumerableIndex));
+                ParentObject = GetMappingDataProperty(nameof(Parent));
             }
 
             ExpressionInfoFinder = new ExpressionInfoFinder(MappingDataObject);

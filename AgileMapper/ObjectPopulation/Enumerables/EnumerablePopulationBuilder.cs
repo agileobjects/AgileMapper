@@ -566,7 +566,7 @@
 
             Expression existingElementValue;
 
-            if (targetMember.CheckExistingElementValue)
+            if (targetMember.CheckExistingElementValue && mappingData.MapperData.TargetCouldBePopulated())
             {
                 var existingElementValueCheck = targetMember.GetAccessChecked(mappingData.MapperData);
 

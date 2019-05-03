@@ -3,16 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using Extensions.Internal;
-    using Members;
-    using ObjectPopulation;
-    using ReadableExpressions;
 #if NET35
     using LinqExp = System.Linq.Expressions;
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using ObjectPopulation;
+    using ReadableExpressions;
 
     internal class MappingConfigInfo : ITypePair
     {
@@ -99,8 +99,8 @@
             return this;
         }
 
-        public void ThrowIfSourceTypeUnconvertible<TTargetValue>()
-            => MapperContext.ValueConverters.ThrowIfUnconvertible(SourceValueType, typeof(TTargetValue));
+        public void ThrowIfSourceTypeUnconvertible(Type targetValueType)
+            => MapperContext.ValueConverters.ThrowIfUnconvertible(SourceValueType, targetValueType);
 
         #region Conditions
 
@@ -199,7 +199,8 @@
 
         public IObjectMappingData ToMappingData<TSource, TTarget>()
         {
-            if (_mappingData != null)
+            if ((_mappingData != null) &&
+                 _mappingData.MappingTypes.Equals(MappingTypes<TSource, TTarget>.Fixed))
             {
                 return _mappingData;
             }

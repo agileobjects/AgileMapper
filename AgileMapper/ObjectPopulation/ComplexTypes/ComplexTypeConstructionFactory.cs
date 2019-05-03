@@ -3,6 +3,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using Caching;
     using Configuration;
@@ -13,11 +18,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using MapperKeys;
     using Members;
     using NetStandardPolyfills;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using static System.StringComparison;
 
     internal class ComplexTypeConstructionFactory

@@ -108,7 +108,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     targetEntryMember.SetCustomKey(configuredKey);
                 }
 
-                if (!sourceMember.IsSimple)
+                if (!sourceMember.IsSimple && !targetDictionaryMember.HasComplexEntries)
                 {
                     targetEntryMember = targetEntryMember.WithTypeOf(sourceMember);
                 }
@@ -303,7 +303,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingCreationContext context,
             out bool useAssignmentOnly)
         {
-            if (context.MapperData.TargetMember.IsReadOnly)
+            if (!context.InstantiateLocalVariable || context.MapperData.TargetMember.IsReadOnly)
             {
                 useAssignmentOnly = false;
                 return null;
@@ -324,13 +324,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             useAssignmentOnly = false;
-
-            if (context.InstantiateLocalVariable)
-            {
-                return GetParameterlessDictionaryAssignment;
-            }
-
-            return null;
+            return GetParameterlessDictionaryAssignment;
         }
 
         private static bool SourceMemberIsDictionary(

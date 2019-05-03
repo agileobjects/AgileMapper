@@ -1,16 +1,36 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Diagnostics;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
 
     internal static class MappingDataCreationFactory
     {
+        [DebuggerStepThrough]
+        public static Expression ForToTarget(
+            ObjectMapperData parentMapperData,
+            Expression toTargetDataSource)
+        {
+            var withSourceMethod = parentMapperData
+                .MappingDataObject
+                .Type
+                .GetPublicInstanceMethod("WithSource")
+                .MakeGenericMethod(toTargetDataSource.Type);
+
+            var withSourceCall = Expression.Call(
+                parentMapperData.MappingDataObject,
+                withSourceMethod,
+                toTargetDataSource);
+
+            return withSourceCall;
+        }
+
         [DebuggerStepThrough]
         public static Expression ForDerivedType(ObjectMapperData childMapperData)
         {
@@ -50,16 +70,13 @@
                 .ForChildMethod
                 .MakeGenericMethod(childMapperData.SourceType, childMapperData.TargetType);
 
-            var targetMemberRegistrationName = childMapperData.TargetMember.RegistrationName.ToConstantExpression();
-            var dataSourceIndexConstant = dataSourceIndex.ToConstantExpression();
-
             var createCall = Expression.Call(
                 createMethod,
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
                 mappingValues.EnumerableIndex,
-                targetMemberRegistrationName,
-                dataSourceIndexConstant,
+                childMapperData.TargetMember.RegistrationName.ToConstantExpression(),
+                dataSourceIndex.ToConstantExpression(),
                 childMapperData.Parent.MappingDataObject);
 
             return createCall;

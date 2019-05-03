@@ -124,10 +124,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
                 var childMembersSourceParameter = Expression.Parameter(typeof(object), "childMembersSource");
-                var parentParameter = Expression.Parameter(typeof(object), "parent");
+                var parentParameter = Expression.Parameter(typeof(object), nameof(parent));
 
                 var typedForChildMethod = bridgeParameter.Type
-                    .GetPublicInstanceMethod("ForChild")
+                    .GetPublicInstanceMethod(nameof(ForChild))
                     .MakeGenericMethod(k.SourceType, k.TargetType);
 
                 var typedForChildCall = Expression.Call(

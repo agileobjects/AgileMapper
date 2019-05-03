@@ -150,6 +150,15 @@
             return result;
         }
 
+        public static T[] CopyToArray<T>(this IList<T> items)
+        {
+            var clonedArray = new T[items.Count];
+
+            clonedArray.CopyFrom(items);
+
+            return clonedArray;
+        }
+
         public static Expression ReverseChain<T>(this IList<T> items)
             where T : IConditionallyChainable
         {
