@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
 
-            if (childMapperData.TargetMemberIsUnmappable(out var reason))
+            if (TargetMemberIsUnmappable(childMapperData, mappingData, out var reason))
             {
                 return MemberPopulator.Unmappable(childMapperData, reason);
             }
@@ -74,6 +74,44 @@ namespace AgileObjects.AgileMapper.Members.Population
             }
 
             return MemberPopulator.WithRegistration(childMappingData, dataSources, populateCondition);
+        }
+
+        private static bool TargetMemberIsUnmappable(
+            IMemberMapperData mapperData,
+            IObjectMappingData mappingData,
+            out string reason)
+        {
+            if (!mapperData.RuleSet.Settings.AllowSetMethods &&
+                (mapperData.TargetMember.LeafMember.MemberType == MemberType.SetMethod))
+            {
+                reason = "Set methods are unsupported by rule set '" + mapperData.RuleSet.Name + "'";
+                return true;
+            }
+
+            if (TargetMemberWillBePopulatedByCtor(mapperData, mappingData))
+            {
+                reason = "Expected to be populated by constructor parameter";
+                return true;
+            }
+
+            return mapperData.TargetMemberIsUnmappable(
+                mapperData.TargetMember,
+                md => md.MapperContext.UserConfigurations.QueryDataSourceFactories(md),
+                mapperData.MapperContext.UserConfigurations,
+                out reason);
+        }
+
+        private static bool TargetMemberWillBePopulatedByCtor(IMemberMapperData mapperData, IObjectMappingData mappingData)
+        {
+            if (!mapperData.TargetMember.LeafMember.HasMatchingCtorParameter ||
+                (mapperData.RuleSet.Settings.RootHasPopulatedTarget && (mapperData.Parent?.IsRoot == true)))
+            {
+                return false;
+            }
+
+
+
+            return true;
         }
 
         private static bool TargetMemberIsUnconditionallyIgnored(
