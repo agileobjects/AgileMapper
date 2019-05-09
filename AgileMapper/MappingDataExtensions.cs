@@ -1,10 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
+    using System.Linq;
     using DataSources;
     using Extensions.Internal;
     using Members;
@@ -16,7 +12,14 @@
             => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 
         public static bool IsTargetConstructable(this IObjectMappingData mappingData)
-            => mappingData.GetTargetObjectCreation() != null;
+        {
+            return mappingData
+                .MapperData
+                .MapperContext
+                .ConstructionFactory
+                .GetNewObjectCreationInfos(mappingData)
+                .Any();
+        }
 
         public static bool IsConstructableFromToTargetDataSource(this IObjectMappingData mappingData)
             => mappingData.GetToTargetDataSourceOrNullForTargetType() != null;
@@ -46,15 +49,6 @@
 
             // TODO: Cover: Unconstructable ToTarget data source
             return null;
-        }
-
-        public static Expression GetTargetObjectCreation(this IObjectMappingData mappingData)
-        {
-            return mappingData
-                .MapperData
-                .MapperContext
-                .ConstructionFactory
-                .GetNewObjectCreation(mappingData);
         }
 
         public static bool HasSameTypedConfiguredDataSource(this IObjectMappingData mappingData)

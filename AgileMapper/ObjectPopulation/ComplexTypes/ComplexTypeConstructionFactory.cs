@@ -31,8 +31,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             _constructionsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, Construction>();
         }
 
-        public IList<IBasicConstructionInfo> GetNewObjectCreationInfos(IObjectMappingData mappingData)
-            => (IList<IBasicConstructionInfo>)GetNewObjectCreationInfos(mappingData, out _);
+        public IEnumerable<IBasicConstructionInfo> GetNewObjectCreationInfos(IObjectMappingData mappingData)
+#if NET35
+            => GetNewObjectCreationInfos(mappingData, out _).Cast<IBasicConstructionInfo>();
+#else
+            => GetNewObjectCreationInfos(mappingData, out _);
+#endif
 
         private IList<IConstructionInfo> GetNewObjectCreationInfos(
             IObjectMappingData mappingData, 
@@ -52,6 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     AddAutoConstructionInfos(constructionInfos, key);
                 }
 
+                key.AddSourceMemberTypeTesterIfRequired();
                 key.MappingData = null;
 
                 return constructionInfos.None()
