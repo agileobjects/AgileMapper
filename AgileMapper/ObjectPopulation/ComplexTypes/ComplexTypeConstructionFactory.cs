@@ -31,14 +31,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             _constructionsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, Construction>();
         }
 
-        public IEnumerable<IBasicConstructionInfo> GetNewObjectCreationInfos(IObjectMappingData mappingData)
+        public IEnumerable<IBasicConstructionInfo> GetTargetObjectCreationInfos(IObjectMappingData mappingData)
 #if NET35
-            => GetNewObjectCreationInfos(mappingData, out _).Cast<IBasicConstructionInfo>();
+            => GetTargetObjectCreationInfos(mappingData, out _).Cast<IBasicConstructionInfo>();
 #else
-            => GetNewObjectCreationInfos(mappingData, out _);
+            => GetTargetObjectCreationInfos(mappingData, out _);
 #endif
 
-        private IList<IConstructionInfo> GetNewObjectCreationInfos(
+        private IList<IConstructionInfo> GetTargetObjectCreationInfos(
             IObjectMappingData mappingData, 
             out ConstructionKey constructionKey)
         {
@@ -191,9 +191,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .ToArray();
         }
 
-        public Expression GetNewObjectCreation(IObjectMappingData mappingData)
+        public Expression GetTargetObjectCreation(IObjectMappingData mappingData)
         {
-            var cachedInfos = GetNewObjectCreationInfos(mappingData, out var constructionKey);
+            var cachedInfos = GetTargetObjectCreationInfos(mappingData, out var constructionKey);
 
             if (cachedInfos.None())
             {
@@ -268,17 +268,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 #endif
             #endregion
             public override int GetHashCode() => 0;
-        }
-
-        public interface IBasicConstructionInfo
-        {
-            bool IsConfigured { get; }
-            
-            bool IsUnconditional { get; }
-            
-            int ParameterCount { get; }
-            
-            int Priority { get; }
         }
 
         private interface IConstructionInfo : IBasicConstructionInfo, IComparable<IConstructionInfo>

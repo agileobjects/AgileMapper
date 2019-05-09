@@ -17,7 +17,7 @@
                 .MapperData
                 .MapperContext
                 .ConstructionFactory
-                .GetNewObjectCreationInfos(mappingData)
+                .GetTargetObjectCreationInfos(mappingData)
                 .Any();
         }
 

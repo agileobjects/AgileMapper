@@ -1,13 +1,13 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members.Population;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members.Population;
 
     internal class MemberInitPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
@@ -18,9 +18,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             yield return memberPopulator.GetPopulation();
         }
 
-        protected override Expression GetNewObjectCreation(IObjectMappingData mappingData, IList<Expression> memberPopulations)
+        protected override Expression GetTargetObjectCreation(IObjectMappingData mappingData, IList<Expression> memberPopulations)
         {
-            var objectCreation = base.GetNewObjectCreation(mappingData, memberPopulations);
+            var objectCreation = base.GetTargetObjectCreation(mappingData, memberPopulations);
 
             if (objectCreation == null)
             {
