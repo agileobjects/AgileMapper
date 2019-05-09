@@ -82,7 +82,7 @@
                     IsUnmappable =
                         !md.IsRoot &&
                          md.TargetMember.IsComplex &&
-                         md.DataSourcesByTargetMember.None(),
+                         md.DataSourcesByTargetMember.None(ds => ds.Value.HasValue),
                     UnmappedMembers = md
                         .DataSourcesByTargetMember
                         .Filter(pair => !pair.Value.HasValue)
@@ -98,7 +98,7 @@
                     UnmappableTargetTypes = g
                         .Filter(d => d.IsUnmappable)
                         .Project(d => d.MapperData)
-                        .ToList(),
+                        .ToArray(),
                     UnmappedMembers = g
                         .SelectMany(d => d.UnmappedMembers)
                         .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),

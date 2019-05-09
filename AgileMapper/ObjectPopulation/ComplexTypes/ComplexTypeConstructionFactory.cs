@@ -31,15 +31,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             _constructionsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, Construction>();
         }
 
-        public IEnumerable<IBasicConstructionInfo> GetTargetObjectCreationInfos(IObjectMappingData mappingData)
-#if NET35
-            => GetTargetObjectCreationInfos(mappingData, out _).Cast<IBasicConstructionInfo>();
-#else
-            => GetTargetObjectCreationInfos(mappingData, out _);
-#endif
+        public IList<IBasicConstructionInfo> GetTargetObjectCreationInfos(IObjectMappingData mappingData)
+            => GetTargetObjectCreationInfos(mappingData, out _).ProjectToArray(c => (IBasicConstructionInfo)c);
 
         private IList<IConstructionInfo> GetTargetObjectCreationInfos(
-            IObjectMappingData mappingData, 
+            IObjectMappingData mappingData,
             out ConstructionKey constructionKey)
         {
             return _constructionInfosCache.GetOrAdd(constructionKey = new ConstructionKey(mappingData), key =>
@@ -138,9 +134,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .GetPublicStaticMethods()
                 .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type));
 
-            return CreateConstructionInfo(
-                candidateFactoryMethods,
-                fm => new ConstructionDataInfo<MethodInfo>(fm, Expression.Call, key, priority: 1));
+            return CreateConstructionInfo(candidateFactoryMethods, fm => new FactoryMethodInfo(fm, key));
         }
 
         private static bool IsFactoryMethod(MethodInfo method, Type targetType)
@@ -157,9 +151,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var candidateConstructors = constructors
                 .Filter(ctor => IsCandidateCtor(ctor, greediestUnconditionalFactoryInfo));
 
-            return CreateConstructionInfo(
-                candidateConstructors,
-                ctor => new ConstructionDataInfo<ConstructorInfo>(ctor, Expression.New, key, priority: 0));
+            return CreateConstructionInfo(candidateConstructors, ctor => new ObjectNewingInfo(ctor, key));
         }
 
         private static bool IsCandidateCtor(MethodBase ctor, IBasicConstructionInfo candidateFactoryMethod)
@@ -285,6 +277,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public int Priority { get; protected set; }
 
+            public virtual bool HasCtorParameterFor(Member targetMember) => false;
+
             public abstract Construction ToConstruction();
 
             public int CompareTo(IConstructionInfo other)
@@ -333,21 +327,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public override Construction ToConstruction() => new Construction(_configuredFactory, _mapperData);
         }
 
-        private sealed class ConstructionDataInfo<TInvokable> : ConstructionInfoBase
+        private abstract class ConstructionDataInfo<TInvokable> : ConstructionInfoBase
             where TInvokable : MethodBase
         {
-            private readonly TInvokable _invokable;
-            private readonly Func<TInvokable, IList<Expression>, Expression> _constructionFactory;
-
-            public ConstructionDataInfo(
+            protected ConstructionDataInfo(
                 TInvokable invokable,
-                Func<TInvokable, IList<Expression>, Expression> constructionFactory,
                 ConstructionKey key,
                 int priority)
             {
-                _invokable = invokable;
-                _constructionFactory = constructionFactory;
-
                 ArgumentDataSources = GetArgumentDataSources(invokable, key);
                 CanBeInvoked = ArgumentDataSources.All(ds => ds.HasValue);
                 ParameterCount = ArgumentDataSources.Length;
@@ -397,10 +384,42 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 constructionInfos.AddSorted(this);
             }
 
-            public Expression GetConstructionExpression(IList<Expression> argumentValues)
-                => _constructionFactory.Invoke(_invokable, argumentValues);
+            public abstract Expression GetConstructionExpression(IList<Expression> argumentValues);
 
             public override Construction ToConstruction() => new ConstructionData<TInvokable>(this).Construction;
+        }
+
+        private sealed class ObjectNewingInfo : ConstructionDataInfo<ConstructorInfo>
+        {
+            private readonly ConstructorInfo _ctor;
+            private readonly string[] _parameterNames;
+
+            public ObjectNewingInfo(ConstructorInfo ctor, ConstructionKey key)
+                : base(ctor, key, priority: 0)
+            {
+                _ctor = ctor;
+                _parameterNames = _ctor.GetParameters().ProjectToArray(p => p.Name);
+            }
+
+            public override bool HasCtorParameterFor(Member targetMember)
+                => _parameterNames.Contains(targetMember.Name, StringComparer.OrdinalIgnoreCase);
+
+            public override Expression GetConstructionExpression(IList<Expression> argumentValues)
+                => Expression.New(_ctor, argumentValues);
+        }
+
+        private sealed class FactoryMethodInfo : ConstructionDataInfo<MethodInfo>
+        {
+            private readonly MethodInfo _factoryMethod;
+
+            public FactoryMethodInfo(MethodInfo factoryMethod, ConstructionKey key)
+                : base(factoryMethod, key, priority: 1)
+            {
+                _factoryMethod = factoryMethod;
+            }
+
+            public override Expression GetConstructionExpression(IList<Expression> argumentValues)
+                => Expression.Call(_factoryMethod, argumentValues);
         }
 
         private sealed class StructInfo : ConstructionInfoBase

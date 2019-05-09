@@ -1,18 +1,18 @@
-namespace AgileObjects.AgileMapper.Members.Population
+  namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Collections.Generic;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Configuration;
     using DataSources.Finders;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class MemberPopulatorFactory
     {
@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                     {
                         return memberPopulation;
                     }
-
+                    
                     return null;
                 })
                 .WhereNotNull();
@@ -109,9 +109,10 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return false;
             }
 
+            var creationInfos = mappingData.GetTargetObjectCreationInfos();
 
-
-            return true;
+            return creationInfos.Any() &&
+                   creationInfos.All(ci => ci.IsUnconditional && ci.HasCtorParameterFor(mapperData.TargetMember.LeafMember));
         }
 
         private static bool TargetMemberIsUnconditionallyIgnored(

@@ -1,10 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    using System.Linq;
+    using System.Collections.Generic;
     using DataSources;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
+    using ObjectPopulation.ComplexTypes;
 
     internal static class MappingDataExtensions
     {
@@ -12,13 +13,15 @@
             => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 
         public static bool IsTargetConstructable(this IObjectMappingData mappingData)
+            => GetTargetObjectCreationInfos(mappingData).Any();
+
+        public static IList<IBasicConstructionInfo> GetTargetObjectCreationInfos(this IObjectMappingData mappingData)
         {
             return mappingData
                 .MapperData
                 .MapperContext
                 .ConstructionFactory
-                .GetTargetObjectCreationInfos(mappingData)
-                .Any();
+                .GetTargetObjectCreationInfos(mappingData);
         }
 
         public static bool IsConstructableFromToTargetDataSource(this IObjectMappingData mappingData)
