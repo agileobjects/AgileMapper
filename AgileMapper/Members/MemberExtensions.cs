@@ -149,7 +149,14 @@
         }
 
         [DebuggerStepThrough]
+        public static bool IsEnumerableElement(this QualifiedMember member) => member.LeafMember.IsEnumerableElement();
+
+        [DebuggerStepThrough]
         public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
+
+        [DebuggerStepThrough]
+        public static bool IsConstructorParameter(this QualifiedMember member)
+            => member.LeafMember.MemberType == MemberType.ConstructorParameter;
 
         public static IList<string> ExtendWith(
             this ICollection<string> parentJoinedNames,

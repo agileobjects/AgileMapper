@@ -83,10 +83,7 @@ namespace AgileObjects.AgileMapper.Members
                 _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>(default(HashCodeComparer<Member>));
             }
 
-            RegistrationName = (LeafMember.MemberType != MemberType.ConstructorParameter)
-                ? Name
-                : "ctor:" + Name;
-
+            RegistrationName = this.IsConstructorParameter() ? "ctor:" + Name : Name;
             IsReadOnly = IsReadable && !leafMember.IsWriteable;
         }
 

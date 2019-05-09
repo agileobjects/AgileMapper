@@ -225,7 +225,7 @@ namespace AgileObjects.AgileMapper.Members
 
         [DebuggerStepThrough]
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
-            => mapperData.TargetMember.LeafMember.IsEnumerableElement();
+            => mapperData.TargetMember.IsEnumerableElement();
 
         [DebuggerStepThrough]
         public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)

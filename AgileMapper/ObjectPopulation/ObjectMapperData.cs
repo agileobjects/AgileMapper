@@ -668,7 +668,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MethodInfo mapRepeatedMethod;
             Expression[] arguments;
 
-            if (targetMember.LeafMember.IsEnumerableElement())
+            if (targetMember.IsEnumerableElement())
             {
                 mapRepeatedMethod = _mapRepeatedElementMethod;
 
