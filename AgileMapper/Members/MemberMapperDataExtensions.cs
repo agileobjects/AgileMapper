@@ -187,31 +187,6 @@ namespace AgileObjects.AgileMapper.Members
             mapperData.Parent.DataSourcesByTargetMember.Add(mapperData.TargetMember, dataSources);
         }
 
-        public static bool TargetMemberIsUnmappable(this IMemberMapperData mapperData, out string reason)
-        {
-            if (!mapperData.RuleSet.Settings.AllowSetMethods &&
-                (mapperData.TargetMember.LeafMember.MemberType == MemberType.SetMethod))
-            {
-                reason = "Set methods are unsupported by rule set '" + mapperData.RuleSet.Name + "'";
-                return true;
-            }
-
-            if (mapperData.TargetMember.LeafMember.HasMatchingCtorParameter &&
-              ((mapperData.Parent?.IsRoot != true) ||
-               !mapperData.RuleSet.Settings.RootHasPopulatedTarget))
-            {
-                reason = "Expected to be populated by constructor parameter";
-                return true;
-            }
-
-            return TargetMemberIsUnmappable(
-                mapperData,
-                mapperData.TargetMember,
-                md => md.MapperContext.UserConfigurations.QueryDataSourceFactories(md),
-                mapperData.MapperContext.UserConfigurations,
-                out reason);
-        }
-
         public static bool TargetMemberIsUnmappable<TTMapperData>(
             this TTMapperData mapperData,
             QualifiedMember targetMember,
@@ -250,7 +225,7 @@ namespace AgileObjects.AgileMapper.Members
 
         [DebuggerStepThrough]
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
-            => mapperData.TargetMember.LeafMember.IsEnumerableElement();
+            => mapperData.TargetMember.IsEnumerableElement();
 
         [DebuggerStepThrough]
         public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)

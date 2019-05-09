@@ -2,15 +2,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions.Internal;
-    using Members;
-    using Members.Population;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using Members.Population;
+    using NetStandardPolyfills;
     using static CallbackPosition;
 
     internal abstract class PopulationExpressionFactoryBase
@@ -92,7 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IObjectMappingData mappingData)
         {
             var localVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
-                GetNewObjectCreation,
+                GetTargetObjectCreation,
                 mappingData,
                 memberPopulations,
                 assignCreatedObject);
@@ -100,11 +100,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return mappingData.MapperData.LocalVariable.AssignTo(localVariableValue);
         }
 
-        protected virtual Expression GetNewObjectCreation(
+        protected virtual Expression GetTargetObjectCreation(
             IObjectMappingData mappingData,
             IList<Expression> memberPopulations)
         {
-            return mappingData.GetTargetObjectCreation();
+            return mappingData
+                .MapperData
+                .MapperContext
+                .ConstructionFactory
+                .GetTargetObjectCreation(mappingData);
         }
 
         #region Object Registration

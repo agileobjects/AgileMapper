@@ -130,9 +130,7 @@
                 return;
             }
 
-            var targetMemberType = (targetMember.LeafMember.MemberType == MemberType.ConstructorParameter)
-                ? "constructor parameter"
-                : "member";
+            var targetMemberType = targetMember.IsConstructorParameter() ? "constructor parameter" : "member";
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,

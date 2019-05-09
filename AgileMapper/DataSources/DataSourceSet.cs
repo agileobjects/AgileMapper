@@ -79,14 +79,21 @@ namespace AgileObjects.AgileMapper.DataSources
 
             for (var i = _dataSources.Count - 1; i >= 0;)
             {
+                var isFirstDataSource = value == default(Expression);
                 var dataSource = _dataSources[i--];
 
-                value = dataSource.AddPreConditionIfNecessary(value == default(Expression)
-                    ? dataSource.Value
-                    : Expression.Condition(
+                var dataSourceValue = dataSource.IsConditional
+                    ? Expression.Condition(
                         dataSource.Condition,
-                        dataSource.Value.GetConversionTo(value.Type),
-                        value));
+                        isFirstDataSource 
+                            ? dataSource.Value
+                            : dataSource.Value.GetConversionTo(value.Type),
+                        isFirstDataSource
+                            ? dataSource.Value.Type.ToDefaultExpression()
+                            : value)
+                    : dataSource.Value;
+
+                value = dataSource.AddPreConditionIfNecessary(dataSourceValue);
             }
 
             return value;

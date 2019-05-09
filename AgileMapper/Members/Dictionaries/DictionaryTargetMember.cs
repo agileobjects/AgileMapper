@@ -362,7 +362,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             // entry and we're mapping from a source of type object, we switch from
             // mapping to flattened entries to mapping entire objects:
             return HasObjectEntries &&
-                   LeafMember.IsEnumerableElement() &&
+                   this.IsEnumerableElement() &&
                   (MemberChain[Depth - 2] == _rootDictionaryMember.LeafMember) &&
                   (sourceType == typeof(object));
         }
