@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using Extensions.Internal;
     using Members;
-    using ReadableExpressions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -17,25 +16,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public override bool IsFor(IObjectMappingData mappingData)
             => mappingData.MapperData.TargetMember.IsEnumerable;
 
-        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
+        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             var mapperData = mappingData.MapperData;
 
             if (HasCompatibleSourceMember(mapperData))
             {
-                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+                return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
             if (HasConfiguredToTargetDataSources(mapperData, out var configuredRootDataSources) &&
                 configuredRootDataSources.Any(ds => ds.SourceMember.IsEnumerable))
             {
-                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+                return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            nullMappingBlock = Expression.Block(
-                ReadableExpression.Comment("No source enumerable available"),
-                mapperData.GetFallbackCollectionValue());
-
+            reason = "No source enumerable available";
             return true;
         }
 
@@ -43,9 +39,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             return mapperData.SourceMember.IsEnumerable &&
                    mapperData.CanConvert(
-                       mapperData.SourceMember.GetElementMember().Type, 
+                       mapperData.SourceMember.GetElementMember().Type,
                        mapperData.TargetMember.GetElementMember().Type);
         }
+
+        protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
+            => mapperData.GetFallbackCollectionValue();
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {

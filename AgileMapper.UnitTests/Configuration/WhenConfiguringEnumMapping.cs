@@ -33,6 +33,25 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/138
+        [Fact]
+        public void ShouldPairRootEnumMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
+
+                var ukChequeResult = mapper.Map(PaymentTypeUk.Cheque).ToANew<PaymentTypeUs>();
+
+                ukChequeResult.ShouldBe(PaymentTypeUs.Check);
+
+                var usCheckResult = mapper.Map(PaymentTypeUs.Check).ToANew<PaymentTypeUk>();
+
+                usCheckResult.ShouldBe(PaymentTypeUk.Cheque);
+            }
+        }
+
         [Fact]
         public void ShouldAllowMultipleSourceToSingleTargetPairing()
         {
