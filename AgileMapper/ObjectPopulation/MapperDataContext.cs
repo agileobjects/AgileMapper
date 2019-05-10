@@ -3,6 +3,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class MapperDataContext
     {
@@ -41,7 +43,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool ShouldUseLocalVariable(IBasicMapperData mapperData)
         {
-            if (mapperData.TargetMember.IsSimple)
+            if (mapperData.TargetMember.IsSimple &&
+               !mapperData.TargetType.GetNonNullableType().IsEnum())
             {
                 return false;
             }

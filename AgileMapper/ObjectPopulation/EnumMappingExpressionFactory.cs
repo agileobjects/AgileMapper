@@ -39,9 +39,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
-            yield return context.MapperData.GetValueConversion(
-                context.MapperData.SourceObject,
-                context.MapperData.TargetType);
+            var mapperData = context.MapperData;
+            var enumMapping = mapperData.GetValueConversion(mapperData.SourceObject, mapperData.TargetType);
+
+            yield return context.MapperData.LocalVariable.AssignTo(enumMapping);
         }
     }
 }

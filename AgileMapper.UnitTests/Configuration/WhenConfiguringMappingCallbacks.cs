@@ -265,6 +265,28 @@
         }
 
         [Fact]
+        public void ShouldExecuteGlobalPreAndPostMappingCallbacksInARootNullableEnumMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var counter = 0;
+
+                mapper.Before
+                    .MappingBegins
+                    .Call(ctx => ++counter)
+                    .And
+                    .After
+                    .MappingEnds
+                    .Call(ctx => ++counter);
+
+                var result = mapper.Map("Mrs").ToANew<Title?>();
+
+                result.ShouldBe(Title.Mrs);
+                counter.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public void ShouldRestrictAPostMappingCallbackByTargetType()
         {
             using (var mapper = Mapper.CreateNew())
