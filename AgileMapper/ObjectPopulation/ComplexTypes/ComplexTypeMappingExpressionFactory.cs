@@ -9,7 +9,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
-    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
@@ -33,31 +32,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         public override bool IsFor(IObjectMappingData mappingData) => true;
 
-        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
+        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             if (mappingData.MapperData.TargetCouldBePopulated())
             {
                 // If a target complex type is readonly or unconstructable 
                 // we still try to map to it using an existing non-null value:
-                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+                return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
             if (mappingData.IsTargetConstructable())
             {
-                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+                return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
             var targetType = mappingData.MapperData.TargetType;
 
             if (targetType.IsAbstract() && DerivedTypesExistForTarget(mappingData))
             {
-                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+                return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            nullMappingBlock = Expression.Block(
-                ReadableExpression.Comment("Cannot construct an instance of " + targetType.GetFriendlyName()),
-                targetType.ToDefaultExpression());
-
+            reason = "Cannot construct an instance of " + targetType.GetFriendlyName();
             return true;
         }
 

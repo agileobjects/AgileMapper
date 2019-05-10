@@ -25,6 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mappingExpressionFactories = new[]
             {
                 QueryProjectionExpressionFactory.Instance,
+                EnumMappingExpressionFactory.Instance,
                 DictionaryMappingExpressionFactory.Instance,
                 EnumerableMappingExpressionFactory.Instance,
                 ComplexTypeMappingExpressionFactory.Instance

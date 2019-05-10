@@ -121,6 +121,14 @@
         }
 
         [Fact]
+        public void ShouldMapAMatchingStringOnToARootEnum()
+        {
+            var result = Mapper.Map(Mrs.ToString()).ToANew<Title>();
+
+            result.ShouldBe(Mrs);
+        }
+
+        [Fact]
         public void ShouldMapAMatchingNumericStringOverAnEnum()
         {
             var source = new PublicField<string> { Value = ((int)Dr).ToString() };
@@ -174,6 +182,14 @@
             var result = Mapper.Map(source).ToANew<PublicProperty<Title>>();
 
             result.Value.ShouldBe(Mrs);
+        }
+
+        [Fact]
+        public void ShouldMapAnEnumToARootEnum()
+        {
+            var result = Mapper.Map(TitleShortlist.Mrs).ToANew<Title>();
+
+            result.ShouldBe(Mrs);
         }
 
         [Fact]

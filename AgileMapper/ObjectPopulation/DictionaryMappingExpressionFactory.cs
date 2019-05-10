@@ -3,6 +3,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using ComplexTypes;
     using DataSources;
@@ -13,13 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Dictionaries;
     using Members.Population;
     using NetStandardPolyfills;
-    using ReadableExpressions;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
@@ -255,26 +254,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return dictionaryMember.HasObjectEntries && !mappingData.IsStandalone();
         }
 
-        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out Expression nullMappingBlock)
+        protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             if (mappingData.MappingTypes.SourceType.IsDictionary())
             {
-                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+                return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
             var targetMember = (DictionaryTargetMember)mappingData.MapperData.TargetMember;
 
             if ((targetMember.KeyType == typeof(string)) || (targetMember.KeyType == typeof(object)))
             {
-                return base.TargetCannotBeMapped(mappingData, out nullMappingBlock);
+                return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            nullMappingBlock = Expression.Block(
-                ReadableExpression.Comment("Only string- or object-keyed Dictionaries are supported"),
-                mappingData.MapperData.GetFallbackCollectionValue());
-
+            reason = "Only string- or object-keyed Dictionaries are supported";
             return true;
         }
+
+        protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
+            => mapperData.GetFallbackCollectionValue();
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
