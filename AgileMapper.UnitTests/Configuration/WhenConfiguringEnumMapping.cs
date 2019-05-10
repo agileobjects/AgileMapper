@@ -35,7 +35,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/138
         [Fact]
-        public void ShouldPairRootEnumMembers()
+        public void ShouldApplyEnumPairsToRootMappings()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -53,7 +53,7 @@
         }
 
         [Fact]
-        public void ShouldPairRootNullableEnumMembers()
+        public void ShouldApplyEnumPairsToNullableRootMappings()
         {
             using (var mapper = Mapper.CreateNew())
             {
