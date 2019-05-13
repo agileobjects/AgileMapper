@@ -24,6 +24,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public virtual Expression GetSourceValues() => Builder.MapperData.SourceObject;
 
         public virtual bool UseReadOnlyTargetWrapper =>
-            TargetTypeHelper.IsReadOnly && !SourceTypeHelper.IsEnumerableInterface;
+            TargetTypeHelper.IsReadOnly && !SourceTypeHelper.IsEnumerableOrQueryable;
     }
 }

@@ -386,7 +386,7 @@
                 typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
             }
 
-            if (typeHelper.IsEnumerableInterface)
+            if (typeHelper.IsEnumerableOrQueryable)
             {
                 return Expression.Field(null, typeof(Enumerable<>).MakeGenericType(elementType), "Empty");
             }

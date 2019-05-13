@@ -1,13 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using ObjectPopulation;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using ObjectPopulation;
 
     internal class QueryProjectionExpressionFactory : MappingExpressionFactoryBase
     {
@@ -18,7 +18,8 @@
             var mapperData = mappingData.MapperData;
 
             return mapperData.IsRoot &&
-                   mapperData.TargetMember.IsEnumerable &&
+                   mapperData.TargetMember.IsEnumerable && 
+                  (mappingData.MappingContext.RuleSet.Name == Constants.Project) &&
                    mapperData.SourceType.IsQueryable();
         }
 

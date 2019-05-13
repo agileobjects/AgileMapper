@@ -415,9 +415,9 @@
         {
             var nullTargetVariableType = GetNullTargetVariableType();
 
-            if (SourceTypeHelper.IsEnumerableInterface)
+            if (SourceTypeHelper.IsEnumerableOrQueryable)
             {
-                // Can't use a capacity constructor as unable to count source elements:
+                // Don't use a capacity constructor as source count not readily available:
                 return Expression.New(nullTargetVariableType);
             }
 

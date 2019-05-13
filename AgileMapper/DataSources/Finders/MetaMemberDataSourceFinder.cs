@@ -3,6 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -11,11 +16,6 @@
     using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
     using TypeConversion;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using static System.StringComparison;
 
     internal struct MetaMemberDataSourceFinder : IDataSourceFinder
@@ -310,8 +310,10 @@
                 Expression enumerable,
                 EnumerableTypeHelper helper)
             {
+                var enumerableType = helper.IsQueryableInterface ? typeof(Queryable) : typeof(Enumerable);
+
                 return Expression.Call(
-                    typeof(Enumerable)
+                    enumerableType
                         .GetPublicStaticMethod(methodName, parameterCount: 1)
                         .MakeGenericMethod(helper.ElementType),
                     enumerable);
@@ -357,26 +359,16 @@
 
             private Expression GetHasCheck(Expression queriedMemberAccess)
             {
-                if (QueriedMember.IsEnumerable)
-                {
-                    return GetHasEnumerableCheck(queriedMemberAccess);
-                }
-
-                var queriedMemberNotDefault = queriedMemberAccess.GetIsNotDefaultComparison();
-
-                if (QueriedMember.IsSimple)
-                {
-                    return queriedMemberNotDefault;
-                }
-
-                return queriedMemberNotDefault;
+                return QueriedMember.IsEnumerable
+                    ? GetHasEnumerableCheck(queriedMemberAccess)
+                    : queriedMemberAccess.GetIsNotDefaultComparison();
             }
 
             private static Expression GetHasEnumerableCheck(Expression enumerableAccess)
             {
                 var helper = new EnumerableTypeHelper(enumerableAccess.Type);
 
-                return helper.IsEnumerableInterface
+                return helper.IsEnumerableOrQueryable
                     ? GetLinqMethodCall(nameof(Enumerable.Any), enumerableAccess, helper)
                     : GetEnumerableCountCheck(enumerableAccess, helper);
             }
@@ -470,14 +462,12 @@
 
             private Expression GetOrderedEnumerableAccess(Expression enumerableAccess, EnumerableTypeHelper helper)
             {
-                var elementType = _sourceMember.Type;
-
-                if (!elementType.IsComplex())
+                if (!_sourceMember.Type.IsComplex())
                 {
                     return GetLinqMethodCall(LinqSelectionMethodName, enumerableAccess, helper);
                 }
 
-                var orderMember = MapperData.GetOrderMember(elementType);
+                var orderMember = MapperData.GetOrderMember(_sourceMember.Type);
 
                 if (orderMember == null)
                 {
@@ -559,7 +549,7 @@
             {
                 var helper = new EnumerableTypeHelper(enumerableAccess.Type);
 
-                var count = helper.IsEnumerableInterface
+                var count = helper.IsEnumerableOrQueryable
                     ? GetLinqMethodCall(nameof(Enumerable.Count), enumerableAccess, helper)
                     : helper.GetCountFor(enumerableAccess, MapperData.TargetMember.Type.GetNonNullableType());
 
