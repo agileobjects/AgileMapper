@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.EfCore2
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
     using Common;
     using Infrastructure;
@@ -47,6 +49,23 @@
                 }
 
                 mapper.RootMapperCountShouldBeOne();
+            });
+        }
+
+        [Fact]
+        public Task ShouldMapAQueryableAsAnEnumerable()
+        {
+            return RunTest(async (context, mapper) =>
+            {
+                await context.BoolItems.AddRangeAsync(new PublicBool { Value = true }, new PublicBool { Value = false });
+                await context.SaveChangesAsync();
+
+                var result = mapper
+                    .Map(context.BoolItems.Where(bi => bi.Value))
+                    .ToANew<List<PublicBoolDto>>();
+
+                result.ShouldNotBeNull();
+                result.ShouldHaveSingleItem().Value.ShouldBeTrue();
             });
         }
     }
