@@ -18,11 +18,9 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Support for mapping callbacks in .ToTarget() data sources
-- Fixing constructability check for .ToTarget() data sources re: #129
-- Fixing .ToTarget() calls with source Dictionaries, re: #133
-- Fixing complex type Dictionary merging
-- Performance improvements</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support for root enum mapping, re: #138
+- Improved detection of constructor-populated members, re: #139
+- Support for mapping (not projecting) queryables</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
