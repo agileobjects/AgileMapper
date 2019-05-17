@@ -4,6 +4,11 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using Configuration;
     using DataSources;
@@ -12,12 +17,8 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using static Member;
+    using static System.StringComparison;
 
     internal static class MemberMapperDataExtensions
     {
@@ -26,7 +27,10 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
         {
-            if (type == null)
+            if ((type == null) || 
+                 type.Name.EndsWith("ViewModel", Ordinal) ||
+                 type.Name.EndsWith("Dto", Ordinal) ||
+                 type.Name.EndsWith("DataTransferObject", Ordinal))
             {
                 idMember = null;
                 return false;
