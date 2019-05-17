@@ -131,7 +131,14 @@
         }
 
         public bool MapEntityKeys(IBasicMapperData basicData)
-            => _entityKeyMappingSettings?.FirstOrDefault(s => s.AppliesTo(basicData))?.MapKeys == true;
+        {
+            var applicableSetting = _entityKeyMappingSettings?
+                .FirstOrDefault(s => s.AppliesTo(basicData))?
+                .MapKeys;
+
+            return (applicableSetting == true) ||
+                   (basicData.RuleSet.Settings.AllowEntityKeyMapping && (applicableSetting != false));
+        }
 
         #endregion
 

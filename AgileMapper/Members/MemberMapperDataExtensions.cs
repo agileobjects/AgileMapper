@@ -210,8 +210,9 @@ namespace AgileObjects.AgileMapper.Members
 
             // If we're here:
             //   1. TargetMember is an Entity key
-            //   2. No configuration exists to allow Entity key Mapping
-            //   3. No configured data sources exist
+            //   2. The rule set doesn't allow entity key mapping
+            //   3. No configuration exists to allow Entity key Mapping
+            //   4. No configured data sources exist
 
             if (mapperData.RuleSet.Settings.AllowCloneEntityKeyMapping &&
                (mapperData.SourceType == mapperData.TargetType))

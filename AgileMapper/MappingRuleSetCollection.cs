@@ -38,6 +38,7 @@ namespace AgileObjects.AgileMapper
             {
                 UseMemberInitialisation = true,
                 UseSingleRootMappingExpression = true,
+                AllowEntityKeyMapping = true,
                 AllowCloneEntityKeyMapping = true,
                 GuardAccessTo = value => value.Type.IsComplex(),
                 ExpressionIsSupported = value => value.CanBeProjected(),
