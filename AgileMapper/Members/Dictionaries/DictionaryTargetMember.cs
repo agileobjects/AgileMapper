@@ -259,11 +259,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             }
 
             var keyedAccess = GetKeyedAccess(mapperData);
-
-            var convertedValue =
-                GetCheckedValueOrNull(value, keyedAccess, mapperData) ??
-                mapperData.GetValueConversion(value, ValueType);
-
+            var convertedValue = mapperData.GetValueConversion(value, ValueType);
             var keyedAssignment = keyedAccess.AssignTo(convertedValue);
 
             return keyedAssignment;
@@ -278,62 +274,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             flattening = null;
             return false;
-        }
-
-        private Expression GetCheckedValueOrNull(Expression value, Expression keyedAccess, IMemberMapperData mapperData)
-        {
-            if (HasSimpleEntries)
-            {
-                return null;
-            }
-
-            if ((value.NodeType != Block) && (value.NodeType != Try) || mapperData.TargetIsDefinitelyUnpopulated())
-            {
-                return mapperData.SourceMember.IsEnumerable ? value.GetConversionTo(ValueType) : null;
-            }
-
-            var checkedAccess = GetAccessChecked(mapperData);
-            var existingValue = checkedAccess.Variables.First();
-
-            if (value.NodeType == Try)
-            {
-                return GetCheckedTryCatch((TryExpression)value, keyedAccess, checkedAccess, existingValue);
-            }
-
-            var checkedValue = ((BlockExpression)value).Replace(keyedAccess, existingValue);
-
-            return checkedValue.Update(
-                checkedValue.Variables.Append(existingValue),
-                checkedValue.Expressions.Prepend(checkedAccess.Expressions.First()));
-        }
-
-        private static Expression GetCheckedTryCatch(
-            TryExpression tryCatchValue,
-            Expression keyedAccess,
-            Expression checkedAccess,
-            ParameterExpression existingValue)
-        {
-            var existingValueOrDefault = Expression.Condition(
-                checkedAccess,
-                existingValue,
-                existingValue.Type.ToDefaultExpression());
-
-            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValueOrDefault };
-
-            var updatedCatchHandlers = tryCatchValue
-                .Handlers
-                .ProjectToArray(handler => handler.Update(
-                    handler.Variable,
-                    handler.Filter.Replace(replacements),
-                    handler.Body.Replace(replacements)));
-
-            var updatedTryCatch = tryCatchValue.Update(
-                tryCatchValue.Body,
-                updatedCatchHandlers,
-                tryCatchValue.Finally,
-                tryCatchValue.Fault);
-
-            return Expression.Block(new[] { existingValue }, updatedTryCatch);
         }
 
         public DictionaryTargetMember WithTypeOf(Member sourceMember)
