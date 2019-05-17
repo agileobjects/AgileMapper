@@ -44,6 +44,8 @@ namespace AgileObjects.AgileMapper
 
         public bool CheckDerivedSourceTypes { get; set; }
 
+        public bool AllowEntityKeyMapping { get; set; }
+
         public bool AllowCloneEntityKeyMapping { get; set; }
 
         public Func<Expression, bool> GuardAccessTo { get; set; }
