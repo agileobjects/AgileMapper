@@ -238,23 +238,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return firstExpression;
             }
 
-            var isSingleExpression = mappingExpressions.HasOne();
-            var firstExpressionType = firstExpression.NodeType;
-
-            if (isSingleExpression && (firstExpressionType == Constant))
-            {
-                goto CreateFullMappingBlock;
-            }
-
             Expression returnExpression;
 
-            if (firstExpressionType != Block)
+            if (firstExpression.NodeType != Block)
             {
-                if (UseFirstExpression(firstExpression, isSingleExpression))
-                {
-                    return GetReturnExpression(firstExpression, context);
-                }
-
                 if (TryAdjustForUnusedLocalVariableIfApplicable(context, out returnExpression))
                 {
                     return returnExpression;
@@ -264,8 +251,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 return returnExpression;
             }
-
-        CreateFullMappingBlock:
 
             returnExpression = GetReturnExpression(GetReturnValue(context.MapperData), context);
 
@@ -292,19 +277,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 context.MappingExpressions.Clear();
                 context.MappingExpressions.AddRange(block.Expressions);
             }
-        }
-
-        private static bool UseFirstExpression(Expression firstExpression, bool isSingleExpression)
-        {
-            if (firstExpression.NodeType == MemberAccess)
-            {
-                return true;
-            }
-
-            return isSingleExpression &&
-                  (firstExpression.NodeType == Conditional) &&
-                  (firstExpression.Type != typeof(void));
-
         }
 
         private static bool TryAdjustForUnusedLocalVariableIfApplicable(MappingCreationContext context, out Expression returnExpression)
