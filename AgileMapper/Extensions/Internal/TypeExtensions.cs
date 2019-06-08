@@ -15,6 +15,9 @@
         private static readonly Assembly _systemCoreLib = typeof(Func<>).GetAssembly();
 #endif
 
+        public static string GetSourceValueVariableName(this Type sourceType)
+            => "source" + sourceType.GetVariableNameInPascalCase();
+
         public static string GetShortVariableName(this Type type)
         {
             var variableName = type.GetVariableNameInPascalCase();

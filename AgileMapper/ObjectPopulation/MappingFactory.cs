@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -214,7 +213,7 @@
 
             if (useLocalSourceValueVariable)
             {
-                var sourceValueVariableName = GetSourceValueVariableName(mapperData, mappingValues.SourceValue.Type);
+                var sourceValueVariableName = mappingValues.SourceValue.Type.GetSourceValueVariableName();
                 sourceValue = Expression.Variable(mappingValues.SourceValue.Type, sourceValueVariableName);
                 sourceValueVariableValue = mappingValues.SourceValue;
             }
@@ -250,24 +249,7 @@
                     SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
         }
 
-        private static string GetSourceValueVariableName(IMemberMapperData mapperData, Type sourceType = null)
-        {
-            var sourceValueVariableName = "source" + (sourceType ?? mapperData.SourceType).GetVariableNameInPascalCase();
 
-            var numericSuffix = default(string);
-
-            for (var i = mapperData.MappingDataObject.Name.Length - 1; i > 0; --i)
-            {
-                if (!char.IsDigit(mapperData.MappingDataObject.Name[i]))
-                {
-                    break;
-                }
-
-                numericSuffix = mapperData.MappingDataObject.Name[i] + numericSuffix;
-            }
-
-            return sourceValueVariableName + numericSuffix;
-        }
 
         public static Expression UseLocalSourceValueVariableIfAppropriate(
             Expression mappingExpression,
@@ -285,7 +267,7 @@
                 return mappingExpression;
             }
 
-            var sourceValueVariableName = GetSourceValueVariableName(mapperData);
+            var sourceValueVariableName = mapperData.SourceType.GetSourceValueVariableName();
             var sourceValueVariable = Expression.Variable(mapperData.SourceType, sourceValueVariableName);
 
             return UseLocalValueVariable(
