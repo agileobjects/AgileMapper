@@ -1,7 +1,9 @@
 namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
+    using System.Collections.Generic;
     using System.Dynamic;
+    using System.Linq;
     using Caching;
     using Extensions;
     using Extensions.Internal;
@@ -269,11 +271,68 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         {
             if (HasObjectEntries || HasSimpleEntries)
             {
-                return value.TryGetMappingBody(out flattening);
+                return TryGetMappingBody(value, out flattening);
             }
 
             flattening = null;
             return false;
+        }
+
+        private static bool TryGetMappingBody(Expression value, out Expression mapping)
+        {
+            if (value.NodeType == Try)
+            {
+                value = ((TryExpression)value).Body;
+            }
+
+            if ((value.NodeType != Block))
+            {
+                mapping = null;
+                return false;
+            }
+
+            var mappingBlock = (BlockExpression)value;
+
+            if (mappingBlock.Expressions.HasOne())
+            {
+                mapping = null;
+                return false;
+            }
+
+            var mappingExpressions = GetMappingExpressions(mappingBlock);
+
+            if (mappingExpressions.HasOne() &&
+               (mappingExpressions[0].NodeType == Block))
+            {
+                IList<ParameterExpression> mappingVariables = mappingBlock.Variables;
+                mappingBlock = (BlockExpression)mappingExpressions[0];
+                mappingVariables = mappingVariables.Append(mappingBlock.Variables);
+                mapping = mappingBlock.Update(mappingVariables, mappingBlock.Expressions);
+                return true;
+            }
+
+            mapping = mappingBlock.Variables.Any()
+                ? Expression.Block(mappingBlock.Variables, mappingExpressions)
+                : mappingExpressions.HasOne()
+                    ? mappingExpressions[0]
+                    : Expression.Block(mappingExpressions);
+
+            return true;
+        }
+
+        private static IList<Expression> GetMappingExpressions(Expression mapping)
+        {
+            var expressions = new List<Expression>();
+
+            while (mapping.NodeType == Block)
+            {
+                var mappingBlock = (BlockExpression)mapping;
+
+                expressions.AddRange(mappingBlock.Expressions.Take(mappingBlock.Expressions.Count - 1));
+                mapping = mappingBlock.Result;
+            }
+
+            return expressions;
         }
 
         public DictionaryTargetMember WithTypeOf(Member sourceMember)

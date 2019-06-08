@@ -320,14 +320,18 @@
         {
             var variableAssignment = variable.AssignTo(variableValue);
 
-            if (body.NodeType != ExpressionType.Try)
+            if (body.NodeType == ExpressionType.Block)
             {
                 if (performValueReplacement)
                 {
                     body = body.Replace(variableValue, variable);
                 }
 
-                return Expression.Block(new[] { variable }, variableAssignment, body);
+                var block = (BlockExpression)body;
+
+                return Expression.Block(
+                    block.Variables.Append(variable),
+                    block.Expressions.Prepend(variableAssignment));
             }
 
             var tryCatch = (TryExpression)body;
