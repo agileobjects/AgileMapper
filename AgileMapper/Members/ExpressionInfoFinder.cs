@@ -112,10 +112,18 @@ namespace AgileObjects.AgileMapper.Members
                         var arrayLength = Expression.ArrayLength(arrayIndexAccess.Left);
                         var indexValue = arrayIndexAccess.Right;
 
-                        return Expression.GreaterThanOrEqual(arrayLength, indexValue);
+                        return Expression.GreaterThan(arrayLength, indexValue);
 
                     case Index:
-                        var count = ((IndexExpression)access).Object.GetCount();
+                        var index = (IndexExpression)access;
+                        var indexKeyType = index.Indexer.GetGetter().GetParameters().First().ParameterType;
+
+                        if (!indexKeyType.IsWholeNumberNumeric())
+                        {
+                            goto default;
+                        }
+
+                        var count = index.Object.GetCount();
 
                         if (count == null)
                         {

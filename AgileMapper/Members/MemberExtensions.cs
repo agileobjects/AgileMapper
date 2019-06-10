@@ -5,6 +5,12 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using Configuration;
     using Extensions;
@@ -13,12 +19,7 @@
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
-#else
-    using System.Linq.Expressions;
-#endif
+    using ExpressionExtensions = Extensions.Internal.ExpressionExtensions;
     using static System.StringComparison;
     using static Constants;
     using static Member;
@@ -410,7 +411,7 @@
                 }
 
                 memberAccesses.Insert(0, memberExpression);
-                rootExpression = memberExpression.GetParentOrNull();
+                rootExpression = ExpressionExtensions.GetParentOrNull(memberExpression);
 
                 if (rootExpression == null)
                 {

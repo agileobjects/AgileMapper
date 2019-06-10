@@ -338,10 +338,44 @@
 
             result.Value.ShouldNotBeNull();
             result.Value.Line1.ShouldBe("1.2");
+
+            var nullArraySource = new PublicProperty<PublicField<Address>[]> { Value = null };
+            
+            var nullArrayResult = Mapper.Map(nullArraySource).ToANew<PublicProperty<Address>>(cfg => cfg
+                .Map(s => s.Value[1].Value, t => t.Value));
+
+            nullArrayResult.Value.ShouldBeNull();
+
+            var tooSmallArraySource = new PublicProperty<PublicField<Address>[]>
+            {
+                Value = new[]
+                {
+                    new PublicField<Address> { Value = new Address { Line1 = "1.1" } }
+                }
+            };
+            
+            var tooSmallArrayResult = Mapper.Map(tooSmallArraySource).ToANew<PublicProperty<Address>>(cfg => cfg
+                .Map(s => s.Value[1].Value, t => t.Value));
+
+            tooSmallArrayResult.Value.ShouldBeNull();
+
+            var nullArrayObjectSource = new PublicProperty<PublicField<Address>[]>
+            {
+                Value = new[]
+                {
+                    new PublicField<Address> { Value = new Address { Line1 = "1.1" } },
+                    new PublicField<Address> { Value = null }
+                }
+            };
+            
+            var nullArrayObjectResult = Mapper.Map(nullArrayObjectSource).ToANew<PublicProperty<Address>>(cfg => cfg
+                .Map(s => s.Value[1].Value, t => t.Value));
+
+            nullArrayObjectResult.Value.ShouldBeNull();
         }
 
         [Fact]
-        public void ShouldApplyAnInlineNullCheckedIndexDataSource()
+        public void ShouldApplyAnInlineNullCheckedIntKeyedIndexDataSource()
         {
             var source = new PublicProperty<PublicIndex<int, PublicField<Address>>>
             {
@@ -358,6 +392,34 @@
             var sourceValueIndex = MakeIndex(sourceValueProperty, sourceValueIndexer, new[] { Constant(1) });
 
             var sourceLambda = Lambda<Func<PublicProperty<PublicIndex<int, PublicField<Address>>>, Address>>(
+                Field(sourceValueIndex, "Value"),
+                sourceParameter);
+
+            var result = Mapper.Map(source).ToANew<PublicField<Address>>(cfg => cfg
+                .Map(sourceLambda, t => t.Value));
+
+            result.Value.ShouldNotBeNull();
+            result.Value.Line1.ShouldBe("1.2");
+        }
+
+        [Fact]
+        public void ShouldApplyAnInlineNullCheckedStringKeyedIndexDataSource()
+        {
+            var source = new PublicProperty<PublicIndex<string, PublicField<Address>>>
+            {
+                Value = new PublicIndex<string, PublicField<Address>>
+                {
+                    ["A"] = new PublicField<Address> { Value = new Address { Line1 = "1.1" } },
+                    ["B"] = new PublicField<Address> { Value = new Address { Line1 = "1.2" } }
+                }
+            };
+
+            var sourceParameter = Parameter(source.GetType(), "s");
+            var sourceValueProperty = Property(sourceParameter, "Value");
+            var sourceValueIndexer = sourceValueProperty.Type.GetPublicInstanceProperty("Item");
+            var sourceValueIndex = MakeIndex(sourceValueProperty, sourceValueIndexer, new[] { Constant("B") });
+
+            var sourceLambda = Lambda<Func<PublicProperty<PublicIndex<string, PublicField<Address>>>, Address>>(
                 Field(sourceValueIndex, "Value"),
                 sourceParameter);
 
