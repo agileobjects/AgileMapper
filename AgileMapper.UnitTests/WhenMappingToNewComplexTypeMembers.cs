@@ -363,7 +363,7 @@
             result.Value2.Count.ShouldBe(2);
             result.Value2.First().ShouldBeOfType<PublicProperty<string>>();
             ((PublicProperty<string>)result.Value2.First()).Value.ShouldBe("ikjhfeslkjdw");
-            
+
             result.Value2.Second().ShouldBeOfType<PublicField<string>>();
             ((PublicField<string>)result.Value2.Second()).Value.ShouldBe("ldkjkdhusdiuoji");
         }

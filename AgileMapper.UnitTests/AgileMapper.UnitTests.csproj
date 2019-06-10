@@ -220,6 +220,7 @@
     <Compile Include="TestClasses\PaymentTypeUs.cs" />
     <Compile Include="TestClasses\PublicCtorStruct.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
+    <Compile Include="TestClasses\PublicIndex.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicPropertyStruct.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />

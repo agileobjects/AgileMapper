@@ -105,23 +105,28 @@ namespace AgileObjects.AgileMapper.Members
 
             private static Expression GetAccessCheck(Expression access)
             {
-                Expression count;
-
                 switch (access.NodeType)
                 {
                     case ArrayIndex:
-                        count = Expression.ArrayLength(((BinaryExpression)access).Left);
-                        break;
+                        var arrayIndexAccess = (BinaryExpression)access;
+                        var arrayLength = Expression.ArrayLength(arrayIndexAccess.Left);
+                        var indexValue = arrayIndexAccess.Right;
+
+                        return Expression.GreaterThanOrEqual(arrayLength, indexValue);
 
                     case Index:
-                        count = ((IndexExpression)access).Object.GetCount();
-                        break;
+                        var count = ((IndexExpression)access).Object.GetCount();
+
+                        if (count == null)
+                        {
+                            goto default;
+                        }
+
+                        return Expression.GreaterThan(count, ToNumericConverter<int>.Zero);
 
                     default:
                         return access.GetIsNotDefaultComparison();
                 }
-
-                return Expression.GreaterThan(count, ToNumericConverter<int>.Zero);
             }
 
             protected override Expression VisitBinary(BinaryExpression binary)

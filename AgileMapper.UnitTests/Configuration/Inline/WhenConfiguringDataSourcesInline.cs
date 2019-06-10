@@ -1,15 +1,19 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq.Expressions;
     using AgileMapper.Extensions;
     using AgileMapper.Members;
     using Common;
+    using NetStandardPolyfills;
     using TestClasses;
 #if !NET35
     using Xunit;
+    using static System.Linq.Expressions.Expression;
 #else
     using Fact = NUnit.Framework.TestAttribute;
+    using static Microsoft.Scripting.Ast.Expression;
 
     [NUnit.Framework.TestFixture]
 #endif
@@ -315,6 +319,53 @@
                 result1.Value.ShouldBe(source1.Value + 1);
                 result2.Value.ShouldBe(source2.Value + 1);
             }
+        }
+
+        [Fact]
+        public void ShouldApplyAnInlineNullCheckedArrayIndexDataSource()
+        {
+            var source = new PublicProperty<PublicField<Address>[]>
+            {
+                Value = new[]
+                {
+                    new PublicField<Address> { Value = new Address { Line1 = "1.1" } },
+                    new PublicField<Address> { Value = new Address { Line1 = "1.2" } }
+                }
+            };
+
+            var result = Mapper.Map(source).ToANew<PublicProperty<Address>>(cfg => cfg
+                .Map(s => s.Value[1].Value, t => t.Value));
+
+            result.Value.ShouldNotBeNull();
+            result.Value.Line1.ShouldBe("1.2");
+        }
+
+        [Fact]
+        public void ShouldApplyAnInlineNullCheckedIndexDataSource()
+        {
+            var source = new PublicProperty<PublicIndex<int, PublicField<Address>>>
+            {
+                Value = new PublicIndex<int, PublicField<Address>>
+                {
+                    [0] = new PublicField<Address> { Value = new Address { Line1 = "1.1" } },
+                    [1] = new PublicField<Address> { Value = new Address { Line1 = "1.2" } }
+                }
+            };
+
+            var sourceParameter = Parameter(source.GetType(), "s");
+            var sourceValueProperty = Property(sourceParameter, "Value");
+            var sourceValueIndexer = sourceValueProperty.Type.GetPublicInstanceProperty("Item");
+            var sourceValueIndex = MakeIndex(sourceValueProperty, sourceValueIndexer, new[] { Constant(1) });
+
+            var sourceLambda = Lambda<Func<PublicProperty<PublicIndex<int, PublicField<Address>>>, Address>>(
+                Field(sourceValueIndex, "Value"),
+                sourceParameter);
+
+            var result = Mapper.Map(source).ToANew<PublicField<Address>>(cfg => cfg
+                .Map(sourceLambda, t => t.Value));
+
+            result.Value.ShouldNotBeNull();
+            result.Value.Line1.ShouldBe("1.2");
         }
 
         [Fact]

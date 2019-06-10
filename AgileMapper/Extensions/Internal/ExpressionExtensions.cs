@@ -198,11 +198,16 @@
                 ? nameof(Enumerable.LongCount)
                 : nameof(Enumerable.Count);
 
-            return Expression.Call(
-                typeof(Enumerable)
-                    .GetPublicStaticMethod(linqCountMethodName, parameterCount: 1)
-                    .MakeGenericMethod(collectionAccess.Type.GetEnumerableElementType()),
-                collectionAccess);
+            var linqCountMethod = typeof(Enumerable)
+                .GetPublicStaticMethod(linqCountMethodName, parameterCount: 1)
+                .MakeGenericMethod(collectionAccess.Type.GetEnumerableElementType());
+
+            if (collectionAccess.Type.IsAssignableTo(linqCountMethod.GetParameters().First().ParameterType))
+            {
+                return Expression.Call(linqCountMethod, collectionAccess);
+            }
+
+            return null;
         }
 
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
