@@ -13,7 +13,7 @@
 
         public TValue this[TIndex index]
         {
-            get => _data[index];
+            get => _data.TryGetValue(index, out var value) ? value : default(TValue);
             set => _data[index] = value;
         }
     }

@@ -449,12 +449,17 @@
                 return parent;
             }
 
-            if (expression.NodeType == ArrayIndex)
+            switch (expression.NodeType)
             {
-                return ((BinaryExpression)expression).Left;
-            }
+                case ArrayIndex:
+                    return ((BinaryExpression)expression).Left;
 
-            return null;
+                case Index:
+                    return ((IndexExpression)expression).Object;
+
+                default:
+                    return null;
+            }
         }
 
         public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)

@@ -7,7 +7,6 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
-    using TypeConversion;
 #if NET35
     using Microsoft.Scripting.Ast;
     using static Microsoft.Scripting.Ast.ExpressionType;
@@ -118,7 +117,7 @@ namespace AgileObjects.AgileMapper.Members
                         var index = (IndexExpression)access;
                         var indexKeyType = index.Indexer.GetGetter().GetParameters().First().ParameterType;
 
-                        if (!indexKeyType.IsWholeNumberNumeric())
+                        if (!indexKeyType.IsNumeric())
                         {
                             goto default;
                         }
@@ -130,7 +129,7 @@ namespace AgileObjects.AgileMapper.Members
                             goto default;
                         }
 
-                        return Expression.GreaterThan(count, ToNumericConverter<int>.Zero);
+                        return Expression.GreaterThan(count, index.Arguments.First().GetConversionTo(count.Type));
 
                     default:
                         return access.GetIsNotDefaultComparison();
