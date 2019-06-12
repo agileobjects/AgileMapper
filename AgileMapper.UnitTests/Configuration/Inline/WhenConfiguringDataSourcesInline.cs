@@ -399,7 +399,7 @@
                     Field(sourceValueIndex, "Value"),
                     sourceParameter);
 
-                var result = Mapper.Map(source).ToANew<PublicField<Address>>(cfg => cfg
+                var result = mapper.Map(source).ToANew<PublicField<Address>>(cfg => cfg
                     .Map(sourceLambda, t => t.Value));
 
                 result.Value.ShouldNotBeNull();
