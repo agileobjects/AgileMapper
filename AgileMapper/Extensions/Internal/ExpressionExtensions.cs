@@ -424,7 +424,7 @@
 
         public static bool IsRootedIn(this Expression expression, Expression possibleParent)
         {
-            var parent = GetParentOrNull(expression);
+            var parent = expression.GetParentOrNull();
 
             while (parent != null)
             {
@@ -433,33 +433,10 @@
                     return true;
                 }
 
-                parent = GetParentOrNull(parent);
+                parent = parent.GetParentOrNull();
             }
 
             return false;
-        }
-
-        public static Expression GetParentOrNull(this Expression expression)
-        {
-            // TODO: Update ReadableExpressions
-            var parent = PublicExpressionExtensions.GetParentOrNull(expression);
-
-            if (parent != null)
-            {
-                return parent;
-            }
-
-            switch (expression.NodeType)
-            {
-                case ArrayIndex:
-                    return ((BinaryExpression)expression).Left;
-
-                case Index:
-                    return ((IndexExpression)expression).Object;
-
-                default:
-                    return null;
-            }
         }
 
         public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)

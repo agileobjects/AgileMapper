@@ -5,14 +5,13 @@
     using AgileMapper.Extensions;
     using AgileMapper.Members;
     using Common;
-    using NetStandardPolyfills;
     using TestClasses;
 #if !NET35
+    using NetStandardPolyfills;
     using Xunit;
     using static System.Linq.Expressions.Expression;
 #else
     using Fact = NUnit.Framework.TestAttribute;
-    using static Microsoft.Scripting.Ast.Expression;
 
     [NUnit.Framework.TestFixture]
 #endif
@@ -375,7 +374,9 @@
                 nullArrayObjectResult.Value.ShouldBeNull();
             }
         }
-
+        
+#if !NET35
+        // System.Linq.Expressions.Expression.MakeIndex() is missing in .NET 3.5, so not much danger of this configuration:
         [Fact]
         public void ShouldApplyAnInlineNullCheckedIntKeyedIndexDataSource()
         {
@@ -505,7 +506,7 @@
                 nullIndexedObjectResult.Value.ShouldBeNull();
             }
         }
-
+#endif
         [Fact]
         public void ShouldHandleANullSourceMember()
         {

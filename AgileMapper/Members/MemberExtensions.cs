@@ -19,7 +19,6 @@
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
-    using ExpressionExtensions = Extensions.Internal.ExpressionExtensions;
     using static System.StringComparison;
     using static Constants;
     using static Member;
@@ -411,7 +410,7 @@
                 }
 
                 memberAccesses.Insert(0, memberExpression);
-                rootExpression = ExpressionExtensions.GetParentOrNull(memberExpression);
+                rootExpression = memberExpression.GetParentOrNull();
 
                 if (rootExpression == null)
                 {
