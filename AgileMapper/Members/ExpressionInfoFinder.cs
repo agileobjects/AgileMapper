@@ -184,7 +184,7 @@ namespace AgileObjects.AgileMapper.Members
 
             protected override Expression VisitMember(MemberExpression memberAccess)
             {
-                if (IsRootObject(memberAccess))
+                if ((memberAccess.Expression == null) || IsRootObject(memberAccess))
                 {
                     return base.VisitMember(memberAccess);
                 }
@@ -200,33 +200,34 @@ namespace AgileObjects.AgileMapper.Members
                 return base.VisitMember(memberAccess);
             }
 
-            private bool IsRootObject(MemberExpression memberAccess) => !IsNotRootObject(memberAccess);
+            private bool IsNotRootObject(MemberExpression memberAccess) => !IsRootObject(memberAccess);
 
-            private bool IsNotRootObject(MemberExpression memberAccess)
+            private bool IsRootObject(MemberExpression memberAccess)
             {
                 if (memberAccess.Member.Name == nameof(IMappingData.Parent))
                 {
                     // ReSharper disable once PossibleNullReferenceException
-                    return !memberAccess.Member.DeclaringType.Name
+                    return memberAccess.Member.DeclaringType.Name
                         .StartsWith(nameof(IMappingData), StringComparison.Ordinal);
                 }
 
                 if (memberAccess.Expression != _mappingDataObject)
                 {
-                    return true;
-                }
-
-                if (memberAccess.Member.Name == nameof(IMappingData<int, int>.EnumerableIndex))
-                {
                     return false;
                 }
 
-                if (memberAccess.Member.Name == RootSourceMemberName)
+                switch (memberAccess.Member.Name)
                 {
-                    return false;
-                }
+                    case nameof(IMappingData<int, int>.EnumerableIndex):
+                    case RootSourceMemberName:
+                        return true;
 
-                return _includeTargetNullChecking || (memberAccess.Member.Name != RootTargetMemberName);
+                    case RootTargetMemberName:
+                        return _includeTargetNullChecking;
+
+                    default:
+                        return false;
+                }
             }
 
             protected override Expression VisitIndex(IndexExpression indexAccess)
@@ -329,8 +330,7 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                return (expression.NodeType != MemberAccess) ||
-                       IsNotRootObject(memberAccess);
+                return (expression.NodeType != MemberAccess) || IsNotRootObject(memberAccess);
             }
 
             protected override Expression VisitInvocation(InvocationExpression invocation)

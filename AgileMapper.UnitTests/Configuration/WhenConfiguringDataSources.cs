@@ -1465,6 +1465,30 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/145
+        [Fact]
+        public void ShouldHandleNullToTargetDataSourceNestedMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue145.DataSource>().To<Issue145.DataTarget>()
+                    .Map((srcData, tgtData) => srcData.cont).ToTarget();
+
+                var source = new Issue145.DataSource
+                {
+                    cont = new Issue145.DataSourceContainer()
+                };
+
+                var result = mapper.Map(source).ToANew<Issue145.DataTarget>();
+
+                result.ShouldNotBeNull();
+                result.ids.ShouldBeNull();
+                result.res.ShouldBeNull();
+                result.oth.ShouldBeNull();
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/125
         [Fact]
         public void ShouldHandleDeepNestedRuntimeTypedMembersWithACachedMappingPlan()
@@ -1718,5 +1742,57 @@
         // ReSharper restore AutoPropertyCanBeMadeGetOnly.Local
         // ReSharper restore MemberCanBePrivate.Local
         // ReSharper restore CollectionNeverQueried.Local
+
+        internal static class Issue145
+        {
+            public class IdsSource
+            {
+                public string Ids { get; set; }
+            }
+
+            public class ResultSource
+            {
+                public string Result { get; set; }
+            }
+
+            public class OtherDataSource
+            {
+                public string COD { get; set; }
+            }
+
+            public class DataSourceContainer
+            {
+                public IdsSource ids;
+                public ResultSource res;
+                public OtherDataSource oth;
+            }
+
+            public class DataSource
+            {
+                public DataSourceContainer cont;
+            }
+
+            public class IdsTarget
+            {
+                public string Ids { get; set; }
+            }
+
+            public class ResultTarget
+            {
+                public string Result { get; set; }
+            }
+
+            public class OtherDataTarget
+            {
+                public string COD { get; set; }
+            }
+
+            public class DataTarget
+            {
+                public IdsTarget ids;
+                public ResultTarget res;
+                public OtherDataTarget oth;
+            }
+        }
     }
 }

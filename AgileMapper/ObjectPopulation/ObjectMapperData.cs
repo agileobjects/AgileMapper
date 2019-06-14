@@ -29,6 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly MethodInfo _mapRepeatedElementMethod =
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 3);
 
+        private ExpressionInfoFinder _expressionInfoFinder;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
@@ -77,8 +78,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 EnumerableIndex = GetMappingDataProperty(mappingDataType, nameof(EnumerableIndex));
                 ParentObject = GetMappingDataProperty(nameof(Parent));
             }
-
-            ExpressionInfoFinder = new ExpressionInfoFinder(MappingDataObject);
 
             DataSourcesByTargetMember = new Dictionary<QualifiedMember, DataSourceSet>();
 
@@ -492,7 +491,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ?? Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
         }
 
-        public ExpressionInfoFinder ExpressionInfoFinder { get; }
+        public ExpressionInfoFinder ExpressionInfoFinder
+            => _expressionInfoFinder ?? (_expressionInfoFinder = GetExpressionInfoFinder());
+
+        private ExpressionInfoFinder GetExpressionInfoFinder()
+        {
+            return new ExpressionInfoFinder(Context.IsForToTargetMapping 
+                ? OriginalMapperData.MappingDataObject
+                : MappingDataObject);
+        }
 
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
