@@ -1161,6 +1161,29 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/146
+        [Fact]
+        public void ShouldApplyAConfiguredSourceInterfaceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue146.Source.Container>().To<Issue146.Target.Cont>()
+                    .Map(ctx => ctx.Source.Empty).To(tgt => tgt.Info);
+
+                var source = new Issue146.Source.Container("12321") { Name = "input" };
+                var result = mapper.Map(source).ToANew<Issue146.Target.Cont>();
+
+                result.ShouldNotBeNull();
+                result.Name.ShouldBe("input");
+                result.Info.ShouldNotBeNull();
+                result.Info.Id.ShouldBe("12321");
+                
+                // Source has a .Value member, but we don't runtime-type interfaces
+                result.Info.Value.ShouldBeNull();
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
         public void ShouldApplyAConfiguredRootSource()
@@ -1792,6 +1815,55 @@
                 public IdsTarget ids;
                 public ResultTarget res;
                 public OtherDataTarget oth;
+            }
+        }
+
+        internal static class Issue146
+        {
+            public static class Source
+            {
+                public interface IData
+                {
+                    string Id { get; set; }
+                }
+
+                public interface IEmpty : IData { }
+
+                public class Data : IEmpty
+                {
+                    public string Id { get; set; }
+
+                    public string Value => "Data.Value!";
+                }
+
+                public class Container
+                {
+                    public Container(string infoId)
+                    {
+                        Empty = new Data { Id = infoId };
+                    }
+
+                    public string Name { get; set; }
+
+                    public IEmpty Empty { get; }
+                }
+            }
+
+            public static class Target
+            {
+                public class Data
+                {
+                    public string Id { get; set; }
+
+                    public string Value { get; set; }
+                }
+
+                public class Cont
+                {
+                    public Data Info { get; set; }
+
+                    public string Name { get; set; }
+                }
             }
         }
     }
