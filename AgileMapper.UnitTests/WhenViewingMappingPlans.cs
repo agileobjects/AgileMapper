@@ -327,6 +327,17 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/146
+        [Fact]
+        public void ShouldUseBaseInterfaceTypeSourceMembersWithoutRuntimeTyping()
+        {
+            string plan = Mapper
+                .GetPlanFor<Issue146.Source.Container>()
+                .ToANew<Issue146.Target.Cont>();
+
+            plan.ShouldContain("data.Id = cToCData.Source.Info.Id;");
+        }
+
         [Fact]
         public void ShouldShowEnumMismatches()
         {
@@ -408,5 +419,56 @@
                 mapper.RootMapperCountShouldBe(5);
             }
         }
+
+        #region Helper Classes
+
+        internal static class Issue146
+        {
+            public static class Source
+            {
+                public interface IData
+                {
+                    string Id { get; set; }
+                }
+
+                public interface IEmpty : IData { }
+
+                public class Data : IEmpty
+                {
+                    public string Id { get; set; }
+                }
+
+                public class Container
+                {
+                    public Container(string infoId)
+                    {
+                        Info = new Data { Id = infoId };
+                    }
+
+                    public string Name { get; set; }
+
+                    public IEmpty Info { get; }
+                }
+            }
+
+            public static class Target
+            {
+                public class Data
+                {
+                    public string Id { get; set; }
+
+                    public string Value { get; set; }
+                }
+
+                public class Cont
+                {
+                    public Data Info { get; set; }
+
+                    public string Name { get; set; }
+                }
+            }
+        }
+
+        #endregion
     }
 }

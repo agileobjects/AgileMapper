@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -33,7 +34,31 @@
                 var properties = GetProperties(key.Type, OnlyGettable);
                 var methods = GetMethods(key.Type, OnlyRelevantCallable, Member.GetMethod);
 
-                return GetMembers(fields, properties, methods);
+                var members = new[] { fields, properties, methods };
+
+                if (!key.Type.IsInterface())
+                {
+                    return GetMembers(members);
+                }
+
+                var interfaceTypes = key.Type.GetAllInterfaces();
+
+                if (interfaceTypes.Length == 0)
+                {
+                    return GetMembers(members);
+                }
+
+                var interfaceCount = interfaceTypes.Length;
+                
+                var allMembers = new IEnumerable<Member>[3 + interfaceCount];
+                allMembers.CopyFrom(members);
+
+                for (var i = 0; i < interfaceCount; ++i)
+                {
+                    allMembers[i + 3] = GetSourceMembers(interfaceTypes[i]);
+                }
+                
+                return GetMembers(allMembers);
             });
         }
 
@@ -132,12 +157,6 @@
         #endregion
 
         private static IList<Member> GetMembers(params IEnumerable<Member>[] members)
-        {
-            var allMembers = members
-                .SelectMany(m => m)
-                .ToArray();
-
-            return allMembers;
-        }
+            => members.SelectMany(m => m).ToArray();
     }
 }

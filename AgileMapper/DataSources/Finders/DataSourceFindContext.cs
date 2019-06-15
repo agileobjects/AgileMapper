@@ -47,13 +47,11 @@
         public IDataSource GetFallbackDataSource()
             => ChildMappingData.RuleSet.FallbackDataSourceFactory.Create(MapperData);
 
-        public IDataSource GetFinalDataSource(IDataSource foundDataSource, IChildMemberMappingData mappingData = null)
+        public IDataSource GetFinalDataSource(IDataSource foundDataSource)
+            => GetFinalDataSource(foundDataSource, ChildMappingData);
+        
+        public IDataSource GetFinalDataSource(IDataSource foundDataSource, IChildMemberMappingData mappingData)
         {
-            if (mappingData == null)
-            {
-                mappingData = ChildMappingData;
-            }
-
             var childTargetMember = mappingData.MapperData.TargetMember;
 
             if (UseComplexTypeDataSource(foundDataSource, childTargetMember))
