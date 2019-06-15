@@ -33,7 +33,7 @@
                 var properties = GetProperties(key.Type, OnlyGettable);
                 var methods = GetMethods(key.Type, OnlyRelevantCallable, Member.GetMethod);
 
-                return GetMembers(fields, properties, methods);
+                return GetAllMembers(key.Type, GetSourceMembers, fields, properties, methods);
             });
         }
 
@@ -65,7 +65,7 @@
                     })
                     .ToArray();
 
-                return GetMembers(fieldsAndProperties, methods);
+                return GetAllMembers(key.Type, GetTargetMembers, fieldsAndProperties, methods);
             });
         }
 
@@ -131,13 +131,38 @@
 
         #endregion
 
-        private static IList<Member> GetMembers(params IEnumerable<Member>[] members)
+        private static IList<Member> GetAllMembers(
+            Type memberType,
+            Func<Type, IList<Member>> membersFactory,
+            params IEnumerable<Member>[] members)
         {
-            var allMembers = members
-                .SelectMany(m => m)
-                .ToArray();
+            if (!memberType.IsInterface())
+            {
+                return GetMembers(members);
+            }
 
-            return allMembers;
+            var interfaceTypes = memberType.GetAllInterfaces();
+
+            if (interfaceTypes.Length == 0)
+            {
+                return GetMembers(members);
+            }
+
+            var membersCount = members.Length;
+            var interfaceCount = interfaceTypes.Length;
+
+            var allMembers = new IEnumerable<Member>[membersCount + interfaceCount];
+            allMembers.CopyFrom(members);
+
+            for (var i = 0; i < interfaceCount; ++i)
+            {
+                allMembers[i + membersCount] = membersFactory.Invoke(interfaceTypes[i]);
+            }
+
+            return GetMembers(allMembers);
         }
+
+        private static IList<Member> GetMembers(params IEnumerable<Member>[] members)
+            => members.SelectMany(m => m).ToArray();
     }
 }
