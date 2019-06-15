@@ -125,13 +125,12 @@
         }
 
         [Fact]
-        public void ShouldErrorIfObjectTrackingDisabledTwice()
+        public void ShouldErrorIfDuplicateObjectTrackingDisabled()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .To<Person>()
+                    .From<PersonViewModel>().To<Person>()
                     .DisableObjectTracking();
 
                 var configEx = Should.Throw<MappingConfigurationException>(() =>
@@ -144,6 +143,28 @@
 
                 configEx.Message.ShouldContain("Object tracking is already disabled");
                 configEx.Message.ShouldContain("PersonViewModel -> Person");
+            }
+        }
+
+        [Fact]
+        public void ShouldErrorIfRedundantObjectTrackingDisabled()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .To<Person>()
+                    .DisableObjectTracking();
+
+                var configEx = Should.Throw<MappingConfigurationException>(() =>
+                {
+                    mapper.WhenMapping
+                        .From<PersonViewModel>()
+                        .To<Person>()
+                        .DisableObjectTracking();
+                });
+
+                configEx.Message.ShouldContain("Object tracking is already disabled");
+                configEx.Message.ShouldContain("to Person");
             }
         }
     }

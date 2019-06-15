@@ -79,6 +79,7 @@
             var providers = providerObject
                 .Type
                 .GetPublicInstanceMethods()
+                .Filter(method => Array.IndexOf(_serviceProviderMethodNames, method.Name) != -1)
                 .Project(method => GetServiceProviderOrNull(
                     method,
                     providerObject,
@@ -108,11 +109,6 @@
             ref bool unnamedServiceProviderFound,
             ref bool namedServiceProviderFound)
         {
-            if (Array.IndexOf(_serviceProviderMethodNames, method.Name) == -1)
-            {
-                return null;
-            }
-
             var parameters = method.GetParameters();
 
             if (parameters.None() || (parameters[0].ParameterType != typeof(Type)))

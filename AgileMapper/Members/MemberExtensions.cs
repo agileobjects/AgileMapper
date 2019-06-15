@@ -77,13 +77,6 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
-            if (member.Depth < 2)
-            {
-                // Either the root member, QualifiedMember.All or QualifiedMember.None:
-                reason = null;
-                return false;
-            }
-
             if (IsStructNonSimpleMember(member))
             {
                 reason = member.Type.GetFriendlyName() + " member on a struct";

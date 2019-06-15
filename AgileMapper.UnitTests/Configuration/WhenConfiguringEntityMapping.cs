@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using AgileMapper.Configuration;
     using Common;
     using TestClasses;
@@ -68,6 +69,43 @@
                 nonMatchingSourceResult.Id.ShouldBe(987);
 
                 var nonMatchingTargetResult = mapper.Map(source).ToANew<CategoryEntity>();
+
+                nonMatchingTargetResult.Id.ShouldBe(999);
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreEntityKeysForSpecificSourceAndTargetTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var sourceId = new { Id = 999 };
+                var sourceIdAndDate = new { Id = 999, DateCreated = DateTime.Now };
+
+                mapper.WhenMapping.MapEntityKeys();
+
+                mapper.WhenMapping
+                    .From(sourceId).To<OrderEntity>()
+                    .IgnoreEntityKeys();
+
+                mapper.WhenMapping
+                    .From(sourceIdAndDate).To<OrderEntity>()
+                    .IgnoreEntityKeys();
+
+                var sourceIdResult = mapper.Map(sourceId).ToANew<OrderEntity>();
+
+                sourceIdResult.Id.ShouldBeDefault();
+
+                var sourceIdAndDateResult = mapper.Map(sourceIdAndDate).ToANew<OrderEntity>();
+
+                sourceIdAndDateResult.Id.ShouldBeDefault();
+                sourceIdAndDateResult.DateCreated.ShouldBe(sourceIdAndDate.DateCreated);
+
+                var nonMatchingSourceResult = mapper.Map(new { Id = 987, Name = "Fred" }).ToANew<CategoryEntity>();
+
+                nonMatchingSourceResult.Id.ShouldBe(987);
+
+                var nonMatchingTargetResult = mapper.Map(sourceId).ToANew<CategoryEntity>();
 
                 nonMatchingTargetResult.Id.ShouldBe(999);
             }

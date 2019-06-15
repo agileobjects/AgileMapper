@@ -73,6 +73,27 @@
         }
 
         [Fact]
+        public void ShouldErrorIfMappingScopeRedundantDerivedMappingScopeOptInConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Product>().To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+                    
+                    mapper.WhenMapping
+                        .From<MegaProduct>().To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+                }
+            });
+
+            configEx.Message.ShouldContain("already enabled");
+            configEx.Message.ShouldContain("Product -> PublicProperty<Guid>");
+        }
+
+        [Fact]
         public void ShouldErrorIfGlobalScopeRedundantMappingScopeOptOutConfigured()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
