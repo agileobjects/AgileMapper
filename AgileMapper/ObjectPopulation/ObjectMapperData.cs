@@ -29,7 +29,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly MethodInfo _mapRepeatedElementMethod =
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 3);
 
-        private readonly List<ObjectMapperData> _childMapperDatas;
         private ExpressionInfoFinder _expressionInfoFinder;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
@@ -56,7 +55,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             MapperContext = mappingData.MappingContext.MapperContext;
             DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
-            _childMapperDatas = new List<ObjectMapperData>();
+            ChildMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
             MappingDataObject = GetMappingDataObject(parent);
@@ -98,7 +97,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            parent._childMapperDatas.Add(this);
+            parent.ChildMapperDatas.Add(this);
             Parent = parent;
 
             if (!this.TargetMemberIsEnumerableElement())
@@ -340,13 +339,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             // do a runtime-typed child mapping, we're able to reuse the parent MapperData 
             // by finding it from the entry point:
             var parentMapperData = mappingData.Parent.MapperData;
-
-            if (parentMapperData.ChildMapperDatas.None())
-            {
-                existingMapperData = null;
-                return false;
-            }
-
             var membersSource = mappingData.MapperKey.GetMembersSource(parentMapperData);
 
             if (!(membersSource is IChildMembersSource childMembersSource))
@@ -402,7 +394,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData OriginalMapperData { get; set; }
 
-        public IList<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
+        public IList<ObjectMapperData> ChildMapperDatas { get; }
 
         public int DataSourceIndex { get; set; }
 

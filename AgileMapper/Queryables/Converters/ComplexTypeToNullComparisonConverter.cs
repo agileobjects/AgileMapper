@@ -2,15 +2,15 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal static class ComplexTypeToNullComparisonConverter
     {

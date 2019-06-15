@@ -5,6 +5,12 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using Configuration;
     using Extensions;
@@ -13,12 +19,6 @@
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
-#else
-    using System.Linq.Expressions;
-#endif
     using static System.StringComparison;
     using static Constants;
     using static Member;
@@ -77,13 +77,6 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
-            if (member.Depth < 2)
-            {
-                // Either the root member, QualifiedMember.All or QualifiedMember.None:
-                reason = null;
-                return false;
-            }
-
             if (IsStructNonSimpleMember(member))
             {
                 reason = member.Type.GetFriendlyName() + " member on a struct";

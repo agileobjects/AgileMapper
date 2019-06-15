@@ -595,20 +595,37 @@
 
             if (mapping.NodeType != ExpressionType.Try)
             {
-                return Expression.Block(
-                    new[] { valueVariable },
+                return existingElementValueCheck.Update(
+                    existingElementValueCheck.Variables,
                     existingElementValueCheck.Expressions.Append(mapping));
             }
 
             var mappingTryCatch = (TryExpression)mapping;
 
+            Expression mappingTryCatchBody;
+
+            if (mappingTryCatch.Body.NodeType != ExpressionType.Block)
+            {
+                mappingTryCatchBody = Expression.Block(
+                    new[] { valueVariable },
+                    existingElementValueCheck.Expressions.Append(mappingTryCatch.Body));
+            }
+            else
+            {
+                var mappingTryCatchBodyBlock = (BlockExpression)mappingTryCatch.Body;
+
+                mappingTryCatchBody = Expression.Block(
+                    mappingTryCatchBodyBlock.Variables.Prepend(valueVariable),
+                    existingElementValueCheck.Expressions.Append(mappingTryCatchBodyBlock.Expressions));
+            }
+
             mapping = mappingTryCatch.Update(
-                Expression.Block(existingElementValueCheck.Expressions.Append(mappingTryCatch.Body)),
+                mappingTryCatchBody,
                 mappingTryCatch.Handlers,
                 mappingTryCatch.Finally,
                 mappingTryCatch.Fault);
 
-            return Expression.Block(new[] { valueVariable }, mapping);
+            return mapping;
         }
 
         public Expression GetSimpleElementConversion(Expression sourceElement)

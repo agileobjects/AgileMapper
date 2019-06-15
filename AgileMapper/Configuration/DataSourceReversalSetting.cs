@@ -25,11 +25,6 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public override bool ConflictsWith(UserConfiguredItemBase otherItem)
         {
-            if (otherItem == this)
-            {
-                return true;
-            }
-
             if (base.ConflictsWith(otherItem))
             {
                 var otherSettings = (DataSourceReversalSetting)otherItem;

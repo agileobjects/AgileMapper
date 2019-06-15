@@ -34,14 +34,7 @@
             => $"Type {TargetTypeName} already has a configured map-to-null condition";
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-        {
-            if (mapperData.TargetMemberIsEnumerableElement())
-            {
-                return false;
-            }
-
-            return base.AppliesTo(mapperData);
-        }
+            => !mapperData.TargetMemberIsEnumerableElement() && base.AppliesTo(mapperData);
 
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {

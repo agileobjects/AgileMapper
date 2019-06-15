@@ -7,7 +7,6 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
-    using TypeConversion;
 #if NET35
     using Microsoft.Scripting.Ast;
     using static Microsoft.Scripting.Ast.ExpressionType;
@@ -46,9 +45,9 @@ namespace AgileObjects.AgileMapper.Members
         {
             private readonly Expression _mappingDataObject;
             private readonly bool _includeTargetNullChecking;
-            private readonly ICollection<Expression> _stringMemberAccessSubjects;
-            private readonly ICollection<string> _nullCheckSubjects;
-            private readonly Dictionary<string, Expression> _nestedAccessesByPath;
+            private ICollection<Expression> _stringMemberAccessSubjects;
+            private ICollection<string> _nullCheckSubjects;
+            private Dictionary<string, Expression> _nestedAccessesByPath;
             private ICollection<Expression> _allInvocations;
             private ICollection<Expression> _multiInvocations;
 
@@ -56,10 +55,16 @@ namespace AgileObjects.AgileMapper.Members
             {
                 _mappingDataObject = mappingDataObject;
                 _includeTargetNullChecking = targetCanBeNull;
-                _stringMemberAccessSubjects = new List<Expression>();
-                _nullCheckSubjects = new List<string>();
-                _nestedAccessesByPath = new Dictionary<string, Expression>();
             }
+
+            private ICollection<Expression> StringMemberAccessSubjects
+                => _stringMemberAccessSubjects ?? (_stringMemberAccessSubjects = new List<Expression>());
+
+            private ICollection<string> NullCheckSubjects
+                => _nullCheckSubjects ?? (_nullCheckSubjects = new List<string>());
+
+            private Dictionary<string, Expression> NestedAccessesByPath
+                => _nestedAccessesByPath ?? (_nestedAccessesByPath = new Dictionary<string, Expression>());
 
             private ICollection<Expression> AllInvocations
                 => _allInvocations ?? (_allInvocations = new List<Expression>());
@@ -71,7 +76,7 @@ namespace AgileObjects.AgileMapper.Members
             {
                 Visit(expression);
 
-                if (_nestedAccessesByPath.None() && _multiInvocations.NoneOrNull())
+                if ((_nestedAccessesByPath == null) && (_multiInvocations == null))
                 {
                     return EmptyExpressionInfo;
                 }
@@ -87,12 +92,7 @@ namespace AgileObjects.AgileMapper.Members
 
             private Expression GetNestedAccessChecks()
             {
-                if (_nestedAccessesByPath.None())
-                {
-                    return null;
-                }
-
-                return _nestedAccessesByPath
+                return _nestedAccessesByPath?
                     .Values
                     .Reverse()
                     .Project(GetAccessCheck)
@@ -105,23 +105,36 @@ namespace AgileObjects.AgileMapper.Members
 
             private static Expression GetAccessCheck(Expression access)
             {
-                Expression count;
-
                 switch (access.NodeType)
                 {
                     case ArrayIndex:
-                        count = Expression.ArrayLength(((BinaryExpression)access).Left);
-                        break;
+                        var arrayIndexAccess = (BinaryExpression)access;
+                        var arrayLength = Expression.ArrayLength(arrayIndexAccess.Left);
+                        var indexValue = arrayIndexAccess.Right;
+
+                        return Expression.GreaterThan(arrayLength, indexValue);
 
                     case Index:
-                        count = ((IndexExpression)access).Object.GetCount();
-                        break;
+                        var index = (IndexExpression)access;
+                        var indexKeyType = index.Indexer.GetGetter().GetParameters().First().ParameterType;
+
+                        if (!indexKeyType.IsNumeric())
+                        {
+                            goto default;
+                        }
+
+                        var count = index.Object.GetCount();
+
+                        if (count == null)
+                        {
+                            goto default;
+                        }
+
+                        return Expression.GreaterThan(count, index.Arguments.First().GetConversionTo(count.Type));
 
                     default:
                         return access.GetIsNotDefaultComparison();
                 }
-
-                return Expression.GreaterThan(count, ToNumericConverter<int>.Zero);
             }
 
             protected override Expression VisitBinary(BinaryExpression binary)
@@ -281,14 +294,14 @@ namespace AgileObjects.AgileMapper.Members
 
             private void AddExistingNullCheck(Expression checkedAccess)
             {
-                _nullCheckSubjects.Add(checkedAccess.ToString());
+                NullCheckSubjects.Add(checkedAccess.ToString());
             }
 
             private void AddStringMemberAccessSubjectIfAppropriate(Expression member)
             {
                 if ((member?.Type == typeof(string)) && AccessSubjectCouldBeNull(member))
                 {
-                    _stringMemberAccessSubjects.Add(member);
+                    StringMemberAccessSubjects.Add(member);
                 }
             }
 
@@ -361,7 +374,8 @@ namespace AgileObjects.AgileMapper.Members
                     return false;
                 }
 
-                if ((memberAccess.Type == typeof(string)) && !_stringMemberAccessSubjects.Contains(memberAccess))
+                if ((memberAccess.Type == typeof(string)) &&
+                   (_stringMemberAccessSubjects?.Contains(memberAccess) != true))
                 {
                     return false;
                 }
@@ -406,13 +420,13 @@ namespace AgileObjects.AgileMapper.Members
             {
                 var memberAccessString = memberAccess.ToString();
 
-                if (_nullCheckSubjects.Contains(memberAccessString) ||
-                    _nestedAccessesByPath.ContainsKey(memberAccessString))
+                if (_nullCheckSubjects?.Contains(memberAccessString) == true ||
+                    _nestedAccessesByPath?.ContainsKey(memberAccessString) == true)
                 {
                     return;
                 }
 
-                _nestedAccessesByPath.Add(memberAccessString, memberAccess);
+                NestedAccessesByPath.Add(memberAccessString, memberAccess);
             }
         }
 

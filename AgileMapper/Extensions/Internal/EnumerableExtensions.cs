@@ -152,6 +152,11 @@
 
         public static T[] CopyToArray<T>(this IList<T> items)
         {
+            if (items.Count == 0)
+            {
+                return Enumerable<T>.EmptyArray;
+            }
+
             var clonedArray = new T[items.Count];
 
             clonedArray.CopyFrom(items);
@@ -267,14 +272,24 @@
 
         public static T[] Append<T>(this IList<T> array, IList<T> extraItems)
         {
-            if (array.Count == 1)
+            if (extraItems.Count == 0)
             {
-                return Prepend(extraItems, array[0]);
+                return array.CopyToArray();
+            }
+
+            if (array.Count == 0)
+            {
+                return extraItems.CopyToArray();
             }
 
             if (extraItems.Count == 1)
             {
                 return Append(array, extraItems[0]);
+            }
+
+            if (array.Count == 1)
+            {
+                return Prepend(extraItems, array[0]);
             }
 
             var combinedArray = new T[array.Count + extraItems.Count];
