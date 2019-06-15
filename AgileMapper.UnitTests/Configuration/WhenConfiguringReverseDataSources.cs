@@ -42,12 +42,10 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .From<Person>()
-                    .To<PublicProperty<Guid>>()
+                    .From<Person>().To<PublicProperty<Guid>>()
                     .AutoReverseConfiguredDataSources()
                     .And
-                    .Map(ctx => ctx.Source.Id)
-                    .To(pp => pp.Value);
+                    .Map(ctx => ctx.Source.Id).To(pp => pp.Value);
 
                 var source = new Person { Id = Guid.NewGuid() };
                 var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
@@ -57,6 +55,39 @@
                 var reverseResult = mapper.Map(result).ToANew<Person>();
 
                 reverseResult.Id.ShouldBe(source.Id);
+            }
+        }
+
+        [Fact]
+        public void ShouldReverseConfiguredMembersByMappingScope()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>().To<PublicProperty<Guid>>()
+                    .AutoReverseConfiguredDataSources()
+                    .And
+                    .Map(ctx => ctx.Source.Id).To(pp => pp.Value);
+
+                mapper.WhenMapping
+                    .From<Person>().To<PublicField<Guid>>()
+                    .AutoReverseConfiguredDataSources()
+                    .And
+                    .Map(ctx => ctx.Source.Id).To(pp => pp.Value);
+
+                var source = new Person { Id = Guid.NewGuid() };
+
+                var propertyResult = mapper.Map(source).ToANew<PublicProperty<Guid>>();
+                propertyResult.Value.ShouldBe(source.Id);
+
+                var reversePropertyResult = mapper.Map(propertyResult).ToANew<Person>();
+                reversePropertyResult.Id.ShouldBe(source.Id);
+
+                var fieldResult = mapper.Map(source).ToANew<PublicField<Guid>>();
+                fieldResult.Value.ShouldBe(source.Id);
+
+                var reverseFieldResult = mapper.Map(fieldResult).ToANew<Person>();
+                reverseFieldResult.Id.ShouldBe(source.Id);
             }
         }
 

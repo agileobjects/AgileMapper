@@ -53,7 +53,6 @@ namespace AgileObjects.AgileMapper.Configuration
                 return GetRedundantSettingConflictMessage(conflicting, " by default");
             }
 
-            // TODO: Test coverage?!
             var targetType = ConfigInfo.TargetType.GetFriendlyName();
 
             if (ConfigInfo.IsForAllSourceTypes())

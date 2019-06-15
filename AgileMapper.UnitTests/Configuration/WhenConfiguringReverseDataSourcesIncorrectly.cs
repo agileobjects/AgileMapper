@@ -60,8 +60,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .From<Person>()
-                        .To<PublicProperty<Guid>>()
+                        .From<Person>().To<PublicProperty<Guid>>()
                         .AutoReverseConfiguredDataSources()
                         .And
                         .Map(ctx => ctx.Source.Id).To(pp => pp.Value)
@@ -128,6 +127,140 @@
 
             configEx.Message.ShouldContain("reverse");
             configEx.Message.ShouldContain("disabled by default");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateMappingScopeOptInConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+                }
+            });
+
+            configEx.Message.ShouldContain("already enabled");
+            configEx.Message.ShouldContain("Person -> PublicProperty<Guid>");
+        }
+
+        [Fact]
+        public void ShouldErrorIfAllSourcesConflictingMappingScopeOptInConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+                }
+            });
+
+            configEx.Message.ShouldContain("already enabled");
+            configEx.Message.ShouldContain("to PublicProperty<Guid>");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingMappingScopeOptInConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .DoNotAutoReverseConfiguredDataSources();
+                }
+            });
+
+            configEx.Message.ShouldContain("cannot be disabled");
+            configEx.Message.ShouldContain("already been enabled");
+            configEx.Message.ShouldContain("Person -> PublicProperty<Guid>");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateMappingScopeOptOutConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.AutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .DoNotAutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .DoNotAutoReverseConfiguredDataSources();
+                }
+            });
+
+            configEx.Message.ShouldContain("already disabled");
+            configEx.Message.ShouldContain("Person -> PublicProperty<Guid>");
+        }
+
+        [Fact]
+        public void ShouldErrorIfAllSourcesConflictingMappingScopeOptOutConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.AutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .To<PublicProperty<Guid>>()
+                        .DoNotAutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .DoNotAutoReverseConfiguredDataSources();
+                }
+            });
+
+            configEx.Message.ShouldContain("already disabled");
+            configEx.Message.ShouldContain("to PublicProperty<Guid>");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingMappingScopeOptOutConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.AutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .DoNotAutoReverseConfiguredDataSources();
+
+                    mapper.WhenMapping
+                        .From<Person>().To<PublicProperty<Guid>>()
+                        .AutoReverseConfiguredDataSources();
+                }
+            });
+
+            configEx.Message.ShouldContain("cannot be enabled");
+            configEx.Message.ShouldContain("already been disabled");
+            configEx.Message.ShouldContain("Person -> PublicProperty<Guid>");
         }
 
         [Fact]
