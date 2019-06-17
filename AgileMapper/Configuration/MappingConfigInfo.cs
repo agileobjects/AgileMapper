@@ -11,6 +11,7 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
 
@@ -123,9 +124,10 @@
             _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
         }
 
-        private static void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
+        private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
         {
-            if (TypeTestFinder.HasNoTypeTest(conditionLambda))
+            if ((SourceType?.IsInterface() == true) ||
+                 TypeTestFinder.HasNoTypeTest(conditionLambda))
             {
                 return;
             }

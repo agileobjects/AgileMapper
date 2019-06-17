@@ -148,6 +148,33 @@
             }
         }
 
+        [Fact]
+        public void ShouldAllowConditionTypeTestsWhenMappingFromAnInterface()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var sourceData = default(Issue146.Source.Data);
+
+                mapper.WhenMapping
+                    .From<Issue146.Source.Container>().To<Issue146.Target.Cont>()
+                    .Map(s => s.Empty, t => t.Info);
+
+                mapper.WhenMapping
+                    .From<Issue146.Source.IEmpty>().To<Issue146.Target.Data>()
+                    .After
+                    .MappingEnds
+                    .If(ctx => ctx.Source is Issue146.Source.Data)
+                    .Call(ctx => sourceData = (Issue146.Source.Data)ctx.Source);
+
+                var source = new Issue146.Source.Container("xxx");
+                var result = mapper.Map(source).ToANew<Issue146.Target.Cont>();
+
+                result.ShouldNotBeNull();
+                sourceData.ShouldNotBeNull();
+                sourceData.ShouldBeSameAs(source.Empty);
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/111
         [Fact]
         public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeConstant()
@@ -168,7 +195,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAToTargetConfiguredSimpleTypeConstant()
+        public void ShouldConditionallyApplyAToTargetConfiguredSimpleType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1178,7 +1205,7 @@
                 result.Name.ShouldBe("input");
                 result.Info.ShouldNotBeNull();
                 result.Info.Id.ShouldBe("12321");
-                
+
                 // Source has a .Value member, but we don't runtime-type interfaces
                 result.Info.Value.ShouldBeNull();
             }
@@ -1766,6 +1793,7 @@
         // ReSharper restore MemberCanBePrivate.Local
         // ReSharper restore CollectionNeverQueried.Local
 
+        // ReSharper disable InconsistentNaming
         internal static class Issue145
         {
             public class IdsSource
@@ -1785,6 +1813,7 @@
 
             public class DataSourceContainer
             {
+
                 public IdsSource ids;
                 public ResultSource res;
                 public OtherDataSource oth;
@@ -1817,6 +1846,7 @@
                 public OtherDataTarget oth;
             }
         }
+        // ReSharper restore InconsistentNaming
 
         internal static class Issue146
         {
