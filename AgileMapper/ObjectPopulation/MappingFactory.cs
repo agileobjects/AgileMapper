@@ -128,7 +128,7 @@
 
             if (elementMapperData.Context.IsStandalone)
             {
-                enumerableIndex = Expression.Property(elementMapperData.EnumerableIndex, "Value");
+                enumerableIndex = elementMapperData.EnumerableIndex.GetNullableValueAccess();
                 parentMappingDataObject = typeof(IObjectMappingData).ToDefaultExpression();
             }
             else

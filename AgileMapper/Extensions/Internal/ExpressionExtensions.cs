@@ -210,6 +210,9 @@
             return null;
         }
 
+        public static Expression GetNullableValueAccess(this Expression nullableExpression)
+            => Expression.Property(nullableExpression, "Value");
+
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
             var parameterlessGetValueOrDefault = nullableExpression.Type

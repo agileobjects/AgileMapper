@@ -117,7 +117,7 @@
 
             if (sourceMemberValue.Type.IsNullableType())
             {
-                sourceMemberValue = Expression.Property(sourceMemberValue, "Value");
+                sourceMemberValue = sourceMemberValue.GetNullableValueAccess();
             }
 
             var zero = 0.ToConstantExpression(sourceValueType);

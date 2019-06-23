@@ -72,7 +72,7 @@
                 // The enum member being compared to an enum constant is nullable;
                 // the NestedAccessFinder will weave in a HasValue check, so we can 
                 // use its .Value property in the fixed comparison:
-                convertedValue = Expression.Property(convertedValue, "Value");
+                convertedValue = convertedValue.GetNullableValueAccess();
             }
 
             enumMember = convertedValue;
