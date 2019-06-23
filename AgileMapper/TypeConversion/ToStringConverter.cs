@@ -88,7 +88,7 @@
 
             if (sourceValue.Type != nonNullableSourceType)
             {
-                sourceValue = Expression.Property(sourceValue, "Value");
+                sourceValue = sourceValue.GetNullableValueAccess();
             }
 
             var toStringCall = Expression.Call(sourceValue, toStringMethod, dateTimeFormat);
@@ -120,7 +120,7 @@
 
             var nullTrueOrFalse = Expression.Condition(
                 Expression.Property(sourceValue, "HasValue"),
-                GetTrueOrFalseTernary(Expression.Property(sourceValue, "Value")),
+                GetTrueOrFalseTernary(sourceValue.GetNullableValueAccess()),
                 typeof(string).ToDefaultExpression());
 
             return nullTrueOrFalse;

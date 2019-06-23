@@ -36,6 +36,11 @@
 
         public Expression GetConversion(Expression sourceValue, Type targetType)
         {
+            if (sourceValue.Type.IsNullableType())
+            {
+                sourceValue = sourceValue.GetNullableValueAccess();
+            }
+
             var toStringCall = Expression.Call(sourceValue, _toStringMethod, _formattingString);
 
             return toStringCall;
