@@ -314,7 +314,13 @@
 
         [DebuggerStepThrough]
         public static MethodCallExpression WithToStringCall(this Expression value)
-            => Expression.Call(value, value.Type.GetPublicInstanceMethod("ToString", parameterCount: 0));
+        {
+            var toStringMethodType = value.Type.IsInterface()
+                ? typeof(object)
+                : value.Type;
+
+            return Expression.Call(value, toStringMethodType.GetPublicInstanceMethod("ToString", parameterCount: 0));
+        }
 
         public static Expression GetReadOnlyCollectionCreation(this Expression enumerable, Type elementType)
         {

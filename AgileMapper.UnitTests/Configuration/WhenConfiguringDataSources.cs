@@ -1619,6 +1619,8 @@
             }
         }
 
+        #region Helper Classes
+
         internal class IdTester
         {
             public int ClassId { get; set; }
@@ -1896,5 +1898,7 @@
                 }
             }
         }
+
+        #endregion
     }
 }
