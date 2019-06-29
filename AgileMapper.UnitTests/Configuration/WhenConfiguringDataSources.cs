@@ -8,6 +8,7 @@
     using AgileMapper.Extensions;
     using AgileMapper.Members;
     using Common;
+    using Newtonsoft.Json.Linq;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -536,7 +537,7 @@
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
 #if NETCOREAPP2_0
-                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
+                    .Map(ctx => ctx.Source.Value.Split(':', StringSplitOptions.None))
 #else
                     .Map(ctx => ctx.Source.Value.Split(':'))
 #endif
@@ -1616,6 +1617,19 @@
 
                 result.ParamObj.Collection.Children.First().Definition.ShouldNotBeSameAs(
                     result.ParamValues.First().Definition);
+            }
+        }
+
+        [Fact]
+        public void ShouldMapToTargetUsingASimpleToComplexTypeFactoryMethod()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().To<JToken>()
+                    .Map(ctx => JToken.Parse(ctx.Source)).ToTarget();
+
+                mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<JToken>>();
             }
         }
 

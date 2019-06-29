@@ -170,7 +170,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private static MappingContextInfo GetAppropriateMappingContext(SwapArgs swapArgs)
         {
-            if (swapArgs.ContextTypes.All(t => t.IsSimple()))
+            if (swapArgs.ContextTypes[0].IsSimple())
             {
                 return GetSimpleTypesMappingContextInfo(swapArgs);
             }
