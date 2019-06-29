@@ -50,9 +50,6 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -223,7 +220,7 @@
     <Compile Include="TestClasses\PaymentTypeUk.cs" />
     <Compile Include="TestClasses\PaymentTypeUs.cs" />
     <Compile Include="TestClasses\PublicCtorStruct.cs" />
-    <Compile Include="TestClasses\PublicDictionary.cs" />
+    <Compile Include="TestClasses\PublicEnumerable.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
     <Compile Include="TestClasses\PublicIndex.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />

@@ -66,8 +66,599 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\AgileMapper.UnitTests\**\*.cs" Exclude="..\AgileMapper.UnitTests\obj\**\*.cs;..\AgileMapper.UnitTests\Dynamics\**\*.cs;..\AgileMapper.UnitTests\WhenUsingPartialTrust.cs;..\AgileMapper.UnitTests\WhenFlatteningToDynamics.cs;..\AgileMapper.UnitTests\WhenMappingConcurrently.cs;">
-      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    <Compile Include="..\AgileMapper.UnitTests\Caching\WhenCachingWithHashCodes.cs">
+      <Link>Caching\WhenCachingWithHashCodes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\AssemblyScanningTestClassBase.cs">
+      <Link>Configuration\AssemblyScanningTestClassBase.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\InlineMappingExtensions.cs">
+      <Link>Configuration\Inline\InlineMappingExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringCallbacksInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringCallbacksInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringDataSourcesInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringDataSourcesInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringDataSourcesInlineIncorrectly.cs">
+      <Link>Configuration\Inline\WhenConfiguringDataSourcesInlineIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringDerivedTypesInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringDerivedTypesInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringEntityMappingInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringEntityMappingInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringEnumMappingInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringEnumMappingInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringNameMatchingInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringNameMatchingInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringObjectCreationInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringObjectCreationInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringObjectTrackingInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringObjectTrackingInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringStringFormattingInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringStringFormattingInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenConfiguringTypeIdentifiersInline.cs">
+      <Link>Configuration\Inline\WhenConfiguringTypeIdentifiersInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenIgnoringMembersInline.cs">
+      <Link>Configuration\Inline\WhenIgnoringMembersInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs">
+      <Link>Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenMappingToNullInline.cs">
+      <Link>Configuration\Inline\WhenMappingToNullInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenValidatingMappingsInline.cs">
+      <Link>Configuration\Inline\WhenValidatingMappingsInline.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\Inline\WhenViewingMappingPlans.cs">
+      <Link>Configuration\Inline\WhenViewingMappingPlans.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenApplyingMapperConfigurations.cs">
+      <Link>Configuration\WhenApplyingMapperConfigurations.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs">
+      <Link>Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringConstructorDataSources.cs">
+      <Link>Configuration\WhenConfiguringConstructorDataSources.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringDataSources.cs">
+      <Link>Configuration\WhenConfiguringDataSources.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringDataSourcesIncorrectly.cs">
+      <Link>Configuration\WhenConfiguringDataSourcesIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringDerivedTypes.cs">
+      <Link>Configuration\WhenConfiguringDerivedTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringDerivedTypesIncorrectly.cs">
+      <Link>Configuration\WhenConfiguringDerivedTypesIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringEntityMapping.cs">
+      <Link>Configuration\WhenConfiguringEntityMapping.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringEnumMapping.cs">
+      <Link>Configuration\WhenConfiguringEnumMapping.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringExceptionHandling.cs">
+      <Link>Configuration\WhenConfiguringExceptionHandling.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringMappingCallbacks.cs">
+      <Link>Configuration\WhenConfiguringMappingCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringNameMatching.cs">
+      <Link>Configuration\WhenConfiguringNameMatching.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringObjectCreation.cs">
+      <Link>Configuration\WhenConfiguringObjectCreation.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringObjectCreationCallbacks.cs">
+      <Link>Configuration\WhenConfiguringObjectCreationCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringObjectTracking.cs">
+      <Link>Configuration\WhenConfiguringObjectTracking.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringObjectTrackingIncorrectly.cs">
+      <Link>Configuration\WhenConfiguringObjectTrackingIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringReverseDataSources.cs">
+      <Link>Configuration\WhenConfiguringReverseDataSources.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs">
+      <Link>Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringStringFormatting.cs">
+      <Link>Configuration\WhenConfiguringStringFormatting.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenConfiguringTypeIdentifiers.cs">
+      <Link>Configuration\WhenConfiguringTypeIdentifiers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenIgnoringMembers.cs">
+      <Link>Configuration\WhenIgnoringMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenIgnoringMembersByFilter.cs">
+      <Link>Configuration\WhenIgnoringMembersByFilter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenIgnoringMembersByGlobalFilter.cs">
+      <Link>Configuration\WhenIgnoringMembersByGlobalFilter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenIgnoringMembersIncorrectly.cs">
+      <Link>Configuration\WhenIgnoringMembersIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenMappingToNull.cs">
+      <Link>Configuration\WhenMappingToNull.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenResolvingServices.cs">
+      <Link>Configuration\WhenResolvingServices.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Configuration\WhenViewingMappingPlans.cs">
+      <Link>Configuration\WhenViewingMappingPlans.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs">
+      <Link>Dictionaries\Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs">
+      <Link>Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\Configuration\WhenConfiguringSourceDictionaryMapping.cs">
+      <Link>Dictionaries\Configuration\WhenConfiguringSourceDictionaryMapping.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs">
+      <Link>Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenCreatingRootDictionaryMembers.cs">
+      <Link>Dictionaries\WhenCreatingRootDictionaryMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenFlatteningToDictionaries.cs">
+      <Link>Dictionaries\WhenFlatteningToDictionaries.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs">
+      <Link>Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionariesOnToEnumerableMembers.cs">
+      <Link>Dictionaries\WhenMappingFromDictionariesOnToEnumerableMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionariesOverComplexTypes.cs">
+      <Link>Dictionaries\WhenMappingFromDictionariesOverComplexTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionariesToNewComplexTypeMembers.cs">
+      <Link>Dictionaries\WhenMappingFromDictionariesToNewComplexTypeMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionariesToNewComplexTypes.cs">
+      <Link>Dictionaries\WhenMappingFromDictionariesToNewComplexTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionariesToNewEnumerableMembers.cs">
+      <Link>Dictionaries\WhenMappingFromDictionariesToNewEnumerableMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionariesToNewEnumerables.cs">
+      <Link>Dictionaries\WhenMappingFromDictionariesToNewEnumerables.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingFromDictionaryMembers.cs">
+      <Link>Dictionaries\WhenMappingFromDictionaryMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingOnToDictionaries.cs">
+      <Link>Dictionaries\WhenMappingOnToDictionaries.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingOnToDictionaryMembers.cs">
+      <Link>Dictionaries\WhenMappingOnToDictionaryMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingOverDictionaries.cs">
+      <Link>Dictionaries\WhenMappingOverDictionaries.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingOverDictionaryMembers.cs">
+      <Link>Dictionaries\WhenMappingOverDictionaryMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingToNewDictionaries.cs">
+      <Link>Dictionaries\WhenMappingToNewDictionaries.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenMappingToNewDictionaryMembers.cs">
+      <Link>Dictionaries\WhenMappingToNewDictionaryMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenUnflatteningFromDictionaries.cs">
+      <Link>Dictionaries\WhenUnflatteningFromDictionaries.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Dictionaries\WhenViewingDictionaryMappingPlans.cs">
+      <Link>Dictionaries\WhenViewingDictionaryMappingPlans.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Extensions\Internal\WhenEquatingExpressions.cs">
+      <Link>Extensions\Internal\WhenEquatingExpressions.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Extensions\Internal\WhenGeneratingVariableNames.cs">
+      <Link>Extensions\Internal\WhenGeneratingVariableNames.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Extensions\WhenFlatteningToQueryStringViaExtensionMethods.cs">
+      <Link>Extensions\WhenFlatteningToQueryStringViaExtensionMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Extensions\WhenFlatteningViaExtensionMethods.cs">
+      <Link>Extensions\WhenFlatteningViaExtensionMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Extensions\WhenMappingViaExtensionMethods.cs">
+      <Link>Extensions\WhenMappingViaExtensionMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Extensions\WhenUnflatteningFromQueryStringsViaExtensionMethods.cs">
+      <Link>Extensions\WhenUnflatteningFromQueryStringsViaExtensionMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Extensions\WhenUnflatteningViaExtensionMethods.cs">
+      <Link>Extensions\WhenUnflatteningViaExtensionMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\MapperCloning\WhenCloningConstructorDataSources.cs">
+      <Link>MapperCloning\WhenCloningConstructorDataSources.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\MapperCloning\WhenCloningDataSources.cs">
+      <Link>MapperCloning\WhenCloningDataSources.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\MapperCloning\WhenCloningDictionarySettings.cs">
+      <Link>MapperCloning\WhenCloningDictionarySettings.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\MapperCloning\WhenCloningMemberIgnores.cs">
+      <Link>MapperCloning\WhenCloningMemberIgnores.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\MapperCloning\WhenCloningObjectFactories.cs">
+      <Link>MapperCloning\WhenCloningObjectFactories.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\MapperCloning\WhenCloningStringFormatting.cs">
+      <Link>MapperCloning\WhenCloningStringFormatting.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\MemberTestsBase.cs">
+      <Link>Members\MemberTestsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\WhenCreatingTargetMembersFromExpressions.cs">
+      <Link>Members\WhenCreatingTargetMembersFromExpressions.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\WhenDeterminingATypeIdentifier.cs">
+      <Link>Members\WhenDeterminingATypeIdentifier.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\WhenDeterminingRecursion.cs">
+      <Link>Members\WhenDeterminingRecursion.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\WhenFindingDataSources.cs">
+      <Link>Members\WhenFindingDataSources.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\WhenFindingSourceMembers.cs">
+      <Link>Members\WhenFindingSourceMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\WhenFindingTargetMembers.cs">
+      <Link>Members\WhenFindingTargetMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Members\WhenMatchingSourceToTargetMembers.cs">
+      <Link>Members\WhenMatchingSourceToTargetMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Reflection\WhenAccessingTypeInformation.cs">
+      <Link>Reflection\WhenAccessingTypeInformation.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToBools.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToBools.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToBytes.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToBytes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToCharacters.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToCharacters.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToDateTimes.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToDateTimes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToDecimals.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToDecimals.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToDoubles.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToDoubles.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToEnums.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToEnums.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToFlagsEnums.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToFlagsEnums.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToGuids.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToGuids.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToInts.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToInts.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToLongs.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToLongs.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToShorts.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToShorts.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\SimpleTypeConversion\WhenConvertingToStrings.cs">
+      <Link>SimpleTypeConversion\WhenConvertingToStrings.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs">
+      <Link>Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\Configuration\WhenConfiguringStructDataSources.cs">
+      <Link>Structs\Configuration\WhenConfiguringStructDataSources.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\Configuration\WhenConfiguringStructMappingCallbacks.cs">
+      <Link>Structs\Configuration\WhenConfiguringStructMappingCallbacks.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\Dictionaries\WhenMappingFromDictionariesToStructs.cs">
+      <Link>Structs\Dictionaries\WhenMappingFromDictionariesToStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingOnToStructMembers.cs">
+      <Link>Structs\WhenMappingOnToStructMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingOnToStructs.cs">
+      <Link>Structs\WhenMappingOnToStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingOverStructMembers.cs">
+      <Link>Structs\WhenMappingOverStructMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingOverStructs.cs">
+      <Link>Structs\WhenMappingOverStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingToNewStructMembers.cs">
+      <Link>Structs\WhenMappingToNewStructMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingToNewStructs.cs">
+      <Link>Structs\WhenMappingToNewStructs.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingToStructEnumerables.cs">
+      <Link>Structs\WhenMappingToStructEnumerables.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\Structs\WhenMappingToUnmappableStructMembers.cs">
+      <Link>Structs\WhenMappingToUnmappableStructMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Address.cs">
+      <Link>TestClasses\Address.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\CategoryDto.cs">
+      <Link>TestClasses\CategoryDto.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\CategoryEntity.cs">
+      <Link>TestClasses\CategoryEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Child.cs">
+      <Link>TestClasses\Child.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Customer.cs">
+      <Link>TestClasses\Customer.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\CustomerViewModel.cs">
+      <Link>TestClasses\CustomerViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\DtoBase.cs">
+      <Link>TestClasses\DtoBase.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Earthworm.cs">
+      <Link>TestClasses\Earthworm.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\EntityBase.cs">
+      <Link>TestClasses\EntityBase.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\FacebookUser.cs">
+      <Link>TestClasses\FacebookUser.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\InternalField.cs">
+      <Link>TestClasses\InternalField.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\IPublicInterface.cs">
+      <Link>TestClasses\IPublicInterface.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\MegaProduct.cs">
+      <Link>TestClasses\MegaProduct.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\MysteryCustomer.cs">
+      <Link>TestClasses\MysteryCustomer.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\MysteryCustomerViewModel.cs">
+      <Link>TestClasses\MysteryCustomerViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Order.cs">
+      <Link>TestClasses\Order.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\OrderDto.cs">
+      <Link>TestClasses\OrderDto.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\OrderEntity.cs">
+      <Link>TestClasses\OrderEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\OrderItem.cs">
+      <Link>TestClasses\OrderItem.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\OrderItemDto.cs">
+      <Link>TestClasses\OrderItemDto.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\OrderItemEntity.cs">
+      <Link>TestClasses\OrderItemEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\OrderUk.cs">
+      <Link>TestClasses\OrderUk.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\OrderUs.cs">
+      <Link>TestClasses\OrderUs.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Parent.cs">
+      <Link>TestClasses\Parent.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PaymentTypeUk.cs">
+      <Link>TestClasses\PaymentTypeUk.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PaymentTypeUs.cs">
+      <Link>TestClasses\PaymentTypeUs.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Person.cs">
+      <Link>TestClasses\Person.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PersonViewModel.cs">
+      <Link>TestClasses\PersonViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Product.cs">
+      <Link>TestClasses\Product.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\ProductDto.cs">
+      <Link>TestClasses\ProductDto.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\ProductDtoMega.cs">
+      <Link>TestClasses\ProductDtoMega.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\ProductEntity.cs">
+      <Link>TestClasses\ProductEntity.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicCtor.cs">
+      <Link>TestClasses\PublicCtor.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicCtorStruct.cs">
+      <Link>TestClasses\PublicCtorStruct.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicEnumerable.cs">
+      <Link>TestClasses\PublicEnumerable.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicField.cs">
+      <Link>TestClasses\PublicField.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicGetMethod.cs">
+      <Link>TestClasses\PublicGetMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicImplementation.cs">
+      <Link>TestClasses\PublicImplementation.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicIndex.cs">
+      <Link>TestClasses\PublicIndex.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicProperty.cs">
+      <Link>TestClasses\PublicProperty.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicPropertyStruct.cs">
+      <Link>TestClasses\PublicPropertyStruct.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicReadOnlyField.cs">
+      <Link>TestClasses\PublicReadOnlyField.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicReadOnlyProperty.cs">
+      <Link>TestClasses\PublicReadOnlyProperty.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicSealed.cs">
+      <Link>TestClasses\PublicSealed.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicSetMethod.cs">
+      <Link>TestClasses\PublicSetMethod.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicTwoFields.cs">
+      <Link>TestClasses\PublicTwoFields.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicTwoFieldsStruct.cs">
+      <Link>TestClasses\PublicTwoFieldsStruct.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicTwoParamCtor.cs">
+      <Link>TestClasses\PublicTwoParamCtor.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicUnconstructable.cs">
+      <Link>TestClasses\PublicUnconstructable.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\PublicWriteOnlyProperty.cs">
+      <Link>TestClasses\PublicWriteOnlyProperty.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\SaveOrderItemRequest.cs">
+      <Link>TestClasses\SaveOrderItemRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\SaveOrderRequest.cs">
+      <Link>TestClasses\SaveOrderRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Status.cs">
+      <Link>TestClasses\Status.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\StringKeyedDictionary.cs">
+      <Link>TestClasses\StringKeyedDictionary.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Title.cs">
+      <Link>TestClasses\Title.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\TitleShortlist.cs">
+      <Link>TestClasses\TitleShortlist.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\Wedding.cs">
+      <Link>TestClasses\Wedding.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\TestClasses\WeddingDto.cs">
+      <Link>TestClasses\WeddingDto.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenAnalysingCollections.cs">
+      <Link>WhenAnalysingCollections.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingCircularReferences.cs">
+      <Link>WhenMappingCircularReferences.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingDerivedTypes.cs">
+      <Link>WhenMappingDerivedTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingEntities.cs">
+      <Link>WhenMappingEntities.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOnToComplexTypeMembers.cs">
+      <Link>WhenMappingOnToComplexTypeMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOnToComplexTypes.cs">
+      <Link>WhenMappingOnToComplexTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOnToEnumerableMembers.cs">
+      <Link>WhenMappingOnToEnumerableMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOnToEnumerables.cs">
+      <Link>WhenMappingOnToEnumerables.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOverComplexTypeMembers.cs">
+      <Link>WhenMappingOverComplexTypeMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOverComplexTypes.cs">
+      <Link>WhenMappingOverComplexTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOverEnumerableMembers.cs">
+      <Link>WhenMappingOverEnumerableMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingOverEnumerables.cs">
+      <Link>WhenMappingOverEnumerables.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingToConstructors.cs">
+      <Link>WhenMappingToConstructors.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingToMetaMembers.cs">
+      <Link>WhenMappingToMetaMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingToNewComplexTypeMembers.cs">
+      <Link>WhenMappingToNewComplexTypeMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingToNewComplexTypes.cs">
+      <Link>WhenMappingToNewComplexTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingToNewEnumerableMembers.cs">
+      <Link>WhenMappingToNewEnumerableMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenMappingToNewEnumerables.cs">
+      <Link>WhenMappingToNewEnumerables.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenUnflatteningFromQueryStrings.cs">
+      <Link>WhenUnflatteningFromQueryStrings.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenUsingFactoryMethods.cs">
+      <Link>WhenUsingFactoryMethods.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenValidatingMappings.cs">
+      <Link>WhenValidatingMappings.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenViewingMappingPlans.cs">
+      <Link>WhenViewingMappingPlans.cs</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.UnitTests\WhenWorkingWithQueryStrings.cs">
+      <Link>WhenWorkingWithQueryStrings.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
