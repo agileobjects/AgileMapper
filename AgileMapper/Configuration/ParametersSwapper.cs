@@ -3,16 +3,16 @@ namespace AgileObjects.AgileMapper.Configuration
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
-    using ObjectPopulation;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
+    using ObjectPopulation;
     using static Members.Member;
 
     internal class ParametersSwapper
@@ -170,7 +170,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private static MappingContextInfo GetAppropriateMappingContext(SwapArgs swapArgs)
         {
-            if (swapArgs.ContextTypes[0].IsSimple())
+            if (swapArgs.SourceType.IsSimple())
             {
                 return GetSimpleTypesMappingContextInfo(swapArgs);
             }
@@ -298,8 +298,8 @@ namespace AgileObjects.AgileMapper.Configuration
                 : this(
                     swapArgs,
                     contextAccess,
-                    GetValueAccess(swapArgs.GetSourceAccess(contextAccess), swapArgs.ContextTypes[0]),
-                    GetValueAccess(swapArgs.GetTargetAccess(contextAccess), swapArgs.ContextTypes[1]))
+                    GetValueAccess(swapArgs.GetSourceAccess(contextAccess), swapArgs.SourceType),
+                    GetValueAccess(swapArgs.GetTargetAccess(contextAccess), swapArgs.TargetType))
             {
             }
 
@@ -370,6 +370,10 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public Type[] ContextTypes { get; }
 
+            public Type SourceType => ContextTypes[0];
+            
+            public Type TargetType => ContextTypes[1];
+
             public IMemberMapperData MapperData { get; }
 
             public Func<IMemberMapperData, Expression, Type, Expression> TargetValueFactory { get; }
@@ -386,10 +390,10 @@ namespace AgileObjects.AgileMapper.Configuration
                 => MapperData.GetTypedContextAccess(contextAccess, ContextTypes);
 
             public Expression GetSourceAccess(Expression contextAccess)
-                => MapperData.GetSourceAccess(contextAccess, ContextTypes[0]);
+                => MapperData.GetSourceAccess(contextAccess, SourceType);
 
             public Expression GetTargetAccess(Expression contextAccess)
-                => TargetValueFactory.Invoke(MapperData, contextAccess, ContextTypes[1]);
+                => TargetValueFactory.Invoke(MapperData, contextAccess, TargetType);
         }
 
         #endregion
