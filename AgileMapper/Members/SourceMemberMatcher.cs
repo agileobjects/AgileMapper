@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Extensions;
+    using NetStandardPolyfills;
 
     internal static class SourceMemberMatcher
     {
@@ -81,13 +82,19 @@
             IChildMemberMappingData targetData,
             out IQualifiedMember matchingMember)
         {
+            var mapperData = targetData.MapperData;
+
+            var matcher = mapperData.TargetType.IsAssignableTo(mapperData.SourceType)
+                ? (Func<IChildMemberMappingData, Member, bool>)MembersAreTheSame
+                : MembersMatch;
+
             var sourceMember = QuerySourceMembers(
                 parentSourceMember,
                 targetData,
-                MembersMatch)
+                matcher)
                 .FirstOrDefault();
 
-            if ((sourceMember == null) || !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
+            if ((sourceMember == null) || !TypesAreCompatible(sourceMember.Type, mapperData))
             {
                 matchingMember = null;
                 return false;
@@ -99,7 +106,7 @@
 
         private static bool MembersMatch(IChildMemberMappingData mappingData, Member sourceMember)
         {
-            if (mappingData.MapperData.TargetMember.LeafMember.Equals(sourceMember))
+            if (MembersAreTheSame(mappingData, sourceMember))
             {
                 return true;
             }
@@ -110,6 +117,9 @@
                 .Append(sourceMember)
                 .Matches(mappingData.MapperData.TargetMember);
         }
+
+        private static bool MembersAreTheSame(IChildMemberMappingData mappingData, Member sourceMember)
+            => mappingData.MapperData.TargetMember.LeafMember.Equals(sourceMember);
 
         private static IEnumerable<Member> QuerySourceMembers(
             IQualifiedMember parentMember,
