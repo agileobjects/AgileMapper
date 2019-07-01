@@ -64,9 +64,10 @@
             return memberHasRuntimeType;
         }
 
-        public static SourceMemberDataSource For(IQualifiedMember sourceMember, IMemberMapperData mapperData)
+        public static SourceMemberDataSource For(SourceMemberMatch sourceMemberMatch)
         {
-            sourceMember = sourceMember.RelativeTo(mapperData.SourceMember);
+            var mapperData = sourceMemberMatch.ContextMappingData.MapperData;
+            var sourceMember = sourceMemberMatch.SourceMember.RelativeTo(mapperData.SourceMember);
 
             var sourceMemberValue = sourceMember
                 .GetQualifiedAccess(mapperData)
