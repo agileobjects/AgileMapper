@@ -13,7 +13,7 @@
 
     internal class SourceMemberDataSource : DataSourceBase
     {
-        private SourceMemberDataSource(
+        public SourceMemberDataSource(
             IQualifiedMember sourceMember,
             Expression sourceMemberValue,
             IMemberMapperData mapperData)
@@ -62,20 +62,6 @@
             var memberHasRuntimeType = Expression.TypeIs(rootedValue, cast.Type);
 
             return memberHasRuntimeType;
-        }
-
-        public static SourceMemberDataSource For(SourceMemberMatch sourceMemberMatch)
-        {
-            var mapperData = sourceMemberMatch.ContextMappingData.MapperData;
-            var sourceMember = sourceMemberMatch.SourceMember.RelativeTo(mapperData.SourceMember);
-
-            var sourceMemberValue = sourceMember
-                .GetQualifiedAccess(mapperData)
-                .GetConversionTo(sourceMember.Type);
-
-            var sourceMemberDataSource = new SourceMemberDataSource(sourceMember, sourceMemberValue, mapperData);
-
-            return sourceMemberDataSource;
         }
     }
 }

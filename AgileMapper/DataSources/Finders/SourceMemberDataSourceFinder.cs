@@ -13,11 +13,11 @@
                 yield break;
             }
 
-            var matchingSourceMemberDataSource = GetSourceMemberDataSource(context);
+            var matchingSourceMemberDataSource = GetSourceMemberDataSource(context, out var hasUseableSourceMember);
             var configuredDataSources = context.ConfiguredDataSources;
             var targetMember = context.MapperData.TargetMember;
 
-            if (!matchingSourceMemberDataSource.IsValid ||
+            if (!hasUseableSourceMember ||
                  configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
                 if (context.DataSourceIndex == 0)
@@ -58,11 +58,6 @@
                 }
             }
 
-            if (!matchingSourceMemberDataSource.IsValid)
-            {
-                yield break;
-            }
-
             yield return matchingSourceMemberDataSource;
 
             if (!targetMember.IsReadOnly &&
@@ -73,14 +68,17 @@
             }
         }
 
-        private static IDataSource GetSourceMemberDataSource(DataSourceFindContext context)
+        private static IDataSource GetSourceMemberDataSource(
+            DataSourceFindContext context,
+            out bool hasUseableSourceMember)
         {
             var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(context.ChildMappingData);
+            hasUseableSourceMember = bestSourceMemberMatch.IsUseable;
 
-            if (bestSourceMemberMatch.IsUseable)
+            if (hasUseableSourceMember)
             {
                 return context.GetFinalDataSource(
-                    SourceMemberDataSource.For(bestSourceMemberMatch),
+                    bestSourceMemberMatch.CreateDataSource(),
                     bestSourceMemberMatch.ContextMappingData);
             }
 
