@@ -5,6 +5,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using DataSources;
     using Enumerables;
     using Extensions;
@@ -14,11 +19,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Sources;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using static Members.Member;
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
