@@ -214,15 +214,16 @@
 
                         var memberMappingData = currentMappingData.GetChildMappingData(childMemberMapperData);
 
-                        currentSourceMember = SourceMemberMatcher.GetMatchFor(
+                        var currentSourceMemberMatch = SourceMemberMatcher.GetMatchFor(
                             memberMappingData,
-                            out _,
                             searchParentContexts: false);
 
-                        if (currentSourceMember == null)
+                        if (!currentSourceMemberMatch.IsUseable)
                         {
                             return false;
                         }
+
+                        currentSourceMember = currentSourceMemberMatch.SourceMember;
 
                         currentMemberPart = new SourceMemberMetaMemberPart(
                             currentSourceMember,

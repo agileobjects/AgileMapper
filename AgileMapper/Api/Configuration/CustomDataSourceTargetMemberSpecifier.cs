@@ -116,16 +116,16 @@
 
             var targetMemberMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
             var targetMemberMappingData = mappingData.GetChildMappingData(targetMemberMapperData);
-            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(targetMemberMappingData, out _);
+            var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(targetMemberMappingData);
 
-            if (bestMatchingSourceMember == null)
+            if (!bestSourceMemberMatch.IsUseable)
             {
                 return;
             }
 
             var sourceMember = sourceMemberLambda.ToSourceMember(MapperContext);
 
-            if (!bestMatchingSourceMember.Matches(sourceMember))
+            if (!bestSourceMemberMatch.SourceMember.Matches(sourceMember))
             {
                 return;
             }

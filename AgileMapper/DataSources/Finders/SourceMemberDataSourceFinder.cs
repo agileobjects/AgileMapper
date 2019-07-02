@@ -1,8 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Finders
 {
+    using System.Collections.Generic;
     using Extensions.Internal;
     using Members;
-    using System.Collections.Generic;
 
     internal struct SourceMemberDataSourceFinder : IDataSourceFinder
     {
@@ -13,11 +13,11 @@
                 yield break;
             }
 
-            var matchingSourceMemberDataSource = GetSourceMemberDataSourceOrNull(context);
+            var matchingSourceMemberDataSource = GetSourceMemberDataSource(context, out var hasUseableSourceMember);
             var configuredDataSources = context.ConfiguredDataSources;
             var targetMember = context.MapperData.TargetMember;
 
-            if ((matchingSourceMemberDataSource == null) ||
+            if (!hasUseableSourceMember ||
                  configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
                 if (context.DataSourceIndex == 0)
@@ -32,7 +32,10 @@
                     yield return context.GetFallbackDataSource();
                 }
 
-                yield break;
+                if (matchingSourceMemberDataSource.SourceMember == null)
+                {
+                    yield break;
+                }
             }
 
             if (matchingSourceMemberDataSource.SourceMember.IsSimple &&
@@ -65,21 +68,23 @@
             }
         }
 
-        private static IDataSource GetSourceMemberDataSourceOrNull(DataSourceFindContext context)
+        private static IDataSource GetSourceMemberDataSource(
+            DataSourceFindContext context,
+            out bool hasUseableSourceMember)
         {
-            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(
-                context.ChildMappingData,
-                out var contextMappingData);
+            var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(context.ChildMappingData);
+            hasUseableSourceMember = bestSourceMemberMatch.IsUseable;
 
-            if (bestMatchingSourceMember == null)
+            if (hasUseableSourceMember)
             {
-                return null;
+                return context.GetFinalDataSource(
+                    bestSourceMemberMatch.CreateDataSource(),
+                    bestSourceMemberMatch.ContextMappingData);
             }
 
-            var sourceMemberDataSource = SourceMemberDataSource
-                .For(bestMatchingSourceMember, contextMappingData.MapperData);
-
-            return context.GetFinalDataSource(sourceMemberDataSource, contextMappingData);
+            return new AdHocDataSource(
+                bestSourceMemberMatch.SourceMember,
+                Constants.EmptyExpression);
         }
 
         private static bool UseFallbackComplexTypeMappingDataSource(QualifiedMember targetMember)

@@ -26,17 +26,14 @@
                 GetConfiguredDataSources(originalChildMapperData));
         }
 
-        private IList<IConfiguredDataSource> GetConfiguredDataSources(IMemberMapperData mapperData)
-        {
-            return MapperData
-                .MapperContext
-                .UserConfigurations
-                .GetDataSources(mapperData);
-        }
+        private IList<IConfiguredDataSource> GetConfiguredDataSources(IMemberMapperData mapperData) 
+            => MapperContext.UserConfigurations.GetDataSources(mapperData);
 
         public IChildMemberMappingData ChildMappingData { get; }
 
         public IMemberMapperData MapperData => ChildMappingData.MapperData;
+
+        public MapperContext MapperContext => MapperData.MapperContext;
 
         public int DataSourceIndex { get; set; }
 
@@ -59,7 +56,7 @@
                 return new ComplexTypeMappingDataSource(foundDataSource, DataSourceIndex, mappingData);
             }
 
-            if (childTargetMember.IsEnumerable)
+            if (childTargetMember.IsEnumerable && foundDataSource.SourceMember.IsEnumerable)
             {
                 return new EnumerableMappingDataSource(foundDataSource, DataSourceIndex, mappingData);
             }

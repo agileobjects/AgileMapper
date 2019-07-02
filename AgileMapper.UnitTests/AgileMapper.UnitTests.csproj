@@ -220,6 +220,7 @@
     <Compile Include="TestClasses\PaymentTypeUk.cs" />
     <Compile Include="TestClasses\PaymentTypeUs.cs" />
     <Compile Include="TestClasses\PublicCtorStruct.cs" />
+    <Compile Include="TestClasses\PublicEnumerable.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
     <Compile Include="TestClasses\PublicIndex.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />

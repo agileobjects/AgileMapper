@@ -4,90 +4,65 @@
     using System.Collections.Generic;
     using System.Linq;
     using Extensions;
+    using NetStandardPolyfills;
 
     internal static class SourceMemberMatcher
     {
-        public static IQualifiedMember GetMatchFor(
-            IChildMemberMappingData targetData,
-            out IChildMemberMappingData contextMappingData,
+        public static SourceMemberMatch GetMatchFor(
+            IChildMemberMappingData targetMappingData,
             bool searchParentContexts = true)
         {
-            var parentSourceMember = targetData.MapperData.SourceMember;
+            var parentSourceMember = targetMappingData.MapperData.SourceMember;
 
             if (parentSourceMember.IsSimple)
             {
-                contextMappingData = null;
-                return null;
+                return SourceMemberMatch.Null;
             }
 
-            if (ExactMatchingSourceMemberExists(parentSourceMember, targetData, out var matchingMember))
+            if (ExactMatchingMemberExists(parentSourceMember, targetMappingData, out var matchingMember) &&
+                TypesAreCompatible(matchingMember.Type, targetMappingData.MapperData))
             {
-                contextMappingData = targetData;
-                return GetFinalSourceMember(matchingMember, targetData);
+                return new SourceMemberMatch(matchingMember, targetMappingData);
             }
 
-            matchingMember = EnumerateSourceMembers(parentSourceMember, targetData)
-                .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
-
-            if (matchingMember != null)
+            if (TryFindSourceMemberMatch(
+                targetMappingData,
+                parentSourceMember,
+                ref matchingMember,
+                out var sourceMemberMatch))
             {
-                contextMappingData = targetData;
-                return GetFinalSourceMember(matchingMember, targetData);
+                return sourceMemberMatch;
             }
 
-            if (searchParentContexts)
+            if (searchParentContexts &&
+                TryFindParentContextSourceMemberMatch(targetMappingData, ref matchingMember, out sourceMemberMatch))
             {
-                return GetParentContextMatchOrNull(targetData, out contextMappingData);
+                return sourceMemberMatch;
             }
 
-            contextMappingData = null;
-            return null;
+            return (matchingMember != null)
+                ? new SourceMemberMatch(matchingMember, targetMappingData, isUseable: false)
+                : SourceMemberMatch.Null;
         }
 
-        private static IQualifiedMember GetParentContextMatchOrNull(
-            IChildMemberMappingData targetData,
-            out IChildMemberMappingData contextMappingData)
-        {
-            var mappingData = targetData.Parent;
-
-            while (mappingData.Parent != null)
-            {
-                if (mappingData.MapperData.IsEntryPoint ||
-                    mappingData.MapperData.TargetMemberIsEnumerableElement())
-                {
-                    break;
-                }
-
-                mappingData = mappingData.Parent;
-
-                var childMapperData = new ChildMemberMapperData(targetData.MapperData.TargetMember, mappingData.MapperData);
-                contextMappingData = mappingData.GetChildMappingData(childMapperData);
-
-                var matchingMember = EnumerateSourceMembers(mappingData.MapperData.SourceMember, contextMappingData)
-                    .FirstOrDefault(sm => IsMatchingMember(sm, targetData.MapperData));
-
-                if (matchingMember != null)
-                {
-                    return GetFinalSourceMember(matchingMember, targetData);
-                }
-            }
-
-            contextMappingData = null;
-            return null;
-        }
-
-        private static bool ExactMatchingSourceMemberExists(
+        private static bool ExactMatchingMemberExists(
             IQualifiedMember parentSourceMember,
             IChildMemberMappingData targetData,
             out IQualifiedMember matchingMember)
         {
+            var mapperData = targetData.MapperData;
+
+            var matcher = mapperData.TargetType.IsAssignableTo(mapperData.SourceType)
+                ? (Func<IChildMemberMappingData, Member, bool>)MembersAreTheSame
+                : MembersMatch;
+
             var sourceMember = QuerySourceMembers(
                 parentSourceMember,
                 targetData,
-                MembersMatch)
+                matcher)
                 .FirstOrDefault();
 
-            if ((sourceMember == null) || !TypesAreCompatible(sourceMember.Type, targetData.MapperData))
+            if (sourceMember == null)
             {
                 matchingMember = null;
                 return false;
@@ -97,9 +72,12 @@
             return true;
         }
 
+        private static bool MembersAreTheSame(IChildMemberMappingData mappingData, Member sourceMember)
+            => mappingData.MapperData.TargetMember.LeafMember.Equals(sourceMember);
+
         private static bool MembersMatch(IChildMemberMappingData mappingData, Member sourceMember)
         {
-            if (mappingData.MapperData.TargetMember.LeafMember.Equals(sourceMember))
+            if (MembersAreTheSame(mappingData, sourceMember))
             {
                 return true;
             }
@@ -127,15 +105,82 @@
                 : members.Filter(m => m.MemberType != MemberType.GetMethod);
         }
 
-        private static IQualifiedMember GetFinalSourceMember(
-            IQualifiedMember sourceMember,
-            IChildMemberMappingData targetData)
+        private static bool TryFindParentContextSourceMemberMatch(
+            IChildMemberMappingData targetMappingData,
+            ref IQualifiedMember matchingMember,
+            out SourceMemberMatch sourceMemberMatch)
         {
-            return targetData
-                .MapperData
-                .MapperContext
-                .QualifiedMemberFactory
-                .GetFinalSourceMember(sourceMember, targetData.MapperData.TargetMember);
+            var targetMember = targetMappingData.MapperData.TargetMember;
+            var mappingData = targetMappingData.Parent;
+
+            while (mappingData.Parent != null)
+            {
+                if (mappingData.MapperData.IsEntryPoint ||
+                    mappingData.MapperData.TargetMemberIsEnumerableElement())
+                {
+                    break;
+                }
+
+                mappingData = mappingData.Parent;
+
+                var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
+                var contextMappingData = mappingData.GetChildMappingData(childMapperData);
+
+                if (TryFindSourceMemberMatch(
+                    targetMappingData,
+                    mappingData.MapperData.SourceMember,
+                    contextMappingData,
+                    ref matchingMember,
+                    out sourceMemberMatch))
+                {
+                    return true;
+                }
+            }
+
+            sourceMemberMatch = null;
+            return false;
+        }
+
+        private static bool TryFindSourceMemberMatch(
+            IChildMemberMappingData targetMappingData,
+            IQualifiedMember parentSourceMember,
+            ref IQualifiedMember matchingMember,
+            out SourceMemberMatch sourceMemberMatch)
+        {
+            return TryFindSourceMemberMatch(
+                targetMappingData,
+                parentSourceMember,
+                targetMappingData,
+                ref matchingMember,
+                out sourceMemberMatch);
+        }
+
+        private static bool TryFindSourceMemberMatch(
+            IChildMemberMappingData targetMappingData,
+            IQualifiedMember parentSourceMember,
+            IChildMemberMappingData contextMappingData,
+            ref IQualifiedMember matchingMember,
+            out SourceMemberMatch sourceMemberMatch)
+        {
+            var candidateSourceMembers = EnumerateSourceMembers(parentSourceMember, contextMappingData)
+                .Where(targetMappingData.MapperData.TargetMember.Matches);
+
+            foreach (var sourceMember in candidateSourceMembers)
+            {
+                if (TypesAreCompatible(sourceMember.Type, targetMappingData.MapperData))
+                {
+                    sourceMemberMatch = new SourceMemberMatch(sourceMember, contextMappingData);
+                    return true;
+                }
+
+                if (matchingMember == null)
+                {
+                    matchingMember = sourceMember;
+                }
+            }
+
+            sourceMemberMatch = null;
+            return false;
         }
 
         private static IEnumerable<IQualifiedMember> EnumerateSourceMembers(
@@ -200,9 +245,6 @@
 
             return targetMember.Type == typeof(object);
         }
-
-        private static bool IsMatchingMember(IQualifiedMember sourceMember, IMemberMapperData mapperData)
-            => mapperData.TargetMember.Matches(sourceMember) && TypesAreCompatible(sourceMember.Type, mapperData);
 
         private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)
             => mapperData.CanConvert(sourceType, mapperData.TargetMember.Type);

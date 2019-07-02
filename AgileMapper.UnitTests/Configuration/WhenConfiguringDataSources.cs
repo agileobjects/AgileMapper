@@ -177,7 +177,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/111
         [Fact]
-        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeConstant()
+        public void ShouldConditionallyApplyAToTargetSimpleTypeConstant()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -195,7 +195,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyApplyAToTargetConfiguredSimpleType()
+        public void ShouldConditionallyApplyAToTargetSimpleType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -212,7 +212,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyApplyAToTargetConfiguredNestedSimpleTypeExpression()
+        public void ShouldConditionallyApplyAToTargetNestedSimpleTypeExpression()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -236,7 +236,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeExpressionInAComplexTypeList()
+        public void ShouldConditionallyApplyAToTargetSimpleTypeExpressionToAComplexTypeListMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -536,7 +536,7 @@
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
 #if NETCOREAPP2_0
-                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
+                    .Map(ctx => ctx.Source.Value.Split(':', StringSplitOptions.None))
 #else
                     .Map(ctx => ctx.Source.Value.Split(':'))
 #endif
@@ -1213,7 +1213,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
-        public void ShouldApplyAConfiguredRootSource()
+        public void ShouldApplyAConfiguredToTargetDataSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1235,7 +1235,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedOverwriteConfiguredRootSource()
+        public void ShouldApplyANestedOverwriteConfiguredToTargetDataSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1395,7 +1395,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceToAnEnumerableElement()
+        public void ShouldApplyAToTargetComplexTypeToAComplexTypeEnumerableElement()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1426,7 +1426,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredEnumerableRootSource()
+        public void ShouldApplyAToTargetComplexTypeEnumerable()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1463,7 +1463,7 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredComplexTypeRootSources()
+        public void ShouldApplyMultipleToTargetComplexTypes()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1490,7 +1490,7 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredEnumerableRootSources()
+        public void ShouldApplyMultipleToTargetSimpleTypeEnumerables()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1616,6 +1616,40 @@
 
                 result.ParamObj.Collection.Children.First().Definition.ShouldNotBeSameAs(
                     result.ParamValues.First().Definition);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAToTargetSimpleTypeToANestedComplexTypeMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().To<PublicEnumerable<int>>()
+                    .Map(ctx => PublicEnumerable<int>.Parse(ctx.Source)).ToTarget();
+
+                mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<PublicEnumerable<int>>>();
+
+                var source = new PublicField<string> { Value = "1,2,3" };
+                var result = mapper.Map(source).ToANew<PublicField<PublicEnumerable<int>>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBe(1, 2, 3);
+            }
+        }
+
+        [Fact]
+        public void ShouldConditionallyApplyAToTargetSimpleTypeToANestedComplexTypeMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().To<PublicEnumerable<int>>()
+                    .If(cxt => cxt.Source.Contains(','))
+                    .Map(ctx => PublicEnumerable<int>.Parse(ctx.Source)).ToTarget();
+
+                mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<PublicEnumerable<int>>>();
             }
         }
 
