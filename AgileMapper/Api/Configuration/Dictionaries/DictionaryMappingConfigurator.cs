@@ -110,13 +110,13 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #region AndWhenMapping
 
         MappingConfigStartingPoint IGlobalDictionarySettings<TValue>.AndWhenMapping
-            => new MappingConfigStartingPoint(ConfigInfo.MapperContext);
+            => new MappingConfigStartingPoint(MapperContext);
 
         public ISourceDictionaryTargetTypeSelector<TValue> AndWhenMapping => this;
 
 #if FEATURE_DYNAMIC
         MappingConfigStartingPoint IGlobalDynamicSettings.AndWhenMapping
-            => new MappingConfigStartingPoint(ConfigInfo.MapperContext);
+            => new MappingConfigStartingPoint(MapperContext);
 
         ISourceDynamicTargetTypeSelector ISourceDynamicSettings.AndWhenMapping => this;
 #endif

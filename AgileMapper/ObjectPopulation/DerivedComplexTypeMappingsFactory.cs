@@ -370,7 +370,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mapping == EmptyExpression)
             {
-                return EmptyExpression;
+                return mapping;
             }
 
             var returnMappingResult = Return(mappingData.MapperData.ReturnLabelTarget, mapping);
