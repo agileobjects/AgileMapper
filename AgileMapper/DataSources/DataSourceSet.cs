@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 return;
             }
 
-            var variables = new List<ParameterExpression>();
+            var variables = default(List<ParameterExpression>);
 
             for (var i = 0; i < dataSources.Length;)
             {
@@ -45,6 +45,11 @@ namespace AgileObjects.AgileMapper.DataSources
 
                 if (dataSource.Variables.Any())
                 {
+                    if (variables == null)
+                    {
+                        variables = new List<ParameterExpression>();
+                    }
+
                     variables.AddRange(dataSource.Variables);
                 }
 
@@ -54,7 +59,9 @@ namespace AgileObjects.AgileMapper.DataSources
                 }
             }
 
-            Variables = variables;
+            Variables = (variables != null)
+                ? (IList<ParameterExpression>)variables
+                : Enumerable<ParameterExpression>.EmptyArray;
         }
 
         public IMemberMapperData MapperData { get; }
@@ -85,7 +92,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 var dataSourceValue = dataSource.IsConditional
                     ? Expression.Condition(
                         dataSource.Condition,
-                        isFirstDataSource 
+                        isFirstDataSource
                             ? dataSource.Value
                             : dataSource.Value.GetConversionTo(value.Type),
                         isFirstDataSource

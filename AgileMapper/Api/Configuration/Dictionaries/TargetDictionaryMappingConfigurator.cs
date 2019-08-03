@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private QualifiedMember GetSourceMemberOrThrow(LambdaExpression lambda)
         {
-            var sourceMember = lambda.Body.ToSourceMember(ConfigInfo.MapperContext);
+            var sourceMember = lambda.Body.ToSourceMember(MapperContext);
 
             if (sourceMember != null)
             {

@@ -24,14 +24,19 @@ namespace AgileObjects.AgileMapper
             IMemberPopulationFactory populationFactory,
             IDataSourceFactory fallbackDataSourceFactory,
             IRootMapperKeyFactory rootMapperKeyFactory)
+            : this(name)
         {
-            Name = name;
             Settings = settings;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             RepeatMappingStrategy = repeatMappingStrategy;
             PopulationFactory = populationFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
             RootMapperKeyFactory = rootMapperKeyFactory;
+        }
+
+        public MappingRuleSet(string name)
+        {
+            Name = name;
         }
 
         public string Name { get; }
