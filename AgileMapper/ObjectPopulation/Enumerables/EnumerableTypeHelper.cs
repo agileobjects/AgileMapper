@@ -4,15 +4,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class EnumerableTypeHelper
     {
@@ -197,6 +198,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetCountFor(Expression instance, Type countType = null)
             => instance.GetCount(countType, exp => CollectionInterfaceType);
+
+        public Expression GetNonZeroCountCheck(Expression enumerableAccess)
+        {
+            var enumerableCount = GetCountFor(enumerableAccess);
+            var zero = ToNumericConverter<int>.Zero.GetConversionTo(enumerableCount.Type);
+            var countGreaterThanZero = Expression.GreaterThan(enumerableCount, zero);
+
+            return countGreaterThanZero;
+        }
 
         public Type GetEmptyInstanceCreationFallbackType()
         {

@@ -371,16 +371,7 @@
 
                 return helper.IsEnumerableOrQueryable
                     ? GetLinqMethodCall(nameof(Enumerable.Any), enumerableAccess, helper)
-                    : GetEnumerableCountCheck(enumerableAccess, helper);
-            }
-
-            public static Expression GetEnumerableCountCheck(Expression enumerableAccess, EnumerableTypeHelper helper)
-            {
-                var enumerableCount = helper.GetCountFor(enumerableAccess);
-                var zero = ToNumericConverter<int>.Zero.GetConversionTo(enumerableCount.Type);
-                var countGreaterThanZero = Expression.GreaterThan(enumerableCount, zero);
-
-                return countGreaterThanZero;
+                    : helper.GetNonZeroCountCheck(enumerableAccess);
             }
         }
 
@@ -447,7 +438,7 @@
 
             private Expression GetCondition(Expression enumerableAccess, EnumerableTypeHelper helper)
             {
-                var enumerableCheck = HasMetaMemberPart.GetEnumerableCountCheck(enumerableAccess, helper);
+                var enumerableCheck = helper.GetNonZeroCountCheck(enumerableAccess);
 
                 if (MapperData.RuleSet.Settings.GuardAccessTo(enumerableAccess))
                 {
