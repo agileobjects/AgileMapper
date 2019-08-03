@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             var targetType = mappingData.MapperData.TargetType;
 
-            if (targetType.IsAbstract() && DerivedTypesExistForTarget(mappingData))
+            if (targetType.IsAbstract() && DerivedTypesExistForTarget(mappingData.MapperData))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
@@ -57,17 +57,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return true;
         }
 
-        private static bool DerivedTypesExistForTarget(IObjectMappingData mappingData)
+        private static bool DerivedTypesExistForTarget(IMemberMapperData mapperData)
         {
-            var configuredImplementationTypePairs = mappingData
-                .MapperData
+            var configuredImplementationTypePairs = mapperData
                 .MapperContext
                 .UserConfigurations
                 .DerivedTypes
-                .GetImplementationTypePairsFor(mappingData.MapperData, mappingData.MapperData.MapperContext);
+                .GetImplementationTypePairsFor(mapperData, mapperData.MapperContext);
 
             return configuredImplementationTypePairs.Any() ||
-                   mappingData.MapperData.GetDerivedTargetTypes().Any();
+                   mapperData.GetDerivedTargetTypes().Any();
         }
 
         #region Short-Circuits

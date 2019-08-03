@@ -26,7 +26,7 @@
                 GetConfiguredDataSources(originalChildMapperData));
         }
 
-        private IList<IConfiguredDataSource> GetConfiguredDataSources(IMemberMapperData mapperData) 
+        private IList<IConfiguredDataSource> GetConfiguredDataSources(IMemberMapperData mapperData)
             => MapperContext.UserConfigurations.GetDataSources(mapperData);
 
         public IChildMemberMappingData ChildMappingData { get; }
@@ -46,7 +46,7 @@
 
         public IDataSource GetFinalDataSource(IDataSource foundDataSource)
             => GetFinalDataSource(foundDataSource, ChildMappingData);
-        
+
         public IDataSource GetFinalDataSource(IDataSource foundDataSource, IChildMemberMappingData mappingData)
         {
             var childTargetMember = mappingData.MapperData.TargetMember;

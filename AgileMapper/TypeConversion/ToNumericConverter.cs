@@ -2,14 +2,14 @@
 {
     using System;
     using System.Linq;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class ToNumericConverter<TNumeric> : TryParseConverter<TNumeric>
     {

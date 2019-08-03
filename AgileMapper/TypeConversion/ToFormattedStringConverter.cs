@@ -2,14 +2,14 @@
 {
     using System;
     using System.Reflection;
-    using Configuration;
-    using Extensions.Internal;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Extensions.Internal;
+    using ReadableExpressions.Extensions;
 
     internal class ToFormattedStringConverter : IValueConverter
     {
@@ -28,7 +28,7 @@
             }
 
             _sourceValueType = sourceValueType;
-            _formattingString = formattingString.ToConstantExpression(typeof(string));
+            _formattingString = formattingString.ToConstantExpression();
         }
 
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)

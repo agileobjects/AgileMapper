@@ -39,7 +39,6 @@
             }
         }
 #endif
-
         [DebuggerStepThrough]
         public static T First<T>(this IList<T> items) => items[0];
 
@@ -221,12 +220,12 @@
                     itemValueFactory.Invoke);
         }
 
-        public static void CopyTo<T>(this IList<T> sourceList, List<T> targetList, int startIndex = 0)
+        public static void CopyTo<T>(this IList<T> sourceList, List<T> targetList)
             => targetList.AddRange(sourceList);
 
         public static void CopyFrom<T>(this IList<T> targetList, IList<T> sourceList, int startIndex = 0)
         {
-            for (var i = 0; i < sourceList.Count; i++)
+            for (var i = 0; i < sourceList.Count && i < targetList.Count; i++)
             {
                 targetList[i + startIndex] = sourceList[i];
             }
@@ -270,16 +269,16 @@
             }
         }
 
-        public static T[] Append<T>(this IList<T> array, IList<T> extraItems)
+        public static IList<T> Append<T>(this IList<T> array, IList<T> extraItems)
         {
             if (extraItems.Count == 0)
             {
-                return array.CopyToArray();
+                return array;
             }
 
             if (array.Count == 0)
             {
-                return extraItems.CopyToArray();
+                return extraItems;
             }
 
             if (extraItems.Count == 1)

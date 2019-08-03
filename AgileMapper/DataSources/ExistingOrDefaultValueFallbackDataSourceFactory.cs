@@ -11,11 +11,11 @@ namespace AgileObjects.AgileMapper.DataSources
     internal struct ExistingOrDefaultValueFallbackDataSourceFactory : IFallbackDataSourceFactory
     {
         public IDataSource Create(IMemberMapperData mapperData)
-            => new ExistingMemberValueOrDefaultDataSource(mapperData);
+            => new ExistingValueOrDefaultFallbackDataSource(mapperData);
 
-        private class ExistingMemberValueOrDefaultDataSource : DataSourceBase
+        private class ExistingValueOrDefaultFallbackDataSource : DataSourceBase
         {
-            public ExistingMemberValueOrDefaultDataSource(IMemberMapperData mapperData)
+            public ExistingValueOrDefaultFallbackDataSource(IMemberMapperData mapperData)
                 : base(mapperData.SourceMember, GetValue(mapperData), mapperData)
             {
             }

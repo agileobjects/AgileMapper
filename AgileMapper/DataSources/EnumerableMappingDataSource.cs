@@ -2,16 +2,16 @@
 {
     using System;
     using System.Linq;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
-    using ObjectPopulation;
-    using ObjectPopulation.Enumerables;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
+    using ObjectPopulation;
+    using ObjectPopulation.Enumerables;
 
     internal class EnumerableMappingDataSource : DataSourceBase
     {

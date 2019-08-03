@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         public IEnumerable<Expression> GetPopulation(MappingCreationContext context)
         {
             var mappingData = context.MappingData;
-            var mapperData = context.MapperData;
+            var mapperData = mappingData.MapperData;
 
             GetCreationCallbacks(context, out var preCreationCallback, out var postCreationCallback);
 
