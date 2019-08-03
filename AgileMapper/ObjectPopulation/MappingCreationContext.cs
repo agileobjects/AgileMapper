@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class MappingCreationContext
     {
         private bool _mapperDataHasRootEnumerableVariables;
-        private List<Expression> _memberMappingExpressions;
+        private IList<Expression> _memberMappingExpressions;
 
         public MappingCreationContext(IObjectMappingData mappingData)
         {
@@ -62,11 +62,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool InstantiateLocalVariable { get; set; }
 
-        public List<Expression> GetMemberMappingExpressions()
+        public IList<Expression> GetMemberMappingExpressions()
         {
             if (_memberMappingExpressions?.Count == MappingExpressions.Count)
             {
-                return _memberMappingExpressions ?? new List<Expression>(0);
+                return _memberMappingExpressions ?? Enumerable<Expression>.EmptyArray;
             }
 
             return _memberMappingExpressions = MappingExpressions.Filter(IsMemberMapping).ToList();

@@ -615,7 +615,7 @@
                 var mappingTryCatchBodyBlock = (BlockExpression)mappingTryCatch.Body;
 
                 mappingTryCatchBody = Expression.Block(
-                    mappingTryCatchBodyBlock.Variables.Prepend(valueVariable),
+                    mappingTryCatchBodyBlock.Variables.Append(valueVariable),
                     existingElementValueCheck.Expressions.Append(mappingTryCatchBodyBlock.Expressions));
             }
 

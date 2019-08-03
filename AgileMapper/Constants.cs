@@ -3,13 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using NetStandardPolyfills;
 
     internal static class Constants
     {
@@ -23,13 +23,13 @@
 
         public static readonly Expression EmptyExpression = Expression.Empty();
 
-        public const string CreateNew = "CreateNew";
+        public const string CreateNew = nameof(CreateNew);
 
-        public const string Merge = "Merge";
+        public const string Merge = nameof(Merge);
 
-        public const string Overwrite = "Overwrite";
+        public const string Overwrite = nameof(Overwrite);
 
-        public const string Project = "Project";
+        public const string Project = nameof(Project);
 
         public const int BeforeLoopExitCheck = 0;
 
@@ -57,7 +57,7 @@
             typeof(ulong)
         };
 
-        public static readonly Type[] NumericTypes = WholeNumberNumericTypes
+        public static readonly IList<Type> NumericTypes = WholeNumberNumericTypes
             .Append(new[] { typeof(float), typeof(decimal), typeof(double) });
 
         public static readonly IDictionary<Type, double> NumericTypeMaxValuesByType = GetValuesByType("MaxValue");

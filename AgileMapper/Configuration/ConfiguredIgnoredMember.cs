@@ -1,14 +1,14 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using DataSources;
-    using Members;
-    using ReadableExpressions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Members;
+    using ReadableExpressions;
 
     internal class ConfiguredIgnoredMember :
         UserConfiguredItemBase,

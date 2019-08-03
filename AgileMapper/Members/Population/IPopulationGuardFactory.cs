@@ -6,8 +6,8 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
 #endif
 
-    internal interface IMemberPopulationFactory
+    internal interface IPopulationGuardFactory
     {
-        Expression GetPopulation(IMemberPopulationContext context);
+        Expression GetPopulationGuard(IMemberPopulationContext context);
     }
 }

@@ -5,14 +5,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.Expression;
 #else
     using System.Linq.Expressions;
+    using static System.Linq.Expressions.Expression;
 #endif
     using Configuration;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using static Constants;
 
     internal static class DerivedComplexTypeMappingsFactory
     {
@@ -22,57 +25,69 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (DoNotMapDerivedTypes(declaredTypeMapperData))
             {
-                return Constants.EmptyExpression;
+                return EmptyExpression;
             }
 
-            var derivedSourceTypes = declaredTypeMapperData.RuleSet.Settings.CheckDerivedSourceTypes
-                ? declaredTypeMapperData.GetDerivedSourceTypes()
-                : Constants.EmptyTypeArray;
+            var derivedSourceTypes = GetDerivedSourceTypesIfNecessary(declaredTypeMapperData);
+            var hasDerivedSourceTypes = derivedSourceTypes.Any();
+            var hasNoDerivedSourceTypes = !hasDerivedSourceTypes;
 
-            var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMappingData);
+            var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMapperData);
+            var hasDerivedTargetTypes = derivedTargetTypes.Any();
+
             var derivedTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
+            var hasDerivedTypePairs = derivedTypePairs.Any();
 
-            if (derivedSourceTypes.None() && derivedTargetTypes.None() && derivedTypePairs.None())
+            if (hasNoDerivedSourceTypes && !hasDerivedTargetTypes && !hasDerivedTypePairs)
             {
-                return Constants.EmptyExpression;
+                return EmptyExpression;
             }
 
             var derivedTypeMappingExpressions = new List<Expression>();
 
-            AddDeclaredSourceTypeMappings(
-                derivedTypePairs,
-                declaredTypeMappingData,
-                derivedTypeMappingExpressions,
-                out var declaredTypeHasUnconditionalTypePair);
-
-            if (declaredTypeHasUnconditionalTypePair && derivedSourceTypes.None())
+            if (hasDerivedTypePairs)
             {
-                return derivedTypeMappingExpressions.First();
+                AddDeclaredSourceTypeMappings(
+                    derivedTypePairs,
+                    declaredTypeMappingData,
+                    derivedTypeMappingExpressions,
+                    out var declaredTypeHasUnconditionalTypePair);
+
+                if (declaredTypeHasUnconditionalTypePair && hasNoDerivedSourceTypes)
+                {
+                    return derivedTypeMappingExpressions.First();
+                }
             }
 
             var typedObjectVariables = new List<ParameterExpression>();
 
-            AddDerivedSourceTypeMappings(
-                derivedSourceTypes,
-                declaredTypeMappingData,
-                typedObjectVariables,
-                derivedTypeMappingExpressions);
+            if (hasDerivedSourceTypes)
+            {
+                AddDerivedSourceTypeMappings(
+                    derivedSourceTypes,
+                    declaredTypeMappingData,
+                    typedObjectVariables,
+                    derivedTypeMappingExpressions);
+            }
 
-            AddDerivedTargetTypeMappings(
-                declaredTypeMappingData,
-                derivedTargetTypes,
-                derivedTypeMappingExpressions);
+            if (hasDerivedTargetTypes)
+            {
+                AddDerivedTargetTypeMappings(
+                    declaredTypeMappingData,
+                    derivedTargetTypes,
+                    derivedTypeMappingExpressions);
+            }
 
             if (derivedTypeMappingExpressions.None())
             {
-                return Constants.EmptyExpression;
+                return EmptyExpression;
             }
 
             return typedObjectVariables.Any()
-                ? Expression.Block(typedObjectVariables, derivedTypeMappingExpressions)
+                ? Block(typedObjectVariables, derivedTypeMappingExpressions)
                 : derivedTypeMappingExpressions.HasOne()
                     ? derivedTypeMappingExpressions.First()
-                    : Expression.Block(derivedTypeMappingExpressions);
+                    : Block(derivedTypeMappingExpressions);
         }
 
         private static bool DoNotMapDerivedTypes(IMemberMapperData mapperData)
@@ -85,14 +100,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData.HasSameSourceAsParent();
         }
 
-        private static ICollection<Type> GetDerivedTargetTypesIfNecessary(IObjectMappingData mappingData)
+        private static ICollection<Type> GetDerivedSourceTypesIfNecessary(IMemberMapperData mapperData)
         {
-            if (mappingData.MapperData.TargetIsDefinitelyUnpopulated())
-            {
-                return Constants.EmptyTypeArray;
-            }
+            return mapperData.RuleSet.Settings.CheckDerivedSourceTypes
+                ? mapperData.GetDerivedSourceTypes()
+                : EmptyTypeArray;
+        }
 
-            return mappingData.MapperData.GetDerivedTargetTypes();
+        private static ICollection<Type> GetDerivedTargetTypesIfNecessary(IMemberMapperData mapperData)
+        {
+            return mapperData.TargetCouldBePopulated()
+                ? mapperData.GetDerivedTargetTypes()
+                : EmptyTypeArray;
         }
 
         private static void AddDeclaredSourceTypeMappings(
@@ -122,23 +141,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (sourceValueCondition != null)
                 {
-                    derivedTypeMapping = Expression.Condition(
+                    derivedTypeMapping = Condition(
                         sourceValueCondition,
                         derivedTypeMapping,
                         derivedTypeMapping.Type.ToDefaultExpression());
                 }
 
-                var returnMappingResult = Expression.Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
+                var returnMappingResult = Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
 
-                declaredTypeHasUnconditionalTypePair = (condition == null);
-
-                if (declaredTypeHasUnconditionalTypePair)
+                if (condition == null)
                 {
+                    declaredTypeHasUnconditionalTypePair = true;
                     derivedTypeMappingExpressions.Add(returnMappingResult);
                     return;
                 }
 
-                var ifConditionThenMap = Expression.IfThen(condition, returnMappingResult);
+                var ifConditionThenMap = IfThen(condition, returnMappingResult);
 
                 derivedTypeMappingExpressions.Add(ifConditionThenMap);
             }
@@ -157,7 +175,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var pairCondition = derivedTypePair.GetConditionOrNull(declaredTypeMapperData);
 
-            return (condition != null) ? Expression.AndAlso(pairCondition, condition) : pairCondition;
+            return (condition != null) ? AndAlso(pairCondition, condition) : pairCondition;
         }
 
         private static Expression GetDerivedTypeSourceValue(
@@ -200,16 +218,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static void AddDerivedSourceTypeMappings(
-            ICollection<Type> derivedSourceTypes,
+            IEnumerable<Type> derivedSourceTypes,
             IObjectMappingData declaredTypeMappingData,
             ICollection<ParameterExpression> typedObjectVariables,
             IList<Expression> derivedTypeMappingExpressions)
         {
-            if (derivedSourceTypes.None())
-            {
-                return;
-            }
-
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
             var insertionOffset = derivedTypeMappingExpressions.Count;
 
@@ -245,28 +258,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                var groupedTypePairs = derivedTypePairs
-                    .GroupBy(tp => tp.DerivedTargetType)
-                    .Project(group => new TypePairGroup(group))
-                    .OrderBy(tp => tp.DerivedTargetType, TypeComparer.MostToLeastDerived)
-                    .ToArray();
+                var hasUnconditionalDerivedTargetTypeMapping = HasUnconditionalDerivedTargetTypeMapping(
+                    derivedTypePairs,
+                    declaredTypeMapperData,
+                    out var unconditionalDerivedTargetType,
+                    out var groupedTypePairs);
 
-                var unconditionalDerivedTargetTypeMapping = groupedTypePairs
-                    .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition))
-                    .Project(tpg => new
-                    {
-                        tpg.DerivedTargetType,
-                        TypePairsCondition = GetTargetValidCheckOrNull(tpg.DerivedTargetType, declaredTypeMapperData)
-                    })
-                    .FirstOrDefault(d => d.TypePairsCondition == null);
-
-                if (unconditionalDerivedTargetTypeMapping != null)
+                if (hasUnconditionalDerivedTargetTypeMapping)
                 {
                     ifSourceVariableIsDerivedTypeThenMap = GetIfConditionThenMapExpression(
                         declaredTypeMappingData,
                         outerCondition,
                         derivedSourceCheck.TypedVariable,
-                        unconditionalDerivedTargetTypeMapping.DerivedTargetType);
+                        unconditionalDerivedTargetType);
 
                     derivedTypeMappingExpressions.Insert(ifSourceVariableIsDerivedTypeThenMap, insertionOffset);
                     continue;
@@ -281,6 +285,38 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 derivedTypeMappingExpressions.Insert(ifSourceVariableIsDerivedTypeThenMap, insertionOffset);
             }
+        }
+
+        private static bool HasUnconditionalDerivedTargetTypeMapping(
+            IEnumerable<DerivedTypePair> derivedTypePairs,
+            IMemberMapperData declaredTypeMapperData,
+            out Type unconditionalDerivedTargetType,
+            out TypePairGroup[] groupedTypePairs)
+        {
+            groupedTypePairs = derivedTypePairs
+                .GroupBy(tp => tp.DerivedTargetType)
+                .Project(group => new TypePairGroup(group))
+                .OrderBy(tp => tp.DerivedTargetType, TypeComparer.MostToLeastDerived)
+                .ToArray();
+
+            var unconditionalTypePairs = groupedTypePairs
+                .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
+
+            foreach (var unconditionalTypePair in unconditionalTypePairs)
+            {
+                var typePairsCondition = GetTargetValidCheckOrNull(
+                    unconditionalTypePair.DerivedTargetType,
+                    declaredTypeMapperData);
+
+                if (typePairsCondition == null)
+                {
+                    unconditionalDerivedTargetType = unconditionalTypePair.DerivedTargetType;
+                    return true;
+                }
+            }
+
+            unconditionalDerivedTargetType = null;
+            return false;
         }
 
         private static void AddDerivedTargetTypeMappings(
@@ -315,12 +351,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var returnMappingResult = GetReturnMappingResultExpression(mappingData, sourceValue, targetType);
 
-            if (returnMappingResult == Constants.EmptyExpression)
+            if (returnMappingResult == EmptyExpression)
             {
-                return Constants.EmptyExpression;
+                return EmptyExpression;
             }
 
-            var ifConditionThenMap = Expression.IfThen(condition, returnMappingResult);
+            var ifConditionThenMap = IfThen(condition, returnMappingResult);
 
             return ifConditionThenMap;
         }
@@ -332,12 +368,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapping = DerivedMappingFactory.GetDerivedTypeMapping(mappingData, sourceValue, targetType);
 
-            if (mapping == Constants.EmptyExpression)
+            if (mapping == EmptyExpression)
             {
-                return Constants.EmptyExpression;
+                return EmptyExpression;
             }
 
-            var returnMappingResult = Expression.Return(mappingData.MapperData.ReturnLabelTarget, mapping);
+            var returnMappingResult = Return(mappingData.MapperData.ReturnLabelTarget, mapping);
 
             return returnMappingResult;
         }
@@ -371,13 +407,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             mappingExpressions.Add(mapToDeclaredTargetType);
 
-            var ifSourceVariableIsDerivedTypeThenMap = Expression
-                .IfThen(condition, Expression.Block(mappingExpressions));
+            var ifSourceVariableIsDerivedTypeThenMap = IfThen(condition, Block(mappingExpressions));
 
             return ifSourceVariableIsDerivedTypeThenMap;
         }
 
-        private static IList<DerivedTypePair> GetTypePairsFor(
+        private static ICollection<DerivedTypePair> GetTypePairsFor(
             Type derivedSourceType,
             Type targetType,
             IMemberMapperData mapperData)
@@ -392,7 +427,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return GetTypePairsFor(pairTestMapperData, mapperData);
         }
 
-        private static IList<DerivedTypePair> GetTypePairsFor(IBasicMapperData pairTestMapperData, IMemberMapperData mapperData)
+        private static ICollection<DerivedTypePair> GetTypePairsFor(IBasicMapperData pairTestMapperData, IMemberMapperData mapperData)
         {
             var derivedTypePairs = mapperData.MapperContext.UserConfigurations
                 .DerivedTypes
@@ -411,7 +446,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var pairConditions = conditionalPairs.Chain(
                 firstPair => firstPair.GetConditionOrNull(mapperData),
-                (conditionSoFar, pair) => Expression.OrElse(
+                (conditionSoFar, pair) => OrElse(
                     conditionSoFar,
                     pair.GetConditionOrNull(mapperData)));
 
@@ -435,7 +470,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return condition;
             }
 
-            condition = Expression.AndAlso(condition, targetIsValid);
+            condition = AndAlso(condition, targetIsValid);
 
             return condition;
         }
@@ -455,13 +490,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var targetIsNull = mapperData.TargetObject.GetIsDefaultComparison();
-            var targetIsValid = Expression.OrElse(targetIsNull, targetIsOfDerivedType);
+            var targetIsValid = OrElse(targetIsNull, targetIsOfDerivedType);
 
             return targetIsValid;
         }
 
         private static Expression GetTargetIsDerivedTypeCheck(Type targetType, IMemberMapperData mapperData)
-            => Expression.TypeIs(mapperData.TargetObject, targetType);
+            => TypeIs(mapperData.TargetObject, targetType);
 
         private static void Insert(this IList<Expression> mappingExpressions, Expression mapping, int insertionOffset)
         {

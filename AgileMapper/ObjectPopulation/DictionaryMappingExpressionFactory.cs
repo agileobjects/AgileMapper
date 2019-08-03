@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return allTargetMembers;
         }
 
-        private static IEnumerable<DictionaryTargetMember> EnumerateAllTargetMembers(ObjectMapperData mapperData)
+        private static IEnumerable<QualifiedMember> EnumerateAllTargetMembers(ObjectMapperData mapperData)
         {
             var sourceMembers = GlobalContext.Instance.MemberCache.GetSourceMembers(mapperData.SourceType);
             var targetDictionaryMember = (DictionaryTargetMember)mapperData.TargetMember;
@@ -207,16 +207,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .ToArray();
         }
 
-        private static DictionaryTargetMember[] GetConfiguredTargetMembers(
+        private static QualifiedMember[] GetConfiguredTargetMembers(
             IEnumerable<ConfiguredDictionaryEntryDataSourceFactory> configuredDataSourceFactories,
-            IList<DictionaryTargetMember> targetMembersFromSource)
+            IList<QualifiedMember> targetMembersFromSource)
         {
             return configuredDataSourceFactories
                 .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
                 .Project(group =>
                 {
-                    var factory = group.First();
-                    var targetMember = factory.TargetDictionaryEntryMember;
+                    QualifiedMember targetMember = group.First().TargetDictionaryEntryMember;
 
                     targetMember.IsCustom = targetMembersFromSource.None(
                         sourceMember => sourceMember.RegistrationName == targetMember.Name);
@@ -277,10 +276,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
+            Expression population;
+
             if (!context.MapperData.TargetMember.IsDictionary)
             {
-                yield return GetDictionaryPopulation(context.MappingData);
-                yield break;
+                population = GetDictionaryPopulation(context.MappingData);
+                goto ReturnPopulation;
             }
 
             var assignmentFactory = GetDictionaryAssignmentFactoryOrNull(context, out var useAssignmentOnly);
@@ -291,11 +292,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield break;
             }
 
-            var population = GetDictionaryPopulation(context.MappingData);
+            population = GetDictionaryPopulation(context.MappingData);
             var assignment = assignmentFactory?.Invoke(context.MappingData);
 
-            yield return assignment;
-            yield return population;
+            if (assignment != null)
+            {
+                yield return assignment;
+            }
+
+            ReturnPopulation:
+            if (population != null)
+            {
+                yield return population;
+            }
         }
 
         private static Func<IObjectMappingData, Expression> GetDictionaryAssignmentFactoryOrNull(

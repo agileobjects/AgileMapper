@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         public IEnumerable<Expression> GetPopulation(MappingCreationContext context)
         {
             var mappingData = context.MappingData;
-            var mapperData = context.MapperData;
+            var mapperData = mappingData.MapperData;
 
             GetCreationCallbacks(context, out var preCreationCallback, out var postCreationCallback);
 
@@ -26,16 +26,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (context.InstantiateLocalVariable && mapperData.Context.UseLocalVariable)
             {
-                yield return preCreationCallback;
-
-                var assignCreatedObject = postCreationCallback != null;
+                if (preCreationCallback != null)
+                {
+                    yield return preCreationCallback;
+                }
+                
+                var hasPostCreationCallback = postCreationCallback != null;
+                var assignCreatedObject = hasPostCreationCallback;
 
                 yield return GetLocalVariableInstantiation(assignCreatedObject, populationsAndCallbacks, mappingData);
 
-                yield return postCreationCallback;
+                if (hasPostCreationCallback)
+                {
+                    yield return postCreationCallback;
+                }
             }
 
-            yield return GetObjectRegistrationCallOrNull(mapperData);
+            if (IncludeObjectRegistration(mapperData))
+            {
+                yield return GetObjectRegistrationCall(mapperData);
+            }
 
             foreach (var population in populationsAndCallbacks)
             {
@@ -113,15 +123,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Object Registration
 
-        private static Expression GetObjectRegistrationCallOrNull(ObjectMapperData mapperData)
+        private static bool IncludeObjectRegistration(ObjectMapperData mapperData)
         {
-            if (mapperData.TargetTypeWillNotBeMappedAgain ||
-               !mapperData.CacheMappedObjects ||
-               !mapperData.RuleSet.Settings.AllowObjectTracking)
-            {
-                return null;
-            }
+            return mapperData.CacheMappedObjects &&
+                   mapperData.RuleSet.Settings.AllowObjectTracking &&
+                  !mapperData.TargetTypeWillNotBeMappedAgain;
+        }
 
+        private static Expression GetObjectRegistrationCall(ObjectMapperData mapperData)
+        {
             var registerMethod = typeof(IObjectMappingDataUntyped)
                 .GetPublicInstanceMethod(nameof(IObjectMappingDataUntyped.Register))
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);

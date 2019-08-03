@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 return;
             }
 
-            var variables = new List<ParameterExpression>();
+            var variables = default(List<ParameterExpression>);
 
             for (var i = 0; i < dataSources.Length;)
             {
@@ -45,6 +45,11 @@ namespace AgileObjects.AgileMapper.DataSources
 
                 if (dataSource.Variables.Any())
                 {
+                    if (variables == null)
+                    {
+                        variables = new List<ParameterExpression>();
+                    }
+
                     variables.AddRange(dataSource.Variables);
                 }
 
@@ -54,7 +59,9 @@ namespace AgileObjects.AgileMapper.DataSources
                 }
             }
 
-            Variables = variables;
+            Variables = (variables != null)
+                ? (IList<ParameterExpression>)variables
+                : Enumerable<ParameterExpression>.EmptyArray;
         }
 
         public IMemberMapperData MapperData { get; }
@@ -71,6 +78,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public IDataSource this[int index] => _dataSources[index];
 
+        public int Count => _dataSources.Count;
+
         public Expression ValueExpression => _value ?? (_value = BuildValueExpression());
 
         private Expression BuildValueExpression()
@@ -85,7 +94,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 var dataSourceValue = dataSource.IsConditional
                     ? Expression.Condition(
                         dataSource.Condition,
-                        isFirstDataSource 
+                        isFirstDataSource
                             ? dataSource.Value
                             : dataSource.Value.GetConversionTo(value.Type),
                         isFirstDataSource
@@ -99,67 +108,30 @@ namespace AgileObjects.AgileMapper.DataSources
             return value;
         }
 
-        public Expression GetPopulationExpression()
-        {
-            var fallbackValue = GetFallbackValueOrNull();
-            var excludeFallback = fallbackValue == null;
-
-            Expression population = null;
-
-            for (var i = _dataSources.Count - 1; i >= 0; --i)
-            {
-                var dataSource = _dataSources[i];
-
-                if (i == _dataSources.Count - 1)
-                {
-                    if (excludeFallback)
-                    {
-                        continue;
-                    }
-
-                    population = MapperData.GetTargetMemberPopulation(fallbackValue);
-
-                    if (dataSource.IsConditional)
-                    {
-                        population = dataSource.AddCondition(population);
-                    }
-
-                    population = dataSource.AddPreCondition(population);
-                    continue;
-                }
-
-                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-
-                population = dataSource.AddCondition(memberPopulation, population);
-                population = dataSource.AddPreCondition(population);
-            }
-
-            return population;
-        }
-
-        private Expression GetFallbackValueOrNull()
+        public Expression GetFinalValueOrNull()
         {
             var finalDataSource = _dataSources.Last();
-            var fallbackValue = finalDataSource.Value;
+            var finalValue = finalDataSource.Value;
 
-            if (finalDataSource.IsConditional || _dataSources.HasOne())
+            if (!finalDataSource.IsFallback)
             {
-                return fallbackValue;
+                return finalValue;
             }
 
-            if (fallbackValue.NodeType == ExpressionType.Coalesce)
+            if (finalValue.NodeType == ExpressionType.Coalesce)
             {
-                return ((BinaryExpression)fallbackValue).Right;
+                // Coalesce between the existing target member value and the fallback:
+                return ((BinaryExpression)finalValue).Right;
             }
 
             var targetMemberAccess = MapperData.GetTargetMemberAccess();
 
-            if (ExpressionEvaluation.AreEqual(fallbackValue, targetMemberAccess))
+            if (ExpressionEvaluation.AreEqual(finalValue, targetMemberAccess))
             {
                 return null;
             }
 
-            return fallbackValue;
+            return finalValue;
         }
 
         #region IEnumerable<IDataSource> Members

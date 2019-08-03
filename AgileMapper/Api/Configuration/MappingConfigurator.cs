@@ -37,6 +37,8 @@
 
         protected MapperContext MapperContext => ConfigInfo.MapperContext;
 
+        private UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
+
         #region IFullMappingInlineConfigurator Members
 
         public MappingConfigStartingPoint WhenMapping
@@ -96,7 +98,7 @@
         {
             var depthSettings = new RecursionDepthSettings(ConfigInfo, recursionDepth);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(depthSettings);
+            UserConfigurations.Add(depthSettings);
             return this;
         }
 
@@ -213,7 +215,7 @@
 
         public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
-            MapperContext.UserConfigurations.Add(new ExceptionCallback(ConfigInfo, callback.ToConstantExpression()));
+            UserConfigurations.Add(new ExceptionCallback(ConfigInfo, callback.ToConstantExpression()));
             return this;
         }
 
@@ -223,13 +225,13 @@
 
         private IFullMappingSettings<TSource, TTarget> SetMappedObjectCaching(bool cache)
         {
-            MapperContext.UserConfigurations.Add(new MappedObjectCachingSetting(ConfigInfo, cache));
+            UserConfigurations.Add(new MappedObjectCachingSetting(ConfigInfo, cache));
             return this;
         }
 
         public IFullMappingSettings<TSource, TTarget> MapNullCollectionsToNull()
         {
-            MapperContext.UserConfigurations.Add(new NullCollectionsSetting(ConfigInfo));
+            UserConfigurations.Add(new NullCollectionsSetting(ConfigInfo));
             return this;
         }
 
@@ -239,7 +241,7 @@
 
         private IFullMappingSettings<TSource, TTarget> SetEntityKeyMapping(bool mapKeys)
         {
-            MapperContext.UserConfigurations.Add(new EntityKeyMappingSetting(ConfigInfo, mapKeys));
+            UserConfigurations.Add(new EntityKeyMappingSetting(ConfigInfo, mapKeys));
             return this;
         }
 
@@ -251,7 +253,7 @@
 
         private IFullMappingSettings<TSource, TTarget> SetDataSourceReversal(bool reverse)
         {
-            MapperContext.UserConfigurations.Add(new DataSourceReversalSetting(ConfigInfo, reverse));
+            UserConfigurations.Add(new DataSourceReversalSetting(ConfigInfo, reverse));
             return this;
         }
 
@@ -299,7 +301,7 @@
 #else
             var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
 #endif
-            MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+            UserConfigurations.Add(configuredIgnoredMember);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
@@ -323,7 +325,7 @@
 #else
                 var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, targetMember);
 #endif
-                MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+                UserConfigurations.Add(configuredIgnoredMember);
                 ConfigInfo.NegateCondition();
             }
 
@@ -461,7 +463,7 @@
         {
             var condition = new MapToNullCondition(ConfigInfo);
 
-            MapperContext.UserConfigurations.Add(condition);
+            UserConfigurations.Add(condition);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }

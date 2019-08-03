@@ -32,7 +32,8 @@
                     yield return context.GetFallbackDataSource();
                 }
 
-                if (matchingSourceMemberDataSource.SourceMember == null)
+                if (hasUseableSourceMember || 
+                   (matchingSourceMemberDataSource.SourceMember == null))
                 {
                     yield break;
                 }

@@ -17,7 +17,7 @@
 
     internal class MappingConfigInfo : ITypePair
     {
-        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null, null, null);
+        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*");
 
         public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
             AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();

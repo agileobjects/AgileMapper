@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.Configuration
     using NetStandardPolyfills;
 
     /// <summary>
-    /// Provides a fluent interface to select members by their characteristics.
+    /// Provides a fluent interface to select target members by their characteristics.
     /// </summary>
     public class TargetMemberSelector
     {
