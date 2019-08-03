@@ -73,8 +73,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
                 DisposeEnumeratorIfNecessary);
 
             return Expression.Block(
-                new[] { _sourceEnumerableFound }.Append(enumerableLoopBlock.Variables),
-                new[] { assignSourceEnumerableFound }.Append(enumerableLoopBlock.Expressions));
+                enumerableLoopBlock.Variables.Append(_sourceEnumerableFound),
+                enumerableLoopBlock.Expressions.Prepend(assignSourceEnumerableFound));
         }
 
         public static BinaryExpression GetSourceEnumerableFoundTest(

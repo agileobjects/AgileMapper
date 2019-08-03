@@ -98,7 +98,7 @@
             var targetEntryAssignmentBlock = (BlockExpression)targetEntryAssignment;
 
             return Expression.Block(
-                targetEntryAssignmentBlock.Variables.Prepend(keyVariable),
+                targetEntryAssignmentBlock.Variables.Append(keyVariable),
                 targetEntryAssignmentBlock.Expressions.Prepend(keyAssignment));
         }
 
