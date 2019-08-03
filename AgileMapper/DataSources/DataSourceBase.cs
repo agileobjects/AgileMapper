@@ -185,6 +185,8 @@
 
         public bool IsConditional => Condition != null;
 
+        public virtual bool IsFallback => false;
+
         public virtual Expression Condition { get; }
 
         public ICollection<ParameterExpression> Variables { get; }

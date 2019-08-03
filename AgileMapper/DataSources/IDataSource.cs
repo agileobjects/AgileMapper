@@ -19,6 +19,8 @@
 
         bool IsConditional { get; }
 
+        bool IsFallback { get; }
+
         ICollection<ParameterExpression> Variables { get; }
 
         Expression AddPreCondition(Expression population);

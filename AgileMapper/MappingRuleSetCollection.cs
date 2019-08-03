@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper
             default(CopySourceEnumerablePopulationStrategy),
             default(MapRepeatedCallRepeatMappingStrategy),
             default(NullMemberPopulationGuardFactory),
-            default(ExistingOrDefaultValueDataSourceFactory),
+            default(ExistingOrDefaultValueFallbackDataSourceFactory),
             default(RootMapperKeyFactory));
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper
             default(OverwriteEnumerablePopulationStrategy),
             default(MapRepeatedCallRepeatMappingStrategy),
             default(NullMemberPopulationGuardFactory),
-            default(DefaultValueDataSourceFactory),
+            default(DefaultValueFallbackDataSourceFactory),
             default(RootMapperKeyFactory));
 
         private static readonly MappingRuleSet _project = new MappingRuleSet(
@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper
             default(ProjectSourceEnumerablePopulationStrategy),
             default(MapToDepthRepeatMappingStrategy),
             default(NullMemberPopulationGuardFactory),
-            default(DefaultValueDataSourceFactory),
+            default(DefaultValueFallbackDataSourceFactory),
             default(QueryProjectorMapperKeyFactory));
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
@@ -57,7 +57,7 @@ namespace AgileObjects.AgileMapper
             default(MergeEnumerablePopulationStrategy),
             default(MapRepeatedCallRepeatMappingStrategy),
             default(MemberMergePopulationGuardFactory),
-            default(ExistingOrDefaultValueDataSourceFactory),
+            default(ExistingOrDefaultValueFallbackDataSourceFactory),
             default(RootMapperKeyFactory));
 
         public static readonly MappingRuleSetCollection Default =

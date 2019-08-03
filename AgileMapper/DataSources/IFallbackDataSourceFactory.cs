@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.DataSources
 {
     using Members;
 
-    internal interface IDataSourceFactory
+    internal interface IFallbackDataSourceFactory
     {
         IDataSource Create(IMemberMapperData mapperData);
     }

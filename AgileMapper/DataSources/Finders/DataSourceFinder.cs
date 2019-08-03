@@ -6,6 +6,14 @@
 
     internal struct DataSourceFinder
     {
+        private static readonly IDataSourceFinder[] _finders =
+        {
+            default(ConfiguredDataSourceFinder),
+            default(MaptimeDataSourceFinder),
+            default(SourceMemberDataSourceFinder),
+            default(MetaMemberDataSourceFinder)
+        };
+
         public static DataSourceSet FindFor(IChildMemberMappingData childMappingData)
         {
             var findContext = new DataSourceFindContext(childMappingData);
@@ -16,7 +24,7 @@
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)
         {
-            foreach (var finder in EnumerateFinders())
+            foreach (var finder in _finders)
             {
                 foreach (var dataSource in finder.FindFor(context))
                 {
@@ -38,14 +46,6 @@
                     yield break;
                 }
             }
-        }
-
-        private static IEnumerable<IDataSourceFinder> EnumerateFinders()
-        {
-            yield return default(ConfiguredDataSourceFinder);
-            yield return default(MaptimeDataSourceFinder);
-            yield return default(SourceMemberDataSourceFinder);
-            yield return default(MetaMemberDataSourceFinder);
         }
     }
 }

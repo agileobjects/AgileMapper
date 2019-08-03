@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             IRepeatMappingStrategy repeatMappingStrategy,
             IPopulationGuardFactory populationGuardFactory,
-            IDataSourceFactory fallbackDataSourceFactory,
+            IFallbackDataSourceFactory fallbackDataSourceFactory,
             IRootMapperKeyFactory rootMapperKeyFactory)
             : this(name)
         {
@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper
 
         public IPopulationGuardFactory PopulationGuardFactory { get; }
 
-        public IDataSourceFactory FallbackDataSourceFactory { get; }
+        public IFallbackDataSourceFactory FallbackDataSourceFactory { get; }
         
         public IRootMapperKeyFactory RootMapperKeyFactory { get; }
     }
