@@ -20,7 +20,7 @@
             GlobalContext.Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
-                .ProjectToArray(tm => mapperData.TargetMember.Append(tm)));
+                .ProjectToArray(mapperData.TargetMember.Append));
 
         private readonly Func<ObjectMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
 
@@ -35,12 +35,12 @@
                 .Invoke(mappingData.MapperData)
                 .Project(tm =>
                 {
-                    var memberPopulation = Create(tm, mappingData);
+                    var memberPopulator = Create(tm, mappingData);
 
-                    if (memberPopulation.CanPopulate ||
+                    if (memberPopulator.CanPopulate ||
                         mappingData.MappingContext.AddUnsuccessfulMemberPopulations)
                     {
-                        return memberPopulation;
+                        return memberPopulator;
                     }
                     
                     return null;
@@ -73,7 +73,7 @@
                 return MemberPopulator.NoDataSource(childMapperData);
             }
 
-            return MemberPopulator.WithRegistration(childMappingData, dataSources, populateCondition);
+            return MemberPopulator.WithRegistration(dataSources, populateCondition);
         }
 
         private static bool TargetMemberIsUnmappable(

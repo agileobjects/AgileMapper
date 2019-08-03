@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper
             MappingRuleSetSettings.ForInMemoryMapping(allowCloneEntityKeyMapping: true),
             default(CopySourceEnumerablePopulationStrategy),
             default(MapRepeatedCallRepeatMappingStrategy),
-            DefaultMemberPopulationFactory.Instance,
+            default(NullMemberPopulationGuardFactory),
             default(ExistingOrDefaultValueDataSourceFactory),
             default(RootMapperKeyFactory));
 
@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
             default(OverwriteEnumerablePopulationStrategy),
             default(MapRepeatedCallRepeatMappingStrategy),
-            DefaultMemberPopulationFactory.Instance,
+            default(NullMemberPopulationGuardFactory),
             default(DefaultValueDataSourceFactory),
             default(RootMapperKeyFactory));
 
@@ -40,22 +40,23 @@ namespace AgileObjects.AgileMapper
                 UseSingleRootMappingExpression = true,
                 AllowEntityKeyMapping = true,
                 AllowCloneEntityKeyMapping = true,
+                AllowGuardedBindings = true,
                 GuardAccessTo = value => value.Type.IsComplex(),
                 ExpressionIsSupported = value => value.CanBeProjected(),
                 AllowEnumerableAssignment = true
             },
             default(ProjectSourceEnumerablePopulationStrategy),
             default(MapToDepthRepeatMappingStrategy),
-            DefaultMemberPopulationFactory.Instance,
+            default(NullMemberPopulationGuardFactory),
             default(DefaultValueDataSourceFactory),
             default(QueryProjectorMapperKeyFactory));
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
             Constants.Merge,
-            MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
+            MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true, allowGuardedBindings: false),
             default(MergeEnumerablePopulationStrategy),
             default(MapRepeatedCallRepeatMappingStrategy),
-            new MemberMergePopulationFactory(),
+            default(MemberMergePopulationGuardFactory),
             default(ExistingOrDefaultValueDataSourceFactory),
             default(RootMapperKeyFactory));
 

@@ -21,7 +21,7 @@ namespace AgileObjects.AgileMapper
             MappingRuleSetSettings settings,
             IEnumerablePopulationStrategy enumerablePopulationStrategy,
             IRepeatMappingStrategy repeatMappingStrategy,
-            IMemberPopulationFactory populationFactory,
+            IPopulationGuardFactory populationGuardFactory,
             IDataSourceFactory fallbackDataSourceFactory,
             IRootMapperKeyFactory rootMapperKeyFactory)
             : this(name)
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper
             Settings = settings;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             RepeatMappingStrategy = repeatMappingStrategy;
-            PopulationFactory = populationFactory;
+            PopulationGuardFactory = populationGuardFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
             RootMapperKeyFactory = rootMapperKeyFactory;
         }
@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper
 
         public IRepeatMappingStrategy RepeatMappingStrategy { get; }
 
-        public IMemberPopulationFactory PopulationFactory { get; }
+        public IPopulationGuardFactory PopulationGuardFactory { get; }
 
         public IDataSourceFactory FallbackDataSourceFactory { get; }
         

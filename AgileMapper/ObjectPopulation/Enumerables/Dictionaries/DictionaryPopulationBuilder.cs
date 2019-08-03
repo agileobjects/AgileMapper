@@ -237,7 +237,7 @@
         {
             var elementMapping = loopData.GetElementMapping(dictionaryMappingData);
 
-            if (dictionaryEntryMember.HasKey && 
+            if (dictionaryEntryMember.HasKey &&
                 dictionaryEntryMember.CheckExistingElementValue &&
                 dictionaryMappingData.MapperData.TargetCouldBePopulated())
             {
@@ -256,14 +256,14 @@
             IObjectMappingData mappingData)
         {
             var elementMapperData = new ChildMemberMapperData(dictionaryEntryMember, MapperData);
-            var elementMappingData = mappingData.GetChildMappingData(elementMapperData);
 
             var sourceMember = mappingData.MapperData.SourceMember;
             var mappingDataSource = new AdHocDataSource(sourceMember, elementMapping);
             var mappingDataSources = new DataSourceSet(elementMapperData, mappingDataSource);
 
-            var memberPopulation = MemberPopulator.WithoutRegistration(elementMappingData, mappingDataSources);
-            var populationExpression = memberPopulation.GetPopulation();
+            var populationExpression = MemberPopulator
+                .WithoutRegistration(mappingDataSources)
+                .GetPopulation();
 
             return populationExpression;
         }

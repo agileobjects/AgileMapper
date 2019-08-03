@@ -6,9 +6,9 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
 #endif
 
-    internal class MemberMergePopulationFactory : MemberPopulationFactoryBase
+    internal struct MemberMergePopulationGuardFactory : IPopulationGuardFactory
     {
-        protected override Expression GetPopulationGuard(IMemberPopulationContext context)
+        public Expression GetPopulationGuard(IMemberPopulationContext context)
         {
             var mapperData = context.MapperData;
             var populateCondition = context.PopulateCondition;
@@ -51,8 +51,5 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             return skipObjectValueGuarding;
         }
-
-        protected override Expression GetGuardedBindingValue(Expression bindingValue, Expression populationGuard)
-            => bindingValue;
     }
 }
