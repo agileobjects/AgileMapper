@@ -103,13 +103,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private void AddPopulationsAndCallbacks(MappingCreationContext context)
         {
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
-            context.MappingExpressions.AddRange(GetNonNullObjectPopulation(context));
+            context.MappingExpressions.AddRange(GetObjectPopulation(context));
             context.MappingExpressions.AddRange(GetConfiguredToTargetDataSourceMappings(context));
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
         }
-
-        private IEnumerable<Expression> GetNonNullObjectPopulation(MappingCreationContext context)
-            => GetObjectPopulation(context).WhereNotNull();
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
 
