@@ -228,31 +228,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public override bool IsFor(IObjectMappingData mappingData)
-        {
-            if (mappingData.MapperData.TargetMember.IsDictionary)
-            {
-                return true;
-            }
-
-            if (mappingData.IsRoot)
-            {
-                return false;
-            }
-
-            if (!(mappingData.MapperData.TargetMember is DictionaryTargetMember dictionaryMember))
-            {
-                return false;
-            }
-
-            if (dictionaryMember.HasSimpleEntries)
-            {
-                return true;
-            }
-
-            return dictionaryMember.HasObjectEntries && !mappingData.IsStandalone();
-        }
-
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             if (mappingData.MappingTypes.SourceType.IsDictionary())
@@ -300,7 +275,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield return assignment;
             }
 
-            ReturnPopulation:
+        ReturnPopulation:
             if (population != null)
             {
                 yield return population;

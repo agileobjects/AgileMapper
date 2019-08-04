@@ -23,8 +23,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class MappingExpressionFactoryBase
     {
-        public abstract bool IsFor(IObjectMappingData mappingData);
-
         public Expression Create(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;

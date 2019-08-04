@@ -30,8 +30,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             };
         }
 
-        public override bool IsFor(IObjectMappingData mappingData) => true;
-
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             if (mappingData.MapperData.TargetCouldBePopulated())
