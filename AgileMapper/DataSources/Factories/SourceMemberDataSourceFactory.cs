@@ -1,12 +1,12 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Finders
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
     using Extensions.Internal;
     using Members;
 
-    internal struct SourceMemberDataSourceFinder : IDataSourceFinder
+    internal struct SourceMemberDataSourceFactory : IDataSourceFactory
     {
-        public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
+        public IEnumerable<IDataSource> CreateFor(DataSourceFindContext context)
         {
             if (context.MapperData.TargetMember.IsCustom)
             {
@@ -24,7 +24,7 @@
                 {
                     if (UseFallbackComplexTypeMappingDataSource(targetMember))
                     {
-                        yield return new ComplexTypeMappingDataSource(context.DataSourceIndex, context.ChildMappingData);
+                        yield return new ComplexTypeDataSource(context.DataSourceIndex, context.ChildMappingData);
                     }
                 }
                 else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)

@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Caching;
     using Configuration;
     using DataSources;
-    using DataSources.Finders;
+    using DataSources.Factories;
     using Extensions;
     using Extensions.Internal;
     using MapperKeys;
@@ -359,7 +359,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                             key.MappingData.MapperData);
 
                         var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
-                        var dataSources = DataSourceFinder.FindFor(memberMappingData);
+                        var dataSources = DataSourceSetFactory.CreateFor(memberMappingData);
 
                         return dataSources;
                     });

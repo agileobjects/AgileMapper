@@ -24,7 +24,7 @@
 #endif
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget>,
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>,
         ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;

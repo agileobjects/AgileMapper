@@ -8,9 +8,9 @@
     using System.Linq.Expressions;
 #endif
 
-    internal class ComplexTypeMappingDataSource : DataSourceBase
+    internal class ComplexTypeDataSource : DataSourceBase
     {
-        public ComplexTypeMappingDataSource(
+        public ComplexTypeDataSource(
             IDataSource complexTypeDataSource,
             int dataSourceIndex,
             IChildMemberMappingData complexTypeMappingData)
@@ -34,7 +34,7 @@
             return mapping;
         }
 
-        public ComplexTypeMappingDataSource(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
+        public ComplexTypeDataSource(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
             : base(complexTypeMappingData.MapperData.SourceMember, GetMapping(dataSourceIndex, complexTypeMappingData))
         {
         }

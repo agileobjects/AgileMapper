@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Finders
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
     using Extensions;
@@ -53,12 +53,12 @@
 
             if (UseComplexTypeDataSource(foundDataSource, childTargetMember))
             {
-                return new ComplexTypeMappingDataSource(foundDataSource, DataSourceIndex, mappingData);
+                return new ComplexTypeDataSource(foundDataSource, DataSourceIndex, mappingData);
             }
 
             if (childTargetMember.IsEnumerable && foundDataSource.SourceMember.IsEnumerable)
             {
-                return new EnumerableMappingDataSource(foundDataSource, DataSourceIndex, mappingData);
+                return new EnumerableDataSource(foundDataSource, DataSourceIndex, mappingData);
             }
 
             return foundDataSource;

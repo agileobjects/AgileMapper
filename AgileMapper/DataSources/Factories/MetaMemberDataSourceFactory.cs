@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Finders
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System;
     using System.Collections.Generic;
@@ -16,11 +16,10 @@
     using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
     using TypeConversion;
-    using static System.StringComparison;
 
-    internal struct MetaMemberDataSourceFinder : IDataSourceFinder
+    internal struct MetaMemberDataSourceFactory : IDataSourceFactory
     {
-        public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
+        public IEnumerable<IDataSource> CreateFor(DataSourceFindContext context)
         {
             if (TryGetMetaMemberNameParts(context, out var memberNameParts) &&
                 TryGetMetaMember(memberNameParts, context, out var metaMember))
@@ -85,7 +84,7 @@
                     default:
                         currentMemberName = memberNamePart + currentMemberName;
 
-                        if (currentMemberName.StartsWith(NumberOfMetaMemberPart.Name, Ordinal))
+                        if (currentMemberName.StartsWith(NumberOfMetaMemberPart.Name, StringComparison.Ordinal))
                         {
                             currentMemberName = currentMemberName.Substring(NumberOfMetaMemberPart.Name.Length);
                             memberNameParts.Add(currentMemberName);

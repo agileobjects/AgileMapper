@@ -1,20 +1,21 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Finders
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
     using System.Linq;
     using Members;
+    using ObjectPopulation;
 
-    internal struct DataSourceFinder
+    internal static class DataSourceSetFactory
     {
-        private static readonly IDataSourceFinder[] _finders =
+        private static readonly IDataSourceFactory[] _childDataSourceFactories =
         {
-            default(ConfiguredDataSourceFinder),
-            default(MaptimeDataSourceFinder),
-            default(SourceMemberDataSourceFinder),
-            default(MetaMemberDataSourceFinder)
+            default(ConfiguredDataSourceFactory),
+            default(MaptimeDataSourceFactory),
+            default(SourceMemberDataSourceFactory),
+            default(MetaMemberDataSourceFactory)
         };
 
-        public static DataSourceSet FindFor(IChildMemberMappingData childMappingData)
+        public static DataSourceSet CreateFor(IChildMemberMappingData childMappingData)
         {
             var findContext = new DataSourceFindContext(childMappingData);
             var validDataSources = EnumerateDataSources(findContext).ToArray();
@@ -24,9 +25,9 @@
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)
         {
-            foreach (var finder in _finders)
+            foreach (var finder in _childDataSourceFactories)
             {
-                foreach (var dataSource in finder.FindFor(context))
+                foreach (var dataSource in finder.CreateFor(context))
                 {
                     if (!dataSource.IsValid)
                     {
