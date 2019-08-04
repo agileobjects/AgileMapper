@@ -22,11 +22,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        public static readonly MappingExpressionFactoryBase Instance = new DictionaryMappingExpressionFactory();
-
         private readonly MemberPopulatorFactory _memberPopulatorFactory;
 
-        private DictionaryMappingExpressionFactory()
+        public DictionaryMappingExpressionFactory()
         {
             _memberPopulatorFactory = new MemberPopulatorFactory(GetAllTargetMembers);
         }

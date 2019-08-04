@@ -7,7 +7,7 @@
     internal class QueryProjectionRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
     {
         public QueryProjectionRootDataSourceFactory()
-            : base(QueryProjectionExpressionFactory.Instance)
+            : base(new QueryProjectionExpressionFactory())
         {
         }
 

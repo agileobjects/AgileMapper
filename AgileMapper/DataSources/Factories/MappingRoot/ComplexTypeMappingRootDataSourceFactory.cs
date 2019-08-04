@@ -6,7 +6,7 @@
     internal class ComplexTypeMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
     {
         public ComplexTypeMappingRootDataSourceFactory()
-            : base(ComplexTypeMappingExpressionFactory.Instance)
+            : base(new ComplexTypeMappingExpressionFactory())
         {
         }
 

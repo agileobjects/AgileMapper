@@ -6,7 +6,7 @@
     internal class DictionaryMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
     {
         public DictionaryMappingRootDataSourceFactory()
-            : base(DictionaryMappingExpressionFactory.Instance)
+            : base(new DictionaryMappingExpressionFactory())
         {
         }
 

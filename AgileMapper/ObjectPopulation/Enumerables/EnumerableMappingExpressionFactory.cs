@@ -11,8 +11,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        public static readonly MappingExpressionFactoryBase Instance = new EnumerableMappingExpressionFactory();
-
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             var mapperData = mappingData.MapperData;

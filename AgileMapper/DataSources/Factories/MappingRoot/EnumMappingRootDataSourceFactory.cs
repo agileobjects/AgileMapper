@@ -7,7 +7,7 @@
     internal class EnumMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
     {
         public EnumMappingRootDataSourceFactory()
-            : base(EnumMappingExpressionFactory.Instance)
+            : base(new EnumMappingExpressionFactory())
         {
         }
 

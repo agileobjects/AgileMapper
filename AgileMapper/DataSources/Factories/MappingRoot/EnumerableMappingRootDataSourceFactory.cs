@@ -6,7 +6,7 @@
     internal class EnumerableMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
     {
         public EnumerableMappingRootDataSourceFactory()
-            : base(EnumerableMappingExpressionFactory.Instance)
+            : base(new EnumerableMappingExpressionFactory())
         {
         }
 

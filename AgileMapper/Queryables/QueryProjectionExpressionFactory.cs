@@ -11,8 +11,6 @@
 
     internal class QueryProjectionExpressionFactory : MappingExpressionFactoryBase
     {
-        public static readonly MappingExpressionFactoryBase Instance = new QueryProjectionExpressionFactory();
-
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
             var mapperData = context.MapperData;

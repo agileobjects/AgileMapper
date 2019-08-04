@@ -13,13 +13,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal class ComplexTypeMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        public static readonly MappingExpressionFactoryBase Instance = new ComplexTypeMappingExpressionFactory();
-
         private readonly PopulationExpressionFactoryBase _memberInitPopulationFactory;
         private readonly PopulationExpressionFactoryBase _multiStatementPopulationFactory;
         private readonly IList<ISourceShortCircuitFactory> _shortCircuitFactories;
 
-        private ComplexTypeMappingExpressionFactory()
+        public ComplexTypeMappingExpressionFactory()
         {
             _memberInitPopulationFactory = new MemberInitPopulationExpressionFactory();
             _multiStatementPopulationFactory = new MultiStatementPopulationExpressionFactory();

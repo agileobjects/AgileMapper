@@ -13,8 +13,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class EnumMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        public static readonly EnumMappingExpressionFactory Instance = new EnumMappingExpressionFactory();
-
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             var mapperData = mappingData.MapperData;
