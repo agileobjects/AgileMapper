@@ -249,8 +249,6 @@
                     SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
         }
 
-
-
         public static Expression UseLocalSourceValueVariableIfAppropriate(
             Expression mappingExpression,
             ObjectMapperData mapperData)

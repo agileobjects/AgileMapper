@@ -2,11 +2,21 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using MappingRoot;
     using Members;
     using ObjectPopulation;
 
     internal static class DataSourceSetFactory
     {
+        private static readonly IMappingRootDataSourceFactory[] _mappingRootDataSourceFactories =
+        {
+            new QueryProjectionRootDataSourceFactory(),
+            new EnumMappingRootDataSourceFactory(),
+            new DictionaryMappingRootDataSourceFactory(),
+            new EnumerableMappingRootDataSourceFactory(),
+            new ComplexTypeMappingRootDataSourceFactory()
+        };
+
         private static readonly IDataSourceFactory[] _childDataSourceFactories =
         {
             default(ConfiguredDataSourceFactory),
@@ -14,6 +24,16 @@
             default(SourceMemberDataSourceFactory),
             default(MetaMemberDataSourceFactory)
         };
+
+        public static DataSourceSet CreateFor(IObjectMappingData rootMappingData)
+        {
+            var rootDataSourceFactory = _mappingRootDataSourceFactories
+                .First(mef => mef.IsFor(rootMappingData));
+
+            var rootDataSource = rootDataSourceFactory.CreateFor(rootMappingData);
+
+            return new DataSourceSet(rootMappingData.MapperData, rootDataSource);
+        }
 
         public static DataSourceSet CreateFor(IChildMemberMappingData childMappingData)
         {

@@ -4,8 +4,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using Caching;
     using ComplexTypes;
+    using DataSources.Factories;
     using Enumerables;
-    using Extensions.Internal;
     using MapperKeys;
     using Queryables;
 #if NET35
@@ -65,8 +65,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
-            var mappingExpressionFactory = _mappingExpressionFactories.First(mef => mef.IsFor(mappingData));
-            var mappingExpression = mappingExpressionFactory.Create(mappingData);
+            var mappingExpression = DataSourceSetFactory
+                .CreateFor(mappingData)
+                .ValueExpression;
 
             if (mappingExpression.NodeType == ExpressionType.Default)
             {
