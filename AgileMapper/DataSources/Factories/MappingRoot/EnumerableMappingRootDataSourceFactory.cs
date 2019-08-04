@@ -3,14 +3,14 @@
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
 
-    internal class EnumerableMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
+    internal class EnumerableMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase
     {
         public EnumerableMappingRootDataSourceFactory()
             : base(new EnumerableMappingExpressionFactory())
         {
         }
 
-        public bool IsFor(IObjectMappingData mappingData)
+        public override bool IsFor(IObjectMappingData mappingData)
             => mappingData.MapperData.TargetMember.IsEnumerable;
     }
 }

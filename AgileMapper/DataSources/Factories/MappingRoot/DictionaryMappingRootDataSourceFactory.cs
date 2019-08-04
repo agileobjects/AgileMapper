@@ -3,14 +3,14 @@
     using Members.Dictionaries;
     using ObjectPopulation;
 
-    internal class DictionaryMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
+    internal class DictionaryMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase
     {
         public DictionaryMappingRootDataSourceFactory()
             : base(new DictionaryMappingExpressionFactory())
         {
         }
 
-        public bool IsFor(IObjectMappingData mappingData)
+        public override bool IsFor(IObjectMappingData mappingData)
         {
             if (mappingData.MapperData.TargetMember.IsDictionary)
             {

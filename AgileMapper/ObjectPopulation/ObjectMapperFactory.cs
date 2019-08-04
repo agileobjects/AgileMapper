@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mappingExpression = DataSourceSetFactory.CreateFor(mappingData).ValueExpression;
 
-            if (mappingExpression.NodeType == ExpressionType.Default)
+            if (mappingExpression == Constants.EmptyExpression)
             {
                 return null;
             }

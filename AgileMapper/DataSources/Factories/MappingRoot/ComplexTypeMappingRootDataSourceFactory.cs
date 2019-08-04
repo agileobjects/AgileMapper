@@ -3,13 +3,13 @@
     using ObjectPopulation;
     using ObjectPopulation.ComplexTypes;
 
-    internal class ComplexTypeMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase, IMappingRootDataSourceFactory
+    internal class ComplexTypeMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase
     {
         public ComplexTypeMappingRootDataSourceFactory()
             : base(new ComplexTypeMappingExpressionFactory())
         {
         }
 
-        public bool IsFor(IObjectMappingData mappingData) => true;
+        public override bool IsFor(IObjectMappingData mappingData) => true;
     }
 }
