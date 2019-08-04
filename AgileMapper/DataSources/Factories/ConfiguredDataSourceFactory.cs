@@ -3,9 +3,9 @@
     using System.Collections.Generic;
     using Extensions.Internal;
 
-    internal struct ConfiguredDataSourceFactory : IDataSourceFactory
+    internal static class ConfiguredDataSourceFactory
     {
-        public IEnumerable<IDataSource> CreateFor(DataSourceFindContext context)
+        public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
             if (context.ConfiguredDataSources.None())
             {

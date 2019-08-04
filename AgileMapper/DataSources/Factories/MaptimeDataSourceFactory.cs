@@ -3,14 +3,14 @@
     using System.Collections.Generic;
     using Extensions.Internal;
 
-    internal struct MaptimeDataSourceFactory : IDataSourceFactory
+    internal static class MaptimeDataSourceFactory
     {
         private static readonly IMaptimeDataSourceFactory[] _mapTimeDataSourceFactories =
         {
             default(DictionaryDataSourceFactory)
         };
 
-        public IEnumerable<IDataSource> CreateFor(DataSourceFindContext context)
+        public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
             if (!UseMaptimeDataSources(context, out var maptimeDataSources))
             {

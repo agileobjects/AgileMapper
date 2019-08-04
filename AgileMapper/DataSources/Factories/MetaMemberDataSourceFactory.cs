@@ -17,9 +17,9 @@
     using ReadableExpressions.Extensions;
     using TypeConversion;
 
-    internal struct MetaMemberDataSourceFactory : IDataSourceFactory
+    internal static class MetaMemberDataSourceFactory
     {
-        public IEnumerable<IDataSource> CreateFor(DataSourceFindContext context)
+        public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
             if (TryGetMetaMemberNameParts(context, out var memberNameParts) &&
                 TryGetMetaMember(memberNameParts, context, out var metaMember))

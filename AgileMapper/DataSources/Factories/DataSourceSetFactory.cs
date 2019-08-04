@@ -17,12 +17,12 @@
             new ComplexTypeMappingRootDataSourceFactory()
         };
 
-        private static readonly IDataSourceFactory[] _childDataSourceFactories =
+        private static readonly DataSourceFactory[] _childDataSourceFactories =
         {
-            default(ConfiguredDataSourceFactory),
-            default(MaptimeDataSourceFactory),
-            default(SourceMemberDataSourceFactory),
-            default(MetaMemberDataSourceFactory)
+            ConfiguredDataSourceFactory.Create,
+            MaptimeDataSourceFactory.Create,
+            SourceMemberDataSourceFactory.Create,
+            MetaMemberDataSourceFactory.Create
         };
 
         public static DataSourceSet CreateFor(IObjectMappingData rootMappingData)
@@ -47,7 +47,7 @@
         {
             foreach (var finder in _childDataSourceFactories)
             {
-                foreach (var dataSource in finder.CreateFor(context))
+                foreach (var dataSource in finder.Invoke(context))
                 {
                     if (!dataSource.IsValid)
                     {

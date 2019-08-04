@@ -4,9 +4,9 @@
     using Extensions.Internal;
     using Members;
 
-    internal struct SourceMemberDataSourceFactory : IDataSourceFactory
+    internal static class SourceMemberDataSourceFactory
     {
-        public IEnumerable<IDataSource> CreateFor(DataSourceFindContext context)
+        public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
             if (context.MapperData.TargetMember.IsCustom)
             {
