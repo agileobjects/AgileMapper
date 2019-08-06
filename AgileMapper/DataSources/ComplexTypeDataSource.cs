@@ -2,6 +2,7 @@
 {
     using Members;
     using ObjectPopulation;
+    using ObjectPopulation.ComplexTypes;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -10,46 +11,60 @@
 
     internal class ComplexTypeDataSource : DataSourceBase
     {
-        public ComplexTypeDataSource(
-            IDataSource complexTypeDataSource,
-            int dataSourceIndex,
-            IChildMemberMappingData complexTypeMappingData)
-            : base(
-                  complexTypeDataSource,
-                  GetMapping(complexTypeDataSource, dataSourceIndex, complexTypeMappingData))
+        private ComplexTypeDataSource(IDataSource wrappedDataSource, Expression mapping)
+            : base(wrappedDataSource, mapping)
         {
         }
 
-        private static Expression GetMapping(
-            IDataSource complexTypeDataSource,
-            int dataSourceIndex,
-            IChildMemberMappingData complexTypeMappingData)
-        {
-            var mapping = MappingFactory.GetChildMapping(
-                complexTypeDataSource.SourceMember,
-                complexTypeDataSource.Value,
-                dataSourceIndex,
-                complexTypeMappingData);
-
-            return mapping;
-        }
-
-        public ComplexTypeDataSource(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
-            : base(complexTypeMappingData.MapperData.SourceMember, GetMapping(dataSourceIndex, complexTypeMappingData))
+        private ComplexTypeDataSource(IQualifiedMember sourceMember, Expression mapping)
+            : base(sourceMember, mapping)
         {
         }
 
-        private static Expression GetMapping(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
+        #region Factory Methods
+
+        public static IDataSource Create(IObjectMappingData mappingData)
+        {
+            var mapping = ComplexTypeMappingExpressionFactory.Instance.Create(mappingData);
+
+            return new ComplexTypeDataSource(
+                mappingData.MapperData.SourceMember,
+                mapping);
+        }
+
+        public static IDataSource Create(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
         {
             var complexTypeMapperData = complexTypeMappingData.MapperData;
             var relativeMember = complexTypeMapperData.SourceMember.RelativeTo(complexTypeMapperData.SourceMember);
             var sourceMemberAccess = relativeMember.GetQualifiedAccess(complexTypeMapperData);
 
-            return MappingFactory.GetChildMapping(
+            var mapping = MappingFactory.GetChildMapping(
                 relativeMember,
                 sourceMemberAccess,
                 dataSourceIndex,
                 complexTypeMappingData);
+
+            return new ComplexTypeDataSource(
+                complexTypeMappingData.MapperData.SourceMember, 
+                mapping);
         }
+
+        public static IDataSource Create(
+            IDataSource wrappedDataSource,
+            int dataSourceIndex,
+            IChildMemberMappingData complexTypeMappingData)
+        {
+            var mapping = MappingFactory.GetChildMapping(
+                wrappedDataSource.SourceMember,
+                wrappedDataSource.Value,
+                dataSourceIndex,
+                complexTypeMappingData);
+
+            return new ComplexTypeDataSource(
+                wrappedDataSource, 
+                mapping);
+        }
+
+        #endregion
     }
 }

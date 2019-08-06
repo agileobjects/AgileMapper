@@ -53,7 +53,7 @@
 
             if (UseComplexTypeDataSource(foundDataSource, childTargetMember))
             {
-                return new ComplexTypeDataSource(foundDataSource, DataSourceIndex, mappingData);
+                return ComplexTypeDataSource.Create(foundDataSource, DataSourceIndex, mappingData);
             }
 
             if (childTargetMember.IsEnumerable && foundDataSource.SourceMember.IsEnumerable)

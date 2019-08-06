@@ -1,15 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Factories.MappingRoot
 {
     using ObjectPopulation;
-    using ObjectPopulation.ComplexTypes;
 
-    internal class ComplexTypeMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase
+    internal class ComplexTypeMappingRootDataSourceFactory : IMappingRootDataSourceFactory
     {
-        public ComplexTypeMappingRootDataSourceFactory()
-            : base(new ComplexTypeMappingExpressionFactory())
-        {
-        }
+        public bool IsFor(IObjectMappingData mappingData) => true;
 
-        public override bool IsFor(IObjectMappingData mappingData) => true;
+        public IDataSource CreateFor(IObjectMappingData mappingData)
+            => ComplexTypeDataSource.Create(mappingData);
     }
 }

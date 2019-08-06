@@ -22,9 +22,9 @@
             {
                 if (context.DataSourceIndex == 0)
                 {
-                    if (UseFallbackComplexTypeMappingDataSource(targetMember))
+                    if (UseFallbackComplexTypeDataSource(targetMember))
                     {
-                        yield return new ComplexTypeDataSource(context.DataSourceIndex, context.ChildMappingData);
+                        yield return ComplexTypeDataSource.Create(context.DataSourceIndex, context.ChildMappingData);
                     }
                 }
                 else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
@@ -88,7 +88,7 @@
                 Constants.EmptyExpression);
         }
 
-        private static bool UseFallbackComplexTypeMappingDataSource(QualifiedMember targetMember)
+        private static bool UseFallbackComplexTypeDataSource(QualifiedMember targetMember)
             => targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
     }
 }
