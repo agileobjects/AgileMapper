@@ -23,6 +23,8 @@
 
         ICollection<ParameterExpression> Variables { get; }
 
+        IList<IDataSource> ChildDataSources { get; }
+
         Expression AddPreCondition(Expression population);
 
         Expression AddCondition(Expression value, Expression alternateBranch = null);

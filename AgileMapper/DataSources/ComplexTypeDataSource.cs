@@ -32,6 +32,20 @@
                 mapping);
         }
 
+        public static IDataSource Create(
+            IDataSource wrappedDataSource,
+            int dataSourceIndex,
+            IChildMemberMappingData complexTypeMappingData)
+        {
+            var mapping = MappingFactory.GetChildMapping(
+                wrappedDataSource.SourceMember,
+                wrappedDataSource.Value,
+                dataSourceIndex,
+                complexTypeMappingData);
+
+            return new ComplexTypeDataSource(wrappedDataSource, mapping);
+        }
+
         public static IDataSource Create(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
         {
             var complexTypeMapperData = complexTypeMappingData.MapperData;
@@ -46,22 +60,6 @@
 
             return new ComplexTypeDataSource(
                 complexTypeMappingData.MapperData.SourceMember, 
-                mapping);
-        }
-
-        public static IDataSource Create(
-            IDataSource wrappedDataSource,
-            int dataSourceIndex,
-            IChildMemberMappingData complexTypeMappingData)
-        {
-            var mapping = MappingFactory.GetChildMapping(
-                wrappedDataSource.SourceMember,
-                wrappedDataSource.Value,
-                dataSourceIndex,
-                complexTypeMappingData);
-
-            return new ComplexTypeDataSource(
-                wrappedDataSource, 
                 mapping);
         }
 

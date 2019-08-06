@@ -47,13 +47,8 @@
         {
             foreach (var finder in _childDataSourceFactories)
             {
-                foreach (var dataSource in finder.Invoke(context))
+                foreach (var dataSource in EnumerateDataSources(finder.Invoke(context)))
                 {
-                    if (!dataSource.IsValid)
-                    {
-                        continue;
-                    }
-
                     yield return dataSource;
 
                     if (!dataSource.IsConditional)
@@ -66,6 +61,27 @@
                 {
                     yield break;
                 }
+            }
+        }
+
+        private static IEnumerable<IDataSource> EnumerateDataSources(IEnumerable<IDataSource> dataSources)
+        {
+            foreach (var dataSource in dataSources)
+            {
+                if (dataSource.ChildDataSources.Any())
+                {
+                    foreach (var childDataSource in EnumerateDataSources(dataSource.ChildDataSources))
+                    {
+                        yield return childDataSource;
+                    }
+                }
+
+                if (!dataSource.IsValid)
+                {
+                    continue;
+                }
+
+                yield return dataSource;
             }
         }
     }

@@ -191,6 +191,8 @@
 
         public ICollection<ParameterExpression> Variables { get; }
 
+        public virtual IList<IDataSource> ChildDataSources => Enumerable<IDataSource>.EmptyArray;
+
         public Expression Value { get; }
 
         public virtual Expression AddPreCondition(Expression population) => population;
