@@ -18,6 +18,13 @@
             IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
+
+            var childObjectMappingData = ObjectMappingDataFactory.ForChild(
+                sourceMember,
+                childMapperData.TargetMember,
+                dataSourceIndex,
+                childMappingData.Parent);
+
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
             childMapperData.TargetMember.MapCreating(sourceMember.Type);
@@ -26,12 +33,6 @@
                 sourceMemberAccess,
                 targetMemberAccess,
                 childMapperData.EnumerableIndex);
-
-            var childObjectMappingData = ObjectMappingDataFactory.ForChild(
-                sourceMember,
-                childMapperData.TargetMember,
-                dataSourceIndex,
-                childMappingData.Parent);
 
             if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
