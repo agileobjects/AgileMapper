@@ -69,10 +69,10 @@ namespace AgileObjects.AgileMapper.Members.Population
             IMemberMapperData mapperData,
             Func<QualifiedMember, string> commentFactory)
         {
-            return new DataSourceSet(
-                mapperData,
+            return DataSourceSet.For(
                 new NullDataSource(
-                    ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember))));
+                    ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember))),
+                mapperData);
         }
 
         #endregion
@@ -87,7 +87,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             if (!CanPopulate)
             {
-                return _dataSources.ValueExpression;
+                return _dataSources.BuildValue();
             }
 
             var populationGuard = MapperData
@@ -120,7 +120,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private Expression GetBinding(Expression populationGuard)
         {
-            var bindingValue = _dataSources.ValueExpression;
+            var bindingValue = _dataSources.BuildValue();
 
             if (MapperData.RuleSet.Settings.AllowGuardedBindings && (populationGuard != null))
             {
@@ -138,7 +138,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             var targetMemberAccess = MapperData.GetTargetMemberAccess();
             var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
 
-            return Expression.IfThen(targetMemberNotNull, _dataSources.ValueExpression);
+            return Expression.IfThen(targetMemberNotNull, _dataSources.BuildValue());
         }
 
         private Expression GetPopulationExpression()
@@ -167,14 +167,14 @@ namespace AgileObjects.AgileMapper.Members.Population
                         population = dataSource.AddCondition(population);
                     }
 
-                    population = dataSource.AddPreCondition(population);
+                    population = dataSource.Finalise(population);
                     continue;
                 }
 
                 var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
 
                 population = dataSource.AddCondition(memberPopulation, population);
-                population = dataSource.AddPreCondition(population);
+                population = dataSource.Finalise(population);
             }
 
             return population;
@@ -188,14 +188,10 @@ namespace AgileObjects.AgileMapper.Members.Population
             }
 
             var populationBlock = (BlockExpression)population;
-            var variables = _dataSources.Variables;
 
-            if (Enumerable.Any(populationBlock.Variables))
-            {
-                variables = variables.Append(populationBlock.Variables);
-            }
-
-            return Expression.Block(variables, populationBlock.Expressions);
+            return Expression.Block(
+                _dataSources.Variables.Append(populationBlock.Variables), 
+                populationBlock.Expressions);
         }
 
         #region ExcludeFromCodeCoverage

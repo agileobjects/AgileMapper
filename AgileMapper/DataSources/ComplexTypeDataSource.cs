@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -12,34 +11,25 @@
 
     internal class ComplexTypeDataSource : DataSourceBase
     {
-        private ComplexTypeDataSource(
-            IDataSource wrappedDataSource, 
-            Expression mapping,
-            IList<IDataSource> childDataSources)
+        private ComplexTypeDataSource(IDataSource wrappedDataSource, Expression mapping)
             : base(wrappedDataSource, mapping)
         {
-            ChildDataSources = childDataSources;
         }
 
-        private ComplexTypeDataSource(
-            IQualifiedMember sourceMember,
-            Expression mapping,
-            IList<IDataSource> childDataSources)
+        private ComplexTypeDataSource(IQualifiedMember sourceMember, Expression mapping)
             : base(sourceMember, mapping)
         {
-            ChildDataSources = childDataSources;
         }
 
         #region Factory Methods
 
         public static IDataSource Create(IObjectMappingData mappingData)
         {
+            var derivedTypeDataSources = DerivedComplexTypeDataSourcesFactory.CreateFor(mappingData);
+
             var mapping = ComplexTypeMappingExpressionFactory.Instance.Create(mappingData);
 
-            return new ComplexTypeDataSource(
-                mappingData.MapperData.SourceMember,
-                mapping,
-                DerivedComplexTypeDataSourcesFactory.CreateFor(mappingData));
+            return new ComplexTypeDataSource(mappingData.MapperData.SourceMember, mapping);
         }
 
         public static IDataSource Create(
@@ -53,10 +43,7 @@
                 dataSourceIndex,
                 complexTypeMappingData);
 
-            return new ComplexTypeDataSource(
-                wrappedDataSource,
-                mapping,
-                Enumerable<IDataSource>.EmptyArray);
+            return new ComplexTypeDataSource(wrappedDataSource, mapping);
         }
 
         public static IDataSource Create(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
@@ -71,22 +58,9 @@
                 dataSourceIndex,
                 complexTypeMappingData);
 
-            return new ComplexTypeDataSource(
-                complexTypeMappingData.MapperData.SourceMember,
-                mapping,
-                Enumerable<IDataSource>.EmptyArray);
+            return new ComplexTypeDataSource(complexTypeMapperData.SourceMember, mapping);
         }
 
         #endregion
-
-        public override IList<IDataSource> ChildDataSources { get; }
-    }
-
-    internal static class DerivedComplexTypeDataSourcesFactory
-    {
-        public static IList<IDataSource> CreateFor(IObjectMappingData declaredTypeMappingData)
-        {
-            return Enumerable<IDataSource>.EmptyArray;
-        }
     }
 }

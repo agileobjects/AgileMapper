@@ -21,11 +21,9 @@
 
         bool IsFallback { get; }
 
-        ICollection<ParameterExpression> Variables { get; }
+        IList<ParameterExpression> Variables { get; }
 
-        IList<IDataSource> ChildDataSources { get; }
-
-        Expression AddPreCondition(Expression population);
+        Expression Finalise(Expression population);
 
         Expression AddCondition(Expression value, Expression alternateBranch = null);
     }

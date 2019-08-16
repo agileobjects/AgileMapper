@@ -1,25 +1,44 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
 
     internal class DataSourceSet : IEnumerable<IDataSource>
     {
         private readonly IList<IDataSource> _dataSources;
+        private readonly Func<IList<IDataSource>, IMemberMapperData, Expression> _valueBuilder;
         private Expression _value;
 
-        public DataSourceSet(IMemberMapperData mapperData, params IDataSource[] dataSources)
+        private DataSourceSet(
+            IDataSource dataSource, 
+            IMemberMapperData mapperData,
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
         {
+            _dataSources = new[] { dataSource };
             MapperData = mapperData;
+            _valueBuilder = valueBuilder ?? ValueExpressionBuilders.SingleDataSource;
+            HasValue = dataSource.IsValid;
+            IsConditional = dataSource.IsConditional;
+            Variables = dataSource.Variables;
+            SourceMemberTypeTest = dataSource.SourceMemberTypeTest;
+        }
+
+        private DataSourceSet(
+            IList<IDataSource> dataSources,
+            IMemberMapperData mapperData,
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
+        {
             _dataSources = dataSources;
-            None = dataSources.Length == 0;
+            MapperData = mapperData;
+            None = dataSources.Count == 0;
 
             if (None)
             {
@@ -27,9 +46,11 @@ namespace AgileObjects.AgileMapper.DataSources
                 return;
             }
 
+            _valueBuilder = valueBuilder ?? ValueExpressionBuilders.ConditionTree;
+
             var variables = default(List<ParameterExpression>);
 
-            for (var i = 0; i < dataSources.Length;)
+            for (var i = 0; i < dataSources.Count;)
             {
                 var dataSource = dataSources[i++];
 
@@ -64,6 +85,28 @@ namespace AgileObjects.AgileMapper.DataSources
                 : Enumerable<ParameterExpression>.EmptyArray;
         }
 
+        #region Factory Methods
+
+        public static DataSourceSet For(
+            IDataSource dataSource, 
+            IMemberMapperData mapperData,
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
+        {
+            return new DataSourceSet(dataSource, mapperData, valueBuilder);
+        }
+
+        public static DataSourceSet For(
+            IList<IDataSource> dataSources,
+            IMemberMapperData mapperData,
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
+        {
+            return dataSources.HasOne()
+                ? For(dataSources.First(), mapperData, valueBuilder)
+                : new DataSourceSet(dataSources, mapperData, valueBuilder);
+        }
+
+        #endregion
+
         public IMemberMapperData MapperData { get; }
 
         public bool None { get; }
@@ -80,33 +123,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public int Count => _dataSources.Count;
 
-        public Expression ValueExpression => _value ?? (_value = BuildValueExpression());
-
-        private Expression BuildValueExpression()
-        {
-            var value = default(Expression);
-
-            for (var i = _dataSources.Count - 1; i >= 0;)
-            {
-                var isFirstDataSource = value == default(Expression);
-                var dataSource = _dataSources[i--];
-
-                var dataSourceValue = dataSource.IsConditional
-                    ? Expression.Condition(
-                        dataSource.Condition,
-                        isFirstDataSource
-                            ? dataSource.Value
-                            : dataSource.Value.GetConversionTo(value.Type),
-                        isFirstDataSource
-                            ? dataSource.Value.Type.ToDefaultExpression()
-                            : value)
-                    : dataSource.Value;
-
-                value = dataSource.AddPreConditionIfNecessary(dataSourceValue);
-            }
-
-            return value;
-        }
+        public Expression BuildValue()
+            => _value ?? (_value = _valueBuilder.Invoke(_dataSources, MapperData));
 
         public Expression GetFinalValueOrNull()
         {

@@ -245,6 +245,12 @@
             return newArray;
         }
 
+        public static void Insert<T>(this IList<T> items, T item, int insertionOffset)
+        {
+            var insertionIndex = items.Count - insertionOffset;
+            items.Insert(insertionIndex, item);
+        }
+
         public static T[] Append<T>(this IList<T> array, T extraItem)
         {
             switch (array.Count)

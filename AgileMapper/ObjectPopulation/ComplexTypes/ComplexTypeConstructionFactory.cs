@@ -467,7 +467,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                         }
                     }
 
-                    argumentValues.Add(dataSources.ValueExpression);
+                    argumentValues.Add(dataSources.BuildValue());
 
                     if (info.IsUnconditional)
                     {

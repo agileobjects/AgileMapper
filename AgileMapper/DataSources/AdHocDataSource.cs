@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -27,8 +26,12 @@
             IQualifiedMember sourceMember,
             Expression value,
             Expression condition,
-            ICollection<ParameterExpression> variables = null)
-            : base(sourceMember, variables ?? Enumerable<ParameterExpression>.EmptyArray, value, condition)
+            params ParameterExpression[] variables)
+            : base(
+                sourceMember,
+                variables,
+                value,
+                condition)
         {
         }
     }

@@ -29,7 +29,7 @@
 
         protected DataSourceBase(
             IQualifiedMember sourceMember,
-            ICollection<ParameterExpression> variables,
+            IList<ParameterExpression> variables,
             Expression value,
             Expression condition = null)
         {
@@ -189,13 +189,11 @@
 
         public virtual Expression Condition { get; }
 
-        public ICollection<ParameterExpression> Variables { get; }
-
-        public virtual IList<IDataSource> ChildDataSources => Enumerable<IDataSource>.EmptyArray;
+        public IList<ParameterExpression> Variables { get; }
 
         public Expression Value { get; }
 
-        public virtual Expression AddPreCondition(Expression population) => population;
+        public virtual Expression Finalise(Expression population) => population;
 
         public Expression AddCondition(Expression value, Expression alternateBranch = null)
         {

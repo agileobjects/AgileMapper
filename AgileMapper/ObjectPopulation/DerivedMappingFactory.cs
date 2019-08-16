@@ -16,13 +16,26 @@
             Expression sourceValue,
             Type targetType)
         {
+            return GetDerivedTypeMapping(
+                declaredTypeMappingData,
+                sourceValue,
+                targetType,
+                out _);
+        }
+
+        public static Expression GetDerivedTypeMapping(
+            IObjectMappingData declaredTypeMappingData,
+            Expression sourceValue,
+            Type targetType,
+            out IObjectMappingData derivedTypeMappingData)
+        {
+            derivedTypeMappingData = declaredTypeMappingData.WithTypes(sourceValue.Type, targetType);
+
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
             var targetValue = declaredTypeMapperData.TargetMember.IsReadable
                 ? declaredTypeMapperData.TargetObject.GetConversionTo(targetType)
                 : targetType.ToDefaultExpression();
-
-            var derivedTypeMappingData = declaredTypeMappingData.WithTypes(sourceValue.Type, targetType);
 
             if (declaredTypeMappingData.IsRoot)
             {

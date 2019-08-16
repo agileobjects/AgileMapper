@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions.Internal;
     using MappingRoot;
     using Members;
     using ObjectPopulation;
@@ -32,7 +33,7 @@
 
             var rootDataSource = rootDataSourceFactory.CreateFor(rootMappingData);
 
-            return new DataSourceSet(rootMappingData.MapperData, rootDataSource);
+            return DataSourceSet.For(rootDataSource, rootMappingData.MapperData);
         }
 
         public static DataSourceSet CreateFor(IChildMemberMappingData childMappingData)
@@ -40,15 +41,20 @@
             var findContext = new DataSourceFindContext(childMappingData);
             var validDataSources = EnumerateDataSources(findContext).ToArray();
 
-            return new DataSourceSet(findContext.MapperData, validDataSources);
+            return DataSourceSet.For(validDataSources, findContext.MapperData);
         }
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)
         {
-            foreach (var finder in _childDataSourceFactories)
+            foreach (var factory in _childDataSourceFactories)
             {
-                foreach (var dataSource in EnumerateDataSources(finder.Invoke(context)))
+                foreach (var dataSource in factory.Invoke(context))
                 {
+                    if (!dataSource.IsValid)
+                    {
+                        continue;
+                    }
+
                     yield return dataSource;
 
                     if (!dataSource.IsConditional)
@@ -61,27 +67,6 @@
                 {
                     yield break;
                 }
-            }
-        }
-
-        private static IEnumerable<IDataSource> EnumerateDataSources(IEnumerable<IDataSource> dataSources)
-        {
-            foreach (var dataSource in dataSources)
-            {
-                if (dataSource.ChildDataSources.Any())
-                {
-                    foreach (var childDataSource in EnumerateDataSources(dataSource.ChildDataSources))
-                    {
-                        yield return childDataSource;
-                    }
-                }
-
-                if (!dataSource.IsValid)
-                {
-                    continue;
-                }
-
-                yield return dataSource;
             }
         }
     }

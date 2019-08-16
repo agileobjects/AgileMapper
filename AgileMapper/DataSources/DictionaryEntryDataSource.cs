@@ -66,7 +66,7 @@
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
 
-        public override Expression AddPreCondition(Expression population)
+        public override Expression Finalise(Expression population)
         {
             var matchingKeyExists = GetMatchingKeyExistsTest();
             var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);

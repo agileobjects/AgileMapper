@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
-            var mappingExpression = DataSourceSetFactory.CreateFor(mappingData).ValueExpression;
+            var mappingExpression = DataSourceSetFactory.CreateFor(mappingData).BuildValue();
 
             if (mappingExpression == Constants.EmptyExpression)
             {
