@@ -93,6 +93,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return false;
             }
 
+            mapping = context.MapperData.GetReturnLabel(mapping);
+
             var shortCircuitReturns = GetShortCircuitReturns(context.MappingData).ToArray();
 
             if (shortCircuitReturns.Any())
