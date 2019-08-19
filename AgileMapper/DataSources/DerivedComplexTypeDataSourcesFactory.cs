@@ -142,7 +142,7 @@
                     derivedTypeMapping = derivedTypeMapping.ToIfFalseDefaultCondition(sourceValueCondition);
                 }
 
-                var returnMappingResult = Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);
+                var returnMappingResult = GetReturnMappingResultExpression(declaredTypeMapperData, derivedTypeMapping);
 
                 var derivedTypeMappingDataSource = new DerivedComplexTypeDataSource(
                     derivedTypeMappingData.MapperData.SourceMember,
@@ -477,9 +477,12 @@
                 out derivedTypeMappingData);
 
             return (mapping != EmptyExpression)
-                ? Return(declaredTypeMappingData.MapperData.ReturnLabelTarget, mapping)
+                ? GetReturnMappingResultExpression(declaredTypeMappingData.MapperData, mapping)
                 : mapping;
         }
+
+        private static Expression GetReturnMappingResultExpression(ObjectMapperData mapperData, Expression mapping)
+            => Return(mapperData.ReturnLabelTarget, mapping, mapperData.TargetType);
 
         private static Expression GetTargetValidCheckOrNull(this IMemberMapperData mapperData, Type targetType)
         {
