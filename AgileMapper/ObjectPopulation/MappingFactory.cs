@@ -143,7 +143,9 @@
                 targetElementValue,
                 enumerableIndex);
 
-            elementMapperData.Context.IsForNewElement = targetElementValue.NodeType == ExpressionType.Default;
+            elementMapperData.Context.IsForNewElement =
+                (targetElementValue.NodeType == ExpressionType.Default) ||
+                (elementMapperData.DeclaredTypeMapperData?.Context.IsForNewElement == true);
 
             if (elementMapperData.IsRepeatMapping &&
                 elementMapperData.RuleSet.RepeatMappingStrategy.AppliesTo(elementMapperData))
