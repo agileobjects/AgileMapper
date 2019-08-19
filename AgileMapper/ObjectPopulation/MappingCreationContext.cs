@@ -21,22 +21,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MappingCreationContext(IObjectMappingData mappingData)
         {
-            var mapperData = mappingData.MapperData;
-
             MappingData = mappingData;
-            MapToNullCondition = GetMapToNullConditionOrNull(mapperData);
+            MapToNullCondition = GetMapToNullConditionOrNull(MapperData);
             InstantiateLocalVariable = true;
             MappingExpressions = new List<Expression>();
 
-            if (mapperData.RuleSet.Settings.UseSingleRootMappingExpression)
+            if (RuleSet.Settings.UseSingleRootMappingExpression)
             {
                 return;
             }
 
-            var basicMapperData = mapperData.WithNoTargetMember();
+            var basicMapperData = MapperData.WithNoTargetMember();
 
-            PreMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, mapperData);
-            PostMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, mapperData);
+            PreMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, MapperData);
+            PostMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, MapperData);
         }
 
         private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)

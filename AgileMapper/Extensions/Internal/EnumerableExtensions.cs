@@ -163,31 +163,6 @@
             return clonedArray;
         }
 
-        public static Expression ReverseChain<T>(this IList<T> items)
-            where T : IConditionallyChainable
-        {
-            return Chain(
-                items,
-                i => i.Last(),
-                item => item.AddPreConditionIfNecessary(item.Value),
-                (valueSoFar, item) => item.AddPreConditionIfNecessary(
-                    Expression.Condition(item.Condition, item.Value, valueSoFar)),
-                i => i.Reverse());
-        }
-
-        public static Expression AddPreConditionIfNecessary(this IConditionallyChainable item, Expression ifTrueBranch)
-        {
-            if (item.PreCondition == null)
-            {
-                return ifTrueBranch;
-            }
-
-            return Expression.Condition(
-                item.PreCondition,
-                ifTrueBranch,
-                ifTrueBranch.Type.ToDefaultExpression());
-        }
-
         public static Expression Chain<TItem>(
             this IList<TItem> items,
             Func<TItem, Expression> seedValueFactory,
@@ -196,8 +171,8 @@
             return Chain(items, i => i.First(), seedValueFactory, itemValueFactory, i => i);
         }
 
-        private static Expression Chain<TItem>(
-            IList<TItem> items,
+        public static Expression Chain<TItem>(
+            this IList<TItem> items,
             Func<IList<TItem>, TItem> seedFactory,
             Func<TItem, Expression> seedValueFactory,
             Func<Expression, TItem, Expression> itemValueFactory,

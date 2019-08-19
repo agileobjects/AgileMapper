@@ -45,10 +45,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
             var sourceValueConversion = Expression.Condition(
                 sourceEqualsTrueTests,
                 true.ToConstantExpression(typeof(bool?)),
-                Expression.Condition(
-                    sourceEqualsFalseTests,
-                    false.ToConstantExpression(typeof(bool?)),
-                    typeof(bool?).ToDefaultExpression()));
+                false.ToConstantExpression(typeof(bool?)).ToIfFalseDefaultCondition(sourceEqualsFalseTests));
 
             return sourceValueConversion;
         }

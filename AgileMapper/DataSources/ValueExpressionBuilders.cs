@@ -13,63 +13,66 @@ namespace AgileObjects.AgileMapper.DataSources
     {
         public static Expression SingleDataSource(IList<IDataSource> dataSources, IMemberMapperData mapperData)
         {
-            var dataSource = dataSources[0];
+            var dataSource = dataSources.Last();
 
             var value = dataSource.IsConditional
-                ? Expression.Condition(
-                    dataSource.Condition,
-                    dataSource.Value,
-                    dataSource.Value.Type.ToDefaultExpression())
+                ? dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition)
                 : dataSource.Value;
 
-            return dataSource.AddPreConditionIfNecessary(value);
+            return dataSource.AddSourceCondition(value);
         }
 
         public static Expression ConditionTree(IList<IDataSource> dataSources, IMemberMapperData mapperData)
         {
-            var value = default(Expression);
+            var value = SingleDataSource(dataSources, mapperData);
 
-            for (var i = dataSources.Count - 1; i >= 0;)
+            for (var i = dataSources.Count - 2; i >= 0;)
             {
-                var isFirstDataSource = value == default(Expression);
                 var dataSource = dataSources[i--];
 
                 var dataSourceValue = dataSource.IsConditional
                     ? Expression.Condition(
                         dataSource.Condition,
-                        isFirstDataSource
-                            ? dataSource.Value
-                            : dataSource.Value.GetConversionTo(value.Type),
-                        isFirstDataSource
-                            ? dataSource.Value.Type.ToDefaultExpression()
-                            : value)
+                        dataSource.Value.GetConversionTo(value.Type),
+                        value)
                     : dataSource.Value;
 
-                value = dataSource.AddPreConditionIfNecessary(dataSourceValue);
+                value = dataSource.AddSourceCondition(dataSourceValue);
             }
 
             return value;
         }
 
-        public static Expression SequentialValues(IList<IDataSource> dataSources, IMemberMapperData mapperData)
+        public static Expression ValueSequence(IList<IDataSource> dataSources, IMemberMapperData mapperData)
         {
-            var mappingExpressions = new List<Expression>();
-
-            foreach (var dataSource in dataSources)
+            if (dataSources.HasOne())
             {
-                var mapping = dataSource.Finalise(dataSource.Value);
-
-                if (dataSource.IsConditional)
-                {
-                    mapping = Expression.IfThen(dataSource.Condition, mapping);
-                }
-
-                mapping = dataSource.AddPreConditionIfNecessary(mapping);
-
-                mappingExpressions.Add(mapping);
+                return dataSources.First().GetValueSequenceValue();
             }
 
+            var mappingExpressions = dataSources
+                .ProjectToArray(dataSource => dataSource.GetValueSequenceValue());
+
             return Expression.Block(mappingExpressions);
+        }
+
+        private static Expression GetValueSequenceValue(this IDataSource dataSource)
+        {
+            var mapping = dataSource.Value;
+
+            if (dataSource.IsConditional)
+            {
+                mapping = Expression.IfThen(dataSource.Condition, mapping);
+            }
+
+            mapping = dataSource.AddSourceCondition(mapping);
+
+            if (dataSource.Variables.Any())
+            {
+                mapping = Expression.Block(dataSource.Variables, mapping);
+            }
+
+            return mapping;
         }
     }
 }

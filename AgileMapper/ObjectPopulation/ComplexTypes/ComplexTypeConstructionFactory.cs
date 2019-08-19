@@ -513,8 +513,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public Construction Construction { get; }
         }
 
-        private class Construction : IConditionallyChainable
+        private class Construction
         {
+            private readonly Expression _condition;
             private readonly Expression _construction;
             private ParameterExpression _mappingDataObject;
 
@@ -524,27 +525,39 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 UsesMappingDataObjectParameter = configuredFactory.UsesMappingDataObjectParameter;
             }
 
-            private Construction(IList<Construction> constructions)
-                : this(constructions.ReverseChain())
-            {
-                UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);
-            }
-
-            public Construction(Expression construction, Expression condition = null)
+            public Construction(
+                Expression construction,
+                Expression condition = null,
+                bool usesMappingDataObjectParameter = false)
             {
                 _construction = construction;
-                Condition = condition;
+                _condition = condition;
+                UsesMappingDataObjectParameter = usesMappingDataObjectParameter;
             }
 
             #region Factory Methods
 
             public static Construction For(IList<Construction> constructions, ConstructionKey key)
             {
-                var construction = constructions.HasOne()
-                    ? constructions.First()
-                    : new Construction(constructions);
+                if (constructions.HasOne())
+                {
+                    return constructions.First().With(key);
+                }
+
+                var construction = new Construction(
+                    ReverseChain(constructions),
+                    usesMappingDataObjectParameter: constructions.Any(c => c.UsesMappingDataObjectParameter));
 
                 return construction.With(key);
+            }
+
+            private static Expression ReverseChain(IList<Construction> constructions)
+            {
+                return constructions.Chain(
+                    cs => cs.Last(),
+                    item => item._construction,
+                    (valueSoFar, item) => Expression.Condition(item._condition, item._construction, valueSoFar),
+                    i => i.Reverse());
             }
 
             public Construction With(ConstructionKey key)
@@ -554,12 +567,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             #endregion
-
-            public Expression PreCondition => null;
-
-            public Expression Condition { get; }
-
-            Expression IConditionallyChainable.Value => _construction;
 
             public bool UsesMappingDataObjectParameter { get; }
 

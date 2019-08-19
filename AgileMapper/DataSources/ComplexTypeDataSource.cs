@@ -5,6 +5,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ObjectPopulation.ComplexTypes;
@@ -25,8 +26,6 @@
 
         public static IDataSource Create(IObjectMappingData mappingData)
         {
-            var derivedTypeDataSources = DerivedComplexTypeDataSourcesFactory.CreateFor(mappingData);
-
             var mapping = ComplexTypeMappingExpressionFactory.Instance.Create(mappingData);
 
             return new ComplexTypeDataSource(mappingData.MapperData.SourceMember, mapping);

@@ -50,7 +50,12 @@
             return valueNonNull;
         }
 
-        public override Expression PreCondition => _preCondition ?? (_preCondition = CreatePreCondition());
+        public override Expression AddSourceCondition(Expression value)
+        {
+            var preCondition = _preCondition ?? (_preCondition = CreatePreCondition());
+
+            return value.ToIfFalseDefaultCondition(preCondition);
+        }
 
         private Expression CreatePreCondition()
         {
@@ -66,10 +71,12 @@
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
 
-        public override Expression Finalise(Expression population)
+        public override Expression Finalise(Expression memberPopulation, Expression alternatePopulation)
         {
+            memberPopulation = base.Finalise(memberPopulation, alternatePopulation);
+
             var matchingKeyExists = GetMatchingKeyExistsTest();
-            var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);
+            var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, memberPopulation);
 
             if (_dictionaryVariables.HasConstantTargetMemberKey)
             {

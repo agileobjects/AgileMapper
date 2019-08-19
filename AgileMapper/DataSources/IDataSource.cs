@@ -23,8 +23,8 @@
 
         IList<ParameterExpression> Variables { get; }
 
-        Expression Finalise(Expression population);
+        Expression AddSourceCondition(Expression value);
 
-        Expression AddCondition(Expression value, Expression alternateBranch = null);
+        Expression Finalise(Expression memberPopulation, Expression alternatePopulation = null);
     }
 }

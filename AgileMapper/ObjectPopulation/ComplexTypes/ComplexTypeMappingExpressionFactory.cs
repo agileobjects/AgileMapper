@@ -1,11 +1,13 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -69,12 +71,48 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Short-Circuits
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
+        protected override bool ShortCircuitMapping(MappingCreationContext context, out Expression mapping)
+        {
+            var derivedTypeDataSources = DerivedComplexTypeDataSourcesFactory.CreateFor(context.MappingData);
+
+            if (derivedTypeDataSources.None())
+            {
+                return base.ShortCircuitMapping(context, out mapping);
+            }
+
+            var derivedTypeDataSourceSet = DataSourceSet.For(
+                derivedTypeDataSources,
+                context.MapperData,
+                ValueExpressionBuilders.ValueSequence);
+
+            mapping = derivedTypeDataSourceSet.BuildValue();
+
+            if (derivedTypeDataSources.Last().IsConditional)
+            {
+                context.MappingExpressions.Add(mapping);
+                return false;
+            }
+
+            var shortCircuitReturns = GetShortCircuitReturns(context.MappingData).ToArray();
+
+            if (shortCircuitReturns.Any())
+            {
+                mapping = Expression.Block(shortCircuitReturns.Append(mapping));
+            }
+
+            return true;
+        }
+
+        protected override IEnumerable<Expression> GetShortCircuitReturns(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
             if (SourceObjectCouldBeNull(mapperData))
             {
+                var returnNull = Expression.Return(
+                    mapperData.ReturnLabelTarget,
+                    mapperData.TargetType.ToDefaultExpression());
+
                 yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
             }
 
@@ -142,9 +180,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             => _shortCircuitFactories.TryFindMatch(f => f.IsFor(mapperData), out applicableFactory);
 
         #endregion
-
-        protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-            => DerivedComplexTypeMappingsFactory.CreateFor(mappingData);
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {

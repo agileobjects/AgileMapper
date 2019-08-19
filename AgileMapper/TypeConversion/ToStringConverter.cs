@@ -118,10 +118,8 @@
                 return GetTrueOrFalseTernary(sourceValue);
             }
 
-            var nullTrueOrFalse = Expression.Condition(
-                Expression.Property(sourceValue, "HasValue"),
-                GetTrueOrFalseTernary(sourceValue.GetNullableValueAccess()),
-                typeof(string).ToDefaultExpression());
+            var nullTrueOrFalse = GetTrueOrFalseTernary(sourceValue.GetNullableValueAccess())
+                .ToIfFalseDefaultCondition(Expression.Property(sourceValue, "HasValue"));
 
             return nullTrueOrFalse;
         }

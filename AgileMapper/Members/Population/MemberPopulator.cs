@@ -124,10 +124,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             if (MapperData.RuleSet.Settings.AllowGuardedBindings && (populationGuard != null))
             {
-                bindingValue = Expression.Condition(
-                    populationGuard,
-                    bindingValue,
-                    bindingValue.Type.ToDefaultExpression());
+                bindingValue = bindingValue.ToIfFalseDefaultCondition(populationGuard);
             }
 
             return MapperData.GetTargetMemberPopulation(bindingValue);
@@ -161,20 +158,12 @@ namespace AgileObjects.AgileMapper.Members.Population
                     }
 
                     population = MapperData.GetTargetMemberPopulation(finalValue);
-
-                    if (dataSource.IsConditional)
-                    {
-                        population = dataSource.AddCondition(population);
-                    }
-
                     population = dataSource.Finalise(population);
                     continue;
                 }
 
                 var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-
-                population = dataSource.AddCondition(memberPopulation, population);
-                population = dataSource.Finalise(population);
+                population = dataSource.Finalise(memberPopulation, population);
             }
 
             return population;

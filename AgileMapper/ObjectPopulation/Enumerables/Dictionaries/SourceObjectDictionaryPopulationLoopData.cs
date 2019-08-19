@@ -1,12 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
-    using DataSources;
-    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Extensions.Internal;
 
     internal class SourceObjectDictionaryPopulationLoopData : IPopulationLoopData
     {
@@ -85,12 +85,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         }
 
         private Expression GetEnumeratorIfNecessary(Expression getEnumeratorCall)
-        {
-            return Expression.Condition(
-                _sourceEnumerableFound,
-                getEnumeratorCall,
-                getEnumeratorCall.Type.ToDefaultExpression());
-        }
+            => getEnumeratorCall.ToIfFalseDefaultCondition(_sourceEnumerableFound);
 
         private Expression DisposeEnumeratorIfNecessary(Expression disposeEnumeratorCall)
             => Expression.IfThen(_sourceEnumerableFound, disposeEnumeratorCall);

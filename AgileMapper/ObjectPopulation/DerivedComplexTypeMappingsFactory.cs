@@ -142,10 +142,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (sourceValueCondition != null)
                 {
-                    derivedTypeMapping = Condition(
-                        sourceValueCondition,
-                        derivedTypeMapping,
-                        derivedTypeMapping.Type.ToDefaultExpression());
+                    derivedTypeMapping = derivedTypeMapping.ToIfFalseDefaultCondition(sourceValueCondition);
                 }
 
                 var returnMappingResult = Return(declaredTypeMapperData.ReturnLabelTarget, derivedTypeMapping);

@@ -5,8 +5,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
+    using static System.Linq.Expressions.ExpressionType;
 #endif
     using DataSources;
     using Extensions;
@@ -15,11 +17,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
-#if NET35
-    using static Microsoft.Scripting.Ast.ExpressionType;
-#else
-    using static System.Linq.Expressions.ExpressionType;
-#endif
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -34,22 +31,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     GetNullMappingFallbackValue(mapperData));
             }
 
-            var returnNull = Expression.Return(
-                mapperData.ReturnLabelTarget,
-                mapperData.TargetType.ToDefaultExpression());
-
-            if (MappingAlwaysBranchesToDerivedType(mappingData, out var derivedTypeMappings))
-            {
-                var shortCircuitReturns = GetShortCircuitReturns(returnNull, mappingData).ToArray();
-
-                return shortCircuitReturns.Any()
-                    ? Expression.Block(shortCircuitReturns.Append(derivedTypeMappings))
-                    : derivedTypeMappings;
-            }
-
             var context = new MappingCreationContext(mappingData);
 
-            context.MappingExpressions.AddUnlessNullOrEmpty(derivedTypeMappings);
+            if (ShortCircuitMapping(context, out var mapping))
+            {
+                return mapping;
+            }
 
             AddPopulationsAndCallbacks(context);
 
@@ -58,7 +45,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
-            context.MappingExpressions.InsertRange(0, GetShortCircuitReturns(returnNull, mappingData));
+            context.MappingExpressions.InsertRange(0, GetShortCircuitReturns(mappingData));
 
             var mappingBlock = GetMappingBlock(context);
 
@@ -79,23 +66,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected virtual Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.TargetType.ToDefaultExpression();
 
-        private bool MappingAlwaysBranchesToDerivedType(IObjectMappingData mappingData, out Expression derivedTypeMappings)
+        protected virtual bool ShortCircuitMapping(MappingCreationContext context, out Expression mapping)
         {
-            derivedTypeMappings = GetDerivedTypeMappings(mappingData);
-
-            if (derivedTypeMappings.NodeType != Goto)
-            {
-                return false;
-            }
-
-            var returnExpression = (GotoExpression)derivedTypeMappings;
-            derivedTypeMappings = returnExpression.Value;
-            return true;
+            mapping = null;
+            return false;
         }
 
-        protected virtual Expression GetDerivedTypeMappings(IObjectMappingData mappingData) => Constants.EmptyExpression;
-
-        protected virtual IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
+        protected virtual IEnumerable<Expression> GetShortCircuitReturns(IObjectMappingData mappingData)
             => Enumerable<Expression>.Empty;
 
         private void AddPopulationsAndCallbacks(MappingCreationContext context)
