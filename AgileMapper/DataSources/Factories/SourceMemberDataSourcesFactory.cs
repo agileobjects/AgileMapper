@@ -1,12 +1,12 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Finders
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
     using Extensions.Internal;
     using Members;
 
-    internal struct SourceMemberDataSourceFinder : IDataSourceFinder
+    internal static class SourceMemberDataSourcesFactory
     {
-        public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
+        public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
             if (context.MapperData.TargetMember.IsCustom)
             {
@@ -22,9 +22,9 @@
             {
                 if (context.DataSourceIndex == 0)
                 {
-                    if (UseFallbackComplexTypeMappingDataSource(targetMember))
+                    if (UseFallbackComplexTypeDataSource(targetMember))
                     {
-                        yield return new ComplexTypeMappingDataSource(context.DataSourceIndex, context.ChildMappingData);
+                        yield return ComplexTypeDataSource.Create(context.DataSourceIndex, context.ChildMappingData);
                     }
                 }
                 else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
@@ -88,7 +88,7 @@
                 Constants.EmptyExpression);
         }
 
-        private static bool UseFallbackComplexTypeMappingDataSource(QualifiedMember targetMember)
+        private static bool UseFallbackComplexTypeDataSource(QualifiedMember targetMember)
             => targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
     }
 }

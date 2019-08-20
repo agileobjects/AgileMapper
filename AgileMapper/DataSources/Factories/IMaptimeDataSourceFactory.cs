@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.DataSources
+namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
     using Members;

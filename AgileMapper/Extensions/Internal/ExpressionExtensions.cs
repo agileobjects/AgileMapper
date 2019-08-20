@@ -5,9 +5,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
-    using NetStandardPolyfills;
-    using ObjectPopulation.Enumerables;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
     using ReadableExpressions.Translations;
@@ -17,6 +14,9 @@
     using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using NetStandardPolyfills;
+    using ObjectPopulation.Enumerables;
+    using ReadableExpressions.Extensions;
 
     internal static partial class ExpressionExtensions
     {
@@ -64,6 +64,10 @@
 
         [DebuggerStepThrough]
         public static DefaultExpression ToDefaultExpression(this Type type) => Expression.Default(type);
+
+        [DebuggerStepThrough]
+        public static ConditionalExpression ToIfFalseDefaultCondition(this Expression value, Expression condition)
+            => Expression.Condition(condition, value, value.Type.ToDefaultExpression());
 
         public static Expression AndTogether(this IList<Expression> expressions)
         {

@@ -349,7 +349,7 @@
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression).To(targetMember);
         }
 
-        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression)
         {
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
@@ -361,23 +361,23 @@
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression)
         {
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        public ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression)
         {
             return GetValueFactoryTargetMemberSpecifier<TSourceValue>(valueFactoryExpression);
         }
 
-        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
+        public ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
             Func<TSource, TSourceValue> valueFunc)
             => GetConstantValueTargetMemberSpecifier(valueFunc);
 
-        public ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
+        public ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value)
             => GetConstantValueTargetMemberSpecifier(value);
 
         public IMappingConfigContinuation<TSource, TTarget> Map<TSourceValue, TTargetValue>(

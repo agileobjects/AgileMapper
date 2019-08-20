@@ -21,10 +21,10 @@
 
         bool IsFallback { get; }
 
-        ICollection<ParameterExpression> Variables { get; }
+        IList<ParameterExpression> Variables { get; }
 
-        Expression AddPreCondition(Expression population);
+        Expression AddSourceCondition(Expression value);
 
-        Expression AddCondition(Expression value, Expression alternateBranch = null);
+        Expression Finalise(Expression memberPopulation, Expression alternatePopulation = null);
     }
 }

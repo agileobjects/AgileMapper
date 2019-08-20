@@ -13,9 +13,9 @@
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
 
-    internal class EnumerableMappingDataSource : DataSourceBase
+    internal class EnumerableDataSource : DataSourceBase
     {
-        public EnumerableMappingDataSource(
+        public EnumerableDataSource(
             IDataSource sourceEnumerableDataSource,
             int dataSourceIndex,
             IChildMemberMappingData enumerableMappingData)

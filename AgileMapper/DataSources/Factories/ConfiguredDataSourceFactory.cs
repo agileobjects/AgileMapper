@@ -1,15 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.DataSources
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
 #if NET35
     using System;
-#endif
-    using Configuration;
-    using Members;
-#if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Members;
 
     internal class ConfiguredDataSourceFactory :
         UserConfiguredItemBase,

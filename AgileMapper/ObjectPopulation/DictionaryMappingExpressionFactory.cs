@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using System.Reflection;
     using ComplexTypes;
-    using DataSources;
+    using DataSources.Factories;
     using Enumerables.Dictionaries;
     using Extensions;
     using Extensions.Internal;
@@ -22,11 +22,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class DictionaryMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        public static readonly MappingExpressionFactoryBase Instance = new DictionaryMappingExpressionFactory();
-
         private readonly MemberPopulatorFactory _memberPopulatorFactory;
 
-        private DictionaryMappingExpressionFactory()
+        public DictionaryMappingExpressionFactory()
         {
             _memberPopulatorFactory = new MemberPopulatorFactory(GetAllTargetMembers);
         }
@@ -228,31 +226,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public override bool IsFor(IObjectMappingData mappingData)
-        {
-            if (mappingData.MapperData.TargetMember.IsDictionary)
-            {
-                return true;
-            }
-
-            if (mappingData.IsRoot)
-            {
-                return false;
-            }
-
-            if (!(mappingData.MapperData.TargetMember is DictionaryTargetMember dictionaryMember))
-            {
-                return false;
-            }
-
-            if (dictionaryMember.HasSimpleEntries)
-            {
-                return true;
-            }
-
-            return dictionaryMember.HasObjectEntries && !mappingData.IsStandalone();
-        }
-
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             if (mappingData.MappingTypes.SourceType.IsDictionary())
@@ -300,7 +273,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield return assignment;
             }
 
-            ReturnPopulation:
+        ReturnPopulation:
             if (population != null)
             {
                 yield return population;

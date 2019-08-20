@@ -2,23 +2,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Globalization;
-    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
     using Members;
-    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class EnumMappingExpressionFactory : MappingExpressionFactoryBase
     {
-        public static readonly EnumMappingExpressionFactory Instance = new EnumMappingExpressionFactory();
-
-        public override bool IsFor(IObjectMappingData mappingData)
-            => mappingData.MapperData.TargetType.GetNonNullableType().IsEnum();
-
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
             var mapperData = mappingData.MapperData;

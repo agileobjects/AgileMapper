@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.Configuration
 #else
     using System.Linq.Expressions;
 #endif
-    using DataSources;
+    using DataSources.Factories;
     using Members;
     using ReadableExpressions;
 

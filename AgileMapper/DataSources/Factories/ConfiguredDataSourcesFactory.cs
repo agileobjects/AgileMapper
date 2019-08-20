@@ -1,11 +1,11 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Finders
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
     using Extensions.Internal;
 
-    internal struct ConfiguredDataSourceFinder : IDataSourceFinder
+    internal static class ConfiguredDataSourcesFactory
     {
-        public IEnumerable<IDataSource> FindFor(DataSourceFindContext context)
+        public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
             if (context.ConfiguredDataSources.None())
             {

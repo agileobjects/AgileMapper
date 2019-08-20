@@ -2,35 +2,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using Caching;
-    using ComplexTypes;
-    using Enumerables;
-    using Extensions.Internal;
-    using MapperKeys;
-    using Queryables;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching;
+    using DataSources.Factories;
+    using MapperKeys;
 
     internal class ObjectMapperFactory
     {
-        private readonly IList<MappingExpressionFactoryBase> _mappingExpressionFactories;
         private readonly ICache<IRootMapperKey, IObjectMapper> _rootMappersCache;
         private Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
 
         public ObjectMapperFactory(CacheSet mapperScopedCacheSet)
         {
-            _mappingExpressionFactories = new[]
-            {
-                QueryProjectionExpressionFactory.Instance,
-                EnumMappingExpressionFactory.Instance,
-                DictionaryMappingExpressionFactory.Instance,
-                EnumerableMappingExpressionFactory.Instance,
-                ComplexTypeMappingExpressionFactory.Instance
-            };
-
             _rootMappersCache = mapperScopedCacheSet.CreateScoped<IRootMapperKey, IObjectMapper>(default(RootMapperKeyComparer));
         }
 
@@ -65,10 +52,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
-            var mappingExpressionFactory = _mappingExpressionFactories.First(mef => mef.IsFor(mappingData));
-            var mappingExpression = mappingExpressionFactory.Create(mappingData);
+            var mappingExpression = DataSourceSetFactory.CreateFor(mappingData).BuildValue();
 
-            if (mappingExpression.NodeType == ExpressionType.Default)
+            if (mappingExpression == Constants.EmptyExpression)
             {
                 return null;
             }

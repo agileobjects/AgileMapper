@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.DataSources
+namespace AgileObjects.AgileMapper.DataSources.Factories
 {
 #if NET35
     using Microsoft.Scripting.Ast;

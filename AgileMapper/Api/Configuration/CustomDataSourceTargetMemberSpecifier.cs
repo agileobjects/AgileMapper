@@ -7,7 +7,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using DataSources;
+    using DataSources.Factories;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -24,7 +24,7 @@
 #endif
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget>,
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>,
         ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;

@@ -1,11 +1,14 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using DataSources.Factories;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -19,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private readonly PopulationExpressionFactoryBase _multiStatementPopulationFactory;
         private readonly IList<ISourceShortCircuitFactory> _shortCircuitFactories;
 
-        private ComplexTypeMappingExpressionFactory()
+        public ComplexTypeMappingExpressionFactory()
         {
             _memberInitPopulationFactory = new MemberInitPopulationExpressionFactory();
             _multiStatementPopulationFactory = new MultiStatementPopulationExpressionFactory();
@@ -29,8 +32,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 SourceDictionaryShortCircuitFactory.Instance
             };
         }
-
-        public override bool IsFor(IObjectMappingData mappingData) => true;
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
         {
@@ -71,12 +72,60 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Short-Circuits
 
-        protected override IEnumerable<Expression> GetShortCircuitReturns(GotoExpression returnNull, IObjectMappingData mappingData)
+        protected override bool ShortCircuitMapping(MappingCreationContext context, out Expression mapping)
+        {
+            var derivedTypeDataSources = DerivedComplexTypeDataSourcesFactory.CreateFor(context.MappingData);
+
+            if (derivedTypeDataSources.None())
+            {
+                return base.ShortCircuitMapping(context, out mapping);
+            }
+
+            var derivedTypeDataSourceSet = DataSourceSet.For(
+                derivedTypeDataSources,
+                context.MapperData,
+                ValueExpressionBuilders.ValueSequence);
+
+            mapping = derivedTypeDataSourceSet.BuildValue();
+
+            if (derivedTypeDataSources.Last().IsConditional)
+            {
+                context.MappingExpressions.Add(mapping);
+                return false;
+            }
+
+            var shortCircuitReturns = GetShortCircuitReturns(context.MappingData).ToArray();
+
+            if (shortCircuitReturns.Any())
+            {
+                context.MappingExpressions.AddRange(shortCircuitReturns);
+            }
+
+            if (mapping.NodeType == ExpressionType.Goto)
+            {
+                mapping = ((GotoExpression)mapping).Value;
+                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping));
+            }
+            else
+            {
+                context.MappingExpressions.Add(mapping);
+                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping.Type.ToDefaultExpression()));
+            }
+
+            mapping = Expression.Block(context.MappingExpressions);
+            return true;
+        }
+
+        protected override IEnumerable<Expression> GetShortCircuitReturns(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
             if (SourceObjectCouldBeNull(mapperData))
             {
+                var returnNull = Expression.Return(
+                    mapperData.ReturnLabelTarget,
+                    mapperData.TargetType.ToDefaultExpression());
+
                 yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
             }
 
@@ -144,9 +193,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             => _shortCircuitFactories.TryFindMatch(f => f.IsFor(mapperData), out applicableFactory);
 
         #endregion
-
-        protected override Expression GetDerivedTypeMappings(IObjectMappingData mappingData)
-            => DerivedComplexTypeMappingsFactory.CreateFor(mappingData);
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {

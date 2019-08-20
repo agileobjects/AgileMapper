@@ -15,7 +15,7 @@
     {
         #region Cached Items
 
-        public new static readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
+        public static new readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
 
         private static readonly Type[] _coercibleNumericTypes = typeof(TNumeric).GetCoercibleNumericTypes();
 
@@ -75,26 +75,19 @@
 
         private static Expression GetBoolToNumericConversion(Expression sourceValue, Type targetType)
         {
-            var sourceIsNotNullable = sourceValue.Type == typeof(bool);
-
-            var testValue = sourceIsNotNullable
-                ? sourceValue
-                : sourceValue.GetConversionTo<bool>();
+            var sourceIsNullable = sourceValue.Type != typeof(bool);
 
             var boolConversion = Expression.Condition(
-                testValue,
+                sourceIsNullable ? sourceValue.GetConversionTo<bool>() : sourceValue,
                 One.GetConversionTo(targetType),
                 Zero.GetConversionTo(targetType));
 
-            if (sourceIsNotNullable)
+            if (sourceIsNullable)
             {
-                return boolConversion;
+                boolConversion = boolConversion.ToIfFalseDefaultCondition(sourceValue.GetIsNotDefaultComparison());
             }
 
-            return Expression.Condition(
-                sourceValue.GetIsNotDefaultComparison(),
-                boolConversion,
-                boolConversion.Type.ToDefaultExpression());
+            return boolConversion;
         }
 
         private static bool IsCoercible(Type sourceType) => _coercibleNumericTypes.Contains(sourceType);

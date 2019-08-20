@@ -59,7 +59,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public IMemberMapperData MapperData { get; }
 
-        public ICollection<ParameterExpression> Variables { get; }
+        public IList<ParameterExpression> Variables { get; }
 
         public ParameterExpression Key
             => _key ?? (_key = Expression.Variable(SourceMember.KeyType, _targetMemberName + "Key"));

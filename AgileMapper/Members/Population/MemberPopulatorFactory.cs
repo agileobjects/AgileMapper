@@ -8,7 +8,7 @@
     using System.Linq.Expressions;
 #endif
     using Configuration;
-    using DataSources.Finders;
+    using DataSources.Factories;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -66,7 +66,7 @@
             }
 
             var childMappingData = mappingData.GetChildMappingData(childMapperData);
-            var dataSources = DataSourceFinder.FindFor(childMappingData);
+            var dataSources = DataSourceSetFactory.CreateFor(childMappingData);
 
             if (dataSources.None)
             {

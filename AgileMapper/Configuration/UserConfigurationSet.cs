@@ -3,7 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using DataSources;
+    using DataSources.Factories;
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
@@ -11,11 +17,6 @@
     using ObjectPopulation;
     using Projection;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class UserConfigurationSet
     {

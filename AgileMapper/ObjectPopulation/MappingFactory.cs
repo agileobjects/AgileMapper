@@ -1,13 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
 
     internal static class MappingFactory
     {
@@ -18,6 +18,13 @@
             IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
+
+            var childObjectMappingData = ObjectMappingDataFactory.ForChild(
+                sourceMember,
+                childMapperData.TargetMember,
+                dataSourceIndex,
+                childMappingData.Parent);
+
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
             childMapperData.TargetMember.MapCreating(sourceMember.Type);
@@ -26,12 +33,6 @@
                 sourceMemberAccess,
                 targetMemberAccess,
                 childMapperData.EnumerableIndex);
-
-            var childObjectMappingData = ObjectMappingDataFactory.ForChild(
-                sourceMember,
-                childMapperData.TargetMember,
-                dataSourceIndex,
-                childMappingData.Parent);
 
             if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
@@ -142,7 +143,9 @@
                 targetElementValue,
                 enumerableIndex);
 
-            elementMapperData.Context.IsForNewElement = targetElementValue.NodeType == ExpressionType.Default;
+            elementMapperData.Context.IsForNewElement =
+                (targetElementValue.NodeType == ExpressionType.Default) ||
+                (elementMapperData.DeclaredTypeMapperData?.Context.IsForNewElement == true);
 
             if (elementMapperData.IsRepeatMapping &&
                 elementMapperData.RuleSet.RepeatMappingStrategy.AppliesTo(elementMapperData))
@@ -248,8 +251,6 @@
                    !mapperData.RuleSet.Settings.UseMemberInitialisation &&
                     SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
         }
-
-
 
         public static Expression UseLocalSourceValueVariableIfAppropriate(
             Expression mappingExpression,

@@ -1,25 +1,25 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
 
     internal class DerivedSourceTypeCheck
     {
-        private readonly Type _derivedSourceType;
-
         public DerivedSourceTypeCheck(Type derivedSourceType)
         {
-            _derivedSourceType = derivedSourceType;
+            DerivedSourceType = derivedSourceType;
 
             var typedVariableName = "source" + derivedSourceType.GetVariableNameInPascalCase();
             TypedVariable = Expression.Variable(derivedSourceType, typedVariableName);
         }
+
+        public Type DerivedSourceType { get; }
 
         public ParameterExpression TypedVariable { get; }
 
@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression GetTypedVariableAssignment(Expression sourceObject)
         {
-            var typeAsConversion = Expression.TypeAs(sourceObject, _derivedSourceType);
+            var typeAsConversion = Expression.TypeAs(sourceObject, DerivedSourceType);
             var typedVariableAssignment = TypedVariable.AssignTo(typeAsConversion);
 
             return typedVariableAssignment;

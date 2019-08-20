@@ -127,7 +127,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// An ICustomDataSourceMappingConfigContinuation with which to control the reverse configuration, or further
         /// configure mappings from and to the source and target type being configured.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression);
 
         /// <summary>
@@ -138,10 +138,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of the custom value being configured.</typeparam>
         /// <param name="valueFactoryExpression">The expression to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression);
 
         /// <summary>
@@ -152,10 +152,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of the custom value being configured.</typeparam>
         /// <param name="valueFactoryExpression">The expression to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression);
 
         /// <summary>
@@ -164,10 +164,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of value returned by the given Func.</typeparam>
         /// <param name="valueFunc">The Func object to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
             Func<TSource, TSourceValue> valueFunc);
 
         /// <summary>
@@ -177,10 +177,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of the custom constant value being configured.</typeparam>
         /// <param name="value">The constant value to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom constant value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value);
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value);
 
         /// <summary>
         /// Configure a constant value for the given <paramref name="targetMember"/> when mapping from and to the
