@@ -93,15 +93,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return false;
             }
 
-            mapping = context.MapperData.GetReturnLabel(mapping);
-
             var shortCircuitReturns = GetShortCircuitReturns(context.MappingData).ToArray();
 
             if (shortCircuitReturns.Any())
             {
-                mapping = Expression.Block(shortCircuitReturns.Append(mapping));
+                context.MappingExpressions.AddRange(shortCircuitReturns);
             }
 
+            context.MappingExpressions.Add(mapping);
+            context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping.Type.ToDefaultExpression()));
+
+            mapping = Expression.Block(context.MappingExpressions);
             return true;
         }
 

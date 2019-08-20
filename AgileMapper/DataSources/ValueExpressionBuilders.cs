@@ -64,10 +64,6 @@ namespace AgileObjects.AgileMapper.DataSources
             {
                 mapping = Expression.IfThen(dataSource.Condition, mapping);
             }
-            else if (mapping.NodeType == ExpressionType.Goto)
-            {
-                mapping = ((GotoExpression)mapping).Value;
-            }
 
             mapping = dataSource.AddSourceCondition(mapping);
 

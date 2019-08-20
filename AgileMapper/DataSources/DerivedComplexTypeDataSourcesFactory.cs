@@ -435,6 +435,11 @@
                     derivedTargetType,
                     out var derivedTypeMappingData);
 
+                if (derivedTypeMapping == EmptyExpression)
+                {
+                    continue;
+                }
+
                 var derivedTargetTypeDataSouce = new DerivedComplexTypeDataSource(
                     derivedTypeMappingData.MapperData.SourceMember,
                     targetTypeCondition,
