@@ -101,8 +101,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 context.MappingExpressions.AddRange(shortCircuitReturns);
             }
 
-            context.MappingExpressions.Add(mapping);
-            context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping.Type.ToDefaultExpression()));
+            if (mapping.NodeType == ExpressionType.Goto)
+            {
+                mapping = ((GotoExpression)mapping).Value;
+                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping));
+            }
+            else
+            {
+                context.MappingExpressions.Add(mapping);
+                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping.Type.ToDefaultExpression()));
+            }
 
             mapping = Expression.Block(context.MappingExpressions);
             return true;
