@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper
 {
     using System.Collections.Generic;
-    using DataSources;
+    using DataSources.Factories;
     using Extensions.Internal;
     using Members.Population;
     using ObjectPopulation.Enumerables;

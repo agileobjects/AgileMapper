@@ -4,7 +4,7 @@
     using Extensions.Internal;
     using Members;
 
-    internal static class SourceMemberDataSourceFactory
+    internal static class SourceMemberDataSourcesFactory
     {
         public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {

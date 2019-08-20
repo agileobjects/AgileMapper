@@ -18,12 +18,12 @@
             new ComplexTypeMappingRootDataSourceFactory()
         };
 
-        private static readonly DataSourceFactory[] _childDataSourceFactories =
+        private static readonly DataSourcesFactory[] _childDataSourceFactories =
         {
-            ConfiguredDataSourceFactory.Create,
-            MaptimeDataSourceFactory.Create,
-            SourceMemberDataSourceFactory.Create,
-            MetaMemberDataSourceFactory.Create
+            ConfiguredDataSourcesFactory.Create,
+            MaptimeDataSourcesFactory.Create,
+            SourceMemberDataSourcesFactory.Create,
+            MetaMemberDataSourcesFactory.Create
         };
 
         public static DataSourceSet CreateFor(IObjectMappingData rootMappingData)

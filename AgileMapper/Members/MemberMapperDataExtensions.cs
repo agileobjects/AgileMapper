@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.Members
     using System.Reflection;
     using Configuration;
     using DataSources;
+    using DataSources.Factories;
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;

@@ -2,5 +2,5 @@
 {
     using System.Collections.Generic;
 
-    internal delegate IEnumerable<IDataSource> DataSourceFactory(DataSourceFindContext context);
+    internal delegate IEnumerable<IDataSource> DataSourcesFactory(DataSourceFindContext context);
 }

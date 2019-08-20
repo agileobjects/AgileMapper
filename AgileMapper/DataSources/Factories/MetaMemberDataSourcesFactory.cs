@@ -17,7 +17,7 @@
     using ReadableExpressions.Extensions;
     using TypeConversion;
 
-    internal static class MetaMemberDataSourceFactory
+    internal static class MetaMemberDataSourcesFactory
     {
         public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {

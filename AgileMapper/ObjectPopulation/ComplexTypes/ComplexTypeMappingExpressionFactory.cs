@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using System.Linq.Expressions;
 #endif
     using DataSources;
+    using DataSources.Factories;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;

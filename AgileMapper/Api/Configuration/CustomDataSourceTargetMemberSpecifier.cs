@@ -7,7 +7,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using DataSources;
+    using DataSources.Factories;
     using Extensions;
     using Extensions.Internal;
     using Members;

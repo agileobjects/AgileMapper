@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using Extensions.Internal;
 
-    internal static class MaptimeDataSourceFactory
+    internal static class MaptimeDataSourcesFactory
     {
         private static readonly IMaptimeDataSourceFactory[] _mapTimeDataSourceFactories =
         {

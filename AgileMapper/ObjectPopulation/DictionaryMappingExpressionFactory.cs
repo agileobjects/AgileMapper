@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using System.Reflection;
     using ComplexTypes;
-    using DataSources;
+    using DataSources.Factories;
     using Enumerables.Dictionaries;
     using Extensions;
     using Extensions.Internal;
