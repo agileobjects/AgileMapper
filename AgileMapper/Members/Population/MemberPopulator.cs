@@ -37,10 +37,10 @@ namespace AgileObjects.AgileMapper.Members.Population
             => new MemberPopulator(dataSources, populateCondition);
 
         public static IMemberPopulator Unmappable(IMemberMapperData mapperData, string reason)
-            => CreateNullMemberPopulation(mapperData, targetMember => $"No way to populate {targetMember.Name} ({reason})");
+            => CreateNullMemberPopulator(mapperData, targetMember => $"No way to populate {targetMember.Name} ({reason})");
 
         public static IMemberPopulator IgnoredMember(IMemberMapperData mapperData, ConfiguredIgnoredMember configuredIgnore)
-            => CreateNullMemberPopulation(mapperData, configuredIgnore.GetIgnoreMessage);
+            => CreateNullMemberPopulator(mapperData, configuredIgnore.GetIgnoreMessage);
 
         public static IMemberPopulator NoDataSource(IMemberMapperData mapperData)
         {
@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                 : $"No data source for {targetMember.Name} or any of its child members";
         }
 
-        private static MemberPopulator CreateNullMemberPopulation(
+        private static MemberPopulator CreateNullMemberPopulator(
             IMemberMapperData mapperData,
             Func<QualifiedMember, string> commentFactory)
         {

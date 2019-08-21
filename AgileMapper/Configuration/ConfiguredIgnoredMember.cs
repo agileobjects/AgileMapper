@@ -3,10 +3,14 @@ namespace AgileObjects.AgileMapper.Configuration
     using System;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
     using DataSources.Factories;
+#if NET35
+    using Extensions.Internal;
+#endif
     using Members;
     using ReadableExpressions;
 
@@ -21,6 +25,12 @@ namespace AgileObjects.AgileMapper.Configuration
         private readonly Expression _memberFilterLambda;
         private readonly Func<TargetMemberSelector, bool> _memberFilter;
 
+#if NET35
+        public ConfiguredIgnoredMember(MappingConfigInfo configInfo, LinqExp.LambdaExpression targetMemberLambda)
+            : this(configInfo, targetMemberLambda.ToDlrExpression())
+        {
+        }
+#endif
         public ConfiguredIgnoredMember(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
             : base(configInfo, targetMemberLambda)
         {

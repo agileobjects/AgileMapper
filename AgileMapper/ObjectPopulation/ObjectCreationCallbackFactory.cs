@@ -28,8 +28,8 @@
         public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
             => mapperData.TargetMember.Type.IsAssignableTo(_creationTargetType) && base.AppliesTo(callbackPosition, mapperData);
 
-        protected override bool MemberPathMatches(IBasicMapperData mapperData)
-             => MemberPathHasMatchingSourceAndTargetTypes(mapperData);
+        protected override bool TypesMatch(IBasicMapperData mapperData)
+             => SourceAndTargetTypesMatch(mapperData);
 
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {

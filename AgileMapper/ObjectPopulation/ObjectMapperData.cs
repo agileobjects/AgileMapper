@@ -59,7 +59,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
             MappingDataObject = GetMappingDataObject(parent);
-            SourceMember = sourceMember;
 
             var mappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
             SourceObject = GetMappingDataProperty(mappingDataType, RootSourceMemberName);
@@ -428,8 +427,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public ParameterExpression MappingDataObject { get; }
 
         public Expression ParentObject { get; }
-
-        public IQualifiedMember SourceMember { get; }
 
         public bool CacheMappedObjects
         {

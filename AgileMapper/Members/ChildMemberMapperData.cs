@@ -13,16 +13,9 @@
         private bool? _isRepeatMapping;
 
         public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
-            : base(
-                parent.RuleSet,
-                parent.SourceType,
-                parent.TargetType,
-                parent.SourceMember,
-                targetMember,
-                parent)
+            : base(parent.SourceMember, targetMember, parent)
         {
             _useParentForTypeCheck = true;
-            SourceMember = parent.SourceMember;
             Parent = parent;
             Context = new MapperDataContext(this);
         }
@@ -36,7 +29,6 @@
                 targetMember,
                 parent)
         {
-            SourceMember = sourceMember;
             Parent = parent;
             Context = new MapperDataContext(this);
         }
@@ -54,8 +46,6 @@
         public Expression ParentObject => Parent.ParentObject;
 
         public ParameterExpression MappingDataObject => Parent.MappingDataObject;
-
-        public IQualifiedMember SourceMember { get; }
 
         public Expression SourceObject => Parent.SourceObject;
 

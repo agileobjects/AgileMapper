@@ -12,15 +12,16 @@
             IChildMemberMappingData targetMappingData,
             bool searchParentContexts = true)
         {
-            var parentSourceMember = targetMappingData.MapperData.SourceMember;
+            var targetMapperData = targetMappingData.MapperData;
+            var parentSourceMember = targetMapperData.SourceMember;
 
             if (parentSourceMember.IsSimple)
             {
                 return SourceMemberMatch.Null;
             }
 
-            if (ExactMatchingMemberExists(parentSourceMember, targetMappingData, out var matchingMember) &&
-                TypesAreCompatible(matchingMember.Type, targetMappingData.MapperData))
+            if (ExactMatchingMemberExists(parentSourceMember, targetMapperData, out var matchingMember) &&
+                TypesAreCompatible(matchingMember.Type, targetMapperData))
             {
                 return new SourceMemberMatch(matchingMember, targetMappingData);
             }
@@ -47,62 +48,76 @@
 
         private static bool ExactMatchingMemberExists(
             IQualifiedMember parentSourceMember,
-            IChildMemberMappingData targetData,
+            IMemberMapperData mapperData,
             out IQualifiedMember matchingMember)
         {
-            var mapperData = targetData.MapperData;
-
             var matcher = mapperData.TargetType.IsAssignableTo(mapperData.SourceType)
-                ? (Func<IChildMemberMappingData, Member, bool>)MembersAreTheSame
+                ? (Func<IMemberMapperData, Member, bool>)MembersAreTheSame
                 : MembersMatch;
 
-            var sourceMember = QuerySourceMembers(
+            matchingMember = QuerySourceMembers(
                 parentSourceMember,
-                targetData,
+                mapperData,
                 matcher)
-                .FirstOrDefault();
+               .FirstOrDefault();
 
-            if (sourceMember == null)
-            {
-                matchingMember = null;
-                return false;
-            }
-
-            matchingMember = parentSourceMember.Append(sourceMember);
-            return true;
+            return matchingMember != null;
         }
 
-        private static bool MembersAreTheSame(IChildMemberMappingData mappingData, Member sourceMember)
-            => mappingData.MapperData.TargetMember.LeafMember.Equals(sourceMember);
+        private static bool MembersAreTheSame(IMemberMapperData mapperData, Member sourceMember)
+            => mapperData.TargetMember.LeafMember.Equals(sourceMember);
 
-        private static bool MembersMatch(IChildMemberMappingData mappingData, Member sourceMember)
+        private static bool MembersMatch(IMemberMapperData mapperData, Member sourceMember)
         {
-            if (MembersAreTheSame(mappingData, sourceMember))
+            if (MembersAreTheSame(mapperData, sourceMember))
             {
                 return true;
             }
 
-            return mappingData
-                .MapperData
+            return mapperData
                 .SourceMember
                 .Append(sourceMember)
-                .Matches(mappingData.MapperData.TargetMember);
+                .Matches(mapperData.TargetMember);
         }
 
-        private static IEnumerable<Member> QuerySourceMembers(
+        private static IEnumerable<IQualifiedMember> QuerySourceMembers(
             IQualifiedMember parentMember,
-            IChildMemberMappingData mappingData,
-            Func<IChildMemberMappingData, Member, bool> filter)
+            IMemberMapperData mapperData,
+            Func<IMemberMapperData, Member, bool> filter)
         {
             var members = GlobalContext
                 .Instance
                 .MemberCache
                 .GetSourceMembers(parentMember.Type)
-                .Filter(m => filter.Invoke(mappingData, m));
+                .Filter(m => filter.Invoke(mapperData, m));
 
-            return mappingData.RuleSet.Settings.AllowGetMethods
-                ? members
-                : members.Filter(m => m.MemberType != MemberType.GetMethod);
+            if (!mapperData.RuleSet.Settings.AllowGetMethods)
+            {
+                members = members.Filter(m => m.MemberType != MemberType.GetMethod);
+            }
+
+            var qualifiedMembers = members.Project(parentMember.Append);
+
+            if (mapperData.MapperContext.UserConfigurations.HasSourceMemberIgnores(mapperData))
+            {
+                qualifiedMembers = qualifiedMembers
+                    .Filter(sm => IsNotUnconditionallyIgnored(sm, mapperData));
+            }
+
+            return qualifiedMembers;
+        }
+
+        private static bool IsNotUnconditionallyIgnored(IQualifiedMember sourceMember, IMemberMapperData mapperData)
+        {
+            var matchingIgnore = mapperData
+                .MapperContext
+                .UserConfigurations
+                .GetSourceMemberIgnoreOrNull(new BasicMapperData(
+                    sourceMember,
+                    mapperData.TargetMember,
+                    mapperData));
+
+            return matchingIgnore?.HasConfiguredCondition != false;
         }
 
         private static bool TryFindParentContextSourceMemberMatch(
@@ -110,7 +125,8 @@
             ref IQualifiedMember matchingMember,
             out SourceMemberMatch sourceMemberMatch)
         {
-            var targetMember = targetMappingData.MapperData.TargetMember;
+            var targetMapperData = targetMappingData.MapperData;
+            var targetMember = targetMapperData.TargetMember;
             var mappingData = targetMappingData.Parent;
 
             while (mappingData.Parent != null)
@@ -127,7 +143,7 @@
                 var contextMappingData = mappingData.GetChildMappingData(childMapperData);
 
                 if (TryFindSourceMemberMatch(
-                    targetMappingData,
+                    targetMapperData,
                     mappingData.MapperData.SourceMember,
                     contextMappingData,
                     ref matchingMember,
@@ -148,7 +164,7 @@
             out SourceMemberMatch sourceMemberMatch)
         {
             return TryFindSourceMemberMatch(
-                targetMappingData,
+                targetMappingData.MapperData,
                 parentSourceMember,
                 targetMappingData,
                 ref matchingMember,
@@ -156,18 +172,18 @@
         }
 
         private static bool TryFindSourceMemberMatch(
-            IChildMemberMappingData targetMappingData,
+            IMemberMapperData targetMapperData,
             IQualifiedMember parentSourceMember,
             IChildMemberMappingData contextMappingData,
             ref IQualifiedMember matchingMember,
             out SourceMemberMatch sourceMemberMatch)
         {
             var candidateSourceMembers = EnumerateSourceMembers(parentSourceMember, contextMappingData)
-                .Where(targetMappingData.MapperData.TargetMember.Matches);
+                .Where(targetMapperData.TargetMember.Matches);
 
             foreach (var sourceMember in candidateSourceMembers)
             {
-                if (TypesAreCompatible(sourceMember.Type, targetMappingData.MapperData))
+                if (TypesAreCompatible(sourceMember.Type, targetMapperData))
                 {
                     sourceMemberMatch = new SourceMemberMatch(sourceMember, contextMappingData);
                     return true;
@@ -207,16 +223,14 @@
                 }
             }
 
-            var relevantSourceMembers = QuerySourceMembers(
+            var relevantChildSourceMembers = QuerySourceMembers(
                 parentMember,
-                rootData,
+                rootData.MapperData,
                 MembersHaveCompatibleTypes);
 
-            foreach (var sourceMember in relevantSourceMembers)
+            foreach (var childMember in relevantChildSourceMembers)
             {
-                var childMember = parentMember.Append(sourceMember);
-
-                if (sourceMember.IsSimple)
+                if (childMember.IsSimple)
                 {
                     yield return childMember;
                     continue;
@@ -229,21 +243,15 @@
             }
         }
 
-        private static bool MembersHaveCompatibleTypes(IChildMemberMappingData rootData, Member sourceMember)
+        private static bool MembersHaveCompatibleTypes(IMemberMapperData rootMapperData, Member sourceMember)
         {
             if (!sourceMember.IsSimple)
             {
                 return true;
             }
 
-            var targetMember = rootData.MapperData.TargetMember;
-
-            if (targetMember.IsSimple)
-            {
-                return true;
-            }
-
-            return targetMember.Type == typeof(object);
+            return rootMapperData.TargetMember.IsSimple ||
+                   rootMapperData.TargetMember.Type == typeof(object);
         }
 
         private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)

@@ -123,9 +123,9 @@
                 return;
             }
 
-            var sourceMember = sourceMemberLambda.ToSourceMember(MapperContext);
+            var configuredSourceMember = sourceMemberLambda.ToSourceMember(MapperContext);
 
-            if (!bestSourceMemberMatch.SourceMember.Matches(sourceMember))
+            if (!bestSourceMemberMatch.SourceMember.Matches(configuredSourceMember))
             {
                 return;
             }
@@ -136,7 +136,7 @@
                 CultureInfo.InvariantCulture,
                 "Source member {0} will automatically be mapped to target {1} {2}, " +
                 "and does not need to be configured",
-                GetSourceMemberDescription(sourceMember),
+                GetSourceMemberDescription(configuredSourceMember),
                 targetMemberType,
                 targetMember.GetFriendlyTargetPath(_configInfo)));
         }

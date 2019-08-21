@@ -275,6 +275,49 @@
 
         #region Ignoring Members
 
+        public IMappingConfigContinuation<TSource, TTarget> IgnoreSource(params Expression<Func<TSource, object>>[] sourceMembers)
+        {
+            return IgnoreMembers(
+                sourceMembers,
+                (ci, tm) => new ConfiguredIgnoredSourceMember(ci, tm),
+                UserConfigurations.Add);
+        }
+
+        public IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
+            => IgnoreTargetMembers(targetMembers);
+
+        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.Ignore(
+            params Expression<Func<TTarget, object>>[] resultMembers)
+        {
+            return IgnoreTargetMembers(resultMembers);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembers(
+            IEnumerable<Expression<Func<TTarget, object>>> targetMembers)
+        {
+            return IgnoreMembers(
+                targetMembers,
+                (ci, tm) => new ConfiguredIgnoredMember(ci, tm),
+                UserConfigurations.Add);
+        }
+
+        private MappingConfigContinuation<TSource, TTarget> IgnoreMembers<TMember, TConfig>(
+            IEnumerable<Expression<Func<TMember, object>>> members,
+            Func<MappingConfigInfo, LambdaExpression, TConfig> configuredIgnoreFactory,
+            Action<TConfig> configurationsAddMethod)
+            where TConfig : UserConfiguredItemBase
+        {
+            foreach (var member in members)
+            {
+                var configuredIgnoredMember = configuredIgnoreFactory.Invoke(ConfigInfo, member);
+
+                configurationsAddMethod.Invoke(configuredIgnoredMember);
+                ConfigInfo.NegateCondition();
+            }
+
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+        }
+
         public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
             => IgnoreMembersByFilter(member => member.HasType<TMember>());
 
@@ -302,32 +345,6 @@
             var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, memberFilter);
 #endif
             UserConfigurations.Add(configuredIgnoredMember);
-
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
-        }
-
-        public IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers)
-            => IgnoreMembers(targetMembers);
-
-        IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.Ignore(
-            params Expression<Func<TTarget, object>>[] resultMembers)
-        {
-            return IgnoreMembers(resultMembers);
-        }
-
-        private MappingConfigContinuation<TSource, TTarget> IgnoreMembers(
-            IEnumerable<Expression<Func<TTarget, object>>> targetMembers)
-        {
-            foreach (var targetMember in targetMembers)
-            {
-#if NET35
-                var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, targetMember.ToDlrExpression());
-#else
-                var configuredIgnoredMember = new ConfiguredIgnoredMember(ConfigInfo, targetMember);
-#endif
-                UserConfigurations.Add(configuredIgnoredMember);
-                ConfigInfo.NegateCondition();
-            }
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }

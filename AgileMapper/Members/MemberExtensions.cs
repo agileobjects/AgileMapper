@@ -281,6 +281,30 @@
                 mapperContext);
         }
 
+        public static QualifiedMember ToSourceMemberOrNull(
+            this LambdaExpression memberAccess,
+            MapperContext mapperContext,
+            out string failureReason)
+        {
+            var hasUnsupportedNodeType = false;
+            var sourceMember = memberAccess.ToSourceMember(mapperContext, nt => hasUnsupportedNodeType = true);
+
+            if (hasUnsupportedNodeType)
+            {
+                failureReason = $"Unable to determine source member from '{memberAccess.Body.ToReadableString()}'";
+                return null;
+            }
+
+            if (sourceMember == null)
+            {
+                failureReason = $"Source member {memberAccess.Body.ToReadableString()} is not readable";
+                return null;
+            }
+
+            failureReason = null;
+            return sourceMember;
+        }
+
         public static QualifiedMember ToTargetMemberOrNull(
             this LambdaExpression memberAccess,
             Type targetType,

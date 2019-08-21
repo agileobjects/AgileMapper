@@ -95,11 +95,13 @@
 
         public virtual bool AppliesTo(IBasicMapperData mapperData)
         {
-            return ConfigInfo.IsFor(mapperData.RuleSet) &&
+            return RuleSetMatches(mapperData) &&
                    TargetMembersMatch(mapperData) &&
                    HasCompatibleCondition(mapperData) &&
-                   MemberPathMatches(mapperData);
+                   TypesMatch(mapperData);
         }
+
+        protected bool RuleSetMatches(IBasicMapperData mapperData) => ConfigInfo.IsFor(mapperData.RuleSet);
 
         private bool TargetMembersMatch(IBasicMapperData mapperData)
         {
@@ -130,12 +132,12 @@
         private bool HasCompatibleCondition(IBasicMapperData mapperData)
             => !HasConfiguredCondition || ConfigInfo.ConditionSupports(mapperData.RuleSet);
 
-        protected virtual bool MemberPathMatches(IBasicMapperData mapperData)
-            => MemberPathHasMatchingSourceAndTargetTypes(mapperData);
+        protected virtual bool TypesMatch(IBasicMapperData mapperData)
+            => SourceAndTargetTypesMatch(mapperData);
 
-        protected bool MemberPathHasMatchingSourceAndTargetTypes(IBasicMapperData mapperData)
+        protected bool SourceAndTargetTypesMatch(IBasicMapperData mapperData)
         {
-            if (mapperData.HasCompatibleTypes(ConfigInfo))
+            if (TypesAreCompatible(mapperData))
             {
                 return true;
             }
@@ -162,6 +164,8 @@
                 objectMapperData = objectMapperData.Parent;
             }
         }
+
+        protected bool TypesAreCompatible(IBasicMapperData mapperData) => mapperData.HasCompatibleTypes(ConfigInfo);
 
         int IComparable<UserConfiguredItemBase>.CompareTo(UserConfiguredItemBase other)
             => DoComparisonTo(other);

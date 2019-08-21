@@ -66,13 +66,25 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>();
 
         /// <summary>
-        /// Ignore the given <paramref name="targetMembers"/> when mappingfrom and to the source and target types 
-        /// being configured.
+        /// Ignore the given <paramref name="sourceMembers"/> when mapping from and to the source and
+        /// target types being configured. The given member(s) will not be used to populate a target
+        /// member.
+        /// </summary>
+        /// <param name="sourceMembers">The source member(s) which should be ignored.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> IgnoreSource(params Expression<Func<TSource, object>>[] sourceMembers);
+
+        /// <summary>
+        /// Ignore the given <paramref name="targetMembers"/> when mapping from and to the source and
+        /// target types being configured. The given member(s) will not be populated.
         /// </summary>
         /// <param name="targetMembers">The target member(s) which should be ignored.</param>
         /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers);
 

@@ -31,6 +31,7 @@
         private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
+        private List<ConfiguredIgnoredSourceMember> _ignoredSourceMembers;
         private List<ConfiguredIgnoredMember> _ignoredMembers;
         private List<EnumMemberPair> _enumPairings;
         private DictionarySettings _dictionaries;
@@ -294,6 +295,20 @@
         public MemberIdentifierSet Identifiers => _identifiers ?? (_identifiers = new MemberIdentifierSet(_mapperContext));
 
         #region IgnoredMembers
+
+        private List<ConfiguredIgnoredSourceMember> IgnoredSourceMembers
+            => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredIgnoredSourceMember>());
+
+        public bool HasSourceMemberIgnores(IBasicMapperData mapperData)
+            => _ignoredSourceMembers?.Any(sm => sm.CouldApplyTo(mapperData)) == true;
+
+        public void Add(ConfiguredIgnoredSourceMember ignoredSourceMember)
+        {
+            IgnoredSourceMembers.Add(ignoredSourceMember);
+        }
+
+        public ConfiguredIgnoredSourceMember GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
+            => _ignoredSourceMembers.FindMatch(mapperData);
 
         private List<ConfiguredIgnoredMember> IgnoredMembers
             => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredIgnoredMember>());
