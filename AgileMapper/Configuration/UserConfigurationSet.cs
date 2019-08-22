@@ -322,8 +322,21 @@
             IgnoredMembers.AddSortFilter(ignoredMember);
         }
 
-        public ConfiguredIgnoredMember GetMemberIgnoreOrNull(IBasicMapperData mapperData)
-            => _ignoredMembers.FindMatch(mapperData);
+        public IList<ConfiguredIgnoredMember> GetMemberIgnoresFor(IBasicMapperData mapperData)
+        {
+            if (_ignoredMembers == null)
+            {
+                return Enumerable<ConfiguredIgnoredMember>.EmptyArray;
+            }
+
+            var ignoredMembers = _ignoredMembers
+                .Filter(im => im.CouldApplyTo(mapperData))
+                .ToArray();
+
+            return ignoredMembers.Any()
+                ? ignoredMembers
+                : Enumerable<ConfiguredIgnoredMember>.EmptyArray;
+        }
 
         #endregion
 

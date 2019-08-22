@@ -29,9 +29,6 @@ namespace AgileObjects.AgileMapper.Configuration
                             throw new MappingConfigurationException(failureReason);
         }
 
-        public bool CouldApplyTo(IBasicMapperData mapperData)
-            => RuleSetMatches(mapperData) && TypesAreCompatible(mapperData);
-
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
             return base.AppliesTo(mapperData) &&

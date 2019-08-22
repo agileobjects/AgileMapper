@@ -6,5 +6,5 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
 #endif
 
-    internal delegate Expression PopulationGuardFactory(IMemberPopulationContext context);
+    internal delegate Expression PopulationGuardFactory(IMemberPopulator populator);
 }

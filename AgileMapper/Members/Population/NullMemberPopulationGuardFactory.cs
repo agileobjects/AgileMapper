@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
     internal static class NullMemberPopulationGuardFactory
     {
-        public static Expression Create(IMemberPopulationContext context)
-            => context.PopulateCondition;
+        public static Expression Create(IMemberPopulator populator)
+            => populator.PopulateCondition;
     }
 }

@@ -8,10 +8,10 @@ namespace AgileObjects.AgileMapper.Members.Population
 
     internal static class MemberMergePopulationGuardFactory
     {
-        public static Expression Create(IMemberPopulationContext context)
+        public static Expression Create(IMemberPopulator populator)
         {
-            var mapperData = context.MapperData;
-            var populateCondition = context.PopulateCondition;
+            var mapperData = populator.MapperData;
+            var populateCondition = populator.PopulateCondition;
 
             if (SkipPopulationGuarding(mapperData))
             {
