@@ -211,11 +211,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return configuredDataSourceFactories
                 .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
-                .Project(group =>
+                .Project(targetMembersFromSource, (tmfs, group) =>
                 {
                     QualifiedMember targetMember = group.First().TargetDictionaryEntryMember;
 
-                    targetMember.IsCustom = targetMembersFromSource.None(
+                    targetMember.IsCustom = tmfs.None(
                         sourceMember => sourceMember.RegistrationName == targetMember.Name);
 
                     return targetMember.IsCustom ? targetMember : null;

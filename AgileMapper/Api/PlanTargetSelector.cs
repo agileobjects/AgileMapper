@@ -41,7 +41,7 @@
                     .RuleSets
                     .All
                     .Filter(ruleSet => ruleSet != _mapperContext.RuleSets.Project)
-                    .Project(rs => GetMappingPlan(rs, configurations))
+                    .Project(configurations, (cs, rs) => GetMappingPlan(rs, cs))
                     .ToArray());
         }
 

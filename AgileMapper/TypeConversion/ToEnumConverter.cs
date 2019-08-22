@@ -394,10 +394,10 @@
                 });
 
             var enumPairsConversion = sourceEnumValues
-                .Project(sv => new
+                .Project(enumPairs, (eps, sv) => new
                 {
                     SourceValue = sv,
-                    PairedValue = enumPairs[sv]
+                    PairedValue = eps[sv]
                 })
                 .OrderByDescending(d => d.PairedValue.IsCustom)
                 .Reverse()

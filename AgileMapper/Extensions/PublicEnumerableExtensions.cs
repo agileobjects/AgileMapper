@@ -31,6 +31,18 @@
             }
         }
 
+        [DebuggerStepThrough]
+        internal static IEnumerable<TResult> Project<TItem, TArg, TResult>(
+            this IEnumerable<TItem> items,
+            TArg argument,
+            Func<TArg, TItem, TResult> projector)
+        {
+            foreach (var item in items)
+            {
+                yield return projector.Invoke(argument, item);
+            }
+        }
+
         /// <summary>
         /// Project these <paramref name="items"/> to a new enumerable of type <typeparamref name="TResult"/>,
         /// using the given <paramref name="projector"/>.

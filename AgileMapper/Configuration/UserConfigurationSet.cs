@@ -414,7 +414,7 @@
             IEnumerable<ConfiguredDataSourceFactory> factories,
             IMemberMapperData mapperData)
         {
-            return factories.Project(dsf => dsf.Create(mapperData)).ToArray();
+            return factories.Project(mapperData, (md, dsf) => dsf.Create(md)).ToArray();
         }
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)

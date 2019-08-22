@@ -43,7 +43,7 @@
             }
 
             var mismatchSets = targetMemberDatas
-                .Project(d => EnumMappingMismatchSet.For(d.TargetMember, d.DataSources, mapperData))
+                .Project(mapperData, (md, d) => EnumMappingMismatchSet.For(d.TargetMember, d.DataSources, md))
                 .Filter(m => m.Any)
                 .ToArray();
 
@@ -64,10 +64,10 @@
             finder.Visit(lambda);
 
             var assignmentReplacements = finder._assignmentsByMismatchSet
-                .SelectMany(kvp => kvp.Value.Project(assignment => new
+                .SelectMany(kvp => kvp.Value.Project(kvp.Key, (k, assignment) => new
                 {
                     Assignment = assignment,
-                    AssignmentWithWarning = (Expression)Expression.Block(kvp.Key.Warnings, assignment)
+                    AssignmentWithWarning = (Expression)Expression.Block(k.Warnings, assignment)
                 }))
                 .ToDictionary(d => d.Assignment, d => d.AssignmentWithWarning);
 

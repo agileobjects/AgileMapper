@@ -58,9 +58,9 @@
 
                 var fieldsAndProperties = fields
                     .Concat(properties)
-                    .Project(m =>
+                    .Project(constructorParameterNames, (cpns, m) =>
                     {
-                        m.HasMatchingCtorParameter = constructorParameterNames.Contains(m.Name, OrdinalIgnoreCase);
+                        m.HasMatchingCtorParameter = cpns.Contains(m.Name, OrdinalIgnoreCase);
                         return m;
                     })
                     .ToArray();

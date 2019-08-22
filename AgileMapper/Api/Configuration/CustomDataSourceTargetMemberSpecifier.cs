@@ -276,19 +276,22 @@
 
         private static ParameterInfo GetUniqueConstructorParameterOrThrow<TParam>(string name = null)
         {
-            var ignoreParameterType = typeof(TParam) == typeof(AnyParameterType);
-            var ignoreParameterName = name == null;
+            var settings = new
+            {
+                IgnoreParameterType = typeof(TParam) == typeof(AnyParameterType),
+                IgnoreParameterName = name == null
+            };
 
             var matchingParameters = typeof(TTarget)
                 .GetPublicInstanceConstructors()
-                .Project(ctor => new
+                .Project(settings, (s, ctor) => new
                 {
                     Ctor = ctor,
                     MatchingParameters = ctor
                         .GetParameters()
                         .Filter(p =>
-                            (ignoreParameterType || (p.ParameterType == typeof(TParam))) &&
-                            (ignoreParameterName || (p.Name == name)))
+                            (s.IgnoreParameterType || (p.ParameterType == typeof(TParam))) &&
+                            (s.IgnoreParameterName || (p.Name == name)))
                         .ToArray()
                 })
                 .Filter(d => d.MatchingParameters.Any())
@@ -296,14 +299,14 @@
 
             if (matchingParameters.Length == 0)
             {
-                throw MissingParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
+                throw MissingParameterException(GetParameterMatchInfo<TParam>(name, !settings.IgnoreParameterType));
             }
 
             var matchingParameterData = matchingParameters.First();
 
             if (matchingParameterData.MatchingParameters.Length > 1)
             {
-                throw AmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
+                throw AmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !settings.IgnoreParameterType));
             }
 
             var matchingParameter = matchingParameterData.MatchingParameters.First();
