@@ -20,7 +20,7 @@
                 return SourceMemberMatch.Null;
             }
 
-            if (ExactMatchingMemberExists(parentSourceMember, targetMapperData, out var matchingMember) &&
+            if (ExactMemberMatchExists(parentSourceMember, targetMapperData, out var matchingMember) &&
                 TypesAreCompatible(matchingMember.Type, targetMapperData))
             {
                 return new SourceMemberMatch(matchingMember, targetMappingData);
@@ -46,7 +46,7 @@
                 : SourceMemberMatch.Null;
         }
 
-        private static bool ExactMatchingMemberExists(
+        private static bool ExactMemberMatchExists(
             IQualifiedMember parentSourceMember,
             IMemberMapperData mapperData,
             out IQualifiedMember matchingMember)

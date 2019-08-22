@@ -42,7 +42,7 @@
         public IList<IConfiguredDataSource> ConfiguredDataSources { get; }
 
         public IDataSource GetFallbackDataSource()
-            => ChildMappingData.RuleSet.FallbackDataSourceFactory.Create(MapperData);
+            => ChildMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MapperData);
 
         public IDataSource GetFinalDataSource(IDataSource foundDataSource)
             => GetFinalDataSource(foundDataSource, ChildMappingData);

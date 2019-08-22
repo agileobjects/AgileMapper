@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 yield break;
             }
 
-            yield return context.RuleSet.EnumerablePopulationStrategy.GetPopulation(
+            yield return context.RuleSet.EnumerablePopulationStrategy.Invoke(
                 context.MapperData.EnumerablePopulationBuilder,
                 context.MappingData);
         }

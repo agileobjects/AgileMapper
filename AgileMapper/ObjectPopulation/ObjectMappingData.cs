@@ -83,7 +83,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IRootMapperKey EnsureRootMapperKey()
         {
-            MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.CreateRootKeyFor(this);
+            MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.Invoke(this);
 
             return (IRootMapperKey)MapperKey;
         }
@@ -373,7 +373,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             newSourceMappingData.MapperKey = MappingContext
                 .RuleSet
                 .RootMapperKeyFactory
-                .CreateRootKeyFor(newSourceMappingData);
+                .Invoke(newSourceMappingData);
 
             newSourceMappingData.MapperData.OriginalMapperData = MapperData;
             newSourceMappingData.MapperData.Context.IsForToTargetMapping = true;

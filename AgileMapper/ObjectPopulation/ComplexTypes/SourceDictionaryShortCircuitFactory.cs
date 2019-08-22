@@ -99,7 +99,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return mappingData.MappingContext
                 .RuleSet
                 .FallbackDataSourceFactory
-                .Create(mappingData.MapperData)
+                .Invoke(mappingData.MapperData)
                 .Value;
         }
     }

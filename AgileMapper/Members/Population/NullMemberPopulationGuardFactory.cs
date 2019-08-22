@@ -6,9 +6,9 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
 #endif
 
-    internal struct NullMemberPopulationGuardFactory : IPopulationGuardFactory
+    internal static class NullMemberPopulationGuardFactory
     {
-        public Expression GetPopulationGuard(IMemberPopulationContext context)
+        public static Expression Create(IMemberPopulationContext context)
             => context.PopulateCondition;
     }
 }

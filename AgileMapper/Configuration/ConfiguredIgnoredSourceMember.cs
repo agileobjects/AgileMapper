@@ -6,6 +6,9 @@ namespace AgileObjects.AgileMapper.Configuration
 #else
     using System.Linq.Expressions;
 #endif
+#if NET35
+    using Extensions.Internal;
+#endif
     using Members;
 
     internal class ConfiguredIgnoredSourceMember : UserConfiguredItemBase

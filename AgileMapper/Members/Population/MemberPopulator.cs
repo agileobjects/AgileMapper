@@ -93,7 +93,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             var populationGuard = MapperData
                 .RuleSet
                 .PopulationGuardFactory
-                .GetPopulationGuard(this);
+                .Invoke(this);
 
             var useSingleExpression = MapperData.UseMemberInitialisations();
 

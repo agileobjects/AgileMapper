@@ -17,20 +17,20 @@ namespace AgileObjects.AgileMapper
         private static readonly MappingRuleSet _createNew = new MappingRuleSet(
             Constants.CreateNew,
             MappingRuleSetSettings.ForInMemoryMapping(allowCloneEntityKeyMapping: true),
-            default(CopySourceEnumerablePopulationStrategy),
+            CopySourceEnumerablePopulationStrategy.Create,
             default(MapRepeatedCallRepeatMappingStrategy),
-            default(NullMemberPopulationGuardFactory),
-            default(ExistingOrDefaultValueFallbackDataSourceFactory),
-            default(RootMapperKeyFactory));
+            NullMemberPopulationGuardFactory.Create,
+            ExistingOrDefaultValueFallbackDataSourceFactory.Create,
+            DefaultRootMapperKeyFactory.Create);
 
         private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
             Constants.Overwrite,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
-            default(OverwriteEnumerablePopulationStrategy),
+            OverwriteEnumerablePopulationStrategy.Create,
             default(MapRepeatedCallRepeatMappingStrategy),
-            default(NullMemberPopulationGuardFactory),
-            default(DefaultValueFallbackDataSourceFactory),
-            default(RootMapperKeyFactory));
+            NullMemberPopulationGuardFactory.Create,
+            DefaultValueFallbackDataSourceFactory.Create,
+            DefaultRootMapperKeyFactory.Create);
 
         private static readonly MappingRuleSet _project = new MappingRuleSet(
             Constants.Project,
@@ -45,20 +45,20 @@ namespace AgileObjects.AgileMapper
                 ExpressionIsSupported = value => value.CanBeProjected(),
                 AllowEnumerableAssignment = true
             },
-            default(ProjectSourceEnumerablePopulationStrategy),
+            ProjectSourceEnumerablePopulationStrategy.Create,
             default(MapToDepthRepeatMappingStrategy),
-            default(NullMemberPopulationGuardFactory),
-            default(DefaultValueFallbackDataSourceFactory),
-            default(QueryProjectorMapperKeyFactory));
+            NullMemberPopulationGuardFactory.Create,
+            DefaultValueFallbackDataSourceFactory.Create,
+            QueryProjectorMapperKeyFactory.Create);
 
         private static readonly MappingRuleSet _merge = new MappingRuleSet(
             Constants.Merge,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true, allowGuardedBindings: false),
-            default(MergeEnumerablePopulationStrategy),
+            MergeEnumerablePopulationStrategy.Create,
             default(MapRepeatedCallRepeatMappingStrategy),
-            default(MemberMergePopulationGuardFactory),
-            default(ExistingOrDefaultValueFallbackDataSourceFactory),
-            default(RootMapperKeyFactory));
+            MemberMergePopulationGuardFactory.Create,
+            ExistingOrDefaultValueFallbackDataSourceFactory.Create,
+            DefaultRootMapperKeyFactory.Create);
 
         public static readonly MappingRuleSetCollection Default =
             new MappingRuleSetCollection(_createNew, _overwrite, _project, _merge);
