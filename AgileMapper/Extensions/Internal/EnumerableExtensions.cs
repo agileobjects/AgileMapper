@@ -54,6 +54,17 @@
         }
 
         [DebuggerStepThrough]
+        public static T First<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
+        {
+            if (TryFindMatch(items, argument, predicate, out var match))
+            {
+                return match;
+            }
+
+            throw new InvalidOperationException("Sequence contains no matching element");
+        }
+
+        [DebuggerStepThrough]
         public static T FirstOrDefault<T>(this IList<T> items, Func<T, bool> predicate)
             => TryFindMatch(items, predicate, out var match) ? match : default(T);
 

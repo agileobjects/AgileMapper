@@ -80,6 +80,6 @@ namespace AgileObjects.AgileMapper
 
         public MappingRuleSet Project => _project;
 
-        public MappingRuleSet GetByName(string name) => All.First(rs => rs.Name == name);
+        public MappingRuleSet GetByName(string name) => All.First(name, (n, rs) => rs.Name == n);
     }
 }

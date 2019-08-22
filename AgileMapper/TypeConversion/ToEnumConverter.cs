@@ -379,7 +379,7 @@
                     {
                         return new
                         {
-                            Value = (Expression)targetEnumValues.First(tv => tv.Member.Name == pairedMemberName),
+                            Value = (Expression)targetEnumValues.First(pairedMemberName, (pmn, tv) => tv.Member.Name == pmn),
                             IsCustom = true
                         };
                     }

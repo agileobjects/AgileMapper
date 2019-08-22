@@ -29,7 +29,7 @@
         public static DataSourceSet CreateFor(IObjectMappingData rootMappingData)
         {
             var rootDataSourceFactory = _mappingRootDataSourceFactories
-                .First(mef => mef.IsFor(rootMappingData));
+                .First(rootMappingData, (rmd, mef) => mef.IsFor(rmd));
 
             var rootDataSource = rootDataSourceFactory.CreateFor(rootMappingData);
 

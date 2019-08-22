@@ -390,7 +390,7 @@
         }
 
         public ConfiguredDataSourceFactory GetDataSourceFactoryFor(MappingConfigInfo configInfo)
-            => _dataSourceFactories.First(dsf => dsf.ConfigInfo == configInfo);
+            => _dataSourceFactories.First(configInfo, (ci, dsf) => dsf.ConfigInfo == ci);
 
         public bool HasConfiguredToTargetDataSources { get; private set; }
 
