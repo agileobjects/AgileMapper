@@ -168,7 +168,7 @@
                 .Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
-                .FirstOrDefault(m => m.Name == entityMemberName);
+                .FirstOrDefault(entityMemberName, (emn, m) => m.Name == emn);
 
             return !mapperData.IsEntity(entityMember?.Type, out _);
         }

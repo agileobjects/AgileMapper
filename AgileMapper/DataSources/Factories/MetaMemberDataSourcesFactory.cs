@@ -192,14 +192,14 @@
                         var matchingTargetMember = GlobalContext.Instance
                             .MemberCache
                             .GetTargetMembers(currentMapperData.TargetType)
-                            .FirstOrDefault(m => m.Name == memberNamePart);
+                            .FirstOrDefault(memberNamePart, (mnp, m) => m.Name == mnp);
 
                         if (matchingTargetMember == null)
                         {
                             matchingTargetMember = GlobalContext.Instance
                                 .MemberCache
                                 .GetSourceMembers(currentMapperData.SourceType)
-                                .FirstOrDefault(m => m.Name == memberNamePart);
+                                .FirstOrDefault(memberNamePart, (mnp, m) => m.Name == mnp);
 
                             if (matchingTargetMember == null)
                             {

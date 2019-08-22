@@ -10,7 +10,7 @@
         public static TItem FindMatch<TItem>(this IList<TItem> items, IBasicMapperData mapperData)
             where TItem : UserConfiguredItemBase
         {
-            return items?.FirstOrDefault(item => item.AppliesTo(mapperData));
+            return items?.FirstOrDefault(mapperData, (md, item) => item.AppliesTo(md));
         }
 
         public static IEnumerable<TItem> FindMatches<TItem>(this IEnumerable<TItem> items, IBasicMapperData mapperData)

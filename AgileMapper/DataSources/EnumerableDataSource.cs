@@ -91,7 +91,7 @@
                 .GetSourceMembers(sourceElementType);
 
             var backLinkMember = sourceElementMembers
-                .FirstOrDefault(m => m.IsComplex && m.Type == mapperData.SourceType);
+                .FirstOrDefault(mapperData.SourceType, (st, m) => m.IsComplex && m.Type == st);
 
             if (backLinkMember == null)
             {

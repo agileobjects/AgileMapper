@@ -163,7 +163,7 @@
             var memberName = targetMemberAccess.GetMemberName();
 
             targetMemberData = _targetMemberDatas
-                .FirstOrDefault(dss => dss.TargetMember.Name == memberName);
+                .FirstOrDefault(memberName, (mn, dss) => dss.TargetMember.Name == mn);
 
             return targetMemberData != null;
         }

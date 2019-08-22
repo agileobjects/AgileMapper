@@ -387,7 +387,7 @@
                     return new
                     {
                         Value = targetEnumValues
-                            .FirstOrDefault(tv => tv.Member.Name.EqualsIgnoreCase(sv.Member.Name)) ??
+                            .FirstOrDefault(sv.Member.Name, (name, tv) => tv.Member.Name.EqualsIgnoreCase(name)) ??
                              fallbackValue,
                         IsCustom = false
                     };

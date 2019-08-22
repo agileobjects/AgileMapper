@@ -62,8 +62,8 @@
                 return;
             }
 
-            var existingTypePair = typePairs.FirstOrDefault(tp =>
-                !tp.HasConfiguredCondition && (tp.DerivedSourceType == typePair.DerivedSourceType));
+            var existingTypePair = typePairs.FirstOrDefault(typePair.DerivedSourceType, (dst, tp) =>
+                !tp.HasConfiguredCondition && (tp.DerivedSourceType == dst));
 
             if (existingTypePair != null)
             {
@@ -166,7 +166,7 @@
                 foreach (var candidatePairData in candidatePairsData)
                 {
                     var derivedTargetType = derivedTargetTypes
-                        .FirstOrDefault(t => t.Name == candidatePairData.DerivedTargetTypeName);
+                        .FirstOrDefault(candidatePairData, (cpd, t) => t.Name == cpd.DerivedTargetTypeName);
 
                     if (derivedTargetType == null)
                     {

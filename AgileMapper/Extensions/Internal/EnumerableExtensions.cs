@@ -58,6 +58,10 @@
             => TryFindMatch(items, predicate, out var match) ? match : default(T);
 
         [DebuggerStepThrough]
+        public static T FirstOrDefault<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
+            => TryFindMatch(items, argument, predicate, out var match) ? match : default(T);
+
+        [DebuggerStepThrough]
         public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> items, Func<T, bool> predicate)
         {
             foreach (var item in items)
@@ -74,11 +78,28 @@
         [DebuggerStepThrough]
         public static bool TryFindMatch<T>(this IList<T> items, Func<T, bool> predicate, out T match)
         {
-            for (int i = 0, n = items.Count; i < n; i++)
+            for (int i = 0, n = items.Count; i < n;)
             {
-                match = items[i];
+                match = items[i++];
 
                 if (predicate.Invoke(match))
+                {
+                    return true;
+                }
+            }
+
+            match = default(T);
+            return false;
+        }
+
+        [DebuggerStepThrough]
+        public static bool TryFindMatch<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate, out T match)
+        {
+            for (int i = 0, n = items.Count; i < n;)
+            {
+                match = items[i++];
+
+                if (predicate.Invoke(argument, match))
                 {
                     return true;
                 }

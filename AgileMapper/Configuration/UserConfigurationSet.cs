@@ -75,7 +75,7 @@
             }
 
             var applicableSettings = _mappedObjectCachingSettings
-                .FirstOrDefault(tm => tm.AppliesTo(basicData));
+                .FirstOrDefault(basicData, (bd, tm) => tm.AppliesTo(bd));
 
             if (applicableSettings == null)
             {
@@ -135,7 +135,7 @@
         public bool MapEntityKeys(IBasicMapperData basicData)
         {
             var applicableSetting = _entityKeyMappingSettings?
-                .FirstOrDefault(s => s.AppliesTo(basicData))?
+                .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?
                 .MapKeys;
 
             return (applicableSetting == true) ||
@@ -199,7 +199,8 @@
 
             var basicData = mapperDataFactory.Invoke(dataItem);
 
-            return _dataSourceReversalSettings.FirstOrDefault(s => s.AppliesTo(basicData))?.Reverse == true;
+            return _dataSourceReversalSettings
+                .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?.Reverse == true;
         }
 
         #endregion
@@ -554,7 +555,7 @@
             where TExistingItem : UserConfiguredItemBase
         {
             var conflictingItem = existingItems?
-                .FirstOrDefault(ci => ci.ConflictsWith(configuredItem));
+                .FirstOrDefault(configuredItem, (sci, ci) => ci.ConflictsWith(sci));
 
             if (conflictingItem == null)
             {

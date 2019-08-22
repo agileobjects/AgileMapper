@@ -118,7 +118,8 @@
         {
             idMemberName = entityMemberName + idMemberName;
 
-            entityMemberIdMember = sourceMembers.FirstOrDefault(m => m.Name.EqualsIgnoreCase(idMemberName));
+            entityMemberIdMember = sourceMembers
+                .FirstOrDefault(idMemberName, (idmn, m) => m.Name.EqualsIgnoreCase(idmn));
 
             return entityMemberIdMember != null;
         }
