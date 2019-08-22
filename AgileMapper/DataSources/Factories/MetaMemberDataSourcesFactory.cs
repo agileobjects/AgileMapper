@@ -235,7 +235,7 @@
 
                             return sm.IsEnumerable
                                 ? ObjectMappingDataFactory.ForElement(mappingData)
-                                : ObjectMappingDataFactory.ForChild(sm, tm, 0, md);
+                                : mappingData;
                         };
 
                         break;
