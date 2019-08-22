@@ -86,6 +86,20 @@
             }
         }
 
+        internal static IEnumerable<TItem> Filter<TItem, TArg>(
+            this IEnumerable<TItem> items, 
+            TArg argument,
+            Func<TArg, TItem, bool> predicate)
+        {
+            foreach (var item in items)
+            {
+                if (predicate.Invoke(argument, item))
+                {
+                    yield return item;
+                }
+            }
+        }
+
         /// <summary>
         /// Exclude the given <paramref name="excludedItems"/> from these <paramref name="items"/>, in a
         /// repeated-item-aware manner.

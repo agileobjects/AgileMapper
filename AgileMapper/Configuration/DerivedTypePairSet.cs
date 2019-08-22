@@ -78,7 +78,7 @@
             if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
             {
                 return typePairs
-                    .Filter(tp => tp.IsImplementationPairing && tp.AppliesTo(mapperData))
+                    .Filter(mapperData, (md, tp) => tp.IsImplementationPairing && tp.AppliesTo(md))
                     .ToArray();
             }
 
@@ -98,7 +98,7 @@
 
             if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
             {
-                return typePairs.Filter(tp => tp.AppliesTo(mapperData)).ToArray();
+                return typePairs.Filter(mapperData, (md, tp) => tp.AppliesTo(md)).ToArray();
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;

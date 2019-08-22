@@ -55,7 +55,7 @@
             var targetEnumNames = Enum.GetNames(targetEnumType);
 
             var mappingMismatches = sourceEnumData
-                .Filter(d => d.EnumType != targetEnumType)
+                .Filter(targetEnumType, (tet, d) => d.EnumType != tet)
                 .Project(d => EnumMappingMismatch.For(
                     d.EnumType,
                     d.SourceMembers,

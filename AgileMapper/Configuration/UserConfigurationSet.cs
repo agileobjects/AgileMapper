@@ -330,7 +330,7 @@
             }
 
             var ignoredMembers = _ignoredMembers
-                .Filter(im => im.CouldApplyTo(mapperData))
+                .Filter(mapperData, (md, im) => im.CouldApplyTo(md))
                 .ToArray();
 
             return ignoredMembers.Any()

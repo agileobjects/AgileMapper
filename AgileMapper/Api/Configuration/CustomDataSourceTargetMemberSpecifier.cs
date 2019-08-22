@@ -284,14 +284,14 @@
 
             var matchingParameters = typeof(TTarget)
                 .GetPublicInstanceConstructors()
-                .Project(settings, (s, ctor) => new
+                .Project(settings, (so, ctor) => new
                 {
                     Ctor = ctor,
                     MatchingParameters = ctor
                         .GetParameters()
-                        .Filter(p =>
-                            (s.IgnoreParameterType || (p.ParameterType == typeof(TParam))) &&
-                            (s.IgnoreParameterName || (p.Name == name)))
+                        .Filter(so, (si, p) =>
+                            (si.IgnoreParameterType || (p.ParameterType == typeof(TParam))) &&
+                            (si.IgnoreParameterName || (p.Name == name)))
                         .ToArray()
                 })
                 .Filter(d => d.MatchingParameters.Any())

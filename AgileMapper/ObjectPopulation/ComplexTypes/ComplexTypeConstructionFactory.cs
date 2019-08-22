@@ -132,12 +132,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             var candidateFactoryMethods = mapperData.TargetInstance.Type
                 .GetPublicStaticMethods()
-                .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type));
+                .Filter(mapperData.TargetInstance.Type, IsFactoryMethod);
 
             return CreateConstructionInfo(candidateFactoryMethods, fm => new FactoryMethodInfo(fm, key));
         }
 
-        private static bool IsFactoryMethod(MethodInfo method, Type targetType)
+        private static bool IsFactoryMethod(Type targetType, MethodInfo method)
         {
             return (method.ReturnType == targetType) &&
                    (method.Name.StartsWith("Create", Ordinal) || method.Name.StartsWith("Get", Ordinal));
@@ -149,12 +149,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IBasicConstructionInfo greediestUnconditionalFactoryInfo)
         {
             var candidateConstructors = constructors
-                .Filter(ctor => IsCandidateCtor(ctor, greediestUnconditionalFactoryInfo));
+                .Filter(greediestUnconditionalFactoryInfo, IsCandidateCtor);
 
             return CreateConstructionInfo(candidateConstructors, ctor => new ObjectNewingInfo(ctor, key));
         }
 
-        private static bool IsCandidateCtor(MethodBase ctor, IBasicConstructionInfo candidateFactoryMethod)
+        private static bool IsCandidateCtor(IBasicConstructionInfo candidateFactoryMethod, MethodBase ctor)
         {
             var ctorCarameters = ctor.GetParameters();
 
@@ -375,7 +375,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 {
                     var dataSources = key.MappingData.MapperData.DataSourcesByTargetMember;
 
-                    foreach (var dataSourceSet in ArgumentDataSources.Filter(ds => !dataSources.ContainsKey(ds.MapperData.TargetMember)))
+                    var relevantDataSourceSets = ArgumentDataSources
+                        .Filter(dataSources, (dss, ds) => !dss.ContainsKey(ds.MapperData.TargetMember));
+
+                    foreach (var dataSourceSet in relevantDataSourceSets)
                     {
                         dataSources.Add(dataSourceSet.MapperData.TargetMember, dataSourceSet);
                     }

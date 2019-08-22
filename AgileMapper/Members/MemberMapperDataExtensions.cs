@@ -323,7 +323,7 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 var sameTypedChildMembers = nonSimpleChildMembers
-                    .Filter(cm => (cm.IsEnumerable ? cm.ElementType : cm.Type) == subjectMember.Type)
+                    .Filter(subjectMember, (sm, cm) => (cm.IsEnumerable ? cm.ElementType : cm.Type) == sm.Type)
                     .ToArray();
 
                 if (sameTypedChildMembers

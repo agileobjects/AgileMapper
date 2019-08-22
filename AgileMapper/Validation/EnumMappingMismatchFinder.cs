@@ -92,7 +92,7 @@
 
                 var dataSources = targetMemberAndDataSource
                     .Value
-                    .Filter(dataSource => IsValidOtherEnumType(dataSource, targetEnumType))
+                    .Filter(targetEnumType, IsValidOtherEnumType)
                     .ToArray();
 
                 if (dataSources.Any())
@@ -111,7 +111,7 @@
             }
         }
 
-        private static bool IsValidOtherEnumType(IDataSource dataSource, Type targetEnumType)
+        private static bool IsValidOtherEnumType(Type targetEnumType, IDataSource dataSource)
         {
             return dataSource.IsValid &&
                    IsEnum(dataSource.SourceMember.Type, out var sourceEnumType) &&

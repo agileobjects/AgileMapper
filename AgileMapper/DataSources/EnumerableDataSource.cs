@@ -100,7 +100,7 @@
             }
 
             var otherComplexTypeMembers = sourceElementMembers
-                .Filter(m => m.IsComplex && (m.Type != mapperData.SourceType))
+                .Filter(mapperData, (md, m) => m.IsComplex && (m.Type != md.SourceType))
                 .ToArray();
 
             if ((otherComplexTypeMembers.Length != 1) ||

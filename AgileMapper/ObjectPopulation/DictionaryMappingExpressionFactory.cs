@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var configuredDataSourceFactories = mapperData.MapperContext
                 .UserConfigurations
                 .QueryDataSourceFactories<ConfiguredDictionaryEntryDataSourceFactory>()
-                .Filter(dsf => dsf.IsFor(mapperData))
+                .Filter(mapperData, (md, dsf) => dsf.IsFor(md))
                 .ToArray();
 
             if (configuredDataSourceFactories.None())

@@ -89,7 +89,7 @@
                 .Instance
                 .MemberCache
                 .GetSourceMembers(parentMember.Type)
-                .Filter(m => filter.Invoke(mapperData, m));
+                .Filter(mapperData, filter.Invoke);
 
             if (!mapperData.RuleSet.Settings.AllowGetMethods)
             {
@@ -100,14 +100,13 @@
 
             if (mapperData.MapperContext.UserConfigurations.HasSourceMemberIgnores(mapperData))
             {
-                qualifiedMembers = qualifiedMembers
-                    .Filter(sm => IsNotUnconditionallyIgnored(sm, mapperData));
+                qualifiedMembers = qualifiedMembers.Filter(mapperData, IsNotUnconditionallyIgnored);
             }
 
             return qualifiedMembers;
         }
 
-        private static bool IsNotUnconditionallyIgnored(IQualifiedMember sourceMember, IMemberMapperData mapperData)
+        private static bool IsNotUnconditionallyIgnored(IMemberMapperData mapperData, IQualifiedMember sourceMember)
         {
             var matchingIgnore = mapperData
                 .MapperContext
