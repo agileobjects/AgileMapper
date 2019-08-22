@@ -6,12 +6,12 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
 #endif
 
-    internal struct MemberMergePopulationGuardFactory : IPopulationGuardFactory
+    internal static class MemberMergePopulationGuardFactory
     {
-        public Expression GetPopulationGuard(IMemberPopulationContext context)
+        public static Expression Create(IMemberPopulator populator)
         {
-            var mapperData = context.MapperData;
-            var populateCondition = context.PopulateCondition;
+            var mapperData = populator.MapperData;
+            var populateCondition = populator.PopulateCondition;
 
             if (SkipPopulationGuarding(mapperData))
             {

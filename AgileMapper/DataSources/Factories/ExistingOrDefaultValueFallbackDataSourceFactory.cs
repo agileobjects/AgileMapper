@@ -8,9 +8,9 @@ namespace AgileObjects.AgileMapper.DataSources.Factories
     using Members;
     using Members.Dictionaries;
 
-    internal struct ExistingOrDefaultValueFallbackDataSourceFactory : IFallbackDataSourceFactory
+    internal static class ExistingOrDefaultValueFallbackDataSourceFactory
     {
-        public IDataSource Create(IMemberMapperData mapperData)
+        public static IDataSource Create(IMemberMapperData mapperData)
             => new ExistingValueOrDefaultFallbackDataSource(mapperData);
 
         private class ExistingValueOrDefaultFallbackDataSource : DataSourceBase

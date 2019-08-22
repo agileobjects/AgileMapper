@@ -395,7 +395,7 @@
                 var memberAccess = memberAccesses[i++];
                 var memberName = GetMemberName(memberAccess);
                 var members = membersFactory.Invoke(parentMember.Type);
-                var member = members.FirstOrDefault(m => m.Name == memberName);
+                var member = members.FirstOrDefault(memberName, (mn, m) => m.Name == mn);
 
                 if (member == null)
                 {

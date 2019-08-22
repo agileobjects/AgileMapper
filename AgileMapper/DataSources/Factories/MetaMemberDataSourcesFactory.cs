@@ -41,7 +41,7 @@
         {
             memberNameParts = default(IList<string>);
 
-            var targetMemberName = context.MapperData.TargetMember.Name;
+            var targetMemberName = context.TargetMember.Name;
             var previousNamePartEndIndex = targetMemberName.Length;
             var currentMemberName = string.Empty;
             var noMetaMemberAdded = true;
@@ -140,7 +140,7 @@
             var currentMemberPart = metaMember = default(MetaMemberPartBase);
 
             Func<IQualifiedMember, QualifiedMember, IObjectMappingData, DataSourceFindContext, IObjectMappingData> currentMappingDataFactory =
-                (sm, tm, md, c) => c.ChildMappingData.Parent;
+                (sm, tm, md, c) => c.MemberMappingData.Parent;
 
             for (var i = memberNameParts.Count - 1; i >= 0; --i)
             {
@@ -149,7 +149,7 @@
                 switch (memberNamePart)
                 {
                     case HasMetaMemberPart.Name:
-                        if (HasMetaMemberPart.TryCreateFor(context.MapperData, ref currentMemberPart))
+                        if (HasMetaMemberPart.TryCreateFor(context.MemberMapperData, ref currentMemberPart))
                         {
                             break;
                         }
@@ -157,15 +157,15 @@
                         return false;
 
                     case FirstMetaMemberPart.Name:
-                        currentMemberPart = new FirstMetaMemberPart(context.MapperData);
+                        currentMemberPart = new FirstMetaMemberPart(context.MemberMapperData);
                         break;
 
                     case LastMetaMemberPart.Name:
-                        currentMemberPart = new LastMetaMemberPart(context.MapperData);
+                        currentMemberPart = new LastMetaMemberPart(context.MemberMapperData);
                         break;
 
                     case CountMetaMemberPart.Name:
-                        if (CountMetaMemberPart.TryCreateFor(context.MapperData, ref currentMemberPart))
+                        if (CountMetaMemberPart.TryCreateFor(context.MemberMapperData, ref currentMemberPart))
                         {
                             break;
                         }
@@ -173,7 +173,7 @@
                         return false;
 
                     case NumberOfMetaMemberPart.Name:
-                        if (NumberOfMetaMemberPart.TryCreateFor(context.MapperData, ref currentMemberPart))
+                        if (NumberOfMetaMemberPart.TryCreateFor(context.MemberMapperData, ref currentMemberPart))
                         {
                             break;
                         }
@@ -192,14 +192,14 @@
                         var matchingTargetMember = GlobalContext.Instance
                             .MemberCache
                             .GetTargetMembers(currentMapperData.TargetType)
-                            .FirstOrDefault(m => m.Name == memberNamePart);
+                            .FirstOrDefault(memberNamePart, (mnp, m) => m.Name == mnp);
 
                         if (matchingTargetMember == null)
                         {
                             matchingTargetMember = GlobalContext.Instance
                                 .MemberCache
                                 .GetSourceMembers(currentMapperData.SourceType)
-                                .FirstOrDefault(m => m.Name == memberNamePart);
+                                .FirstOrDefault(memberNamePart, (mnp, m) => m.Name == mnp);
 
                             if (matchingTargetMember == null)
                             {
@@ -235,7 +235,7 @@
 
                             return sm.IsEnumerable
                                 ? ObjectMappingDataFactory.ForElement(mappingData)
-                                : ObjectMappingDataFactory.ForChild(sm, tm, 0, md);
+                                : mappingData;
                         };
 
                         break;

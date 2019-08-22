@@ -84,7 +84,6 @@
                     UnmappedMembers = md
                         .DataSourcesByTargetMember
                         .Filter(pair => !pair.Value.HasValue)
-                        .Project(pair => pair)
                         .ToArray(),
                     UnpairedEnums = EnumMappingMismatchFinder.FindMismatches(md)
                 })

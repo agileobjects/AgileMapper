@@ -7,12 +7,11 @@ namespace AgileObjects.AgileMapper.Members.Population
 #else
     using System.Linq.Expressions;
 #endif
-    using Configuration;
     using DataSources;
     using Extensions.Internal;
     using ReadableExpressions;
 
-    internal class MemberPopulator : IMemberPopulationContext, IMemberPopulator
+    internal class MemberPopulator : IMemberPopulator
     {
         private readonly DataSourceSet _dataSources;
 
@@ -36,19 +35,20 @@ namespace AgileObjects.AgileMapper.Members.Population
         public static IMemberPopulator WithoutRegistration(DataSourceSet dataSources, Expression populateCondition = null)
             => new MemberPopulator(dataSources, populateCondition);
 
-        public static IMemberPopulator Unmappable(IMemberMapperData mapperData, string reason)
-            => CreateNullMemberPopulator(mapperData, targetMember => $"No way to populate {targetMember.Name} ({reason})");
+        public static IMemberPopulator Unmappable(MemberPopulationContext context, string reason)
+            => CreateNullMemberPopulator(context, targetMember => $"No way to populate {targetMember.Name} ({reason})");
 
-        public static IMemberPopulator IgnoredMember(IMemberMapperData mapperData, ConfiguredIgnoredMember configuredIgnore)
-            => CreateNullMemberPopulator(mapperData, configuredIgnore.GetIgnoreMessage);
+        public static IMemberPopulator IgnoredMember(MemberPopulationContext context)
+            => CreateNullMemberPopulator(context, context.MemberIgnore.GetIgnoreMessage);
 
-        public static IMemberPopulator NoDataSource(IMemberMapperData mapperData)
+        public static IMemberPopulator NoDataSource(MemberPopulationContext context)
         {
-            var noDataSources = CreateNullDataSourceSet(mapperData, GetNoDataSourceMessage);
+            var noDataSources = CreateNullDataSourceSet(context.MemberMapperData, GetNoDataSourceMessage);
 
-            mapperData.RegisterTargetMemberDataSourcesIfRequired(noDataSources);
+            context.MemberMapperData.RegisterTargetMemberDataSourcesIfRequired(noDataSources);
 
-            return new MemberPopulator(noDataSources);
+            return context.MappingContext.AddUnsuccessfulMemberPopulations
+                ? new MemberPopulator(noDataSources) : null;
         }
 
         private static string GetNoDataSourceMessage(QualifiedMember targetMember)
@@ -59,10 +59,12 @@ namespace AgileObjects.AgileMapper.Members.Population
         }
 
         private static MemberPopulator CreateNullMemberPopulator(
-            IMemberMapperData mapperData,
+            MemberPopulationContext context,
             Func<QualifiedMember, string> commentFactory)
         {
-            return new MemberPopulator(CreateNullDataSourceSet(mapperData, commentFactory));
+            return context.AddUnsuccessfulMemberPopulations
+                ? new MemberPopulator(CreateNullDataSourceSet(context.MemberMapperData, commentFactory))
+                : null;
         }
 
         private static DataSourceSet CreateNullDataSourceSet(
@@ -93,7 +95,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             var populationGuard = MapperData
                 .RuleSet
                 .PopulationGuardFactory
-                .GetPopulationGuard(this);
+                .Invoke(this);
 
             var useSingleExpression = MapperData.UseMemberInitialisations();
 
@@ -179,7 +181,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             var populationBlock = (BlockExpression)population;
 
             return Expression.Block(
-                _dataSources.Variables.Append(populationBlock.Variables), 
+                _dataSources.Variables.Append(populationBlock.Variables),
                 populationBlock.Expressions);
         }
 

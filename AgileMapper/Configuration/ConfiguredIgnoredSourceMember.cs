@@ -6,6 +6,9 @@ namespace AgileObjects.AgileMapper.Configuration
 #else
     using System.Linq.Expressions;
 #endif
+#if NET35
+    using Extensions.Internal;
+#endif
     using Members;
 
     internal class ConfiguredIgnoredSourceMember : UserConfiguredItemBase
@@ -25,9 +28,6 @@ namespace AgileObjects.AgileMapper.Configuration
                                 .ToSourceMemberOrNull(configInfo.MapperContext, out var failureReason) ??
                             throw new MappingConfigurationException(failureReason);
         }
-
-        public bool CouldApplyTo(IBasicMapperData mapperData)
-            => RuleSetMatches(mapperData) && TypesAreCompatible(mapperData);
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {

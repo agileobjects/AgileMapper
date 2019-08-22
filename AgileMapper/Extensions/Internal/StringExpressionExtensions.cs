@@ -58,7 +58,7 @@
         }
 
         public static MethodInfo GetConcatMethod(int parameterCount)
-            => _stringConcatMethods.First(m => m.GetParameters().Length == parameterCount);
+            => _stringConcatMethods.First(parameterCount, (pc, m) => m.GetParameters().Length == pc);
 
         public static Expression GetStringConcatCall(this IList<Expression> expressions)
         {

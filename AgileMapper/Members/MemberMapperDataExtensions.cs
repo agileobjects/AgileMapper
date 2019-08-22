@@ -284,7 +284,7 @@ namespace AgileObjects.AgileMapper.Members
 
                 var nonSimpleChildMembers = GetTargetMembers(mappingType)
                     .Filter(m => !m.IsSimple)
-                    .Project(cm => GetNonEnumerableChildMember(targetMember, cm))
+                    .Project(targetMember, GetNonEnumerableChildMember)
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())
@@ -323,11 +323,11 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 var sameTypedChildMembers = nonSimpleChildMembers
-                    .Filter(cm => (cm.IsEnumerable ? cm.ElementType : cm.Type) == subjectMember.Type)
+                    .Filter(subjectMember, (sm, cm) => (cm.IsEnumerable ? cm.ElementType : cm.Type) == sm.Type)
                     .ToArray();
 
                 if (sameTypedChildMembers
-                        .Project(cm => GetNonEnumerableChildMember(parentMember, cm))
+                        .Project(parentMember, GetNonEnumerableChildMember)
                         .Any(cm => cm != subjectMember))
                 {
                     return true;

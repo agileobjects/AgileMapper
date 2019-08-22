@@ -4,9 +4,9 @@
     using ObjectPopulation;
     using ObjectPopulation.MapperKeys;
 
-    internal struct QueryProjectorMapperKeyFactory : IRootMapperKeyFactory
+    internal static class QueryProjectorMapperKeyFactory
     {
-        public ObjectMapperKeyBase CreateRootKeyFor(IObjectMappingData mappingData)
+        public static ObjectMapperKeyBase Create(IObjectMappingData mappingData)
         {
             var providerType = mappingData.GetSource<IQueryable>().Provider.GetType();
 

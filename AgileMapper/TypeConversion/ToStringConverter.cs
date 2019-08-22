@@ -99,7 +99,7 @@
         public static MethodInfo GetToStringMethodOrNull(Type sourceType, Type argumentType)
         {
             var toStringMethod = sourceType
-                .GetPublicInstanceMethods("ToString")
+                .GetPublicInstanceMethods(nameof(ToString))
                 .Project(m => new
                 {
                     Method = m,

@@ -123,7 +123,7 @@
 
             return Constants
                 .NumericTypeMaxValuesByType
-                .Filter(kvp => kvp.Value < typeMaxValue)
+                .Filter(typeMaxValue, (tmv, kvp) => kvp.Value < tmv)
                 .Project(kvp => kvp.Key)
                 .ToArray();
         }

@@ -6,9 +6,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Linq.Expressions;
 #endif
 
-    internal struct CopySourceEnumerablePopulationStrategy : IEnumerablePopulationStrategy
+    internal static class CopySourceEnumerablePopulationStrategy
     {
-        public Expression GetPopulation(EnumerablePopulationBuilder builder, IObjectMappingData enumerableMappingData)
+        public static Expression Create(EnumerablePopulationBuilder builder, IObjectMappingData enumerableMappingData)
         {
             builder.AssignSourceVariableFromSourceObject();
             builder.AssignTargetVariable();

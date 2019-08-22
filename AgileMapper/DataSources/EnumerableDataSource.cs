@@ -91,7 +91,7 @@
                 .GetSourceMembers(sourceElementType);
 
             var backLinkMember = sourceElementMembers
-                .FirstOrDefault(m => m.IsComplex && m.Type == mapperData.SourceType);
+                .FirstOrDefault(mapperData.SourceType, (st, m) => m.IsComplex && m.Type == st);
 
             if (backLinkMember == null)
             {
@@ -100,7 +100,7 @@
             }
 
             var otherComplexTypeMembers = sourceElementMembers
-                .Filter(m => m.IsComplex && (m.Type != mapperData.SourceType))
+                .Filter(mapperData, (md, m) => m.IsComplex && (m.Type != md.SourceType))
                 .ToArray();
 
             if ((otherComplexTypeMembers.Length != 1) ||

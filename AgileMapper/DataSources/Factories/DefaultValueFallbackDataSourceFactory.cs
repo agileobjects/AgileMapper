@@ -2,9 +2,9 @@ namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using Members;
 
-    internal struct DefaultValueFallbackDataSourceFactory : IFallbackDataSourceFactory
+    internal static class DefaultValueFallbackDataSourceFactory
     {
-        public IDataSource Create(IMemberMapperData mapperData)
+        public static IDataSource Create(IMemberMapperData mapperData)
             => new DefaultValueFallbackDataSource(mapperData);
 
         private class DefaultValueFallbackDataSource : DataSourceBase
