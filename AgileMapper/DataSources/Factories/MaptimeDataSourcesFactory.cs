@@ -39,7 +39,7 @@
             out IEnumerable<IDataSource> maptimeDataSources)
         {
             var applicableFactory = _mapTimeDataSourceFactories
-                .FirstOrDefault(context.MapperData, (md, factory) => factory.IsFor(md));
+                .FirstOrDefault(context.MemberMapperData, (md, factory) => factory.IsFor(md));
 
             if (applicableFactory == null)
             {
@@ -47,7 +47,7 @@
                 return false;
             }
 
-            maptimeDataSources = applicableFactory.Create(context.ChildMappingData);
+            maptimeDataSources = applicableFactory.Create(context.MemberMappingData);
             return true;
         }
     }

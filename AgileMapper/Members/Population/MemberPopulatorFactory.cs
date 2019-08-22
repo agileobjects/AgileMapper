@@ -45,8 +45,8 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return MemberPopulator.IgnoredMember(context);
             }
 
-            var childMappingData = context.MappingData.GetChildMappingData(context.MemberMapperData);
-            var dataSources = DataSourceSetFactory.CreateFor(childMappingData);
+            var dataSourceFindContext = context.GetDataSourceFindContext();
+            var dataSources = DataSourceSetFactory.CreateFor(dataSourceFindContext);
 
             if (dataSources.None)
             {

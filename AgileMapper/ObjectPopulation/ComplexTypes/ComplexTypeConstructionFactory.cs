@@ -359,7 +359,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                             key.MappingData.MapperData);
 
                         var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
-                        var dataSources = DataSourceSetFactory.CreateFor(memberMappingData);
+                        var dataSources = DataSourceSetFactory.CreateFor(new DataSourceFindContext(memberMappingData));
 
                         return dataSources;
                     });

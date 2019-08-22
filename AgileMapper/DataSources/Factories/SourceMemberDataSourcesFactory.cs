@@ -8,14 +8,14 @@
     {
         public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
-            if (context.MapperData.TargetMember.IsCustom)
+            if (context.TargetMember.IsCustom)
             {
                 yield break;
             }
 
             var matchingSourceMemberDataSource = GetSourceMemberDataSource(context, out var hasUseableSourceMember);
             var configuredDataSources = context.ConfiguredDataSources;
-            var targetMember = context.MapperData.TargetMember;
+            var targetMember = context.TargetMember;
 
             if (!hasUseableSourceMember ||
                  configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
@@ -24,7 +24,7 @@
                 {
                     if (UseFallbackComplexTypeDataSource(targetMember))
                     {
-                        yield return ComplexTypeDataSource.Create(context.DataSourceIndex, context.ChildMappingData);
+                        yield return ComplexTypeDataSource.Create(context.DataSourceIndex, context.MemberMappingData);
                     }
                 }
                 else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
@@ -40,15 +40,14 @@
             }
 
             if (matchingSourceMemberDataSource.SourceMember.IsSimple &&
-                context.MapperData.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources)
+                context.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources)
             {
                 var updatedMapperData = new ChildMemberMapperData(
                     matchingSourceMemberDataSource.SourceMember,
                     targetMember,
-                    context.MapperData.Parent);
+                    context.MemberMapperData.Parent);
 
                 var configuredRootDataSources = context
-                    .MapperData
                     .MapperContext
                     .UserConfigurations
                     .GetDataSourcesForToTarget(updatedMapperData);
@@ -73,7 +72,7 @@
             DataSourceFindContext context,
             out bool hasUseableSourceMember)
         {
-            var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(context.ChildMappingData);
+            var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(context.MemberMappingData);
             hasUseableSourceMember = bestSourceMemberMatch.IsUseable;
 
             if (hasUseableSourceMember)

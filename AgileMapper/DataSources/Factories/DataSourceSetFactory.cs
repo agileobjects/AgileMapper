@@ -4,7 +4,6 @@
     using System.Linq;
     using Extensions.Internal;
     using MappingRoot;
-    using Members;
     using ObjectPopulation;
 
     internal static class DataSourceSetFactory
@@ -36,12 +35,11 @@
             return DataSourceSet.For(rootDataSource, rootMappingData.MapperData);
         }
 
-        public static DataSourceSet CreateFor(IChildMemberMappingData childMappingData)
+        public static DataSourceSet CreateFor(DataSourceFindContext findContext)
         {
-            var findContext = new DataSourceFindContext(childMappingData);
             var validDataSources = EnumerateDataSources(findContext).ToArray();
 
-            return DataSourceSet.For(validDataSources, findContext.MapperData);
+            return DataSourceSet.For(validDataSources, findContext.MemberMapperData);
         }
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)

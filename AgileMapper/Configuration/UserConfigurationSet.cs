@@ -323,21 +323,8 @@
             IgnoredMembers.AddSortFilter(ignoredMember);
         }
 
-        public IList<ConfiguredIgnoredMember> GetMemberIgnoresFor(IBasicMapperData mapperData)
-        {
-            if (_ignoredMembers == null)
-            {
-                return Enumerable<ConfiguredIgnoredMember>.EmptyArray;
-            }
-
-            var ignoredMembers = _ignoredMembers
-                .Filter(mapperData, (md, im) => im.CouldApplyTo(md))
-                .ToArray();
-
-            return ignoredMembers.Any()
-                ? ignoredMembers
-                : Enumerable<ConfiguredIgnoredMember>.EmptyArray;
-        }
+        public IList<ConfiguredIgnoredMember> GetPotentialMemberIgnores(IBasicMapperData mapperData)
+            => _ignoredMembers.FindPotentialMatches(mapperData);
 
         #endregion
 
@@ -394,8 +381,8 @@
 
         public bool HasConfiguredToTargetDataSources { get; private set; }
 
-        public IList<IConfiguredDataSource> GetDataSources(IMemberMapperData mapperData)
-            => GetDataSources(QueryDataSourceFactories(mapperData), mapperData);
+        public IList<ConfiguredDataSourceFactory> GetPotentialDataSourceFactories(IMemberMapperData mapperData)
+            => _dataSourceFactories.FindPotentialMatches(mapperData);
 
         public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
         {
@@ -404,18 +391,12 @@
                 return Enumerable<IConfiguredDataSource>.EmptyArray;
             }
 
-            var toTargetDataSourceFactories =
-                QueryDataSourceFactories(mapperData)
-                    .Filter(dsf => dsf.TargetMember.IsRoot);
+            var toTargetDataSources = QueryDataSourceFactories(mapperData)
+                .Filter(dsf => dsf.TargetMember.IsRoot)
+                .Project(mapperData, (md, dsf) => dsf.Create(md))
+                .ToArray();
 
-            return GetDataSources(toTargetDataSourceFactories, mapperData);
-        }
-
-        private static IList<IConfiguredDataSource> GetDataSources(
-            IEnumerable<ConfiguredDataSourceFactory> factories,
-            IMemberMapperData mapperData)
-        {
-            return factories.Project(mapperData, (md, dsf) => dsf.Create(md)).ToArray();
+            return toTargetDataSources;
         }
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)

@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System.Collections.Generic;
+    using System.Linq;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -17,6 +18,12 @@
             where TItem : UserConfiguredItemBase
         {
             return items?.Filter(mapperData, (md, item) => item.AppliesTo(md)) ?? Enumerable<TItem>.Empty;
+        }
+
+        public static IList<TItem> FindPotentialMatches<TItem>(this IEnumerable<TItem> items, IBasicMapperData mapperData)
+            where TItem : UserConfiguredItemBase
+        {
+            return items?.Filter(mapperData, (md, item) => item.CouldApplyTo(md)).ToArray() ?? Enumerable<TItem>.EmptyArray;
         }
     }
 }

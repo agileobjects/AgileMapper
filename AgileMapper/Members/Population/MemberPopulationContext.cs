@@ -7,12 +7,14 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
 #endif
     using Configuration;
+    using DataSources.Factories;
     using ObjectPopulation;
 
     internal class MemberPopulationContext
     {
-        private IList<ConfiguredIgnoredMember> _memberIgnores;
+        private IList<ConfiguredIgnoredMember> _potentialMemberIgnores;
         private ConfiguredIgnoredMember _memberIgnore;
+        private DataSourceFindContext _dataSourceFindContext;
 
         public MemberPopulationContext(IObjectMappingData mappingData)
         {
@@ -37,18 +39,12 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public bool AddUnsuccessfulMemberPopulations => MappingContext.AddUnsuccessfulMemberPopulations;
 
-        public MemberPopulationContext With(QualifiedMember targetMember)
-        {
-            MemberMapperData = new ChildMemberMapperData(targetMember, MapperData);
-            _memberIgnore = null;
-            return this;
-        }
-
-        private IList<ConfiguredIgnoredMember> MemberIgnores
-            => _memberIgnores ?? (_memberIgnores = UserConfigurations.GetMemberIgnoresFor(MemberMapperData));
+        private IList<ConfiguredIgnoredMember> PotentialMemberIgnores
+            => _potentialMemberIgnores ??
+              (_potentialMemberIgnores = UserConfigurations.GetPotentialMemberIgnores(MemberMapperData));
 
         public ConfiguredIgnoredMember MemberIgnore
-            => _memberIgnore ?? (_memberIgnore = MemberIgnores.FindMatch(MemberMapperData));
+            => _memberIgnore ?? (_memberIgnore = PotentialMemberIgnores.FindMatch(MemberMapperData));
 
         public bool TargetMemberIsUnconditionallyIgnored(out Expression populateCondition)
         {
@@ -60,6 +56,25 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             populateCondition = _memberIgnore.GetConditionOrNull(MemberMapperData);
             return (populateCondition == null);
+        }
+
+        public DataSourceFindContext GetDataSourceFindContext()
+        {
+            var memberMappingData = MappingData.GetChildMappingData(MemberMapperData);
+
+            if (_dataSourceFindContext == null)
+            {
+                _dataSourceFindContext = new DataSourceFindContext(memberMappingData);
+            }
+
+            return _dataSourceFindContext.With(memberMappingData);
+        }
+
+        public MemberPopulationContext With(QualifiedMember targetMember)
+        {
+            MemberMapperData = new ChildMemberMapperData(targetMember, MapperData);
+            _memberIgnore = null;
+            return this;
         }
     }
 }
