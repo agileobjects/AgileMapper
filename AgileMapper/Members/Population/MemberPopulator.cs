@@ -62,7 +62,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             MemberPopulationContext context,
             Func<QualifiedMember, string> commentFactory)
         {
-            return context.AddUnsuccessfulMemberPopulations
+            return context.MappingContext.AddUnsuccessfulMemberPopulations
                 ? new MemberPopulator(CreateNullDataSourceSet(context.MemberMapperData, commentFactory))
                 : null;
         }

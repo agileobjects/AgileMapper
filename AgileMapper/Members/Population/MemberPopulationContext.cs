@@ -12,8 +12,9 @@ namespace AgileObjects.AgileMapper.Members.Population
 
     internal class MemberPopulationContext
     {
-        private IList<ConfiguredIgnoredMember> _potentialMemberIgnores;
+        private IList<ConfiguredIgnoredMember> _relevantMemberIgnores;
         private ConfiguredIgnoredMember _memberIgnore;
+        private bool _memberIgnoreChecked;
         private DataSourceFindContext _dataSourceFindContext;
 
         public MemberPopulationContext(IObjectMappingData mappingData)
@@ -37,14 +38,23 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public QualifiedMember TargetMember => MemberMapperData.TargetMember;
 
-        public bool AddUnsuccessfulMemberPopulations => MappingContext.AddUnsuccessfulMemberPopulations;
-
-        private IList<ConfiguredIgnoredMember> PotentialMemberIgnores
-            => _potentialMemberIgnores ??
-              (_potentialMemberIgnores = UserConfigurations.GetPotentialMemberIgnores(MemberMapperData));
+        private IList<ConfiguredIgnoredMember> RelevantMemberIgnores
+            => _relevantMemberIgnores ??
+              (_relevantMemberIgnores = UserConfigurations.GetRelevantMemberIgnores(MemberMapperData));
 
         public ConfiguredIgnoredMember MemberIgnore
-            => _memberIgnore ?? (_memberIgnore = PotentialMemberIgnores.FindMatch(MemberMapperData));
+        {
+            get
+            {
+                if (_memberIgnoreChecked)
+                {
+                    return _memberIgnore;
+                }
+
+                _memberIgnoreChecked = true;
+                return _memberIgnore = RelevantMemberIgnores.FindMatch(MemberMapperData);
+            }
+        }
 
         public bool TargetMemberIsUnconditionallyIgnored(out Expression populateCondition)
         {
@@ -74,6 +84,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             MemberMapperData = new ChildMemberMapperData(targetMember, MapperData);
             _memberIgnore = null;
+            _memberIgnoreChecked = false;
             return this;
         }
     }

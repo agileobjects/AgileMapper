@@ -9,8 +9,9 @@
 
     internal class DataSourceFindContext
     {
-        private IList<ConfiguredDataSourceFactory> _potentialConfiguredDataSourceFactories;
+        private IList<ConfiguredDataSourceFactory> _relevantConfiguredDataSourceFactories;
         private IList<IConfiguredDataSource> _configuredDataSources;
+        private SourceMemberMatchContext _sourceMemberMatchContext;
 
         public DataSourceFindContext(IChildMemberMappingData memberMappingData)
         {
@@ -29,38 +30,38 @@
 
         public bool StopFind { get; set; }
 
-        private IEnumerable<ConfiguredDataSourceFactory> PotentialConfiguredDataSourceFactories
-            => _potentialConfiguredDataSourceFactories ??
-              (_potentialConfiguredDataSourceFactories = GetPotentialConfiguredDataSourceFactories());
+        private IEnumerable<ConfiguredDataSourceFactory> RelevantConfiguredDataSourceFactories
+            => _relevantConfiguredDataSourceFactories ??
+              (_relevantConfiguredDataSourceFactories = GetRelevantConfiguredDataSourceFactories());
 
-        private IList<ConfiguredDataSourceFactory> GetPotentialConfiguredDataSourceFactories()
+        private IList<ConfiguredDataSourceFactory> GetRelevantConfiguredDataSourceFactories()
         {
-            var potentialDataSourceFactories = GetPotentialConfiguredDataSourceFactories(MemberMapperData);
+            var relevantDataSourceFactories = GetRelevantConfiguredDataSourceFactories(MemberMapperData);
 
             if (!MemberMapperData.Parent.Context.IsForToTargetMapping)
             {
-                return potentialDataSourceFactories;
+                return relevantDataSourceFactories;
             }
 
             var originalChildMapperData = new ChildMemberMapperData(
                 TargetMember,
                 MemberMapperData.Parent.OriginalMapperData);
 
-            potentialDataSourceFactories = potentialDataSourceFactories.Append(
-                GetPotentialConfiguredDataSourceFactories(originalChildMapperData));
+            relevantDataSourceFactories = relevantDataSourceFactories.Append(
+                GetRelevantConfiguredDataSourceFactories(originalChildMapperData));
 
-            return potentialDataSourceFactories;
+            return relevantDataSourceFactories;
         }
 
-        private IList<ConfiguredDataSourceFactory> GetPotentialConfiguredDataSourceFactories(IMemberMapperData mapperData)
-            => MapperContext.UserConfigurations.GetPotentialDataSourceFactories(mapperData);
+        private IList<ConfiguredDataSourceFactory> GetRelevantConfiguredDataSourceFactories(IMemberMapperData mapperData)
+            => MapperContext.UserConfigurations.GetRelevantDataSourceFactories(mapperData);
 
         public IList<IConfiguredDataSource> ConfiguredDataSources
         {
             get
             {
                 return _configuredDataSources ?? (_configuredDataSources =
-                   PotentialConfiguredDataSourceFactories
+                   RelevantConfiguredDataSourceFactories
                        .FindMatches(MemberMapperData)
                        .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
                        .ToArray());
@@ -123,6 +124,12 @@
             DataSourceIndex = 0;
             StopFind = false;
             return this;
+        }
+
+        public SourceMemberMatchContext GetSourceMemberMatchContext()
+        {
+            return _sourceMemberMatchContext?.With(MemberMappingData) ??
+                  (_sourceMemberMatchContext = new SourceMemberMatchContext(MemberMappingData));
         }
     }
 }

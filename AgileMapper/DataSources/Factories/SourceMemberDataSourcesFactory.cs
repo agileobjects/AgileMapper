@@ -72,6 +72,7 @@
             DataSourceFindContext context,
             out bool hasUseableSourceMember)
         {
+            //var sourceMemberMatchContext = context.GetSourceMemberMatchContext();
             var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(context.MemberMappingData);
             hasUseableSourceMember = bestSourceMemberMatch.IsUseable;
 

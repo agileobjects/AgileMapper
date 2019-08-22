@@ -323,8 +323,8 @@
             IgnoredMembers.AddSortFilter(ignoredMember);
         }
 
-        public IList<ConfiguredIgnoredMember> GetPotentialMemberIgnores(IBasicMapperData mapperData)
-            => _ignoredMembers.FindPotentialMatches(mapperData);
+        public IList<ConfiguredIgnoredMember> GetRelevantMemberIgnores(IBasicMapperData mapperData)
+            => _ignoredMembers.FindRelevantMatches(mapperData);
 
         #endregion
 
@@ -381,8 +381,8 @@
 
         public bool HasConfiguredToTargetDataSources { get; private set; }
 
-        public IList<ConfiguredDataSourceFactory> GetPotentialDataSourceFactories(IMemberMapperData mapperData)
-            => _dataSourceFactories.FindPotentialMatches(mapperData);
+        public IList<ConfiguredDataSourceFactory> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
+            => _dataSourceFactories.FindRelevantMatches(mapperData);
 
         public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
         {
