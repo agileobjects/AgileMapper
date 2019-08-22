@@ -1,51 +1,77 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
+    using System.Linq;
+    using Configuration;
     using Extensions;
     using Extensions.Internal;
     using Members;
 
     internal class DataSourceFindContext
     {
-        public DataSourceFindContext(IChildMemberMappingData childMappingData)
+        private IList<ConfiguredDataSourceFactory> _potentialConfiguredDataSourceFactories;
+        private IList<IConfiguredDataSource> _configuredDataSources;
+
+        public DataSourceFindContext(IChildMemberMappingData memberMappingData)
         {
-            ChildMappingData = childMappingData;
-
-            ConfiguredDataSources = GetConfiguredDataSources(MapperData);
-
-            if (!MapperData.Parent.Context.IsForToTargetMapping)
-            {
-                return;
-            }
-
-            var originalChildMapperData = new ChildMemberMapperData(
-                MapperData.TargetMember,
-                MapperData.Parent.OriginalMapperData);
-
-            ConfiguredDataSources = ConfiguredDataSources.Append(
-                GetConfiguredDataSources(originalChildMapperData));
+            MemberMappingData = memberMappingData;
         }
 
-        private IList<IConfiguredDataSource> GetConfiguredDataSources(IMemberMapperData mapperData)
-            => MapperContext.UserConfigurations.GetDataSources(mapperData);
+        public MapperContext MapperContext => MemberMapperData.MapperContext;
 
-        public IChildMemberMappingData ChildMappingData { get; }
+        public IChildMemberMappingData MemberMappingData { get; private set; }
 
-        public IMemberMapperData MapperData => ChildMappingData.MapperData;
+        public IMemberMapperData MemberMapperData => MemberMappingData.MapperData;
 
-        public MapperContext MapperContext => MapperData.MapperContext;
+        public QualifiedMember TargetMember => MemberMapperData.TargetMember;
 
         public int DataSourceIndex { get; set; }
 
         public bool StopFind { get; set; }
 
-        public IList<IConfiguredDataSource> ConfiguredDataSources { get; }
+        private IEnumerable<ConfiguredDataSourceFactory> PotentialConfiguredDataSourceFactories
+            => _potentialConfiguredDataSourceFactories ??
+              (_potentialConfiguredDataSourceFactories = GetPotentialConfiguredDataSourceFactories());
+
+        private IList<ConfiguredDataSourceFactory> GetPotentialConfiguredDataSourceFactories()
+        {
+            var potentialDataSourceFactories = GetPotentialConfiguredDataSourceFactories(MemberMapperData);
+
+            if (!MemberMapperData.Parent.Context.IsForToTargetMapping)
+            {
+                return potentialDataSourceFactories;
+            }
+
+            var originalChildMapperData = new ChildMemberMapperData(
+                TargetMember,
+                MemberMapperData.Parent.OriginalMapperData);
+
+            potentialDataSourceFactories = potentialDataSourceFactories.Append(
+                GetPotentialConfiguredDataSourceFactories(originalChildMapperData));
+
+            return potentialDataSourceFactories;
+        }
+
+        private IList<ConfiguredDataSourceFactory> GetPotentialConfiguredDataSourceFactories(IMemberMapperData mapperData)
+            => MapperContext.UserConfigurations.GetPotentialDataSourceFactories(mapperData);
+
+        public IList<IConfiguredDataSource> ConfiguredDataSources
+        {
+            get
+            {
+                return _configuredDataSources ?? (_configuredDataSources =
+                   PotentialConfiguredDataSourceFactories
+                       .FindMatches(MemberMapperData)
+                       .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
+                       .ToArray());
+            }
+        }
 
         public IDataSource GetFallbackDataSource()
-            => ChildMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MapperData);
+            => MemberMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MemberMapperData);
 
         public IDataSource GetFinalDataSource(IDataSource foundDataSource)
-            => GetFinalDataSource(foundDataSource, ChildMappingData);
+            => GetFinalDataSource(foundDataSource, MemberMappingData);
 
         public IDataSource GetFinalDataSource(IDataSource foundDataSource, IChildMemberMappingData mappingData)
         {
@@ -88,6 +114,15 @@
             }
 
             return !targetMember.Type.IsFromBcl();
+        }
+
+        public DataSourceFindContext With(IChildMemberMappingData memberMappingData)
+        {
+            MemberMappingData = memberMappingData;
+            _configuredDataSources = null;
+            DataSourceIndex = 0;
+            StopFind = false;
+            return this;
         }
     }
 }

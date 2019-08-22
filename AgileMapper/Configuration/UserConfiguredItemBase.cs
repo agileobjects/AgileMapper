@@ -93,6 +93,9 @@
         protected virtual Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
             => ConfigInfo.GetConditionOrNull(mapperData, position, TargetMember);
 
+        public bool CouldApplyTo(IBasicMapperData mapperData)
+            => RuleSetMatches(mapperData) && TypesMatch(mapperData);
+
         public virtual bool AppliesTo(IBasicMapperData mapperData)
         {
             return RuleSetMatches(mapperData) &&
@@ -101,7 +104,7 @@
                    TypesMatch(mapperData);
         }
 
-        protected bool RuleSetMatches(IBasicMapperData mapperData) => ConfigInfo.IsFor(mapperData.RuleSet);
+        private bool RuleSetMatches(IBasicMapperData mapperData) => ConfigInfo.IsFor(mapperData.RuleSet);
 
         private bool TargetMembersMatch(IBasicMapperData mapperData)
         {

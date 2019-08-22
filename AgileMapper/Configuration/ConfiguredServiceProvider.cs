@@ -79,7 +79,7 @@
             var providers = providerObject
                 .Type
                 .GetPublicInstanceMethods()
-                .Filter(method => Array.IndexOf(_serviceProviderMethodNames, method.Name) != -1)
+                .Filter(_serviceProviderMethodNames, (spmns, method) => Array.IndexOf(spmns, method.Name) != -1)
                 .Project(method => GetServiceProviderOrNull(
                     method,
                     providerObject,

@@ -192,7 +192,7 @@
 
             var orderedConfigurations = configurationIndexesByType
                 .OrderBy(kvp => kvp.Value)
-                .Project(kvp => configurationDataByType[kvp.Key].Configuration);
+                .Project(configurationDataByType, (cdbt, kvp) => cdbt[kvp.Key].Configuration);
 
             Apply(orderedConfigurations);
             return this;

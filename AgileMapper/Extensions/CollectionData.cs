@@ -114,9 +114,9 @@ namespace AgileObjects.AgileMapper.Extensions
         {
             return items
                 .WhereNotNull()
-                .Project(item => new
+                .Project(idFactory, (f, item) => new
                 {
-                    Id = idFactory.Invoke(item),
+                    Id = f.Invoke(item),
                     Item = item
                 })
                 .Filter(d => d.Id != null)
