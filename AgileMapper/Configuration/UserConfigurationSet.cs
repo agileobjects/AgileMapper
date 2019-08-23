@@ -308,6 +308,9 @@
             IgnoredSourceMembers.Add(ignoredSourceMember);
         }
 
+        public IList<ConfiguredIgnoredSourceMember> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
+            => _ignoredSourceMembers.FindRelevantMatches(mapperData);
+
         public ConfiguredIgnoredSourceMember GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindMatch(mapperData);
 
