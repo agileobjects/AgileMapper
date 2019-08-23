@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System;
+    using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Dictionaries;
 #if FEATURE_DYNAMIC
@@ -97,5 +99,20 @@
         public ITargetDynamicMappingConfigurator<TSource> ToDynamics
             => new TargetDynamicMappingConfigurator<TSource>(_configInfo);
 #endif
+        /// <summary>
+        /// Ignore the given <paramref name="sourceMembers"/> when mapping from the source type being
+        /// configured to any target type. The given member(s) will not be used to populate a target
+        /// member.
+        /// </summary>
+        /// <param name="sourceMembers">The source member(s) which should be ignored.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from the source
+        /// type being configured.
+        /// </returns>
+        public IMappingConfigContinuation<TSource, object> IgnoreSource(
+            params Expression<Func<TSource, object>>[] sourceMembers)
+        {
+            return To<object>().IgnoreSource(sourceMembers);
+        }
     }
 }

@@ -33,5 +33,21 @@
 
             ignoreEx.Message.ShouldContain("has already been ignored");
         }
+
+        [Fact]
+        public void ShouldErrorIfNonPublicWriteOnlySimpleTypeMemberSpecified()
+        {
+            var configurationEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicWriteOnlyProperty<string>>()
+                        .IgnoreSource(pwop => pwop.Value);
+                }
+            });
+
+            configurationEx.Message.ShouldContain("not readable");
+        }
     }
 }
