@@ -103,6 +103,68 @@
             }
         }
 
+        [Fact]
+        public void ShouldIgnoreAComplexTypeSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<Address>>()
+                    .IgnoreSource(pfa => pfa.Value);
+
+                var source = new PublicField<Address> { Value = new Address { Line1 = "Use this!" } };
+                var target = new PublicReadOnlyProperty<Address>(new Address { Line1 = "Ignore this!" });
+
+                mapper.Map(source).Over(target);
+
+                target.Value.Line1.ShouldBe("Ignore this!");
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportRedundantSourceIgnoreConflictingWithConditionalSourceIgnore()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .To<PersonViewModel>()
+                    .If((p, pvm) => p.Name == "Frank")
+                    .IgnoreSource(p => p.Name);
+
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .To<CustomerViewModel>()
+                    .IgnoreSource(c => c.Name);
+
+                var matchingPersonResult = mapper.Map(new Person { Name = "Frank" }).ToANew<PersonViewModel>();
+                matchingPersonResult.Name.ShouldBeNull();
+                
+                var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
+                nonMatchingPersonResult.Name.ShouldBe("Dennis");
+
+                var customerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
+                customerResult.Name.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldSupportSamePathIgnoredSourceMembersWithDifferentTargetTypes()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicProperty<int>>()
+                    .Ignore(pp => pp.Value);
+
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .To<PublicField<int>>()
+                    .Ignore(pp => pp.Value);
+            }
+        }
+
         #region Helper Classes
 
         private class IdTesterSource

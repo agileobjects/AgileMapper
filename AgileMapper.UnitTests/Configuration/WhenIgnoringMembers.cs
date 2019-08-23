@@ -214,11 +214,12 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .Ignore(cvm => cvm.Name);
 
                 var matchingPersonResult = mapper.Map(new Person { Name = "Frank" }).ToANew<PersonViewModel>();
-                var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
-                var customerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
-
                 matchingPersonResult.Name.ShouldBeNull();
+                
+                var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
                 nonMatchingPersonResult.Name.ShouldBe("Dennis");
+
+                var customerResult = mapper.Map(new Customer { Name = "Mac" }).ToANew<CustomerViewModel>();
                 customerResult.Name.ShouldBeNull();
             }
         }
@@ -257,12 +258,12 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PublicField<int>>()
                     .To<PublicProperty<int>>()
-                    .Ignore(x => x.Value);
+                    .Ignore(pp => pp.Value);
 
                 mapper.WhenMapping
                     .From<PublicGetMethod<int>>()
                     .To<PublicProperty<int>>()
-                    .Ignore(x => x.Value);
+                    .Ignore(pp => pp.Value);
             }
         }
 
