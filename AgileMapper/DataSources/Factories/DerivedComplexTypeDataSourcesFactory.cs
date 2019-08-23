@@ -440,12 +440,12 @@
                     continue;
                 }
 
-                var derivedTargetTypeDataSouce = new DerivedComplexTypeDataSource(
+                var derivedTargetTypeDataSource = new DerivedComplexTypeDataSource(
                     derivedTypeMappingData.MapperData.SourceMember,
                     targetTypeCondition,
                     derivedTypeMapping);
 
-                derivedTypeDataSources.Add(derivedTargetTypeDataSouce);
+                derivedTypeDataSources.Add(derivedTargetTypeDataSource);
             }
         }
 

@@ -45,6 +45,38 @@
         }
 
         [Fact]
+        public void ShouldIgnoreDerivedComplexTypeSourceMembersByType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSourceMembersOfType<PersonViewModel>();
+
+                var source = new { value1 = 456, Value2 = new CustomerViewModel { Name = "Larry" } };
+                var result = mapper.Map(source).ToANew<PublicTwoFields<int, PersonViewModel>>();
+
+                result.Value1.ShouldBe(456);
+                result.Value2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreMaptimeTypedDerivedComplexTypeSourceMembersByType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSourceMembersOfType<CustomerViewModel>();
+
+                var source = new { value1 = 456, Value2 = (PersonViewModel)new CustomerViewModel { Name = "Larry" } };
+                var result = mapper.Map(source).ToANew<PublicTwoFields<int, PersonViewModel>>();
+
+                result.Value1.ShouldBe(456);
+                result.Value2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreGetMethodsByMemberType()
         {
             using (var mapper = Mapper.CreateNew())

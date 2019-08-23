@@ -297,6 +297,8 @@
 
         #region IgnoredMembers
 
+        public bool HasSourceMemberIgnores => _ignoredSourceMembers?.Any() == true;
+
         private List<ConfiguredIgnoredSourceMember> IgnoredSourceMembers
             => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredIgnoredSourceMember>());
 
@@ -309,6 +311,9 @@
 
         public IList<ConfiguredIgnoredSourceMember> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindRelevantMatches(mapperData);
+
+        public ConfiguredIgnoredSourceMember GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
+            => _ignoredSourceMembers.FindMatch(mapperData);
 
         private List<ConfiguredIgnoredMember> IgnoredMembers
             => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredIgnoredMember>());
