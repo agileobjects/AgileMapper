@@ -99,9 +99,12 @@
         public ITargetDynamicMappingConfigurator<TSource> ToDynamics
             => new TargetDynamicMappingConfigurator<TSource>(_configInfo);
 #endif
+
+        #region SourceIgnores
+
         /// <summary>
         /// Ignore the given <paramref name="sourceMembers"/> when mapping from the source type being
-        /// configured to any target type. The given member(s) will not be used to populate a target
+        /// configured to all target types. The given member(s) will not be used to populate a target
         /// member.
         /// </summary>
         /// <param name="sourceMembers">The source member(s) which should be ignored.</param>
@@ -114,5 +117,22 @@
         {
             return To<object>().IgnoreSource(sourceMembers);
         }
+
+        /// <summary>
+        /// Ignore all source member(s) of the given <typeparamref name="TMember">Type</typeparamref>
+        /// when mapping from the source type being configured to all target types. Source member of
+        /// this Type will not be used to populate a target.
+        /// </summary>
+        /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from the source
+        /// type being configured.
+        /// </returns>
+        public IMappingConfigContinuation<TSource, object> IgnoreSourceMembersOfType<TMember>()
+        {
+            return To<object>().IgnoreSourceMembersOfType<TMember>();
+        }
+
+        #endregion
     }
 }

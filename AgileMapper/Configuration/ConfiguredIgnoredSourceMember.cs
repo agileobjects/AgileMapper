@@ -1,7 +1,7 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
-#if NET35
     using System;
+#if NET35
     using Microsoft.Scripting.Ast;
     using LinqExp = System.Linq.Expressions;
 #else
@@ -19,6 +19,8 @@ namespace AgileObjects.AgileMapper.Configuration
         , IComparable<ConfiguredIgnoredSourceMember>
 #endif
     {
+        private readonly Expression _memberFilterExpression;
+        private readonly Func<SourceMemberSelector, bool> _memberFilter;
         private readonly QualifiedMember _sourceMember;
 
 #if NET35
@@ -35,6 +37,23 @@ namespace AgileObjects.AgileMapper.Configuration
                             throw new MappingConfigurationException(failureReason);
         }
 
+#if NET35
+        public ConfiguredIgnoredSourceMember(
+            MappingConfigInfo configInfo,
+            LinqExp.Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
+            : this(configInfo, memberFilterLambda.ToDlrExpression())
+        {
+        }
+#endif
+        public ConfiguredIgnoredSourceMember(
+            MappingConfigInfo configInfo,
+            Expression<Func<SourceMemberSelector, bool>> memberFilterLambda)
+            : base(configInfo)
+        {
+            _memberFilterExpression = memberFilterLambda.Body;
+            _memberFilter = memberFilterLambda.Compile();
+        }
+
         private ConfiguredIgnoredSourceMember(MappingConfigInfo configInfo, QualifiedMember sourceMember)
             : base(configInfo)
         {
@@ -46,10 +65,42 @@ namespace AgileObjects.AgileMapper.Configuration
             return $"Member {_sourceMember.GetPath()} has already been ignored";
         }
 
+        private bool HasMemberFilter => _memberFilter != null;
+
+        private bool HasNoMemberFilter => !HasMemberFilter;
+
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
-            return base.AppliesTo(mapperData) &&
-                   _sourceMember.LeafMember.Equals((mapperData.SourceMember as QualifiedMember)?.LeafMember);
+            if (!base.AppliesTo(mapperData))
+            {
+                return false;
+            }
+
+            var sourceMember = mapperData.SourceMember as QualifiedMember;
+
+            if (HasNoMemberFilter)
+            {
+                return SourceMembersMatch(sourceMember);
+            }
+
+            return (sourceMember != null) &&
+                   _memberFilter.Invoke(new SourceMemberSelector(sourceMember));
+        }
+
+        protected override bool MembersConflict(UserConfiguredItemBase otherItem)
+        {
+            return (otherItem is ConfiguredIgnoredSourceMember otherIgnoredSourceMember) &&
+                    SourceMembersMatch(otherIgnoredSourceMember._sourceMember);
+        }
+
+        private bool SourceMembersMatch(QualifiedMember otherSourceMember)
+        {
+            if ((_sourceMember == null) || (otherSourceMember == null))
+            {
+                return false;
+            }
+
+            return _sourceMember.LeafMember.Equals(otherSourceMember.LeafMember);
         }
 
         #region IPotentialAutoCreatedItem Members
@@ -71,12 +122,6 @@ namespace AgileObjects.AgileMapper.Configuration
             return ConfigInfo.HasSameSourceTypeAs(clonedIgnoredSourceMember.ConfigInfo) &&
                    ConfigInfo.HasSameTargetTypeAs(clonedIgnoredSourceMember.ConfigInfo) &&
                    MembersConflict(clonedIgnoredSourceMember);
-        }
-
-        protected override bool MembersConflict(UserConfiguredItemBase otherItem)
-        {
-            return (otherItem is ConfiguredIgnoredSourceMember otherIgnoredSourceMember) &&
-                   _sourceMember.LeafMember.Equals(otherIgnoredSourceMember._sourceMember.LeafMember);
         }
 
         #endregion

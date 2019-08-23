@@ -1,15 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using Members;
-    using NetStandardPolyfills;
-    using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Members;
+    using NetStandardPolyfills;
+    using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 
     internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
     {

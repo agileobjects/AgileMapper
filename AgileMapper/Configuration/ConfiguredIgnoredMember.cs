@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.Configuration
         , IComparable<ConfiguredIgnoredMember>
 #endif
     {
-        private readonly Expression _memberFilterLambda;
+        private readonly Expression _memberFilterExpression;
         private readonly Func<TargetMemberSelector, bool> _memberFilter;
 
 #if NET35
@@ -36,23 +36,31 @@ namespace AgileObjects.AgileMapper.Configuration
         {
         }
 
+#if NET35
+        public ConfiguredIgnoredMember(
+            MappingConfigInfo configInfo,
+            LinqExp.Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
+            : this(configInfo, memberFilterLambda.ToDlrExpression())
+        {
+        }
+#endif
         public ConfiguredIgnoredMember(
             MappingConfigInfo configInfo,
             Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
-            : base(configInfo, QualifiedMember.All)
+            : base(configInfo)
         {
-            _memberFilterLambda = memberFilterLambda.Body;
+            _memberFilterExpression = memberFilterLambda.Body;
             _memberFilter = memberFilterLambda.Compile();
         }
 
         private ConfiguredIgnoredMember(
             MappingConfigInfo configInfo,
             QualifiedMember targetMember,
-            Expression memberFilterLambda,
+            Expression memberFilterExpression,
             Func<TargetMemberSelector, bool> memberFilter)
             : base(configInfo, targetMember)
         {
-            _memberFilterLambda = memberFilterLambda;
+            _memberFilterExpression = memberFilterExpression;
             _memberFilter = memberFilter;
         }
 
@@ -108,7 +116,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private bool HasNoMemberFilter => !HasMemberFilter;
 
-        private string TargetMemberFilter => _memberFilterLambda?.ToReadableString();
+        private string TargetMemberFilter => _memberFilterExpression?.ToReadableString();
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
@@ -148,7 +156,7 @@ namespace AgileObjects.AgileMapper.Configuration
             return new ConfiguredIgnoredMember(
                 ConfigInfo,
                 TargetMember,
-                _memberFilterLambda,
+                _memberFilterExpression,
                 _memberFilter)
             {
                 WasAutoCreated = true
