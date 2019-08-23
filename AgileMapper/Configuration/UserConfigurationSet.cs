@@ -567,6 +567,7 @@
             _dataSourceReversalSettings?.CopyTo(configurations.DataSourceReversalSettings);
             _objectFactories?.CloneItems().CopyTo(configurations.ObjectFactories);
             _identifiers?.CloneTo(configurations.Identifiers);
+            _ignoredSourceMembers?.CloneItems().CopyTo(configurations.IgnoredSourceMembers);
             _ignoredMembers?.CloneItems().CopyTo(configurations.IgnoredMembers);
             _enumPairings?.CopyTo(configurations.EnumPairings);
             _dictionaries?.CloneTo(configurations.Dictionaries);
@@ -589,6 +590,7 @@
             _serviceProvider = _namedServiceProvider = null;
             _objectFactories?.Clear();
             _identifiers?.Reset();
+            _ignoredSourceMembers?.Clear();
             _ignoredMembers?.Clear();
             _enumPairings?.Clear();
             _dictionaries?.Reset();
