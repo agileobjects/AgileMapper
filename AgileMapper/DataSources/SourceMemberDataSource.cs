@@ -16,6 +16,7 @@
         public SourceMemberDataSource(
             IQualifiedMember sourceMember,
             Expression sourceMemberValue,
+            Expression condition,
             IMemberMapperData mapperData)
             : base(
                   sourceMember,
@@ -23,6 +24,14 @@
                   mapperData)
         {
             SourceMemberTypeTest = CreateSourceMemberTypeTest(sourceMemberValue, mapperData);
+
+            if (condition == null)
+            {
+                Condition = base.Condition;
+                return;
+            }
+
+            Condition = IsConditional ? Expression.AndAlso(base.Condition, condition) : condition;
         }
 
         private static Expression CreateSourceMemberTypeTest(Expression value, IMemberMapperData mapperData)
@@ -63,5 +72,7 @@
 
             return memberHasRuntimeType;
         }
+
+        public override Expression Condition { get; }
     }
 }

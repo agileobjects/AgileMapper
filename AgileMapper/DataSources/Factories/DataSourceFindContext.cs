@@ -68,6 +68,8 @@
             }
         }
 
+        public SourceMemberMatch BestSourceMemberMatch { get; set; }
+
         public IDataSource GetFallbackDataSource()
             => MemberMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MemberMapperData);
 

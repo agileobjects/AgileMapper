@@ -13,11 +13,11 @@
                 yield break;
             }
 
-            var matchingSourceMemberDataSource = GetSourceMemberDataSource(context, out var hasUseableSourceMember);
+            var matchingSourceMemberDataSource = GetSourceMemberDataSource(context);
             var configuredDataSources = context.ConfiguredDataSources;
             var targetMember = context.TargetMember;
 
-            if (!hasUseableSourceMember ||
+            if (!context.BestSourceMemberMatch.IsUseable ||
                  configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
             {
                 if (context.DataSourceIndex == 0)
@@ -32,7 +32,7 @@
                     yield return context.GetFallbackDataSource();
                 }
 
-                if (hasUseableSourceMember || 
+                if (context.BestSourceMemberMatch.IsUseable ||
                    (matchingSourceMemberDataSource.SourceMember == null))
                 {
                     yield break;
@@ -68,23 +68,20 @@
             }
         }
 
-        private static IDataSource GetSourceMemberDataSource(
-            DataSourceFindContext context,
-            out bool hasUseableSourceMember)
+        private static IDataSource GetSourceMemberDataSource(DataSourceFindContext context)
         {
             var sourceMemberMatchContext = context.GetSourceMemberMatchContext();
-            var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(sourceMemberMatchContext);
-            hasUseableSourceMember = bestSourceMemberMatch.IsUseable;
+            context.BestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(sourceMemberMatchContext);
 
-            if (hasUseableSourceMember)
+            if (context.BestSourceMemberMatch.IsUseable)
             {
                 return context.GetFinalDataSource(
-                    bestSourceMemberMatch.CreateDataSource(),
-                    bestSourceMemberMatch.ContextMappingData);
+                    context.BestSourceMemberMatch.CreateDataSource(),
+                    context.BestSourceMemberMatch.ContextMappingData);
             }
 
             return new AdHocDataSource(
-                bestSourceMemberMatch.SourceMember,
+                context.BestSourceMemberMatch.SourceMember,
                 Constants.EmptyExpression);
         }
 

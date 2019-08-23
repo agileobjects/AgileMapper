@@ -1,6 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
     using System.Collections.Generic;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -18,7 +23,9 @@
             SearchParentContexts = searchParentContexts;
         }
 
-        private UserConfigurationSet UserConfigurations => MemberMapperData.MapperContext.UserConfigurations;
+        private MapperContext MapperContext => MemberMapperData.MapperContext;
+
+        private UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
 
         public IChildMemberMappingData MemberMappingData { get; private set; }
 
@@ -46,8 +53,39 @@
         public ConfiguredIgnoredSourceMember GetSourceMemberIgnoreOrNull(IQualifiedMember sourceMember)
             => RelevantSourceMemberIgnores.FindMatch(new BasicMapperData(sourceMember, TargetMember, MemberMapperData));
 
-        public SourceMemberMatch CreateSourceMemberMatch(bool isUseable = true)
-            => new SourceMemberMatch(MatchingSourceMember, MemberMappingData, isUseable);
+        public SourceMemberMatch CreateSourceMemberMatch(IQualifiedMember matchingSourceMember = null, bool isUseable = true)
+        {
+            if (matchingSourceMember == null)
+            {
+                matchingSourceMember = MatchingSourceMember;
+            }
+
+            var ignoreCondition = GetSourceMemberCondition(matchingSourceMember);
+
+            matchingSourceMember = MapperContext
+                .QualifiedMemberFactory
+                .GetFinalSourceMember(matchingSourceMember, TargetMember);
+
+            return new SourceMemberMatch(
+                matchingSourceMember,
+                MemberMappingData,
+                ignoreCondition,
+                isUseable);
+        }
+
+        private Expression GetSourceMemberCondition(IQualifiedMember sourceMember)
+        {
+            if (!HasSourceMemberIgnores)
+            {
+                return null;
+            }
+
+            var matchingIgnore = GetSourceMemberIgnoreOrNull(sourceMember);
+
+            return (matchingIgnore?.HasConfiguredCondition == true)
+                ? matchingIgnore.GetConditionOrNull(MemberMapperData)
+                : null;
+        }
 
         public SourceMemberMatchContext With(IQualifiedMember parentSourceMember)
         {

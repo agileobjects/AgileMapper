@@ -142,7 +142,7 @@
             {
                 if (TypesAreCompatible(sourceMember.Type, context.MemberMapperData))
                 {
-                    context.SourceMemberMatch = new SourceMemberMatch(sourceMember, context.MemberMappingData);
+                    context.SourceMemberMatch = context.CreateSourceMemberMatch(sourceMember);
                     return true;
                 }
 
