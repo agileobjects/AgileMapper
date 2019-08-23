@@ -13,6 +13,7 @@
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
+    using MemberIgnores;
     using Members;
     using ObjectPopulation;
     using Projection;
@@ -31,7 +32,7 @@
         private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
-        private List<ConfiguredIgnoredSourceMember> _ignoredSourceMembers;
+        private List<ConfiguredIgnoredSourceMemberBase> _ignoredSourceMembers;
         private List<ConfiguredIgnoredMember> _ignoredMembers;
         private List<EnumMemberPair> _enumPairings;
         private DictionarySettings _dictionaries;
@@ -299,20 +300,20 @@
 
         public bool HasSourceMemberIgnores => _ignoredSourceMembers?.Any() == true;
 
-        private List<ConfiguredIgnoredSourceMember> IgnoredSourceMembers
-            => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredIgnoredSourceMember>());
+        private List<ConfiguredIgnoredSourceMemberBase> IgnoredSourceMembers
+            => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredIgnoredSourceMemberBase>());
 
-        public void Add(ConfiguredIgnoredSourceMember ignoredSourceMember)
+        public void Add(ConfiguredIgnoredSourceMemberBase ignoredSourceMember)
         {
             ThrowIfConflictingIgnoredSourceMemberExists(ignoredSourceMember, (ism, cIsm) => ism.GetConflictMessage(cIsm));
 
             IgnoredSourceMembers.AddSortFilter(ignoredSourceMember);
         }
 
-        public IList<ConfiguredIgnoredSourceMember> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
+        public IList<ConfiguredIgnoredSourceMemberBase> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindRelevantMatches(mapperData);
 
-        public ConfiguredIgnoredSourceMember GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
+        public ConfiguredIgnoredSourceMemberBase GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindMatch(mapperData);
 
         private List<ConfiguredIgnoredMember> IgnoredMembers
@@ -512,7 +513,7 @@
 
         private void ThrowIfConflictingIgnoredSourceMemberExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, ConfiguredIgnoredSourceMember, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredIgnoredSourceMemberBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _ignoredSourceMembers, messageFactory);

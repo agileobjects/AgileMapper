@@ -8,6 +8,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
+    using AgileMapper.Configuration.MemberIgnores;
     using Dictionaries;
 #if FEATURE_DYNAMIC
     using Dynamics;
@@ -370,6 +371,26 @@
         #region Ignoring Members
 
         /// <summary>
+        /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>
+        /// with a value matching the <paramref name="valueFilter"/>. Matching members will not be
+        /// used to populate target members in mappings between all types and MappingRuleSets (create
+        /// new, overwrite, etc).
+        /// </summary>
+        /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
+        /// <param name="valueFilter">
+        /// The matching function with which to test source values to determine if they should be
+        /// ignored.
+        /// </param>
+        /// <returns>
+        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
+        /// aspects.
+        /// </returns>
+        public IGlobalMappingSettings IgnoreSourcesWhere<TMember>(Expression<Func<TMember, bool>> valueFilter)
+        {
+            return null;
+        }
+
+        /// <summary>
         /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>.
         /// Matching members will not be used to populate target members in mappings between all types
         /// and MappingRuleSets (create new, overwrite, etc).
@@ -394,7 +415,7 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreSourceMembersWhere(Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
-            UserConfigurations.Add(new ConfiguredIgnoredSourceMember(GlobalConfigInfo, memberFilter));
+            UserConfigurations.Add(new ConfiguredIgnoredSourceMemberFilter(GlobalConfigInfo, memberFilter));
             return this;
         }
 

@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.Members.Population
     using System.Linq.Expressions;
 #endif
     using Configuration;
+    using Configuration.MemberIgnores;
     using DataSources.Factories;
     using ObjectPopulation;
 

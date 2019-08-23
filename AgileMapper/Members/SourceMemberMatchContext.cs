@@ -7,12 +7,13 @@
     using System.Linq.Expressions;
 #endif
     using Configuration;
+    using Configuration.MemberIgnores;
     using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class SourceMemberMatchContext
     {
-        private IList<ConfiguredIgnoredSourceMember> _relevantSourceMemberIgnores;
+        private IList<ConfiguredIgnoredSourceMemberBase> _relevantSourceMemberIgnores;
         private IQualifiedMember _parentSourceMember;
 
         public SourceMemberMatchContext(
@@ -46,11 +47,11 @@
 
         public bool HasSourceMemberIgnores => RelevantSourceMemberIgnores.Any();
 
-        private IList<ConfiguredIgnoredSourceMember> RelevantSourceMemberIgnores
+        private IList<ConfiguredIgnoredSourceMemberBase> RelevantSourceMemberIgnores
             => _relevantSourceMemberIgnores ??
               (_relevantSourceMemberIgnores = UserConfigurations.GetRelevantSourceMemberIgnores(MemberMapperData));
 
-        public ConfiguredIgnoredSourceMember GetSourceMemberIgnoreOrNull(IQualifiedMember sourceMember)
+        public ConfiguredIgnoredSourceMemberBase GetSourceMemberIgnoreOrNull(IQualifiedMember sourceMember)
             => RelevantSourceMemberIgnores.FindMatch(new BasicMapperData(sourceMember, TargetMember, MemberMapperData));
 
         public SourceMemberMatch CreateSourceMemberMatch(IQualifiedMember matchingSourceMember = null, bool isUseable = true)

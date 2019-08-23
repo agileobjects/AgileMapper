@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Configuration
+namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 {
     using System;
 #if NET35

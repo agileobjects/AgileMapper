@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.MemberIgnores;
     using AgileMapper.Configuration.Projection;
     using Dictionaries;
 #if FEATURE_DYNAMIC
@@ -296,7 +297,7 @@
             Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
             return IgnoreMembersByFilter(
-                new ConfiguredIgnoredSourceMember(ConfigInfo, memberFilter),
+                new ConfiguredIgnoredSourceMemberFilter(ConfigInfo, memberFilter),
                 UserConfigurations.Add);
         }
 
