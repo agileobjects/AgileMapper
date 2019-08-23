@@ -304,7 +304,7 @@
         {
             ThrowIfConflictingIgnoredSourceMemberExists(ignoredSourceMember, (ism, cIsm) => ism.GetConflictMessage(cIsm));
 
-            IgnoredSourceMembers.Add(ignoredSourceMember);
+            IgnoredSourceMembers.AddSortFilter(ignoredSourceMember);
         }
 
         public IList<ConfiguredIgnoredSourceMember> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)

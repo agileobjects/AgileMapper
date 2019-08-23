@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using Common;
     using TestClasses;
 #if !NET35
@@ -48,6 +49,57 @@
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<string>>();
 
                 nonMatchingResult.Value.ShouldBe("7");
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreAConfiguredSourceMemberForASpecifiedRuleSetConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .Over<Address>()
+                    .If(ctx => ctx.Source.Name == "Gandalf")
+                    .IgnoreSource(pvm => pvm.AddressLine1);
+
+                var source = new PersonViewModel { Name = "Gandalf", AddressLine1 = "??" };
+                var overResult = mapper.Map(source).Over(new Person { Address = new Address() });
+
+                overResult.Name.ShouldBe("Gandalf");
+                overResult.Address.Line1.ShouldBeNull();
+
+                var createNewResult = mapper.Map(source).ToANew<Person>();
+
+                createNewResult.Name.ShouldBe("Gandalf");
+                createNewResult.Address.Line1.ShouldBe("??");
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreMultipleConfiguredSourceMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Bilbo",
+                    AddressLine1 = "House Street",
+                    AddressLine2 = "Town City"
+                };
+
+                mapper.WhenMapping
+                    .From(source)
+                    .IgnoreSource(d => d.Name, d => d.AddressLine1);
+
+                var matchingResult = mapper.Map(source).ToANew<Person>();
+
+                matchingResult.Id.ToString().ShouldBe(source.Id);
+                matchingResult.Name.ShouldBeNull();
+                matchingResult.Address.ShouldNotBeNull();
+                matchingResult.Address.Line1.ShouldBeNull();
+                matchingResult.Address.Line2.ShouldBe("Town City");
             }
         }
 
