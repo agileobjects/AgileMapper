@@ -43,11 +43,27 @@
                 {
                     mapper.WhenMapping
                         .From<PublicWriteOnlyProperty<string>>()
-                        .IgnoreSource(pwop => pwop.Value);
+                        .IgnoreSource(prop => prop.Value);
                 }
             });
 
             configurationEx.Message.ShouldContain("not readable");
+        }
+
+        [Fact]
+        public void ShouldErrorIfInvalidSourceMemberSpecified()
+        {
+            var configurationEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicReadOnlyProperty<string>>()
+                        .IgnoreSource(prop => 2 * 2);
+                }
+            });
+
+            configurationEx.Message.ShouldContain("Unable to determine source member");
         }
     }
 }
