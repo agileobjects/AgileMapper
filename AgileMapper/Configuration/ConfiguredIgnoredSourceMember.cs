@@ -29,6 +29,11 @@ namespace AgileObjects.AgileMapper.Configuration
                             throw new MappingConfigurationException(failureReason);
         }
 
+        public string GetConflictMessage(ConfiguredIgnoredSourceMember conflictingIgnoredSourceMember)
+        {
+            return $"Member {_sourceMember.GetPath()} has already been ignored";
+        }
+
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
             return base.AppliesTo(mapperData) &&

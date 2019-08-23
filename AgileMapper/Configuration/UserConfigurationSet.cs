@@ -300,19 +300,15 @@
         private List<ConfiguredIgnoredSourceMember> IgnoredSourceMembers
             => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredIgnoredSourceMember>());
 
-        public bool HasSourceMemberIgnores(IBasicMapperData mapperData)
-            => _ignoredSourceMembers?.Any(sm => sm.CouldApplyTo(mapperData)) == true;
-
         public void Add(ConfiguredIgnoredSourceMember ignoredSourceMember)
         {
+            ThrowIfConflictingIgnoredSourceMemberExists(ignoredSourceMember, (ism, cIsm) => ism.GetConflictMessage(cIsm));
+
             IgnoredSourceMembers.Add(ignoredSourceMember);
         }
 
         public IList<ConfiguredIgnoredSourceMember> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindRelevantMatches(mapperData);
-
-        public ConfiguredIgnoredSourceMember GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
-            => _ignoredSourceMembers.FindMatch(mapperData);
 
         private List<ConfiguredIgnoredMember> IgnoredMembers
             => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredIgnoredMember>());
@@ -470,19 +466,6 @@
 
         #region Validation
 
-        private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
-        {
-            if (ignoredMember.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
-                ignoredMember.TargetMember,
-                QueryDataSourceFactories,
-                this,
-                out var reason))
-            {
-                throw new MappingConfigurationException(
-                    $"{ignoredMember.TargetMember.GetPath()} will not be mapped and does not need to be ignored ({reason})");
-            }
-        }
-
         private void ThrowIfConflictingKeyMappingSettingExists(EntityKeyMappingSetting setting)
         {
             if ((_entityKeyMappingSettings == null) && !setting.MapKeys)
@@ -507,6 +490,27 @@
                 setting,
                 _dataSourceReversalSettings,
                 (s, conflicting) => conflicting.GetConflictMessage(s));
+        }
+
+        private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
+        {
+            if (ignoredMember.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
+                ignoredMember.TargetMember,
+                QueryDataSourceFactories,
+                this,
+                out var reason))
+            {
+                throw new MappingConfigurationException(
+                    $"{ignoredMember.TargetMember.GetPath()} will not be mapped and does not need to be ignored ({reason})");
+            }
+        }
+
+        private void ThrowIfConflictingIgnoredSourceMemberExists<TConfiguredItem>(
+            TConfiguredItem configuredItem,
+            Func<TConfiguredItem, ConfiguredIgnoredSourceMember, string> messageFactory)
+            where TConfiguredItem : UserConfiguredItemBase
+        {
+            ThrowIfConflictingItemExists(configuredItem, _ignoredSourceMembers, messageFactory);
         }
 
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
