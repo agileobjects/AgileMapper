@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using System.Diagnostics;
     using System.Reflection;
     using Members;
     using NetStandardPolyfills;
@@ -14,7 +13,6 @@ namespace AgileObjects.AgileMapper.Configuration
         private readonly QualifiedMember _member;
         private string _path;
 
-        [DebuggerStepThrough]
         internal MemberSelectorBase(QualifiedMember member)
         {
             _member = member;
@@ -34,10 +32,12 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             var path = _member.GetPath();
 
-            return path.StartsWith("Target.", StringComparison.Ordinal)
-                ? path.Substring("Target.".Length)
+            return path.StartsWith(PathPrefix, StringComparison.Ordinal)
+                ? path.Substring(PathPrefix.Length)
                 : path;
         }
+
+        internal abstract string PathPrefix { get; }
 
         /// <summary>
         /// Select all properties.

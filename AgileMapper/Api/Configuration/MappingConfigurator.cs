@@ -284,7 +284,13 @@
         }
 
         public IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersOfType<TMember>()
-            => IgnoreSourceMembersByFilter(member => member.HasType<TMember>());
+            => IgnoreSourceMembersWhere(member => member.HasType<TMember>());
+
+        public IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersWhere(
+            Expression<Func<SourceMemberSelector, bool>> memberFilter)
+        {
+            return IgnoreSourceMembersByFilter(memberFilter);
+        }
 
         private MappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersByFilter(
             Expression<Func<SourceMemberSelector, bool>> memberFilter)
@@ -330,7 +336,7 @@
         }
 
         public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>()
-            => IgnoreTargetMembersByFilter(member => member.HasType<TMember>());
+            => IgnoreTargetMembersWhere(member => member.HasType<TMember>());
 
         IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.IgnoreTargetMembersOfType<TMember>()
             => IgnoreTargetMembersByFilter(member => member.HasType<TMember>());

@@ -119,9 +119,9 @@
         }
 
         /// <summary>
-        /// Ignore all source member(s) of the given <typeparamref name="TMember">Type</typeparamref>
-        /// when mapping from the source type being configured to all target types. Source member of
-        /// this Type will not be used to populate a target.
+        /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>
+        /// when mapping from the source type being configured to all target types. Source members of
+        /// this Type will not be used to populate a target member.
         /// </summary>
         /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
         /// <returns>
@@ -131,6 +131,22 @@
         public IMappingConfigContinuation<TSource, object> IgnoreSourceMembersOfType<TMember>()
         {
             return To<object>().IgnoreSourceMembersOfType<TMember>();
+        }
+
+        /// <summary>
+        /// Ignore all source members matching the given <paramref name="memberFilter"/> when mapping
+        /// from the source type being configured to all target types. Source members matching the
+        /// filter will not be used to populate a target member.
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select source members to ignore.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from the source
+        /// type being configured.
+        /// </returns>
+        public IMappingConfigContinuation<TSource, object> IgnoreSourceMembersWhere(
+            Expression<Func<SourceMemberSelector, bool>> memberFilter)
+        {
+            return To<object>().IgnoreSourceMembersWhere(memberFilter);
         }
 
         #endregion
