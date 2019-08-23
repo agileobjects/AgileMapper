@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using Common;
     using TestClasses;
 #if !NET35
@@ -104,6 +106,32 @@
         }
 
         [Fact]
+        public void ShouldIgnoreAConfiguredSourceMemberInACollectionConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .ToANew<Customer>()
+                    .If((cvm, c) => cvm.Name.StartsWith("F"))
+                    .IgnoreSource(cvm => cvm.Name);
+
+                var source = new[]
+                {
+                    new CustomerViewModel { Name = "Bilbo" },
+                    new CustomerViewModel { Name = "Frodo" }
+                };
+
+                var result = mapper.Map(source).ToANew<IEnumerable<Customer>>();
+
+                result.Count().ShouldBe(2);
+
+                result.First().Name.ShouldBe("Bilbo");
+                result.Second().Name.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreAComplexTypeSourceMember()
         {
             using (var mapper = Mapper.CreateNew())
@@ -139,7 +167,7 @@
 
                 var matchingPersonResult = mapper.Map(new Person { Name = "Frank" }).ToANew<PersonViewModel>();
                 matchingPersonResult.Name.ShouldBeNull();
-                
+
                 var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
                 nonMatchingPersonResult.Name.ShouldBe("Dennis");
 
@@ -171,11 +199,14 @@
         {
             public string Id { get; set; }
 
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Identifier { get; set; }
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         private class IdTesterTarget
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Id { get; set; }
         }
 
