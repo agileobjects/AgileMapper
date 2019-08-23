@@ -32,8 +32,8 @@
         private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
-        private List<ConfiguredIgnoredSourceMemberBase> _ignoredSourceMembers;
-        private List<ConfiguredIgnoredMemberBase> _ignoredMembers;
+        private List<ConfiguredSourceMemberIgnoreBase> _ignoredSourceMembers;
+        private List<ConfiguredMemberIgnoreBase> _ignoredMembers;
         private List<EnumMemberPair> _enumPairings;
         private DictionarySettings _dictionaries;
         private List<ConfiguredDataSourceFactory> _dataSourceFactories;
@@ -300,35 +300,35 @@
 
         public bool HasSourceMemberIgnores => _ignoredSourceMembers?.Any() == true;
 
-        private List<ConfiguredIgnoredSourceMemberBase> IgnoredSourceMembers
-            => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredIgnoredSourceMemberBase>());
+        private List<ConfiguredSourceMemberIgnoreBase> IgnoredSourceMembers
+            => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredSourceMemberIgnoreBase>());
 
-        public void Add(ConfiguredIgnoredSourceMemberBase ignoredSourceMember)
+        public void Add(ConfiguredSourceMemberIgnoreBase sourceMemberIgnore)
         {
-            ThrowIfConflictingIgnoredSourceMemberExists(ignoredSourceMember, (ism, cIsm) => ism.GetConflictMessage(cIsm));
+            ThrowIfConflictingIgnoredSourceMemberExists(sourceMemberIgnore, (ism, cIsm) => ism.GetConflictMessage(cIsm));
 
-            IgnoredSourceMembers.AddSortFilter(ignoredSourceMember);
+            IgnoredSourceMembers.AddSortFilter(sourceMemberIgnore);
         }
 
-        public IList<ConfiguredIgnoredSourceMemberBase> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
+        public IList<ConfiguredSourceMemberIgnoreBase> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindRelevantMatches(mapperData);
 
-        public ConfiguredIgnoredSourceMemberBase GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
+        public ConfiguredSourceMemberIgnoreBase GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindMatch(mapperData);
 
-        private List<ConfiguredIgnoredMemberBase> IgnoredMembers
-            => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredIgnoredMemberBase>());
+        private List<ConfiguredMemberIgnoreBase> IgnoredMembers
+            => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredMemberIgnoreBase>());
 
-        public void Add(ConfiguredIgnoredMemberBase ignoredMember)
+        public void Add(ConfiguredMemberIgnoreBase memberIgnore)
         {
-            ThrowIfMemberIsUnmappable(ignoredMember);
-            ThrowIfConflictingIgnoredMemberExists(ignoredMember, (im, cIm) => im.GetConflictMessage(cIm));
-            ThrowIfConflictingDataSourceExists(ignoredMember, (im, cDsf) => im.GetConflictMessage(cDsf));
+            ThrowIfMemberIsUnmappable(memberIgnore);
+            ThrowIfConflictingIgnoredMemberExists(memberIgnore, (im, cIm) => im.GetConflictMessage(cIm));
+            ThrowIfConflictingDataSourceExists(memberIgnore, (im, cDsf) => im.GetConflictMessage(cDsf));
 
-            IgnoredMembers.AddSortFilter(ignoredMember);
+            IgnoredMembers.AddSortFilter(memberIgnore);
         }
 
-        public IList<ConfiguredIgnoredMemberBase> GetRelevantMemberIgnores(IBasicMapperData mapperData)
+        public IList<ConfiguredMemberIgnoreBase> GetRelevantMemberIgnores(IBasicMapperData mapperData)
             => _ignoredMembers.FindRelevantMatches(mapperData);
 
         #endregion
@@ -498,22 +498,22 @@
                 (s, conflicting) => conflicting.GetConflictMessage(s));
         }
 
-        private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMemberBase ignoredMember)
+        private void ThrowIfMemberIsUnmappable(ConfiguredMemberIgnoreBase memberIgnore)
         {
-            if (ignoredMember.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
-                ignoredMember.TargetMember,
+            if (memberIgnore.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
+                memberIgnore.TargetMember,
                 QueryDataSourceFactories,
                 this,
                 out var reason))
             {
                 throw new MappingConfigurationException(
-                    $"{ignoredMember.TargetMember.GetPath()} will not be mapped and does not need to be ignored ({reason})");
+                    $"{memberIgnore.TargetMember.GetPath()} will not be mapped and does not need to be ignored ({reason})");
             }
         }
 
         private void ThrowIfConflictingIgnoredSourceMemberExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, ConfiguredIgnoredSourceMemberBase, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredSourceMemberIgnoreBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _ignoredSourceMembers, messageFactory);
@@ -527,7 +527,7 @@
 
         private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, ConfiguredIgnoredMemberBase, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredMemberIgnoreBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _ignoredMembers, messageFactory);

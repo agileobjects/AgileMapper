@@ -415,7 +415,7 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreSourceMembersWhere(Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
-            UserConfigurations.Add(new ConfiguredIgnoredSourceMemberFilter(GlobalConfigInfo, memberFilter));
+            UserConfigurations.Add(new ConfiguredSourceMemberFilterIgnore(GlobalConfigInfo, memberFilter));
             return this;
         }
 
@@ -443,7 +443,7 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            UserConfigurations.Add(new ConfiguredIgnoredMemberFilter(GlobalConfigInfo, memberFilter));
+            UserConfigurations.Add(new ConfiguredMemberFilterIgnore(GlobalConfigInfo, memberFilter));
             return this;
         }
 

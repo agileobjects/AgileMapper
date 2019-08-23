@@ -296,7 +296,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 var configurations = ((IMapperInternal)mapper).Context.UserConfigurations;
                 var ignoredMembersProperty = configurations.GetType().GetNonPublicInstanceProperty("IgnoredMembers");
                 var ignoredMembersValue = ignoredMembersProperty.GetValue(configurations, Enumerable<object>.EmptyArray);
-                var ignoredMembers = (IList<ConfiguredIgnoredMemberBase>)ignoredMembersValue;
+                var ignoredMembers = (IList<ConfiguredMemberIgnoreBase>)ignoredMembersValue;
 
                 ignoredMembers.Count.ShouldBe(2);
 

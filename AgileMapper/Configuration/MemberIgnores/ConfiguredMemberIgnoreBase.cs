@@ -10,25 +10,25 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using DataSources.Factories;
     using Members;
 
-    internal abstract class ConfiguredIgnoredMemberBase :
+    internal abstract class ConfiguredMemberIgnoreBase :
         UserConfiguredItemBase,
         IPotentialAutoCreatedItem,
         IReverseConflictable
 #if NET35
-        , IComparable<ConfiguredIgnoredMemberBase>
+        , IComparable<ConfiguredMemberIgnoreBase>
 #endif
     {
-        protected ConfiguredIgnoredMemberBase(MappingConfigInfo configInfo)
+        protected ConfiguredMemberIgnoreBase(MappingConfigInfo configInfo)
             : base(configInfo)
         {
         }
 
-        protected ConfiguredIgnoredMemberBase(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
+        protected ConfiguredMemberIgnoreBase(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
             : base(configInfo, targetMemberLambda)
         {
         }
 
-        protected ConfiguredIgnoredMemberBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
+        protected ConfiguredMemberIgnoreBase(MappingConfigInfo configInfo, QualifiedMember targetMember)
             : base(configInfo, targetMember)
         {
         }
@@ -40,7 +40,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
                 return GetConflictMessage(conflictingDataSource);
             }
 
-            if (conflictingConfiguredItem is ConfiguredIgnoredMemberBase conflictingMemberIgnore)
+            if (conflictingConfiguredItem is ConfiguredMemberIgnoreBase conflictingMemberIgnore)
             {
                 return GetConflictMessage(conflictingMemberIgnore);
             }
@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             return $"Member {TargetMember.GetPath()} has been ignored";
         }
 
-        public abstract string GetConflictMessage(ConfiguredIgnoredMemberBase conflictingIgnoredMember);
+        public abstract string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore);
 
         public abstract string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource);
 
@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         #endregion
 
 #if NET35
-        int IComparable<ConfiguredIgnoredMemberBase>.CompareTo(ConfiguredIgnoredMemberBase other)
+        int IComparable<ConfiguredMemberIgnoreBase>.CompareTo(ConfiguredMemberIgnoreBase other)
             => DoComparisonTo(other);
 #endif
     }

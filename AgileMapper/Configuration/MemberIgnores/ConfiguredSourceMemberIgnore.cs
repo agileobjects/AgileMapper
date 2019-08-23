@@ -9,22 +9,22 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #endif
     using Members;
 
-    internal class ConfiguredIgnoredSourceMember : ConfiguredIgnoredSourceMemberBase
+    internal class ConfiguredSourceMemberIgnore : ConfiguredSourceMemberIgnoreBase
     {
 #if NET35
-        public ConfiguredIgnoredSourceMember(MappingConfigInfo configInfo, LinqExp.LambdaExpression sourceMemberLambda)
+        public ConfiguredSourceMemberIgnore(MappingConfigInfo configInfo, LinqExp.LambdaExpression sourceMemberLambda)
             : this(configInfo, sourceMemberLambda.ToDlrExpression())
         {
         }
 #endif
-        public ConfiguredIgnoredSourceMember(MappingConfigInfo configInfo, LambdaExpression sourceMemberLambda)
+        public ConfiguredSourceMemberIgnore(MappingConfigInfo configInfo, LambdaExpression sourceMemberLambda)
             : base(configInfo)
         {
             SourceMember = sourceMemberLambda.ToSourceMemberOrNull(configInfo.MapperContext, out var failureReason) ??
                            throw new MappingConfigurationException(failureReason);
         }
 
-        private ConfiguredIgnoredSourceMember(MappingConfigInfo configInfo, QualifiedMember sourceMember)
+        private ConfiguredSourceMemberIgnore(MappingConfigInfo configInfo, QualifiedMember sourceMember)
             : base(configInfo)
         {
             SourceMember = sourceMember;
@@ -32,9 +32,9 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public QualifiedMember SourceMember { get; }
 
-        public override string GetConflictMessage(ConfiguredIgnoredSourceMemberBase conflictingIgnoredSourceMember)
+        public override string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore)
         {
-            if (conflictingIgnoredSourceMember is ConfiguredIgnoredSourceMemberFilter ignoredSourceMemberFilter)
+            if (conflictingSourceMemberIgnore is ConfiguredSourceMemberFilterIgnore ignoredSourceMemberFilter)
             {
                 return ignoredSourceMemberFilter.GetConflictMessage(this);
             }
@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
-            if (!(otherItem is ConfiguredIgnoredSourceMember otherIgnoredMember))
+            if (!(otherItem is ConfiguredSourceMemberIgnore otherIgnoredMember))
             {
                 return false;
             }
@@ -69,7 +69,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public override IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredIgnoredSourceMember(ConfigInfo, SourceMember)
+            return new ConfiguredSourceMemberIgnore(ConfigInfo, SourceMember)
             {
                 WasAutoCreated = true
             };
@@ -77,7 +77,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public override bool IsReplacementFor(IPotentialAutoCreatedItem autoCreatedItem)
         {
-            if (!(autoCreatedItem is ConfiguredIgnoredSourceMember clonedIgnoredSourceMember))
+            if (!(autoCreatedItem is ConfiguredSourceMemberIgnore clonedIgnoredSourceMember))
             {
                 return false;
             }

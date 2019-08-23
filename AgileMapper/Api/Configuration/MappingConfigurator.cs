@@ -280,7 +280,7 @@
         {
             return IgnoreMembers(
                 sourceMembers,
-                (ci, tm) => new ConfiguredIgnoredSourceMember(ci, tm),
+                (ci, tm) => new ConfiguredSourceMemberIgnore(ci, tm),
                 UserConfigurations.Add);
         }
 
@@ -297,7 +297,7 @@
             Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
             return IgnoreMembersByFilter(
-                new ConfiguredIgnoredSourceMemberFilter(ConfigInfo, memberFilter),
+                new ConfiguredSourceMemberFilterIgnore(ConfigInfo, memberFilter),
                 UserConfigurations.Add);
         }
 
@@ -315,7 +315,7 @@
         {
             return IgnoreMembers(
                 targetMembers,
-                (ci, tm) => new ConfiguredIgnoredMember(ci, tm),
+                (ci, tm) => new ConfiguredMemberIgnore(ci, tm),
                 UserConfigurations.Add);
         }
 
@@ -358,7 +358,7 @@
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
             return IgnoreMembersByFilter(
-                new ConfiguredIgnoredMemberFilter(ConfigInfo, memberFilter),
+                new ConfiguredMemberFilterIgnore(ConfigInfo, memberFilter),
                 UserConfigurations.Add);
         }
 

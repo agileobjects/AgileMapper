@@ -13,7 +13,7 @@
 
     internal class SourceMemberMatchContext
     {
-        private IList<ConfiguredIgnoredSourceMemberBase> _relevantSourceMemberIgnores;
+        private IList<ConfiguredSourceMemberIgnoreBase> _relevantSourceMemberIgnores;
         private IQualifiedMember _parentSourceMember;
 
         public SourceMemberMatchContext(
@@ -47,11 +47,11 @@
 
         public bool HasSourceMemberIgnores => RelevantSourceMemberIgnores.Any();
 
-        private IList<ConfiguredIgnoredSourceMemberBase> RelevantSourceMemberIgnores
+        private IList<ConfiguredSourceMemberIgnoreBase> RelevantSourceMemberIgnores
             => _relevantSourceMemberIgnores ??
               (_relevantSourceMemberIgnores = UserConfigurations.GetRelevantSourceMemberIgnores(MemberMapperData));
 
-        public ConfiguredIgnoredSourceMemberBase GetSourceMemberIgnoreOrNull(IQualifiedMember sourceMember)
+        public ConfiguredSourceMemberIgnoreBase GetSourceMemberIgnoreOrNull(IQualifiedMember sourceMember)
             => RelevantSourceMemberIgnores.FindMatch(new BasicMapperData(sourceMember, TargetMember, MemberMapperData));
 
         public SourceMemberMatch CreateSourceMemberMatch(IQualifiedMember matchingSourceMember = null, bool isUseable = true)

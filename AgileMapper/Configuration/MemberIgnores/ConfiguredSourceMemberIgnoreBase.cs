@@ -4,19 +4,19 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using System;
 #endif
 
-    internal abstract class ConfiguredIgnoredSourceMemberBase :
+    internal abstract class ConfiguredSourceMemberIgnoreBase :
         UserConfiguredItemBase,
         IPotentialAutoCreatedItem
 #if NET35
-        , IComparable<ConfiguredIgnoredSourceMemberBase>
+        , IComparable<ConfiguredSourceMemberIgnoreBase>
 #endif
     {
-        protected ConfiguredIgnoredSourceMemberBase(MappingConfigInfo configInfo)
+        protected ConfiguredSourceMemberIgnoreBase(MappingConfigInfo configInfo)
             : base(configInfo)
         {
         }
 
-        public abstract string GetConflictMessage(ConfiguredIgnoredSourceMemberBase conflictingIgnoredSourceMember);
+        public abstract string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore);
 
         #region IPotentialAutoCreatedItem Members
 
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         #endregion
 
 #if NET35
-        int IComparable<ConfiguredIgnoredSourceMemberBase>.CompareTo(ConfiguredIgnoredSourceMemberBase other)
+        int IComparable<ConfiguredSourceMemberIgnoreBase>.CompareTo(ConfiguredSourceMemberIgnoreBase other)
             => DoComparisonTo(other);
 #endif
     }

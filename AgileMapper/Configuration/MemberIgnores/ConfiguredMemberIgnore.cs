@@ -12,27 +12,27 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #endif
     using Members;
 
-    internal class ConfiguredIgnoredMember : ConfiguredIgnoredMemberBase
+    internal class ConfiguredMemberIgnore : ConfiguredMemberIgnoreBase
     {
 #if NET35
-        public ConfiguredIgnoredMember(MappingConfigInfo configInfo, LinqExp.LambdaExpression targetMemberLambda)
+        public ConfiguredMemberIgnore(MappingConfigInfo configInfo, LinqExp.LambdaExpression targetMemberLambda)
             : this(configInfo, targetMemberLambda.ToDlrExpression())
         {
         }
 #endif
-        public ConfiguredIgnoredMember(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
+        public ConfiguredMemberIgnore(MappingConfigInfo configInfo, LambdaExpression targetMemberLambda)
             : base(configInfo, targetMemberLambda)
         {
         }
 
-        private ConfiguredIgnoredMember(MappingConfigInfo configInfo, QualifiedMember targetMember)
+        private ConfiguredMemberIgnore(MappingConfigInfo configInfo, QualifiedMember targetMember)
             : base(configInfo, targetMember)
         {
         }
 
-        public override string GetConflictMessage(ConfiguredIgnoredMemberBase conflictingIgnoredMember)
+        public override string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore)
         {
-            if (conflictingIgnoredMember is ConfiguredIgnoredMemberFilter ignoredMemberFilter)
+            if (conflictingMemberIgnore is ConfiguredMemberFilterIgnore ignoredMemberFilter)
             {
                 return ignoredMemberFilter.GetConflictMessage(this);
             }
@@ -50,7 +50,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public override IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredIgnoredMember(ConfigInfo, TargetMember)
+            return new ConfiguredMemberIgnore(ConfigInfo, TargetMember)
             {
                 WasAutoCreated = true
             };
@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public override bool IsReplacementFor(IPotentialAutoCreatedItem autoCreatedItem)
         {
-            if (!(autoCreatedItem is ConfiguredIgnoredMember clonedIgnoredMember))
+            if (!(autoCreatedItem is ConfiguredMemberIgnore clonedIgnoredMember))
             {
                 return false;
             }

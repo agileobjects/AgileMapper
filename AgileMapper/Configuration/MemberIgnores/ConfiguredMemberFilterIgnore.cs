@@ -14,26 +14,26 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using Members;
     using ReadableExpressions;
 
-    internal class ConfiguredIgnoredMemberFilter : ConfiguredIgnoredMemberBase
+    internal class ConfiguredMemberFilterIgnore : ConfiguredMemberIgnoreBase
     {
         private readonly Expression _memberFilterExpression;
         private readonly Func<TargetMemberSelector, bool> _memberFilter;
 #if NET35
-        public ConfiguredIgnoredMemberFilter(
+        public ConfiguredMemberFilterIgnore(
             MappingConfigInfo configInfo,
             LinqExp.Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
             : this(configInfo, memberFilterLambda.ToDlrExpression())
         {
         }
 #endif
-        public ConfiguredIgnoredMemberFilter(
+        public ConfiguredMemberFilterIgnore(
             MappingConfigInfo configInfo,
             Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
             : this(configInfo, memberFilterLambda.Body, memberFilterLambda.Compile())
         {
         }
 
-        private ConfiguredIgnoredMemberFilter(
+        private ConfiguredMemberFilterIgnore(
             MappingConfigInfo configInfo,
             Expression memberFilterExpression,
             Func<TargetMemberSelector, bool> memberFilter)
@@ -45,21 +45,21 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         private string TargetMemberFilter => _memberFilterExpression?.ToReadableString();
 
-        public override string GetConflictMessage(ConfiguredIgnoredMemberBase conflictingIgnoredMember)
+        public override string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore)
         {
-            if (conflictingIgnoredMember is ConfiguredIgnoredMember otherIgnoredMember)
+            if (conflictingMemberIgnore is ConfiguredMemberIgnore otherIgnoredMember)
             {
                 return GetConflictMessage(otherIgnoredMember);
             }
 
-            var otherIgnoredMemberFilter = (ConfiguredIgnoredMemberFilter)conflictingIgnoredMember;
+            var otherIgnoredMemberFilter = (ConfiguredMemberFilterIgnore)conflictingMemberIgnore;
 
             return $"Ignore pattern '{otherIgnoredMemberFilter.TargetMemberFilter}' has already been configured";
         }
 
-        public string GetConflictMessage(ConfiguredIgnoredMember otherIgnoredMember)
+        public string GetConflictMessage(ConfiguredMemberIgnore otherMemberIgnore)
         {
-            return $"Member {otherIgnoredMember.TargetMember.GetPath()} is " +
+            return $"Member {otherMemberIgnore.TargetMember.GetPath()} is " +
                    $"already ignored by ignore pattern '{TargetMemberFilter}'";
         }
 
@@ -77,7 +77,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
-            if (otherItem is ConfiguredIgnoredMemberFilter otherIgnoredMemberFilter)
+            if (otherItem is ConfiguredMemberFilterIgnore otherIgnoredMemberFilter)
             {
                 return otherIgnoredMemberFilter.TargetMemberFilter == TargetMemberFilter;
             }
@@ -89,7 +89,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public override IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredIgnoredMemberFilter(
+            return new ConfiguredMemberFilterIgnore(
                 ConfigInfo,
                 _memberFilterExpression,
                 _memberFilter)
