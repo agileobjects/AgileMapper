@@ -443,7 +443,7 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            UserConfigurations.Add(new ConfiguredIgnoredMember(GlobalConfigInfo, memberFilter));
+            UserConfigurations.Add(new ConfiguredIgnoredMemberFilter(GlobalConfigInfo, memberFilter));
             return this;
         }
 

@@ -13,8 +13,8 @@ namespace AgileObjects.AgileMapper.Members.Population
 
     internal class MemberPopulationContext
     {
-        private IList<ConfiguredIgnoredMember> _relevantMemberIgnores;
-        private ConfiguredIgnoredMember _memberIgnore;
+        private IList<ConfiguredIgnoredMemberBase> _relevantMemberIgnores;
+        private ConfiguredIgnoredMemberBase _memberIgnore;
         private bool _memberIgnoreChecked;
         private DataSourceFindContext _dataSourceFindContext;
 
@@ -39,11 +39,11 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public QualifiedMember TargetMember => MemberMapperData.TargetMember;
 
-        private IList<ConfiguredIgnoredMember> RelevantMemberIgnores
+        private IList<ConfiguredIgnoredMemberBase> RelevantMemberIgnores
             => _relevantMemberIgnores ??
               (_relevantMemberIgnores = UserConfigurations.GetRelevantMemberIgnores(MemberMapperData));
 
-        public ConfiguredIgnoredMember MemberIgnore
+        public ConfiguredIgnoredMemberBase MemberIgnore
         {
             get
             {

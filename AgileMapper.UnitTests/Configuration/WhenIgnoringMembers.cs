@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
     using System.Collections.Generic;
     using System.Linq;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.MemberIgnores;
     using Common;
     using NetStandardPolyfills;
     using TestClasses;
@@ -215,7 +216,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
 
                 var matchingPersonResult = mapper.Map(new Person { Name = "Frank" }).ToANew<PersonViewModel>();
                 matchingPersonResult.Name.ShouldBeNull();
-                
+
                 var nonMatchingPersonResult = mapper.Map(new Person { Name = "Dennis" }).ToANew<PersonViewModel>();
                 nonMatchingPersonResult.Name.ShouldBe("Dennis");
 
@@ -295,7 +296,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 var configurations = ((IMapperInternal)mapper).Context.UserConfigurations;
                 var ignoredMembersProperty = configurations.GetType().GetNonPublicInstanceProperty("IgnoredMembers");
                 var ignoredMembersValue = ignoredMembersProperty.GetValue(configurations, Enumerable<object>.EmptyArray);
-                var ignoredMembers = (IList<ConfiguredIgnoredMember>)ignoredMembersValue;
+                var ignoredMembers = (IList<ConfiguredIgnoredMemberBase>)ignoredMembersValue;
 
                 ignoredMembers.Count.ShouldBe(2);
 

@@ -15,7 +15,6 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     {
         private readonly Expression _memberFilterExpression;
         private readonly Func<SourceMemberSelector, bool> _memberFilter;
-
 #if NET35
         public ConfiguredIgnoredSourceMemberFilter(
             MappingConfigInfo configInfo,

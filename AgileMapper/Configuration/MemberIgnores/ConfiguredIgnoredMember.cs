@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 {
-    using System;
 #if NET35
     using Microsoft.Scripting.Ast;
     using LinqExp = System.Linq.Expressions;
@@ -12,19 +11,9 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using Extensions.Internal;
 #endif
     using Members;
-    using ReadableExpressions;
 
-    internal class ConfiguredIgnoredMember :
-        UserConfiguredItemBase,
-        IPotentialAutoCreatedItem,
-        IReverseConflictable
-#if NET35
-        , IComparable<ConfiguredIgnoredMember>
-#endif
+    internal class ConfiguredIgnoredMember : ConfiguredIgnoredMemberBase
     {
-        private readonly Expression _memberFilterExpression;
-        private readonly Func<TargetMemberSelector, bool> _memberFilter;
-
 #if NET35
         public ConfiguredIgnoredMember(MappingConfigInfo configInfo, LinqExp.LambdaExpression targetMemberLambda)
             : this(configInfo, targetMemberLambda.ToDlrExpression())
@@ -36,153 +25,49 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         {
         }
 
-#if NET35
-        public ConfiguredIgnoredMember(
-            MappingConfigInfo configInfo,
-            LinqExp.Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
-            : this(configInfo, memberFilterLambda.ToDlrExpression())
-        {
-        }
-#endif
-        public ConfiguredIgnoredMember(
-            MappingConfigInfo configInfo,
-            Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
-            : base(configInfo)
-        {
-            _memberFilterExpression = memberFilterLambda.Body;
-            _memberFilter = memberFilterLambda.Compile();
-        }
-
-        private ConfiguredIgnoredMember(
-            MappingConfigInfo configInfo,
-            QualifiedMember targetMember,
-            Expression memberFilterExpression,
-            Func<TargetMemberSelector, bool> memberFilter)
+        private ConfiguredIgnoredMember(MappingConfigInfo configInfo, QualifiedMember targetMember)
             : base(configInfo, targetMember)
         {
-            _memberFilterExpression = memberFilterExpression;
-            _memberFilter = memberFilter;
         }
 
-        public string GetConflictMessage(UserConfiguredItemBase conflictingConfiguredItem)
+        public override string GetConflictMessage(ConfiguredIgnoredMemberBase conflictingIgnoredMember)
         {
-            if (conflictingConfiguredItem is ConfiguredDataSourceFactory conflictingDataSource)
+            if (conflictingIgnoredMember is ConfiguredIgnoredMemberFilter ignoredMemberFilter)
             {
-                return GetConflictMessage(conflictingDataSource);
+                return ignoredMemberFilter.GetConflictMessage(this);
             }
 
-            return $"Member {TargetMember.GetPath()} has been ignored";
+            return $"Member {TargetMember.GetPath()} has already been ignored";
         }
 
-        public string GetConflictMessage(ConfiguredIgnoredMember conflictingIgnoredMember)
-        {
-            string thisFilter = TargetMemberFilter, thatFilter = null;
-            var matcher = thisFilter ?? (thatFilter = conflictingIgnoredMember.TargetMemberFilter);
+        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+            => $"Ignored member {TargetMember.GetPath()} has a configured data source";
 
-            if (matcher == null)
-            {
-                return $"Member {TargetMember.GetPath()} has already been ignored";
-            }
-
-            if (thisFilter == (thatFilter ?? conflictingIgnoredMember.TargetMemberFilter))
-            {
-                return $"Ignore pattern '{matcher}' has already been configured";
-            }
-
-            return $"Member {TargetMember.GetPath()} is already ignored by ignore pattern '{matcher}'";
-        }
-
-        public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
-        {
-            if (HasMemberFilter)
-            {
-                return $"Member ignore pattern '{TargetMemberFilter}' conflicts with a configured data source";
-            }
-
-            return $"Ignored member {TargetMember.GetPath()} has a configured data source";
-        }
-
-        public string GetIgnoreMessage(IQualifiedMember targetMember)
-        {
-            if (HasMemberFilter)
-            {
-                return $"{targetMember.Name} is ignored by filter:{Environment.NewLine}{TargetMemberFilter}";
-            }
-
-            return targetMember.Name + " is ignored";
-        }
-
-        private bool HasMemberFilter => _memberFilter != null;
-
-        private bool HasNoMemberFilter => !HasMemberFilter;
-
-        private string TargetMemberFilter => _memberFilterExpression?.ToReadableString();
-
-        public override bool AppliesTo(IBasicMapperData mapperData)
-        {
-            if (!base.AppliesTo(mapperData))
-            {
-                return false;
-            }
-
-            return HasNoMemberFilter ||
-                  _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
-        }
-
-        protected override bool HasReverseConflict(UserConfiguredItemBase otherItem) => false;
-
-        protected override bool MembersConflict(UserConfiguredItemBase otherItem)
-        {
-            if (HasNoMemberFilter)
-            {
-                return base.MembersConflict(otherItem);
-            }
-
-            if ((otherItem is ConfiguredIgnoredMember otherIgnoredMember) &&
-                 otherIgnoredMember.HasMemberFilter)
-            {
-                return otherIgnoredMember.TargetMemberFilter == TargetMemberFilter;
-            }
-
-            return _memberFilter.Invoke(new TargetMemberSelector(otherItem.TargetMember));
-        }
+        public override string GetIgnoreMessage(IQualifiedMember targetMember)
+            => targetMember.Name + " is ignored";
 
         #region IPotentialAutoCreatedItem Members
 
-        public bool WasAutoCreated { get; private set; }
-
-        public IPotentialAutoCreatedItem Clone()
+        public override IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredIgnoredMember(
-                ConfigInfo,
-                TargetMember,
-                _memberFilterExpression,
-                _memberFilter)
+            return new ConfiguredIgnoredMember(ConfigInfo, TargetMember)
             {
                 WasAutoCreated = true
             };
         }
 
-        public bool IsReplacementFor(IPotentialAutoCreatedItem autoCreatedItem)
+        public override bool IsReplacementFor(IPotentialAutoCreatedItem autoCreatedItem)
         {
-            if (HasMemberFilter)
+            if (!(autoCreatedItem is ConfiguredIgnoredMember clonedIgnoredMember))
             {
                 return false;
             }
 
-            var clonedIgnoredMember = (ConfiguredIgnoredMember)autoCreatedItem;
-
-            return clonedIgnoredMember.HasNoMemberFilter &&
-                   ConfigInfo.HasSameSourceTypeAs(clonedIgnoredMember.ConfigInfo) &&
+            return ConfigInfo.HasSameSourceTypeAs(clonedIgnoredMember.ConfigInfo) &&
                    ConfigInfo.HasSameTargetTypeAs(clonedIgnoredMember.ConfigInfo) &&
                    MembersConflict(clonedIgnoredMember);
         }
 
         #endregion
-
-#if NET35
-        int IComparable<ConfiguredIgnoredMember>.CompareTo(ConfiguredIgnoredMember other)
-            => DoComparisonTo(other);
-#endif
     }
 }

@@ -33,7 +33,7 @@
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
         private List<ConfiguredIgnoredSourceMemberBase> _ignoredSourceMembers;
-        private List<ConfiguredIgnoredMember> _ignoredMembers;
+        private List<ConfiguredIgnoredMemberBase> _ignoredMembers;
         private List<EnumMemberPair> _enumPairings;
         private DictionarySettings _dictionaries;
         private List<ConfiguredDataSourceFactory> _dataSourceFactories;
@@ -316,10 +316,10 @@
         public ConfiguredIgnoredSourceMemberBase GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
             => _ignoredSourceMembers.FindMatch(mapperData);
 
-        private List<ConfiguredIgnoredMember> IgnoredMembers
-            => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredIgnoredMember>());
+        private List<ConfiguredIgnoredMemberBase> IgnoredMembers
+            => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredIgnoredMemberBase>());
 
-        public void Add(ConfiguredIgnoredMember ignoredMember)
+        public void Add(ConfiguredIgnoredMemberBase ignoredMember)
         {
             ThrowIfMemberIsUnmappable(ignoredMember);
             ThrowIfConflictingIgnoredMemberExists(ignoredMember, (im, cIm) => im.GetConflictMessage(cIm));
@@ -328,7 +328,7 @@
             IgnoredMembers.AddSortFilter(ignoredMember);
         }
 
-        public IList<ConfiguredIgnoredMember> GetRelevantMemberIgnores(IBasicMapperData mapperData)
+        public IList<ConfiguredIgnoredMemberBase> GetRelevantMemberIgnores(IBasicMapperData mapperData)
             => _ignoredMembers.FindRelevantMatches(mapperData);
 
         #endregion
@@ -498,7 +498,7 @@
                 (s, conflicting) => conflicting.GetConflictMessage(s));
         }
 
-        private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMember ignoredMember)
+        private void ThrowIfMemberIsUnmappable(ConfiguredIgnoredMemberBase ignoredMember)
         {
             if (ignoredMember.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
                 ignoredMember.TargetMember,
@@ -527,7 +527,7 @@
 
         private void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, ConfiguredIgnoredMember, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredIgnoredMemberBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _ignoredMembers, messageFactory);
