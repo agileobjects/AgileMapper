@@ -117,6 +117,16 @@
             return !targetMember.Type.IsFromBcl();
         }
 
+        public SourceMemberMatchContext GetSourceMemberMatchContext()
+        {
+            if (_sourceMemberMatchContext != null)
+            {
+                return _sourceMemberMatchContext?.With(MemberMappingData);
+            }
+
+            return _sourceMemberMatchContext = new SourceMemberMatchContext(MemberMappingData);
+        }
+
         public DataSourceFindContext With(IChildMemberMappingData memberMappingData)
         {
             MemberMappingData = memberMappingData;
@@ -124,12 +134,6 @@
             DataSourceIndex = 0;
             StopFind = false;
             return this;
-        }
-
-        public SourceMemberMatchContext GetSourceMemberMatchContext()
-        {
-            return _sourceMemberMatchContext?.With(MemberMappingData) ??
-                  (_sourceMemberMatchContext = new SourceMemberMatchContext(MemberMappingData));
         }
     }
 }

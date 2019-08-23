@@ -136,7 +136,7 @@
         private static bool TryFindSourceMemberMatch(SourceMemberMatchContext context)
         {
             var candidateSourceMembers = EnumerateSourceMembers(context)
-                .Where(context.TargetMember.Matches);
+                .Filter(context.TargetMember.Matches);
 
             foreach (var sourceMember in candidateSourceMembers)
             {
