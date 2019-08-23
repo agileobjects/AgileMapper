@@ -131,20 +131,20 @@ namespace AgileObjects.AgileMapper.Configuration
 
         protected override bool HasReverseConflict(UserConfiguredItemBase otherItem) => false;
 
-        protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
+        protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
             if (HasNoMemberFilter)
             {
-                return base.MembersConflict(otherConfiguredItem);
+                return base.MembersConflict(otherItem);
             }
 
-            if ((otherConfiguredItem is ConfiguredIgnoredMember otherIgnoredMember) &&
-                otherIgnoredMember.HasMemberFilter)
+            if ((otherItem is ConfiguredIgnoredMember otherIgnoredMember) &&
+                 otherIgnoredMember.HasMemberFilter)
             {
                 return otherIgnoredMember.TargetMemberFilter == TargetMemberFilter;
             }
 
-            return _memberFilter.Invoke(new TargetMemberSelector(otherConfiguredItem.TargetMember));
+            return _memberFilter.Invoke(new TargetMemberSelector(otherItem.TargetMember));
         }
 
         #region IPotentialAutoCreatedItem Members

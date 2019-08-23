@@ -13,6 +13,22 @@
     public class WhenIgnoringSourceMembersIncorrectly
     {
         [Fact]
+        public void ShouldErrorIfInvalidSourceMemberSpecified()
+        {
+            var configurationEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicReadOnlyProperty<string>>()
+                        .IgnoreSource(prop => 2 * 2);
+                }
+            });
+
+            configurationEx.Message.ShouldContain("Unable to determine source member");
+        }
+
+        [Fact]
         public void ShouldErrorIfRedundantSourceIgnoreIsSpecified()
         {
             var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
@@ -51,19 +67,40 @@
         }
 
         [Fact]
-        public void ShouldErrorIfInvalidSourceMemberSpecified()
+        public void ShouldErrorIfFilteredSourceMemberIsIgnored()
         {
-            var configurationEx = Should.Throw<MappingConfigurationException>(() =>
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .From<PublicReadOnlyProperty<string>>()
-                        .IgnoreSource(prop => 2 * 2);
+                        .IgnoreSourceMembersWhere(member => member.IsField);
+
+                    mapper.WhenMapping
+                        .From<PublicField<int>>()
+                        .IgnoreSource(pf => pf.Value);
                 }
             });
 
-            configurationEx.Message.ShouldContain("Unable to determine source member");
+            ignoreEx.Message.ShouldContain("already ignored by ignore pattern");
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateFilterIsConfigured()
+        {
+            var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreSourceMembersOfType<int>();
+
+                    mapper.WhenMapping
+                        .IgnoreSourceMembersWhere(member => member.HasType<int>());
+                }
+            });
+
+            ignoreEx.Message.ShouldContain("has already been configured");
         }
     }
 }

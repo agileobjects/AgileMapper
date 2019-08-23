@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.Configuration
     using Extensions.Internal;
 #endif
     using Members;
+    using ReadableExpressions;
 
     internal class ConfiguredIgnoredSourceMember :
         UserConfiguredItemBase,
@@ -62,12 +63,27 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public string GetConflictMessage(ConfiguredIgnoredSourceMember conflictingIgnoredSourceMember)
         {
-            return $"Member {_sourceMember.GetPath()} has already been ignored";
+            string thisFilter = SourceMemberFilter, thatFilter = null;
+            var matcher = thisFilter ?? (thatFilter = conflictingIgnoredSourceMember.SourceMemberFilter);
+
+            if (matcher == null)
+            {
+                return $"Member {_sourceMember.GetPath()} has already been ignored";
+            }
+
+            if (thisFilter == (thatFilter ?? conflictingIgnoredSourceMember.SourceMemberFilter))
+            {
+                return $"Ignore pattern '{matcher}' has already been configured";
+            }
+
+            return $"Member {_sourceMember.GetPath()} is already ignored by ignore pattern '{matcher}'";
         }
 
         private bool HasMemberFilter => _memberFilter != null;
 
         private bool HasNoMemberFilter => !HasMemberFilter;
+
+        private string SourceMemberFilter => _memberFilterExpression?.ToReadableString();
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
@@ -89,8 +105,22 @@ namespace AgileObjects.AgileMapper.Configuration
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
-            return (otherItem is ConfiguredIgnoredSourceMember otherIgnoredSourceMember) &&
-                    SourceMembersMatch(otherIgnoredSourceMember._sourceMember);
+            if (!(otherItem is ConfiguredIgnoredSourceMember otherIgnoredMember))
+            {
+                return false;
+            }
+
+            if (HasNoMemberFilter)
+            {
+                return SourceMembersMatch(otherIgnoredMember._sourceMember);
+            }
+
+            if (otherIgnoredMember.HasMemberFilter)
+            {
+                return otherIgnoredMember.SourceMemberFilter == SourceMemberFilter;
+            }
+
+            return _memberFilter.Invoke(new SourceMemberSelector(otherIgnoredMember._sourceMember));
         }
 
         private bool SourceMembersMatch(QualifiedMember otherSourceMember)
