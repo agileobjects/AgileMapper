@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using Members;
     using ReadableExpressions;
 
-    internal class ConfiguredMemberFilterIgnore : ConfiguredMemberIgnoreBase
+    internal class ConfiguredMemberFilterIgnore : ConfiguredMemberIgnoreBase, IMemberFilterIgnore
     {
         private readonly Expression _memberFilterExpression;
         private readonly Func<TargetMemberSelector, bool> _memberFilter;
@@ -45,23 +45,13 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         private string TargetMemberFilter => _memberFilterExpression?.ToReadableString();
 
+        string IMemberFilterIgnore.MemberFilter => TargetMemberFilter;
+
         public override string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore)
-        {
-            if (conflictingMemberIgnore is ConfiguredMemberIgnore otherIgnoredMember)
-            {
-                return GetConflictMessage(otherIgnoredMember);
-            }
+            => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
-            var otherIgnoredMemberFilter = (ConfiguredMemberFilterIgnore)conflictingMemberIgnore;
-
-            return $"Ignore pattern '{otherIgnoredMemberFilter.TargetMemberFilter}' has already been configured";
-        }
-
-        public string GetConflictMessage(ConfiguredMemberIgnore otherMemberIgnore)
-        {
-            return $"Member {otherMemberIgnore.TargetMember.GetPath()} is " +
-                   $"already ignored by ignore pattern '{TargetMemberFilter}'";
-        }
+        public string GetConflictMessage(ConfiguredMemberIgnore conflictingMemberIgnore)
+            => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
         public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
             => $"Member ignore pattern '{TargetMemberFilter}' conflicts with a configured data source";
@@ -70,10 +60,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             => $"{targetMember.Name} is ignored by filter:{Environment.NewLine}{TargetMemberFilter}";
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-        {
-            return base.AppliesTo(mapperData) &&
-                   _memberFilter.Invoke(new TargetMemberSelector(mapperData.TargetMember));
-        }
+            => base.AppliesTo(mapperData) && IsFiltered(mapperData.TargetMember);
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
@@ -82,8 +69,11 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
                 return otherIgnoredMemberFilter.TargetMemberFilter == TargetMemberFilter;
             }
 
-            return _memberFilter.Invoke(new TargetMemberSelector(otherItem.TargetMember));
+            return IsFiltered(otherItem.TargetMember);
         }
+
+        public bool IsFiltered(QualifiedMember member)
+            => _memberFilter.Invoke(new TargetMemberSelector(member));
 
         #region IPotentialAutoCreatedItem Members
 

@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using Members;
     using ReadableExpressions;
 
-    internal class ConfiguredSourceMemberFilterIgnore : ConfiguredSourceMemberIgnoreBase
+    internal class ConfiguredSourceMemberFilterIgnore : ConfiguredSourceMemberIgnoreBase, IMemberFilterIgnore
     {
         private readonly Expression _memberFilterExpression;
         private readonly Func<SourceMemberSelector, bool> _memberFilter;
@@ -44,29 +44,19 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         private string SourceMemberFilter => _memberFilterExpression?.ToReadableString();
 
+        string IMemberFilterIgnore.MemberFilter => SourceMemberFilter;
+
         public override string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore)
-        {
-            if (conflictingSourceMemberIgnore is ConfiguredSourceMemberIgnore otherIgnoredMember)
-            {
-                return GetConflictMessage(otherIgnoredMember);
-            }
+            => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingSourceMemberIgnore);
 
-            var otherIgnoredMemberFilter = (ConfiguredSourceMemberFilterIgnore)conflictingSourceMemberIgnore;
-
-            return $"Ignore pattern '{otherIgnoredMemberFilter.SourceMemberFilter}' has already been configured";
-        }
-
-        public string GetConflictMessage(ConfiguredSourceMemberIgnore otherMemberIgnore)
-        {
-            return $"Member {otherMemberIgnore.SourceMember.GetPath()} is " +
-                   $"already ignored by ignore pattern '{SourceMemberFilter}'";
-        }
+        public string GetConflictMessage(ConfiguredSourceMemberIgnore conflictingMemberIgnore)
+            => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
             return base.AppliesTo(mapperData) &&
-                   (mapperData.SourceMember is QualifiedMember sourceMember) &&
-                   _memberFilter.Invoke(new SourceMemberSelector(sourceMember));
+                  (mapperData.SourceMember is QualifiedMember sourceMember) &&
+                   IsFiltered(sourceMember);
         }
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
@@ -78,11 +68,14 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
             if (otherItem is ConfiguredSourceMemberIgnore otherIgnoredMember)
             {
-                return _memberFilter.Invoke(new SourceMemberSelector(otherIgnoredMember.SourceMember));
+                return IsFiltered(otherIgnoredMember.SourceMember);
             }
 
             return false;
         }
+
+        public bool IsFiltered(QualifiedMember member)
+            => _memberFilter.Invoke(new SourceMemberSelector(member));
 
         #region IPotentialAutoCreatedItem Members
 

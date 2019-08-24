@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #endif
     using Members;
 
-    internal class ConfiguredMemberIgnore : ConfiguredMemberIgnoreBase
+    internal class ConfiguredMemberIgnore : ConfiguredMemberIgnoreBase, IMemberIgnore
     {
 #if NET35
         public ConfiguredMemberIgnore(MappingConfigInfo configInfo, LinqExp.LambdaExpression targetMemberLambda)
@@ -31,20 +31,15 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         }
 
         public override string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore)
-        {
-            if (conflictingMemberIgnore is ConfiguredMemberFilterIgnore ignoredMemberFilter)
-            {
-                return ignoredMemberFilter.GetConflictMessage(this);
-            }
-
-            return $"Member {TargetMember.GetPath()} has already been ignored";
-        }
+            => ((IMemberIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
         public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
             => $"Ignored member {TargetMember.GetPath()} has a configured data source";
 
         public override string GetIgnoreMessage(IQualifiedMember targetMember)
             => targetMember.Name + " is ignored";
+
+        QualifiedMember IMemberIgnore.Member => TargetMember;
 
         #region IPotentialAutoCreatedItem Members
 

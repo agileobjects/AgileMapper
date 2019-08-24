@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #endif
     using Members;
 
-    internal class ConfiguredSourceMemberIgnore : ConfiguredSourceMemberIgnoreBase
+    internal class ConfiguredSourceMemberIgnore : ConfiguredSourceMemberIgnoreBase, IMemberIgnore
     {
 #if NET35
         public ConfiguredSourceMemberIgnore(MappingConfigInfo configInfo, LinqExp.LambdaExpression sourceMemberLambda)
@@ -32,15 +32,10 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public QualifiedMember SourceMember { get; }
 
-        public override string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore)
-        {
-            if (conflictingSourceMemberIgnore is ConfiguredSourceMemberFilterIgnore ignoredSourceMemberFilter)
-            {
-                return ignoredSourceMemberFilter.GetConflictMessage(this);
-            }
+        QualifiedMember IMemberIgnore.Member => SourceMember;
 
-            return $"Member {SourceMember.GetPath()} has already been ignored";
-        }
+        public override string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore)
+            => ((IMemberIgnore)this).GetConflictMessage(conflictingSourceMemberIgnore);
 
         public override bool AppliesTo(IBasicMapperData mapperData)
             => base.AppliesTo(mapperData) && SourceMembersMatch(mapperData.SourceMember as QualifiedMember);

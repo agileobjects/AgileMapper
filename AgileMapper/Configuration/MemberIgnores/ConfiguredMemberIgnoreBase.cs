@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
     internal abstract class ConfiguredMemberIgnoreBase :
         UserConfiguredItemBase,
+        IMemberIgnoreBase,
         IPotentialAutoCreatedItem,
         IReverseConflictable
 #if NET35
