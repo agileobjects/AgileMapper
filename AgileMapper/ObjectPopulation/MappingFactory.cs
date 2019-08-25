@@ -188,17 +188,20 @@
                 return Constants.EmptyExpression;
             }
 
-            if (mapper.MapperData.Context.UsesMappingDataObject)
+            var mapperData = mapper.MapperData;
+
+            if (mapperData.Context.UsesMappingDataObject)
             {
                 return UseLocalValueVariable(
-                    mapper.MapperData.MappingDataObject,
+                    mapperData.MappingDataObject,
                     createMappingDataCall,
-                    mapper.MappingExpression);
+                    mapper.MappingExpression,
+                    mapperData);
             }
 
             return GetDirectAccessMapping(
                 mapper.MappingLambda.Body,
-                mapper.MapperData,
+                mapperData,
                 mappingValues,
                 createMappingDataCall);
         }
@@ -238,7 +241,11 @@
                 .Replace(mapperData.MappingDataObject, createMappingDataCall);
 
             return useLocalSourceValueVariable
-                ? UseLocalValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, mapping)
+                ? UseLocalValueVariable(
+                    (ParameterExpression)sourceValue,
+                    sourceValueVariableValue,
+                    mapping,
+                    mapperData)
                 : mapping;
         }
 
@@ -275,6 +282,7 @@
                 sourceValueVariable,
                 mapperData.SourceObject,
                 mappingExpression,
+                mapperData,
                 performValueReplacement: true);
         }
 
@@ -292,13 +300,15 @@
             return UseLocalValueVariable(
                 toTargetMapperData.MappingDataObject,
                 MappingDataCreationFactory.ForToTarget(mapperData, toTargetDataSourceValue),
-                mappingExpression);
+                mappingExpression,
+                toTargetMapperData);
         }
 
         private static Expression UseLocalValueVariable(
             ParameterExpression variable,
             Expression variableValue,
             Expression body,
+            IMemberMapperData mapperData,
             bool performValueReplacement = false)
         {
             var variableAssignment = variable.AssignTo(variableValue);
@@ -317,7 +327,9 @@
                     block.Expressions.Prepend(variableAssignment));
             }
 
-            var tryCatch = (TryExpression)body;
+            var tryCatch = (body.NodeType != ExpressionType.Try)
+                ? body.WrapInTryCatch(mapperData)
+                : (TryExpression)body;
 
             body = tryCatch.Update(
                 Expression.Block(variableAssignment, tryCatch.Body.Replace(variableValue, variable)),

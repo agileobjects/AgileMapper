@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             var filterCondition = FilterFactory.Create(_valuesFilterExpression, sourceValue);
 
-            return ((filterCondition ?? _false) != _false) ? filterCondition : null;
+            return (filterCondition != _false) ? filterCondition : null;
         }
 
         #region Helper Classes
@@ -70,12 +70,23 @@ namespace AgileObjects.AgileMapper.Configuration
                     return base.VisitMethodCall(methodCall);
                 }
 
-                var filterValueType = methodCall.Method.GetGenericArguments().First();
+                Expression sourceValue;
 
-                if (!_sourceValue.Type.IsAssignableTo(filterValueType))
+                if (methodCall.Method.IsGenericMethod)
                 {
-                    _hasFixedValueOperands = true;
-                    return _false;
+                    var filterValueType = methodCall.Method.GetGenericArguments().First();
+
+                    if (!_sourceValue.Type.IsAssignableTo(filterValueType))
+                    {
+                        _hasFixedValueOperands = true;
+                        return _false;
+                    }
+
+                    sourceValue = _sourceValue;
+                }
+                else
+                {
+                    sourceValue = _sourceValue.GetConversionToObject();
                 }
 
                 var filterArgument = methodCall.Arguments.First();
@@ -85,7 +96,7 @@ namespace AgileObjects.AgileMapper.Configuration
                     filterArgument = ((UnaryExpression)filterArgument).Operand;
                 }
 
-                var filter = ((LambdaExpression)filterArgument).ReplaceParameterWith(_sourceValue);
+                var filter = ((LambdaExpression)filterArgument).ReplaceParameterWith(sourceValue);
 
                 return filter;
             }

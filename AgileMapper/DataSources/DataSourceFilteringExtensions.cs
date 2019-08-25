@@ -9,10 +9,10 @@
     using Extensions.Internal;
     using Members;
 
-    internal static class FilteredValueDataSource
+    internal static class DataSourceFilteringExtensions
     {
-        public static IList<IDataSource> Create(
-            IList<IDataSource> dataSources,
+        public static IList<IDataSource> WithFilters(
+            this IList<IDataSource> dataSources,
             IMemberMapperData mapperData)
         {
             var dataSourceCount = dataSources.Count;
@@ -22,7 +22,7 @@
             {
                 var dataSource = dataSources[i];
 
-                var filteredDataSource = Create(
+                var filteredDataSource = ApplyFilter(
                     dataSource,
                     dataSource.IsFallback ? dataSources[i - 1].SourceMember : dataSource.SourceMember,
                     mapperData);
@@ -47,10 +47,10 @@
             return filteredDataSources;
         }
 
-        public static IDataSource Create(IDataSource dataSource, IMemberMapperData mapperData)
-            => Create(dataSource, dataSource.SourceMember, mapperData);
+        public static IDataSource WithFilter(this IDataSource dataSource, IMemberMapperData mapperData)
+            => ApplyFilter(dataSource, dataSource.SourceMember, mapperData);
 
-        public static IDataSource Create(
+        private static IDataSource ApplyFilter(
             IDataSource dataSource,
             IQualifiedMember sourceMember,
             IMemberMapperData mapperData)

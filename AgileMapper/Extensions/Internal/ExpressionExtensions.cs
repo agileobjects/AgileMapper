@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
 #if NET35
     using Microsoft.Scripting.Ast;
     using ReadableExpressions.Translations;
@@ -14,6 +13,8 @@
     using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using System.Reflection;
+    using Members;
     using NetStandardPolyfills;
     using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
@@ -241,6 +242,11 @@
                 return expression;
             }
 
+            if ((targetType == typeof(object)) && expression.Type.IsValueType())
+            {
+                return Expression.Convert(expression, typeof(object));
+            }
+
             if (expression.Type.GetNonNullableType() == targetType)
             {
                 return expression.GetValueOrDefaultCall();
@@ -463,7 +469,6 @@
             binaryExpression = null;
             return false;
         }
-
 #if NET35
         public static LambdaExpression ToDlrExpression(this LinqExp.LambdaExpression linqLambda)
             => LinqExpressionToDlrExpressionConverter.Convert(linqLambda);
@@ -474,5 +479,34 @@
         public static Expression ToDlrExpression(this LinqExp.Expression linqExpression)
             => LinqExpressionToDlrExpressionConverter.Convert(linqExpression);
 #endif
+        public static TryExpression WrapInTryCatch(this Expression mapping, IMemberMapperData mapperData)
+        {
+            var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
+            var exceptionVariable = Parameters.Create<Exception>("ex");
+
+            if (configuredCallback == null)
+            {
+                var catchBody = Expression.Throw(
+                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
+                    mapping.Type);
+
+                return CreateTryCatch(mapping, exceptionVariable, catchBody);
+            }
+
+            var configuredCatchBody = configuredCallback
+                .ToCatchBody(exceptionVariable, mapping.Type, mapperData);
+
+            return CreateTryCatch(mapping, exceptionVariable, configuredCatchBody);
+        }
+
+        private static TryExpression CreateTryCatch(
+            Expression mappingBlock,
+            ParameterExpression exceptionVariable,
+            Expression catchBody)
+        {
+            var catchBlock = Expression.Catch(exceptionVariable, catchBody);
+
+            return Expression.TryCatch(mappingBlock, catchBlock);
+        }
     }
 }

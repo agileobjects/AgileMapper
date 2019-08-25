@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.DataSources
         {
             if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
             {
-                dataSource = FilteredValueDataSource.Create(dataSource, mapperData);
+                dataSource = dataSource.WithFilter(mapperData);
             }
 
             return new SingleValueDataSourceSet(dataSource, mapperData, valueBuilder);
@@ -40,7 +40,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
             {
-                dataSources = FilteredValueDataSource.Create(dataSources, mapperData);
+                dataSources = dataSources.WithFilters(mapperData);
             }
 
             return new MultipleValueDataSourceSet(dataSources, mapperData, valueBuilder);

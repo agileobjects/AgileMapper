@@ -459,8 +459,8 @@
 
         public void Add(ExceptionCallback callback) => ExceptionCallbackFactories.Add(callback);
 
-        public Expression GetExceptionCallbackOrNull(IBasicMapperData mapperData)
-            => _exceptionCallbackFactories?.FindMatch(mapperData)?.Callback;
+        public ExceptionCallback GetExceptionCallbackOrNull(IBasicMapperData mapperData)
+            => _exceptionCallbackFactories.FindMatch(mapperData);
 
         #endregion
 

@@ -15,7 +15,7 @@
     {
         #region Cached Items
 
-        public static new readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
+        public new static readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
 
         private static readonly Type[] _coercibleNumericTypes = typeof(TNumeric).GetCoercibleNumericTypes();
 

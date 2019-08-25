@@ -160,11 +160,9 @@
 
                 if (++i == itemCount)
                 {
-                    break;
+                    return result;
                 }
             }
-
-            return result;
         }
 
         public static T[] CopyToArray<T>(this IList<T> items)
