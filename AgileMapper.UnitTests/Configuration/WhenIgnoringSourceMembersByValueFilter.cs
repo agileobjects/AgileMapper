@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
-    using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
 #if !NET35
@@ -13,7 +12,7 @@
     public class WhenIgnoringSourceMembersByValueFilter
     {
         [Fact]
-        public void ShouldGloballyIgnoreIntSourceMemberByUntypedValueCondition()
+        public void ShouldIgnoreSourceMemberByUntypedValueFilterGlobally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -30,7 +29,7 @@
         }
 
         [Fact]
-        public void ShouldGloballyIgnoreStringSourceMemberByTypedValueCondition()
+        public void ShouldIgnoreSourceMemberByStringTypedValueFilterGlobally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -43,6 +42,47 @@
                 result.ShouldNotBeNull();
                 result.Value1.ShouldBe("123");
                 result.Value2.ShouldBeDefault();
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSourceMembersByMultiClauseTypedValueFiltersGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSources(c => c
+                        .If<string>(str => str == "123") || c.If<int>(i => i == 123));
+
+                var matchingIntSource = new PublicField<int> { Value = 123 };
+                var matchingIntResult = mapper.Map(matchingIntSource).ToANew<PublicProperty<int>>();
+
+                matchingIntResult.ShouldNotBeNull();
+                matchingIntResult.Value.ShouldBeDefault();
+
+                var matchingStringSource = new PublicField<string> { Value = "123" };
+                var matchingStringResult = mapper.Map(matchingStringSource).ToANew<PublicProperty<string>>();
+
+                matchingStringResult.ShouldNotBeNull();
+                matchingStringResult.Value.ShouldBeNull();
+
+                var nonMatchingIntSource = new PublicField<int> { Value = 456 };
+                var nonMatchingIntResult = mapper.Map(nonMatchingIntSource).ToANew<PublicProperty<int>>();
+
+                nonMatchingIntResult.ShouldNotBeNull();
+                nonMatchingIntResult.Value.ShouldBe(456);
+
+                var nonMatchingStringSource = new PublicField<string> { Value = "999" };
+                var nonMatchingStringResult = mapper.Map(nonMatchingStringSource).ToANew<PublicProperty<string>>();
+
+                nonMatchingStringResult.ShouldNotBeNull();
+                nonMatchingStringResult.Value.ShouldBe("999");
+
+                var nonMatchingTypeSource = new PublicField<long> { Value = 123L };
+                var nonMatchingTypeResult = mapper.Map(nonMatchingTypeSource).ToANew<PublicProperty<string>>();
+
+                nonMatchingTypeResult.ShouldNotBeNull();
+                nonMatchingTypeResult.Value.ShouldBe("123");
             }
         }
     }
