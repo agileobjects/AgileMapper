@@ -297,7 +297,7 @@
             Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
             return IgnoreMembersByFilter(
-                new ConfiguredSourceMemberFilterIgnore(ConfigInfo, memberFilter),
+                new ConfiguredSourceMemberFilter(ConfigInfo, memberFilter),
                 UserConfigurations.Add);
         }
 
@@ -358,7 +358,7 @@
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
             return IgnoreMembersByFilter(
-                new ConfiguredMemberFilterIgnore(ConfigInfo, memberFilter),
+                new ConfiguredMemberFilter(ConfigInfo, memberFilter),
                 UserConfigurations.Add);
         }
 

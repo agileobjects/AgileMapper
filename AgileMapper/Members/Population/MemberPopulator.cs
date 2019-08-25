@@ -13,9 +13,9 @@ namespace AgileObjects.AgileMapper.Members.Population
 
     internal class MemberPopulator : IMemberPopulator
     {
-        private readonly DataSourceSet _dataSources;
+        private readonly IDataSourceSet _dataSources;
 
-        private MemberPopulator(DataSourceSet dataSources, Expression populateCondition = null)
+        private MemberPopulator(IDataSourceSet dataSources, Expression populateCondition = null)
         {
             _dataSources = dataSources;
             PopulateCondition = populateCondition;
@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         #region Factory Methods
 
-        public static IMemberPopulator WithRegistration(DataSourceSet dataSources, Expression populateCondition)
+        public static IMemberPopulator WithRegistration(IDataSourceSet dataSources, Expression populateCondition)
         {
             var memberPopulation = WithoutRegistration(dataSources, populateCondition);
 
@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             return memberPopulation;
         }
 
-        public static IMemberPopulator WithoutRegistration(DataSourceSet dataSources, Expression populateCondition = null)
+        public static IMemberPopulator WithoutRegistration(IDataSourceSet dataSources, Expression populateCondition = null)
             => new MemberPopulator(dataSources, populateCondition);
 
         public static IMemberPopulator Unmappable(MemberPopulationContext context, string reason)
@@ -67,7 +67,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                 : null;
         }
 
-        private static DataSourceSet CreateNullDataSourceSet(
+        private static IDataSourceSet CreateNullDataSourceSet(
             IMemberMapperData mapperData,
             Func<QualifiedMember, string> commentFactory)
         {

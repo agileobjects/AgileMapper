@@ -187,7 +187,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public static void RegisterTargetMemberDataSourcesIfRequired(
             this IMemberMapperData mapperData,
-            DataSourceSet dataSources)
+            IDataSourceSet dataSources)
         {
             mapperData.Parent.DataSourcesByTargetMember.Add(mapperData.TargetMember, dataSources);
         }

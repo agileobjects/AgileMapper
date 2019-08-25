@@ -371,13 +371,11 @@
         #region Ignoring Members
 
         /// <summary>
-        /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>
-        /// with a value matching the <paramref name="valueFilter"/>. Matching members will not be
-        /// used to populate target members in mappings between all types and MappingRuleSets (create
-        /// new, overwrite, etc).
+        /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>. Matching
+        /// members will not be used to populate target members in mappings between all types and
+        /// MappingRuleSets (create new, overwrite, etc).
         /// </summary>
-        /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
-        /// <param name="valueFilter">
+        /// <param name="valuesFilter">
         /// The matching function with which to test source values to determine if they should be
         /// ignored.
         /// </param>
@@ -385,9 +383,10 @@
         /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
         /// aspects.
         /// </returns>
-        public IGlobalMappingSettings IgnoreSourcesWhere<TMember>(Expression<Func<TMember, bool>> valueFilter)
+        public IGlobalMappingSettings IgnoreSources(Expression<Func<SourceValueIgnoreSpecifier, bool>> valuesFilter)
         {
-            return null;
+            UserConfigurations.Add(new ConfiguredSourceMemberValueFilter(GlobalConfigInfo, valuesFilter));
+            return this;
         }
 
         /// <summary>
@@ -415,7 +414,7 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreSourceMembersWhere(Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
-            UserConfigurations.Add(new ConfiguredSourceMemberFilterIgnore(GlobalConfigInfo, memberFilter));
+            UserConfigurations.Add(new ConfiguredSourceMemberFilter(GlobalConfigInfo, memberFilter));
             return this;
         }
 
@@ -443,7 +442,7 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            UserConfigurations.Add(new ConfiguredMemberFilterIgnore(GlobalConfigInfo, memberFilter));
+            UserConfigurations.Add(new ConfiguredMemberFilter(GlobalConfigInfo, memberFilter));
             return this;
         }
 

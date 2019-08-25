@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
 #if !NET35
@@ -191,16 +190,6 @@
                     .From<PublicField<int>>()
                     .To<PublicField<int>>()
                     .IgnoreSource(pp => pp.Value);
-            }
-        }
-
-        [Fact]
-        public void ShouldIgnoreSimpleTypeSourceMemberByTypedValueCondition()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .IgnoreSourcesWhere((string str) => str.IsNullOrWhiteSpace());
             }
         }
 

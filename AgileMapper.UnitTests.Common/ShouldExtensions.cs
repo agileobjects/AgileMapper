@@ -52,7 +52,9 @@
         {
             if (!AreEqual(expectedValue, value))
             {
-                Asplode(expectedValue.ToString(), value?.ToString());
+                Asplode(
+                    expectedValue?.ToString() ?? (typeof(TExpected).CanBeNull() ? "null" : "default"),
+                    value?.ToString() ?? (typeof(TActual).CanBeNull() ? "null" : "default"));
             }
         }
 

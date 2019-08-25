@@ -14,26 +14,26 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using Members;
     using ReadableExpressions;
 
-    internal class ConfiguredMemberFilterIgnore : ConfiguredMemberIgnoreBase, IMemberFilterIgnore
+    internal class ConfiguredMemberFilter : ConfiguredMemberIgnoreBase, IMemberFilterIgnore
     {
         private readonly Expression _memberFilterExpression;
         private readonly Func<TargetMemberSelector, bool> _memberFilter;
 #if NET35
-        public ConfiguredMemberFilterIgnore(
+        public ConfiguredMemberFilter(
             MappingConfigInfo configInfo,
             LinqExp.Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
             : this(configInfo, memberFilterLambda.ToDlrExpression())
         {
         }
 #endif
-        public ConfiguredMemberFilterIgnore(
+        public ConfiguredMemberFilter(
             MappingConfigInfo configInfo,
             Expression<Func<TargetMemberSelector, bool>> memberFilterLambda)
             : this(configInfo, memberFilterLambda.Body, memberFilterLambda.Compile())
         {
         }
 
-        private ConfiguredMemberFilterIgnore(
+        private ConfiguredMemberFilter(
             MappingConfigInfo configInfo,
             Expression memberFilterExpression,
             Func<TargetMemberSelector, bool> memberFilter)
@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
-            if (otherItem is ConfiguredMemberFilterIgnore otherIgnoredMemberFilter)
+            if (otherItem is ConfiguredMemberFilter otherIgnoredMemberFilter)
             {
                 return otherIgnoredMemberFilter.TargetMemberFilter == TargetMemberFilter;
             }
@@ -79,7 +79,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public override IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredMemberFilterIgnore(
+            return new ConfiguredMemberFilter(
                 ConfigInfo,
                 _memberFilterExpression,
                 _memberFilter)

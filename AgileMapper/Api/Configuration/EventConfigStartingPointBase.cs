@@ -10,12 +10,12 @@
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
-    public abstract class MappingConfigStartingPointBase<TSource, TTarget>
+    public abstract class EventConfigStartingPointBase<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly CallbackPosition _callbackPosition;
 
-        internal MappingConfigStartingPointBase(MappingConfigInfo configInfo, CallbackPosition callbackPosition)
+        internal EventConfigStartingPointBase(MappingConfigInfo configInfo, CallbackPosition callbackPosition)
         {
             _configInfo = configInfo;
             _callbackPosition = callbackPosition;

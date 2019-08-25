@@ -78,7 +78,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ParentObject = GetMappingDataProperty(nameof(Parent));
             }
 
-            DataSourcesByTargetMember = new Dictionary<QualifiedMember, DataSourceSet>();
+            DataSourcesByTargetMember = new Dictionary<QualifiedMember, IDataSourceSet>();
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
             _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
@@ -576,7 +576,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IList<ObjectMapperKeyBase> RepeatedMapperFuncKeys { get; private set; }
 
-        public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
+        public Dictionary<QualifiedMember, IDataSourceSet> DataSourcesByTargetMember { get; }
 
         public Expression GetRuntimeTypedMapping(
             Expression sourceObject,

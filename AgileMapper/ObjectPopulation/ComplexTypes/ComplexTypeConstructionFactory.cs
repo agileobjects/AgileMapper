@@ -345,10 +345,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     return;
                 }
 
-                IsUnconditional = !ArgumentDataSources.Any(ds => ds.MapperData.TargetMember.IsComplex && ds.IsConditional);
+                IsUnconditional = !ArgumentDataSources.Any(ds => ds.IsConditional && ds.MapperData.TargetMember.IsComplex);
             }
 
-            private static DataSourceSet[] GetArgumentDataSources(TInvokable invokable, ConstructionKey key)
+            private static IDataSourceSet[] GetArgumentDataSources(TInvokable invokable, ConstructionKey key)
             {
                 return invokable
                     .GetParameters()
@@ -365,7 +365,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     });
             }
 
-            public DataSourceSet[] ArgumentDataSources { get; }
+            public IDataSourceSet[] ArgumentDataSources { get; }
 
             public bool CanBeInvoked { get; }
 
@@ -495,7 +495,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     : new Construction(Expression.Block(variables, constructionExpression), condition);
             }
 
-            private static Expression BuildConditions(DataSourceSet dataSources)
+            private static Expression BuildConditions(IDataSourceSet dataSources)
             {
                 var conditions = default(Expression);
 

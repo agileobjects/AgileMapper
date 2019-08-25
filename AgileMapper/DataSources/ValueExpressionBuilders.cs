@@ -11,10 +11,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
     internal static class ValueExpressionBuilders
     {
-        public static Expression SingleDataSource(IList<IDataSource> dataSources, IMemberMapperData mapperData)
+        public static Expression SingleDataSource(IDataSource dataSource, IMemberMapperData mapperData)
         {
-            var dataSource = dataSources.Last();
-
             var value = dataSource.IsConditional
                 ? dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition)
                 : dataSource.Value;
@@ -24,7 +22,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public static Expression ConditionTree(IList<IDataSource> dataSources, IMemberMapperData mapperData)
         {
-            var value = SingleDataSource(dataSources, mapperData);
+            var value = SingleDataSource(dataSources.Last(), mapperData);
 
             for (var i = dataSources.Count - 2; i >= 0;)
             {

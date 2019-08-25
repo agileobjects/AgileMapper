@@ -25,7 +25,7 @@
             MetaMemberDataSourcesFactory.Create
         };
 
-        public static DataSourceSet CreateFor(IObjectMappingData rootMappingData)
+        public static IDataSourceSet CreateFor(IObjectMappingData rootMappingData)
         {
             var rootDataSourceFactory = _mappingRootDataSourceFactories
                 .First(rootMappingData, (rmd, mef) => mef.IsFor(rmd));
@@ -35,7 +35,7 @@
             return DataSourceSet.For(rootDataSource, rootMappingData.MapperData);
         }
 
-        public static DataSourceSet CreateFor(DataSourceFindContext findContext)
+        public static IDataSourceSet CreateFor(DataSourceFindContext findContext)
         {
             var validDataSources = EnumerateDataSources(findContext).ToArray();
 

@@ -116,6 +116,7 @@
     <Compile Include="Configuration\WhenIgnoringSourceMembers.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByGlobalFilter.cs" />
+    <Compile Include="Configuration\WhenIgnoringSourceMembersByValueFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersIncorrectly.cs" />
     <Compile Include="Configuration\WhenResolvingServices.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />

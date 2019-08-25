@@ -11,19 +11,20 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using Members;
     using ReadableExpressions;
 
-    internal class ConfiguredSourceMemberFilterIgnore : ConfiguredSourceMemberIgnoreBase, IMemberFilterIgnore
+
+    internal class ConfiguredSourceMemberFilter : ConfiguredSourceMemberIgnoreBase, IMemberFilterIgnore
     {
         private readonly Expression _memberFilterExpression;
         private readonly Func<SourceMemberSelector, bool> _memberFilter;
 #if NET35
-        public ConfiguredSourceMemberFilterIgnore(
+        public ConfiguredSourceMemberFilter(
             MappingConfigInfo configInfo,
             LinqExp.Expression<Func<SourceMemberSelector, bool>> memberFilterLambda)
             : this(configInfo, memberFilterLambda.ToDlrExpression())
         {
         }
 #endif
-        public ConfiguredSourceMemberFilterIgnore(
+        public ConfiguredSourceMemberFilter(
             MappingConfigInfo configInfo,
             Expression<Func<SourceMemberSelector, bool>> memberFilterLambda)
             : base(configInfo)
@@ -32,7 +33,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             _memberFilter = memberFilterLambda.Compile();
         }
 
-        private ConfiguredSourceMemberFilterIgnore(
+        private ConfiguredSourceMemberFilter(
             MappingConfigInfo configInfo,
             Expression memberFilterExpression,
             Func<SourceMemberSelector, bool> memberFilter)
@@ -61,7 +62,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
-            if (otherItem is ConfiguredSourceMemberFilterIgnore otherIgnoredMemberFilter)
+            if (otherItem is ConfiguredSourceMemberFilter otherIgnoredMemberFilter)
             {
                 return SourceMemberFilter == otherIgnoredMemberFilter.SourceMemberFilter;
             }
@@ -81,7 +82,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public override IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredSourceMemberFilterIgnore(
+            return new ConfiguredSourceMemberFilter(
                 ConfigInfo,
                 _memberFilterExpression,
                 _memberFilter)
