@@ -383,9 +383,9 @@
         /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
         /// aspects.
         /// </returns>
-        public IGlobalMappingSettings IgnoreSources(Expression<Func<SourceValueIgnoreSpecifier, bool>> valuesFilter)
+        public IGlobalMappingSettings IgnoreSources(Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
         {
-            UserConfigurations.Add(new ConfiguredSourceMemberValueFilter(GlobalConfigInfo, valuesFilter));
+            UserConfigurations.Add(new ConfiguredSourceValueFilter(GlobalConfigInfo, valuesFilter));
             return this;
         }
 

@@ -165,7 +165,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             var contextInfo = GetAppropriateMappingContext(swapArgs);
 
-            return swapArgs.Lambda.ReplaceParametersWith(parameterFactories.ProjectToArray(f => f.Invoke(contextInfo)));
+            return swapArgs.Lambda.ReplaceParametersWith(parameterFactories.ProjectToArray(contextInfo, (ci, f) => f.Invoke(ci)));
         }
 
         private static MappingContextInfo GetAppropriateMappingContext(SwapArgs swapArgs)

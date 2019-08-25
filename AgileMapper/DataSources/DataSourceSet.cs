@@ -20,6 +20,11 @@ namespace AgileObjects.AgileMapper.DataSources
             IMemberMapperData mapperData,
             Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
         {
+            if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
+            {
+                dataSource = FilteredValueDataSource.Create(dataSource, mapperData);
+            }
+
             return new SingleValueDataSourceSet(dataSource, mapperData, valueBuilder);
         }
 
@@ -28,9 +33,17 @@ namespace AgileObjects.AgileMapper.DataSources
             IMemberMapperData mapperData,
             Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
         {
-            return dataSources.HasOne()
-                ? For(dataSources.First(), mapperData, valueBuilder)
-                : new MultipleValueDataSourceSet(dataSources, mapperData, valueBuilder);
+            if (dataSources.HasOne())
+            {
+                return For(dataSources.First(), mapperData, valueBuilder);
+            }
+
+            if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
+            {
+                dataSources = FilteredValueDataSource.Create(dataSources, mapperData);
+            }
+
+            return new MultipleValueDataSourceSet(dataSources, mapperData, valueBuilder);
         }
 
         #endregion

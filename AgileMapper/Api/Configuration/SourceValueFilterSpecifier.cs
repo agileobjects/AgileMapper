@@ -7,7 +7,7 @@
     /// Provides options to configure conditions under which a source value should not be used to
     /// populate a target member.
     /// </summary>
-    public class SourceValueIgnoreSpecifier
+    public class SourceValueFilterSpecifier
     {
         /// <summary>
         /// Ignore any source values which match the given <paramref name="valueFilter"/>.
@@ -33,9 +33,6 @@
         /// <returns>
         /// A boolean value, in order to enable composition of an ignore predicate with multiple clauses.
         /// </returns>
-        public bool If<TMember>(Expression<Func<TMember, bool>> valueFilter)
-        {
-            return true;
-        }
+        public bool If<TMember>(Expression<Func<TMember, bool>> valueFilter) => true;
     }
 }

@@ -352,13 +352,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 return invokable
                     .GetParameters()
-                    .ProjectToArray(p =>
+                    .ProjectToArray(key.MappingData, (mappingData, p) =>
                     {
                         var parameterMapperData = new ChildMemberMapperData(
-                            key.MappingData.MapperData.TargetMember.Append(Member.ConstructorParameter(p)),
-                            key.MappingData.MapperData);
+                            mappingData.MapperData.TargetMember.Append(Member.ConstructorParameter(p)),
+                            mappingData.MapperData);
 
-                        var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
+                        var memberMappingData = mappingData.GetChildMappingData(parameterMapperData);
                         var dataSources = DataSourceSetFactory.CreateFor(new DataSourceFindContext(memberMappingData));
 
                         return dataSources;

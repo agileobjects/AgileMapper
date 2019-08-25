@@ -44,14 +44,7 @@
 
         [DebuggerStepThrough]
         public static T First<T>(this IList<T> items, Func<T, bool> predicate)
-        {
-            if (TryFindMatch(items, predicate, out var match))
-            {
-                return match;
-            }
-
-            throw new InvalidOperationException("Sequence contains no matching element");
-        }
+            => First(items, predicate, (p, item) => p.Invoke(item));
 
         [DebuggerStepThrough]
         public static T First<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
@@ -66,7 +59,7 @@
 
         [DebuggerStepThrough]
         public static T FirstOrDefault<T>(this IList<T> items, Func<T, bool> predicate)
-            => TryFindMatch(items, predicate, out var match) ? match : default(T);
+            => FirstOrDefault(items, predicate, (p, item) => predicate.Invoke(item));
 
         [DebuggerStepThrough]
         public static T FirstOrDefault<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
@@ -88,20 +81,7 @@
 
         [DebuggerStepThrough]
         public static bool TryFindMatch<T>(this IList<T> items, Func<T, bool> predicate, out T match)
-        {
-            for (int i = 0, n = items.Count; i < n;)
-            {
-                match = items[i++];
-
-                if (predicate.Invoke(match))
-                {
-                    return true;
-                }
-            }
-
-            match = default(T);
-            return false;
-        }
+            => TryFindMatch(items, predicate, (p, item) => p.Invoke(item), out match);
 
         [DebuggerStepThrough]
         public static bool TryFindMatch<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate, out T match)
@@ -158,6 +138,12 @@
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 
         public static TResult[] ProjectToArray<TItem, TResult>(this IList<TItem> items, Func<TItem, TResult> projector)
+            => ProjectToArray(items, projector, (p, item) => p.Invoke(item));
+
+        public static TResult[] ProjectToArray<TArg, TItem, TResult>(
+            this IList<TItem> items,
+            TArg argument,
+            Func<TArg, TItem, TResult> projector)
         {
             var itemCount = items.Count;
 
@@ -170,7 +156,7 @@
 
             for (var i = 0; ;)
             {
-                result[i] = projector.Invoke(items[i]);
+                result[i] = projector.Invoke(argument, items[i]);
 
                 if (++i == itemCount)
                 {
@@ -232,7 +218,7 @@
 
         public static void CopyFrom<T>(this IList<T> targetList, IList<T> sourceList, int startIndex = 0)
         {
-            for (var i = 0; i < sourceList.Count && i < targetList.Count; i++)
+            for (var i = 0; i < sourceList.Count && i < targetList.Count; ++i)
             {
                 targetList[i + startIndex] = sourceList[i];
             }

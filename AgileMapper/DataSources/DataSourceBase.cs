@@ -1,14 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
     {

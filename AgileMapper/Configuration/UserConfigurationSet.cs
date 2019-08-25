@@ -32,6 +32,7 @@
         private ConfiguredServiceProvider _namedServiceProvider;
         private List<ConfiguredObjectFactory> _objectFactories;
         private MemberIdentifierSet _identifiers;
+        private List<ConfiguredSourceValueFilter> _sourceValueFilters;
         private List<ConfiguredSourceMemberIgnoreBase> _ignoredSourceMembers;
         private List<ConfiguredMemberIgnoreBase> _ignoredMembers;
         private List<EnumMemberPair> _enumPairings;
@@ -296,7 +297,24 @@
 
         public MemberIdentifierSet Identifiers => _identifiers ?? (_identifiers = new MemberIdentifierSet(_mapperContext));
 
-        #region IgnoredMembers
+        #region SourceValueFilters
+
+        public bool HasSourceValueFilters => _sourceValueFilters?.Any() == true;
+
+        private List<ConfiguredSourceValueFilter> SourceValueFilters
+            => _sourceValueFilters ?? (_sourceValueFilters = new List<ConfiguredSourceValueFilter>());
+
+        public void Add(ConfiguredSourceValueFilter sourceValueFilter)
+        {
+            SourceValueFilters.Add(sourceValueFilter);
+        }
+
+        public ConfiguredSourceValueFilter GetSourceValueFilterOrNull(IBasicMapperData mapperData)
+            => _sourceValueFilters.FindMatch(mapperData);
+
+        #endregion
+
+        #region MemberIgnores
 
         public bool HasSourceMemberIgnores => _ignoredSourceMembers?.Any() == true;
 

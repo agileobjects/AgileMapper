@@ -18,7 +18,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .IgnoreSources(c => c.If<string>(str => str.IsNullOrWhiteSpace()));
+                    .IgnoreSources(c => c.If<string>(str => str == "456"));
 
                 var source = new PublicTwoFields<int, string> { Value1 = 123, Value2 = "456" };
                 var result = mapper.Map(source).ToANew<PublicTwoParamCtor<string, int>>();
