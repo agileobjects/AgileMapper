@@ -9,7 +9,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     public interface ISourceDictionaryTargetTypeSelector<TValue> : ISourceDictionarySettings<TValue>
     {
         /// <summary>
-        /// Configure how this mapper performs mappings from Dictionaries in all MappingRuleSets 
+        /// Configure how this mapper performs mappings from Dictionaries in all mapping rule sets 
         /// (create new, overwrite, etc), to the target type specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>

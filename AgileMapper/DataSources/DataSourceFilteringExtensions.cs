@@ -22,7 +22,7 @@
             {
                 var dataSource = dataSources[i];
 
-                var filteredDataSource = ApplyFilter(
+                var filteredDataSource = filteredDataSources[i] = ApplyFilter(
                     dataSource,
                     dataSource.IsFallback ? dataSources[i - 1].SourceMember : dataSource.SourceMember,
                     mapperData);

@@ -373,7 +373,7 @@
         /// <summary>
         /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>. Matching
         /// members will not be used to populate target members in mappings between all types and
-        /// MappingRuleSets (create new, overwrite, etc).
+        /// mapping rule sets (create new, overwrite, etc).
         /// </summary>
         /// <param name="valuesFilter">
         /// The matching function with which to test source values to determine if they should be
@@ -392,7 +392,7 @@
         /// <summary>
         /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>.
         /// Matching members will not be used to populate target members in mappings between all types
-        /// and MappingRuleSets (create new, overwrite, etc).
+        /// and mapping rule sets (create new, overwrite, etc).
         /// </summary>
         /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
         /// <returns>
@@ -405,7 +405,7 @@
         /// <summary>
         /// Ignore all source members matching the given <paramref name="memberFilter"/>. Matching
         /// members will not be used to populate a target member in mappings between all types and
-        /// MappingRuleSets (create new, overwrite, etc).
+        /// mapping rule sets (create new, overwrite, etc).
         /// </summary>
         /// <param name="memberFilter">The matching function with which to select source members to ignore.</param>
         /// <returns>
@@ -420,7 +420,7 @@
 
         /// <summary>
         /// Ignore all target members of the given <typeparamref name="TMember">Type</typeparamref>.
-        /// Matching members will be ignored in mappings between all types and MappingRuleSets (create
+        /// Matching members will be ignored in mappings between all types and mapping rule sets (create
         /// new, overwrite, etc).
         /// </summary>
         /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
@@ -433,7 +433,7 @@
 
         /// <summary>
         /// Ignore all target members matching the given <paramref name="memberFilter"/>. Members will
-        /// be ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// be ignored in mappings between all types and mapping rule sets (create new, overwrite, etc).
         /// </summary>
         /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
         /// <returns>

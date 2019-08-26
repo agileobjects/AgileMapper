@@ -276,6 +276,14 @@
 
         #region Ignoring Members
 
+        public IMappingConfigContinuation<TSource, TTarget> IgnoreSources(
+            Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
+        {
+            return IgnoreMembersByFilter(
+                new ConfiguredSourceValueFilter(ConfigInfo, valuesFilter),
+                UserConfigurations.Add);
+        }
+
         public IMappingConfigContinuation<TSource, TTarget> IgnoreSource(params Expression<Func<TSource, object>>[] sourceMembers)
         {
             return IgnoreMembers(
