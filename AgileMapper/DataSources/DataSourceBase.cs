@@ -180,7 +180,7 @@
         public Expression SourceMemberTypeTest { get; protected set; }
 
         public virtual bool IsValid => Value != Constants.EmptyExpression;
-        
+
         public bool IsConditional => Condition != null;
 
         public virtual bool IsFallback => false;
@@ -191,18 +191,19 @@
 
         public Expression Value { get; }
 
-        public virtual Expression Finalise(Expression memberPopulation, Expression alternatePopulation)
+        public virtual Expression AddSourceCondition(Expression value) => value;
+
+        public virtual Expression FinalisePopulation(Expression population, Expression alternatePopulation)
         {
-            if (IsConditional)
+            if (!IsConditional)
             {
-                memberPopulation = (alternatePopulation != null)
-                    ? Expression.IfThenElse(Condition, memberPopulation, alternatePopulation)
-                    : Expression.IfThen(Condition, memberPopulation);
+                return population;
             }
 
-            return memberPopulation;
-        }
+            return (alternatePopulation != null)
+                ? Expression.IfThenElse(Condition, population, alternatePopulation)
+                : Expression.IfThen(Condition, population);
 
-        public virtual Expression AddSourceCondition(Expression value) => value;
+        }
     }
 }

@@ -160,12 +160,12 @@ namespace AgileObjects.AgileMapper.Members.Population
                     }
 
                     population = MapperData.GetTargetMemberPopulation(finalValue);
-                    population = dataSource.Finalise(population);
+                    population = dataSource.FinalisePopulation(population);
                     continue;
                 }
 
                 var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-                population = dataSource.Finalise(memberPopulation, population);
+                population = dataSource.FinalisePopulation(memberPopulation, population);
             }
 
             return population;

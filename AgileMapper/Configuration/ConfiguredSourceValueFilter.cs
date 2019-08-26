@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.Configuration
     using Api.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class ConfiguredSourceValueFilter : UserConfiguredItemBase
     {
@@ -70,25 +71,24 @@ namespace AgileObjects.AgileMapper.Configuration
                     return base.VisitMethodCall(methodCall);
                 }
 
-                Expression sourceValue;
-
-                if (methodCall.Method.IsGenericMethod)
+                if (!methodCall.Method.IsGenericMethod)
                 {
-                    var filterValueType = methodCall.Method.GetGenericArguments().First();
-
-                    if (!_sourceValue.Type.IsAssignableTo(filterValueType))
-                    {
-                        _hasFixedValueOperands = true;
-                        return _false;
-                    }
-
-                    sourceValue = _sourceValue;
-                }
-                else
-                {
-                    sourceValue = _sourceValue.GetConversionToObject();
+                    return GetFilter(methodCall, _sourceValue.GetConversionToObject());
                 }
 
+                var filterValueType = methodCall.Method.GetGenericArguments().First();
+                
+                if (!_sourceValue.Type.IsAssignableTo(filterValueType))
+                {
+                    _hasFixedValueOperands = true;
+                    return _false;
+                }
+
+                return GetFilter(methodCall, _sourceValue);
+            }
+
+            private static Expression GetFilter(MethodCallExpression methodCall, Expression sourceValue)
+            {
                 var filterArgument = methodCall.Arguments.First();
 
                 if (filterArgument.NodeType == ExpressionType.Quote)
@@ -96,9 +96,7 @@ namespace AgileObjects.AgileMapper.Configuration
                     filterArgument = ((UnaryExpression)filterArgument).Operand;
                 }
 
-                var filter = ((LambdaExpression)filterArgument).ReplaceParameterWith(sourceValue);
-
-                return filter;
+                return ((LambdaExpression)filterArgument).ReplaceParameterWith(sourceValue);
             }
         }
 

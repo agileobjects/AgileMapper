@@ -96,10 +96,10 @@
                 _filterCondition = filterCondition;
             }
 
-            public override Expression Finalise(Expression memberPopulation, Expression alternatePopulation)
+            public override Expression FinalisePopulation(Expression population, Expression alternatePopulation)
             {
-                return base.Finalise(
-                    Expression.IfThen(_filterCondition, memberPopulation),
+                return base.FinalisePopulation(
+                    Expression.IfThen(_filterCondition, population),
                     alternatePopulation);
             }
         }

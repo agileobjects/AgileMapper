@@ -119,7 +119,7 @@
             }
 
             var nullTrueOrFalse = GetTrueOrFalseTernary(sourceValue.GetNullableValueAccess())
-                .ToIfFalseDefaultCondition(Expression.Property(sourceValue, "HasValue"));
+                .ToIfFalseDefaultCondition(sourceValue.GetNullableHasValueAccess());
 
             return nullTrueOrFalse;
         }

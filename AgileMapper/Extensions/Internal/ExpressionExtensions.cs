@@ -130,13 +130,19 @@
         {
             if (expression.Type.IsNullableType())
             {
-                return Expression.Property(expression, "HasValue");
+                return GetNullableHasValueAccess(expression);
             }
 
             var typeDefault = expression.Type.ToDefaultExpression();
 
             return Expression.NotEqual(expression, typeDefault);
         }
+
+        public static Expression GetNullableHasValueAccess(this Expression expression)
+            => Expression.Property(expression, "HasValue");
+
+        public static Expression GetNullableValueAccess(this Expression nullableExpression)
+            => Expression.Property(nullableExpression, "Value");
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
         {
@@ -214,9 +220,6 @@
 
             return null;
         }
-
-        public static Expression GetNullableValueAccess(this Expression nullableExpression)
-            => Expression.Property(nullableExpression, "Value");
 
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
