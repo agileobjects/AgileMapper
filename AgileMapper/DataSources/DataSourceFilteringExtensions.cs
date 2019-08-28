@@ -55,10 +55,7 @@
             IQualifiedMember sourceMember,
             IMemberMapperData mapperData)
         {
-            var filter = mapperData
-                .MapperContext
-                .UserConfigurations
-                .GetSourceValueFilterOrNull(mapperData);
+            var filter = mapperData.GetSourceValueFilterOrNull();
 
             if (filter == null)
             {
@@ -76,32 +73,12 @@
                 return dataSource;
             }
 
-            filterCondition = Expression.Not(filterCondition);
-
             if (dataSource.IsConditional)
             {
-                return new FilteredDataSourceWrapper(dataSource, filterCondition);
+                filterCondition = Expression.AndAlso(dataSource.Condition, filterCondition);
             }
 
             return new AdHocDataSource(sourceMember, dataSource.Value, filterCondition);
-        }
-
-        private class FilteredDataSourceWrapper : DataSourceBase
-        {
-            private readonly Expression _filterCondition;
-
-            public FilteredDataSourceWrapper(IDataSource wrappedDataSource, Expression filterCondition)
-                : base(wrappedDataSource, wrappedDataSource.Value)
-            {
-                _filterCondition = filterCondition;
-            }
-
-            public override Expression FinalisePopulation(Expression population, Expression alternatePopulation)
-            {
-                return base.FinalisePopulation(
-                    Expression.IfThen(_filterCondition, population),
-                    alternatePopulation);
-            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Globalization;
     using Common;
     using TestClasses;
@@ -48,6 +49,23 @@
         }
 
         [Fact]
+        public void ShouldIgnoreSourceMemberArrayElementByIntValueFilterGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSources(c => c.If<int>(i => i < 10));
+
+                var source = new PublicField<int[]> { Value = new[] { 1, 7, 11, 15 } };
+                var result = mapper.Map(source).ToANew<PublicProperty<ICollection<int>>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBe(11, 15);
+            }
+        }
+
+        [Fact]
         public void ShouldIgnoreSourceMembersByMultiClauseTypedValueFiltersGlobally()
         {
             using (var mapper = Mapper.CreateNew())
@@ -85,6 +103,37 @@
 
                 nonMatchingTypeResult.ShouldNotBeNull();
                 nonMatchingTypeResult.Value.ShouldBe("123");
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSourceMemberByNullableIntValueFilterGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSources(c => c.If<int>(i => i < 10));
+
+                var source = new PublicTwoFields<int, string> { Value1 = 8, Value2 = "456" };
+                var result = mapper.Map(source).ToANew<PublicTwoParamCtor<string, int>>();
+
+                result.ShouldNotBeNull();
+                result.Value1.ShouldBeNull();
+                result.Value2.ShouldBe(456);
+
+                var nonMatchingFilterSource = new PublicTwoFields<int, string> { Value1 = 12, Value2 = "77" };
+                var nonMatchingFilterResult = mapper.Map(nonMatchingFilterSource).ToANew<PublicTwoParamCtor<string, long>>();
+
+                nonMatchingFilterResult.ShouldNotBeNull();
+                nonMatchingFilterResult.Value1.ShouldBe("12");
+                nonMatchingFilterResult.Value2.ShouldBe(77L);
+
+                var nullableSource = new PublicTwoFields<int?, string> { Value1 = 8, Value2 = "99" };
+                var nullableResult = mapper.Map(nullableSource).ToANew<PublicTwoParamCtor<string, int>>();
+
+                nullableResult.ShouldNotBeNull();
+                nullableResult.Value1.ShouldBeNull();
+                nullableResult.Value2.ShouldBe(99);
             }
         }
 

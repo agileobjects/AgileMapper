@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
         {
-            if ((type == null) || 
+            if ((type == null) ||
                  type.Name.EndsWith("ViewModel", Ordinal) ||
                  type.Name.EndsWith("Dto", Ordinal) ||
                  type.Name.EndsWith("DataTransferObject", Ordinal))
@@ -393,6 +393,9 @@ namespace AgileObjects.AgileMapper.Members
 
             return emptyEnumerable.GetConversionTo(targetMember.Type);
         }
+
+        public static ConfiguredSourceValueFilter GetSourceValueFilterOrNull(this IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.GetSourceValueFilterOrNull(mapperData);
 
         public static bool CanConvert(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);

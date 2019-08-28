@@ -1,13 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
-    using Extensions.Internal;
-    using TypeConversion;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using TypeConversion;
+    using Members;
 
     internal static class PopulationLoopDataExtensions
     {
@@ -47,6 +48,17 @@
         {
             var ifExitCheckBreakLoop = Expression.IfThen(loopData.LoopExitCheck, breakLoop);
             var counterIncrement = builder.GetCounterIncrement();
+
+            var sourceValueFilter = builder
+                .MapperData
+                .GetSourceValueFilterOrNull();
+
+            if (sourceValueFilter != null)
+            {
+                elementPopulation = Expression.IfThen(
+                    sourceValueFilter.GetConditionOrNull(loopData.GetSourceElementValue()),
+                    elementPopulation);
+            }
 
             if (elementPopulation.NodeType != ExpressionType.Block)
             {

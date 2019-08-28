@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             var filterCondition = FilterFactory.Create(_valuesFilterExpression, sourceValue);
 
-            return (filterCondition != _false) ? filterCondition : null;
+            return (filterCondition != _false) ? Expression.Not(filterCondition) : null;
         }
 
         #region Helper Classes
@@ -77,14 +77,26 @@ namespace AgileObjects.AgileMapper.Configuration
                 }
 
                 var filterValueType = methodCall.Method.GetGenericArguments().First();
-                
-                if (!_sourceValue.Type.IsAssignableTo(filterValueType))
+
+                var sourceType = _sourceValue.Type;
+
+                if (!filterValueType.IsNullableType())
+                {
+                    sourceType = _sourceValue.Type.GetNonNullableType();
+                }
+
+                if (!sourceType.IsAssignableTo(filterValueType))
                 {
                     _hasFixedValueOperands = true;
                     return _false;
                 }
 
-                return GetFilter(methodCall, _sourceValue);
+                if (sourceType == _sourceValue.Type)
+                {
+                    return GetFilter(methodCall, _sourceValue);
+                }
+
+                return GetFilter(methodCall, _sourceValue.GetNullableValueAccess());
             }
 
             private static Expression GetFilter(MethodCallExpression methodCall, Expression sourceValue)
