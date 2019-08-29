@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Globalization;
     using Common;
     using TestClasses;
@@ -62,6 +63,23 @@
                 result.ShouldNotBeNull();
                 result.Value.ShouldNotBeNull();
                 result.Value.ShouldBe(11, 15);
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSourceMemberEnumerableElementByStringValueFilterGlobally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSources(c => c.If<string>(str => str == "0"));
+
+                var source = new PublicField<IEnumerable<string>> { Value = new[] { "1", "7", "0", "11" } };
+                var result = mapper.Map(source).ToANew<PublicProperty<Collection<int>>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBe(1, 7, 11);
             }
         }
 
