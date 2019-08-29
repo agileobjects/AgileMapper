@@ -277,5 +277,67 @@
                 nonMatchingFilterResult.Value2.ShouldBe(123L);
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreConfiguredDataSourceByTimeSpanValueFilterSourceAndTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<TimeSpan, string>>()
+                    .To<PublicField<TimeSpan>>()
+                    .Map((ptf, pf) => ptf.Value1)
+                    .To(pf => pf.Value)
+                    .And
+                    .IgnoreSources(c => c.If<TimeSpan>(ts => ts > TimeSpan.FromHours(1)));
+
+                var matchingSource = new PublicTwoFieldsStruct<TimeSpan, string>
+                {
+                    Value1 = TimeSpan.FromHours(2)
+                };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<TimeSpan>>();
+
+                matchingResult.ShouldNotBeNull();
+                matchingResult.Value.ShouldBe(default(TimeSpan));
+
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<TimeSpan, string>>()
+                    .To<PublicField<TimeSpan?>>()
+                    .Map((ptf, pf) => ptf.Value1)
+                    .To(pf => pf.Value);
+
+                var nonMatchingTargetTypeResult = mapper.Map(matchingSource).ToANew<PublicField<TimeSpan?>>();
+
+                nonMatchingTargetTypeResult.ShouldNotBeNull();
+                nonMatchingTargetTypeResult.Value.ShouldBe(TimeSpan.FromHours(2));
+
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<string, string>>()
+                    .To<PublicField<TimeSpan>>()
+                    .Map((ptf, pf) => ptf.Value1)
+                    .To(pf => pf.Value);
+
+                var nonMatchingSourceTypeSource = new PublicTwoFieldsStruct<string, string>
+                {
+                    Value1 = TimeSpan.FromHours(2).ToString()
+                };
+
+                var nonMatchingSourceTypeResult = mapper.Map(nonMatchingSourceTypeSource).ToANew<PublicField<TimeSpan>>();
+
+                nonMatchingSourceTypeResult.ShouldNotBeNull();
+                nonMatchingSourceTypeResult.Value.ShouldBe(TimeSpan.FromHours(2));
+
+                var nonMatchingFilterSource = new PublicTwoFieldsStruct<TimeSpan, string>
+                {
+                    Value1 = TimeSpan.FromMinutes(30)
+                };
+
+                var nonMatchingFilterResult = mapper.Map(nonMatchingFilterSource).ToANew<PublicField<TimeSpan>>();
+
+                nonMatchingFilterResult.ShouldNotBeNull();
+                nonMatchingFilterResult.Value.ShouldBe(TimeSpan.FromMinutes(30));
+            }
+        }
     }
 }
