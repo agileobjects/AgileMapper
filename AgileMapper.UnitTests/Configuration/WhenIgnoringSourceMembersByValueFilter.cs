@@ -296,10 +296,15 @@
                     Value1 = TimeSpan.FromHours(2)
                 };
 
-                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<TimeSpan>>();
+                var matchingTarget = new PublicField<TimeSpan>
+                {
+                    Value = TimeSpan.FromHours(1)
+                };
 
-                matchingResult.ShouldNotBeNull();
-                matchingResult.Value.ShouldBe(default(TimeSpan));
+                mapper.Map(matchingSource).Over(matchingTarget);
+
+                matchingTarget.ShouldNotBeNull();
+                matchingTarget.Value.ShouldBe(TimeSpan.FromHours(1));
 
                 mapper.WhenMapping
                     .From<PublicTwoFieldsStruct<TimeSpan, string>>()
@@ -307,10 +312,15 @@
                     .Map((ptf, pf) => ptf.Value1)
                     .To(pf => pf.Value);
 
-                var nonMatchingTargetTypeResult = mapper.Map(matchingSource).ToANew<PublicField<TimeSpan?>>();
+                var nonMatchingTarget = new PublicField<TimeSpan?>
+                {
+                    Value = TimeSpan.FromHours(1)
+                };
 
-                nonMatchingTargetTypeResult.ShouldNotBeNull();
-                nonMatchingTargetTypeResult.Value.ShouldBe(TimeSpan.FromHours(2));
+                mapper.Map(matchingSource).Over(nonMatchingTarget);
+
+                nonMatchingTarget.ShouldNotBeNull();
+                nonMatchingTarget.Value.ShouldBe(TimeSpan.FromHours(2));
 
                 mapper.WhenMapping
                     .From<PublicTwoFieldsStruct<string, string>>()
@@ -323,20 +333,20 @@
                     Value1 = TimeSpan.FromHours(2).ToString()
                 };
 
-                var nonMatchingSourceTypeResult = mapper.Map(nonMatchingSourceTypeSource).ToANew<PublicField<TimeSpan>>();
+                mapper.Map(nonMatchingSourceTypeSource).Over(matchingTarget);
 
-                nonMatchingSourceTypeResult.ShouldNotBeNull();
-                nonMatchingSourceTypeResult.Value.ShouldBe(TimeSpan.FromHours(2));
+                matchingTarget.ShouldNotBeNull();
+                matchingTarget.Value.ShouldBe(TimeSpan.FromHours(2));
 
                 var nonMatchingFilterSource = new PublicTwoFieldsStruct<TimeSpan, string>
                 {
                     Value1 = TimeSpan.FromMinutes(30)
                 };
 
-                var nonMatchingFilterResult = mapper.Map(nonMatchingFilterSource).ToANew<PublicField<TimeSpan>>();
+                mapper.Map(nonMatchingFilterSource).Over(matchingTarget);
 
-                nonMatchingFilterResult.ShouldNotBeNull();
-                nonMatchingFilterResult.Value.ShouldBe(TimeSpan.FromMinutes(30));
+                matchingTarget.ShouldNotBeNull();
+                matchingTarget.Value.ShouldBe(TimeSpan.FromMinutes(30));
             }
         }
     }
