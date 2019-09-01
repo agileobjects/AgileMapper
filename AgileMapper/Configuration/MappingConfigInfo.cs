@@ -170,7 +170,7 @@
 
             if (_negateCondition)
             {
-                condition = Expression.Not(condition);
+                condition = condition.Negate();
             }
 
             var targetCanBeNull = position.IsPriorToObjectCreation(targetMember);

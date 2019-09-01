@@ -349,5 +349,56 @@
                 matchingTarget.Value.ShouldBe(TimeSpan.FromMinutes(30));
             }
         }
+
+        [Fact]
+        public void ShouldIgnoreConfiguredDataSourceByIntValueFilterSourceAndTargetTypeConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<int, string>>()
+                    .To<PublicField<string>>()
+                    .If(ctx => ctx.Source.Value1 > 100)
+                    .Map((ptf, pf) => ptf.Value1)
+                    .To(pf => pf.Value)
+                    .And
+                    .IgnoreSources(c => c.If<int>(i => !(i < 200)));
+
+                var matchingTarget = new PublicField<string>
+                {
+                    Value = "Value!"
+                };
+
+                var conditionFilteredSource = new PublicTwoFieldsStruct<int, string>
+                {
+                    Value1 = 50
+                };
+                
+                mapper.Map(conditionFilteredSource).Over(matchingTarget);
+
+                matchingTarget.ShouldNotBeNull();
+                matchingTarget.Value.ShouldBe("Value!");
+
+                var filterFilteredSource = new PublicTwoFieldsStruct<int, string>
+                {
+                    Value1 = 300
+                };
+
+                mapper.Map(filterFilteredSource).Over(matchingTarget);
+
+                matchingTarget.ShouldNotBeNull();
+                matchingTarget.Value.ShouldBe("Value!");
+
+                var matchingSource = new PublicTwoFieldsStruct<int, string>
+                {
+                    Value1 = 150
+                };
+
+                mapper.Map(matchingSource).Over(matchingTarget);
+
+                matchingTarget.ShouldNotBeNull();
+                matchingTarget.Value.ShouldBe("150");
+            }
+        }
     }
 }

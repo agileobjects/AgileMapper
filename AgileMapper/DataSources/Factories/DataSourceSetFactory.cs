@@ -59,6 +59,8 @@
                     {
                         yield break;
                     }
+
+                    ++context.DataSourceIndex;
                 }
 
                 if (context.StopFind)

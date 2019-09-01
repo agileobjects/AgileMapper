@@ -55,6 +55,9 @@
                    (memberAccess.Expression.Type.IsNullableType());
         }
 
+        public static Expression Negate(this Expression expression)
+            => (expression.NodeType != Not) ? Expression.Not(expression) : ((UnaryExpression)expression).Operand;
+
         [DebuggerStepThrough]
         public static ConstantExpression ToConstantExpression<T>(this T item)
             => ToConstantExpression(item, typeof(T));

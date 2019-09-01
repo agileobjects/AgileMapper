@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             var filterCondition = FilterFactory.Create(_valuesFilterExpression, sourceValue);
 
-            return (filterCondition != _false) ? Expression.Not(filterCondition) : null;
+            return (filterCondition != _false) ? filterCondition.Negate() : null;
         }
 
         #region Helper Classes

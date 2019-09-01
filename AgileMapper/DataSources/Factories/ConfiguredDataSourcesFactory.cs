@@ -20,8 +20,6 @@
                 {
                     yield break;
                 }
-
-                ++context.DataSourceIndex;
             }
         }
     }

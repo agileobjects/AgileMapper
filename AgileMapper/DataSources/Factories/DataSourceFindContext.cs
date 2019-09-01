@@ -12,6 +12,8 @@
         private IList<ConfiguredDataSourceFactory> _relevantConfiguredDataSourceFactories;
         private IList<IConfiguredDataSource> _configuredDataSources;
         private SourceMemberMatchContext _sourceMemberMatchContext;
+        private SourceMemberMatch _bestSourceMemberMatch;
+        private IDataSource _matchingSourceMemberDataSource;
 
         public DataSourceFindContext(IChildMemberMappingData memberMappingData)
         {
@@ -68,7 +70,31 @@
             }
         }
 
-        public SourceMemberMatch BestSourceMemberMatch { get; set; }
+        public IDataSource MatchingSourceMemberDataSource
+            => _matchingSourceMemberDataSource ?? (_matchingSourceMemberDataSource = GetSourceMemberDataSource());
+
+        private IDataSource GetSourceMemberDataSource()
+        {
+            if (BestSourceMemberMatch.IsUseable)
+            {
+                return GetFinalDataSource(
+                    _bestSourceMemberMatch.CreateDataSource(),
+                    _bestSourceMemberMatch.ContextMappingData);
+            }
+
+            return new AdHocDataSource(
+                _bestSourceMemberMatch.SourceMember,
+                Constants.EmptyExpression);
+        }
+
+        public SourceMemberMatch BestSourceMemberMatch =>
+            _bestSourceMemberMatch ??
+           (_bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(SourceMemberMatchContext));
+
+        private SourceMemberMatchContext SourceMemberMatchContext =>
+            (_sourceMemberMatchContext != null)
+                ? _sourceMemberMatchContext.With(MemberMappingData)
+                : _sourceMemberMatchContext = new SourceMemberMatchContext(MemberMappingData);
 
         public IDataSource GetFallbackDataSource()
             => MemberMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MemberMapperData);
@@ -119,20 +145,13 @@
             return !targetMember.Type.IsFromBcl();
         }
 
-        public SourceMemberMatchContext GetSourceMemberMatchContext()
-        {
-            if (_sourceMemberMatchContext != null)
-            {
-                return _sourceMemberMatchContext?.With(MemberMappingData);
-            }
-
-            return _sourceMemberMatchContext = new SourceMemberMatchContext(MemberMappingData);
-        }
-
         public DataSourceFindContext With(IChildMemberMappingData memberMappingData)
         {
             MemberMappingData = memberMappingData;
             _configuredDataSources = null;
+            _sourceMemberMatchContext = null;
+            _bestSourceMemberMatch = null;
+            _matchingSourceMemberDataSource = null;
             DataSourceIndex = 0;
             StopFind = false;
             return this;

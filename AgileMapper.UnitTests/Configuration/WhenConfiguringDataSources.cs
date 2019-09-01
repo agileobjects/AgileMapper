@@ -286,6 +286,27 @@
         }
 
         [Fact]
+        public void ShouldNotOverwriteATargetWithNoMatchingSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<int, string>>()
+                    .To<PublicField<string>>()
+                    .If(ctx => ctx.Source.Value1 > 100)
+                    .Map((ptf, pf) => ptf.Value1)
+                    .To(pf => pf.Value);
+
+                var source = new PublicTwoFieldsStruct<int, string> { Value1 = 50 };
+                var target = new PublicField<string> { Value = "Value!" };
+
+                mapper.Map(source).Over(target);
+
+                target.Value.ShouldBe("Value!");
+            }
+        }
+
+        [Fact]
         public void ShouldConditionallyApplyMultipleConfiguredMembers()
         {
             using (var mapper = Mapper.CreateNew())

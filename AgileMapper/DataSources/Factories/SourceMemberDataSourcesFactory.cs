@@ -13,38 +13,31 @@
                 yield break;
             }
 
-            var matchingSourceMemberDataSource = GetSourceMemberDataSource(context);
-            var configuredDataSources = context.ConfiguredDataSources;
-            var targetMember = context.TargetMember;
-
-            if (!context.BestSourceMemberMatch.IsUseable ||
-                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
+            if (context.DoNotUseSourceMemberDataSource())
             {
                 if (context.DataSourceIndex == 0)
                 {
-                    if (UseFallbackComplexTypeDataSource(targetMember))
+                    if (context.UseFallbackComplexTypeDataSource())
                     {
                         yield return ComplexTypeDataSource.Create(context.DataSourceIndex, context.MemberMappingData);
                     }
                 }
-                else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
+                else if (context.UseFallbackForConditionalConfiguredDataSource())
                 {
                     yield return context.GetFallbackDataSource();
                 }
 
-                if (context.BestSourceMemberMatch.IsUseable ||
-                   (matchingSourceMemberDataSource.SourceMember == null))
+                if (context.UseConfiguredDataSourcesOnly())
                 {
                     yield break;
                 }
             }
 
-            if (matchingSourceMemberDataSource.SourceMember.IsSimple &&
-                context.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources)
+            if (context.ReturnSimpleTypeToTargetDataSources())
             {
                 var updatedMapperData = new ChildMemberMapperData(
-                    matchingSourceMemberDataSource.SourceMember,
-                    targetMember,
+                    context.MatchingSourceMemberDataSource.SourceMember,
+                    context.TargetMember,
                     context.MemberMapperData.Parent);
 
                 var configuredRootDataSources = context
@@ -58,34 +51,51 @@
                 }
             }
 
-            yield return matchingSourceMemberDataSource;
+            yield return context.MatchingSourceMemberDataSource;
 
-            if (!targetMember.IsReadOnly &&
-                 matchingSourceMemberDataSource.IsConditional &&
-                (matchingSourceMemberDataSource.IsValid || configuredDataSources.Any()))
+            if (context.UseFallbackDataSource())
             {
                 yield return context.GetFallbackDataSource();
             }
         }
 
-        private static IDataSource GetSourceMemberDataSource(DataSourceFindContext context)
+        private static bool DoNotUseSourceMemberDataSource(this DataSourceFindContext context)
         {
-            var sourceMemberMatchContext = context.GetSourceMemberMatchContext();
-            context.BestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(sourceMemberMatchContext);
-
-            if (context.BestSourceMemberMatch.IsUseable)
-            {
-                return context.GetFinalDataSource(
-                    context.BestSourceMemberMatch.CreateDataSource(),
-                    context.BestSourceMemberMatch.ContextMappingData);
-            }
-
-            return new AdHocDataSource(
-                context.BestSourceMemberMatch.SourceMember,
-                Constants.EmptyExpression);
+            return !context.BestSourceMemberMatch.IsUseable ||
+                    context.ConfiguredDataSources.Any(cds => cds.IsSameAs(context.MatchingSourceMemberDataSource));
         }
 
-        private static bool UseFallbackComplexTypeDataSource(QualifiedMember targetMember)
-            => targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
+        private static bool UseFallbackComplexTypeDataSource(this DataSourceFindContext context)
+        {
+            var targetMember = context.TargetMember;
+
+            return targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
+        }
+
+        private static bool UseFallbackForConditionalConfiguredDataSource(this DataSourceFindContext context)
+        {
+            return context.ConfiguredDataSources.Any() &&
+                   context.ConfiguredDataSources.Last().IsConditional &&
+                  (context.MatchingSourceMemberDataSource.SourceMember != null);
+        }
+
+        private static bool UseConfiguredDataSourcesOnly(this DataSourceFindContext context)
+        {
+            return context.BestSourceMemberMatch.IsUseable ||
+                  (context.MatchingSourceMemberDataSource.SourceMember == null);
+        }
+
+        private static bool ReturnSimpleTypeToTargetDataSources(this DataSourceFindContext context)
+        {
+            return context.MatchingSourceMemberDataSource.SourceMember.IsSimple &&
+                   context.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources;
+        }
+
+        private static bool UseFallbackDataSource(this DataSourceFindContext context)
+        {
+            return !context.TargetMember.IsReadOnly &&
+                    context.MatchingSourceMemberDataSource.IsConditional &&
+                   (context.MatchingSourceMemberDataSource.IsValid || context.ConfiguredDataSources.Any());
+        }
     }
 }
