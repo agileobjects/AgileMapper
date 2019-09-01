@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
     using LinqExp = System.Linq.Expressions;
@@ -97,7 +96,6 @@ namespace AgileObjects.AgileMapper.Configuration
         {
             private readonly Expression _valuesFilter;
             private readonly IList<FilterCondition> _filterConditions;
-            private readonly Dictionary<Expression, Expression> _conditionReplacements;
 
             public MultipleConditionConfiguredSourceValueFilter(
                 MappingConfigInfo configInfo,
@@ -107,18 +105,20 @@ namespace AgileObjects.AgileMapper.Configuration
             {
                 _valuesFilter = valuesFilter;
                 _filterConditions = filterConditions;
-                _conditionReplacements = filterConditions.ToDictionary(fc => fc.Filter, fc => default(Expression));
             }
 
             protected override Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands)
             {
+                var conditionReplacements = new Dictionary<Expression, Expression>(_filterConditions.Count);
+
                 foreach (var filterCondition in _filterConditions)
                 {
-                    _conditionReplacements[filterCondition.Filter] =
-                        filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands);
+                    conditionReplacements.Add(
+                        filterCondition.Filter, 
+                        filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands));
                 }
 
-                return _valuesFilter.Replace(_conditionReplacements);
+                return _valuesFilter.Replace(conditionReplacements);
             }
         }
 

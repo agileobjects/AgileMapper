@@ -22,7 +22,6 @@
 
         public static readonly MethodInfo EnumerableSelectWithoutIndexMethod;
         public static readonly MethodInfo ProjectWithoutIndexMethod;
-        private static readonly MethodInfo _projectWithIndexMethod;
         private static readonly MethodInfo _queryableSelectMethod;
         private static readonly MethodInfo _forEachMethod;
         private static readonly MethodInfo _forEachTupleMethod;
@@ -56,11 +55,10 @@
         static EnumerablePopulationBuilder()
         {
             var projectMethods = typeof(PublicEnumerableExtensions)
-                .GetPublicStaticMethods("Project")
+                .GetPublicStaticMethods(nameof(PublicEnumerableExtensions.Project))
                 .ToArray();
 
             ProjectWithoutIndexMethod = projectMethods.First();
-            _projectWithIndexMethod = projectMethods.Last();
 
             EnumerableSelectWithoutIndexMethod = typeof(Enumerable)
                 .GetPublicStaticMethods(nameof(Enumerable.Select))
@@ -120,28 +118,21 @@
 
         #endregion
 
+        private MethodInfo GetProjectionMethod() => GetProjectionMethodFor(MapperData);
+
         public static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData)
-        {
-            var counterRequired = false;
-
-            return GetProjectionMethodFor(mapperData, ref counterRequired);
-        }
-
-        private static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData, ref bool counterRequired)
         {
             if (mapperData.SourceType.IsQueryable())
             {
-                counterRequired = false;
                 return _queryableSelectMethod;
             }
 
             if (mapperData.Context.IsPartOfQueryableMapping())
             {
-                counterRequired = false;
                 return EnumerableSelectWithoutIndexMethod;
             }
 
-            return counterRequired ? _projectWithIndexMethod : ProjectWithoutIndexMethod;
+            return ProjectWithoutIndexMethod;
         }
 
         public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
@@ -646,48 +637,14 @@
             Expression sourceEnumerableValue,
             Func<Expression, Expression> projectionLambdaFactory)
         {
-            return CreateSourceItemsProjection(
-                sourceEnumerableValue,
-                (sourceParameter, counter) => projectionLambdaFactory.Invoke(sourceParameter),
-                counterRequired: false);
-        }
+            var projectionFuncType = Expression.GetFuncType(Context.SourceElementType, Context.TargetElementType);
 
-        public Expression GetSourceItemsProjection(
-            Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionLambdaFactory)
-        {
-            return CreateSourceItemsProjection(sourceEnumerableValue, projectionLambdaFactory, counterRequired: true);
-        }
-
-        private Expression CreateSourceItemsProjection(
-            Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionLambdaFactory,
-            bool counterRequired)
-        {
-            var projectionMethod = GetProjectionMethodFor(MapperData, ref counterRequired);
-
-            ParameterExpression[] projectionLambdaParameters;
-            Type[] funcTypes;
-
-            if (counterRequired)
-            {
-                projectionLambdaParameters = new[] { _sourceElementParameter, Counter };
-                funcTypes = new[] { Context.SourceElementType, Counter.Type, Context.TargetElementType };
-            }
-            else
-            {
-                projectionLambdaParameters = new[] { _sourceElementParameter };
-                funcTypes = new[] { Context.SourceElementType, Context.TargetElementType };
-            }
-
-            var projectionFuncType = Expression.GetFuncType(funcTypes);
-
-            Expression projectionLambda = Expression.Lambda(
+            var projectionLambda = Expression.Lambda(
                 projectionFuncType,
-                projectionLambdaFactory.Invoke(_sourceElementParameter, Counter),
-                projectionLambdaParameters);
+                projectionLambdaFactory.Invoke(_sourceElementParameter),
+                _sourceElementParameter);
 
-            var typedSelectMethod = projectionMethod.MakeGenericMethod(Context.ElementTypes);
+            var typedSelectMethod = GetProjectionMethod().MakeGenericMethod(Context.ElementTypes);
             var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionLambda);
 
             return typedSelectCall;
@@ -831,8 +788,8 @@
                 }
 
                 _result = _builder.GetSourceItemsProjection(
-                    sourceEnumerableValue,
-                    (sourceElement, counter) => _builder.GetElementConversion(sourceElement, mappingData));
+                    sourceEnumerableValue, 
+                    sourceElement => _builder.GetElementConversion(sourceElement, mappingData));
 
                 return this;
             }

@@ -24,12 +24,7 @@
         /// <returns>An iterator to transform this enumerable.</returns>
         [DebuggerStepThrough]
         public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, TResult> projector)
-        {
-            foreach (var item in items)
-            {
-                yield return projector.Invoke(item);
-            }
-        }
+            => Project(items, projector, (p, item) => p.Invoke(item));
 
         [DebuggerStepThrough]
         internal static IEnumerable<TResult> Project<TItem, TArg, TResult>(
@@ -43,19 +38,8 @@
             }
         }
 
-        /// <summary>
-        /// Project these <paramref name="items"/> to a new enumerable of type <typeparamref name="TResult"/>,
-        /// using the given <paramref name="projector"/>.
-        /// </summary>
-        /// <typeparam name="TItem">The type of object stored in the enumerable.</typeparam>
-        /// <typeparam name="TResult">
-        /// The type of object to which each item in the enumerable will be projected.
-        /// </typeparam>
-        /// <param name="items">The items to project.</param>
-        /// <param name="projector">A Func with which to project each item in the enumerable.</param>
-        /// <returns>An iterator to transform this enumerable.</returns>
         [DebuggerStepThrough]
-        public static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, int, TResult> projector)
+        internal static IEnumerable<TResult> Project<TItem, TResult>(this IEnumerable<TItem> items, Func<TItem, int, TResult> projector)
         {
             var index = 0;
 
@@ -76,18 +60,10 @@
         /// </returns>
         [DebuggerStepThrough]
         public static IEnumerable<TItem> Filter<TItem>(this IEnumerable<TItem> items, Func<TItem, bool> predicate)
-        {
-            foreach (var item in items)
-            {
-                if (predicate.Invoke(item))
-                {
-                    yield return item;
-                }
-            }
-        }
+            => Filter(items, predicate, (p, item) => p.Invoke(item));
 
         internal static IEnumerable<TItem> Filter<TItem, TArg>(
-            this IEnumerable<TItem> items, 
+            this IEnumerable<TItem> items,
             TArg argument,
             Func<TArg, TItem, bool> predicate)
         {
