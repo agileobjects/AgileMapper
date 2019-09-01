@@ -1,6 +1,8 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
     using LinqExp = System.Linq.Expressions;
@@ -12,103 +14,216 @@ namespace AgileObjects.AgileMapper.Configuration
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
-    internal class ConfiguredSourceValueFilter : UserConfiguredItemBase
+    internal abstract class ConfiguredSourceValueFilter : UserConfiguredItemBase
     {
         private static readonly Expression _true = Expression.Constant(true, typeof(bool));
         private static readonly Expression _false = Expression.Constant(false, typeof(bool));
 
-        private readonly Expression _valuesFilterExpression;
-#if NET35
-        public ConfiguredSourceValueFilter(
-            MappingConfigInfo configInfo,
-            LinqExp.Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
-            : this(configInfo, valuesFilter.ToDlrExpression())
-        {
-        }
-#endif
-        public ConfiguredSourceValueFilter(
-            MappingConfigInfo configInfo,
-            Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
+        protected ConfiguredSourceValueFilter(MappingConfigInfo configInfo)
             : base(configInfo)
         {
-            _valuesFilterExpression = valuesFilter.Body;
         }
+
+        #region Factory Methods
+#if NET35
+        public static ConfiguredSourceValueFilter Create(
+            MappingConfigInfo configInfo,
+            LinqExp.Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
+        {
+            return Create(configInfo, valuesFilter.ToDlrExpression());
+        }
+#endif
+        public static ConfiguredSourceValueFilter Create(
+            MappingConfigInfo configInfo,
+            Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
+        {
+            var filterConditions = FilterCondition.GetConditions(valuesFilter);
+
+            if (filterConditions.HasOne())
+            {
+                return new SingleConditionConfiguredSourceValueFilter(
+                    configInfo,
+                    valuesFilter.Body,
+                    filterConditions.First());
+            }
+
+            return new MultipleConditionConfiguredSourceValueFilter(
+                configInfo,
+                valuesFilter.Body,
+                filterConditions);
+        }
+
+        #endregion
 
         public Expression GetConditionOrNull(Expression sourceValue)
         {
-            var filterCondition = FilterFactory.Create(_valuesFilterExpression, sourceValue);
+            var hasFixedValueOperands = false;
+            var filterExpression = GetFilterExpression(sourceValue, ref hasFixedValueOperands);
 
-            return (filterCondition != _false) ? filterCondition.Negate() : null;
+            if (hasFixedValueOperands)
+            {
+                filterExpression = FilterOptimiser.Optimise(filterExpression);
+            }
+
+            return (filterExpression != _false) ? filterExpression.Negate() : null;
+        }
+
+        protected abstract Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands);
+
+        private class SingleConditionConfiguredSourceValueFilter : ConfiguredSourceValueFilter
+        {
+            private readonly Expression _valuesFilter;
+            private readonly FilterCondition _filterCondition;
+
+            public SingleConditionConfiguredSourceValueFilter(
+                MappingConfigInfo configInfo,
+                Expression valuesFilter,
+                FilterCondition filterCondition)
+                : base(configInfo)
+            {
+                _valuesFilter = valuesFilter;
+                _filterCondition = filterCondition;
+            }
+
+            protected override Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands)
+            {
+                return _valuesFilter.Replace(
+                    _filterCondition.Filter,
+                    _filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands));
+            }
+        }
+
+        private class MultipleConditionConfiguredSourceValueFilter : ConfiguredSourceValueFilter
+        {
+            private readonly Expression _valuesFilter;
+            private readonly IList<FilterCondition> _filterConditions;
+            private readonly Dictionary<Expression, Expression> _conditionReplacements;
+
+            public MultipleConditionConfiguredSourceValueFilter(
+                MappingConfigInfo configInfo,
+                Expression valuesFilter,
+                IList<FilterCondition> filterConditions)
+                : base(configInfo)
+            {
+                _valuesFilter = valuesFilter;
+                _filterConditions = filterConditions;
+                _conditionReplacements = filterConditions.ToDictionary(fc => fc.Filter, fc => default(Expression));
+            }
+
+            protected override Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands)
+            {
+                foreach (var filterCondition in _filterConditions)
+                {
+                    _conditionReplacements[filterCondition.Filter] =
+                        filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands);
+                }
+
+                return _valuesFilter.Replace(_conditionReplacements);
+            }
         }
 
         #region Helper Classes
 
-        private class FilterFactory : ExpressionVisitor
+        private class FilterCondition
         {
-            private readonly Expression _sourceValue;
-            private bool _hasFixedValueOperands;
+            private readonly LambdaExpression _filterLambda;
+            private readonly Type _filteredValueType;
+            private readonly bool _appliesToAllSources;
+            private readonly bool _filteredValueTypeIsNullable;
 
-            private FilterFactory(Expression sourceValue)
+            private FilterCondition(
+                MethodCallExpression filterCreationCall,
+                Type filteredValueType)
             {
-                _sourceValue = sourceValue;
+                Filter = filterCreationCall;
+
+                var filterLambda = filterCreationCall.Arguments.First();
+
+                if (filterLambda.NodeType == ExpressionType.Quote)
+                {
+                    filterLambda = ((UnaryExpression)filterLambda).Operand;
+                }
+
+                _filterLambda = (LambdaExpression)filterLambda;
+                _filteredValueType = filteredValueType;
+                _appliesToAllSources = filteredValueType == typeof(object);
+
+                if (!_appliesToAllSources)
+                {
+                    _filteredValueTypeIsNullable = filteredValueType.IsNullableType();
+                }
             }
 
-            public static Expression Create(Expression filter, Expression sourceValue)
+            #region Factory Method
+
+            public static IList<FilterCondition> GetConditions(Expression filter)
             {
-                var factory = new FilterFactory(sourceValue);
+                var finder = new FilterConditionsFinder();
 
-                var filterCondition = factory.VisitAndConvert(filter, nameof(FilterFactory));
+                finder.Visit(filter);
 
-                return factory._hasFixedValueOperands
-                    ? FilterOptimiser.Optimise(filterCondition)
-                    : filterCondition;
+                return finder.Conditions;
             }
 
-            protected override Expression VisitMethodCall(MethodCallExpression methodCall)
+            #endregion
+
+            public Expression Filter { get; }
+
+            public Expression GetConditionReplacement(Expression sourceValue, ref bool hasFixedValueOperands)
             {
-                if (methodCall.Method.DeclaringType != typeof(SourceValueFilterSpecifier))
+                if (_appliesToAllSources)
                 {
-                    return base.VisitMethodCall(methodCall);
+                    return GetFilterCondition(sourceValue.GetConversionToObject());
                 }
 
-                if (!methodCall.Method.IsGenericMethod)
+                var sourceType = sourceValue.Type;
+
+                if (!_filteredValueTypeIsNullable)
                 {
-                    return GetFilter(methodCall, _sourceValue.GetConversionToObject());
+                    sourceType = sourceType.GetNonNullableType();
                 }
 
-                var filterValueType = methodCall.Method.GetGenericArguments().First();
-
-                var sourceType = _sourceValue.Type;
-
-                if (!filterValueType.IsNullableType())
+                if (!sourceType.IsAssignableTo(_filteredValueType))
                 {
-                    sourceType = _sourceValue.Type.GetNonNullableType();
-                }
-
-                if (!sourceType.IsAssignableTo(filterValueType))
-                {
-                    _hasFixedValueOperands = true;
+                    hasFixedValueOperands = true;
                     return _false;
                 }
 
-                if (sourceType == _sourceValue.Type)
+                if (sourceType != sourceValue.Type)
                 {
-                    return GetFilter(methodCall, _sourceValue);
+                    sourceValue = sourceValue.GetNullableValueAccess();
                 }
 
-                return GetFilter(methodCall, _sourceValue.GetNullableValueAccess());
+                return GetFilterCondition(sourceValue);
             }
 
-            private static Expression GetFilter(MethodCallExpression methodCall, Expression sourceValue)
-            {
-                var filterArgument = methodCall.Arguments.First();
+            private Expression GetFilterCondition(Expression sourceValue)
+                => _filterLambda.ReplaceParameterWith(sourceValue);
 
-                if (filterArgument.NodeType == ExpressionType.Quote)
+            private class FilterConditionsFinder : ExpressionVisitor
+            {
+                public FilterConditionsFinder()
                 {
-                    filterArgument = ((UnaryExpression)filterArgument).Operand;
+                    Conditions = new List<FilterCondition>();
                 }
 
-                return ((LambdaExpression)filterArgument).ReplaceParameterWith(sourceValue);
+                public List<FilterCondition> Conditions { get; }
+
+                protected override Expression VisitMethodCall(MethodCallExpression methodCall)
+                {
+                    if (methodCall.Method.DeclaringType != typeof(SourceValueFilterSpecifier))
+                    {
+                        return base.VisitMethodCall(methodCall);
+                    }
+
+                    var filterValueType = methodCall.Method.IsGenericMethod
+                        ? methodCall.Method.GetGenericArguments().First()
+                        : typeof(object);
+
+                    Conditions.Add(new FilterCondition(methodCall, filterValueType));
+
+                    return base.VisitMethodCall(methodCall);
+                }
             }
         }
 

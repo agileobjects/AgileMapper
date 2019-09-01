@@ -280,7 +280,7 @@
             Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
         {
             return IgnoreMembersByFilter(
-                new ConfiguredSourceValueFilter(ConfigInfo, valuesFilter),
+                ConfiguredSourceValueFilter.Create(ConfigInfo, valuesFilter),
                 UserConfigurations.Add);
         }
 

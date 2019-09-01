@@ -385,7 +385,7 @@
         /// </returns>
         public IGlobalMappingSettings IgnoreSources(Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
         {
-            UserConfigurations.Add(new ConfiguredSourceValueFilter(GlobalConfigInfo, valuesFilter));
+            UserConfigurations.Add(ConfiguredSourceValueFilter.Create(GlobalConfigInfo, valuesFilter));
             return this;
         }
 
