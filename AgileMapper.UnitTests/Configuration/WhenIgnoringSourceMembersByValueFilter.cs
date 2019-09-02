@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Globalization;
+    using System.Linq;
     using Common;
     using TestClasses;
 #if !NET35
@@ -395,7 +396,7 @@
         }
 
         [Fact]
-        public void ShouldIgnoreSourceDerivedComplexTypeByFilterAndSourceType()
+        public void ShouldIgnoreSourceMaptimeDerivedComplexTypeByFilterAndSourceType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -405,12 +406,47 @@
                         c.If<MegaProduct>(mp => mp.HowMega == decimal.Zero) ||
                         c.If<MegaProduct>(mp => mp.HowMega == decimal.MinValue));
 
-                Product matchingSource = new MegaProduct { ProductId = "ABC", HowMega = decimal.MinValue };
+                Product filteredSource = new MegaProduct { ProductId = "ABC", HowMega = decimal.MinValue };
                 var target = new ProductDtoMega { ProductId = "ABC" };
 
-                mapper.Map(matchingSource).OnTo(target);
+                mapper.Map(filteredSource).OnTo(target);
 
                 target.HowMega.ShouldBeNull();
+
+                Product nonFilteredSource = new MegaProduct { ProductId = "ABC", HowMega = 0.25m };
+
+                mapper.Map(nonFilteredSource).OnTo(target);
+
+                target.HowMega.ShouldBe("0.25");
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSourceRuntimeComplexTypeByFilterAndSourceTypeInACollection()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MegaProduct>()
+                    .IgnoreSources(c => c.If<MegaProduct>(mp => mp.HowMega < 0.1m));
+
+                var source = new Collection<object>
+                {
+                    new MegaProduct { ProductId = "ABC", HowMega = 0.2m },
+                    new Product { ProductId = "DEF" },
+                    new MegaProduct { ProductId = "GHI", HowMega = 0.05m  }
+                };
+
+                var target = new List<Product> { new Product { ProductId = "JKL" } };
+
+                mapper.Map(source).OnTo(target);
+
+                target.Count.ShouldBe(4);
+                target.First().ProductId.ShouldBe("JKL");
+                target.Second().ProductId.ShouldBe("ABC");
+                target.Second().ShouldBeOfType<MegaProduct>().HowMega.ShouldBe(0.2m);
+                target.Third().ProductId.ShouldBe("DEF");
+                target.Fourth().ShouldBeNull();
             }
         }
     }
