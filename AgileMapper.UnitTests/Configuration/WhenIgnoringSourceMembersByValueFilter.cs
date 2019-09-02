@@ -303,7 +303,6 @@
 
                 mapper.Map(matchingSource).Over(matchingTarget);
 
-                matchingTarget.ShouldNotBeNull();
                 matchingTarget.Value.ShouldBe(TimeSpan.FromHours(1));
 
                 mapper.WhenMapping
@@ -319,7 +318,6 @@
 
                 mapper.Map(matchingSource).Over(nonMatchingTarget);
 
-                nonMatchingTarget.ShouldNotBeNull();
                 nonMatchingTarget.Value.ShouldBe(TimeSpan.FromHours(2));
 
                 mapper.WhenMapping
@@ -335,7 +333,6 @@
 
                 mapper.Map(nonMatchingSourceTypeSource).Over(matchingTarget);
 
-                matchingTarget.ShouldNotBeNull();
                 matchingTarget.Value.ShouldBe(TimeSpan.FromHours(2));
 
                 var nonMatchingFilterSource = new PublicTwoFieldsStruct<TimeSpan, string>
@@ -345,7 +342,6 @@
 
                 mapper.Map(nonMatchingFilterSource).Over(matchingTarget);
 
-                matchingTarget.ShouldNotBeNull();
                 matchingTarget.Value.ShouldBe(TimeSpan.FromMinutes(30));
             }
         }
@@ -373,10 +369,9 @@
                 {
                     Value1 = 50
                 };
-                
+
                 mapper.Map(conditionFilteredSource).Over(matchingTarget);
 
-                matchingTarget.ShouldNotBeNull();
                 matchingTarget.Value.ShouldBe("Value!");
 
                 var filterFilteredSource = new PublicTwoFieldsStruct<int, string>
@@ -386,7 +381,6 @@
 
                 mapper.Map(filterFilteredSource).Over(matchingTarget);
 
-                matchingTarget.ShouldNotBeNull();
                 matchingTarget.Value.ShouldBe("Value!");
 
                 var matchingSource = new PublicTwoFieldsStruct<int, string>
@@ -396,8 +390,27 @@
 
                 mapper.Map(matchingSource).Over(matchingTarget);
 
-                matchingTarget.ShouldNotBeNull();
                 matchingTarget.Value.ShouldBe("150");
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSourceDerivedComplexTypeByFilterAndSourceType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Product>()
+                    .IgnoreSources(c =>
+                        c.If<MegaProduct>(mp => mp.HowMega == decimal.Zero) ||
+                        c.If<MegaProduct>(mp => mp.HowMega == decimal.MinValue));
+
+                Product matchingSource = new MegaProduct { ProductId = "ABC", HowMega = decimal.MinValue };
+                var target = new ProductDtoMega { ProductId = "ABC" };
+
+                mapper.Map(matchingSource).OnTo(target);
+
+                target.HowMega.ShouldBeNull();
             }
         }
     }

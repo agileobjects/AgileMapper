@@ -62,7 +62,7 @@
         private static bool DoNotUseSourceMemberDataSource(this DataSourceFindContext context)
         {
             return !context.BestSourceMemberMatch.IsUseable ||
-                    context.ConfiguredDataSources.Any(cds => cds.IsSameAs(context.MatchingSourceMemberDataSource));
+                    context.ConfiguredDataSources.Any(context.MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
         }
 
         private static bool UseFallbackComplexTypeDataSource(this DataSourceFindContext context)

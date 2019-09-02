@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.Configuration
 #endif
     using Api.Configuration;
     using Extensions.Internal;
+    using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -54,6 +55,11 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
 
+        public bool AppliesTo(Type sourceValueType, IBasicMapperData mapperData) 
+            => AppliesTo(mapperData) && Filters(sourceValueType);
+
+        protected abstract bool Filters(Type valueType);
+
         public Expression GetConditionOrNull(Expression sourceValue)
         {
             var hasFixedValueOperands = false;
@@ -84,6 +90,8 @@ namespace AgileObjects.AgileMapper.Configuration
                 _filterCondition = filterCondition;
             }
 
+            protected override bool Filters(Type valueType) => _filterCondition.Filters(valueType);
+
             protected override Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands)
             {
                 return _valuesFilter.Replace(
@@ -107,6 +115,9 @@ namespace AgileObjects.AgileMapper.Configuration
                 _filterConditions = filterConditions;
             }
 
+            protected override bool Filters(Type valueType)
+                => _filterConditions.Any(valueType, (vt, fc) => fc.Filters(vt));
+
             protected override Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands)
             {
                 var conditionReplacements = new Dictionary<Expression, Expression>(_filterConditions.Count);
@@ -114,7 +125,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 foreach (var filterCondition in _filterConditions)
                 {
                     conditionReplacements.Add(
-                        filterCondition.Filter, 
+                        filterCondition.Filter,
                         filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands));
                 }
 
@@ -168,6 +179,21 @@ namespace AgileObjects.AgileMapper.Configuration
             #endregion
 
             public Expression Filter { get; }
+
+            public bool Filters(Type valueType)
+            {
+                if (_appliesToAllSources)
+                {
+                    return true;
+                }
+
+                if (!_filteredValueTypeIsNullable)
+                {
+                    valueType = valueType.GetNonNullableType();
+                }
+
+                return valueType.IsAssignableTo(_filteredValueType);
+            }
 
             public Expression GetConditionReplacement(Expression sourceValue, ref bool hasFixedValueOperands)
             {

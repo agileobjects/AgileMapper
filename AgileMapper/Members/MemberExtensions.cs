@@ -168,8 +168,8 @@
             }
 
             return otherMemberNames
-                .Any(otherJoinedName => (otherJoinedName == RootMemberName) || memberNames
-                    .Any(joinedName => (joinedName == RootMemberName) || otherJoinedName.StartsWithIgnoreCase(joinedName)));
+                .Any(memberNames, (mns, otherJoinedName) => (otherJoinedName == RootMemberName) || mns
+                    .Any(otherJoinedName, (ojn, joinedName) => (joinedName == RootMemberName) || ojn.StartsWithIgnoreCase(joinedName)));
         }
 
         public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)

@@ -216,7 +216,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     QualifiedMember targetMember = group.First().TargetDictionaryEntryMember;
 
                     targetMember.IsCustom = tmfs.None(
-                        sourceMember => sourceMember.RegistrationName == targetMember.Name);
+                        targetMember.Name,
+                       (tmn, sourceMember) => sourceMember.RegistrationName == tmn);
 
                     return targetMember.IsCustom ? targetMember : null;
                 })

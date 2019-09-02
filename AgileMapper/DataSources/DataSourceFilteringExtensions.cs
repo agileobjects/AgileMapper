@@ -55,16 +55,23 @@
             IQualifiedMember sourceMember,
             IMemberMapperData mapperData)
         {
-            var filter = mapperData.GetSourceValueFilterOrNull();
+            if (!dataSource.IsValid)
+            {
+                return dataSource;
+            }
+
+            var filter = mapperData.GetSourceValueFilterOrNull(sourceMember.Type);
 
             if (filter == null)
             {
                 return dataSource;
             }
 
-            var rawSourceValue = sourceMember
-                .RelativeTo(mapperData.SourceMember)
-                .GetQualifiedAccess(mapperData.SourceObject);
+            var rawSourceValue = (sourceMember != mapperData.SourceMember)
+                ? sourceMember
+                    .RelativeTo(mapperData.SourceMember)
+                    .GetQualifiedAccess(mapperData.SourceObject)
+                : mapperData.SourceObject;
 
             var filterCondition = filter.GetConditionOrNull(rawSourceValue);
 

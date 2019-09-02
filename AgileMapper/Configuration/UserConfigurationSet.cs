@@ -118,7 +118,7 @@
         public void Add(NullCollectionsSetting setting) => NullCollectionsSettings.Add(setting);
 
         public bool MapToNullCollections(IBasicMapperData basicData)
-            => _nullCollectionsSettings?.Any(s => s.AppliesTo(basicData)) == true;
+            => _nullCollectionsSettings?.Any(basicData, (bd, s) => s.AppliesTo(bd)) == true;
 
         #endregion
 
@@ -309,8 +309,8 @@
             SourceValueFilters.Add(sourceValueFilter);
         }
 
-        public ConfiguredSourceValueFilter GetSourceValueFilterOrNull(IBasicMapperData mapperData)
-            => _sourceValueFilters.FindMatch(mapperData);
+        public ConfiguredSourceValueFilter GetSourceValueFilterOrNull(IBasicMapperData mapperData, Type sourceValueType)
+            => _sourceValueFilters?.FirstOrDefault(svf => svf.AppliesTo(sourceValueType, mapperData));
 
         #endregion
 

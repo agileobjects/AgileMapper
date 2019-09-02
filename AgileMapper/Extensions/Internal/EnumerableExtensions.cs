@@ -110,6 +110,10 @@
         public static bool Any<T>(this IList<T> items, Func<T, bool> predicate) => !items.None(predicate);
 
         [DebuggerStepThrough]
+        public static bool Any<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate) 
+            => !None(items, argument, predicate);
+
+        [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
         [DebuggerStepThrough]
@@ -119,10 +123,13 @@
         public static bool None<T>(this IEnumerable<T> items) => !items.GetEnumerator().MoveNext();
 
         public static bool None<T>(this IList<T> items, Func<T, bool> predicate)
+            => None(items, predicate, (p, item) => p.Invoke(item));
+
+        public static bool None<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
         {
             for (int i = 0, n = items.Count; i < n; i++)
             {
-                if (predicate.Invoke(items[i]))
+                if (predicate.Invoke(argument, items[i]))
                 {
                     return false;
                 }

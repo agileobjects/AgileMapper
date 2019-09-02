@@ -49,16 +49,7 @@
             var ifExitCheckBreakLoop = Expression.IfThen(loopData.LoopExitCheck, breakLoop);
             var counterIncrement = builder.GetCounterIncrement();
 
-            var sourceValueFilter = builder
-                .MapperData
-                .GetSourceValueFilterOrNull();
-
-            if (sourceValueFilter != null)
-            {
-                elementPopulation = Expression.IfThen(
-                    sourceValueFilter.GetConditionOrNull(loopData.GetSourceElementValue()),
-                    elementPopulation);
-            }
+            elementPopulation = ApplySourceFilterIfAppropriate(elementPopulation, loopData, builder);
 
             if (elementPopulation.NodeType != ExpressionType.Block)
             {
@@ -76,6 +67,33 @@
             return elementPopulationBlock.Variables.Any()
                 ? Expression.Block(elementPopulationBlock.Variables, loopExpressions)
                 : Expression.Block(loopExpressions);
+        }
+
+        private static Expression ApplySourceFilterIfAppropriate(
+            Expression elementPopulation,
+            IPopulationLoopData loopData,
+            EnumerablePopulationBuilder builder)
+        {
+            if (!builder.MapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
+            {
+                return elementPopulation;
+            }
+
+            var sourceElement = loopData.GetSourceElementValue();
+
+            var sourceValueFilter = builder.MapperData
+                .GetSourceValueFilterOrNull(sourceElement.Type);
+
+            if (sourceValueFilter == null)
+            {
+                return elementPopulation;
+            }
+
+            var sourceFilterCondition = sourceValueFilter.GetConditionOrNull(sourceElement);
+
+            return (sourceFilterCondition != null)
+                ? Expression.IfThen(sourceFilterCondition, elementPopulation)
+                : elementPopulation;
         }
     }
 }

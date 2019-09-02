@@ -394,8 +394,8 @@ namespace AgileObjects.AgileMapper.Members
             return emptyEnumerable.GetConversionTo(targetMember.Type);
         }
 
-        public static ConfiguredSourceValueFilter GetSourceValueFilterOrNull(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.GetSourceValueFilterOrNull(mapperData);
+        public static ConfiguredSourceValueFilter GetSourceValueFilterOrNull(this IMemberMapperData mapperData, Type sourceValueType)
+            => mapperData.MapperContext.UserConfigurations.GetSourceValueFilterOrNull(mapperData, sourceValueType);
 
         public static bool CanConvert(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);

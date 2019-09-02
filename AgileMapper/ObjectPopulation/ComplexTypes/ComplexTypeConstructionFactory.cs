@@ -167,7 +167,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             // If the constructor takes an instance of itself, we'll potentially end 
             // up in an infinite loop figuring out how to create instances for it:
-            return ctorParameters.None(p => p.ParameterType == type);
+            return ctorParameters.None(type, (t, p) => p.ParameterType == t);
         }
 
         private static ConstructionDataInfo<T>[] CreateConstructionInfo<T>(

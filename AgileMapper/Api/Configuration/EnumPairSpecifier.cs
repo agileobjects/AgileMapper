@@ -178,7 +178,7 @@
 
             var pairedEnumMemberName = pairedEnumValue.ToString();
 
-            return relevantPairings.None(pair => pair.PairingEnumMemberName == pairedEnumMemberName);
+            return relevantPairings.None(pairedEnumMemberName, (pemn, pair) => pair.PairingEnumMemberName == pemn);
         }
     }
 }
