@@ -110,7 +110,7 @@
         public static bool Any<T>(this IList<T> items, Func<T, bool> predicate) => !items.None(predicate);
 
         [DebuggerStepThrough]
-        public static bool Any<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate) 
+        public static bool Any<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
             => !None(items, argument, predicate);
 
         [DebuggerStepThrough]
@@ -189,16 +189,16 @@
         public static Expression Chain<TItem>(
             this IList<TItem> items,
             Func<TItem, Expression> seedValueFactory,
-            Func<Expression, TItem, Expression> itemValueFactory)
+            Func<Expression, TItem, Expression> chainedValueFactory)
         {
-            return Chain(items, i => i.First(), seedValueFactory, itemValueFactory, i => i);
+            return Chain(items, i => i.First(), seedValueFactory, chainedValueFactory, i => i);
         }
 
         public static Expression Chain<TItem>(
             this IList<TItem> items,
             Func<IList<TItem>, TItem> seedFactory,
             Func<TItem, Expression> seedValueFactory,
-            Func<Expression, TItem, Expression> itemValueFactory,
+            Func<Expression, TItem, Expression> chainedValueFactory,
             Func<IList<TItem>, IEnumerable<TItem>> initialOperation)
         {
             if (items.None())
@@ -213,9 +213,12 @@
 
             return initialOperation.Invoke(items)
                 .Skip(1)
+                .WhereNotNull()
                 .Aggregate(
                     seedValueFactory.Invoke(seedFactory.Invoke(items)),
-                    itemValueFactory.Invoke);
+                    (chainedExpression, item) => (chainedExpression == null)
+                        ? seedValueFactory.Invoke(item)
+                        : chainedValueFactory.Invoke(chainedExpression, item));
         }
 
         public static void CopyTo<T>(this IList<T> sourceList, List<T> targetList)

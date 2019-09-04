@@ -6,6 +6,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
     using Extensions.Internal;
     using TypeConversion;
     using Members;
@@ -81,18 +82,18 @@
 
             var sourceElement = loopData.GetSourceElementValue();
 
-            var sourceValueFilter = builder.MapperData
-                .GetSourceValueFilterOrNull(sourceElement.Type);
+            var sourceValueFilters = builder.MapperData
+                .GetSourceValueFilters(sourceElement.Type);
 
-            if (sourceValueFilter == null)
+            if (sourceValueFilters.None())
             {
                 return elementPopulation;
             }
 
-            var sourceFilterCondition = sourceValueFilter.GetConditionOrNull(sourceElement);
+            var sourceFilterConditions = sourceValueFilters.GetFilterConditionsOrNull(sourceElement);
 
-            return (sourceFilterCondition != null)
-                ? Expression.IfThen(sourceFilterCondition, elementPopulation)
+            return (sourceFilterConditions != null)
+                ? Expression.IfThen(sourceFilterConditions, elementPopulation)
                 : elementPopulation;
         }
     }

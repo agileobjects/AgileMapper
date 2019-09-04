@@ -6,6 +6,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
     using Extensions.Internal;
     using Members;
 
@@ -60,9 +61,9 @@
                 return dataSource;
             }
 
-            var filter = mapperData.GetSourceValueFilterOrNull(sourceMember.Type);
+            var filters = mapperData.GetSourceValueFilters(sourceMember.Type);
 
-            if (filter == null)
+            if (filters.None())
             {
                 return dataSource;
             }
@@ -73,19 +74,30 @@
                     .GetQualifiedAccess(mapperData.SourceObject)
                 : mapperData.SourceObject;
 
-            var filterCondition = filter.GetConditionOrNull(rawSourceValue);
+            var filterConditions = filters.GetFilterConditionsOrNull(rawSourceValue);
 
-            if (filterCondition == null)
+            if (filterConditions == null)
             {
                 return dataSource;
             }
 
             if (dataSource.IsConditional)
             {
-                filterCondition = Expression.AndAlso(dataSource.Condition, filterCondition);
+                filterConditions = Expression.AndAlso(dataSource.Condition, filterConditions);
             }
 
-            return new AdHocDataSource(sourceMember, dataSource.Value, filterCondition);
+            return new AdHocDataSource(sourceMember, dataSource.Value, filterConditions);
+        }
+
+        public static Expression GetFilterConditionsOrNull(
+            this IList<ConfiguredSourceValueFilter> filters,
+            Expression sourceValue)
+        {
+            return filters.HasOne()
+                ? filters.First().GetConditionOrNull(sourceValue)
+                : filters
+                    .ProjectToArray(sourceValue, (sv, filter) => filter.GetConditionOrNull(sv))
+                    .AndTogether();
         }
     }
 }

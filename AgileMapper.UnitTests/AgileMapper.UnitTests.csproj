@@ -104,6 +104,7 @@
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringSourceMemberInlineIncorrectly.cs" />
+    <Compile Include="Configuration\Inline\WhenIgnoringSourceMembersByValueFilterInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringSourceMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
     <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />

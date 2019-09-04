@@ -309,8 +309,12 @@
             SourceValueFilters.Add(sourceValueFilter);
         }
 
-        public ConfiguredSourceValueFilter GetSourceValueFilterOrNull(IBasicMapperData mapperData, Type sourceValueType)
-            => _sourceValueFilters?.FirstOrDefault(svf => svf.AppliesTo(sourceValueType, mapperData));
+        public IList<ConfiguredSourceValueFilter> GetSourceValueFilters(IBasicMapperData mapperData, Type sourceValueType)
+        {
+            return HasSourceValueFilters
+                ? _sourceValueFilters.Filter(svf => svf.AppliesTo(sourceValueType, mapperData)).ToArray()
+                : Enumerable<ConfiguredSourceValueFilter>.EmptyArray;
+        }
 
         #endregion
 
@@ -591,6 +595,7 @@
             _dataSourceReversalSettings?.CopyTo(configurations.DataSourceReversalSettings);
             _objectFactories?.CloneItems().CopyTo(configurations.ObjectFactories);
             _identifiers?.CloneTo(configurations.Identifiers);
+            _sourceValueFilters?.CopyTo(configurations.SourceValueFilters);
             _ignoredSourceMembers?.CloneItems().CopyTo(configurations.IgnoredSourceMembers);
             _ignoredMembers?.CloneItems().CopyTo(configurations.IgnoredMembers);
             _enumPairings?.CopyTo(configurations.EnumPairings);
@@ -614,6 +619,7 @@
             _serviceProvider = _namedServiceProvider = null;
             _objectFactories?.Clear();
             _identifiers?.Reset();
+            _sourceValueFilters?.Clear();
             _ignoredSourceMembers?.Clear();
             _ignoredMembers?.Clear();
             _enumPairings?.Clear();
