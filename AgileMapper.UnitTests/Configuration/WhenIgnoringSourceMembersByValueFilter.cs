@@ -90,8 +90,9 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .IgnoreSources(c => c
-                        .If<string>(str => str == "123") || c.If<int>(i => i == 123));
+                    .IgnoreSources(c => 
+                        c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
+                       (c.If<string>(str => str == "123") && !c.If<DateTime>(dt => dt == DateTime.Today)));
 
                 var matchingIntSource = new PublicField<int> { Value = 123 };
                 var matchingIntResult = mapper.Map(matchingIntSource).ToANew<PublicProperty<int>>();
@@ -396,7 +397,7 @@
         }
 
         [Fact]
-        public void ShouldIgnoreSourceMaptimeDerivedComplexTypeByFilterAndSourceType()
+        public void ShouldIgnoreRootSourceMaptimeDerivedComplexTypeByFilterAndSourceTypeInMerge()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -422,7 +423,32 @@
         }
 
         [Fact]
-        public void ShouldIgnoreSourceRuntimeComplexTypeByFilterAndSourceTypeInACollection()
+        public void ShouldIgnoreRootSourceMaptimeDerivedComplexTypeByFilterAndSourceTypeInCreateNew()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Product>()
+                    .IgnoreSources(c =>
+                        c.If<MegaProduct>(mp => mp.HowMega >= 0.1m) &&
+                        c.If<MegaProduct>(mp => mp.HowMega <= 0.5m));
+
+                Product filteredSource = new MegaProduct { ProductId = "ABC", HowMega = 0.4m };
+                var filteredResult = mapper.Map(filteredSource).ToANew<ProductDtoMega>();
+
+                filteredResult.ShouldBeNull();
+
+                Product nonFilteredSource = new MegaProduct { ProductId = "ABC", HowMega = 0.6m };
+
+                var nonFilteredResult = mapper.Map(nonFilteredSource).ToANew<ProductDtoMega>();
+
+                nonFilteredResult.ShouldNotBeNull();
+                nonFilteredResult.HowMega.ShouldBe("0.6");
+            }
+        }
+
+        [Fact]
+        public void ShouldIgnoreSourceRuntimeComplexTypeByFilterAndSourceTypeInACollectionMerge()
         {
             using (var mapper = Mapper.CreateNew())
             {
