@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Common;
     using TestClasses;
 #if !NET35
@@ -12,7 +14,7 @@
     public class WhenIgnoringSourceMembersInline
     {
         [Fact]
-        public void ShouldIgnoreASourceMemberConditionallyInline()
+        public void ShouldFilterASourceMemberConditionallyInline()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -37,7 +39,29 @@
         }
 
         [Fact]
-        public void ShouldExtendSourceMemberIgnoreConfiguration()
+        public void ShouldHandleNullMemberInANestedSourceMemberFilterInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(new List<Customer>
+                    {
+                        new Customer { Name = "Customer 1", Address = new Address { Line1 = "1 Street" } },
+                        new MysteryCustomer { Name = "Customer 2"}
+                    })
+                    .ToANew<IEnumerable<CustomerViewModel>>(cfg => cfg
+                        .IgnoreSources(s => s.If<Customer>(c => c.Address.Line1.Length < 2)));
+
+                result.ShouldNotBeNull();
+                result.Count().ShouldBe(2);
+                result.First().Name.ShouldBe("Customer 1");
+                result.First().AddressLine1.ShouldBe("1 Street");
+                result.Second().ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldExtendSourceMemberFilterConfiguration()
         {
             using (var mapper = Mapper.CreateNew())
             {

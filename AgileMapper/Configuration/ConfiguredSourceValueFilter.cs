@@ -55,7 +55,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
 
-        public bool AppliesTo(Type sourceValueType, IBasicMapperData mapperData) 
+        public bool AppliesTo(Type sourceValueType, IBasicMapperData mapperData)
             => AppliesTo(mapperData) && Filters(sourceValueType);
 
         protected abstract bool Filters(Type valueType);
@@ -147,15 +147,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 Type filteredValueType)
             {
                 Filter = filterCreationCall;
-
-                var filterLambda = filterCreationCall.Arguments.First();
-
-                if (filterLambda.NodeType == ExpressionType.Quote)
-                {
-                    filterLambda = ((UnaryExpression)filterLambda).Operand;
-                }
-
-                _filterLambda = (LambdaExpression)filterLambda;
+                _filterLambda = GetFilterLambda(filterCreationCall);
                 _filteredValueType = filteredValueType;
                 _appliesToAllSources = filteredValueType == typeof(object);
 
@@ -163,6 +155,29 @@ namespace AgileObjects.AgileMapper.Configuration
                 {
                     _filteredValueTypeIsNullable = filteredValueType.IsNullableType();
                 }
+            }
+
+            private static LambdaExpression GetFilterLambda(MethodCallExpression filterCreationCall)
+            {
+                var filterArgument = filterCreationCall.Arguments.First();
+
+                if (filterArgument.NodeType == ExpressionType.Quote)
+                {
+                    filterArgument = ((UnaryExpression)filterArgument).Operand;
+                }
+
+                var filterLambda = (LambdaExpression)filterArgument;
+
+                var filterInfo = ExpressionInfoFinder.Default.FindIn(filterLambda.Body, targetCanBeNull: false);
+
+                if (filterInfo.NestedAccessChecks == null)
+                {
+                    return filterLambda;
+                }
+
+                return Expression.Lambda(
+                    Expression.AndAlso(filterInfo.NestedAccessChecks, filterLambda.Body),
+                    filterLambda.Parameters);
             }
 
             #region Factory Method

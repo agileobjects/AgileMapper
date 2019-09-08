@@ -24,8 +24,8 @@
                 var dataSource = dataSources[i];
 
                 var filteredDataSource = filteredDataSources[i] = ApplyFilter(
-                    dataSource,
                     dataSource.IsFallback ? dataSources[i - 1].SourceMember : dataSource.SourceMember,
+                    dataSource,
                     mapperData);
 
                 if (!dataSource.IsFallback)
@@ -49,14 +49,14 @@
         }
 
         public static IDataSource WithFilter(this IDataSource dataSource, IMemberMapperData mapperData)
-            => ApplyFilter(dataSource, dataSource.SourceMember, mapperData);
+            => ApplyFilter(dataSource.SourceMember, dataSource, mapperData);
 
         private static IDataSource ApplyFilter(
-            IDataSource dataSource,
             IQualifiedMember sourceMember,
+            IDataSource dataSource,
             IMemberMapperData mapperData)
         {
-            if (!dataSource.IsValid)
+            if (DoNotApplyFilter(sourceMember, dataSource, mapperData))
             {
                 return dataSource;
             }
@@ -87,6 +87,22 @@
             }
 
             return new AdHocDataSource(sourceMember, dataSource.Value, filterConditions);
+        }
+
+        private static bool DoNotApplyFilter(
+            IQualifiedMember sourceMember,
+            IDataSource dataSource,
+            IMemberMapperData mapperData)
+        {
+            if (!dataSource.IsValid)
+            {
+                return true;
+            }
+
+            // Non-simple enumerable elements will be filtered out elsewhere,
+            // unless they're being runtime-typed:
+            return !sourceMember.IsSimple && !mapperData.IsEntryPoint &&
+                    mapperData.TargetMemberIsEnumerableElement();
         }
 
         public static Expression GetFilterConditionsOrNull(
