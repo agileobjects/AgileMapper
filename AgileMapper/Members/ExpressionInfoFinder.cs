@@ -33,9 +33,18 @@ namespace AgileObjects.AgileMapper.Members
             _mappingDataObject = mappingDataObject;
         }
 
-        public ExpressionInfo FindIn(Expression expression, bool targetCanBeNull)
+        public ExpressionInfo FindIn(
+            Expression expression,
+            bool targetCanBeNull = false,
+            bool checkMultiInvocations = true,
+            bool invertNestedAccessChecks = false)
         {
-            var finder = new ExpressionInfoFinderInstance(_mappingDataObject, targetCanBeNull);
+            var finder = new ExpressionInfoFinderInstance(
+                _mappingDataObject,
+                targetCanBeNull,
+                checkMultiInvocations,
+                invertNestedAccessChecks);
+
             var info = finder.FindIn(expression);
 
             return info;
@@ -45,16 +54,24 @@ namespace AgileObjects.AgileMapper.Members
         {
             private readonly Expression _mappingDataObject;
             private readonly bool _includeTargetNullChecking;
+            private readonly bool _checkMultiInvocations;
+            private readonly bool _invertNestedAccessChecks;
             private ICollection<Expression> _stringMemberAccessSubjects;
             private ICollection<string> _nullCheckSubjects;
             private Dictionary<string, Expression> _nestedAccessesByPath;
             private ICollection<Expression> _allInvocations;
             private ICollection<Expression> _multiInvocations;
 
-            public ExpressionInfoFinderInstance(Expression mappingDataObject, bool targetCanBeNull)
+            public ExpressionInfoFinderInstance(
+                Expression mappingDataObject,
+                bool targetCanBeNull,
+                bool checkMultiInvocations,
+                bool invertNestedAccessChecks)
             {
                 _mappingDataObject = mappingDataObject;
                 _includeTargetNullChecking = targetCanBeNull;
+                _checkMultiInvocations = checkMultiInvocations;
+                _invertNestedAccessChecks = invertNestedAccessChecks;
             }
 
             private ICollection<Expression> StringMemberAccessSubjects
@@ -83,7 +100,7 @@ namespace AgileObjects.AgileMapper.Members
 
                 var nestedAccessChecks = GetNestedAccessChecks();
 
-                var multiInvocations = _multiInvocations?.Any() == true
+                var multiInvocations = _checkMultiInvocations && _multiInvocations?.Any() == true
                     ? _multiInvocations.OrderBy(inv => inv.ToString()).ToArray()
                     : Enumerable<Expression>.EmptyArray;
 
@@ -92,27 +109,48 @@ namespace AgileObjects.AgileMapper.Members
 
             private Expression GetNestedAccessChecks()
             {
-                return _nestedAccessesByPath?
-                    .Values
-                    .Reverse()
-                    .Project(GetAccessCheck)
-                    .Aggregate(
-                        default(Expression),
-                        (accessChecksSoFar, accessCheck) => (accessChecksSoFar != null)
-                            ? Expression.AndAlso(accessChecksSoFar, accessCheck)
-                            : accessCheck);
+                if (_nestedAccessesByPath == null)
+                {
+                    return null;
+                }
+
+                var nestedAccessCount = _nestedAccessesByPath.Count;
+
+                if (nestedAccessCount == 1)
+                {
+                    return GetAccessCheck(_nestedAccessesByPath.Values.First());
+                }
+
+                var nestedAccessCheckChain = default(Expression);
+
+                foreach (var nestedAccessCheck in _nestedAccessesByPath.Values.Reverse().Project(GetAccessCheck))
+                {
+                    if (nestedAccessCheckChain == null)
+                    {
+                        nestedAccessCheckChain = nestedAccessCheck;
+                        continue;
+                    }
+
+                    nestedAccessCheckChain = _invertNestedAccessChecks
+                        ? Expression.OrElse(nestedAccessCheckChain, nestedAccessCheck)
+                        : Expression.AndAlso(nestedAccessCheckChain, nestedAccessCheck);
+                }
+
+                return nestedAccessCheckChain;
             }
 
-            private static Expression GetAccessCheck(Expression access)
+            private Expression GetAccessCheck(Expression access)
             {
                 switch (access.NodeType)
                 {
                     case ArrayIndex:
                         var arrayIndexAccess = (BinaryExpression)access;
                         var arrayLength = Expression.ArrayLength(arrayIndexAccess.Left);
-                        var indexValue = arrayIndexAccess.Right;
+                        var arrayIndexValue = arrayIndexAccess.Right;
 
-                        return Expression.GreaterThan(arrayLength, indexValue);
+                        return _invertNestedAccessChecks
+                            ? Expression.LessThanOrEqual(arrayLength, arrayIndexValue)
+                            : Expression.GreaterThan(arrayLength, arrayIndexValue);
 
                     case Index:
                         var index = (IndexExpression)access;
@@ -130,10 +168,16 @@ namespace AgileObjects.AgileMapper.Members
                             goto default;
                         }
 
-                        return Expression.GreaterThan(count, index.Arguments.First().GetConversionTo(count.Type));
+                        var indexValue = index.Arguments.First().GetConversionTo(count.Type);
+
+                        return _invertNestedAccessChecks
+                            ? Expression.LessThanOrEqual(count, indexValue)
+                            : Expression.GreaterThan(count, indexValue);
 
                     default:
-                        return access.GetIsNotDefaultComparison();
+                        return _invertNestedAccessChecks
+                            ? access.GetIsDefaultComparison()
+                            : access.GetIsNotDefaultComparison();
                 }
             }
 
@@ -343,6 +387,11 @@ namespace AgileObjects.AgileMapper.Members
 
             private void AddInvocationIfNecessary(Expression invocation)
             {
+                if (!_checkMultiInvocations)
+                {
+                    return;
+                }
+
                 if (_allInvocations?.Contains(invocation) != true)
                 {
                     AllInvocations.Add(invocation);

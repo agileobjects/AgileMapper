@@ -137,17 +137,18 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private class FilterCondition
         {
-            private readonly LambdaExpression _filterLambda;
             private readonly Type _filteredValueType;
             private readonly bool _appliesToAllSources;
             private readonly bool _filteredValueTypeIsNullable;
+            private readonly Expression _filterParameter;
+            private readonly Expression _filterExpression;
+            private readonly Expression _filterNestedAccessChecks;
 
             private FilterCondition(
                 MethodCallExpression filterCreationCall,
                 Type filteredValueType)
             {
                 Filter = filterCreationCall;
-                _filterLambda = GetFilterLambda(filterCreationCall);
                 _filteredValueType = filteredValueType;
                 _appliesToAllSources = filteredValueType == typeof(object);
 
@@ -155,10 +156,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 {
                     _filteredValueTypeIsNullable = filteredValueType.IsNullableType();
                 }
-            }
 
-            private static LambdaExpression GetFilterLambda(MethodCallExpression filterCreationCall)
-            {
                 var filterArgument = filterCreationCall.Arguments.First();
 
                 if (filterArgument.NodeType == ExpressionType.Quote)
@@ -168,16 +166,16 @@ namespace AgileObjects.AgileMapper.Configuration
 
                 var filterLambda = (LambdaExpression)filterArgument;
 
-                var filterInfo = ExpressionInfoFinder.Default.FindIn(filterLambda.Body, targetCanBeNull: false);
+                _filterParameter = filterLambda.Parameters.First();
+                _filterExpression = filterLambda.Body;
 
-                if (filterInfo.NestedAccessChecks == null)
-                {
-                    return filterLambda;
-                }
-
-                return Expression.Lambda(
-                    Expression.AndAlso(filterInfo.NestedAccessChecks, filterLambda.Body),
-                    filterLambda.Parameters);
+                _filterNestedAccessChecks = ExpressionInfoFinder
+                    .Default
+                    .FindIn(
+                        _filterExpression, 
+                        checkMultiInvocations: false,
+                        invertNestedAccessChecks: true)
+                    .NestedAccessChecks;
             }
 
             #region Factory Method
@@ -239,7 +237,21 @@ namespace AgileObjects.AgileMapper.Configuration
             }
 
             private Expression GetFilterCondition(Expression sourceValue)
-                => _filterLambda.ReplaceParameterWith(sourceValue);
+            {
+                var condition = ReplaceFilterParameter(_filterExpression, sourceValue);
+
+                if (_filterNestedAccessChecks == null)
+                {
+                    return condition;
+                }
+
+                return Expression.OrElse(
+                    ReplaceFilterParameter(_filterNestedAccessChecks, sourceValue),
+                    condition);
+            }
+
+            private Expression ReplaceFilterParameter(Expression expression, Expression sourceValue)
+                => expression.Replace(_filterParameter, sourceValue);
 
             private class FilterConditionsFinder : ExpressionVisitor
             {

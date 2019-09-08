@@ -53,10 +53,9 @@
                         .IgnoreSources(s => s.If<Customer>(c => c.Address.Line1.Length < 2)));
 
                 result.ShouldNotBeNull();
-                result.Count().ShouldBe(2);
+                result.ShouldHaveSingleItem();
                 result.First().Name.ShouldBe("Customer 1");
                 result.First().AddressLine1.ShouldBe("1 Street");
-                result.Second().ShouldBeNull();
             }
         }
 
