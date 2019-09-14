@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Configuration
     {
         private static readonly Expression _true = Expression.Constant(true, typeof(bool));
         private static readonly Expression _false = Expression.Constant(false, typeof(bool));
-        
+
         protected ConfiguredSourceValueFilter(MappingConfigInfo configInfo, Expression valuesFilter)
             : base(configInfo)
         {
@@ -40,6 +40,11 @@ namespace AgileObjects.AgileMapper.Configuration
             Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
         {
             var filterConditions = FilterCondition.GetConditions(valuesFilter);
+
+            if (filterConditions.None())
+            {
+                throw new MappingConfigurationException("At least one source filter must be specified.");
+            }
 
             if (filterConditions.HasOne())
             {
@@ -66,7 +71,9 @@ namespace AgileObjects.AgileMapper.Configuration
                 return false;
             }
 
-            return true;
+            var otherSourceFilter = (ConfiguredSourceValueFilter)otherConfiguredItem;
+
+            return ExpressionEvaluation.AreEqual(ValuesFilter, otherSourceFilter.ValuesFilter);
         }
 
         public string GetConflictMessage()

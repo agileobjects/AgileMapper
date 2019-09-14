@@ -30,5 +30,19 @@
             configEx.Message.ShouldContain("If<int>(value => value == 999)");
             configEx.Message.ShouldContain("already been configured");
         }
+
+        [Fact]
+        public void ShouldErrorIfNoFiltersAreDefined()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.IgnoreSources(c => true);
+                }
+            });
+
+            configEx.Message.ShouldContain("At least one source filter must be specified");
+        }
     }
 }
