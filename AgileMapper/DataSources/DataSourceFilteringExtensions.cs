@@ -76,7 +76,7 @@
                 .RelativeTo(contextMapperData.SourceMember)
                 .GetQualifiedAccess(contextMapperData.SourceObject);
 
-            var filterConditions = filters.GetFilterConditionsOrNull(rawSourceValue);
+            var filterConditions = filters.GetFilterConditionsOrNull(rawSourceValue, contextMapperData);
 
             if (filterConditions == null)
             {
@@ -109,12 +109,15 @@
 
         public static Expression GetFilterConditionsOrNull(
             this IList<ConfiguredSourceValueFilter> filters,
-            Expression sourceValue)
+            Expression sourceValue,
+            IMemberMapperData mapperData)
         {
             return filters.HasOne()
-                ? filters.First().GetConditionOrNull(sourceValue)
+                ? filters.First().GetConditionOrNull(sourceValue, mapperData)
                 : filters
-                    .ProjectToArray(sourceValue, (sv, filter) => filter.GetConditionOrNull(sv))
+                    .ProjectToArray(
+                        new { sourceValue, mapperData },
+                       (d, filter) => filter.GetConditionOrNull(d.sourceValue, d.mapperData))
                     .AndTogether();
         }
     }

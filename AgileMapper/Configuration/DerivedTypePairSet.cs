@@ -46,7 +46,7 @@
             if (_typePairsByTargetType.TryGetValue(targetType, out var typePairs))
             {
                 RemoveConflictingPairIfAppropriate(typePair, typePairs);
-                typePairs.AddSorted(typePair);
+                typePairs.AddThenSort(typePair);
                 return;
             }
 

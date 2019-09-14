@@ -193,6 +193,90 @@
         }
 
         [Fact]
+        public void ShouldReplaceASourceValueFilterWithAConditionalFilterInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSources(c => c.If<int>(value => value % 2 == 0));
+
+                var evenValueSource = new PublicField<int> { Value = 8 };
+                var eventValueResult = mapper.Map(evenValueSource).ToANew<PublicProperty<long>>();
+
+                eventValueResult.ShouldNotBeNull();
+                eventValueResult.Value.ShouldBeDefault();
+
+                var oddValueSource = new PublicField<int> { Value = 5 };
+                var oddValueResult = mapper.Map(oddValueSource).ToANew<PublicProperty<long>>();
+
+                oddValueResult.ShouldNotBeNull();
+                oddValueResult.Value.ShouldBe(5);
+
+                var inlineFilterSmallEvenValueResult = mapper
+                    .Map(evenValueSource)
+                    .ToANew<PublicProperty<long>>(cfg => cfg
+                        .If(ctx => ctx.Source.Value > 10)
+                        .IgnoreSources(c => c.If<int>(value => value % 2 == 0)));
+
+                inlineFilterSmallEvenValueResult.ShouldNotBeNull();
+                inlineFilterSmallEvenValueResult.Value.ShouldBe(8);
+
+                var inlineFilterLargeEvenValueResult = mapper
+                    .Map(new PublicField<int> { Value = 16 })
+                    .ToANew<PublicProperty<long>>(cfg => cfg
+                        .If(ctx => ctx.Source.Value > 10)
+                        .IgnoreSources(c => c.If<int>(value => value % 2 == 0)));
+
+                inlineFilterLargeEvenValueResult.ShouldNotBeNull();
+                inlineFilterLargeEvenValueResult.Value.ShouldBeDefault();
+
+                mapper.InlineContexts().ShouldHaveSingleItem();
+            }
+        }
+
+        [Fact]
+        public void ShouldReplaceAMultiClauseSourceValueFilterWithAConditionalFilterInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .IgnoreSources(c => c.If<int>(value => value > 3) && c.If<int>(value => value < 8));
+
+                var filteredValueSource = new PublicField<int> { Value = 6 };
+                var filteredValueResult = mapper.Map(filteredValueSource).ToANew<PublicProperty<long>>();
+
+                filteredValueResult.ShouldNotBeNull();
+                filteredValueResult.Value.ShouldBeDefault();
+
+                var unfilteredValueSource = new PublicField<int> { Value = 2 };
+                var unfilteredValueResult = mapper.Map(unfilteredValueSource).ToANew<PublicProperty<long>>();
+
+                unfilteredValueResult.ShouldNotBeNull();
+                unfilteredValueResult.Value.ShouldBe(2);
+
+                var inlineUnfilteredValueResult = mapper
+                    .Map(filteredValueSource)
+                    .ToANew<PublicProperty<long>>(cfg => cfg
+                        .If(ctx => ctx.Source.Value != 6)
+                        .IgnoreSources(c => c.If<int>(value => value > 3) && c.If<int>(value => value < 8)));
+
+                inlineUnfilteredValueResult.ShouldNotBeNull();
+                inlineUnfilteredValueResult.Value.ShouldBe(6);
+
+                var inlineFilteredValueResult = mapper
+                    .Map(new PublicField<int> { Value = 7 })
+                    .ToANew<PublicProperty<long>>(cfg => cfg
+                        .If(ctx => ctx.Source.Value != 6)
+                        .IgnoreSources(c => c.If<int>(value => value > 3) && c.If<int>(value => value < 8)));
+
+                inlineFilteredValueResult.ShouldNotBeNull();
+                inlineFilteredValueResult.Value.ShouldBeDefault();
+
+                mapper.InlineContexts().ShouldHaveSingleItem();
+            }
+        }
+
+        [Fact]
         public void ShouldErrorIfDuplicateSourceValueFilterConfiguredInline()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>

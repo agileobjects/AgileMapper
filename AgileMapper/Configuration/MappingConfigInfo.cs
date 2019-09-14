@@ -55,7 +55,8 @@
             return this;
         }
 
-        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => otherConfigInfo.SourceType == SourceType;
+        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) 
+            => otherConfigInfo.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
 

@@ -66,7 +66,7 @@
                 _mappedObjectCachingSettings,
                 (s, conflicting) => conflicting.GetConflictMessage(s));
 
-            MappedObjectCachingSettings.AddSorted(setting);
+            MappedObjectCachingSettings.AddThenSort(setting);
         }
 
         public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
@@ -102,7 +102,7 @@
 
             ThrowIfConflictingItemExists(condition, conditions, (c, cC) => c.GetConflictMessage());
 
-            conditions.AddSorted(condition);
+            conditions.AddThenSort(condition);
         }
 
         public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
@@ -131,7 +131,7 @@
         {
             ThrowIfConflictingKeyMappingSettingExists(setting);
 
-            EntityKeyMappingSettings.AddSorted(setting);
+            EntityKeyMappingSettings.AddThenSort(setting);
         }
 
         public bool MapEntityKeys(IBasicMapperData basicData)
@@ -155,7 +155,7 @@
         {
             ThrowIfConflictingDataSourceReversalSettingExists(setting);
 
-            DataSourceReversalSettings.AddSorted(setting);
+            DataSourceReversalSettings.AddThenSort(setting);
         }
 
         public void AddReverseDataSourceFor(ConfiguredDataSourceFactory dataSourceFactory)
@@ -167,7 +167,7 @@
 
             if (reverseDataSourceFactory != null)
             {
-                DataSourceFactories.AddSortFilter(reverseDataSourceFactory);
+                DataSourceFactories.AddOrReplaceThenSort(reverseDataSourceFactory);
             }
         }
 
@@ -287,7 +287,7 @@
                 _objectFactories,
                 (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
 
-            ObjectFactories.AddSortFilter(objectFactory);
+            ObjectFactories.AddOrReplaceThenSort(objectFactory);
         }
 
         public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
@@ -308,7 +308,7 @@
         {
             ThrowIfConflictingItemExists(sourceValueFilter, _sourceValueFilters, (svf, cSvf) => svf.GetConflictMessage());
 
-            SourceValueFilters.Add(sourceValueFilter);
+            SourceValueFilters.AddOrReplaceThenSort(sourceValueFilter);
         }
 
         public IList<ConfiguredSourceValueFilter> GetSourceValueFilters(IBasicMapperData mapperData, Type sourceValueType)
@@ -331,7 +331,7 @@
         {
             ThrowIfConflictingIgnoredSourceMemberExists(sourceMemberIgnore, (ism, cIsm) => ism.GetConflictMessage(cIsm));
 
-            IgnoredSourceMembers.AddSortFilter(sourceMemberIgnore);
+            IgnoredSourceMembers.AddOrReplaceThenSort(sourceMemberIgnore);
         }
 
         public IList<ConfiguredSourceMemberIgnoreBase> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
@@ -349,7 +349,7 @@
             ThrowIfConflictingIgnoredMemberExists(memberIgnore, (im, cIm) => im.GetConflictMessage(cIm));
             ThrowIfConflictingDataSourceExists(memberIgnore, (im, cDsf) => im.GetConflictMessage(cDsf));
 
-            IgnoredMembers.AddSortFilter(memberIgnore);
+            IgnoredMembers.AddOrReplaceThenSort(memberIgnore);
         }
 
         public IList<ConfiguredMemberIgnoreBase> GetRelevantMemberIgnores(IBasicMapperData mapperData)
@@ -391,7 +391,7 @@
                 ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
             }
 
-            DataSourceFactories.AddSortFilter(dataSourceFactory);
+            DataSourceFactories.AddOrReplaceThenSort(dataSourceFactory);
 
             if (dataSourceFactory.TargetMember.IsRoot)
             {
@@ -597,7 +597,7 @@
             _dataSourceReversalSettings?.CopyTo(configurations.DataSourceReversalSettings);
             _objectFactories?.CloneItems().CopyTo(configurations.ObjectFactories);
             _identifiers?.CloneTo(configurations.Identifiers);
-            _sourceValueFilters?.CopyTo(configurations.SourceValueFilters);
+            _sourceValueFilters?.CloneItems().CopyTo(configurations.SourceValueFilters);
             _ignoredSourceMembers?.CloneItems().CopyTo(configurations.IgnoredSourceMembers);
             _ignoredMembers?.CloneItems().CopyTo(configurations.IgnoredMembers);
             _enumPairings?.CopyTo(configurations.EnumPairings);

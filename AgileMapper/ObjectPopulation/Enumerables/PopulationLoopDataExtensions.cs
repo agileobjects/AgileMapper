@@ -90,7 +90,8 @@
                 return elementPopulation;
             }
 
-            var sourceFilterConditions = sourceValueFilters.GetFilterConditionsOrNull(sourceElement);
+            var sourceFilterConditions = sourceValueFilters
+                .GetFilterConditionsOrNull(sourceElement, builder.MapperData);
 
             return (sourceFilterConditions != null)
                 ? Expression.IfThen(sourceFilterConditions, elementPopulation)

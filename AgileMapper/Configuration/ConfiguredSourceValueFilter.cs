@@ -14,8 +14,14 @@ namespace AgileObjects.AgileMapper.Configuration
     using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+    using static Extensions.Internal.ExpressionEvaluation;
 
-    internal abstract class ConfiguredSourceValueFilter : UserConfiguredItemBase
+    internal abstract class ConfiguredSourceValueFilter :
+        UserConfiguredItemBase,
+        IPotentialAutoCreatedItem
+#if NET35
+        , IComparable<ConfiguredSourceValueFilter>
+#endif
     {
         private static readonly Expression _true = Expression.Constant(true, typeof(bool));
         private static readonly Expression _false = Expression.Constant(false, typeof(bool));
@@ -65,16 +71,10 @@ namespace AgileObjects.AgileMapper.Configuration
         protected Expression ValuesFilter { get; }
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
-        {
-            if (!base.ConflictsWith(otherConfiguredItem))
-            {
-                return false;
-            }
+            => base.ConflictsWith(otherConfiguredItem) && FiltersAreTheSame((ConfiguredSourceValueFilter)otherConfiguredItem);
 
-            var otherSourceFilter = (ConfiguredSourceValueFilter)otherConfiguredItem;
-
-            return ExpressionEvaluation.AreEqual(ValuesFilter, otherSourceFilter.ValuesFilter);
-        }
+        private bool FiltersAreTheSame(ConfiguredSourceValueFilter otherSourceValueFilter)
+            => AreEqual(ValuesFilter, otherSourceValueFilter.ValuesFilter);
 
         public string GetConflictMessage()
         {
@@ -88,7 +88,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         protected abstract bool Filters(Type valueType);
 
-        public Expression GetConditionOrNull(Expression sourceValue)
+        public Expression GetConditionOrNull(Expression sourceValue, IMemberMapperData mapperData)
         {
             var hasFixedValueOperands = false;
             var filterExpression = GetFilterExpression(sourceValue, ref hasFixedValueOperands);
@@ -98,10 +98,42 @@ namespace AgileObjects.AgileMapper.Configuration
                 filterExpression = FilterOptimiser.Optimise(filterExpression);
             }
 
-            return (filterExpression != _false) ? filterExpression.Negate() : null;
+            if (filterExpression == _false)
+            {
+                return null;
+            }
+            
+            var condition = GetConditionOrNull(mapperData);
+
+            if (condition != null)
+            {
+                filterExpression = Expression.AndAlso(condition, filterExpression);
+            }
+            
+            return filterExpression.Negate();
         }
 
         protected abstract Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands);
+
+        #region IPotentialAutoCreatedItem Members
+
+        public bool WasAutoCreated { get; protected set; }
+
+        public abstract IPotentialAutoCreatedItem Clone();
+
+        public bool IsReplacementFor(IPotentialAutoCreatedItem autoCreatedItem)
+        {
+            var otherSourceValueFilter = (ConfiguredSourceValueFilter)autoCreatedItem;
+
+            return otherSourceValueFilter.HasOverlappingTypes(this) && FiltersAreTheSame(otherSourceValueFilter);
+        }
+
+        #endregion
+
+#if NET35
+        int IComparable<ConfiguredSourceValueFilter>.CompareTo(ConfiguredSourceValueFilter other)
+            => DoComparisonTo(other);
+#endif
 
         private class SingleConditionConfiguredSourceValueFilter : ConfiguredSourceValueFilter
         {
@@ -124,6 +156,18 @@ namespace AgileObjects.AgileMapper.Configuration
                     _filterCondition.Filter,
                     _filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands));
             }
+
+            #region IPotentialAutoCreatedItem Members
+
+            public override IPotentialAutoCreatedItem Clone()
+            {
+                return new SingleConditionConfiguredSourceValueFilter(ConfigInfo, ValuesFilter, _filterCondition)
+                {
+                    WasAutoCreated = true
+                };
+            }
+
+            #endregion
         }
 
         private class MultipleConditionConfiguredSourceValueFilter : ConfiguredSourceValueFilter
@@ -155,6 +199,18 @@ namespace AgileObjects.AgileMapper.Configuration
 
                 return ValuesFilter.Replace(conditionReplacements);
             }
+
+            #region IPotentialAutoCreatedItem Members
+
+            public override IPotentialAutoCreatedItem Clone()
+            {
+                return new MultipleConditionConfiguredSourceValueFilter(ConfigInfo, ValuesFilter, _filterConditions)
+                {
+                    WasAutoCreated = true
+                };
+            }
+
+            #endregion
         }
 
         #region Helper Classes

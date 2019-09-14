@@ -384,7 +384,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     }
                 }
 
-                constructionInfos.AddSorted(this);
+                constructionInfos.AddThenSort(this);
             }
 
             public abstract Expression GetConstructionExpression(IList<Expression> argumentValues);
