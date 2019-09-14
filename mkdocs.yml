@@ -54,7 +54,9 @@ nav:
         - Enum pairing: Enum-Mapping/#configuring-enum-pairs
         - Dictionaries: configuration/Dictionary-Mapping.md
         - Dynamics: configuration/Dynamic-Mapping.md
-        - Ignoring members: configuration/Ignoring-Target-Members.md
+        - Ignoring source values: configuration/Ignoring-Source-Values.md
+        - Ignoring source members: configuration/Ignoring-Source-Members.md
+        - Ignoring target members: configuration/Ignoring-Target-Members.md
         - Object identifiers: configuration/Object-Identifiers.md
         - Object construction: configuration/Object-Construction.md
         - Null results: configuration/Null-Results.md
