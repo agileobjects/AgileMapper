@@ -1,6 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
 #if !NET35
@@ -13,14 +16,14 @@
     public class WhenIgnoringSourceMembersByValueFilterInline
     {
         [Fact]
-        public void ShouldIgnoreSourceMembersByMultiClauseTypedValueFiltersOnline()
+        public void ShouldIgnoreSourceValuesByMultiClauseTypedValueFiltersOnline()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 var matchingIntResult = mapper
                     .Map(new PublicField<int> { Value = 123 })
                     .ToANew<PublicProperty<int>>(cfg => cfg
-                        .IgnoreSources(c => 
+                        .IgnoreSources(c =>
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                            (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
@@ -30,7 +33,7 @@
                 var matchingStringResult = mapper
                     .Map(new PublicField<string> { Value = "123" })
                     .ToANew<PublicProperty<string>>(cfg => cfg
-                        .IgnoreSources(c => 
+                        .IgnoreSources(c =>
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                            (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
@@ -40,7 +43,7 @@
                 var nonMatchingIntResult = mapper
                     .Map(new PublicField<int> { Value = 456 })
                     .ToANew<PublicProperty<int>>(cfg => cfg
-                        .IgnoreSources(c => 
+                        .IgnoreSources(c =>
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                            (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
@@ -50,7 +53,7 @@
                 var nonMatchingStringResult = mapper
                     .Map(new PublicField<string> { Value = "999" })
                     .ToANew<PublicProperty<string>>(cfg => cfg
-                        .IgnoreSources(c => 
+                        .IgnoreSources(c =>
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                             (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
@@ -60,7 +63,7 @@
                 var nonMatchingTypeResult = mapper
                     .Map(new PublicField<long> { Value = 123L })
                     .ToANew<PublicProperty<string>>(cfg => cfg
-                        .IgnoreSources(c => 
+                        .IgnoreSources(c =>
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                             (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
@@ -70,7 +73,84 @@
         }
 
         [Fact]
-        public void ShouldExtendSourceMemberValueFilterConfiguration()
+        public void ShouldHandleNullMemberInANestedSourceValueFilterInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(new List<Customer>
+                    {
+                        new Customer { Name = "Customer 1", Address = new Address { Line1 = "1 Street" } },
+                        new MysteryCustomer { Name = "Customer 2"}
+                    })
+                    .ToANew<IEnumerable<CustomerViewModel>>(cfg => cfg
+                        .IgnoreSources(s => s.If<Customer>(c => c.Address.Line1.Length < 2)));
+
+                result.ShouldNotBeNull();
+                result.ShouldHaveSingleItem();
+                result.First().Name.ShouldBe("Customer 1");
+                result.First().AddressLine1.ShouldBe("1 Street");
+            }
+        }
+
+        [Fact]
+        public void ShouldFilterAnEnumerableSourceValueConditionallyInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Product[], Product[]>>()
+                    .Over<PublicProperty<List<ProductDto>>>()
+                    .Map(ctx => ctx.Source.Value1)
+                    .To(t => t.Value)
+                    .But
+                    .If(ctx => ctx.Source.Value1.None())
+                    .Map(ctx => ctx.Source.Value2)
+                    .To(t => t.Value);
+
+                var target = new PublicProperty<List<ProductDto>>();
+
+                var bothValuesSource = new PublicTwoFields<Product[], Product[]>
+                {
+                    Value1 = new[] { new Product { ProductId = "111" } },
+                    Value2 = new[] { new Product { ProductId = "222" } }
+                };
+
+                mapper.Map(bothValuesSource).Over(target);
+
+                target.Value.ShouldHaveSingleItem().ProductId.ShouldBe("111");
+                target.Value.Clear();
+
+                var emptyValue1Source = new PublicTwoFields<Product[], Product[]>
+                {
+                    Value1 = Enumerable<Product>.EmptyArray,
+                    Value2 = new[] { new Product { ProductId = "222" } }
+                };
+
+                mapper.Map(emptyValue1Source).Over(target);
+
+                target.Value.ShouldHaveSingleItem().ProductId.ShouldBe("222");
+                target.Value.Clear();
+
+                mapper
+                    .Map(bothValuesSource)
+                    .Over(target, cfg => cfg
+                        .IgnoreSources(s => s.If<Product[]>(ps => ps[0].ProductId == "111")));
+
+                target.Value.ShouldBeEmpty();
+                target.Value = null;
+
+                mapper
+                    .Map(bothValuesSource)
+                    .Over(target, cfg => cfg
+                        .IgnoreSources(s => s.If<Product[]>(ps => ps[0].ProductId == "111")));
+
+                target.Value.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldExtendSourceValueFilterConfiguration()
         {
             using (var mapper = Mapper.CreateNew())
             {

@@ -149,7 +149,7 @@ namespace AgileObjects.AgileMapper.Members
                         var arrayIndexValue = arrayIndexAccess.Right;
 
                         return _invertNestedAccessChecks
-                            ? Expression.LessThanOrEqual(arrayLength, arrayIndexValue)
+                            ? Expression.Equal(arrayLength, arrayIndexValue)
                             : Expression.GreaterThan(arrayLength, arrayIndexValue);
 
                     case Index:

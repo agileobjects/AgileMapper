@@ -68,11 +68,13 @@
                 return dataSource;
             }
 
-            var rawSourceValue = (sourceMember != mapperData.SourceMember)
-                ? sourceMember
-                    .RelativeTo(mapperData.SourceMember)
-                    .GetQualifiedAccess(mapperData.SourceObject)
-                : mapperData.SourceObject;
+            var contextMapperData = mapperData.IsEntryPoint || (sourceMember != mapperData.SourceMember)
+                ? mapperData
+                : mapperData.Parent;
+
+            var rawSourceValue = sourceMember
+                .RelativeTo(contextMapperData.SourceMember)
+                .GetQualifiedAccess(contextMapperData.SourceObject);
 
             var filterConditions = filters.GetFilterConditionsOrNull(rawSourceValue);
 

@@ -1,7 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.Inline
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using Common;
     using TestClasses;
 #if !NET35
@@ -35,27 +33,6 @@
                 nonMatchingResult.Discount.ShouldBe(0.2m);
 
                 mapper.InlineContexts().ShouldHaveSingleItem();
-            }
-        }
-
-        [Fact]
-        public void ShouldHandleNullMemberInANestedSourceMemberFilterInline()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var result = mapper
-                    .Map(new List<Customer>
-                    {
-                        new Customer { Name = "Customer 1", Address = new Address { Line1 = "1 Street" } },
-                        new MysteryCustomer { Name = "Customer 2"}
-                    })
-                    .ToANew<IEnumerable<CustomerViewModel>>(cfg => cfg
-                        .IgnoreSources(s => s.If<Customer>(c => c.Address.Line1.Length < 2)));
-
-                result.ShouldNotBeNull();
-                result.ShouldHaveSingleItem();
-                result.First().Name.ShouldBe("Customer 1");
-                result.First().AddressLine1.ShouldBe("1 Street");
             }
         }
 
