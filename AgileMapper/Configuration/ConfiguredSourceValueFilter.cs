@@ -12,16 +12,18 @@ namespace AgileObjects.AgileMapper.Configuration
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
     internal abstract class ConfiguredSourceValueFilter : UserConfiguredItemBase
     {
         private static readonly Expression _true = Expression.Constant(true, typeof(bool));
         private static readonly Expression _false = Expression.Constant(false, typeof(bool));
-
-        protected ConfiguredSourceValueFilter(MappingConfigInfo configInfo)
+        
+        protected ConfiguredSourceValueFilter(MappingConfigInfo configInfo, Expression valuesFilter)
             : base(configInfo)
         {
+            ValuesFilter = valuesFilter;
         }
 
         #region Factory Methods
@@ -55,6 +57,25 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
 
+        protected Expression ValuesFilter { get; }
+
+        public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
+        {
+            if (!base.ConflictsWith(otherConfiguredItem))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public string GetConflictMessage()
+        {
+            var filterDescription = ValuesFilter.ToReadableString(o => o.UseExplicitGenericParameters);
+
+            return $"Source filter '{filterDescription}' has already been configured";
+        }
+
         public bool AppliesTo(Type sourceValueType, IBasicMapperData mapperData)
             => AppliesTo(mapperData) && Filters(sourceValueType);
 
@@ -77,16 +98,14 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private class SingleConditionConfiguredSourceValueFilter : ConfiguredSourceValueFilter
         {
-            private readonly Expression _valuesFilter;
             private readonly FilterCondition _filterCondition;
 
             public SingleConditionConfiguredSourceValueFilter(
                 MappingConfigInfo configInfo,
                 Expression valuesFilter,
                 FilterCondition filterCondition)
-                : base(configInfo)
+                : base(configInfo, valuesFilter)
             {
-                _valuesFilter = valuesFilter;
                 _filterCondition = filterCondition;
             }
 
@@ -94,7 +113,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
             protected override Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands)
             {
-                return _valuesFilter.Replace(
+                return ValuesFilter.Replace(
                     _filterCondition.Filter,
                     _filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands));
             }
@@ -102,16 +121,14 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private class MultipleConditionConfiguredSourceValueFilter : ConfiguredSourceValueFilter
         {
-            private readonly Expression _valuesFilter;
             private readonly IList<FilterCondition> _filterConditions;
 
             public MultipleConditionConfiguredSourceValueFilter(
                 MappingConfigInfo configInfo,
                 Expression valuesFilter,
                 IList<FilterCondition> filterConditions)
-                : base(configInfo)
+                : base(configInfo, valuesFilter)
             {
-                _valuesFilter = valuesFilter;
                 _filterConditions = filterConditions;
             }
 
@@ -129,7 +146,7 @@ namespace AgileObjects.AgileMapper.Configuration
                         filterCondition.GetConditionReplacement(sourceValue, ref hasFixedValueOperands));
                 }
 
-                return _valuesFilter.Replace(conditionReplacements);
+                return ValuesFilter.Replace(conditionReplacements);
             }
         }
 
@@ -172,7 +189,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 _filterNestedAccessChecks = ExpressionInfoFinder
                     .Default
                     .FindIn(
-                        _filterExpression, 
+                        _filterExpression,
                         checkMultiInvocations: false,
                         invertNestedAccessChecks: true)
                     .NestedAccessChecks;

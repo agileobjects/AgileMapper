@@ -306,6 +306,8 @@
 
         public void Add(ConfiguredSourceValueFilter sourceValueFilter)
         {
+            ThrowIfConflictingItemExists(sourceValueFilter, _sourceValueFilters, (svf, cSvf) => svf.GetConflictMessage());
+
             SourceValueFilters.Add(sourceValueFilter);
         }
 
