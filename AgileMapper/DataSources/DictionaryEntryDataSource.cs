@@ -1,11 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
 
     internal class DictionaryEntryDataSource : DataSourceBase
     {
@@ -50,7 +50,12 @@
             return valueNonNull;
         }
 
-        public override Expression PreCondition => _preCondition ?? (_preCondition = CreatePreCondition());
+        public override Expression AddSourceCondition(Expression value)
+        {
+            var preCondition = _preCondition ?? (_preCondition = CreatePreCondition());
+
+            return value.ToIfFalseDefaultCondition(preCondition);
+        }
 
         private Expression CreatePreCondition()
         {
@@ -66,8 +71,10 @@
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
 
-        public override Expression AddPreCondition(Expression population)
+        public override Expression FinalisePopulation(Expression population, Expression alternatePopulation)
         {
+            population = base.FinalisePopulation(population, alternatePopulation);
+
             var matchingKeyExists = GetMatchingKeyExistsTest();
             var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);
 

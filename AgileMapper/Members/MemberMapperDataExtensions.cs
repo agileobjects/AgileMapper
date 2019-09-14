@@ -4,20 +4,23 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
-    using Configuration;
-    using DataSources;
-    using Dictionaries;
-    using Extensions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ObjectPopulation;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
+    using Configuration;
+    using Configuration.MemberIgnores.SourceValueFilters;
+    using DataSources;
+    using DataSources.Factories;
+    using Dictionaries;
+    using Extensions;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ObjectPopulation;
     using static Member;
+    using static System.StringComparison;
 
     internal static class MemberMapperDataExtensions
     {
@@ -26,7 +29,10 @@ namespace AgileObjects.AgileMapper.Members
 
         public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
         {
-            if (type == null)
+            if ((type == null) ||
+                 type.Name.EndsWith("ViewModel", Ordinal) ||
+                 type.Name.EndsWith("Dto", Ordinal) ||
+                 type.Name.EndsWith("DataTransferObject", Ordinal))
             {
                 idMember = null;
                 return false;
@@ -182,34 +188,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public static void RegisterTargetMemberDataSourcesIfRequired(
             this IMemberMapperData mapperData,
-            DataSourceSet dataSources)
+            IDataSourceSet dataSources)
         {
             mapperData.Parent.DataSourcesByTargetMember.Add(mapperData.TargetMember, dataSources);
-        }
-
-        public static bool TargetMemberIsUnmappable(this IMemberMapperData mapperData, out string reason)
-        {
-            if (!mapperData.RuleSet.Settings.AllowSetMethods &&
-                (mapperData.TargetMember.LeafMember.MemberType == MemberType.SetMethod))
-            {
-                reason = "Set methods are unsupported by rule set '" + mapperData.RuleSet.Name + "'";
-                return true;
-            }
-
-            if (mapperData.TargetMember.LeafMember.HasMatchingCtorParameter &&
-              ((mapperData.Parent?.IsRoot != true) ||
-               !mapperData.RuleSet.Settings.RootHasPopulatedTarget))
-            {
-                reason = "Expected to be populated by constructor parameter";
-                return true;
-            }
-
-            return TargetMemberIsUnmappable(
-                mapperData,
-                mapperData.TargetMember,
-                md => md.MapperContext.UserConfigurations.QueryDataSourceFactories(md),
-                mapperData.MapperContext.UserConfigurations,
-                out reason);
         }
 
         public static bool TargetMemberIsUnmappable<TTMapperData>(
@@ -235,8 +216,9 @@ namespace AgileObjects.AgileMapper.Members
 
             // If we're here:
             //   1. TargetMember is an Entity key
-            //   2. No configuration exists to allow Entity key Mapping
-            //   3. No configured data sources exist
+            //   2. The rule set doesn't allow entity key mapping
+            //   3. No configuration exists to allow Entity key Mapping
+            //   4. No configured data sources exist
 
             if (mapperData.RuleSet.Settings.AllowCloneEntityKeyMapping &&
                (mapperData.SourceType == mapperData.TargetType))
@@ -250,7 +232,7 @@ namespace AgileObjects.AgileMapper.Members
 
         [DebuggerStepThrough]
         public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
-            => mapperData.TargetMember.LeafMember.IsEnumerableElement();
+            => mapperData.TargetMember.IsEnumerableElement();
 
         [DebuggerStepThrough]
         public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
@@ -303,7 +285,7 @@ namespace AgileObjects.AgileMapper.Members
 
                 var nonSimpleChildMembers = GetTargetMembers(mappingType)
                     .Filter(m => !m.IsSimple)
-                    .Project(cm => GetNonEnumerableChildMember(targetMember, cm))
+                    .Project(targetMember, GetNonEnumerableChildMember)
                     .ToArray();
 
                 if (nonSimpleChildMembers.None())
@@ -342,11 +324,11 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 var sameTypedChildMembers = nonSimpleChildMembers
-                    .Filter(cm => (cm.IsEnumerable ? cm.ElementType : cm.Type) == subjectMember.Type)
+                    .Filter(subjectMember, (sm, cm) => (cm.IsEnumerable ? cm.ElementType : cm.Type) == sm.Type)
                     .ToArray();
 
                 if (sameTypedChildMembers
-                        .Project(cm => GetNonEnumerableChildMember(parentMember, cm))
+                        .Project(parentMember, GetNonEnumerableChildMember)
                         .Any(cm => cm != subjectMember))
                 {
                     return true;
@@ -412,6 +394,9 @@ namespace AgileObjects.AgileMapper.Members
 
             return emptyEnumerable.GetConversionTo(targetMember.Type);
         }
+
+        public static IList<ConfiguredSourceValueFilter> GetSourceValueFilters(this IMemberMapperData mapperData, Type sourceValueType)
+            => mapperData.MapperContext.UserConfigurations.GetSourceValueFilters(mapperData, sourceValueType);
 
         public static bool CanConvert(this IMemberMapperData mapperData, Type sourceType, Type targetType)
             => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);

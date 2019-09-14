@@ -52,7 +52,9 @@
         {
             if (!AreEqual(expectedValue, value))
             {
-                Asplode(expectedValue.ToString(), value?.ToString());
+                Asplode(
+                    expectedValue?.ToString() ?? (typeof(TExpected).CanBeNull() ? "null" : "default"),
+                    value?.ToString() ?? (typeof(TActual).CanBeNull() ? "null" : "default"));
             }
         }
 
@@ -405,14 +407,18 @@
             return dictionary;
         }
 
-        public static void ShouldBeOfType<TExpected>(this object actual)
+        public static TExpected ShouldBeOfType<TExpected>(this object actual)
         {
-            if (!(actual is TExpected))
+            if (actual is TExpected expected)
             {
-                Asplode(
-                    "An object of type " + typeof(TExpected).GetFriendlyName(),
-                    actual.GetType().GetFriendlyName());
+                return expected;
             }
+
+            Asplode(
+                "An object of type " + typeof(TExpected).GetFriendlyName(),
+                actual.GetType().GetFriendlyName());
+
+            return default(TExpected);
         }
 
         public static void ShouldContain<T>(this IList<T> actual, T expected)

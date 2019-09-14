@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Caching;
     using Configuration;
     using DataSources;
-    using DataSources.Finders;
+    using DataSources.Factories;
     using Extensions;
     using Extensions.Internal;
     using MapperKeys;
@@ -22,73 +22,51 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
     internal class ComplexTypeConstructionFactory
     {
-        private readonly ICache<ConstructionKey, Construction> _constructorsCache;
+        private readonly ICache<ConstructionKey, IList<IConstructionInfo>> _constructionInfosCache;
+        private readonly ICache<ConstructionKey, Construction> _constructionsCache;
 
         public ComplexTypeConstructionFactory(CacheSet mapperScopedCacheSet)
         {
-            _constructorsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, Construction>();
+            _constructionInfosCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, IList<IConstructionInfo>>();
+            _constructionsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, Construction>();
         }
 
-        public Expression GetNewObjectCreation(IObjectMappingData mappingData)
-        {
-            var objectCreation = _constructorsCache.GetOrAdd(new ConstructionKey(mappingData), key =>
-            {
-                var constructions = new List<Construction>();
+        public IList<IBasicConstructionInfo> GetTargetObjectCreationInfos(IObjectMappingData mappingData)
+            => GetTargetObjectCreationInfos(mappingData, out _).ProjectToArray(c => (IBasicConstructionInfo)c);
 
-                AddConfiguredConstructions(
-                    constructions,
+        private IList<IConstructionInfo> GetTargetObjectCreationInfos(
+            IObjectMappingData mappingData,
+            out ConstructionKey constructionKey)
+        {
+            return _constructionInfosCache.GetOrAdd(constructionKey = new ConstructionKey(mappingData), key =>
+            {
+                IList<IConstructionInfo> constructionInfos = new List<IConstructionInfo>();
+
+                AddConfiguredConstructionInfos(
+                    constructionInfos,
                     key,
                     out var otherConstructionRequired);
 
                 if (otherConstructionRequired && !key.MappingData.MapperData.TargetType.IsAbstract())
                 {
-                    AddAutoConstructions(constructions, key);
+                    AddAutoConstructionInfos(constructionInfos, key);
                 }
-
-                if (constructions.None())
-                {
-                    key.MappingData = null;
-                    return null;
-                }
-
-                var construction = Construction.For(constructions, key);
 
                 key.AddSourceMemberTypeTesterIfRequired();
                 key.MappingData = null;
 
-                return construction;
+                return constructionInfos.None()
+                    ? Enumerable<IConstructionInfo>.EmptyArray
+                    : constructionInfos;
             });
-
-            if (objectCreation == null)
-            {
-                return null;
-            }
-
-            mappingData.MapperData.Context.UsesMappingDataObjectAsParameter = objectCreation.UsesMappingDataObjectParameter;
-
-            var creationExpression = objectCreation.GetConstruction(mappingData);
-
-            return creationExpression;
         }
 
-        public Expression GetFactoryMethodObjectCreationOrNull(IObjectMappingData mappingData)
-        {
-            var key = new ConstructionKey(mappingData);
-            var factoryData = GetGreediestAvailableFactories(key);
-
-            return factoryData.Any()
-                ? factoryData.First().Construction.With(key).GetConstruction(mappingData)
-                : null;
-        }
-
-        private static void AddConfiguredConstructions(
-            ICollection<Construction> constructions,
+        private static void AddConfiguredConstructionInfos(
+            ICollection<IConstructionInfo> constructionInfos,
             ConstructionKey key,
             out bool otherConstructionRequired)
         {
             var mapperData = key.MappingData.MapperData;
-
-            otherConstructionRequired = true;
 
             var configuredFactories = mapperData
                 .MapperContext
@@ -97,84 +75,86 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             foreach (var configuredFactory in configuredFactories)
             {
-                var configuredConstruction = new Construction(configuredFactory, mapperData);
+                var configuredConstructionInfo = new ConfiguredFactoryInfo(configuredFactory, mapperData);
 
-                constructions.Add(configuredConstruction);
+                constructionInfos.Add(configuredConstructionInfo);
 
-                if (configuredConstruction.IsUnconditional)
+                if (configuredConstructionInfo.IsUnconditional)
                 {
                     otherConstructionRequired = false;
                     return;
                 }
             }
+
+            otherConstructionRequired = true;
         }
 
-        private static void AddAutoConstructions(IList<Construction> constructions, ConstructionKey key)
+        private static void AddAutoConstructionInfos(IList<IConstructionInfo> constructionInfos, ConstructionKey key)
         {
             var mapperData = key.MappingData.MapperData;
 
-            var greediestAvailableFactories = GetGreediestAvailableFactories(key);
-            var greediestUnconditionalFactory = greediestAvailableFactories.LastOrDefault(f => f.IsUnconditional);
+            var greediestAvailableFactoryInfos = GetGreediestAvailableFactoryInfos(key);
+            var greediestUnconditionalFactoryInfo = greediestAvailableFactoryInfos.LastOrDefault(f => f.IsUnconditional);
 
             var constructors = mapperData.TargetInstance.Type
                 .GetPublicInstanceConstructors()
                 .ToArray();
 
-            var greediestAvailableNewings = constructors.Any()
-                ? GetGreediestAvailableNewings(constructors, key, greediestUnconditionalFactory)
-                : Enumerable<ConstructionData<ConstructorInfo>>.EmptyArray;
-
             int i;
 
-            for (i = 0; i < greediestAvailableFactories.Length; i++)
+            for (i = 0; i < greediestAvailableFactoryInfos.Length;)
             {
-                greediestAvailableFactories[i].AddTo(constructions, key);
+                greediestAvailableFactoryInfos[i++].AddTo(constructionInfos, key);
             }
 
-            for (i = 0; i < greediestAvailableNewings.Length; i++)
+            if (constructors.Any())
             {
-                greediestAvailableNewings[i].AddTo(constructions, key);
+                var greediestAvailableNewingInfos = GetGreediestAvailableNewingInfos(
+                    constructors,
+                    key,
+                    greediestUnconditionalFactoryInfo);
+
+                for (i = 0; i < greediestAvailableNewingInfos.Length;)
+                {
+                    greediestAvailableNewingInfos[i++].AddTo(constructionInfos, key);
+                }
             }
 
-            if (constructions.None() && mapperData.TargetMemberIsUserStruct())
+            if (constructionInfos.None() && mapperData.TargetMemberIsUserStruct())
             {
-                constructions.Add(Construction.NewStruct(mapperData.TargetInstance.Type));
+                constructionInfos.Add(new StructInfo(mapperData.TargetInstance.Type));
             }
         }
 
-        private static ConstructionData<MethodInfo>[] GetGreediestAvailableFactories(ConstructionKey key)
+        private static ConstructionDataInfo<MethodInfo>[] GetGreediestAvailableFactoryInfos(ConstructionKey key)
         {
             var mapperData = key.MappingData.MapperData;
 
             var candidateFactoryMethods = mapperData.TargetInstance.Type
                 .GetPublicStaticMethods()
-                .Filter(m => IsFactoryMethod(m, mapperData.TargetInstance.Type));
+                .Filter(mapperData.TargetInstance.Type, IsFactoryMethod);
 
-            return CreateConstructionData(
-                candidateFactoryMethods,
-                fm => new ConstructionData<MethodInfo>(fm, Expression.Call, key, priority: 1));
+            return CreateConstructionInfo(candidateFactoryMethods, fm => new FactoryMethodInfo(fm, key));
         }
 
-        private static bool IsFactoryMethod(MethodInfo method, Type targetType)
+        private static bool IsFactoryMethod(Type targetType, MethodInfo method)
         {
             return (method.ReturnType == targetType) &&
                    (method.Name.StartsWith("Create", Ordinal) || method.Name.StartsWith("Get", Ordinal));
         }
 
-        private static ConstructionData<ConstructorInfo>[] GetGreediestAvailableNewings(
+        private static ConstructionDataInfo<ConstructorInfo>[] GetGreediestAvailableNewingInfos(
             IEnumerable<ConstructorInfo> constructors,
             ConstructionKey key,
-            ConstructionData<MethodInfo> greediestUnconditionalFactory)
+            IBasicConstructionInfo greediestUnconditionalFactoryInfo)
         {
             var candidateConstructors = constructors
-                .Filter(ctor => IsCandidateCtor(ctor, greediestUnconditionalFactory));
+                .Filter(greediestUnconditionalFactoryInfo, IsCandidateCtor);
 
-            return CreateConstructionData(
-                candidateConstructors,
-                ctor => new ConstructionData<ConstructorInfo>(ctor, Expression.New, key, priority: 0));
+            return CreateConstructionInfo(candidateConstructors, ctor => new ObjectNewingInfo(ctor, key));
         }
 
-        private static bool IsCandidateCtor(MethodBase ctor, ConstructionData<MethodInfo> candidateFactoryMethod)
+        private static bool IsCandidateCtor(IBasicConstructionInfo candidateFactoryMethod, MethodBase ctor)
         {
             var ctorCarameters = ctor.GetParameters();
 
@@ -187,12 +167,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         {
             // If the constructor takes an instance of itself, we'll potentially end 
             // up in an infinite loop figuring out how to create instances for it:
-            return ctorParameters.None(p => p.ParameterType == type);
+            return ctorParameters.None(type, (t, p) => p.ParameterType == t);
         }
 
-        private static ConstructionData<T>[] CreateConstructionData<T>(
+        private static ConstructionDataInfo<T>[] CreateConstructionInfo<T>(
             IEnumerable<T> invokables,
-            Func<T, ConstructionData<T>> dataFactory)
+            Func<T, ConstructionDataInfo<T>> dataFactory)
             where T : MethodBase
         {
             return invokables
@@ -203,7 +183,47 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .ToArray();
         }
 
-        public void Reset() => _constructorsCache.Empty();
+        public Expression GetTargetObjectCreation(IObjectMappingData mappingData)
+        {
+            var cachedInfos = GetTargetObjectCreationInfos(mappingData, out var constructionKey);
+
+            if (cachedInfos.None())
+            {
+                return null;
+            }
+
+            constructionKey.MappingData = mappingData;
+            constructionKey.Infos = cachedInfos;
+
+            var cachedConstruction = _constructionsCache.GetOrAdd(constructionKey, key =>
+            {
+                var constructions = key.Infos.ProjectToArray(info => info.ToConstruction());
+                var construction = Construction.For(constructions, key);
+
+                key.AddSourceMemberTypeTesterIfRequired();
+                key.MappingData = null;
+
+                return construction;
+            });
+
+            mappingData.MapperData.Context.UsesMappingDataObjectAsParameter = cachedConstruction.UsesMappingDataObjectParameter;
+
+            var constructionExpression = cachedConstruction.GetConstruction(mappingData);
+
+            return constructionExpression;
+        }
+
+        public Expression GetFactoryMethodObjectCreationOrNull(IObjectMappingData mappingData)
+        {
+            var key = new ConstructionKey(mappingData);
+            var factoryData = GetGreediestAvailableFactoryInfos(key);
+
+            return factoryData.Any()
+                ? factoryData.First().ToConstruction().With(key).GetConstruction(mappingData)
+                : null;
+        }
+
+        public void Reset() => _constructionsCache.Empty();
 
         #region Helper Classes
 
@@ -220,6 +240,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 _sourceMember = mappingData.MapperData.SourceMember;
                 _targetMember = mappingData.MapperData.TargetMember;
             }
+
+            public IList<IConstructionInfo> Infos { get; set; }
 
             public override bool Equals(object obj)
             {
@@ -240,21 +262,82 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public override int GetHashCode() => 0;
         }
 
-        private class ConstructionData<TInvokable> : IConstructionInfo
+        private interface IConstructionInfo : IBasicConstructionInfo, IComparable<IConstructionInfo>
+        {
+            Construction ToConstruction();
+        }
+
+        private abstract class ConstructionInfoBase : IConstructionInfo
+        {
+            public bool IsConfigured { get; protected set; }
+
+            public bool IsUnconditional { get; protected set; }
+
+            public int ParameterCount { get; protected set; }
+
+            public int Priority { get; protected set; }
+
+            public virtual bool HasCtorParameterFor(Member targetMember) => false;
+
+            public abstract Construction ToConstruction();
+
+            public int CompareTo(IConstructionInfo other)
+            {
+                // ReSharper disable once ImpureMethodCallOnReadonlyValueField
+                var isConfiguredComparison = other.IsConfigured.CompareTo(IsConfigured);
+
+                if (isConfiguredComparison != 0)
+                {
+                    return isConfiguredComparison;
+                }
+
+                var conditionalComparison = IsUnconditional.CompareTo(other.IsUnconditional);
+
+                if (conditionalComparison != 0)
+                {
+                    return conditionalComparison;
+                }
+
+                var paramCountComparison = ParameterCount.CompareTo(other.ParameterCount);
+
+                if (paramCountComparison != 0)
+                {
+                    return paramCountComparison;
+                }
+
+                var priorityComparison = other.Priority.CompareTo(Priority);
+
+                return priorityComparison;
+            }
+        }
+
+        private sealed class ConfiguredFactoryInfo : ConstructionInfoBase
+        {
+            private readonly ConfiguredObjectFactory _configuredFactory;
+            private readonly IMemberMapperData _mapperData;
+
+            public ConfiguredFactoryInfo(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
+            {
+                _configuredFactory = configuredFactory;
+                _mapperData = mapperData;
+                IsConfigured = true;
+                IsUnconditional = !_configuredFactory.HasConfiguredCondition;
+            }
+
+            public override Construction ToConstruction() => new Construction(_configuredFactory, _mapperData);
+        }
+
+        private abstract class ConstructionDataInfo<TInvokable> : ConstructionInfoBase
             where TInvokable : MethodBase
         {
-            private readonly Tuple<QualifiedMember, DataSourceSet>[] _argumentDataSources;
-
-            public ConstructionData(
+            protected ConstructionDataInfo(
                 TInvokable invokable,
-                Func<TInvokable, IList<Expression>, Expression> constructionFactory,
                 ConstructionKey key,
                 int priority)
             {
-                var argumentDataSources = GetArgumentDataSources(invokable, key);
-
-                CanBeInvoked = argumentDataSources.All(ds => ds.Item2.HasValue);
-                ParameterCount = argumentDataSources.Length;
+                ArgumentDataSources = GetArgumentDataSources(invokable, key);
+                CanBeInvoked = ArgumentDataSources.All(ds => ds.HasValue);
+                ParameterCount = ArgumentDataSources.Length;
                 Priority = priority;
 
                 if (!CanBeInvoked)
@@ -262,27 +345,119 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     return;
                 }
 
-                IsUnconditional = true;
+                IsUnconditional = !ArgumentDataSources.Any(ds => ds.IsConditional && ds.MapperData.TargetMember.IsComplex);
+            }
 
+            private static IDataSourceSet[] GetArgumentDataSources(TInvokable invokable, ConstructionKey key)
+            {
+                return invokable
+                    .GetParameters()
+                    .ProjectToArray(key.MappingData, (mappingData, p) =>
+                    {
+                        var parameterMapperData = new ChildMemberMapperData(
+                            mappingData.MapperData.TargetMember.Append(Member.ConstructorParameter(p)),
+                            mappingData.MapperData);
+
+                        var memberMappingData = mappingData.GetChildMappingData(parameterMapperData);
+                        var dataSources = DataSourceSetFactory.CreateFor(new DataSourceFindContext(memberMappingData));
+
+                        return dataSources;
+                    });
+            }
+
+            public IDataSourceSet[] ArgumentDataSources { get; }
+
+            public bool CanBeInvoked { get; }
+
+            public void AddTo(IList<IConstructionInfo> constructionInfos, ConstructionKey key)
+            {
+                if (ParameterCount > 0)
+                {
+                    var dataSources = key.MappingData.MapperData.DataSourcesByTargetMember;
+
+                    var relevantDataSourceSets = ArgumentDataSources
+                        .Filter(dataSources, (dss, ds) => !dss.ContainsKey(ds.MapperData.TargetMember));
+
+                    foreach (var dataSourceSet in relevantDataSourceSets)
+                    {
+                        dataSources.Add(dataSourceSet.MapperData.TargetMember, dataSourceSet);
+                    }
+                }
+
+                constructionInfos.AddThenSort(this);
+            }
+
+            public abstract Expression GetConstructionExpression(IList<Expression> argumentValues);
+
+            public override Construction ToConstruction() => new ConstructionData<TInvokable>(this).Construction;
+        }
+
+        private sealed class ObjectNewingInfo : ConstructionDataInfo<ConstructorInfo>
+        {
+            private readonly ConstructorInfo _ctor;
+            private readonly string[] _parameterNames;
+
+            public ObjectNewingInfo(ConstructorInfo ctor, ConstructionKey key)
+                : base(ctor, key, priority: 0)
+            {
+                _ctor = ctor;
+                _parameterNames = _ctor.GetParameters().ProjectToArray(p => p.Name);
+            }
+
+            public override bool HasCtorParameterFor(Member targetMember)
+                => _parameterNames.Contains(targetMember.Name, StringComparer.OrdinalIgnoreCase);
+
+            public override Expression GetConstructionExpression(IList<Expression> argumentValues)
+                => Expression.New(_ctor, argumentValues);
+        }
+
+        private sealed class FactoryMethodInfo : ConstructionDataInfo<MethodInfo>
+        {
+            private readonly MethodInfo _factoryMethod;
+
+            public FactoryMethodInfo(MethodInfo factoryMethod, ConstructionKey key)
+                : base(factoryMethod, key, priority: 1)
+            {
+                _factoryMethod = factoryMethod;
+            }
+
+            public override Expression GetConstructionExpression(IList<Expression> argumentValues)
+                => Expression.Call(_factoryMethod, argumentValues);
+        }
+
+        private sealed class StructInfo : ConstructionInfoBase
+        {
+            private readonly Type _targetType;
+
+            public StructInfo(Type targetType)
+            {
+                _targetType = targetType;
+                IsUnconditional = true;
+            }
+
+            public override Construction ToConstruction() => new Construction(Expression.New(_targetType));
+        }
+
+        private sealed class ConstructionData<TInvokable>
+            where TInvokable : MethodBase
+        {
+            public ConstructionData(ConstructionDataInfo<TInvokable> info)
+            {
                 Expression constructionExpression;
 
-                if (argumentDataSources.None())
+                if (info.ArgumentDataSources.None())
                 {
-                    constructionExpression = constructionFactory.Invoke(invokable, Enumerable<Expression>.EmptyArray);
-                    Construction = new Construction(this, constructionExpression);
+                    constructionExpression = info.GetConstructionExpression(Enumerable<Expression>.EmptyArray);
+                    Construction = new Construction(constructionExpression);
                     return;
                 }
 
-                _argumentDataSources = argumentDataSources;
-
                 var variables = default(List<ParameterExpression>);
-                var argumentValues = new List<Expression>(ParameterCount);
+                var argumentValues = new List<Expression>(info.ParameterCount);
                 var condition = default(Expression);
 
-                foreach (var argumentDataSource in argumentDataSources)
+                foreach (var dataSources in info.ArgumentDataSources)
                 {
-                    var dataSources = argumentDataSource.Item2;
-
                     if (dataSources.Variables.Any())
                     {
                         if (variables == null)
@@ -295,14 +470,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                         }
                     }
 
-                    argumentValues.Add(dataSources.ValueExpression);
+                    argumentValues.Add(dataSources.BuildValue());
 
-                    if (!argumentDataSource.Item1.IsComplex || !dataSources.IsConditional)
+                    if (info.IsUnconditional)
                     {
                         continue;
                     }
-
-                    IsUnconditional = false;
 
                     var dataSourceCondition = BuildConditions(dataSources);
 
@@ -315,31 +488,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     condition = Expression.AndAlso(condition, dataSourceCondition);
                 }
 
-                constructionExpression = constructionFactory.Invoke(invokable, argumentValues);
+                constructionExpression = info.GetConstructionExpression(argumentValues);
 
                 Construction = variables.NoneOrNull()
-                    ? new Construction(this, constructionExpression, condition)
-                    : new Construction(this, Expression.Block(variables, constructionExpression), condition);
+                    ? new Construction(constructionExpression, condition)
+                    : new Construction(Expression.Block(variables, constructionExpression), condition);
             }
 
-            private static Tuple<QualifiedMember, DataSourceSet>[] GetArgumentDataSources(TInvokable invokable, ConstructionKey key)
-            {
-                return invokable
-                    .GetParameters()
-                    .ProjectToArray(p =>
-                    {
-                        var parameterMapperData = new ChildMemberMapperData(
-                            key.MappingData.MapperData.TargetMember.Append(Member.ConstructorParameter(p)),
-                            key.MappingData.MapperData);
-
-                        var memberMappingData = key.MappingData.GetChildMappingData(parameterMapperData);
-                        var dataSources = DataSourceFinder.FindFor(memberMappingData);
-
-                        return Tuple.Create(memberMappingData.MapperData.TargetMember, dataSources);
-                    });
-            }
-
-            private static Expression BuildConditions(DataSourceSet dataSources)
+            private static Expression BuildConditions(IDataSourceSet dataSources)
             {
                 var conditions = default(Expression);
 
@@ -357,87 +513,54 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return conditions;
             }
 
-            public bool CanBeInvoked { get; }
-
-            public bool IsUnconditional { get; }
-
-            public int ParameterCount { get; }
-
-            public int Priority { get; }
-
             public Construction Construction { get; }
-
-            public void AddTo(IList<Construction> constructions, ConstructionKey key)
-            {
-                if (ParameterCount > 0)
-                {
-                    var dataSources = key.MappingData.MapperData.DataSourcesByTargetMember;
-
-                    foreach (var memberAndDataSourceSet in _argumentDataSources.Filter(ads => !dataSources.ContainsKey(ads.Item1)))
-                    {
-                        dataSources.Add(memberAndDataSourceSet.Item1, memberAndDataSourceSet.Item2);
-                    }
-                }
-
-                constructions.AddSorted(Construction);
-            }
         }
 
-        private interface IConstructionInfo
+        private class Construction
         {
-            int ParameterCount { get; }
-
-            int Priority { get; }
-        }
-
-        private class Construction : IConditionallyChainable, IComparable<Construction>
-        {
+            private readonly Expression _condition;
             private readonly Expression _construction;
-            private readonly bool _isConfigured;
-            private readonly IConstructionInfo _info;
             private ParameterExpression _mappingDataObject;
 
             public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
                 : this(configuredFactory.Create(mapperData), configuredFactory.GetConditionOrNull(mapperData))
             {
                 UsesMappingDataObjectParameter = configuredFactory.UsesMappingDataObjectParameter;
-                _isConfigured = true;
             }
 
-            public Construction(IConstructionInfo info, Expression construction, Expression condition = null)
-                : this(construction, condition)
-            {
-                _info = info;
-            }
-
-            private Construction(IList<Construction> constructions)
-                : this(constructions.ReverseChain())
-            {
-                UsesMappingDataObjectParameter = constructions.Any(c => c.UsesMappingDataObjectParameter);
-            }
-
-            private Construction(Expression construction, Expression condition = null)
+            public Construction(
+                Expression construction,
+                Expression condition = null,
+                bool usesMappingDataObjectParameter = false)
             {
                 _construction = construction;
-                Condition = condition;
+                _condition = condition;
+                UsesMappingDataObjectParameter = usesMappingDataObjectParameter;
             }
 
             #region Factory Methods
 
-            public static Construction NewStruct(Type type)
-            {
-                var parameterlessNew = Expression.New(type);
-
-                return new Construction(parameterlessNew);
-            }
-
             public static Construction For(IList<Construction> constructions, ConstructionKey key)
             {
-                var construction = constructions.HasOne()
-                    ? constructions.First()
-                    : new Construction(constructions);
+                if (constructions.HasOne())
+                {
+                    return constructions.First().With(key);
+                }
+
+                var construction = new Construction(
+                    ReverseChain(constructions),
+                    usesMappingDataObjectParameter: constructions.Any(c => c.UsesMappingDataObjectParameter));
 
                 return construction.With(key);
+            }
+
+            private static Expression ReverseChain(IList<Construction> constructions)
+            {
+                return constructions.Chain(
+                    cs => cs.Last(),
+                    item => item._construction,
+                    (valueSoFar, item) => Expression.Condition(item._condition, item._construction, valueSoFar),
+                    i => i.Reverse());
             }
 
             public Construction With(ConstructionKey key)
@@ -448,47 +571,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             #endregion
 
-            public Expression PreCondition => null;
-
-            public bool IsUnconditional => Condition == null;
-
-            public Expression Condition { get; }
-
-            Expression IConditionallyChainable.Value => _construction;
-
             public bool UsesMappingDataObjectParameter { get; }
 
             public Expression GetConstruction(IObjectMappingData mappingData)
                 => _construction.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
-
-            public int CompareTo(Construction other)
-            {
-                // ReSharper disable once ImpureMethodCallOnReadonlyValueField
-                var isConfiguredComparison = other._isConfigured.CompareTo(_isConfigured);
-
-                if (isConfiguredComparison != 0)
-                {
-                    return isConfiguredComparison;
-                }
-
-                var conditionalComparison = IsUnconditional.CompareTo(other.IsUnconditional);
-
-                if (conditionalComparison != 0)
-                {
-                    return conditionalComparison;
-                }
-
-                var paramCountComparison = _info.ParameterCount.CompareTo(other._info.ParameterCount);
-
-                if (paramCountComparison != 0)
-                {
-                    return paramCountComparison;
-                }
-
-                var priorityComparison = other._info.Priority.CompareTo(_info.Priority);
-
-                return priorityComparison;
-            }
         }
 
         #endregion

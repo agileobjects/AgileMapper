@@ -12,6 +12,8 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         bool CanPopulate { get; }
 
+        Expression PopulateCondition { get; }
+
         Expression GetPopulation();
     }
 }

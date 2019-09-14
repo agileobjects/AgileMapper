@@ -216,5 +216,17 @@
 
             result.Value.ShouldBe("Dr");
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/153
+        [Fact]
+        public void ShouldMapAnInterfaceToAString()
+        {
+            var source = new { Value = (IPublicInterface<string>)new PublicImplementation<string> { Value = "123" } };
+            var result = Mapper.Map(source).ToANew<PublicField<string>>();
+
+            result.ShouldNotBeNull();
+            result.Value.ShouldNotBeNull();
+            result.Value.ShouldContain(typeof(PublicImplementation<string>).Name);
+        }
     }
 }

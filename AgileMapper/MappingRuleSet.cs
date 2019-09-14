@@ -1,16 +1,16 @@
 namespace AgileObjects.AgileMapper
 {
-    using DataSources;
-    using Extensions.Internal;
-    using Members.Population;
-    using ObjectPopulation.Enumerables;
-    using ObjectPopulation.MapperKeys;
-    using ObjectPopulation.RepeatedMappings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources.Factories;
+    using Extensions.Internal;
+    using Members.Population;
+    using ObjectPopulation.Enumerables;
+    using ObjectPopulation.MapperKeys;
+    using ObjectPopulation.RepeatedMappings;
 
     internal class MappingRuleSet
     {
@@ -19,19 +19,24 @@ namespace AgileObjects.AgileMapper
         public MappingRuleSet(
             string name,
             MappingRuleSetSettings settings,
-            IEnumerablePopulationStrategy enumerablePopulationStrategy,
+            EnumerablePopulationStrategy enumerablePopulationStrategy,
             IRepeatMappingStrategy repeatMappingStrategy,
-            IMemberPopulationFactory populationFactory,
-            IDataSourceFactory fallbackDataSourceFactory,
-            IRootMapperKeyFactory rootMapperKeyFactory)
+            PopulationGuardFactory populationGuardFactory,
+            FallbackDataSourceFactory fallbackDataSourceFactory,
+            RootMapperKeyFactory rootMapperKeyFactory)
+            : this(name)
         {
-            Name = name;
             Settings = settings;
             EnumerablePopulationStrategy = enumerablePopulationStrategy;
             RepeatMappingStrategy = repeatMappingStrategy;
-            PopulationFactory = populationFactory;
+            PopulationGuardFactory = populationGuardFactory;
             FallbackDataSourceFactory = fallbackDataSourceFactory;
             RootMapperKeyFactory = rootMapperKeyFactory;
+        }
+
+        public MappingRuleSet(string name)
+        {
+            Name = name;
         }
 
         public string Name { get; }
@@ -40,14 +45,14 @@ namespace AgileObjects.AgileMapper
 
         public MappingRuleSetSettings Settings { get; }
 
-        public IEnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
+        public EnumerablePopulationStrategy EnumerablePopulationStrategy { get; }
 
         public IRepeatMappingStrategy RepeatMappingStrategy { get; }
 
-        public IMemberPopulationFactory PopulationFactory { get; }
+        public PopulationGuardFactory PopulationGuardFactory { get; }
 
-        public IDataSourceFactory FallbackDataSourceFactory { get; }
+        public FallbackDataSourceFactory FallbackDataSourceFactory { get; }
         
-        public IRootMapperKeyFactory RootMapperKeyFactory { get; }
+        public RootMapperKeyFactory RootMapperKeyFactory { get; }
     }
 }

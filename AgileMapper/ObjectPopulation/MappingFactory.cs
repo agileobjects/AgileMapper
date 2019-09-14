@@ -1,14 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
 
     internal static class MappingFactory
     {
@@ -19,6 +18,13 @@
             IChildMemberMappingData childMappingData)
         {
             var childMapperData = childMappingData.MapperData;
+
+            var childObjectMappingData = ObjectMappingDataFactory.ForChild(
+                sourceMember,
+                childMapperData.TargetMember,
+                dataSourceIndex,
+                childMappingData.Parent);
+
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
             childMapperData.TargetMember.MapCreating(sourceMember.Type);
@@ -27,12 +33,6 @@
                 sourceMemberAccess,
                 targetMemberAccess,
                 childMapperData.EnumerableIndex);
-
-            var childObjectMappingData = ObjectMappingDataFactory.ForChild(
-                sourceMember,
-                childMapperData.TargetMember,
-                dataSourceIndex,
-                childMappingData.Parent);
 
             if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
@@ -129,7 +129,7 @@
 
             if (elementMapperData.Context.IsStandalone)
             {
-                enumerableIndex = Expression.Property(elementMapperData.EnumerableIndex, "Value");
+                enumerableIndex = elementMapperData.EnumerableIndex.GetNullableValueAccess();
                 parentMappingDataObject = typeof(IObjectMappingData).ToDefaultExpression();
             }
             else
@@ -143,7 +143,9 @@
                 targetElementValue,
                 enumerableIndex);
 
-            elementMapperData.Context.IsForNewElement = targetElementValue.NodeType == ExpressionType.Default;
+            elementMapperData.Context.IsForNewElement =
+                (targetElementValue.NodeType == ExpressionType.Default) ||
+                (elementMapperData.DeclaredTypeMapperData?.Context.IsForNewElement == true);
 
             if (elementMapperData.IsRepeatMapping &&
                 elementMapperData.RuleSet.RepeatMappingStrategy.AppliesTo(elementMapperData))
@@ -186,17 +188,20 @@
                 return Constants.EmptyExpression;
             }
 
-            if (mapper.MapperData.Context.UsesMappingDataObject)
+            var mapperData = mapper.MapperData;
+
+            if (mapperData.Context.UsesMappingDataObject)
             {
                 return UseLocalValueVariable(
-                    mapper.MapperData.MappingDataObject,
+                    mapperData.MappingDataObject,
                     createMappingDataCall,
-                    mapper.MappingExpression);
+                    mapper.MappingExpression,
+                    mapperData);
             }
 
             return GetDirectAccessMapping(
                 mapper.MappingLambda.Body,
-                mapper.MapperData,
+                mapperData,
                 mappingValues,
                 createMappingDataCall);
         }
@@ -214,7 +219,7 @@
 
             if (useLocalSourceValueVariable)
             {
-                var sourceValueVariableName = GetSourceValueVariableName(mapperData, mappingValues.SourceValue.Type);
+                var sourceValueVariableName = mappingValues.SourceValue.Type.GetSourceValueVariableName();
                 sourceValue = Expression.Variable(mappingValues.SourceValue.Type, sourceValueVariableName);
                 sourceValueVariableValue = mappingValues.SourceValue;
             }
@@ -236,7 +241,11 @@
                 .Replace(mapperData.MappingDataObject, createMappingDataCall);
 
             return useLocalSourceValueVariable
-                ? UseLocalValueVariable((ParameterExpression)sourceValue, sourceValueVariableValue, mapping)
+                ? UseLocalValueVariable(
+                    (ParameterExpression)sourceValue,
+                    sourceValueVariableValue,
+                    mapping,
+                    mapperData)
                 : mapping;
         }
 
@@ -248,25 +257,6 @@
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
                    !mapperData.RuleSet.Settings.UseMemberInitialisation &&
                     SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
-        }
-
-        private static string GetSourceValueVariableName(IMemberMapperData mapperData, Type sourceType = null)
-        {
-            var sourceValueVariableName = "source" + (sourceType ?? mapperData.SourceType).GetVariableNameInPascalCase();
-
-            var numericSuffix = default(string);
-
-            for (var i = mapperData.MappingDataObject.Name.Length - 1; i > 0; --i)
-            {
-                if (!char.IsDigit(mapperData.MappingDataObject.Name[i]))
-                {
-                    break;
-                }
-
-                numericSuffix = mapperData.MappingDataObject.Name[i] + numericSuffix;
-            }
-
-            return sourceValueVariableName + numericSuffix;
         }
 
         public static Expression UseLocalSourceValueVariableIfAppropriate(
@@ -285,13 +275,14 @@
                 return mappingExpression;
             }
 
-            var sourceValueVariableName = GetSourceValueVariableName(mapperData);
+            var sourceValueVariableName = mapperData.SourceType.GetSourceValueVariableName();
             var sourceValueVariable = Expression.Variable(mapperData.SourceType, sourceValueVariableName);
 
             return UseLocalValueVariable(
                 sourceValueVariable,
                 mapperData.SourceObject,
                 mappingExpression,
+                mapperData,
                 performValueReplacement: true);
         }
 
@@ -309,28 +300,36 @@
             return UseLocalValueVariable(
                 toTargetMapperData.MappingDataObject,
                 MappingDataCreationFactory.ForToTarget(mapperData, toTargetDataSourceValue),
-                mappingExpression);
+                mappingExpression,
+                toTargetMapperData);
         }
 
         private static Expression UseLocalValueVariable(
             ParameterExpression variable,
             Expression variableValue,
             Expression body,
+            IMemberMapperData mapperData,
             bool performValueReplacement = false)
         {
             var variableAssignment = variable.AssignTo(variableValue);
 
-            if (body.NodeType != ExpressionType.Try)
+            if (body.NodeType == ExpressionType.Block)
             {
                 if (performValueReplacement)
                 {
                     body = body.Replace(variableValue, variable);
                 }
 
-                return Expression.Block(new[] { variable }, variableAssignment, body);
+                var block = (BlockExpression)body;
+
+                return Expression.Block(
+                    block.Variables.Append(variable),
+                    block.Expressions.Prepend(variableAssignment));
             }
 
-            var tryCatch = (TryExpression)body;
+            var tryCatch = (body.NodeType != ExpressionType.Try)
+                ? body.WrapInTryCatch(mapperData)
+                : (TryExpression)body;
 
             body = tryCatch.Update(
                 Expression.Block(variableAssignment, tryCatch.Body.Replace(variableValue, variable)),

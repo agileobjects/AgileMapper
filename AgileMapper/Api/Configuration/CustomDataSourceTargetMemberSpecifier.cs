@@ -7,7 +7,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using DataSources;
+    using DataSources.Factories;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -24,7 +24,7 @@
 #endif
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget>,
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>,
         ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
@@ -116,29 +116,27 @@
 
             var targetMemberMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
             var targetMemberMappingData = mappingData.GetChildMappingData(targetMemberMapperData);
-            var bestMatchingSourceMember = SourceMemberMatcher.GetMatchFor(targetMemberMappingData, out _);
+            var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(targetMemberMappingData);
 
-            if (bestMatchingSourceMember == null)
+            if (!bestSourceMemberMatch.IsUseable)
             {
                 return;
             }
 
-            var sourceMember = sourceMemberLambda.ToSourceMember(MapperContext);
+            var configuredSourceMember = sourceMemberLambda.ToSourceMember(MapperContext);
 
-            if (!bestMatchingSourceMember.Matches(sourceMember))
+            if (!bestSourceMemberMatch.SourceMember.Matches(configuredSourceMember))
             {
                 return;
             }
 
-            var targetMemberType = (targetMember.LeafMember.MemberType == MemberType.ConstructorParameter)
-                ? "constructor parameter"
-                : "member";
+            var targetMemberType = targetMember.IsConstructorParameter() ? "constructor parameter" : "member";
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "Source member {0} will automatically be mapped to target {1} {2}, " +
                 "and does not need to be configured",
-                GetSourceMemberDescription(sourceMember),
+                GetSourceMemberDescription(configuredSourceMember),
                 targetMemberType,
                 targetMember.GetFriendlyTargetPath(_configInfo)));
         }
@@ -278,19 +276,22 @@
 
         private static ParameterInfo GetUniqueConstructorParameterOrThrow<TParam>(string name = null)
         {
-            var ignoreParameterType = typeof(TParam) == typeof(AnyParameterType);
-            var ignoreParameterName = name == null;
+            var settings = new
+            {
+                IgnoreParameterType = typeof(TParam) == typeof(AnyParameterType),
+                IgnoreParameterName = name == null
+            };
 
             var matchingParameters = typeof(TTarget)
                 .GetPublicInstanceConstructors()
-                .Project(ctor => new
+                .Project(settings, (so, ctor) => new
                 {
                     Ctor = ctor,
                     MatchingParameters = ctor
                         .GetParameters()
-                        .Filter(p =>
-                            (ignoreParameterType || (p.ParameterType == typeof(TParam))) &&
-                            (ignoreParameterName || (p.Name == name)))
+                        .Filter(so, (si, p) =>
+                            (si.IgnoreParameterType || (p.ParameterType == typeof(TParam))) &&
+                            (si.IgnoreParameterName || (p.Name == name)))
                         .ToArray()
                 })
                 .Filter(d => d.MatchingParameters.Any())
@@ -298,14 +299,14 @@
 
             if (matchingParameters.Length == 0)
             {
-                throw MissingParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
+                throw MissingParameterException(GetParameterMatchInfo<TParam>(name, !settings.IgnoreParameterType));
             }
 
             var matchingParameterData = matchingParameters.First();
 
             if (matchingParameterData.MatchingParameters.Length > 1)
             {
-                throw AmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !ignoreParameterType));
+                throw AmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !settings.IgnoreParameterType));
             }
 
             var matchingParameter = matchingParameterData.MatchingParameters.First();

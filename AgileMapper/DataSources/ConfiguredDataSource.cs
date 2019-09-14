@@ -1,12 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {

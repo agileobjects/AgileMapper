@@ -5,6 +5,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using DataSources;
     using Enumerables;
     using Extensions;
@@ -14,11 +19,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Sources;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using static Members.Member;
 
     internal class ObjectMapperData : BasicMapperData, IMemberMapperData
@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly MethodInfo _mapRepeatedElementMethod =
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 3);
 
-        private readonly List<ObjectMapperData> _childMapperDatas;
+        private ExpressionInfoFinder _expressionInfoFinder;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
@@ -55,11 +55,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             MapperContext = mappingData.MappingContext.MapperContext;
             DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
-            _childMapperDatas = new List<ObjectMapperData>();
+            ChildMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
             MappingDataObject = GetMappingDataObject(parent);
-            SourceMember = sourceMember;
 
             var mappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
             SourceObject = GetMappingDataProperty(mappingDataType, RootSourceMemberName);
@@ -79,9 +78,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ParentObject = GetMappingDataProperty(nameof(Parent));
             }
 
-            ExpressionInfoFinder = new ExpressionInfoFinder(MappingDataObject);
-
-            DataSourcesByTargetMember = new Dictionary<QualifiedMember, DataSourceSet>();
+            DataSourcesByTargetMember = new Dictionary<QualifiedMember, IDataSourceSet>();
 
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
             _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
@@ -99,7 +96,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            parent._childMapperDatas.Add(this);
+            parent.ChildMapperDatas.Add(this);
             Parent = parent;
 
             if (!this.TargetMemberIsEnumerableElement())
@@ -341,13 +338,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             // do a runtime-typed child mapping, we're able to reuse the parent MapperData 
             // by finding it from the entry point:
             var parentMapperData = mappingData.Parent.MapperData;
-
-            if (parentMapperData.ChildMapperDatas.None())
-            {
-                existingMapperData = null;
-                return false;
-            }
-
             var membersSource = mappingData.MapperKey.GetMembersSource(parentMapperData);
 
             if (!(membersSource is IChildMembersSource childMembersSource))
@@ -403,7 +393,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData OriginalMapperData { get; set; }
 
-        public IList<ObjectMapperData> ChildMapperDatas => _childMapperDatas;
+        public IList<ObjectMapperData> ChildMapperDatas { get; }
 
         public int DataSourceIndex { get; set; }
 
@@ -437,8 +427,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public ParameterExpression MappingDataObject { get; }
 
         public Expression ParentObject { get; }
-
-        public IQualifiedMember SourceMember { get; }
 
         public bool CacheMappedObjects
         {
@@ -500,7 +488,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ?? Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
         }
 
-        public ExpressionInfoFinder ExpressionInfoFinder { get; }
+        public ExpressionInfoFinder ExpressionInfoFinder
+            => _expressionInfoFinder ?? (_expressionInfoFinder = GetExpressionInfoFinder());
+
+        private ExpressionInfoFinder GetExpressionInfoFinder()
+        {
+            return new ExpressionInfoFinder(Context.IsForToTargetMapping 
+                ? OriginalMapperData.MappingDataObject
+                : MappingDataObject);
+        }
 
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
@@ -580,7 +576,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IList<ObjectMapperKeyBase> RepeatedMapperFuncKeys { get; private set; }
 
-        public Dictionary<QualifiedMember, DataSourceSet> DataSourcesByTargetMember { get; }
+        public Dictionary<QualifiedMember, IDataSourceSet> DataSourcesByTargetMember { get; }
 
         public Expression GetRuntimeTypedMapping(
             Expression sourceObject,
@@ -668,7 +664,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MethodInfo mapRepeatedMethod;
             Expression[] arguments;
 
-            if (targetMember.LeafMember.IsEnumerableElement())
+            if (targetMember.IsEnumerableElement())
             {
                 mapRepeatedMethod = _mapRepeatedElementMethod;
 

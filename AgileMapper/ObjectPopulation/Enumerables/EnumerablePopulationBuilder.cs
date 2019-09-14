@@ -4,17 +4,17 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Caching;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class EnumerablePopulationBuilder
     {
@@ -22,7 +22,6 @@
 
         public static readonly MethodInfo EnumerableSelectWithoutIndexMethod;
         public static readonly MethodInfo ProjectWithoutIndexMethod;
-        private static readonly MethodInfo _projectWithIndexMethod;
         private static readonly MethodInfo _queryableSelectMethod;
         private static readonly MethodInfo _forEachMethod;
         private static readonly MethodInfo _forEachTupleMethod;
@@ -56,11 +55,10 @@
         static EnumerablePopulationBuilder()
         {
             var projectMethods = typeof(PublicEnumerableExtensions)
-                .GetPublicStaticMethods("Project")
+                .GetPublicStaticMethods(nameof(PublicEnumerableExtensions.Project))
                 .ToArray();
 
             ProjectWithoutIndexMethod = projectMethods.First();
-            _projectWithIndexMethod = projectMethods.Last();
 
             EnumerableSelectWithoutIndexMethod = typeof(Enumerable)
                 .GetPublicStaticMethods(nameof(Enumerable.Select))
@@ -120,28 +118,21 @@
 
         #endregion
 
+        private MethodInfo GetProjectionMethod() => GetProjectionMethodFor(MapperData);
+
         public static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData)
-        {
-            var counterRequired = false;
-
-            return GetProjectionMethodFor(mapperData, ref counterRequired);
-        }
-
-        private static MethodInfo GetProjectionMethodFor(IMemberMapperData mapperData, ref bool counterRequired)
         {
             if (mapperData.SourceType.IsQueryable())
             {
-                counterRequired = false;
                 return _queryableSelectMethod;
             }
 
             if (mapperData.Context.IsPartOfQueryableMapping())
             {
-                counterRequired = false;
                 return EnumerableSelectWithoutIndexMethod;
             }
 
-            return counterRequired ? _projectWithIndexMethod : ProjectWithoutIndexMethod;
+            return ProjectWithoutIndexMethod;
         }
 
         public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
@@ -415,9 +406,9 @@
         {
             var nullTargetVariableType = GetNullTargetVariableType();
 
-            if (SourceTypeHelper.IsEnumerableInterface)
+            if (SourceTypeHelper.IsEnumerableOrQueryable)
             {
-                // Can't use a capacity constructor as unable to count source elements:
+                // Don't use a capacity constructor as source count not readily available:
                 return Expression.New(nullTargetVariableType);
             }
 
@@ -595,20 +586,37 @@
 
             if (mapping.NodeType != ExpressionType.Try)
             {
-                return Expression.Block(
-                    new[] { valueVariable },
+                return existingElementValueCheck.Update(
+                    existingElementValueCheck.Variables,
                     existingElementValueCheck.Expressions.Append(mapping));
             }
 
             var mappingTryCatch = (TryExpression)mapping;
 
+            Expression mappingTryCatchBody;
+
+            if (mappingTryCatch.Body.NodeType != ExpressionType.Block)
+            {
+                mappingTryCatchBody = Expression.Block(
+                    new[] { valueVariable },
+                    existingElementValueCheck.Expressions.Append(mappingTryCatch.Body));
+            }
+            else
+            {
+                var mappingTryCatchBodyBlock = (BlockExpression)mappingTryCatch.Body;
+
+                mappingTryCatchBody = Expression.Block(
+                    mappingTryCatchBodyBlock.Variables.Append(valueVariable),
+                    existingElementValueCheck.Expressions.Append(mappingTryCatchBodyBlock.Expressions));
+            }
+
             mapping = mappingTryCatch.Update(
-                Expression.Block(existingElementValueCheck.Expressions.Append(mappingTryCatch.Body)),
+                mappingTryCatchBody,
                 mappingTryCatch.Handlers,
                 mappingTryCatch.Finally,
                 mappingTryCatch.Fault);
 
-            return Expression.Block(new[] { valueVariable }, mapping);
+            return mapping;
         }
 
         public Expression GetSimpleElementConversion(Expression sourceElement)
@@ -629,48 +637,14 @@
             Expression sourceEnumerableValue,
             Func<Expression, Expression> projectionLambdaFactory)
         {
-            return CreateSourceItemsProjection(
-                sourceEnumerableValue,
-                (sourceParameter, counter) => projectionLambdaFactory.Invoke(sourceParameter),
-                counterRequired: false);
-        }
+            var projectionFuncType = Expression.GetFuncType(Context.SourceElementType, Context.TargetElementType);
 
-        public Expression GetSourceItemsProjection(
-            Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionLambdaFactory)
-        {
-            return CreateSourceItemsProjection(sourceEnumerableValue, projectionLambdaFactory, counterRequired: true);
-        }
-
-        private Expression CreateSourceItemsProjection(
-            Expression sourceEnumerableValue,
-            Func<Expression, Expression, Expression> projectionLambdaFactory,
-            bool counterRequired)
-        {
-            var projectionMethod = GetProjectionMethodFor(MapperData, ref counterRequired);
-
-            ParameterExpression[] projectionLambdaParameters;
-            Type[] funcTypes;
-
-            if (counterRequired)
-            {
-                projectionLambdaParameters = new[] { _sourceElementParameter, Counter };
-                funcTypes = new[] { Context.SourceElementType, Counter.Type, Context.TargetElementType };
-            }
-            else
-            {
-                projectionLambdaParameters = new[] { _sourceElementParameter };
-                funcTypes = new[] { Context.SourceElementType, Context.TargetElementType };
-            }
-
-            var projectionFuncType = Expression.GetFuncType(funcTypes);
-
-            Expression projectionLambda = Expression.Lambda(
+            var projectionLambda = Expression.Lambda(
                 projectionFuncType,
-                projectionLambdaFactory.Invoke(_sourceElementParameter, Counter),
-                projectionLambdaParameters);
+                projectionLambdaFactory.Invoke(_sourceElementParameter),
+                _sourceElementParameter);
 
-            var typedSelectMethod = projectionMethod.MakeGenericMethod(Context.ElementTypes);
+            var typedSelectMethod = GetProjectionMethod().MakeGenericMethod(Context.ElementTypes);
             var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionLambda);
 
             return typedSelectCall;
@@ -814,8 +788,8 @@
                 }
 
                 _result = _builder.GetSourceItemsProjection(
-                    sourceEnumerableValue,
-                    (sourceElement, counter) => _builder.GetElementConversion(sourceElement, mappingData));
+                    sourceEnumerableValue, 
+                    sourceElement => _builder.GetElementConversion(sourceElement, mappingData));
 
                 return this;
             }

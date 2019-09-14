@@ -130,7 +130,7 @@
 
             return AppDomain.CurrentDomain
                 .GetAssemblies()
-                .FirstOrDefault(assembly => assembly.GetName().Name == assemblyName);
+                .FirstOrDefault(assemblyName, (an, assembly) => assembly.GetName().Name == an);
 #endif
         }
 

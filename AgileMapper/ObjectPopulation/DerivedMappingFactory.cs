@@ -16,13 +16,31 @@
             Expression sourceValue,
             Type targetType)
         {
+            return GetDerivedTypeMapping(
+                declaredTypeMappingData,
+                sourceValue,
+                targetType,
+                out _);
+        }
+
+        public static Expression GetDerivedTypeMapping(
+            IObjectMappingData declaredTypeMappingData,
+            Expression sourceValue,
+            Type targetType,
+            out IObjectMappingData derivedTypeMappingData)
+        {
+            derivedTypeMappingData = declaredTypeMappingData.WithTypes(sourceValue.Type, targetType);
+
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
+
+            if (DerivedSourceTypeIsUnconditionallyIgnored(derivedTypeMappingData))
+            {
+                return declaredTypeMapperData.TargetObject.GetConversionTo(targetType);
+            }
 
             var targetValue = declaredTypeMapperData.TargetMember.IsReadable
                 ? declaredTypeMapperData.TargetObject.GetConversionTo(targetType)
                 : targetType.ToDefaultExpression();
-
-            var derivedTypeMappingData = declaredTypeMappingData.WithTypes(sourceValue.Type, targetType);
 
             if (declaredTypeMappingData.IsRoot)
             {
@@ -35,6 +53,22 @@
             }
 
             return GetDerivedTypeChildMapping(derivedTypeMappingData, sourceValue, targetValue);
+        }
+
+        private static bool DerivedSourceTypeIsUnconditionallyIgnored(IObjectMappingData derivedTypeMappingData)
+        {
+            var derivedTypeMapperData = derivedTypeMappingData.MapperData;
+            var userConfigurations = derivedTypeMapperData.MapperContext.UserConfigurations;
+
+            if (!userConfigurations.HasSourceMemberIgnores)
+            {
+                return false;
+            }
+
+            var derivedTypeSourceMemberIgnore = userConfigurations
+                .GetSourceMemberIgnoreOrNull(derivedTypeMapperData);
+
+            return derivedTypeSourceMemberIgnore?.HasConfiguredCondition == false;
         }
 
         private static Expression GetDerivedTypeRootMapping(

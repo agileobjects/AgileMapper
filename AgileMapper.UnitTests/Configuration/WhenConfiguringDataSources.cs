@@ -148,9 +148,36 @@
             }
         }
 
+        [Fact]
+        public void ShouldAllowConditionTypeTestsWhenMappingFromAnInterface()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var sourceData = default(Issue146.Source.Data);
+
+                mapper.WhenMapping
+                    .From<Issue146.Source.Container>().To<Issue146.Target.Cont>()
+                    .Map(s => s.Empty, t => t.Info);
+
+                mapper.WhenMapping
+                    .From<Issue146.Source.IEmpty>().To<Issue146.Target.Data>()
+                    .After
+                    .MappingEnds
+                    .If(ctx => ctx.Source is Issue146.Source.Data)
+                    .Call(ctx => sourceData = (Issue146.Source.Data)ctx.Source);
+
+                var source = new Issue146.Source.Container("xxx");
+                var result = mapper.Map(source).ToANew<Issue146.Target.Cont>();
+
+                result.ShouldNotBeNull();
+                sourceData.ShouldNotBeNull();
+                sourceData.ShouldBeSameAs(source.Empty);
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/111
         [Fact]
-        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeConstant()
+        public void ShouldConditionallyApplyAToTargetSimpleTypeConstant()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -168,7 +195,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAToTargetConfiguredSimpleTypeConstant()
+        public void ShouldConditionallyApplyAToTargetSimpleType()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -185,7 +212,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyApplyAToTargetConfiguredNestedSimpleTypeExpression()
+        public void ShouldConditionallyApplyAToTargetNestedSimpleTypeExpression()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -209,7 +236,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyApplyAToTargetConfiguredSimpleTypeExpressionInAComplexTypeList()
+        public void ShouldConditionallyApplyAToTargetSimpleTypeExpressionToAComplexTypeListMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -255,6 +282,27 @@
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicSetMethod<string>>();
 
                 nonMatchingResult.Value.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteATargetWithNoMatchingSourceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFieldsStruct<int, string>>()
+                    .To<PublicField<string>>()
+                    .If(ctx => ctx.Source.Value1 > 100)
+                    .Map((ptf, pf) => ptf.Value1)
+                    .To(pf => pf.Value);
+
+                var source = new PublicTwoFieldsStruct<int, string> { Value1 = 50 };
+                var target = new PublicField<string> { Value = "Value!" };
+
+                mapper.Map(source).Over(target);
+
+                target.Value.ShouldBe("Value!");
             }
         }
 
@@ -509,7 +557,7 @@
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
 #if NETCOREAPP2_0
-                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
+                    .Map(ctx => ctx.Source.Value.Split(':', StringSplitOptions.None))
 #else
                     .Map(ctx => ctx.Source.Value.Split(':'))
 #endif
@@ -1161,9 +1209,32 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/146
+        [Fact]
+        public void ShouldApplyAConfiguredSourceInterfaceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue146.Source.Container>().To<Issue146.Target.Cont>()
+                    .Map(ctx => ctx.Source.Empty).To(tgt => tgt.Info);
+
+                var source = new Issue146.Source.Container("12321") { Name = "input" };
+                var result = mapper.Map(source).ToANew<Issue146.Target.Cont>();
+
+                result.ShouldNotBeNull();
+                result.Name.ShouldBe("input");
+                result.Info.ShouldNotBeNull();
+                result.Info.Id.ShouldBe("12321");
+
+                // Source has a .Value member, but we don't runtime-type interfaces
+                result.Info.Value.ShouldBeNull();
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
-        public void ShouldApplyAConfiguredRootSource()
+        public void ShouldApplyAConfiguredToTargetDataSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1185,7 +1256,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedOverwriteConfiguredRootSource()
+        public void ShouldApplyANestedOverwriteConfiguredToTargetDataSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1345,7 +1416,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredRootSourceToAnEnumerableElement()
+        public void ShouldApplyAToTargetComplexTypeToAComplexTypeEnumerableElement()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1376,7 +1447,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredEnumerableRootSource()
+        public void ShouldApplyAToTargetComplexTypeEnumerable()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1413,7 +1484,7 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredComplexTypeRootSources()
+        public void ShouldApplyMultipleToTargetComplexTypes()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1440,7 +1511,7 @@
         }
 
         [Fact]
-        public void ShouldApplyMultipleConfiguredEnumerableRootSources()
+        public void ShouldApplyMultipleToTargetSimpleTypeEnumerables()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -1462,6 +1533,30 @@
                 var result = mapper.Map(source).ToANew<decimal[]>();
 
                 result.Length.ShouldBe(6);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/145
+        [Fact]
+        public void ShouldHandleNullToTargetDataSourceNestedMembers()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue145.DataSource>().To<Issue145.DataTarget>()
+                    .Map((srcData, tgtData) => srcData.cont).ToTarget();
+
+                var source = new Issue145.DataSource
+                {
+                    cont = new Issue145.DataSourceContainer()
+                };
+
+                var result = mapper.Map(source).ToANew<Issue145.DataTarget>();
+
+                result.ShouldNotBeNull();
+                result.ids.ShouldBeNull();
+                result.res.ShouldBeNull();
+                result.oth.ShouldBeNull();
             }
         }
 
@@ -1544,6 +1639,42 @@
                     result.ParamValues.First().Definition);
             }
         }
+
+        [Fact]
+        public void ShouldApplyAToTargetSimpleTypeToANestedComplexTypeMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().To<PublicEnumerable<int>>()
+                    .Map(ctx => PublicEnumerable<int>.Parse(ctx.Source)).ToTarget();
+
+                mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<PublicEnumerable<int>>>();
+
+                var source = new PublicField<string> { Value = "1,2,3" };
+                var result = mapper.Map(source).ToANew<PublicField<PublicEnumerable<int>>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldNotBeNull();
+                result.Value.ShouldBe(1, 2, 3);
+            }
+        }
+
+        [Fact]
+        public void ShouldConditionallyApplyAToTargetSimpleTypeToANestedComplexTypeMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().To<PublicEnumerable<int>>()
+                    .If(cxt => cxt.Source.Contains(','))
+                    .Map(ctx => PublicEnumerable<int>.Parse(ctx.Source)).ToTarget();
+
+                mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<PublicEnumerable<int>>>();
+            }
+        }
+
+        #region Helper Classes
 
         internal class IdTester
         {
@@ -1718,5 +1849,111 @@
         // ReSharper restore AutoPropertyCanBeMadeGetOnly.Local
         // ReSharper restore MemberCanBePrivate.Local
         // ReSharper restore CollectionNeverQueried.Local
+
+        // ReSharper disable InconsistentNaming
+        internal static class Issue145
+        {
+            public class IdsSource
+            {
+                public string Ids { get; set; }
+            }
+
+            public class ResultSource
+            {
+                public string Result { get; set; }
+            }
+
+            public class OtherDataSource
+            {
+                public string COD { get; set; }
+            }
+
+            public class DataSourceContainer
+            {
+
+                public IdsSource ids;
+                public ResultSource res;
+                public OtherDataSource oth;
+            }
+
+            public class DataSource
+            {
+                public DataSourceContainer cont;
+            }
+
+            public class IdsTarget
+            {
+                public string Ids { get; set; }
+            }
+
+            public class ResultTarget
+            {
+                public string Result { get; set; }
+            }
+
+            public class OtherDataTarget
+            {
+                public string COD { get; set; }
+            }
+
+            public class DataTarget
+            {
+                public IdsTarget ids;
+                public ResultTarget res;
+                public OtherDataTarget oth;
+            }
+        }
+        // ReSharper restore InconsistentNaming
+
+        internal static class Issue146
+        {
+            public static class Source
+            {
+                public interface IData
+                {
+                    string Id { get; set; }
+                }
+
+                public interface IEmpty : IData { }
+
+                public class Data : IEmpty
+                {
+                    public string Id { get; set; }
+
+                    public string Value => "Data.Value!";
+                }
+
+                public class Container
+                {
+                    public Container(string infoId)
+                    {
+                        Empty = new Data { Id = infoId };
+                    }
+
+                    public string Name { get; set; }
+
+                    public IEmpty Empty { get; }
+                }
+            }
+
+            public static class Target
+            {
+                public class Data
+                {
+                    public string Id { get; set; }
+
+                    public string Value { get; set; }
+                }
+
+                public class Cont
+                {
+                    public Data Info { get; set; }
+
+                    public string Name { get; set; }
+                }
+            }
+        }
+
+        #endregion
     }
 }

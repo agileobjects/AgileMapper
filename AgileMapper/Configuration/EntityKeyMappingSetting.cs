@@ -25,25 +25,21 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public override bool ConflictsWith(UserConfiguredItemBase otherItem)
         {
-            if (otherItem == this)
+            if (!base.ConflictsWith(otherItem))
             {
-                return true;
+                return false;
             }
 
-            if (base.ConflictsWith(otherItem))
+            var otherSettings = (EntityKeyMappingSetting)otherItem;
+
+            if ((this == MapAllKeys) || (otherSettings == MapAllKeys))
             {
-                var otherSettings = (EntityKeyMappingSetting)otherItem;
-
-                if ((this == MapAllKeys) || (otherSettings == MapAllKeys))
-                {
-                    return (otherSettings.MapKeys == MapKeys);
-                }
-
-                // Settings have overlapping, non-global source and target types
-                return true;
+                return (otherSettings.MapKeys == MapKeys);
             }
 
-            return false;
+            // Settings have overlapping, non-global source and target types
+            return true;
+
         }
 
         public string GetConflictMessage(EntityKeyMappingSetting conflicting)

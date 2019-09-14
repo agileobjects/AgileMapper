@@ -4,16 +4,16 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
-    using Configuration;
-    using Extensions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Extensions;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class ToEnumConverter : IValueConverter
     {
@@ -379,7 +379,7 @@
                     {
                         return new
                         {
-                            Value = (Expression)targetEnumValues.First(tv => tv.Member.Name == pairedMemberName),
+                            Value = (Expression)targetEnumValues.First(pairedMemberName, (pmn, tv) => tv.Member.Name == pmn),
                             IsCustom = true
                         };
                     }
@@ -387,17 +387,17 @@
                     return new
                     {
                         Value = targetEnumValues
-                            .FirstOrDefault(tv => tv.Member.Name.EqualsIgnoreCase(sv.Member.Name)) ??
+                            .FirstOrDefault(sv.Member.Name, (name, tv) => tv.Member.Name.EqualsIgnoreCase(name)) ??
                              fallbackValue,
                         IsCustom = false
                     };
                 });
 
             var enumPairsConversion = sourceEnumValues
-                .Project(sv => new
+                .Project(enumPairs, (eps, sv) => new
                 {
                     SourceValue = sv,
-                    PairedValue = enumPairs[sv]
+                    PairedValue = eps[sv]
                 })
                 .OrderByDescending(d => d.PairedValue.IsCustom)
                 .Reverse()
@@ -495,17 +495,8 @@
                 numericConversion,
                 nameMatchingConversion);
 
-            var valueIsNullOrEmpty = Expression.Call(
-#if NET35
-                typeof(StringExtensions)
-#else
-                typeof(string)
-#endif
-                    .GetPublicStaticMethod("IsNullOrWhiteSpace"),
-                sourceValue);
-
             var convertedValueOrDefault = Expression.Condition(
-                valueIsNullOrEmpty,
+                StringExpressionExtensions.GetIsNullOrWhiteSpaceCall(sourceValue),
                 fallbackValue,
                 numericOrNameConversion);
 

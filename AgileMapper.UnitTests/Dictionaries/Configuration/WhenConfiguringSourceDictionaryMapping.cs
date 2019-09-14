@@ -497,5 +497,72 @@
                 nonMatchingResult.Value.ShouldBe("10");
             }
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/152
+        [Fact]
+        public void ShouldMapANestedComplexTypeSourceDictionaryToTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue152.Source.Wrapper>().ToDictionariesWithValueType<Issue152.Target.Data>()
+                    .Map(ctx => ctx.Source.Dict).ToTarget()
+                    .And
+                    .IgnoreTargetMembersWhere(m => m.Name == "Dict");
+
+                var source = new Issue152.Source.Wrapper("One", "Two", "Three");
+                var result = mapper.Map(source).ToANew<IDictionary<string, Issue152.Target.Data>>();
+
+                result.ShouldNotBeNull();
+                result.Count.ShouldBe(3);
+
+                result.ShouldContainKey("One");
+                result["One"].Value.ShouldBe("One");
+
+                result.ShouldContainKey("Two");
+                result["Two"].Value.ShouldBe("Two");
+
+                result.ShouldContainKey("Three");
+                result["Three"].Value.ShouldBe("Three");
+            }
+        }
+
+        #region Helper Classes
+
+        public static class Issue152
+        {
+            public static class Source
+            {
+                public class Wrapper
+                {
+                    public Wrapper(params string[] inputs)
+                    {
+                        Dict = new Dictionary<string, Data>();
+
+                        foreach (var stringValue in inputs)
+                        {
+                            Dict.Add(stringValue, new Data { Value = stringValue });
+                        }
+                    }
+
+                    public IDictionary<string, Data> Dict { get; }
+                }
+
+                public class Data
+                {
+                    public string Value { get; set; }
+                }
+            }
+
+            public static class Target
+            {
+                public class Data
+                {
+                    public string Value { get; set; }
+                }
+            }
+        }
+
+        #endregion
     }
 }

@@ -1,7 +1,9 @@
 namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
+    using System.Collections.Generic;
     using System.Dynamic;
+    using System.Linq;
     using Caching;
     using Extensions;
     using Extensions.Internal;
@@ -259,11 +261,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             }
 
             var keyedAccess = GetKeyedAccess(mapperData);
-
-            var convertedValue =
-                GetCheckedValueOrNull(value, keyedAccess, mapperData) ??
-                mapperData.GetValueConversion(value, ValueType);
-
+            var convertedValue = mapperData.GetValueConversion(value, ValueType);
             var keyedAssignment = keyedAccess.AssignTo(convertedValue);
 
             return keyedAssignment;
@@ -273,67 +271,68 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         {
             if (HasObjectEntries || HasSimpleEntries)
             {
-                return value.TryGetMappingBody(out flattening);
+                return TryGetMappingBody(value, out flattening);
             }
 
             flattening = null;
             return false;
         }
 
-        private Expression GetCheckedValueOrNull(Expression value, Expression keyedAccess, IMemberMapperData mapperData)
+        private static bool TryGetMappingBody(Expression value, out Expression mapping)
         {
-            if (HasSimpleEntries)
-            {
-                return null;
-            }
-
-            if ((value.NodeType != Block) && (value.NodeType != Try) || mapperData.TargetIsDefinitelyUnpopulated())
-            {
-                return mapperData.SourceMember.IsEnumerable ? value.GetConversionTo(ValueType) : null;
-            }
-
-            var checkedAccess = GetAccessChecked(mapperData);
-            var existingValue = checkedAccess.Variables.First();
-
             if (value.NodeType == Try)
             {
-                return GetCheckedTryCatch((TryExpression)value, keyedAccess, checkedAccess, existingValue);
+                value = ((TryExpression)value).Body;
             }
 
-            var checkedValue = ((BlockExpression)value).Replace(keyedAccess, existingValue);
+            if ((value.NodeType != Block))
+            {
+                mapping = null;
+                return false;
+            }
 
-            return checkedValue.Update(
-                checkedValue.Variables.Append(existingValue),
-                checkedValue.Expressions.Prepend(checkedAccess.Expressions.First()));
+            var mappingBlock = (BlockExpression)value;
+
+            if (mappingBlock.Expressions.HasOne())
+            {
+                mapping = null;
+                return false;
+            }
+
+            var mappingExpressions = GetMappingExpressions(mappingBlock);
+
+            if (mappingExpressions.HasOne() &&
+               (mappingExpressions[0].NodeType == Block))
+            {
+                IList<ParameterExpression> mappingVariables = mappingBlock.Variables;
+                mappingBlock = (BlockExpression)mappingExpressions[0];
+                mappingVariables = mappingVariables.Append(mappingBlock.Variables);
+                mapping = mappingBlock.Update(mappingVariables, mappingBlock.Expressions);
+                return true;
+            }
+
+            mapping = mappingBlock.Variables.Any()
+                ? Expression.Block(mappingBlock.Variables, mappingExpressions)
+                : mappingExpressions.HasOne()
+                    ? mappingExpressions[0]
+                    : Expression.Block(mappingExpressions);
+
+            return true;
         }
 
-        private static Expression GetCheckedTryCatch(
-            TryExpression tryCatchValue,
-            Expression keyedAccess,
-            Expression checkedAccess,
-            ParameterExpression existingValue)
+        private static IList<Expression> GetMappingExpressions(Expression mapping)
         {
-            var existingValueOrDefault = Expression.Condition(
-                checkedAccess,
-                existingValue,
-                existingValue.Type.ToDefaultExpression());
+            var expressions = new List<Expression>();
 
-            var replacements = new ExpressionReplacementDictionary(1) { [keyedAccess] = existingValueOrDefault };
+            while (mapping.NodeType == Block)
+            {
+                var mappingBlock = (BlockExpression)mapping;
 
-            var updatedCatchHandlers = tryCatchValue
-                .Handlers
-                .ProjectToArray(handler => handler.Update(
-                    handler.Variable,
-                    handler.Filter.Replace(replacements),
-                    handler.Body.Replace(replacements)));
+                expressions.AddRange(mappingBlock.Expressions.Take(mappingBlock.Expressions.Count - 1));
+                mapping = mappingBlock.Result;
+            }
 
-            var updatedTryCatch = tryCatchValue.Update(
-                tryCatchValue.Body,
-                updatedCatchHandlers,
-                tryCatchValue.Finally,
-                tryCatchValue.Fault);
-
-            return Expression.Block(new[] { existingValue }, updatedTryCatch);
+            return expressions;
         }
 
         public DictionaryTargetMember WithTypeOf(Member sourceMember)
@@ -362,7 +361,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             // entry and we're mapping from a source of type object, we switch from
             // mapping to flattened entries to mapping entire objects:
             return HasObjectEntries &&
-                   LeafMember.IsEnumerableElement() &&
+                   this.IsEnumerableElement() &&
                   (MemberChain[Depth - 2] == _rootDictionaryMember.LeafMember) &&
                   (sourceType == typeof(object));
         }

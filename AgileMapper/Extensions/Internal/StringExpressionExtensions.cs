@@ -13,7 +13,7 @@
 
     internal static class StringExpressionExtensions
     {
-        public static readonly Expression EmptyString = Expression.Field(null, typeof(string), "Empty");
+        public static readonly Expression EmptyString = Expression.Field(null, typeof(string), nameof(string.Empty));
         public static readonly Expression Underscore = "_".ToConstantExpression();
 
         private static readonly MethodInfo _stringJoinMethod;
@@ -23,7 +23,7 @@
         {
             var stringMethods = typeof(string)
                 .GetPublicStaticMethods()
-                .Filter(m => m.Name == "Join" || m.Name == "Concat")
+                .Filter(m => m.Name == nameof(string.Join) || m.Name == nameof(string.Concat))
                 .Project(m => new
                 {
                     Method = m,
@@ -33,26 +33,38 @@
                 .ToArray();
 
             _stringJoinMethod = stringMethods.First(m =>
-                (m.Method.Name == "Join") &&
+                (m.Method.Name == nameof(string.Join)) &&
                 (m.Parameters.Length == 2) &&
                 (m.Parameters[0].ParameterType == typeof(string)) &&
                 (m.Parameters[1].ParameterType == typeof(string[]))).Method;
 
             _stringConcatMethods = stringMethods
-                .Filter(m => (m.Method.Name == "Concat") && (m.FirstParameterType == typeof(string)))
+                .Filter(m => (m.Method.Name == nameof(string.Concat)) && (m.FirstParameterType == typeof(string)))
                 .OrderBy(m => m.Parameters.Length)
                 .Project(m => m.Method)
                 .ToArray();
         }
 
+        public static Expression GetIsNullOrWhiteSpaceCall(Expression stringValue)
+        {
+            return Expression.Call(
+#if NET35
+                typeof(StringExtensions)
+#else
+                typeof(string)
+#endif
+                    .GetPublicStaticMethod("IsNullOrWhiteSpace"),
+                stringValue);
+        }
+
         public static MethodInfo GetConcatMethod(int parameterCount)
-            => _stringConcatMethods.First(m => m.GetParameters().Length == parameterCount);
+            => _stringConcatMethods.First(parameterCount, (pc, m) => m.GetParameters().Length == pc);
 
         public static Expression GetStringConcatCall(this IList<Expression> expressions)
         {
             if (expressions.None())
             {
-                return string.Empty.ToConstantExpression();
+                return EmptyString;
             }
 
             if (expressions.HasOne())

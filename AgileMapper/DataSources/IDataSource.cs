@@ -1,13 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
 
     internal interface IDataSource : IConditionallyChainable
     {
@@ -19,10 +19,12 @@
 
         bool IsConditional { get; }
 
-        ICollection<ParameterExpression> Variables { get; }
+        bool IsFallback { get; }
 
-        Expression AddPreCondition(Expression population);
+        IList<ParameterExpression> Variables { get; }
 
-        Expression AddCondition(Expression value, Expression alternateBranch = null);
+        Expression AddSourceCondition(Expression value);
+
+        Expression FinalisePopulation(Expression population, Expression alternatePopulation = null);
     }
 }

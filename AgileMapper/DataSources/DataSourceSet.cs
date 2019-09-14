@@ -1,171 +1,232 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
 
-    internal class DataSourceSet : IEnumerable<IDataSource>
+    internal static class DataSourceSet
     {
-        private readonly IList<IDataSource> _dataSources;
-        private Expression _value;
+        #region Factory Methods
 
-        public DataSourceSet(IMemberMapperData mapperData, params IDataSource[] dataSources)
+        public static IDataSourceSet For(
+            IDataSource dataSource,
+            IMemberMapperData mapperData,
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
         {
-            MapperData = mapperData;
-            _dataSources = dataSources;
-            None = dataSources.Length == 0;
-
-            if (None)
+            if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
             {
-                Variables = Enumerable<ParameterExpression>.EmptyArray;
-                return;
+                dataSource = dataSource.WithFilter(mapperData);
             }
 
-            var variables = new List<ParameterExpression>();
-
-            for (var i = 0; i < dataSources.Length;)
-            {
-                var dataSource = dataSources[i++];
-
-                if (dataSource.IsValid)
-                {
-                    HasValue = true;
-                }
-
-                if (dataSource.IsConditional)
-                {
-                    IsConditional = true;
-                }
-
-                if (dataSource.Variables.Any())
-                {
-                    variables.AddRange(dataSource.Variables);
-                }
-
-                if (dataSource.SourceMemberTypeTest != null)
-                {
-                    SourceMemberTypeTest = dataSource.SourceMemberTypeTest;
-                }
-            }
-
-            Variables = variables;
+            return new SingleValueDataSourceSet(dataSource, mapperData, valueBuilder);
         }
 
-        public IMemberMapperData MapperData { get; }
-
-        public bool None { get; }
-
-        public bool HasValue { get; }
-
-        public bool IsConditional { get; }
-
-        public Expression SourceMemberTypeTest { get; }
-
-        public IList<ParameterExpression> Variables { get; }
-
-        public IDataSource this[int index] => _dataSources[index];
-
-        public Expression ValueExpression => _value ?? (_value = BuildValueExpression());
-
-        private Expression BuildValueExpression()
+        public static IDataSourceSet For(
+            IList<IDataSource> dataSources,
+            IMemberMapperData mapperData,
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
         {
-            var value = default(Expression);
-
-            for (var i = _dataSources.Count - 1; i >= 0;)
+            if (dataSources.HasOne())
             {
-                var dataSource = _dataSources[i--];
-
-                value = dataSource.AddPreConditionIfNecessary(value == default(Expression)
-                    ? dataSource.Value
-                    : Expression.Condition(
-                        dataSource.Condition,
-                        dataSource.Value.GetConversionTo(value.Type),
-                        value));
+                return For(dataSources.First(), mapperData, valueBuilder);
             }
 
-            return value;
+            if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
+            {
+                dataSources = dataSources.WithFilters(mapperData);
+            }
+
+            return new MultipleValueDataSourceSet(dataSources, mapperData, valueBuilder);
         }
 
-        public Expression GetPopulationExpression()
+        #endregion
+
+        private class SingleValueDataSourceSet : IDataSourceSet
         {
-            var fallbackValue = GetFallbackValueOrNull();
-            var excludeFallback = fallbackValue == null;
+            private readonly IDataSource _dataSource;
+            private readonly Func<IDataSource, IMemberMapperData, Expression> _valueBuilder;
+            private Expression _value;
 
-            Expression population = null;
-
-            for (var i = _dataSources.Count - 1; i >= 0; --i)
+            public SingleValueDataSourceSet(
+                IDataSource dataSource,
+                IMemberMapperData mapperData,
+                Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
             {
-                var dataSource = _dataSources[i];
+                _dataSource = dataSource;
+                MapperData = mapperData;
 
-                if (i == _dataSources.Count - 1)
+                if (valueBuilder == null)
                 {
-                    if (excludeFallback)
+                    _valueBuilder = ValueExpressionBuilders.SingleDataSource;
+                }
+                else
+                {
+                    _valueBuilder = (ds, md) => valueBuilder.Invoke(new[] { ds }, md);
+                }
+            }
+
+            public IMemberMapperData MapperData { get; }
+
+            public bool None => false;
+
+            public bool HasValue => _dataSource.IsValid;
+
+            public bool IsConditional => _dataSource.IsConditional;
+
+            public Expression SourceMemberTypeTest => _dataSource.SourceMemberTypeTest;
+
+            public IList<ParameterExpression> Variables => _dataSource.Variables;
+
+            public IDataSource this[int index] => _dataSource;
+
+            public int Count => 1;
+
+            public Expression BuildValue()
+                => _value ?? (_value = _valueBuilder.Invoke(_dataSource, MapperData));
+
+            public Expression GetFinalValueOrNull() => _dataSource.Value;
+
+            #region IEnumerable<IDataSource> Members
+
+            #region ExcludeFromCodeCoverage
+#if DEBUG
+            [ExcludeFromCodeCoverage]
+#endif
+            #endregion
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public IEnumerator<IDataSource> GetEnumerator()
+            {
+                yield return _dataSource;
+            }
+
+            #endregion
+        }
+
+        private class MultipleValueDataSourceSet : IDataSourceSet
+        {
+            private readonly IList<IDataSource> _dataSources;
+            private readonly Func<IList<IDataSource>, IMemberMapperData, Expression> _valueBuilder;
+            private Expression _value;
+
+            public MultipleValueDataSourceSet(
+                IList<IDataSource> dataSources,
+                IMemberMapperData mapperData,
+                Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
+            {
+                _dataSources = dataSources;
+                MapperData = mapperData;
+                None = dataSources.Count == 0;
+
+                if (None)
+                {
+                    Variables = Enumerable<ParameterExpression>.EmptyArray;
+                    return;
+                }
+
+                _valueBuilder = valueBuilder ?? ValueExpressionBuilders.ConditionTree;
+
+                var variables = default(List<ParameterExpression>);
+
+                for (var i = 0; i < dataSources.Count;)
+                {
+                    var dataSource = dataSources[i++];
+
+                    if (dataSource.IsValid)
                     {
-                        continue;
+                        HasValue = true;
                     }
-
-                    population = MapperData.GetTargetMemberPopulation(fallbackValue);
 
                     if (dataSource.IsConditional)
                     {
-                        population = dataSource.AddCondition(population);
+                        IsConditional = true;
                     }
 
-                    population = dataSource.AddPreCondition(population);
-                    continue;
+                    if (dataSource.Variables.Any())
+                    {
+                        if (variables == null)
+                        {
+                            variables = new List<ParameterExpression>();
+                        }
+
+                        variables.AddRange(dataSource.Variables);
+                    }
+
+                    if (dataSource.SourceMemberTypeTest != null)
+                    {
+                        SourceMemberTypeTest = dataSource.SourceMemberTypeTest;
+                    }
                 }
 
-                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-
-                population = dataSource.AddCondition(memberPopulation, population);
-                population = dataSource.AddPreCondition(population);
+                Variables = (variables != null)
+                    ? (IList<ParameterExpression>)variables
+                    : Enumerable<ParameterExpression>.EmptyArray;
             }
 
-            return population;
-        }
+            public IMemberMapperData MapperData { get; }
 
-        private Expression GetFallbackValueOrNull()
-        {
-            var finalDataSource = _dataSources.Last();
-            var fallbackValue = finalDataSource.Value;
+            public bool None { get; }
 
-            if (finalDataSource.IsConditional || _dataSources.HasOne())
+            public bool HasValue { get; }
+
+            public bool IsConditional { get; }
+
+            public Expression SourceMemberTypeTest { get; }
+
+            public IList<ParameterExpression> Variables { get; }
+
+            public IDataSource this[int index] => _dataSources[index];
+
+            public int Count => _dataSources.Count;
+
+            public Expression BuildValue()
+                => _value ?? (_value = _valueBuilder.Invoke(_dataSources, MapperData));
+
+            public Expression GetFinalValueOrNull()
             {
-                return fallbackValue;
+                var finalDataSource = _dataSources.Last();
+                var finalValue = finalDataSource.Value;
+
+                if (!finalDataSource.IsFallback)
+                {
+                    return finalValue;
+                }
+
+                if (finalValue.NodeType == ExpressionType.Coalesce)
+                {
+                    // Coalesce between the existing target member value and the fallback:
+                    return ((BinaryExpression)finalValue).Right;
+                }
+
+                var targetMemberAccess = MapperData.GetTargetMemberAccess();
+
+                if (ExpressionEvaluation.AreEqual(finalValue, targetMemberAccess))
+                {
+                    return null;
+                }
+
+                return finalValue;
             }
 
-            if (fallbackValue.NodeType == ExpressionType.Coalesce)
-            {
-                return ((BinaryExpression)fallbackValue).Right;
-            }
+            #region IEnumerable<IDataSource> Members
 
-            var targetMemberAccess = MapperData.GetTargetMemberAccess();
-
-            if (ExpressionEvaluation.AreEqual(fallbackValue, targetMemberAccess))
-            {
-                return null;
-            }
-
-            return fallbackValue;
-        }
-
-        #region IEnumerable<IDataSource> Members
-
-        public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
-
-        #region ExcludeFromCodeCoverage
+            #region ExcludeFromCodeCoverage
 #if DEBUG
-        [ExcludeFromCodeCoverage]
+            [ExcludeFromCodeCoverage]
 #endif
-        #endregion
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+            #endregion
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        #endregion
+            public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
+
+            #endregion
+        }
     }
 }

@@ -135,7 +135,7 @@
             }
 
             var conflictingFactory = existingFactories
-                .FirstOrDefault(kpf => kpf.ConflictsWith(factory));
+                .FirstOrDefault(factory, (f, kpf) => kpf.ConflictsWith(f));
 
             if (conflictingFactory == null)
             {

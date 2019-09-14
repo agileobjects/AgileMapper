@@ -1,14 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
     {
@@ -29,7 +29,7 @@
 
         protected DataSourceBase(
             IQualifiedMember sourceMember,
-            ICollection<ParameterExpression> variables,
+            IList<ParameterExpression> variables,
             Expression value,
             Expression condition = null)
         {
@@ -117,7 +117,7 @@
 
             if (sourceMemberValue.Type.IsNullableType())
             {
-                sourceMemberValue = Expression.Property(sourceMemberValue, "Value");
+                sourceMemberValue = sourceMemberValue.GetNullableValueAccess();
             }
 
             var zero = 0.ToConstantExpression(sourceValueType);
@@ -168,7 +168,7 @@
                 .Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
-                .FirstOrDefault(m => m.Name == entityMemberName);
+                .FirstOrDefault(entityMemberName, (emn, m) => m.Name == emn);
 
             return !mapperData.IsEntity(entityMember?.Type, out _);
         }
@@ -181,23 +181,29 @@
 
         public virtual bool IsValid => Value != Constants.EmptyExpression;
 
-        public virtual Expression PreCondition => null;
-
         public bool IsConditional => Condition != null;
+
+        public virtual bool IsFallback => false;
 
         public virtual Expression Condition { get; }
 
-        public ICollection<ParameterExpression> Variables { get; }
+        public IList<ParameterExpression> Variables { get; }
 
         public Expression Value { get; }
 
-        public virtual Expression AddPreCondition(Expression population) => population;
+        public virtual Expression AddSourceCondition(Expression value) => value;
 
-        public Expression AddCondition(Expression value, Expression alternateBranch = null)
+        public virtual Expression FinalisePopulation(Expression population, Expression alternatePopulation)
         {
-            return alternateBranch != null
-                ? Expression.IfThenElse(Condition, value, alternateBranch)
-                : Expression.IfThen(Condition, value);
+            if (!IsConditional)
+            {
+                return population;
+            }
+
+            return (alternatePopulation != null)
+                ? Expression.IfThenElse(Condition, population, alternatePopulation)
+                : Expression.IfThen(Condition, population);
+
         }
     }
 }

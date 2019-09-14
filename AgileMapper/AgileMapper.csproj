@@ -18,16 +18,21 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Support for mapping callbacks in .ToTarget() data sources
-- Fixing constructability check for .ToTarget() data sources re: #129
-- Fixing .ToTarget() calls with source Dictionaries, re: #133
-- Fixing complex type Dictionary merging
+    <PackageReleaseNotes>- Support for ignoring source members by member, member filter and value filter, re: #137
+- Support for root enum mapping, re: #138
+- Support for mapping to and from interface member implemented interface members, re: #146
+- Support for mapping (not projecting) queryables
+- Improved detection of constructor-populated members, re: #139
+- Fixing nullable DateTime to string custom format string configuration, re: #149
+- Fixing nested .ToTarget() source member null-checks, re: #145
+- Fixing configured member conflict detection bug #152
+- Fixing interface-to-string mapping using ToString(), re #153
 - Performance improvements</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.0" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.1.1" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.3.2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">

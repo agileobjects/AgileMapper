@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper.Members
 
         IBasicMapperData Parent { get; }
 
+        IQualifiedMember SourceMember { get; }
+        
         QualifiedMember TargetMember { get; }
 
         bool HasCompatibleTypes(ITypePair typePair);

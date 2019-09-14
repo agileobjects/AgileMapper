@@ -15,6 +15,9 @@
         private static readonly Assembly _systemCoreLib = typeof(Func<>).GetAssembly();
 #endif
 
+        public static string GetSourceValueVariableName(this Type sourceType)
+            => "source" + sourceType.GetVariableNameInPascalCase();
+
         public static string GetShortVariableName(this Type type)
         {
             var variableName = type.GetVariableNameInPascalCase();
@@ -120,7 +123,7 @@
 
             return Constants
                 .NumericTypeMaxValuesByType
-                .Filter(kvp => kvp.Value < typeMaxValue)
+                .Filter(typeMaxValue, (tmv, kvp) => kvp.Value < tmv)
                 .Project(kvp => kvp.Key)
                 .ToArray();
         }

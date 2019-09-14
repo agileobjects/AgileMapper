@@ -66,18 +66,72 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>();
 
         /// <summary>
-        /// Ignore the given <paramref name="targetMembers"/> when mappingfrom and to the source and target types 
-        /// being configured.
+        /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>, when
+        /// mapping from and to the source and target types being configured. Matching member values
+        /// will not be used to populate target members.
+        /// </summary>
+        /// <param name="valuesFilter">
+        /// The matching function with which to test source values to determine if they should be
+        /// ignored.
+        /// </param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> IgnoreSources(
+            Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter);
+
+        /// <summary>
+        /// Ignore the given <paramref name="sourceMembers"/> when mapping from and to the source and
+        /// target types being configured. The given member(s) will not be used to populate target
+        /// members.
+        /// </summary>
+        /// <param name="sourceMembers">The source member(s) which should be ignored.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> IgnoreSource(
+            params Expression<Func<TSource, object>>[] sourceMembers);
+
+        /// <summary>
+        /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>
+        /// when mapping from and to the source and target types being configured. Source members of
+        /// this type will not be used to populate target members.
+        /// </summary>
+        /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target types being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersOfType<TMember>();
+
+        /// <summary>
+        /// Ignore all source members matching the given <paramref name="memberFilter"/> when mapping
+        /// from and to the source and target types being configured. Source members matching the filter
+        /// will not be used to populate target members.
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select source members to ignore.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target types being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersWhere(
+            Expression<Func<SourceMemberSelector, bool>> memberFilter);
+
+        /// <summary>
+        /// Ignore the given <paramref name="targetMembers"/> when mapping from and to the source and
+        /// target types being configured. The given member(s) will not be populated.
         /// </summary>
         /// <param name="targetMembers">The target member(s) which should be ignored.</param>
         /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers);
 
         /// <summary>
-        /// Ignore all target member(s) of the given <typeparamref name="TMember">Type</typeparamref> when mapping
+        /// Ignore all target members of the given <typeparamref name="TMember">Type</typeparamref> when mapping
         /// from and to the source and target types being configured.
         /// </summary>
         /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
@@ -88,7 +142,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>();
 
         /// <summary>
-        /// Ignore all target member(s) matching the given <paramref name="memberFilter"/> when mapping
+        /// Ignore all target members matching the given <paramref name="memberFilter"/> when mapping
         /// from and to the source and target types being configured.
         /// </summary>
         /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
@@ -127,7 +181,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// An ICustomDataSourceMappingConfigContinuation with which to control the reverse configuration, or further
         /// configure mappings from and to the source and target type being configured.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<IMappingData<TSource, TTarget>, TSourceValue>> valueFactoryExpression);
 
         /// <summary>
@@ -138,10 +192,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of the custom value being configured.</typeparam>
         /// <param name="valueFactoryExpression">The expression to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, TSourceValue>> valueFactoryExpression);
 
         /// <summary>
@@ -152,10 +206,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of the custom value being configured.</typeparam>
         /// <param name="valueFactoryExpression">The expression to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(
             Expression<Func<TSource, TTarget, int?, TSourceValue>> valueFactoryExpression);
 
         /// <summary>
@@ -164,10 +218,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of value returned by the given Func.</typeparam>
         /// <param name="valueFunc">The Func object to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> MapFunc<TSourceValue>(
             Func<TSource, TSourceValue> valueFunc);
 
         /// <summary>
@@ -177,10 +231,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <typeparam name="TSourceValue">The type of the custom constant value being configured.</typeparam>
         /// <param name="value">The constant value to map to the configured target member.</param>
         /// <returns>
-        /// An ICustomMappingDataSourceTargetMemberSpecifier with which to specify the target member to which the 
+        /// An ICustomDataSourceTargetMemberSpecifier with which to specify the target member to which the 
         /// custom constant value should be applied.
         /// </returns>
-        ICustomMappingDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value);
+        ICustomDataSourceTargetMemberSpecifier<TSource, TTarget> Map<TSourceValue>(TSourceValue value);
 
         /// <summary>
         /// Configure a constant value for the given <paramref name="targetMember"/> when mapping from and to the

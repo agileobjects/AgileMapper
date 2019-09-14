@@ -195,7 +195,7 @@
             potentialIds.InsertRange(0, new[] { "Id", "Identifier" });
 
             return _customNameMatchers
-                .Project(customNameMatcher => customNameMatcher.Match(member.Name))
+                .Project(member, (m, customNameMatcher) => customNameMatcher.Match(m.Name))
                 .Any(memberNameMatch =>
                     memberNameMatch.Success &&
                     potentialIds.Contains(GetMemberName(memberNameMatch)));

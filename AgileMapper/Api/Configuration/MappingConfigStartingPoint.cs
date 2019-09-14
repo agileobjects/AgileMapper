@@ -8,6 +8,8 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
+    using AgileMapper.Configuration.MemberIgnores;
+    using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using Dictionaries;
 #if FEATURE_DYNAMIC
     using Dynamics;
@@ -34,6 +36,8 @@
         }
 
         private MapperContext MapperContext => _configInfo.MapperContext;
+
+        private UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
 
         #region Global Settings
 
@@ -66,7 +70,7 @@
         {
             foreach (var provider in ConfiguredServiceProvider.CreateFromOrThrow(serviceProvider))
             {
-                MapperContext.UserConfigurations.Add(provider);
+                UserConfigurations.Add(provider);
             }
 
             return this;
@@ -82,9 +86,7 @@
         /// </returns>
         public IGlobalMappingSettings UseServiceProvider(Func<Type, object> serviceFactory)
         {
-            var provider = new ConfiguredServiceProvider(serviceFactory);
-
-            MapperContext.UserConfigurations.Add(provider);
+            UserConfigurations.Add(new ConfiguredServiceProvider(serviceFactory));
             return this;
         }
 
@@ -98,9 +100,7 @@
         /// </returns>
         public IGlobalMappingSettings UseServiceProvider(Func<Type, string, object> serviceFactory)
         {
-            var provider = new ConfiguredServiceProvider(serviceFactory);
-
-            MapperContext.UserConfigurations.Add(provider);
+            UserConfigurations.Add(new ConfiguredServiceProvider(serviceFactory));
             return this;
         }
 
@@ -130,9 +130,7 @@
         /// </returns>
         public IGlobalMappingSettings PassExceptionsTo(Action<IMappingExceptionData> callback)
         {
-            var exceptionCallback = new ExceptionCallback(GlobalConfigInfo, callback.ToConstantExpression());
-
-            MapperContext.UserConfigurations.Add(exceptionCallback);
+            UserConfigurations.Add(new ExceptionCallback(GlobalConfigInfo, callback.ToConstantExpression()));
             return this;
         }
 
@@ -231,7 +229,7 @@
         /// </returns>
         public IGlobalMappingSettings MaintainIdentityIntegrity()
         {
-            MapperContext.UserConfigurations.Add(MappedObjectCachingSetting.CacheAll);
+            UserConfigurations.Add(MappedObjectCachingSetting.CacheAll);
             return this;
         }
 
@@ -247,7 +245,7 @@
         /// </returns>
         public IGlobalMappingSettings DisableObjectTracking()
         {
-            MapperContext.UserConfigurations.Add(MappedObjectCachingSetting.CacheNone);
+            UserConfigurations.Add(MappedObjectCachingSetting.CacheNone);
             return this;
         }
 
@@ -259,7 +257,7 @@
         /// </returns>
         public IGlobalMappingSettings MapNullCollectionsToNull()
         {
-            MapperContext.UserConfigurations.Add(new NullCollectionsSetting(GlobalConfigInfo));
+            UserConfigurations.Add(new NullCollectionsSetting(GlobalConfigInfo));
             return this;
         }
 
@@ -271,7 +269,7 @@
         /// </returns>
         public IGlobalMappingSettings MapEntityKeys()
         {
-            MapperContext.UserConfigurations.Add(EntityKeyMappingSetting.MapAllKeys);
+            UserConfigurations.Add(EntityKeyMappingSetting.MapAllKeys);
             return this;
         }
 
@@ -286,7 +284,7 @@
         /// </returns>
         public IGlobalMappingSettings AutoReverseConfiguredDataSources()
         {
-            MapperContext.UserConfigurations.Add(DataSourceReversalSetting.ReverseAll);
+            UserConfigurations.Add(DataSourceReversalSetting.ReverseAll);
             return this;
         }
 
@@ -300,7 +298,7 @@
         /// </returns>
         public IGlobalMappingSettings ThrowIfAnyMappingPlanIsIncomplete()
         {
-            MapperContext.UserConfigurations.ValidateMappingPlans = true;
+            UserConfigurations.ValidateMappingPlans = true;
             return this;
         }
 
@@ -374,35 +372,78 @@
         #region Ignoring Members
 
         /// <summary>
-        /// Ignore all target member(s) of the given <typeparamref name="TMember">Type</typeparamref>. Members will be
-        /// ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>. Matching
+        /// members will not be used to populate target members in mappings between all types and
+        /// mapping rule sets (create new, overwrite, etc).
         /// </summary>
-        /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
+        /// <param name="valuesFilter">
+        /// The matching function with which to test source values to determine if they should be
+        /// ignored.
+        /// </param>
         /// <returns>
-        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
+        /// aspects.
         /// </returns>
-        public IGlobalMappingSettings IgnoreTargetMembersOfType<TMember>()
+        public IGlobalMappingSettings IgnoreSources(Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
         {
-            return IgnoreTargetMembersWhere(member => member.HasType<TMember>());
+            UserConfigurations.Add(ConfiguredSourceValueFilter.Create(GlobalConfigInfo, valuesFilter));
+            return this;
         }
 
         /// <summary>
-        /// Ignore all target member(s) matching the given <paramref name="memberFilter"/>. Members will be
-        /// ignored in mappings between all types and MappingRuleSets (create new, overwrite, etc).
+        /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>.
+        /// Matching members will not be used to populate target members in mappings between all types
+        /// and mapping rule sets (create new, overwrite, etc).
+        /// </summary>
+        /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
+        /// <returns>
+        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
+        /// aspects.
+        /// </returns>
+        public IGlobalMappingSettings IgnoreSourceMembersOfType<TMember>()
+            => IgnoreSourceMembersWhere(member => member.HasType<TMember>());
+
+        /// <summary>
+        /// Ignore all source members matching the given <paramref name="memberFilter"/>. Matching
+        /// members will not be used to populate a target member in mappings between all types and
+        /// mapping rule sets (create new, overwrite, etc).
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select source members to ignore.</param>
+        /// <returns>
+        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
+        /// aspects.
+        /// </returns>
+        public IGlobalMappingSettings IgnoreSourceMembersWhere(Expression<Func<SourceMemberSelector, bool>> memberFilter)
+        {
+            UserConfigurations.Add(new ConfiguredSourceMemberFilter(GlobalConfigInfo, memberFilter));
+            return this;
+        }
+
+        /// <summary>
+        /// Ignore all target members of the given <typeparamref name="TMember">Type</typeparamref>.
+        /// Matching members will be ignored in mappings between all types and mapping rule sets (create
+        /// new, overwrite, etc).
+        /// </summary>
+        /// <typeparam name="TMember">The Type of target member to ignore.</typeparam>
+        /// <returns>
+        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
+        /// aspects.
+        /// </returns>
+        public IGlobalMappingSettings IgnoreTargetMembersOfType<TMember>()
+            => IgnoreTargetMembersWhere(member => member.HasType<TMember>());
+
+        /// <summary>
+        /// Ignore all target members matching the given <paramref name="memberFilter"/>. Members will
+        /// be ignored in mappings between all types and mapping rule sets (create new, overwrite, etc).
         /// </summary>
         /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
         /// <returns>
-        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping aspects.
+        /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping
+        /// aspects.
         /// </returns>
         public IGlobalMappingSettings IgnoreTargetMembersWhere(Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-#if NET35
-            var configuredIgnoredMember = new ConfiguredIgnoredMember(GlobalConfigInfo, memberFilter.ToDlrExpression());
-#else
-            var configuredIgnoredMember = new ConfiguredIgnoredMember(GlobalConfigInfo, memberFilter);
-#endif
-
-            MapperContext.UserConfigurations.Add(configuredIgnoredMember);
+            UserConfigurations.Add(new ConfiguredMemberFilter(GlobalConfigInfo, memberFilter));
             return this;
         }
 

@@ -98,6 +98,16 @@
             result.StringValue.ShouldBe("Copy!");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/139
+        [Fact]
+        public void ShouldPopulateMembersMatchingUnusedConstructorParameters()
+        {
+            var source = new { Value1 = 123 };
+            var result = Mapper.Map(source).ToANew<MultipleUnusedConstructors<int, int>>();
+            
+            result.Value1.ShouldBe(123);
+        }
+
         #region Helper Classes
 
         // ReSharper disable ClassNeverInstantiated.Local
@@ -122,6 +132,23 @@
             public T1 Value1 { get; }
 
             public T2 Value2 { get; }
+        }
+
+        private class MultipleUnusedConstructors<T1, T2>
+        {
+            public MultipleUnusedConstructors()
+            {
+            }
+
+            public MultipleUnusedConstructors(T1 value1, T2 value2)
+            {
+                Value1 = value1;
+                Value2 = value2;
+            }
+
+            public T1 Value1 { get; set; }
+
+            public T2 Value2 { get; set; }
         }
 
         private class CopyConstructor

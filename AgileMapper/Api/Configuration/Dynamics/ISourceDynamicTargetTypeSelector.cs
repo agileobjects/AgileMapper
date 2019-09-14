@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
     public interface ISourceDynamicTargetTypeSelector : ISourceDynamicSettings
     {
         /// <summary>
-        /// Configure how this mapper performs mappings from ExpandoObjects in all MappingRuleSets 
+        /// Configure how this mapper performs mappings from ExpandoObjects in all mapping rule sets 
         /// (create new, overwrite, etc), to the target type specified by the type argument.
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>

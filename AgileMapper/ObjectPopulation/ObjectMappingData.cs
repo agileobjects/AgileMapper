@@ -2,17 +2,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Caching;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
     using NetStandardPolyfills;
     using Validation;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
@@ -83,7 +83,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IRootMapperKey EnsureRootMapperKey()
         {
-            MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.CreateRootKeyFor(this);
+            MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.Invoke(this);
 
             return (IRootMapperKey)MapperKey;
         }
@@ -373,7 +373,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             newSourceMappingData.MapperKey = MappingContext
                 .RuleSet
                 .RootMapperKeyFactory
-                .CreateRootKeyFor(newSourceMappingData);
+                .Invoke(newSourceMappingData);
 
             newSourceMappingData.MapperData.OriginalMapperData = MapperData;
             newSourceMappingData.MapperData.Context.IsForToTargetMapping = true;

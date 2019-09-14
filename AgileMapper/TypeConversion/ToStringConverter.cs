@@ -88,7 +88,7 @@
 
             if (sourceValue.Type != nonNullableSourceType)
             {
-                sourceValue = Expression.Property(sourceValue, "Value");
+                sourceValue = sourceValue.GetNullableValueAccess();
             }
 
             var toStringCall = Expression.Call(sourceValue, toStringMethod, dateTimeFormat);
@@ -99,7 +99,7 @@
         public static MethodInfo GetToStringMethodOrNull(Type sourceType, Type argumentType)
         {
             var toStringMethod = sourceType
-                .GetPublicInstanceMethods("ToString")
+                .GetPublicInstanceMethods(nameof(ToString))
                 .Project(m => new
                 {
                     Method = m,
@@ -118,10 +118,8 @@
                 return GetTrueOrFalseTernary(sourceValue);
             }
 
-            var nullTrueOrFalse = Expression.Condition(
-                Expression.Property(sourceValue, "HasValue"),
-                GetTrueOrFalseTernary(Expression.Property(sourceValue, "Value")),
-                typeof(string).ToDefaultExpression());
+            var nullTrueOrFalse = GetTrueOrFalseTernary(sourceValue.GetNullableValueAccess())
+                .ToIfFalseDefaultCondition(sourceValue.GetNullableHasValueAccess());
 
             return nullTrueOrFalse;
         }

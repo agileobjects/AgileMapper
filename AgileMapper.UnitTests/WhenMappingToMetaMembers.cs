@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using AgileMapper.Extensions;
     using Common;
     using TestClasses;
@@ -145,6 +146,18 @@
         }
 
         [Fact]
+        public void ShouldPopulateAHasQueryableMemberNameMember()
+        {
+            var source = new PublicField<IQueryable<Address>>
+            {
+                Value = new[] { new Address { Line1 = "Queryable?!" } }.AsQueryable()
+            };
+            var result = Mapper.Map(source).ToANew<PublicHasValue<Address[]>>();
+
+            result.HasValue.ShouldBeTrue();
+        }
+
+        [Fact]
         public void ShouldPopulateAnIntHasMemberNameMember()
         {
             var source = new PublicField<IEnumerable<int>> { Value = new[] { 1, 2, 3 } };
@@ -261,6 +274,16 @@
         {
             var source = new { Items = Enumerable<Address>.EmptyArray };
             var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, Address[]>>();
+
+            result.Items.ShouldBeEmpty();
+            result.FirstItem.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldPopulateAnEmptyFirstQueryableMemberNameMemberToNull()
+        {
+            var source = new { Items = Enumerable<Address>.EmptyArray.AsQueryable() };
+            var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, IList<Address>>>();
 
             result.Items.ShouldBeEmpty();
             result.FirstItem.ShouldBeNull();
@@ -543,6 +566,16 @@
 
             result.Values.Count.ShouldBe(5);
             result.ValueCount.ShouldBe(5L);
+        }
+
+        [Fact]
+        public void ShouldPopulateAQueryableLongCountMember()
+        {
+            var source = new { Values = new[] { "1", "2", "3", "4" }.AsQueryable() };
+            var result = Mapper.Map(source).ToANew<PublicValuesCount<long, Collection<string>>>();
+
+            result.Values.Count.ShouldBe(4);
+            result.ValueCount.ShouldBe(4L);
         }
 
         [Fact]

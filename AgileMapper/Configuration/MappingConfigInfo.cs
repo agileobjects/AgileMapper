@@ -11,12 +11,13 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
 
     internal class MappingConfigInfo : ITypePair
     {
-        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*", null, null, null, null, null, null);
+        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*");
 
         public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
             AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();
@@ -54,7 +55,8 @@
             return this;
         }
 
-        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => otherConfigInfo.SourceType == SourceType;
+        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) 
+            => otherConfigInfo.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
 
@@ -123,9 +125,10 @@
             _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
         }
 
-        private static void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
+        private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
         {
-            if (TypeTestFinder.HasNoTypeTest(conditionLambda))
+            if ((SourceType?.IsInterface() == true) ||
+                 TypeTestFinder.HasNoTypeTest(conditionLambda))
             {
                 return;
             }
@@ -168,7 +171,7 @@
 
             if (_negateCondition)
             {
-                condition = Expression.Not(condition);
+                condition = condition.Negate();
             }
 
             var targetCanBeNull = position.IsPriorToObjectCreation(targetMember);

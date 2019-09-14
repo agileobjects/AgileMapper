@@ -512,6 +512,46 @@
             configEx.Message.ShouldContain("Resolve");
         }
 
+        [Fact]
+        public void ShouldErrorIfServiceProviderMethodIsParameterless()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping.UseServiceProvider(new ParameterlessInvalidServiceProvider()));
+
+            configEx.Message.ShouldContain("No supported service provider methods were found");
+            configEx.Message.ShouldContain("ParameterlessInvalidServiceProvider");
+        }
+
+        [Fact]
+        public void ShouldErrorIfServiceProviderMethodHasInvalidFirstParameterType()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping.UseServiceProvider(new InvalidFirstParameterTypeInvalidServiceProvider()));
+
+            configEx.Message.ShouldContain("No supported service provider methods were found");
+            configEx.Message.ShouldContain("InvalidFirstParameterTypeInvalidServiceProvider");
+        }
+
+        [Fact]
+        public void ShouldErrorIfServiceProviderMethodHasInvalidSecondParameterType()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping.UseServiceProvider(new InvalidSecondParameterTypeInvalidServiceProvider()));
+
+            configEx.Message.ShouldContain("No supported service provider methods were found");
+            configEx.Message.ShouldContain("InvalidSecondParameterTypeInvalidServiceProvider");
+        }
+
+        [Fact]
+        public void ShouldErrorIfServiceProviderMethodHasInvalidExtraParameterType()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+                Mapper.WhenMapping.UseServiceProvider(new InvalidExtraParameterTypeInvalidServiceProvider()));
+
+            configEx.Message.ShouldContain("No supported service provider methods were found");
+            configEx.Message.ShouldContain("InvalidExtraParameterTypeInvalidServiceProvider");
+        }
+
         #region Helper Classes
 
         public interface ILogger
@@ -609,6 +649,27 @@
             public object GetService(Type serviceType) => Activator.CreateInstance(serviceType);
 
             public object GetInstance(Type serviceType) => Activator.CreateInstance(serviceType);
+        }
+
+        public class ParameterlessInvalidServiceProvider
+        {
+            public object GetService() => Activator.CreateInstance(typeof(object));
+        }
+
+        public class InvalidFirstParameterTypeInvalidServiceProvider
+        {
+            // ReSharper disable once AssignNullToNotNullAttribute
+            public object GetService(string serviceTypeName) => Activator.CreateInstance(Type.GetType(serviceTypeName));
+        }
+
+        public class InvalidSecondParameterTypeInvalidServiceProvider
+        {
+            public object GetService(Type serviceType, int ctorIndex) => Activator.CreateInstance(serviceType);
+        }
+
+        public class InvalidExtraParameterTypeInvalidServiceProvider
+        {
+            public object GetService(Type serviceType, string name, int ctorIndex) => Activator.CreateInstance(serviceType);
         }
 
         #endregion

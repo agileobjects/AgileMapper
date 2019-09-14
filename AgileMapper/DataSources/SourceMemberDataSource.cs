@@ -1,21 +1,22 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
-    using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using ObjectPopulation;
+    using ReadableExpressions.Extensions;
 
     internal class SourceMemberDataSource : DataSourceBase
     {
-        private SourceMemberDataSource(
+        public SourceMemberDataSource(
             IQualifiedMember sourceMember,
             Expression sourceMemberValue,
+            Expression condition,
             IMemberMapperData mapperData)
             : base(
                   sourceMember,
@@ -23,6 +24,14 @@
                   mapperData)
         {
             SourceMemberTypeTest = CreateSourceMemberTypeTest(sourceMemberValue, mapperData);
+
+            if (condition == null)
+            {
+                Condition = base.Condition;
+                return;
+            }
+
+            Condition = IsConditional ? Expression.AndAlso(base.Condition, condition) : condition;
         }
 
         private static Expression CreateSourceMemberTypeTest(Expression value, IMemberMapperData mapperData)
@@ -64,17 +73,6 @@
             return memberHasRuntimeType;
         }
 
-        public static SourceMemberDataSource For(IQualifiedMember sourceMember, IMemberMapperData mapperData)
-        {
-            sourceMember = sourceMember.RelativeTo(mapperData.SourceMember);
-
-            var sourceMemberValue = sourceMember
-                .GetQualifiedAccess(mapperData)
-                .GetConversionTo(sourceMember.Type);
-
-            var sourceMemberDataSource = new SourceMemberDataSource(sourceMember, sourceMemberValue, mapperData);
-
-            return sourceMemberDataSource;
-        }
+        public override Expression Condition { get; }
     }
 }

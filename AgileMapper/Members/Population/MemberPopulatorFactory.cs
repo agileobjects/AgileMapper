@@ -2,17 +2,11 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Collections.Generic;
-    using Configuration;
-    using DataSources.Finders;
+    using DataSources.Factories;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class MemberPopulatorFactory
     {
@@ -20,7 +14,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             GlobalContext.Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
-                .ProjectToArray(tm => mapperData.TargetMember.Append(tm)));
+                .ProjectToArray(mapperData.TargetMember.Append));
 
         private readonly Func<ObjectMapperData, IEnumerable<QualifiedMember>> _targetMembersFactory;
 
@@ -31,69 +25,71 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public IEnumerable<IMemberPopulator> Create(IObjectMappingData mappingData)
         {
+            var populationContext = new MemberPopulationContext(mappingData);
+
             return _targetMembersFactory
                 .Invoke(mappingData.MapperData)
-                .Project(tm =>
-                {
-                    var memberPopulation = Create(tm, mappingData);
-
-                    if (memberPopulation.CanPopulate ||
-                        mappingData.MappingContext.AddUnsuccessfulMemberPopulations)
-                    {
-                        return memberPopulation;
-                    }
-
-                    return null;
-                })
+                .Project(populationContext, (ctx, tm) => Create(ctx.With(tm)))
                 .WhereNotNull();
         }
 
-        private static IMemberPopulator Create(QualifiedMember targetMember, IObjectMappingData mappingData)
+        private static IMemberPopulator Create(MemberPopulationContext context)
         {
-            var childMapperData = new ChildMemberMapperData(targetMember, mappingData.MapperData);
-
-            if (childMapperData.TargetMemberIsUnmappable(out var reason))
+            if (TargetMemberIsUnmappable(context, out var reason))
             {
-                return MemberPopulator.Unmappable(childMapperData, reason);
+                return MemberPopulator.Unmappable(context, reason);
             }
 
-            if (TargetMemberIsUnconditionallyIgnored(
-                    childMapperData,
-                    out var configuredIgnore,
-                    out var populateCondition))
+            if (context.TargetMemberIsUnconditionallyIgnored(out var populateCondition))
             {
-                return MemberPopulator.IgnoredMember(childMapperData, configuredIgnore);
+                return MemberPopulator.IgnoredMember(context);
             }
 
-            var childMappingData = mappingData.GetChildMappingData(childMapperData);
-            var dataSources = DataSourceFinder.FindFor(childMappingData);
+            var dataSourceFindContext = context.GetDataSourceFindContext();
+            var dataSources = DataSourceSetFactory.CreateFor(dataSourceFindContext);
 
             if (dataSources.None)
             {
-                return MemberPopulator.NoDataSource(childMapperData);
+                return MemberPopulator.NoDataSource(context);
             }
 
-            return MemberPopulator.WithRegistration(childMappingData, dataSources, populateCondition);
+            return MemberPopulator.WithRegistration(dataSources, populateCondition);
         }
 
-        private static bool TargetMemberIsUnconditionallyIgnored(
-            IMemberMapperData mapperData,
-            out ConfiguredIgnoredMember configuredIgnore,
-            out Expression populateCondition)
+        private static bool TargetMemberIsUnmappable(MemberPopulationContext context, out string reason)
         {
-            configuredIgnore = mapperData
-                .MapperContext
-                .UserConfigurations
-                .GetMemberIgnoreOrNull(mapperData);
-
-            if (configuredIgnore == null)
+            if (!context.RuleSet.Settings.AllowSetMethods &&
+                (context.TargetMember.LeafMember.MemberType == MemberType.SetMethod))
             {
-                populateCondition = null;
+                reason = "Set methods are unsupported by rule set '" + context.RuleSet.Name + "'";
+                return true;
+            }
+
+            if (TargetMemberWillBePopulatedByCtor(context))
+            {
+                reason = "Expected to be populated by constructor parameter";
+                return true;
+            }
+
+            return context.MemberMapperData.TargetMemberIsUnmappable(
+                context.TargetMember,
+                md => md.MapperContext.UserConfigurations.QueryDataSourceFactories(md),
+                context.MapperContext.UserConfigurations,
+                out reason);
+        }
+
+        private static bool TargetMemberWillBePopulatedByCtor(MemberPopulationContext context)
+        {
+            if (!context.TargetMember.LeafMember.HasMatchingCtorParameter ||
+                (context.RuleSet.Settings.RootHasPopulatedTarget && context.MappingData.IsRoot))
+            {
                 return false;
             }
 
-            populateCondition = configuredIgnore.GetConditionOrNull(mapperData);
-            return (populateCondition == null);
+            var creationInfos = context.MappingData.GetTargetObjectCreationInfos();
+
+            return creationInfos.Any() &&
+                   creationInfos.All(ci => ci.IsUnconditional && ci.HasCtorParameterFor(context.TargetMember.LeafMember));
         }
     }
 }

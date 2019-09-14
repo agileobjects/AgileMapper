@@ -1,13 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
-    using Extensions.Internal;
-    using TypeConversion;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Extensions.Internal;
+    using TypeConversion;
+    using Members;
 
     internal static class PopulationLoopDataExtensions
     {
@@ -48,6 +50,8 @@
             var ifExitCheckBreakLoop = Expression.IfThen(loopData.LoopExitCheck, breakLoop);
             var counterIncrement = builder.GetCounterIncrement();
 
+            elementPopulation = ApplySourceFilterIfAppropriate(elementPopulation, loopData, builder);
+
             if (elementPopulation.NodeType != ExpressionType.Block)
             {
                 return Expression.Block(ifExitCheckBreakLoop, elementPopulation, counterIncrement);
@@ -64,6 +68,34 @@
             return elementPopulationBlock.Variables.Any()
                 ? Expression.Block(elementPopulationBlock.Variables, loopExpressions)
                 : Expression.Block(loopExpressions);
+        }
+
+        private static Expression ApplySourceFilterIfAppropriate(
+            Expression elementPopulation,
+            IPopulationLoopData loopData,
+            EnumerablePopulationBuilder builder)
+        {
+            if (!builder.MapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
+            {
+                return elementPopulation;
+            }
+
+            var sourceElement = loopData.GetSourceElementValue();
+
+            var sourceValueFilters = builder.MapperData
+                .GetSourceValueFilters(sourceElement.Type);
+
+            if (sourceValueFilters.None())
+            {
+                return elementPopulation;
+            }
+
+            var sourceFilterConditions = sourceValueFilters
+                .GetFilterConditionsOrNull(sourceElement, builder.MapperData);
+
+            return (sourceFilterConditions != null)
+                ? Expression.IfThen(sourceFilterConditions, elementPopulation)
+                : elementPopulation;
         }
     }
 }

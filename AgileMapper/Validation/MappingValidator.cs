@@ -8,6 +8,7 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
@@ -64,7 +65,7 @@
                 failureMessage
                     .Append(" Rule set: ").AppendLine(rootData.RuleSet.Name).AppendLine();
 
-                AddUnmappableTargetTypesInfo(mappingData.UnmappableTargetTypes, failureMessage);
+                AddUnconstructableTargetTypesInfo(mappingData.UnconstructableTargetTypes, failureMessage);
                 AddUnmappedTargetMembersInfo(mappingData.UnmappedMembers, failureMessage, rootData);
                 AddUnpairedEnumsInfo(mappingData.UnpairedEnums, failureMessage);
             }
@@ -79,26 +80,22 @@
                 .Project(md => new
                 {
                     MapperData = md,
-                    IsUnmappable =
-                        !md.IsRoot &&
-                         md.TargetMember.IsComplex &&
-                         md.DataSourcesByTargetMember.None(),
+                    IsUnconstructable = TargetIsUnconstructable(md),
                     UnmappedMembers = md
                         .DataSourcesByTargetMember
                         .Filter(pair => !pair.Value.HasValue)
-                        .Project(pair => pair)
                         .ToArray(),
                     UnpairedEnums = EnumMappingMismatchFinder.FindMismatches(md)
                 })
-                .Filter(d => d.IsUnmappable || d.UnmappedMembers.Any() || d.UnpairedEnums.Any())
+                .Filter(d => d.IsUnconstructable || d.UnmappedMembers.Any() || d.UnpairedEnums.Any())
                 .GroupBy(d => d.MapperData.GetRootMapperData())
                 .Project(g => new IncompleteMappingData
                 {
                     RootMapperData = g.Key,
-                    UnmappableTargetTypes = g
-                        .Filter(d => d.IsUnmappable)
+                    UnconstructableTargetTypes = g
+                        .Filter(d => d.IsUnconstructable)
                         .Project(d => d.MapperData)
-                        .ToList(),
+                        .ToArray(),
                     UnmappedMembers = g
                         .SelectMany(d => d.UnmappedMembers)
                         .ToDictionary(kvp => kvp.Key, kvp => kvp.Value),
@@ -107,6 +104,32 @@
                         .ToArray()
                 })
                 .ToArray();
+        }
+
+        private static bool TargetIsUnconstructable(ObjectMapperData mapperData)
+        {
+            if (!mapperData.TargetMember.IsComplex ||
+                 mapperData.TargetIsDefinitelyPopulated())
+            {
+                return false;
+            }
+
+            if (mapperData.TargetType.GetPublicInstanceConstructor(Constants.EmptyTypeArray) != null)
+            {
+                return false;
+            }
+
+            if (mapperData.DataSourcesByTargetMember.Any(ds => ds.Key.IsConstructorParameter() && ds.Value.HasValue))
+            {
+                return false;
+            }
+
+            var configuredFactories = mapperData
+                .MapperContext
+                .UserConfigurations
+                .GetObjectFactories(mapperData);
+
+            return configuredFactories.None();
         }
 
         private static void AddMappingTypeHeaderIfRequired(
@@ -135,7 +158,7 @@
             previousRootMapperData = rootData;
         }
 
-        private static void AddUnmappableTargetTypesInfo(
+        private static void AddUnconstructableTargetTypesInfo(
             ICollection<ObjectMapperData> unmappableTargetTypeData,
             StringBuilder failureMessage)
         {
@@ -160,7 +183,7 @@
         }
 
         private static void AddUnmappedTargetMembersInfo(
-            Dictionary<QualifiedMember, DataSourceSet> unmappedMembers,
+            Dictionary<QualifiedMember, IDataSourceSet> unmappedMembers,
             StringBuilder failureMessage,
             IMemberMapperData rootData)
         {
@@ -218,9 +241,9 @@
         {
             public IMemberMapperData RootMapperData { get; set; }
 
-            public ICollection<ObjectMapperData> UnmappableTargetTypes { get; set; }
+            public ICollection<ObjectMapperData> UnconstructableTargetTypes { get; set; }
 
-            public Dictionary<QualifiedMember, DataSourceSet> UnmappedMembers { get; set; }
+            public Dictionary<QualifiedMember, IDataSourceSet> UnmappedMembers { get; set; }
 
             public ICollection<EnumMappingMismatchSet> UnpairedEnums { get; set; }
         }

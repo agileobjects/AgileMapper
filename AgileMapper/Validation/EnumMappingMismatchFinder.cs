@@ -43,7 +43,7 @@
             }
 
             var mismatchSets = targetMemberDatas
-                .Project(d => EnumMappingMismatchSet.For(d.TargetMember, d.DataSources, mapperData))
+                .Project(mapperData, (md, d) => EnumMappingMismatchSet.For(d.TargetMember, d.DataSources, md))
                 .Filter(m => m.Any)
                 .ToArray();
 
@@ -64,10 +64,10 @@
             finder.Visit(lambda);
 
             var assignmentReplacements = finder._assignmentsByMismatchSet
-                .SelectMany(kvp => kvp.Value.Project(assignment => new
+                .SelectMany(kvp => kvp.Value.Project(kvp.Key, (k, assignment) => new
                 {
                     Assignment = assignment,
-                    AssignmentWithWarning = (Expression)Expression.Block(kvp.Key.Warnings, assignment)
+                    AssignmentWithWarning = (Expression)Expression.Block(k.Warnings, assignment)
                 }))
                 .ToDictionary(d => d.Assignment, d => d.AssignmentWithWarning);
 
@@ -92,7 +92,7 @@
 
                 var dataSources = targetMemberAndDataSource
                     .Value
-                    .Filter(dataSource => IsValidOtherEnumType(dataSource, targetEnumType))
+                    .Filter(targetEnumType, IsValidOtherEnumType)
                     .ToArray();
 
                 if (dataSources.Any())
@@ -111,7 +111,7 @@
             }
         }
 
-        private static bool IsValidOtherEnumType(IDataSource dataSource, Type targetEnumType)
+        private static bool IsValidOtherEnumType(Type targetEnumType, IDataSource dataSource)
         {
             return dataSource.IsValid &&
                    IsEnum(dataSource.SourceMember.Type, out var sourceEnumType) &&
@@ -163,7 +163,7 @@
             var memberName = targetMemberAccess.GetMemberName();
 
             targetMemberData = _targetMemberDatas
-                .FirstOrDefault(dss => dss.TargetMember.Name == memberName);
+                .FirstOrDefault(memberName, (mn, dss) => dss.TargetMember.Name == mn);
 
             return targetMemberData != null;
         }

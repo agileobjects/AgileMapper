@@ -4,10 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
-    using NetStandardPolyfills;
-    using ObjectPopulation.Enumerables;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
     using ReadableExpressions.Translations;
@@ -17,6 +13,11 @@
     using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using System.Reflection;
+    using Members;
+    using NetStandardPolyfills;
+    using ObjectPopulation.Enumerables;
+    using ReadableExpressions.Extensions;
 
     internal static partial class ExpressionExtensions
     {
@@ -54,6 +55,9 @@
                    (memberAccess.Expression.Type.IsNullableType());
         }
 
+        public static Expression Negate(this Expression expression)
+            => (expression.NodeType != Not) ? Expression.Not(expression) : ((UnaryExpression)expression).Operand;
+
         [DebuggerStepThrough]
         public static ConstantExpression ToConstantExpression<T>(this T item)
             => ToConstantExpression(item, typeof(T));
@@ -64,6 +68,10 @@
 
         [DebuggerStepThrough]
         public static DefaultExpression ToDefaultExpression(this Type type) => Expression.Default(type);
+
+        [DebuggerStepThrough]
+        public static ConditionalExpression ToIfFalseDefaultCondition(this Expression value, Expression condition)
+            => Expression.Condition(condition, value, value.Type.ToDefaultExpression());
 
         public static Expression AndTogether(this IList<Expression> expressions)
         {
@@ -125,13 +133,19 @@
         {
             if (expression.Type.IsNullableType())
             {
-                return Expression.Property(expression, "HasValue");
+                return GetNullableHasValueAccess(expression);
             }
 
             var typeDefault = expression.Type.ToDefaultExpression();
 
             return Expression.NotEqual(expression, typeDefault);
         }
+
+        public static Expression GetNullableHasValueAccess(this Expression expression)
+            => Expression.Property(expression, "HasValue");
+
+        public static Expression GetNullableValueAccess(this Expression nullableExpression)
+            => Expression.Property(nullableExpression, "Value");
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
         {
@@ -198,11 +212,16 @@
                 ? nameof(Enumerable.LongCount)
                 : nameof(Enumerable.Count);
 
-            return Expression.Call(
-                typeof(Enumerable)
-                    .GetPublicStaticMethod(linqCountMethodName, parameterCount: 1)
-                    .MakeGenericMethod(collectionAccess.Type.GetEnumerableElementType()),
-                collectionAccess);
+            var linqCountMethod = typeof(Enumerable)
+                .GetPublicStaticMethod(linqCountMethodName, parameterCount: 1)
+                .MakeGenericMethod(collectionAccess.Type.GetEnumerableElementType());
+
+            if (collectionAccess.Type.IsAssignableTo(linqCountMethod.GetParameters().First().ParameterType))
+            {
+                return Expression.Call(linqCountMethod, collectionAccess);
+            }
+
+            return null;
         }
 
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
@@ -227,6 +246,11 @@
             if (expression.Type == targetType)
             {
                 return expression;
+            }
+
+            if ((targetType == typeof(object)) && expression.Type.IsValueType())
+            {
+                return Expression.Convert(expression, typeof(object));
             }
 
             if (expression.Type.GetNonNullableType() == targetType)
@@ -306,7 +330,13 @@
 
         [DebuggerStepThrough]
         public static MethodCallExpression WithToStringCall(this Expression value)
-            => Expression.Call(value, value.Type.GetPublicInstanceMethod("ToString", parameterCount: 0));
+        {
+            var toStringMethodType = value.Type.IsInterface()
+                ? typeof(object)
+                : value.Type;
+
+            return Expression.Call(value, toStringMethodType.GetPublicInstanceMethod("ToString", parameterCount: 0));
+        }
 
         public static Expression GetReadOnlyCollectionCreation(this Expression enumerable, Type elementType)
         {
@@ -386,7 +416,7 @@
                 typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
             }
 
-            if (typeHelper.IsEnumerableInterface)
+            if (typeHelper.IsEnumerableOrQueryable)
             {
                 return Expression.Field(null, typeof(Enumerable<>).MakeGenericType(elementType), "Empty");
             }
@@ -434,75 +464,6 @@
             return false;
         }
 
-        public static bool TryGetMappingBody(this Expression value, out Expression mapping)
-        {
-            if (value.NodeType == Try)
-            {
-                value = ((TryExpression)value).Body;
-            }
-
-            if ((value.NodeType != Block))
-            {
-                mapping = null;
-                return false;
-            }
-
-            var mappingBlock = (BlockExpression)value;
-            var mappingVariables = mappingBlock.Variables.ToList();
-
-            if (mappingBlock.Expressions[0].NodeType == Try)
-            {
-                mappingBlock = (BlockExpression)((TryExpression)mappingBlock.Expressions[0]).Body;
-                mappingVariables.AddRange(mappingBlock.Variables);
-            }
-            else
-            {
-                mappingBlock = (BlockExpression)value;
-            }
-
-            if (mappingBlock.Expressions.HasOne())
-            {
-                mapping = null;
-                return false;
-            }
-
-            mapping = mappingBlock;
-
-            var mappingExpressions = GetMappingExpressions(mapping);
-
-            if (mappingExpressions.HasOne() &&
-               (mappingExpressions[0].NodeType == Block))
-            {
-                mappingBlock = (BlockExpression)mappingExpressions[0];
-                mappingVariables.AddRange(mappingBlock.Variables);
-                mapping = mappingBlock.Update(mappingVariables, mappingBlock.Expressions);
-                return true;
-            }
-
-            mapping = mappingVariables.Any()
-                ? Expression.Block(mappingVariables, mappingExpressions)
-                : mappingExpressions.HasOne()
-                    ? mappingExpressions[0]
-                    : Expression.Block(mappingExpressions);
-
-            return true;
-        }
-
-        private static IList<Expression> GetMappingExpressions(Expression mapping)
-        {
-            var expressions = new List<Expression>();
-
-            while (mapping.NodeType == Block)
-            {
-                var mappingBlock = (BlockExpression)mapping;
-
-                expressions.AddRange(mappingBlock.Expressions.Take(mappingBlock.Expressions.Count - 1));
-                mapping = mappingBlock.Result;
-            }
-
-            return expressions;
-        }
-
         public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
         {
             if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))
@@ -514,7 +475,6 @@
             binaryExpression = null;
             return false;
         }
-
 #if NET35
         public static LambdaExpression ToDlrExpression(this LinqExp.LambdaExpression linqLambda)
             => LinqExpressionToDlrExpressionConverter.Convert(linqLambda);
@@ -525,5 +485,34 @@
         public static Expression ToDlrExpression(this LinqExp.Expression linqExpression)
             => LinqExpressionToDlrExpressionConverter.Convert(linqExpression);
 #endif
+        public static TryExpression WrapInTryCatch(this Expression mapping, IMemberMapperData mapperData)
+        {
+            var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
+            var exceptionVariable = Parameters.Create<Exception>("ex");
+
+            if (configuredCallback == null)
+            {
+                var catchBody = Expression.Throw(
+                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
+                    mapping.Type);
+
+                return CreateTryCatch(mapping, exceptionVariable, catchBody);
+            }
+
+            var configuredCatchBody = configuredCallback
+                .ToCatchBody(exceptionVariable, mapping.Type, mapperData);
+
+            return CreateTryCatch(mapping, exceptionVariable, configuredCatchBody);
+        }
+
+        private static TryExpression CreateTryCatch(
+            Expression mappingBlock,
+            ParameterExpression exceptionVariable,
+            Expression catchBody)
+        {
+            var catchBlock = Expression.Catch(exceptionVariable, catchBody);
+
+            return Expression.TryCatch(mappingBlock, catchBlock);
+        }
     }
 }

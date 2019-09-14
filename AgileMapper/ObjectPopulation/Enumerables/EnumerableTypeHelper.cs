@@ -3,15 +3,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class EnumerableTypeHelper
     {
@@ -24,6 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type _readOnlyCollectionType;
         private Type _collectionInterfaceType;
         private Type _enumerableInterfaceType;
+        private Type _queryableInterfaceType;
 #if FEATURE_ISET
         private Type _setInterfaceType;
 #endif
@@ -49,7 +52,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsReadOnlyCollection => EnumerableType == ReadOnlyCollectionType;
 
-        public bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
+        private bool IsEnumerableInterface => EnumerableType == EnumerableInterfaceType;
+
+        public bool IsQueryableInterface => EnumerableType == QueryableInterfaceType;
+
+        public bool IsEnumerableOrQueryable => IsEnumerableInterface || IsQueryableInterface;
 
         public bool HasCollectionInterface => EnumerableType.IsAssignableTo(CollectionInterfaceType);
 
@@ -61,7 +68,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public bool IsReadOnly => IsArray || IsReadOnlyCollection;
 
         public bool IsDeclaredReadOnly
-            => IsReadOnly || IsEnumerableInterface || IsReadOnlyCollectionInterface();
+            => IsReadOnly || IsEnumerableOrQueryable || IsReadOnlyCollectionInterface();
 
         public bool CouldBeReadOnly()
         {
@@ -110,6 +117,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         public Type CollectionInterfaceType => GetEnumerableType(ref _collectionInterfaceType, typeof(ICollection<>));
 
         public Type EnumerableInterfaceType => GetEnumerableType(ref _enumerableInterfaceType, typeof(IEnumerable<>));
+
+        public Type QueryableInterfaceType => GetEnumerableType(ref _queryableInterfaceType, typeof(IQueryable<>));
 
 #if FEATURE_ISET
         private Type SetInterfaceType => GetEnumerableType(ref _setInterfaceType, typeof(ISet<>));
@@ -189,6 +198,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public Expression GetCountFor(Expression instance, Type countType = null)
             => instance.GetCount(countType, exp => CollectionInterfaceType);
+
+        public Expression GetNonZeroCountCheck(Expression enumerableAccess)
+        {
+            var enumerableCount = GetCountFor(enumerableAccess);
+            var zero = ToNumericConverter<int>.Zero.GetConversionTo(enumerableCount.Type);
+            var countGreaterThanZero = Expression.GreaterThan(enumerableCount, zero);
+
+            return countGreaterThanZero;
+        }
 
         public Type GetEmptyInstanceCreationFallbackType()
         {

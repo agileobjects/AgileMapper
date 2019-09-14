@@ -3,14 +3,10 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
-#if NET35
-    using System.Linq;
-#endif
     using System.Linq.Expressions;
     using Api.Configuration;
     using Api.Configuration.Projection;
     using Caching;
-    using Extensions;
 #if NET35
     using Extensions.Internal;
 #endif

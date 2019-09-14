@@ -5,6 +5,12 @@
     using System.Collections.ObjectModel;
     using System.Diagnostics;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using Configuration;
     using Extensions;
@@ -13,12 +19,6 @@
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
-#else
-    using System.Linq.Expressions;
-#endif
     using static System.StringComparison;
     using static Constants;
     using static Member;
@@ -77,13 +77,6 @@
 
         public static bool IsUnmappable(this QualifiedMember member, out string reason)
         {
-            if (member.Depth < 2)
-            {
-                // Either the root member, QualifiedMember.All or QualifiedMember.None:
-                reason = null;
-                return false;
-            }
-
             if (IsStructNonSimpleMember(member))
             {
                 reason = member.Type.GetFriendlyName() + " member on a struct";
@@ -149,7 +142,14 @@
         }
 
         [DebuggerStepThrough]
+        public static bool IsEnumerableElement(this QualifiedMember member) => member.LeafMember.IsEnumerableElement();
+
+        [DebuggerStepThrough]
         public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
+
+        [DebuggerStepThrough]
+        public static bool IsConstructorParameter(this QualifiedMember member)
+            => member.LeafMember.MemberType == MemberType.ConstructorParameter;
 
         public static IList<string> ExtendWith(
             this ICollection<string> parentJoinedNames,
@@ -168,8 +168,8 @@
             }
 
             return otherMemberNames
-                .Any(otherJoinedName => (otherJoinedName == RootMemberName) || memberNames
-                    .Any(joinedName => (joinedName == RootMemberName) || otherJoinedName.StartsWithIgnoreCase(joinedName)));
+                .Any(memberNames, (mns, otherJoinedName) => (otherJoinedName == RootMemberName) || mns
+                    .Any(otherJoinedName, (ojn, joinedName) => (joinedName == RootMemberName) || ojn.StartsWithIgnoreCase(joinedName)));
         }
 
         public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
@@ -281,6 +281,30 @@
                 mapperContext);
         }
 
+        public static QualifiedMember ToSourceMemberOrNull(
+            this LambdaExpression memberAccess,
+            MapperContext mapperContext,
+            out string failureReason)
+        {
+            var hasUnsupportedNodeType = false;
+            var sourceMember = memberAccess.ToSourceMember(mapperContext, nt => hasUnsupportedNodeType = true);
+
+            if (hasUnsupportedNodeType)
+            {
+                failureReason = $"Unable to determine source member from '{memberAccess.Body.ToReadableString()}'";
+                return null;
+            }
+
+            if (sourceMember == null)
+            {
+                failureReason = $"Source member {memberAccess.Body.ToReadableString()} is not readable";
+                return null;
+            }
+
+            failureReason = null;
+            return sourceMember;
+        }
+
         public static QualifiedMember ToTargetMemberOrNull(
             this LambdaExpression memberAccess,
             Type targetType,
@@ -371,7 +395,7 @@
                 var memberAccess = memberAccesses[i++];
                 var memberName = GetMemberName(memberAccess);
                 var members = membersFactory.Invoke(parentMember.Type);
-                var member = members.FirstOrDefault(m => m.Name == memberName);
+                var member = members.FirstOrDefault(memberName, (mn, m) => m.Name == mn);
 
                 if (member == null)
                 {

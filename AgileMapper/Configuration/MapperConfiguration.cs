@@ -66,6 +66,7 @@
         /// <returns>A cloned copy of the mapper being configured.</returns>
         protected IMapper CreateNewMapper() => _mapper.CloneSelf();
 
+        // TODO: Test coverage
         /// <summary>
         /// Create and compile a mapping function for a particular type of mapping of the source type specified by 
         /// the given <paramref name="exampleInstance"/>. Use this overload for anonymous types.

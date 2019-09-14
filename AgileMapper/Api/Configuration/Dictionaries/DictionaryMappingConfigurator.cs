@@ -17,12 +17,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         ISourceDynamicTargetTypeSelector
 #endif
     {
-        private readonly MappingConfigInfo _configInfo;
-
         internal DictionaryMappingConfigurator(MappingConfigInfo configInfo)
             : base(configInfo)
         {
-            _configInfo = configInfo;
         }
 
         #region Mapping Settings
@@ -102,24 +99,24 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private MappingConfigInfo GetConfigInfo(DictionaryContext context)
         {
-            return (_configInfo.TargetType != typeof(object))
-                ? _configInfo.Copy().Set(context)
+            return (ConfigInfo.TargetType != typeof(object))
+                ? ConfigInfo.Copy().Set(context)
                 : GetGlobalConfigInfo(context);
         }
 
         private MappingConfigInfo GetGlobalConfigInfo(DictionaryContext context)
-            => _configInfo.Copy().ForAllRuleSets().ForAllTargetTypes().Set(context);
+            => ConfigInfo.Copy().ForAllRuleSets().ForAllTargetTypes().Set(context);
 
         #region AndWhenMapping
 
         MappingConfigStartingPoint IGlobalDictionarySettings<TValue>.AndWhenMapping
-            => new MappingConfigStartingPoint(_configInfo.MapperContext);
+            => new MappingConfigStartingPoint(MapperContext);
 
         public ISourceDictionaryTargetTypeSelector<TValue> AndWhenMapping => this;
 
 #if FEATURE_DYNAMIC
         MappingConfigStartingPoint IGlobalDynamicSettings.AndWhenMapping
-            => new MappingConfigStartingPoint(_configInfo.MapperContext);
+            => new MappingConfigStartingPoint(MapperContext);
 
         ISourceDynamicTargetTypeSelector ISourceDynamicSettings.AndWhenMapping => this;
 #endif
@@ -130,7 +127,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #region Dictionaries
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>()
-            => CreateDictionaryConfigurator<TTarget>(_configInfo.ForAllRuleSets());
+            => CreateDictionaryConfigurator<TTarget>(ConfigInfo.ForAllRuleSets());
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> ToANew<TTarget>()
             => CreateDictionaryConfigurator<TTarget>(Constants.CreateNew);
@@ -143,7 +140,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
             string ruleSetName)
-            => CreateDictionaryConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
+            => CreateDictionaryConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
 
         private static SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
             MappingConfigInfo configInfo)
@@ -155,7 +152,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #region Dynamics
 
         ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.To<TTarget>()
-            => CreateDynamicConfigurator<TTarget>(_configInfo.ForAllRuleSets());
+            => CreateDynamicConfigurator<TTarget>(ConfigInfo.ForAllRuleSets());
 
         ISourceDynamicMappingConfigurator<TTarget> ISourceDynamicTargetTypeSelector.ToANew<TTarget>()
             => CreateDynamicConfigurator<TTarget>(Constants.CreateNew);
@@ -168,7 +165,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private SourceDynamicMappingConfigurator<TTarget> CreateDynamicConfigurator<TTarget>(
             string ruleSetName)
-            => CreateDynamicConfigurator<TTarget>(_configInfo.ForRuleSet(ruleSetName));
+            => CreateDynamicConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
 
         private static SourceDynamicMappingConfigurator<TTarget> CreateDynamicConfigurator<TTarget>(
             MappingConfigInfo configInfo)

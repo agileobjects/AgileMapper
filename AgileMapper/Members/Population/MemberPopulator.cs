@@ -2,58 +2,53 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Linq;
-    using Configuration;
-    using DataSources;
-    using ReadableExpressions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Extensions.Internal;
+    using ReadableExpressions;
 
-    internal class MemberPopulator : IMemberPopulationContext, IMemberPopulator
+    internal class MemberPopulator : IMemberPopulator
     {
-        private MemberPopulator(DataSourceSet dataSources, Expression populateCondition = null)
+        private readonly IDataSourceSet _dataSources;
+
+        private MemberPopulator(IDataSourceSet dataSources, Expression populateCondition = null)
         {
-            DataSources = dataSources;
+            _dataSources = dataSources;
             PopulateCondition = populateCondition;
         }
 
         #region Factory Methods
 
-        public static IMemberPopulator WithRegistration(
-            IChildMemberMappingData mappingData,
-            DataSourceSet dataSources,
-            Expression populateCondition)
+        public static IMemberPopulator WithRegistration(IDataSourceSet dataSources, Expression populateCondition)
         {
-            var memberPopulation = WithoutRegistration(mappingData, dataSources, populateCondition);
+            var memberPopulation = WithoutRegistration(dataSources, populateCondition);
 
             memberPopulation.MapperData.RegisterTargetMemberDataSourcesIfRequired(dataSources);
 
             return memberPopulation;
         }
 
-        public static IMemberPopulator WithoutRegistration(
-            IChildMemberMappingData mappingData,
-            DataSourceSet dataSources,
-            Expression populateCondition = null)
+        public static IMemberPopulator WithoutRegistration(IDataSourceSet dataSources, Expression populateCondition = null)
+            => new MemberPopulator(dataSources, populateCondition);
+
+        public static IMemberPopulator Unmappable(MemberPopulationContext context, string reason)
+            => CreateNullMemberPopulator(context, targetMember => $"No way to populate {targetMember.Name} ({reason})");
+
+        public static IMemberPopulator IgnoredMember(MemberPopulationContext context)
+            => CreateNullMemberPopulator(context, context.MemberIgnore.GetIgnoreMessage);
+
+        public static IMemberPopulator NoDataSource(MemberPopulationContext context)
         {
-            return new MemberPopulator(dataSources, populateCondition);
-        }
+            var noDataSources = CreateNullDataSourceSet(context.MemberMapperData, GetNoDataSourceMessage);
 
-        public static IMemberPopulator Unmappable(IMemberMapperData mapperData, string reason)
-            => CreateNullMemberPopulation(mapperData, targetMember => $"No way to populate {targetMember.Name} ({reason})");
+            context.MemberMapperData.RegisterTargetMemberDataSourcesIfRequired(noDataSources);
 
-        public static IMemberPopulator IgnoredMember(IMemberMapperData mapperData, ConfiguredIgnoredMember configuredIgnore)
-            => CreateNullMemberPopulation(mapperData, configuredIgnore.GetIgnoreMessage);
-
-        public static IMemberPopulator NoDataSource(IMemberMapperData mapperData)
-        {
-            var noDataSources = CreateNullDataSourceSet(mapperData, GetNoDataSourceMessage);
-
-            mapperData.RegisterTargetMemberDataSourcesIfRequired(noDataSources);
-
-            return new MemberPopulator(noDataSources);
+            return context.MappingContext.AddUnsuccessfulMemberPopulations
+                ? new MemberPopulator(noDataSources) : null;
         }
 
         private static string GetNoDataSourceMessage(QualifiedMember targetMember)
@@ -63,37 +58,132 @@ namespace AgileObjects.AgileMapper.Members.Population
                 : $"No data source for {targetMember.Name} or any of its child members";
         }
 
-        private static MemberPopulator CreateNullMemberPopulation(
-            IMemberMapperData mapperData,
+        private static MemberPopulator CreateNullMemberPopulator(
+            MemberPopulationContext context,
             Func<QualifiedMember, string> commentFactory)
         {
-            return new MemberPopulator(CreateNullDataSourceSet(mapperData, commentFactory));
+            return context.MappingContext.AddUnsuccessfulMemberPopulations
+                ? new MemberPopulator(CreateNullDataSourceSet(context.MemberMapperData, commentFactory))
+                : null;
         }
 
-        private static DataSourceSet CreateNullDataSourceSet(
+        private static IDataSourceSet CreateNullDataSourceSet(
             IMemberMapperData mapperData,
             Func<QualifiedMember, string> commentFactory)
         {
-            return new DataSourceSet(
-                mapperData,
+            return DataSourceSet.For(
                 new NullDataSource(
-                    ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember))));
+                    ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember))),
+                mapperData);
         }
 
         #endregion
 
-        public IMemberMapperData MapperData => DataSources.MapperData;
+        public IMemberMapperData MapperData => _dataSources.MapperData;
 
-        public bool IsSuccessful => CanPopulate;
-
-        public bool CanPopulate => DataSources.HasValue;
-
-        public DataSourceSet DataSources { get; }
+        public bool CanPopulate => _dataSources.HasValue;
 
         public Expression PopulateCondition { get; }
 
         public Expression GetPopulation()
-            => MapperData.RuleSet.PopulationFactory.GetPopulation(this);
+        {
+            if (!CanPopulate)
+            {
+                return _dataSources.BuildValue();
+            }
+
+            var populationGuard = MapperData
+                .RuleSet
+                .PopulationGuardFactory
+                .Invoke(this);
+
+            var useSingleExpression = MapperData.UseMemberInitialisations();
+
+            var population = useSingleExpression
+                ? GetBinding(populationGuard)
+                : MapperData.TargetMember.IsReadOnly
+                    ? GetReadOnlyMemberPopulation()
+                    : GetPopulationExpression();
+
+            if (_dataSources.Variables.Any())
+            {
+                population = GetPopulationWithVariables(population);
+            }
+
+            if (useSingleExpression && MapperData.RuleSet.Settings.AllowGuardedBindings)
+            {
+                return population;
+            }
+
+            return (populationGuard != null)
+                ? Expression.IfThen(populationGuard, population)
+                : population;
+        }
+
+        private Expression GetBinding(Expression populationGuard)
+        {
+            var bindingValue = _dataSources.BuildValue();
+
+            if (MapperData.RuleSet.Settings.AllowGuardedBindings && (populationGuard != null))
+            {
+                bindingValue = bindingValue.ToIfFalseDefaultCondition(populationGuard);
+            }
+
+            return MapperData.GetTargetMemberPopulation(bindingValue);
+        }
+
+        private Expression GetReadOnlyMemberPopulation()
+        {
+            var targetMemberAccess = MapperData.GetTargetMemberAccess();
+            var targetMemberNotNull = targetMemberAccess.GetIsNotDefaultComparison();
+
+            return Expression.IfThen(targetMemberNotNull, _dataSources.BuildValue());
+        }
+
+        private Expression GetPopulationExpression()
+        {
+            var finalValue = _dataSources.GetFinalValueOrNull();
+            var excludeFinalValue = finalValue == null;
+            var finalDataSourceIndex = _dataSources.Count - 1;
+
+            Expression population = null;
+
+            for (var i = finalDataSourceIndex; i >= 0; --i)
+            {
+                var dataSource = _dataSources[i];
+
+                if (i == finalDataSourceIndex)
+                {
+                    if (excludeFinalValue)
+                    {
+                        continue;
+                    }
+
+                    population = MapperData.GetTargetMemberPopulation(finalValue);
+                    population = dataSource.FinalisePopulation(population);
+                    continue;
+                }
+
+                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
+                population = dataSource.FinalisePopulation(memberPopulation, population);
+            }
+
+            return population;
+        }
+
+        private Expression GetPopulationWithVariables(Expression population)
+        {
+            if (population.NodeType != ExpressionType.Block)
+            {
+                return Expression.Block(_dataSources.Variables, population);
+            }
+
+            var populationBlock = (BlockExpression)population;
+
+            return Expression.Block(
+                _dataSources.Variables.Append(populationBlock.Variables),
+                populationBlock.Expressions);
+        }
 
         #region ExcludeFromCodeCoverage
 #if DEBUG
@@ -101,6 +191,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 #endif
         #endregion
         public override string ToString()
-            => $"{MapperData.TargetMember} ({DataSources.Count()} data source(s))";
+            => $"{MapperData.TargetMember} ({_dataSources.Count()} data source(s))";
     }
 }

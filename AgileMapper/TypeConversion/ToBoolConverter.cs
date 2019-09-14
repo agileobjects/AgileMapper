@@ -4,13 +4,13 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using Extensions.Internal;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using ReadableExpressions.Extensions;
 
     internal struct ToBoolConverter : IValueConverter
     {
@@ -45,10 +45,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
             var sourceValueConversion = Expression.Condition(
                 sourceEqualsTrueTests,
                 true.ToConstantExpression(typeof(bool?)),
-                Expression.Condition(
-                    sourceEqualsFalseTests,
-                    false.ToConstantExpression(typeof(bool?)),
-                    typeof(bool?).ToDefaultExpression()));
+                false.ToConstantExpression(typeof(bool?)).ToIfFalseDefaultCondition(sourceEqualsFalseTests));
 
             return sourceValueConversion;
         }

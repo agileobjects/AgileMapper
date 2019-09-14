@@ -204,6 +204,19 @@
             result.CurrencyId.ShouldBe(1);
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/146
+        [Fact]
+        public void ShouldMapToATargetInterfaceMembersImplementedInterfaceMembers()
+        {
+            var source = new Issue146.Source.Container("999") { Name = "Source" };
+            var result = Mapper.Map(source).ToANew<Issue146.Target.Cont>();
+
+            result.ShouldNotBeNull();
+            result.Name.ShouldBe("Source");
+            result.Data.ShouldNotBeNull();
+            result.Data.Id.ShouldBe("999");
+        }
+
         [Fact]
         public void ShouldAccessAParentContextInAStandaloneMapper()
         {
@@ -363,7 +376,7 @@
             result.Value2.Count.ShouldBe(2);
             result.Value2.First().ShouldBeOfType<PublicProperty<string>>();
             ((PublicProperty<string>)result.Value2.First()).Value.ShouldBe("ikjhfeslkjdw");
-            
+
             result.Value2.Second().ShouldBeOfType<PublicField<string>>();
             ((PublicField<string>)result.Value2.Second()).Value.ShouldBe("ldkjkdhusdiuoji");
         }
@@ -383,6 +396,56 @@
         {
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public int Id { get; set; }
+        }
+
+        internal static class Issue146
+        {
+            public static class Source
+            {
+                public class Data
+                {
+                    public string Id { get; set; }
+                }
+
+                public class Container
+                {
+                    public Container(string dataId)
+                    {
+                        Data = new Data { Id = dataId };
+                    }
+
+                    public string Name { get; set; }
+
+                    public Data Data { get; }
+                }
+            }
+
+            public static class Target
+            {
+                public interface IData
+                {
+                    string Id { get; set; }
+                }
+
+                public interface IEmpty : IData { }
+
+                public class Empty : IEmpty
+                {
+                    public string Id { get; set; }
+                }
+
+                public class Cont
+                {
+                    public Cont()
+                    {
+                        Data = new Empty();
+                    }
+
+                    public IEmpty Data { get; set; }
+
+                    public string Name { get; set; }
+                }
+            }
         }
 
         #endregion
