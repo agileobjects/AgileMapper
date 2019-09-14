@@ -13,7 +13,7 @@ public class Order
 }
 ```
 
-`Order.DateCreated` will be ignored because `OrderDto` has no matching member, but out of the box the `Id` property will be updated. You can stop this using:
+`Order.DateCreated` will be ignored because `OrderDto` has no matching member, but out of the box the `Id` property will be updated. To stop this, use:
 
 ```cs
 Mapper.WhenMapping
@@ -22,23 +22,22 @@ Mapper.WhenMapping
     .Ignore(o => o.Id); // Ignore the Order.Id property
 ```
 
-Multiple fields can be ignored with a single configuration, and ignores can be made conditional. Here's an [inline configuration](/configuration/Inline) example:
+Multiple members can be ignored with a single configuration, and ignores can be made conditional. Here's an [inline configuration](/configuration/Inline) example:
 
 ```cs
 // Source, target and mapping types are implicit from the mapping:
-Mapper
-    .Map(orderDto).Over(order, cfg => cfg
-        .If((dto, o) => dto.Id == 0) // Apply the ignores if OrderDto.Id is 0
-        .Ignore(
-            o => o.Id,
-            o => o.DateCreated);     // Ignore Order.Id and Order.DateCreated
+Mapper.Map(orderDto).Over(order, cfg => cfg
+    .If((dto, o) => dto.Id == 0) // Apply the ignores if OrderDto.Id is 0
+    .Ignore(
+        o => o.Id,               // Ignore Order.Id...
+        o => o.DateCreated);     // ...and Order.DateCreated
 ```
 
 Target members can be ignored in several other ways, either globally (for all source and target types), or for specific source and target types.
 
-## Member Filtering
+## Target Member Filtering
 
-You can ignore members by Type:
+Target members can be ignored by Type:
 
 ```cs
 Mapper.WhenMapping
@@ -117,3 +116,5 @@ Mapper.WhenMapping
 ```
 
 Again, all ignores can alternatively be configured [inline](/configuration/Inline).
+
+You can also ignore [source members](Ignoring-Source-Members)
