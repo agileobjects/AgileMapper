@@ -6,7 +6,7 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Configuration;
+    using Configuration.MemberIgnores.SourceValueFilters;
     using Extensions.Internal;
     using Members;
 

@@ -9,6 +9,7 @@
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
     using AgileMapper.Configuration.MemberIgnores;
+    using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using Dictionaries;
 #if FEATURE_DYNAMIC
     using Dynamics;

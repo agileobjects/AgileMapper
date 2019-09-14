@@ -6,6 +6,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.MemberIgnores;
+    using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using AgileMapper.Configuration.Projection;
     using Dictionaries;
 #if FEATURE_DYNAMIC

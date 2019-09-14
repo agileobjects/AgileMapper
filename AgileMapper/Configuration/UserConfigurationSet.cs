@@ -14,6 +14,7 @@
     using Extensions;
     using Extensions.Internal;
     using MemberIgnores;
+    using MemberIgnores.SourceValueFilters;
     using Members;
     using ObjectPopulation;
     using Projection;

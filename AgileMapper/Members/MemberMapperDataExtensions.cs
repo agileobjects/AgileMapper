@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.Members
 #endif
     using System.Reflection;
     using Configuration;
+    using Configuration.MemberIgnores.SourceValueFilters;
     using DataSources;
     using DataSources.Factories;
     using Dictionaries;
