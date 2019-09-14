@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using AgileMapper.Extensions.Internal;
+    using AgileObjects.AgileMapper.Configuration;
     using Common;
     using TestClasses;
 #if !NET35
@@ -189,6 +190,28 @@
 
                 mapper.InlineContexts().Count.ShouldBe(2);
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateSourceValueFilterConfiguredInline()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .IgnoreSources(c => c.If<int>(value => value == 555));
+
+                    mapper
+                        .Map(new PublicField<int>())
+                        .ToANew<PublicProperty<long>>(cfg => cfg
+                            .IgnoreSources(c => c.If<int>(value => value == 555)));
+                }
+            });
+
+            configEx.Message.ShouldContain("Source filter");
+            configEx.Message.ShouldContain("If<int>(value => value == 555)");
+            configEx.Message.ShouldContain("already been configured");
         }
     }
 }
