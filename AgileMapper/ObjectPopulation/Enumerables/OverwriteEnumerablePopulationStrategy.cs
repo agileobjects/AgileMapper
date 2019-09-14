@@ -6,9 +6,9 @@
     using System.Linq.Expressions;
 #endif
 
-    internal struct OverwriteEnumerablePopulationStrategy : IEnumerablePopulationStrategy
+    internal static class OverwriteEnumerablePopulationStrategy
     {
-        public Expression GetPopulation(
+        public static Expression Create(
             EnumerablePopulationBuilder builder,
             IObjectMappingData enumerableMappingData)
         {

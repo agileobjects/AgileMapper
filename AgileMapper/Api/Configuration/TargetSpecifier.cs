@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System;
+    using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Dictionaries;
 #if FEATURE_DYNAMIC
@@ -22,7 +24,7 @@
         }
 
         /// <summary>
-        /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
+        /// Configure how this mapper performs mappings from the source type being configured in all mapping rule sets 
         /// (create new, overwrite, etc), to the target type specified by the given <typeparamref name="TTarget"/> 
         /// argument.
         /// </summary>
@@ -73,14 +75,15 @@
             => new MappingConfigurator<TSource, TTarget>(_configInfo.ForRuleSet(name));
 
         /// <summary>
-        /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
-        /// (create new, overwrite, etc), to target Dictionaries.
+        /// Configure how this mapper performs mappings from the source type being configured for all
+        /// mapping rule sets (create new, overwrite, etc), to target Dictionaries.
         /// </summary>
         public ITargetDictionaryMappingConfigurator<TSource, object> ToDictionaries => ToDictionariesWithValueType<object>();
 
         /// <summary>
-        /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
-        /// (create new, overwrite, etc), to target Dictionary{string, <typeparamref name="TValue"/>} instances.
+        /// Configure how this mapper performs mappings from the source type being configured for all
+        /// mapping rule sets (create new, overwrite, etc), to target Dictionary{string, <typeparamref name="TValue"/>}
+        /// instances.
         /// </summary>
         /// <typeparam name="TValue">
         /// The type of values contained in the Dictionary to which the configuration will apply.
@@ -91,11 +94,82 @@
 
 #if FEATURE_DYNAMIC
         /// <summary>
-        /// Configure how this mapper performs mappings from the source type being configured in all MappingRuleSets 
-        /// (create new, overwrite, etc), to target ExpandoObjects.
+        /// Configure how this mapper performs mappings from the source type being configured for all
+        /// mapping rule sets (create new, overwrite, etc), to target ExpandoObjects.
         /// </summary>
         public ITargetDynamicMappingConfigurator<TSource> ToDynamics
             => new TargetDynamicMappingConfigurator<TSource>(_configInfo);
 #endif
+
+        #region SourceIgnores
+
+        /// <summary>
+        /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>, when
+        /// mapping from the source type being configured to all target types. Matching member values
+        /// will not be used to populate target members in mappings for all mapping rule sets (create
+        /// new, overwrite, etc).
+        /// </summary>
+        /// <param name="valuesFilter">
+        /// The matching function with which to test source values to determine if they should be
+        /// ignored.
+        /// </param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from the source
+        /// type being configured.
+        /// </returns>
+        public IMappingConfigContinuation<TSource, object> IgnoreSources(
+            Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
+        {
+            return To<object>().IgnoreSources(valuesFilter);
+        }
+
+        /// <summary>
+        /// Ignore the given <paramref name="sourceMembers"/> when mapping from the source type being
+        /// configured to all target types. The given member(s) will not be used to populate target
+        /// members in mappings for all mapping rule sets (create new, overwrite, etc).
+        /// </summary>
+        /// <param name="sourceMembers">The source member(s) which should be ignored.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from the source
+        /// type being configured.
+        /// </returns>
+        public IMappingConfigContinuation<TSource, object> IgnoreSource(
+            params Expression<Func<TSource, object>>[] sourceMembers)
+        {
+            return To<object>().IgnoreSource(sourceMembers);
+        }
+
+        /// <summary>
+        /// Ignore all source members of the given <typeparamref name="TMember">Type</typeparamref>
+        /// when mapping from the source type being configured to all target types. Source members of
+        /// this type will not be used to populate target members in mappings for all mapping rule
+        /// sets (create new, overwrite, etc).
+        /// </summary>
+        /// <typeparam name="TMember">The Type of source member to ignore.</typeparam>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from the source
+        /// type being configured.
+        /// </returns>
+        public IMappingConfigContinuation<TSource, object> IgnoreSourceMembersOfType<TMember>()
+            => To<object>().IgnoreSourceMembersOfType<TMember>();
+
+        /// <summary>
+        /// Ignore all source members matching the given <paramref name="memberFilter"/> when mapping
+        /// from the source type being configured to all target types. Source members matching the
+        /// filter will not be used to populate target members in mappings for all mapping rule sets
+        /// (create new, overwrite, etc).
+        /// </summary>
+        /// <param name="memberFilter">The matching function with which to select source members to ignore.</param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from the source
+        /// type being configured.
+        /// </returns>
+        public IMappingConfigContinuation<TSource, object> IgnoreSourceMembersWhere(
+            Expression<Func<SourceMemberSelector, bool>> memberFilter)
+        {
+            return To<object>().IgnoreSourceMembersWhere(memberFilter);
+        }
+
+        #endregion
     }
 }

@@ -21,8 +21,6 @@
 
         ParameterExpression MappingDataObject { get; }
 
-        IQualifiedMember SourceMember { get; }
-
         Expression SourceObject { get; }
 
         Expression TargetObject { get; }

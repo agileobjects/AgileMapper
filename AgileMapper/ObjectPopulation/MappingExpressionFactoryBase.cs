@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 #if NET35
@@ -14,7 +13,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Extensions.Internal;
     using Members;
-    using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
@@ -51,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mapperData.Context.UseMappingTryCatch)
             {
-                mappingBlock = WrapInTryCatch(mappingBlock, mapperData);
+                mappingBlock = mappingBlock.WrapInTryCatch(mapperData);
             }
 
             return mappingBlock;
@@ -365,65 +363,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Expression.Equal(
                 assignedMember.GetValueOrDefaultCall(),
                 0.ToConstantExpression(nonNullableIdType));
-
         }
 
         protected virtual Expression GetReturnValue(ObjectMapperData mapperData) => mapperData.TargetInstance;
-
-        private static Expression WrapInTryCatch(Expression mappingBlock, IMemberMapperData mapperData)
-        {
-            var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
-            var exceptionVariable = Parameters.Create<Exception>("ex");
-
-            if (configuredCallback == null)
-            {
-                var catchBody = Expression.Throw(
-                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
-                    mappingBlock.Type);
-
-                return CreateTryCatch(mappingBlock, exceptionVariable, catchBody);
-            }
-
-            var callbackActionType = configuredCallback.Type.GetGenericTypeArguments()[0];
-
-            Type[] contextTypes;
-            Expression contextAccess;
-
-            if (callbackActionType.IsGenericType())
-            {
-                contextTypes = callbackActionType.GetGenericTypeArguments();
-                contextAccess = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
-            }
-            else
-            {
-                contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
-                contextAccess = mapperData.MappingDataObject;
-            }
-
-            var exceptionContextCreateMethod = ObjectMappingExceptionData
-                .CreateMethod
-                .MakeGenericMethod(contextTypes);
-
-            var createExceptionContextCall = Expression.Call(
-                exceptionContextCreateMethod,
-                contextAccess,
-                exceptionVariable);
-
-            var callbackInvocation = Expression.Invoke(configuredCallback, createExceptionContextCall);
-            var returnDefault = mappingBlock.Type.ToDefaultExpression();
-            var configuredCatchBody = Expression.Block(callbackInvocation, returnDefault);
-
-            return CreateTryCatch(mappingBlock, exceptionVariable, configuredCatchBody);
-        }
-
-        private static Expression CreateTryCatch(
-            Expression mappingBlock,
-            ParameterExpression exceptionVariable,
-            Expression catchBody)
-        {
-            var catchBlock = Expression.Catch(exceptionVariable, catchBody);
-
-            return Expression.TryCatch(mappingBlock, catchBlock);
-        }
     }
 }

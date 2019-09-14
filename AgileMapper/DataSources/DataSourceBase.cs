@@ -1,14 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
     {
@@ -168,7 +168,7 @@
                 .Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)
-                .FirstOrDefault(m => m.Name == entityMemberName);
+                .FirstOrDefault(entityMemberName, (emn, m) => m.Name == emn);
 
             return !mapperData.IsEntity(entityMember?.Type, out _);
         }
@@ -180,7 +180,7 @@
         public Expression SourceMemberTypeTest { get; protected set; }
 
         public virtual bool IsValid => Value != Constants.EmptyExpression;
-        
+
         public bool IsConditional => Condition != null;
 
         public virtual bool IsFallback => false;
@@ -191,18 +191,19 @@
 
         public Expression Value { get; }
 
-        public virtual Expression Finalise(Expression memberPopulation, Expression alternatePopulation)
+        public virtual Expression AddSourceCondition(Expression value) => value;
+
+        public virtual Expression FinalisePopulation(Expression population, Expression alternatePopulation)
         {
-            if (IsConditional)
+            if (!IsConditional)
             {
-                memberPopulation = (alternatePopulation != null)
-                    ? Expression.IfThenElse(Condition, memberPopulation, alternatePopulation)
-                    : Expression.IfThen(Condition, memberPopulation);
+                return population;
             }
 
-            return memberPopulation;
-        }
+            return (alternatePopulation != null)
+                ? Expression.IfThenElse(Condition, population, alternatePopulation)
+                : Expression.IfThen(Condition, population);
 
-        public virtual Expression AddSourceCondition(Expression value) => value;
+        }
     }
 }

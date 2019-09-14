@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
 #if NET35
     using Microsoft.Scripting.Ast;
     using ReadableExpressions.Translations;
@@ -14,6 +13,8 @@
     using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using System.Reflection;
+    using Members;
     using NetStandardPolyfills;
     using ObjectPopulation.Enumerables;
     using ReadableExpressions.Extensions;
@@ -53,6 +54,9 @@
                    (memberAccess.Member.Name == "HasValue") &&
                    (memberAccess.Expression.Type.IsNullableType());
         }
+
+        public static Expression Negate(this Expression expression)
+            => (expression.NodeType != Not) ? Expression.Not(expression) : ((UnaryExpression)expression).Operand;
 
         [DebuggerStepThrough]
         public static ConstantExpression ToConstantExpression<T>(this T item)
@@ -129,13 +133,19 @@
         {
             if (expression.Type.IsNullableType())
             {
-                return Expression.Property(expression, "HasValue");
+                return GetNullableHasValueAccess(expression);
             }
 
             var typeDefault = expression.Type.ToDefaultExpression();
 
             return Expression.NotEqual(expression, typeDefault);
         }
+
+        public static Expression GetNullableHasValueAccess(this Expression expression)
+            => Expression.Property(expression, "HasValue");
+
+        public static Expression GetNullableValueAccess(this Expression nullableExpression)
+            => Expression.Property(nullableExpression, "Value");
 
         public static Expression GetIndexAccess(this Expression indexedExpression, Expression indexValue)
         {
@@ -214,9 +224,6 @@
             return null;
         }
 
-        public static Expression GetNullableValueAccess(this Expression nullableExpression)
-            => Expression.Property(nullableExpression, "Value");
-
         public static Expression GetValueOrDefaultCall(this Expression nullableExpression)
         {
             var parameterlessGetValueOrDefault = nullableExpression.Type
@@ -239,6 +246,11 @@
             if (expression.Type == targetType)
             {
                 return expression;
+            }
+
+            if ((targetType == typeof(object)) && expression.Type.IsValueType())
+            {
+                return Expression.Convert(expression, typeof(object));
             }
 
             if (expression.Type.GetNonNullableType() == targetType)
@@ -463,7 +475,6 @@
             binaryExpression = null;
             return false;
         }
-
 #if NET35
         public static LambdaExpression ToDlrExpression(this LinqExp.LambdaExpression linqLambda)
             => LinqExpressionToDlrExpressionConverter.Convert(linqLambda);
@@ -474,5 +485,34 @@
         public static Expression ToDlrExpression(this LinqExp.Expression linqExpression)
             => LinqExpressionToDlrExpressionConverter.Convert(linqExpression);
 #endif
+        public static TryExpression WrapInTryCatch(this Expression mapping, IMemberMapperData mapperData)
+        {
+            var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
+            var exceptionVariable = Parameters.Create<Exception>("ex");
+
+            if (configuredCallback == null)
+            {
+                var catchBody = Expression.Throw(
+                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
+                    mapping.Type);
+
+                return CreateTryCatch(mapping, exceptionVariable, catchBody);
+            }
+
+            var configuredCatchBody = configuredCallback
+                .ToCatchBody(exceptionVariable, mapping.Type, mapperData);
+
+            return CreateTryCatch(mapping, exceptionVariable, configuredCatchBody);
+        }
+
+        private static TryExpression CreateTryCatch(
+            Expression mappingBlock,
+            ParameterExpression exceptionVariable,
+            Expression catchBody)
+        {
+            var catchBlock = Expression.Catch(exceptionVariable, catchBody);
+
+            return Expression.TryCatch(mappingBlock, catchBlock);
+        }
     }
 }

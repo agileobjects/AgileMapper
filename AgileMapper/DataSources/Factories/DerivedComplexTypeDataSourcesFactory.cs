@@ -440,12 +440,12 @@
                     continue;
                 }
 
-                var derivedTargetTypeDataSouce = new DerivedComplexTypeDataSource(
+                var derivedTargetTypeDataSource = new DerivedComplexTypeDataSource(
                     derivedTypeMappingData.MapperData.SourceMember,
                     targetTypeCondition,
                     derivedTypeMapping);
 
-                derivedTypeDataSources.Add(derivedTargetTypeDataSouce);
+                derivedTypeDataSources.Add(derivedTargetTypeDataSource);
             }
         }
 
@@ -543,18 +543,18 @@
                        : base.AddSourceCondition(value);
             }
         }
-    }
 
-    internal class TypePairGroup
-    {
-        public TypePairGroup(IGrouping<Type, DerivedTypePair> typePairGroup)
+        private class TypePairGroup
         {
-            DerivedTargetType = typePairGroup.Key;
-            TypePairs = typePairGroup.ToArray();
+            public TypePairGroup(IGrouping<Type, DerivedTypePair> typePairGroup)
+            {
+                DerivedTargetType = typePairGroup.Key;
+                TypePairs = typePairGroup.ToArray();
+            }
+
+            public Type DerivedTargetType { get; }
+
+            public IList<DerivedTypePair> TypePairs { get; }
         }
-
-        public Type DerivedTargetType { get; }
-
-        public IList<DerivedTypePair> TypePairs { get; }
     }
 }

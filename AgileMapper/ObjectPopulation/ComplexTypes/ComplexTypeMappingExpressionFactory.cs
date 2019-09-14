@@ -190,7 +190,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private bool TryGetShortCircuitFactory(ObjectMapperData mapperData, out ISourceShortCircuitFactory applicableFactory)
-            => _shortCircuitFactories.TryFindMatch(f => f.IsFor(mapperData), out applicableFactory);
+            => _shortCircuitFactories.TryFindMatch(mapperData, (md, f) => f.IsFor(md), out applicableFactory);
 
         #endregion
 

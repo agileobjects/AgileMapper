@@ -44,8 +44,12 @@
 
         [DebuggerStepThrough]
         public static T First<T>(this IList<T> items, Func<T, bool> predicate)
+            => First(items, predicate, (p, item) => p.Invoke(item));
+
+        [DebuggerStepThrough]
+        public static T First<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
         {
-            if (TryFindMatch(items, predicate, out var match))
+            if (TryFindMatch(items, argument, predicate, out var match))
             {
                 return match;
             }
@@ -55,7 +59,11 @@
 
         [DebuggerStepThrough]
         public static T FirstOrDefault<T>(this IList<T> items, Func<T, bool> predicate)
-            => TryFindMatch(items, predicate, out var match) ? match : default(T);
+            => FirstOrDefault(items, predicate, (p, item) => predicate.Invoke(item));
+
+        [DebuggerStepThrough]
+        public static T FirstOrDefault<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
+            => TryFindMatch(items, argument, predicate, out var match) ? match : default(T);
 
         [DebuggerStepThrough]
         public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> items, Func<T, bool> predicate)
@@ -73,12 +81,16 @@
 
         [DebuggerStepThrough]
         public static bool TryFindMatch<T>(this IList<T> items, Func<T, bool> predicate, out T match)
-        {
-            for (int i = 0, n = items.Count; i < n; i++)
-            {
-                match = items[i];
+            => TryFindMatch(items, predicate, (p, item) => p.Invoke(item), out match);
 
-                if (predicate.Invoke(match))
+        [DebuggerStepThrough]
+        public static bool TryFindMatch<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate, out T match)
+        {
+            for (int i = 0, n = items.Count; i < n;)
+            {
+                match = items[i++];
+
+                if (predicate.Invoke(argument, match))
                 {
                     return true;
                 }
@@ -98,6 +110,10 @@
         public static bool Any<T>(this IList<T> items, Func<T, bool> predicate) => !items.None(predicate);
 
         [DebuggerStepThrough]
+        public static bool Any<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
+            => !None(items, argument, predicate);
+
+        [DebuggerStepThrough]
         public static bool None<T>(this ICollection<T> items) => items.Count == 0;
 
         [DebuggerStepThrough]
@@ -107,10 +123,13 @@
         public static bool None<T>(this IEnumerable<T> items) => !items.GetEnumerator().MoveNext();
 
         public static bool None<T>(this IList<T> items, Func<T, bool> predicate)
+            => None(items, predicate, (p, item) => p.Invoke(item));
+
+        public static bool None<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
         {
             for (int i = 0, n = items.Count; i < n; i++)
             {
-                if (predicate.Invoke(items[i]))
+                if (predicate.Invoke(argument, items[i]))
                 {
                     return false;
                 }
@@ -126,6 +145,12 @@
         public static bool HasOne<T>(this ICollection<T> items) => items.Count == 1;
 
         public static TResult[] ProjectToArray<TItem, TResult>(this IList<TItem> items, Func<TItem, TResult> projector)
+            => ProjectToArray(items, projector, (p, item) => p.Invoke(item));
+
+        public static TResult[] ProjectToArray<TArg, TItem, TResult>(
+            this IList<TItem> items,
+            TArg argument,
+            Func<TArg, TItem, TResult> projector)
         {
             var itemCount = items.Count;
 
@@ -138,15 +163,13 @@
 
             for (var i = 0; ;)
             {
-                result[i] = projector.Invoke(items[i]);
+                result[i] = projector.Invoke(argument, items[i]);
 
                 if (++i == itemCount)
                 {
-                    break;
+                    return result;
                 }
             }
-
-            return result;
         }
 
         public static T[] CopyToArray<T>(this IList<T> items)
@@ -166,16 +189,16 @@
         public static Expression Chain<TItem>(
             this IList<TItem> items,
             Func<TItem, Expression> seedValueFactory,
-            Func<Expression, TItem, Expression> itemValueFactory)
+            Func<Expression, TItem, Expression> chainedValueFactory)
         {
-            return Chain(items, i => i.First(), seedValueFactory, itemValueFactory, i => i);
+            return Chain(items, i => i.First(), seedValueFactory, chainedValueFactory, i => i);
         }
 
         public static Expression Chain<TItem>(
             this IList<TItem> items,
             Func<IList<TItem>, TItem> seedFactory,
             Func<TItem, Expression> seedValueFactory,
-            Func<Expression, TItem, Expression> itemValueFactory,
+            Func<Expression, TItem, Expression> chainedValueFactory,
             Func<IList<TItem>, IEnumerable<TItem>> initialOperation)
         {
             if (items.None())
@@ -190,9 +213,12 @@
 
             return initialOperation.Invoke(items)
                 .Skip(1)
+                .WhereNotNull()
                 .Aggregate(
                     seedValueFactory.Invoke(seedFactory.Invoke(items)),
-                    itemValueFactory.Invoke);
+                    (chainedExpression, item) => (chainedExpression == null)
+                        ? seedValueFactory.Invoke(item)
+                        : chainedValueFactory.Invoke(chainedExpression, item));
         }
 
         public static void CopyTo<T>(this IList<T> sourceList, List<T> targetList)
@@ -200,7 +226,7 @@
 
         public static void CopyFrom<T>(this IList<T> targetList, IList<T> sourceList, int startIndex = 0)
         {
-            for (var i = 0; i < sourceList.Count && i < targetList.Count; i++)
+            for (var i = 0; i < sourceList.Count && i < targetList.Count; ++i)
             {
                 targetList[i + startIndex] = sourceList[i];
             }

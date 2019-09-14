@@ -8,47 +8,39 @@
     {
         public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
         {
-            if (context.MapperData.TargetMember.IsCustom)
+            if (context.TargetMember.IsCustom)
             {
                 yield break;
             }
 
-            var matchingSourceMemberDataSource = GetSourceMemberDataSource(context, out var hasUseableSourceMember);
-            var configuredDataSources = context.ConfiguredDataSources;
-            var targetMember = context.MapperData.TargetMember;
-
-            if (!hasUseableSourceMember ||
-                 configuredDataSources.Any(cds => cds.IsSameAs(matchingSourceMemberDataSource)))
+            if (context.DoNotUseSourceMemberDataSource())
             {
                 if (context.DataSourceIndex == 0)
                 {
-                    if (UseFallbackComplexTypeDataSource(targetMember))
+                    if (context.UseFallbackComplexTypeDataSource())
                     {
-                        yield return ComplexTypeDataSource.Create(context.DataSourceIndex, context.ChildMappingData);
+                        yield return ComplexTypeDataSource.Create(context.DataSourceIndex, context.MemberMappingData);
                     }
                 }
-                else if (configuredDataSources.Any() && configuredDataSources.Last().IsConditional)
+                else if (context.UseFallbackForConditionalConfiguredDataSource())
                 {
                     yield return context.GetFallbackDataSource();
                 }
 
-                if (hasUseableSourceMember || 
-                   (matchingSourceMemberDataSource.SourceMember == null))
+                if (context.UseConfiguredDataSourcesOnly())
                 {
                     yield break;
                 }
             }
 
-            if (matchingSourceMemberDataSource.SourceMember.IsSimple &&
-                context.MapperData.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources)
+            if (context.ReturnSimpleTypeToTargetDataSources())
             {
                 var updatedMapperData = new ChildMemberMapperData(
-                    matchingSourceMemberDataSource.SourceMember,
-                    targetMember,
-                    context.MapperData.Parent);
+                    context.MatchingSourceMemberDataSource.SourceMember,
+                    context.TargetMember,
+                    context.MemberMapperData.Parent);
 
                 var configuredRootDataSources = context
-                    .MapperData
                     .MapperContext
                     .UserConfigurations
                     .GetDataSourcesForToTarget(updatedMapperData);
@@ -59,36 +51,51 @@
                 }
             }
 
-            yield return matchingSourceMemberDataSource;
+            yield return context.MatchingSourceMemberDataSource;
 
-            if (!targetMember.IsReadOnly &&
-                 matchingSourceMemberDataSource.IsConditional &&
-                (matchingSourceMemberDataSource.IsValid || configuredDataSources.Any()))
+            if (context.UseFallbackDataSource())
             {
                 yield return context.GetFallbackDataSource();
             }
         }
 
-        private static IDataSource GetSourceMemberDataSource(
-            DataSourceFindContext context,
-            out bool hasUseableSourceMember)
+        private static bool DoNotUseSourceMemberDataSource(this DataSourceFindContext context)
         {
-            var bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(context.ChildMappingData);
-            hasUseableSourceMember = bestSourceMemberMatch.IsUseable;
-
-            if (hasUseableSourceMember)
-            {
-                return context.GetFinalDataSource(
-                    bestSourceMemberMatch.CreateDataSource(),
-                    bestSourceMemberMatch.ContextMappingData);
-            }
-
-            return new AdHocDataSource(
-                bestSourceMemberMatch.SourceMember,
-                Constants.EmptyExpression);
+            return !context.BestSourceMemberMatch.IsUseable ||
+                    context.ConfiguredDataSources.Any(context.MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
         }
 
-        private static bool UseFallbackComplexTypeDataSource(QualifiedMember targetMember)
-            => targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
+        private static bool UseFallbackComplexTypeDataSource(this DataSourceFindContext context)
+        {
+            var targetMember = context.TargetMember;
+
+            return targetMember.IsComplex && !targetMember.IsDictionary && (targetMember.Type != typeof(object));
+        }
+
+        private static bool UseFallbackForConditionalConfiguredDataSource(this DataSourceFindContext context)
+        {
+            return context.ConfiguredDataSources.Any() &&
+                   context.ConfiguredDataSources.Last().IsConditional &&
+                  (context.MatchingSourceMemberDataSource.SourceMember != null);
+        }
+
+        private static bool UseConfiguredDataSourcesOnly(this DataSourceFindContext context)
+        {
+            return context.BestSourceMemberMatch.IsUseable ||
+                  (context.MatchingSourceMemberDataSource.SourceMember == null);
+        }
+
+        private static bool ReturnSimpleTypeToTargetDataSources(this DataSourceFindContext context)
+        {
+            return context.MatchingSourceMemberDataSource.SourceMember.IsSimple &&
+                   context.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources;
+        }
+
+        private static bool UseFallbackDataSource(this DataSourceFindContext context)
+        {
+            return !context.TargetMember.IsReadOnly &&
+                    context.MatchingSourceMemberDataSource.IsConditional &&
+                   (context.MatchingSourceMemberDataSource.IsValid || context.ConfiguredDataSources.Any());
+        }
     }
 }

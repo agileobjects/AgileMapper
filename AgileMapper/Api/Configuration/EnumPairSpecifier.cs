@@ -143,7 +143,7 @@
             var pairingEnumValueName = pairingEnumValue.ToString();
 
             var confictingPairing = relevantPairings
-                .FirstOrDefault(ep => ep.PairingEnumMemberName == pairingEnumValueName);
+                .FirstOrDefault(pairingEnumValueName, (pevn, ep) => ep.PairingEnumMemberName == pevn);
 
             if (confictingPairing == null)
             {
@@ -178,7 +178,7 @@
 
             var pairedEnumMemberName = pairedEnumValue.ToString();
 
-            return relevantPairings.None(pair => pair.PairingEnumMemberName == pairedEnumMemberName);
+            return relevantPairings.None(pairedEnumMemberName, (pemn, pair) => pair.PairingEnumMemberName == pemn);
         }
     }
 }

@@ -25,6 +25,6 @@
 
         Expression AddSourceCondition(Expression value);
 
-        Expression Finalise(Expression memberPopulation, Expression alternatePopulation = null);
+        Expression FinalisePopulation(Expression population, Expression alternatePopulation = null);
     }
 }

@@ -19,28 +19,22 @@
         public SourceMemberMatch(
             IQualifiedMember sourceMember,
             IChildMemberMappingData contextMappingData,
+            Expression condition,
             bool isUseable = true)
         {
-            SourceMember = GetFinalSourceMember(sourceMember, contextMappingData.MapperData);
+            SourceMember = sourceMember;
             ContextMappingData = contextMappingData;
+            Condition = condition;
             IsUseable = isUseable;
         }
 
-        private static IQualifiedMember GetFinalSourceMember(
-            IQualifiedMember sourceMember,
-            IMemberMapperData targetMapperData)
-        {
-            return targetMapperData
-                .MapperContext
-                .QualifiedMemberFactory
-                .GetFinalSourceMember(sourceMember, targetMapperData.TargetMember);
-        }
-
-        public IQualifiedMember SourceMember { get; }
+        public bool IsUseable { get; }
 
         public IChildMemberMappingData ContextMappingData { get; }
 
-        public bool IsUseable { get; }
+        public IQualifiedMember SourceMember { get; }
+
+        public Expression Condition { get; }
 
         public IDataSource CreateDataSource()
         {
@@ -54,6 +48,7 @@
             var sourceMemberDataSource = new SourceMemberDataSource(
                 sourceMember,
                 sourceMemberValue,
+                Condition,
                 mapperData);
 
             return sourceMemberDataSource;

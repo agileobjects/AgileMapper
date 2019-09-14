@@ -84,7 +84,6 @@
                     UnmappedMembers = md
                         .DataSourcesByTargetMember
                         .Filter(pair => !pair.Value.HasValue)
-                        .Project(pair => pair)
                         .ToArray(),
                     UnpairedEnums = EnumMappingMismatchFinder.FindMismatches(md)
                 })
@@ -184,7 +183,7 @@
         }
 
         private static void AddUnmappedTargetMembersInfo(
-            Dictionary<QualifiedMember, DataSourceSet> unmappedMembers,
+            Dictionary<QualifiedMember, IDataSourceSet> unmappedMembers,
             StringBuilder failureMessage,
             IMemberMapperData rootData)
         {
@@ -244,7 +243,7 @@
 
             public ICollection<ObjectMapperData> UnconstructableTargetTypes { get; set; }
 
-            public Dictionary<QualifiedMember, DataSourceSet> UnmappedMembers { get; set; }
+            public Dictionary<QualifiedMember, IDataSourceSet> UnmappedMembers { get; set; }
 
             public ICollection<EnumMappingMismatchSet> UnpairedEnums { get; set; }
         }

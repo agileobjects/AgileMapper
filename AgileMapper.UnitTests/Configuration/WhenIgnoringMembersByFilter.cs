@@ -373,8 +373,6 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                     .IgnoreTargetMembersWhere(member => member.HasAttribute<IgnoreMeAttribute>());
 
                 var matchingSource = new PublicTwoFields<int, int> { Value1 = 10, Value2 = 20 };
-                var nonMatchingSource = new { Value1 = "11", Value2 = "21" };
-
                 var matchingResult = mapper.Map(matchingSource).ToANew<AttributeHelper>();
                 matchingResult.Value1.ShouldBeDefault();
                 matchingResult.Value2.ShouldBe("20");
@@ -383,6 +381,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 nonMatchingTargetResult.Value1.ShouldBe("10");
                 nonMatchingTargetResult.Value2.ShouldBe("20");
 
+                var nonMatchingSource = new { Value1 = "11", Value2 = "21" };
                 var nonMatchingSourceResult = mapper.Map(nonMatchingSource).ToANew<AttributeHelper>();
                 nonMatchingSourceResult.Value1.ShouldBe("11");
                 nonMatchingSourceResult.Value2.ShouldBe("21");

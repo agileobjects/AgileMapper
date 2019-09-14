@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var configuredDataSourceFactories = mapperData.MapperContext
                 .UserConfigurations
                 .QueryDataSourceFactories<ConfiguredDictionaryEntryDataSourceFactory>()
-                .Filter(dsf => dsf.IsFor(mapperData))
+                .Filter(mapperData, (md, dsf) => dsf.IsFor(md))
                 .ToArray();
 
             if (configuredDataSourceFactories.None())
@@ -211,12 +211,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return configuredDataSourceFactories
                 .GroupBy(dsf => dsf.TargetDictionaryEntryMember.Name)
-                .Project(group =>
+                .Project(targetMembersFromSource, (tmfs, group) =>
                 {
                     QualifiedMember targetMember = group.First().TargetDictionaryEntryMember;
 
-                    targetMember.IsCustom = targetMembersFromSource.None(
-                        sourceMember => sourceMember.RegistrationName == targetMember.Name);
+                    targetMember.IsCustom = tmfs.None(
+                        targetMember.Name,
+                       (tmn, sourceMember) => sourceMember.RegistrationName == tmn);
 
                     return targetMember.IsCustom ? targetMember : null;
                 })

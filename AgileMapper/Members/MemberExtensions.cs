@@ -168,8 +168,8 @@
             }
 
             return otherMemberNames
-                .Any(otherJoinedName => (otherJoinedName == RootMemberName) || memberNames
-                    .Any(joinedName => (joinedName == RootMemberName) || otherJoinedName.StartsWithIgnoreCase(joinedName)));
+                .Any(memberNames, (mns, otherJoinedName) => (otherJoinedName == RootMemberName) || mns
+                    .Any(otherJoinedName, (ojn, joinedName) => (joinedName == RootMemberName) || ojn.StartsWithIgnoreCase(joinedName)));
         }
 
         public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
@@ -281,6 +281,30 @@
                 mapperContext);
         }
 
+        public static QualifiedMember ToSourceMemberOrNull(
+            this LambdaExpression memberAccess,
+            MapperContext mapperContext,
+            out string failureReason)
+        {
+            var hasUnsupportedNodeType = false;
+            var sourceMember = memberAccess.ToSourceMember(mapperContext, nt => hasUnsupportedNodeType = true);
+
+            if (hasUnsupportedNodeType)
+            {
+                failureReason = $"Unable to determine source member from '{memberAccess.Body.ToReadableString()}'";
+                return null;
+            }
+
+            if (sourceMember == null)
+            {
+                failureReason = $"Source member {memberAccess.Body.ToReadableString()} is not readable";
+                return null;
+            }
+
+            failureReason = null;
+            return sourceMember;
+        }
+
         public static QualifiedMember ToTargetMemberOrNull(
             this LambdaExpression memberAccess,
             Type targetType,
@@ -371,7 +395,7 @@
                 var memberAccess = memberAccesses[i++];
                 var memberName = GetMemberName(memberAccess);
                 var members = membersFactory.Invoke(parentMember.Type);
-                var member = members.FirstOrDefault(m => m.Name == memberName);
+                var member = members.FirstOrDefault(memberName, (mn, m) => m.Name == mn);
 
                 if (member == null)
                 {

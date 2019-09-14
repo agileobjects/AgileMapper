@@ -55,7 +55,8 @@
             return this;
         }
 
-        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) => otherConfigInfo.SourceType == SourceType;
+        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) 
+            => otherConfigInfo.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
 
@@ -170,7 +171,7 @@
 
             if (_negateCondition)
             {
-                condition = Expression.Not(condition);
+                condition = condition.Negate();
             }
 
             var targetCanBeNull = position.IsPriorToObjectCreation(targetMember);

@@ -21,7 +21,7 @@
             return clonedItems;
         }
 
-        public static void AddSorted<T>(this IList<T> items, T newItem)
+        public static void AddThenSort<T>(this IList<T> items, T newItem)
             where T : IComparable<T>
         {
             if (items.None())
@@ -42,7 +42,7 @@
             items.Add(newItem);
         }
 
-        public static void AddSortFilter<T>(this List<T> cloneableItems, T newItem)
+        public static void AddOrReplaceThenSort<T>(this List<T> cloneableItems, T newItem)
             where T : IPotentialAutoCreatedItem, IComparable<T>
         {
             if (cloneableItems.None())
@@ -63,7 +63,7 @@
                 return;
             }
 
-            cloneableItems.AddSorted(newItem);
+            cloneableItems.AddThenSort(newItem);
         }
     }
 }

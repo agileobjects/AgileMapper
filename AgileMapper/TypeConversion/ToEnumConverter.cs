@@ -379,7 +379,7 @@
                     {
                         return new
                         {
-                            Value = (Expression)targetEnumValues.First(tv => tv.Member.Name == pairedMemberName),
+                            Value = (Expression)targetEnumValues.First(pairedMemberName, (pmn, tv) => tv.Member.Name == pmn),
                             IsCustom = true
                         };
                     }
@@ -387,17 +387,17 @@
                     return new
                     {
                         Value = targetEnumValues
-                            .FirstOrDefault(tv => tv.Member.Name.EqualsIgnoreCase(sv.Member.Name)) ??
+                            .FirstOrDefault(sv.Member.Name, (name, tv) => tv.Member.Name.EqualsIgnoreCase(name)) ??
                              fallbackValue,
                         IsCustom = false
                     };
                 });
 
             var enumPairsConversion = sourceEnumValues
-                .Project(sv => new
+                .Project(enumPairs, (eps, sv) => new
                 {
                     SourceValue = sv,
-                    PairedValue = enumPairs[sv]
+                    PairedValue = eps[sv]
                 })
                 .OrderByDescending(d => d.PairedValue.IsCustom)
                 .Reverse()

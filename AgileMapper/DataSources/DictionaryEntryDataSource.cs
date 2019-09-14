@@ -71,12 +71,12 @@
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
 
-        public override Expression Finalise(Expression memberPopulation, Expression alternatePopulation)
+        public override Expression FinalisePopulation(Expression population, Expression alternatePopulation)
         {
-            memberPopulation = base.Finalise(memberPopulation, alternatePopulation);
+            population = base.FinalisePopulation(population, alternatePopulation);
 
             var matchingKeyExists = GetMatchingKeyExistsTest();
-            var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, memberPopulation);
+            var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);
 
             if (_dictionaryVariables.HasConstantTargetMemberKey)
             {

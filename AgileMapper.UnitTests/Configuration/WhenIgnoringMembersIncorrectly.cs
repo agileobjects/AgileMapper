@@ -13,6 +13,23 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
     public class WhenIgnoringMembersIncorrectly
     {
         [Fact]
+        public void ShouldErrorIfInvalidMemberSpecified()
+        {
+            var configurationEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicReadOnlyProperty<string>>()
+                        .ToANew<PublicWriteOnlyProperty<string>>()
+                        .Ignore(pwop => 2 * 2);
+                }
+            });
+
+            configurationEx.Message.ShouldContain("Unable to determine target member");
+        }
+
+        [Fact]
         public void ShouldErrorIfRedundantIgnoreIsSpecified()
         {
             var ignoreEx = Should.Throw<MappingConfigurationException>(() =>

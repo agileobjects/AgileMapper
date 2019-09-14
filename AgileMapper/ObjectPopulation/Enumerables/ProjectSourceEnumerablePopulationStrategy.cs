@@ -6,9 +6,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     using System.Linq.Expressions;
 #endif
 
-    internal struct ProjectSourceEnumerablePopulationStrategy : IEnumerablePopulationStrategy
+    internal static class ProjectSourceEnumerablePopulationStrategy
     {
-        public Expression GetPopulation(
+        public static Expression Create(
             EnumerablePopulationBuilder builder,
             IObjectMappingData enumerableMappingData)
         {

@@ -103,6 +103,9 @@
     <Compile Include="Configuration\Inline\WhenConfiguringTypeIdentifiersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
+    <Compile Include="Configuration\Inline\WhenIgnoringSourceMemberInlineIncorrectly.cs" />
+    <Compile Include="Configuration\Inline\WhenIgnoringSourceMembersByValueFilterInline.cs" />
+    <Compile Include="Configuration\Inline\WhenIgnoringSourceMembersInline.cs" />
     <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
     <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
     <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
@@ -111,6 +114,12 @@
     <Compile Include="Configuration\WhenConfiguringEntityMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenIgnoringSourceMembers.cs" />
+    <Compile Include="Configuration\WhenIgnoringSourceMembersByFilter.cs" />
+    <Compile Include="Configuration\WhenIgnoringSourceMembersByGlobalFilter.cs" />
+    <Compile Include="Configuration\WhenIgnoringSourceMembersByValueFilter.cs" />
+    <Compile Include="Configuration\WhenIgnoringSourceMembersByValueFilterIncorrectly.cs" />
+    <Compile Include="Configuration\WhenIgnoringSourceMembersIncorrectly.cs" />
     <Compile Include="Configuration\WhenResolvingServices.cs" />
     <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
     <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs" />

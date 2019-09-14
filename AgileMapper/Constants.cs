@@ -15,8 +15,8 @@
     {
         public static readonly bool ReflectionNotPermitted = ReflectionExtensions.ReflectionNotPermitted;
 
-        public static readonly string RootMemberName = "Root";
-        public static readonly string EnumerableElementName = "[i]";
+        public const string RootMemberName = "Root";
+        public const string EnumerableElementName = "[i]";
 
         public static readonly Type[] EmptyTypeArray = Enumerable<Type>.EmptyArray;
         public static readonly Type AllTypes = typeof(Constants);

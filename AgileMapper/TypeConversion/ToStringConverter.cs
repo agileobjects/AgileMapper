@@ -99,7 +99,7 @@
         public static MethodInfo GetToStringMethodOrNull(Type sourceType, Type argumentType)
         {
             var toStringMethod = sourceType
-                .GetPublicInstanceMethods("ToString")
+                .GetPublicInstanceMethods(nameof(ToString))
                 .Project(m => new
                 {
                     Method = m,
@@ -119,7 +119,7 @@
             }
 
             var nullTrueOrFalse = GetTrueOrFalseTernary(sourceValue.GetNullableValueAccess())
-                .ToIfFalseDefaultCondition(Expression.Property(sourceValue, "HasValue"));
+                .ToIfFalseDefaultCondition(sourceValue.GetNullableHasValueAccess());
 
             return nullTrueOrFalse;
         }
