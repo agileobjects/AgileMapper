@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.SimpleTypeConversion
 {
+    using System.Collections.Generic;
     using Common;
     using TestClasses;
     using static TestClasses.Title;
@@ -287,5 +288,28 @@
                 dukeResult.Value.ShouldBe(TitleShortlist.Other);
             }
         }
+
+        [Fact]
+        public void ShouldMapNonIntDerivedRootEnumValuesInAnArray()
+        {
+            var source = new[] { (short)ShortNumbers.One, (short)ShortNumbers.Three, (short)5 };
+
+            var result = Mapper.Map(source).ToANew<IList<ShortNumbers>>();
+
+            // 5 isn't a valid value, so it should default to default(ShortNumbers):
+            result.ShouldBe(ShortNumbers.One, ShortNumbers.Three, ShortNumbers.Zero);
+        }
+
+        #region Helper Members
+
+        public enum ShortNumbers : short
+        {
+            Zero = 0,
+            One = 1,
+            Two = 2,
+            Three = 3
+        }
+
+        #endregion
     }
 }

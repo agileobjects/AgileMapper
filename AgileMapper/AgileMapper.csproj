@@ -18,16 +18,7 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Support for ignoring source members by member, member filter and value filter, re: #137
-- Support for root enum mapping, re: #138
-- Support for mapping to and from interface member implemented interface members, re: #146
-- Support for mapping (not projecting) queryables
-- Improved detection of constructor-populated members, re: #139
-- Fixing nullable DateTime to string custom format string configuration, re: #149
-- Fixing nested .ToTarget() source member null-checks, re: #145
-- Fixing configured member conflict detection bug #152
-- Fixing interface-to-string mapping using ToString(), re #153
-- Performance improvements</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixing numeric to non-int-derived enum mapping</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
