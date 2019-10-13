@@ -25,6 +25,11 @@
 
             var elementPopulation = elementPopulationFactory.Invoke(loopData, mappingData);
 
+            if (elementPopulation == Constants.EmptyExpression)
+            {
+                return elementPopulation;
+            }
+
             var loopBody = GetLoopBody(loopData, builder, breakLoop, elementPopulation);
 
             var populationLoop = loopData.NeedsContinueTarget

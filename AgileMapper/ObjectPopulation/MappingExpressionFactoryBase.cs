@@ -177,6 +177,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
+            if ((assignedValue.NodeType == New) &&
+                 context.MapperData.TargetMemberIsEnumerableElement() &&
+               ((NewExpression)assignedValue).Arguments.None())
+            {
+                return true;
+            }
+
             if (assignedValue.NodeType != Coalesce)
             {
                 return false;

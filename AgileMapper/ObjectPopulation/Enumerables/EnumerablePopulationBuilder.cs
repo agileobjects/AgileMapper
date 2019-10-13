@@ -515,12 +515,17 @@
                 mappingData,
                 elementPopulationFactory);
 
-            _populationExpressions.Add(populationLoop);
+            _populationExpressions.AddUnlessNullOrEmpty(populationLoop);
         }
 
         private Expression GetElementPopulation(IPopulationLoopData loopData, IObjectMappingData mappingData)
         {
             var elementMapping = loopData.GetElementMapping(mappingData);
+
+            if (elementMapping == Constants.EmptyExpression)
+            {
+                return elementMapping;
+            }
 
             if (InsertSourceObjectElementNullCheck(loopData, out var sourceElement))
             {
@@ -788,7 +793,7 @@
                 }
 
                 _result = _builder.GetSourceItemsProjection(
-                    sourceEnumerableValue, 
+                    sourceEnumerableValue,
                     sourceElement => _builder.GetElementConversion(sourceElement, mappingData));
 
                 return this;
