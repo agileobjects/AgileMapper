@@ -18,7 +18,8 @@
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Fixing numeric to non-int-derived enum mapping</PackageReleaseNotes>
+    <PackageReleaseNotes>- Support for interface type-pairing, re: #163
+- Fixing numeric to non-int-derived enum mapping</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
