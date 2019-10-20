@@ -121,6 +121,24 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredInterfaceMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<IPublicInterface<string>>()
+                    .To<PublicProperty<string>>()
+                    .Map(ctx => ctx.Source.Value + "!")
+                    .To(pp => pp.Value);
+
+                var source = new PublicImplementation<string> { Value = "Impl" };
+                var result = mapper.Map(source).ToANew<PublicProperty<string>>();
+
+                result.Value.ShouldBe("Impl!");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyMultipleConfiguredMembersBySourceType()
         {
             using (var mapper = Mapper.CreateNew())
@@ -1226,9 +1244,7 @@
                 result.Name.ShouldBe("input");
                 result.Info.ShouldNotBeNull();
                 result.Info.Id.ShouldBe("12321");
-
-                // Source has a .Value member, but we don't runtime-type interfaces
-                result.Info.Value.ShouldBeNull();
+                result.Info.Value.ShouldNotBeNull();
             }
         }
 

@@ -36,6 +36,56 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/163
+        [Fact]
+        public void ShouldMapACustomInterfaceTypePair()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue163.ISource>()
+                    .To<Issue163.ITarget>()
+                    .Map<Issue163.Source>()
+                    .To<Issue163.Target>()
+                    .And
+                    .Map(s => s.Status, t => t.StatusId);
+
+                Issue163.ISource source = new Issue163.Source { Status = 500 };
+
+                var result = mapper.Map(source).ToANew<Issue163.ITarget>();
+
+                result
+                    .ShouldNotBeNull()
+                    .ShouldBeOfType<Issue163.Target>()
+                    .StatusId.ShouldBe(500);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/163
+        [Fact]
+        public void ShouldMapACustomAbstractClassTypePair()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue163.SourceBase>()
+                    .To<Issue163.TargetBase>()
+                    .Map<Issue163.SourceImpl>()
+                    .To<Issue163.TargetImpl>()
+                    .And
+                    .Map(s => s.Status, t => t.StatusId);
+
+                Issue163.SourceBase source = new Issue163.SourceImpl { Status = 404 };
+
+                var result = mapper.Map(source).ToANew<Issue163.TargetBase>();
+
+                result
+                    .ShouldNotBeNull()
+                    .ShouldBeOfType<Issue163.TargetImpl>()
+                    .StatusId.ShouldBe(404);
+            }
+        }
+
         [Fact]
         public void ShouldMapADerivedTypePairConditionally()
         {
@@ -512,6 +562,47 @@
 
                     public ITrafficClass CurrentClass { get; }
                 }
+            }
+        }
+
+        internal static class Issue163
+        {
+            public interface ISource
+            {
+                int Status { get; }
+            }
+
+            public interface ITarget
+            {
+                int StatusId { get; set; }
+            }
+
+            public class Source : ISource
+            {
+                public int Status { get; set; }
+            }
+
+            public class Target : ITarget
+            {
+                public int StatusId { get; set; }
+            }
+
+            public abstract class SourceBase
+            {
+                public int Status { get; set; }
+            }
+
+            public abstract class TargetBase
+            {
+                public int StatusId { get; set; }
+            }
+
+            public class SourceImpl : SourceBase
+            {
+            }
+
+            public class TargetImpl : TargetBase
+            {
             }
         }
 

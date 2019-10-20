@@ -32,19 +32,19 @@
             }
         }
 
-        public IList<Type> GetTypesDerivedFrom(Type type)
+        public IList<Type> GetTypesDerivedFrom(Type baseType)
         {
-            if (type.IsSealed() || type.IsFromBcl())
+            if (baseType.IsSealed() || baseType.IsFromBcl())
             {
                 return Constants.EmptyTypeArray;
             }
 
-            return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
+            return _derivedTypesByType.GetOrAdd(baseType, GetDerivedTypesForType);
         }
 
-        private IList<Type> GetDerivedTypesForType(Type type)
+        private IList<Type> GetDerivedTypesForType(Type baseType)
         {
-            var typeAssemblies = new[] { type.GetAssembly() };
+            var typeAssemblies = new[] { baseType.GetAssembly() };
 
             Assembly[] assemblies;
 
@@ -57,28 +57,33 @@
 
             var assemblyTypes = assemblies
                 .SelectMany(assembly => _typesByAssembly
-                    .GetOrAdd(assembly, GetRelevantTypesFromAssembly));
+                    .GetOrAdd(assembly, GetConcreteTypesFromAssembly));
 
-            var derivedTypes = assemblyTypes.Filter(t => t.IsDerivedFrom(type)).ToArray();
+            var derivedTypes = assemblyTypes.Filter(baseType, IsDerivedType).ToArray();
 
-            if (derivedTypes.None())
+            switch (derivedTypes.Length)
             {
-                return Constants.EmptyTypeArray;
+                case 0:
+                    return Constants.EmptyTypeArray;
+
+                case 1:
+                    return derivedTypes;
+
+                default:
+                    return derivedTypes
+                        .OrderBy(t => t, TypeComparer.MostToLeastDerived)
+                        .ToArray();
             }
-
-            var derivedTypesList = derivedTypes
-                .OrderBy(t => t, TypeComparer.MostToLeastDerived)
-                .ToArray();
-
-            return derivedTypesList;
         }
 
-        private static IEnumerable<Type> GetRelevantTypesFromAssembly(Assembly assembly)
+        private static IEnumerable<Type> GetConcreteTypesFromAssembly(Assembly assembly)
+            => assembly.QueryTypes().Filter(t => t.IsClass() && !t.IsAbstract());
+
+        private static bool IsDerivedType(Type baseType, Type derivedType)
         {
-            return assembly
-                .QueryTypes()
-                .Filter(t => t.IsClass() && !t.IsAbstract())
-                .ToArray();
+            return baseType.IsInterface()
+                ? derivedType.IsAssignableTo(baseType)
+                : derivedType.IsDerivedFrom(baseType);
         }
 
         internal void Reset() => _derivedTypesByType.Empty();

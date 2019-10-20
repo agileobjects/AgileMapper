@@ -4,8 +4,6 @@
     using System.Globalization;
 #if NET35
     using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
     using Members;
@@ -20,7 +18,7 @@
             Type derivedTargetType)
             : base(configInfo)
         {
-            IsImplementationPairing = configInfo.TargetType.IsInterface();
+            IsImplementationPairing = configInfo.TargetType.IsAbstract();
             DerivedSourceType = derivedSourceType;
             DerivedTargetType = derivedTargetType;
         }

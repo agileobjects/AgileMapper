@@ -78,9 +78,7 @@
                     _keys[_length] = key;
                 }
 
-                _values[_length] = value;
-
-                ++_length;
+                _values[_length++] = value;
             }
 
             return value;

@@ -37,20 +37,20 @@
             var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMapperData);
             var hasDerivedTargetTypes = derivedTargetTypes.Any();
 
-            var derivedTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
-            var hasDerivedTypePairs = derivedTypePairs.Any();
+            var declaredSourceTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
+            var hasDeclaredSourceTypePairs = declaredSourceTypePairs.Any();
 
-            if (hasNoDerivedSourceTypes && !hasDerivedTargetTypes && !hasDerivedTypePairs)
+            if (hasNoDerivedSourceTypes && !hasDerivedTargetTypes && !hasDeclaredSourceTypePairs)
             {
                 return Enumerable<IDataSource>.EmptyArray;
             }
 
             var derivedTypeDataSources = new List<IDataSource>();
 
-            if (hasDerivedTypePairs)
+            if (hasDeclaredSourceTypePairs)
             {
                 AddDeclaredSourceTypeDataSources(
-                    derivedTypePairs,
+                    declaredSourceTypePairs,
                     declaredTypeMappingData,
                     derivedTypeDataSources);
 
@@ -71,8 +71,8 @@
             if (hasDerivedTargetTypes)
             {
                 AddDerivedTargetTypeDataSources(
-                    declaredTypeMappingData,
                     derivedTargetTypes,
+                    declaredTypeMappingData,
                     derivedTypeDataSources);
             }
 
@@ -103,7 +103,7 @@
                 : EmptyTypeArray;
         }
 
-        private static ICollection<DerivedTypePair> GetTypePairsFor(IBasicMapperData pairTestMapperData, IMemberMapperData mapperData)
+        private static IList<DerivedTypePair> GetTypePairsFor(IBasicMapperData pairTestMapperData, IMemberMapperData mapperData)
         {
             var derivedTypePairs = mapperData.MapperContext.UserConfigurations
                 .DerivedTypes
@@ -219,10 +219,12 @@
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
             var insertionOffset = derivedTypeDataSources.Count;
 
-            var orderedDerivedSourceTypes = derivedSourceTypes
-                .OrderBy(t => t, MostToLeastDerived);
+            if (((ICollection<Type>)derivedSourceTypes).Count > 1)
+            {
+                derivedSourceTypes = derivedSourceTypes.OrderBy(t => t, MostToLeastDerived);
+            }
 
-            foreach (var derivedSourceType in orderedDerivedSourceTypes)
+            foreach (var derivedSourceType in derivedSourceTypes)
             {
                 var derivedSourceCheck = new DerivedSourceTypeCheck(derivedSourceType);
                 var targetType = declaredTypeMapperData.TargetType.GetRuntimeTargetType(derivedSourceType);
@@ -371,16 +373,23 @@
         }
 
         private static bool HasUnconditionalDerivedTargetTypeMapping(
-            IEnumerable<DerivedTypePair> derivedTypePairs,
+            IList<DerivedTypePair> derivedTypePairs,
             IMemberMapperData declaredTypeMapperData,
             out Type unconditionalDerivedTargetType,
             out TypePairGroup[] groupedTypePairs)
         {
-            groupedTypePairs = derivedTypePairs
-                .GroupBy(tp => tp.DerivedTargetType)
-                .Project(group => new TypePairGroup(group))
-                .OrderBy(tp => tp.DerivedTargetType, MostToLeastDerived)
-                .ToArray();
+            if (derivedTypePairs.Count == 1)
+            {
+                groupedTypePairs = new[] { new TypePairGroup(derivedTypePairs) };
+            }
+            else
+            {
+                groupedTypePairs = derivedTypePairs
+                    .GroupBy(tp => tp.DerivedTargetType)
+                    .Project(group => new TypePairGroup(group))
+                    .OrderBy(tp => tp.DerivedTargetType, MostToLeastDerived)
+                    .ToArray();
+            }
 
             var unconditionalTypePairs = groupedTypePairs
                 .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
@@ -401,7 +410,7 @@
             return false;
         }
 
-        private static ICollection<DerivedTypePair> GetTypePairsFor(
+        private static IList<DerivedTypePair> GetTypePairsFor(
             Type derivedSourceType,
             Type targetType,
             IMemberMapperData mapperData)
@@ -417,13 +426,16 @@
         }
 
         private static void AddDerivedTargetTypeDataSources(
-            IObjectMappingData declaredTypeMappingData,
             IEnumerable<Type> derivedTargetTypes,
+            IObjectMappingData declaredTypeMappingData,
             ICollection<IDataSource> derivedTypeDataSources)
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
-            derivedTargetTypes = derivedTargetTypes.OrderBy(t => t, MostToLeastDerived);
+            if (((ICollection<Type>)derivedTargetTypes).Count > 1)
+            {
+                derivedTargetTypes = derivedTargetTypes.OrderBy(t => t, MostToLeastDerived);
+            }
 
             foreach (var derivedTargetType in derivedTargetTypes)
             {
@@ -546,6 +558,12 @@
 
         private class TypePairGroup
         {
+            public TypePairGroup(IList<DerivedTypePair> typePairs)
+            {
+                DerivedTargetType = typePairs[0].DerivedTargetType;
+                TypePairs = typePairs;
+            }
+
             public TypePairGroup(IGrouping<Type, DerivedTypePair> typePairGroup)
             {
                 DerivedTargetType = typePairGroup.Key;

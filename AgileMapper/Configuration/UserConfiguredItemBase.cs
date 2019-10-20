@@ -126,7 +126,7 @@
 
             return (mapperData.TargetMember.Type == TargetMember.Type) &&
                    (mapperData.TargetMember.Name == TargetMember.Name) &&
-                    TargetMember.LeafMember.DeclaringType.IsAssignableTo(mapperData.TargetMember.LeafMember.DeclaringType);
+                    mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableTo(TargetMember.LeafMember.DeclaringType);
         }
 
         protected virtual bool TargetMembersAreCompatible(IBasicMapperData mapperData)

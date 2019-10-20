@@ -139,6 +139,10 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetMemberDefault(this IBasicMapperData mapperData)
             => mapperData.TargetMember.Type.ToDefaultExpression();
 
+        [DebuggerStepThrough]
+        public static Expression GetTargetTypeDefault(this IBasicMapperData mapperData)
+            => mapperData.TargetType.ToDefaultExpression();
+
         public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
             this IMemberMapperData mapperData,
             Expression value,

@@ -88,7 +88,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             mapping = derivedTypeDataSourceSet.BuildValue();
 
-            if (derivedTypeDataSources.Last().IsConditional)
+            if (derivedTypeDataSources.Last().IsConditional && !context.MapperData.TargetType.IsAbstract())
             {
                 context.MappingExpressions.Add(mapping);
                 return false;
@@ -109,7 +109,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             else
             {
                 context.MappingExpressions.Add(mapping);
-                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping.Type.ToDefaultExpression()));
+                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(context.MapperData.GetTargetTypeDefault()));
             }
 
             mapping = Expression.Block(context.MappingExpressions);
@@ -122,11 +122,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (SourceObjectCouldBeNull(mapperData))
             {
-                var returnNull = Expression.Return(
-                    mapperData.ReturnLabelTarget,
-                    mapperData.TargetType.ToDefaultExpression());
-
-                yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
+                yield return Expression.IfThen(
+                    mapperData.SourceObject.GetIsDefaultComparison(),
+                    GetReturnNull(mapperData));
             }
 
             var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(mapperData);
@@ -161,6 +159,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             return false;
         }
+
+        private static Expression GetReturnNull(ObjectMapperData mapperData)
+            => Expression.Return(mapperData.ReturnLabelTarget, mapperData.GetTargetTypeDefault());
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {
