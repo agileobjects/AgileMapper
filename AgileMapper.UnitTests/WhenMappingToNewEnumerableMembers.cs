@@ -283,7 +283,7 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
-#if NETCOREAPP2_0
+#if FEATURE_STRINGSPLIT_OPTIONS
                     .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
 #else
                     .Map(ctx => ctx.Source.Value.Split(':'))

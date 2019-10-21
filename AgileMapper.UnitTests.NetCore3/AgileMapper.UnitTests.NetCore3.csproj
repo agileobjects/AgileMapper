@@ -2,12 +2,12 @@
   <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore2_2</AssemblyName>
-    <PackageId>AgileObjects.AgileMapper.UnitTests.NetCore2_1</PackageId>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore3</AssemblyName>
+    <PackageId>AgileObjects.AgileMapper.UnitTests.NetCore3</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <RuntimeFrameworkVersion>2.2.2</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>3.0.0</RuntimeFrameworkVersion>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
