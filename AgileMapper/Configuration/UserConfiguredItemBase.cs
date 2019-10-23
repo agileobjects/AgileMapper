@@ -41,7 +41,13 @@
 
         public MappingConfigInfo ConfigInfo { get; }
 
-        public string TargetTypeName => ConfigInfo.TargetType.GetFriendlyName();
+        public Type SourceType => ConfigInfo.SourceType;
+
+        public string SourceTypeName => SourceType.GetFriendlyName();
+
+        public Type TargetType => ConfigInfo.TargetType;
+
+        public string TargetTypeName => TargetType.GetFriendlyName();
 
         public QualifiedMember TargetMember { get; }
 
@@ -229,8 +235,8 @@
         private int OrderAlphabetically(UserConfiguredItemBase other)
         {
             return string.Compare(
-                ConfigInfo.TargetType.Name,
-                other.ConfigInfo.TargetType.Name,
+                TargetTypeName,
+                other.TargetTypeName,
                 StringComparison.Ordinal);
         }
     }

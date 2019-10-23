@@ -180,9 +180,9 @@
         {
             var sourceType = ConfigInfo.IsForAllSourceTypes()
                 ? "All sources"
-                : ConfigInfo.SourceType.GetFriendlyName();
+                : SourceTypeName;
 
-            var targetTypeName = ConfigInfo.TargetType == typeof(object)
+            var targetTypeName = TargetType == typeof(object)
                 ? "All targets"
                 : TargetTypeName;
 

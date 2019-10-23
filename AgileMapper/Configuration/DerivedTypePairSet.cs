@@ -28,7 +28,7 @@
         {
             if (typePair.IsImplementationPairing)
             {
-                AddTypePairFor(typePair.ConfigInfo.TargetType, typePair);
+                AddTypePairFor(typePair.TargetType, typePair);
                 return;
             }
 
@@ -71,9 +71,7 @@
             }
         }
 
-        public IList<DerivedTypePair> GetImplementationTypePairsFor(
-            IBasicMapperData mapperData,
-            MapperContext mapperContext)
+        public IList<DerivedTypePair> GetImplementationTypePairsFor(IBasicMapperData mapperData)
         {
             if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
             {
@@ -306,6 +304,7 @@
             out Func<Type, string> derivedTargetTypeNameFactory)
         {
             if (rootSourceType.IsSealed() || rootTargetType.IsSealed() ||
+                rootSourceType.IsInterface() || rootTargetType.IsInterface() ||
                 rootSourceType.IsFromBcl() || rootTargetType.IsFromBcl())
             {
                 derivedTargetTypeNameFactory = null;

@@ -74,7 +74,7 @@
             }
 
             targetMember = sourceMemberLambda.ToTargetMemberOrNull(
-                ConfigInfo.SourceType,
+                SourceType,
                 ConfigInfo.MapperContext,
                 out reason);
 
@@ -121,8 +121,8 @@
         {
             return _reverseConfigInfo ?? (_reverseConfigInfo = ConfigInfo
                 .Copy()
-                .ForSourceType(ConfigInfo.TargetType)
-                .ForTargetType(ConfigInfo.SourceType)
+                .ForSourceType(TargetType)
+                .ForTargetType(SourceType)
                 .ForSourceValueType(TargetMember.Type));
         }
 

@@ -232,6 +232,7 @@
     <Compile Include="TestClasses\PublicEnumerable.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
     <Compile Include="TestClasses\PublicIndex.cs" />
+    <Compile Include="TestClasses\PublicOtherImplementation.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicPropertyStruct.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />

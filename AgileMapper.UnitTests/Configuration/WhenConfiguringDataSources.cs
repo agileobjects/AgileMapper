@@ -574,7 +574,7 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<int[]>>()
-#if NETCOREAPP2_0
+#if FEATURE_STRINGSPLIT_OPTIONS
                     .Map(ctx => ctx.Source.Value.Split(':', StringSplitOptions.None))
 #else
                     .Map(ctx => ctx.Source.Value.Split(':'))
@@ -1244,7 +1244,9 @@
                 result.Name.ShouldBe("input");
                 result.Info.ShouldNotBeNull();
                 result.Info.Id.ShouldBe("12321");
-                result.Info.Value.ShouldNotBeNull();
+
+                // Source has a .Value member, but we don't runtime-type interfaces
+                result.Info.Value.ShouldBeNull();
             }
         }
 

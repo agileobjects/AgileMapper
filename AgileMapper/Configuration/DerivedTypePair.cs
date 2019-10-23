@@ -12,6 +12,8 @@
 
     internal class DerivedTypePair : UserConfiguredItemBase, IComparable<DerivedTypePair>
     {
+        private readonly bool _isInterfacePairing;
+
         public DerivedTypePair(
             MappingConfigInfo configInfo,
             Type derivedSourceType,
@@ -19,6 +21,7 @@
             : base(configInfo)
         {
             IsImplementationPairing = configInfo.TargetType.IsAbstract();
+            _isInterfacePairing = IsImplementationPairing && configInfo.TargetType.IsInterface();
             DerivedSourceType = derivedSourceType;
             DerivedTargetType = derivedTargetType;
         }
@@ -89,7 +92,21 @@
         public Type DerivedTargetType { get; }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
-            => mapperData.SourceType.IsAssignableTo(DerivedSourceType) && base.AppliesTo(mapperData);
+        {
+            if (!base.AppliesTo(mapperData))
+            {
+                return false;
+            }
+
+            if (mapperData.SourceType.IsAssignableTo(DerivedSourceType))
+            {
+                return true;
+            }
+
+            return _isInterfacePairing &&
+                    mapperData.SourceType.IsAssignableTo(SourceType) &&
+                    mapperData.TargetType.IsAssignableTo(TargetType);
+        }
 
         int IComparable<DerivedTypePair>.CompareTo(DerivedTypePair other)
         {
@@ -114,7 +131,7 @@
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {
-            var rootSourceType = ConfigInfo.SourceType.GetFriendlyName();
+            var rootSourceType = SourceTypeName;
             var rootTargetType = TargetTypeName;
             var derivedSourceType = DerivedSourceType.GetFriendlyName();
             var derivedTargetType = DerivedTargetType.GetFriendlyName();
