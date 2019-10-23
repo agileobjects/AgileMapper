@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.Configuration
     using System;
 #endif
     using Members;
-    using ReadableExpressions.Extensions;
 
     internal class EntityKeyMappingSetting :
         UserConfiguredItemBase
@@ -44,15 +43,12 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public string GetConflictMessage(EntityKeyMappingSetting conflicting)
         {
-            var targetType = ConfigInfo.TargetType.GetFriendlyName();
-
             if (ConfigInfo.IsForAllSourceTypes())
             {
-                return GetRedundantSettingConflictMessage(conflicting, " when mapping to " + targetType);
+                return GetRedundantSettingConflictMessage(conflicting, " when mapping to " + TargetTypeName);
             }
 
-            var sourceType = ConfigInfo.SourceType.GetFriendlyName();
-            var typeSettings = $" when mapping {sourceType} -> {targetType}";
+            var typeSettings = $" when mapping {SourceTypeName} -> {TargetTypeName}";
 
             return GetRedundantSettingConflictMessage(conflicting, typeSettings);
         }

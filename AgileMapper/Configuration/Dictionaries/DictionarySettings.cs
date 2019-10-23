@@ -52,7 +52,7 @@
                 return;
             }
 
-            var targetDictionaryTypes = configuredKey.ConfigInfo.TargetType.GetDictionaryTypes();
+            var targetDictionaryTypes = configuredKey.TargetType.GetDictionaryTypes();
 
             if (!targetDictionaryTypes.Value.IsSimple())
             {

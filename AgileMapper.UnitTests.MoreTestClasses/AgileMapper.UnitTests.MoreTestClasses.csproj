@@ -5,6 +5,7 @@
     <TargetFrameworks>net35;netstandard1.0</TargetFrameworks>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.MoreTestClasses</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.MoreTestClasses</RootNamespace>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>

@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .MapperContext
                 .UserConfigurations
                 .DerivedTypes
-                .GetImplementationTypePairsFor(mapperData, mapperData.MapperContext);
+                .GetImplementationTypePairsFor(mapperData);
 
             return configuredImplementationTypePairs.Any() ||
                    mapperData.GetDerivedTargetTypes().Any();

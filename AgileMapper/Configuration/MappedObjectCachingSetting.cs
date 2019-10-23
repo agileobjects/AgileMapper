@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.Configuration
     using System;
 #endif
     using Members;
-    using ReadableExpressions.Extensions;
 
     internal class MappedObjectCachingSetting :
         UserConfiguredItemBase
@@ -73,15 +72,12 @@ namespace AgileObjects.AgileMapper.Configuration
                 return "Identity integrity cannot be configured globally with global object tracking disabled";
             }
 
-            var targetType = ConfigInfo.TargetType.GetFriendlyName();
-
             if (ConfigInfo.IsForAllSourceTypes())
             {
-                return GetRedundantSettingConflictMessage(conflicting, " when mapping to " + targetType);
+                return GetRedundantSettingConflictMessage(conflicting, " when mapping to " + TargetTypeName);
             }
-            
-            var sourceType = ConfigInfo.SourceType.GetFriendlyName();
-            var typeSettings = $" when mapping {sourceType} -> {targetType}";
+
+            var typeSettings = $" when mapping {SourceTypeName} -> {TargetTypeName}";
 
             return GetRedundantSettingConflictMessage(conflicting, typeSettings);
         }

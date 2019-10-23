@@ -1244,7 +1244,9 @@
                 result.Name.ShouldBe("input");
                 result.Info.ShouldNotBeNull();
                 result.Info.Id.ShouldBe("12321");
-                result.Info.Value.ShouldNotBeNull();
+
+                // Source has a .Value member, but we don't runtime-type interfaces
+                result.Info.Value.ShouldBeNull();
             }
         }
 

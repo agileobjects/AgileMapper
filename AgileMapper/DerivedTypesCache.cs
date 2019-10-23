@@ -34,7 +34,7 @@
 
         public IList<Type> GetTypesDerivedFrom(Type baseType)
         {
-            if (baseType.IsSealed() || baseType.IsFromBcl())
+            if (baseType.IsInterface() || baseType.IsSealed() || baseType.IsFromBcl())
             {
                 return Constants.EmptyTypeArray;
             }
@@ -57,9 +57,11 @@
 
             var assemblyTypes = assemblies
                 .SelectMany(assembly => _typesByAssembly
-                    .GetOrAdd(assembly, GetConcreteTypesFromAssembly));
+                    .GetOrAdd(assembly, GetRelevantTypesFromAssembly));
 
-            var derivedTypes = assemblyTypes.Filter(baseType, IsDerivedType).ToArray();
+            var derivedTypes = assemblyTypes
+                .Filter(baseType, (bt, dt) => dt.IsDerivedFrom(bt))
+                .ToArray();
 
             switch (derivedTypes.Length)
             {
@@ -76,15 +78,8 @@
             }
         }
 
-        private static IEnumerable<Type> GetConcreteTypesFromAssembly(Assembly assembly)
-            => assembly.QueryTypes().Filter(t => t.IsClass() && !t.IsAbstract());
-
-        private static bool IsDerivedType(Type baseType, Type derivedType)
-        {
-            return baseType.IsInterface()
-                ? derivedType.IsAssignableTo(baseType)
-                : derivedType.IsDerivedFrom(baseType);
-        }
+        private static IEnumerable<Type> GetRelevantTypesFromAssembly(Assembly assembly)
+            => assembly.QueryTypes().Filter(t => t.IsClass() && !t.IsAbstract()).ToArray();
 
         internal void Reset() => _derivedTypesByType.Empty();
     }

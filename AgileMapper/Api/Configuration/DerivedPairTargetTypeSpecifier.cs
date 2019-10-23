@@ -58,7 +58,7 @@
             var configuredImplementationPairings = MapperContext
                 .UserConfigurations
                 .DerivedTypes
-                .GetImplementationTypePairsFor(_configInfo.ToMapperData(), MapperContext);
+                .GetImplementationTypePairsFor(_configInfo.ToMapperData());
 
             if (configuredImplementationPairings.None())
             {

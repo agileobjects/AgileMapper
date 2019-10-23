@@ -204,6 +204,15 @@
             result.CurrencyId.ShouldBe(1);
         }
 
+        [Fact]
+        public void ShouldMapANonGenericInterfaceMember()
+        {
+            var source = new PublicField<IPublicInterface>();
+            var result = Mapper.Map(source).ToANew<PublicField<IPublicInterface>>();
+
+            result.ShouldNotBeNull();
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/146
         [Fact]
         public void ShouldMapToATargetInterfaceMembersImplementedInterfaceMembers()
