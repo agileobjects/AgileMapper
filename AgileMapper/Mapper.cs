@@ -174,17 +174,32 @@
             => Default.Flatten(source);
 
         /// <summary>
-        /// Unflatten the given string-keyed <paramref name="source"/> Dictionary to a specified result Type.
+        /// Unflatten the given string-keyed <paramref name="source"/> Dictionary to a specified result
+        /// Type, using the default mapper.
         /// </summary>
         /// <typeparam name="TValue">The Type of values the source Dictionary contains.</typeparam>
         /// <returns>
-        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should be performed.
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should
+        /// be performed.
         /// </returns>
         public static IUnflatteningSelector<IDictionary<string, TValue>> Unflatten<TValue>(
             IDictionary<string, TValue> source)
         {
             return Default.Unflatten(source);
         }
+
+        /// <summary>
+        /// Unflatten the given <paramref name="queryString"/> to a specified result Type, using the
+        /// default mapper. Strings can be cast to a <see cref="QueryString"/> instance explicitly,
+        /// or by using the string.ToQueryString() extension method.
+        /// </summary>
+        /// <param name="queryString">The <see cref="QueryString"/> from which to unflatten.</param>
+        /// <returns>
+        /// An IUnflatteningSelector with which to specify the target Type to which unflattening should
+        /// be performed.
+        /// </returns>
+        public static IUnflatteningSelector<QueryString> Unflatten(QueryString queryString)
+            => Default.Unflatten(queryString);
 
         /// <summary>
         /// Perform a mapping operation on the given <paramref name="source"/> object.
