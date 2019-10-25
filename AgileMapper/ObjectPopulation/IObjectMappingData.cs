@@ -4,10 +4,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using MapperKeys;
     using Members;
 
-    internal interface IObjectMappingData : IObjectMappingDataUntyped
+    internal interface IObjectMappingData : IObjectMappingDataUntyped, IMappingContextOwner
     {
-        IMappingContext MappingContext { get; }
-
         bool IsRoot { get; }
 
         new IObjectMappingData Parent { get; }

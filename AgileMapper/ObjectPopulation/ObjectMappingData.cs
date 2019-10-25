@@ -16,7 +16,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
-        IMappingContextOwner,
         IObjectMappingData,
         IObjectMappingData<TSource, TTarget>,
         IObjectCreationMappingData<TSource, TTarget, TTarget>

@@ -72,13 +72,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Short-Circuits
 
-        protected override bool ShortCircuitMapping(MappingCreationContext context, out Expression mapping)
+        protected override bool ShortCircuitMapping(MappingCreationContext context)
         {
             var derivedTypeDataSources = DerivedComplexTypeDataSourcesFactory.CreateFor(context.MappingData);
 
             if (derivedTypeDataSources.None())
             {
-                return base.ShortCircuitMapping(context, out mapping);
+                return false;
             }
 
             var derivedTypeDataSourceSet = DataSourceSet.For(
@@ -86,7 +86,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 context.MapperData,
                 ValueExpressionBuilders.ValueSequence);
 
-            mapping = derivedTypeDataSourceSet.BuildValue();
+            var mapping = derivedTypeDataSourceSet.BuildValue();
 
             if (derivedTypeDataSources.Last().IsConditional && !context.MapperData.TargetType.IsAbstract())
             {
@@ -104,15 +104,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             if (mapping.NodeType == ExpressionType.Goto)
             {
                 mapping = ((GotoExpression)mapping).Value;
-                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping));
             }
             else
             {
                 context.MappingExpressions.Add(mapping);
-                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(context.MapperData.GetTargetTypeDefault()));
+                mapping = context.MapperData.GetTargetTypeDefault();
             }
 
-            mapping = Expression.Block(context.MappingExpressions);
+            context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping));
             return true;
         }
 

@@ -7,28 +7,33 @@
     using Members.Dictionaries;
     using ReadableExpressions.Extensions;
 
-    internal struct DictionaryDataSourceFactory : IMaptimeDataSourceFactory
+    internal static class DictionaryDataSourceFactory
     {
-        public bool IsFor(IMemberMapperData mapperData)
+        public static bool TryGet(
+            IMemberMapperData mapperData,
+            out MaptimeDataSourceFactory maptimeDataSourceFactory)
         {
-            if (mapperData.TargetMember.IsComplex && mapperData.Context.IsStandalone)
+            if ((mapperData.TargetMember.IsComplex && mapperData.Context.IsStandalone) ||
+                 DoesNotHaveUseableSourceDictionary(mapperData))
             {
+                maptimeDataSourceFactory = null;
                 return false;
             }
 
-            return HasUseableSourceDictionary(mapperData);
+            maptimeDataSourceFactory = Create;
+            return true;
         }
 
-        private static bool HasUseableSourceDictionary(IMemberMapperData mapperData)
+        private static bool DoesNotHaveUseableSourceDictionary(IMemberMapperData mapperData)
         {
             if (!mapperData.SourceMemberIsStringKeyedDictionary(out var dictionarySourceMember))
             {
-                return false;
+                return true;
             }
 
             if (dictionarySourceMember.HasObjectEntries)
             {
-                return true;
+                return false;
             }
 
             var valueType = dictionarySourceMember.ValueType;
@@ -39,14 +44,14 @@
             {
                 if (valueType.IsEnumerable())
                 {
-                    return true;
+                    return false;
                 }
 
                 targetType = mapperData.TargetMember.ElementType;
 
                 if ((valueType == targetType) || targetType.IsComplex())
                 {
-                    return true;
+                    return false;
                 }
             }
             else
@@ -54,10 +59,10 @@
                 targetType = mapperData.TargetMember.Type;
             }
 
-            return mapperData.CanConvert(valueType, targetType);
+            return !mapperData.CanConvert(valueType, targetType);
         }
 
-        public IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)
+        private static IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 

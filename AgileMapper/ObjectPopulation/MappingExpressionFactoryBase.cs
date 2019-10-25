@@ -31,9 +31,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var context = new MappingCreationContext(mappingData);
 
-            if (ShortCircuitMapping(context, out var mapping))
+            if (ShortCircuitMapping(context))
             {
-                return mapping;
+                return context.MappingExpressions.HasOne()
+                    ? context.MappingExpressions.First()
+                    : Expression.Block(context.MappingExpressions);
             }
 
             AddPopulationsAndCallbacks(context);
@@ -64,11 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected virtual Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.GetTargetTypeDefault();
 
-        protected virtual bool ShortCircuitMapping(MappingCreationContext context, out Expression mapping)
-        {
-            mapping = null;
-            return false;
-        }
+        protected virtual bool ShortCircuitMapping(MappingCreationContext context) => false;
 
         protected virtual IEnumerable<Expression> GetShortCircuitReturns(IObjectMappingData mappingData)
             => Enumerable<Expression>.Empty;

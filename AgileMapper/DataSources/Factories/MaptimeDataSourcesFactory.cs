@@ -1,13 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources.Factories
 {
     using System.Collections.Generic;
-    using Extensions.Internal;
 
     internal static class MaptimeDataSourcesFactory
     {
-        private static readonly IMaptimeDataSourceFactory[] _mapTimeDataSourceFactories =
+        private static readonly MaptimeDataSourcesFactorySource[] _mapTimeDataSourceFactorySources =
         {
-            default(DictionaryDataSourceFactory)
+            DictionaryDataSourceFactory.TryGet
         };
 
         public static IEnumerable<IDataSource> Create(DataSourceFindContext context)
@@ -38,17 +37,17 @@
             DataSourceFindContext context,
             out IEnumerable<IDataSource> maptimeDataSources)
         {
-            var applicableFactory = _mapTimeDataSourceFactories
-                .FirstOrDefault(context.MemberMapperData, (md, factory) => factory.IsFor(md));
-
-            if (applicableFactory == null)
+            foreach (var mapTimeDataSourceFactorySource in _mapTimeDataSourceFactorySources)
             {
-                maptimeDataSources = null;
-                return false;
+                if (mapTimeDataSourceFactorySource.Invoke(context.MemberMapperData, out var factory))
+                {
+                    maptimeDataSources = factory.Invoke(context.MemberMappingData);
+                    return true;
+                }
             }
 
-            maptimeDataSources = applicableFactory.Create(context.MemberMappingData);
-            return true;
+            maptimeDataSources = null;
+            return false;
         }
     }
 }
