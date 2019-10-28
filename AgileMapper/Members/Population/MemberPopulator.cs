@@ -142,8 +142,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private Expression GetPopulationExpression()
         {
-            var finalValue = _dataSources.GetFinalValueOrNull();
-            var excludeFinalValue = finalValue == null;
             var finalDataSourceIndex = _dataSources.Count - 1;
 
             Expression population = null;
@@ -151,21 +149,11 @@ namespace AgileObjects.AgileMapper.Members.Population
             for (var i = finalDataSourceIndex; i >= 0; --i)
             {
                 var dataSource = _dataSources[i];
-
-                if (i == finalDataSourceIndex)
-                {
-                    if (excludeFinalValue)
-                    {
-                        continue;
-                    }
-
-                    population = MapperData.GetTargetMemberPopulation(finalValue);
-                    population = dataSource.FinalisePopulation(population);
-                    continue;
-                }
-
                 var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-                population = dataSource.FinalisePopulation(memberPopulation, population);
+
+                population = (i != finalDataSourceIndex)
+                    ? dataSource.FinalisePopulation(memberPopulation, population)
+                    : dataSource.FinalisePopulation(memberPopulation);
             }
 
             return population;

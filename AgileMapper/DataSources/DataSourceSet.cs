@@ -33,17 +33,70 @@ namespace AgileObjects.AgileMapper.DataSources
             IMemberMapperData mapperData,
             Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
         {
-            if (dataSources.HasOne())
+            switch (dataSources.Count)
             {
-                return For(dataSources.First(), mapperData, valueBuilder);
+                case 0:
+                    return mapperData.EmptyDataSourceSet;
+
+                case 1:
+                    return For(dataSources.First(), mapperData, valueBuilder);
+
+                default:
+                    if (TryAdjustToSingleUseableDataSource(ref dataSources, mapperData))
+                    {
+                        goto case 1;
+                    }
+
+                    if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
+                    {
+                        dataSources = dataSources.WithFilters(mapperData);
+                    }
+
+                    return new MultipleValueDataSourceSet(dataSources, mapperData, valueBuilder);
+            }
+        }
+
+        private static bool TryAdjustToSingleUseableDataSource(
+            ref IList<IDataSource> dataSources,
+            IMemberMapperData mapperData)
+        {
+            var finalDataSource = dataSources.Last();
+
+            if (!finalDataSource.IsFallback)
+            {
+                return false;
             }
 
-            if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
+            var finalValue = finalDataSource.Value;
+
+            if (finalValue.NodeType == ExpressionType.Coalesce)
             {
-                dataSources = dataSources.WithFilters(mapperData);
+                // Coalesce between the existing target member value and the fallback:
+                dataSources[dataSources.Count - 1] = new AdHocDataSource(
+                    finalDataSource.SourceMember,
+                  ((BinaryExpression)finalValue).Right,
+                    finalDataSource.Condition,
+                    finalDataSource.Variables);
+
+                return false;
             }
 
-            return new MultipleValueDataSourceSet(dataSources, mapperData, valueBuilder);
+            var targetMemberAccess = mapperData.GetTargetMemberAccess();
+
+            if (!ExpressionEvaluation.AreEqual(finalValue, targetMemberAccess))
+            {
+                return false;
+            }
+
+            if (dataSources.Count == 2)
+            {
+                return true;
+            }
+
+            var dataSourcesWithoutFallback = new IDataSource[dataSources.Count - 1];
+            dataSourcesWithoutFallback.CopyFrom(dataSources);
+            dataSources = dataSourcesWithoutFallback;
+            return false;
         }
 
         #endregion
@@ -91,8 +144,6 @@ namespace AgileObjects.AgileMapper.DataSources
             public Expression BuildValue()
                 => _value ?? (_value = _valueBuilder.Invoke(_dataSource, MapperData));
 
-            public Expression GetFinalValueOrNull() => _dataSource.Value;
-
             #region IEnumerable<IDataSource> Members
 
             #region ExcludeFromCodeCoverage
@@ -122,20 +173,13 @@ namespace AgileObjects.AgileMapper.DataSources
                 Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
             {
                 _dataSources = dataSources;
-                MapperData = mapperData;
-                None = dataSources.Count == 0;
-
-                if (None)
-                {
-                    Variables = Enumerable<ParameterExpression>.EmptyArray;
-                    return;
-                }
-
                 _valueBuilder = valueBuilder ?? ValueExpressionBuilders.ConditionTree;
+                MapperData = mapperData;
 
+                var dataSourcesCount = dataSources.Count;
                 var variables = default(List<ParameterExpression>);
 
-                for (var i = 0; i < dataSources.Count;)
+                for (var i = 0; ;)
                 {
                     var dataSource = dataSources[i++];
 
@@ -163,6 +207,11 @@ namespace AgileObjects.AgileMapper.DataSources
                     {
                         SourceMemberTypeTest = dataSource.SourceMemberTypeTest;
                     }
+
+                    if (i == dataSourcesCount)
+                    {
+                        break;
+                    }
                 }
 
                 Variables = (variables != null)
@@ -172,7 +221,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             public IMemberMapperData MapperData { get; }
 
-            public bool None { get; }
+            public bool None => false;
 
             public bool HasValue { get; }
 
@@ -188,32 +237,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
             public Expression BuildValue()
                 => _value ?? (_value = _valueBuilder.Invoke(_dataSources, MapperData));
-
-            public Expression GetFinalValueOrNull()
-            {
-                var finalDataSource = _dataSources.Last();
-                var finalValue = finalDataSource.Value;
-
-                if (!finalDataSource.IsFallback)
-                {
-                    return finalValue;
-                }
-
-                if (finalValue.NodeType == ExpressionType.Coalesce)
-                {
-                    // Coalesce between the existing target member value and the fallback:
-                    return ((BinaryExpression)finalValue).Right;
-                }
-
-                var targetMemberAccess = MapperData.GetTargetMemberAccess();
-
-                if (ExpressionEvaluation.AreEqual(finalValue, targetMemberAccess))
-                {
-                    return null;
-                }
-
-                return finalValue;
-            }
 
             #region IEnumerable<IDataSource> Members
 

@@ -5,6 +5,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Collections.Generic;
     using Members;
 
     internal class AdHocDataSource : DataSourceBase
@@ -25,8 +26,20 @@
         public AdHocDataSource(
             IQualifiedMember sourceMember,
             Expression value,
+            Expression condition)
+            : this(
+                sourceMember,
+                value,
+                condition,
+                Enumerable<ParameterExpression>.EmptyArray)
+        {
+        }
+
+        public AdHocDataSource(
+            IQualifiedMember sourceMember,
+            Expression value,
             Expression condition,
-            params ParameterExpression[] variables)
+            IList<ParameterExpression> variables)
             : base(
                 sourceMember,
                 variables,

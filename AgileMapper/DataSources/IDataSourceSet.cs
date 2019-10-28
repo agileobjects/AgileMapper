@@ -27,7 +27,5 @@ namespace AgileObjects.AgileMapper.DataSources
         int Count { get; }
 
         Expression BuildValue();
-
-        Expression GetFinalValueOrNull();
     }
 }

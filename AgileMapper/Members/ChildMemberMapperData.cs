@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
+    using DataSources;
     using ObjectPopulation;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -58,6 +59,8 @@
         public Expression TargetInstance => Parent.TargetInstance;
 
         public ExpressionInfoFinder ExpressionInfoFinder => Parent.ExpressionInfoFinder;
+
+        public IDataSourceSet EmptyDataSourceSet => Parent.EmptyDataSourceSet;
 
         public override bool HasCompatibleTypes(ITypePair typePair)
         {

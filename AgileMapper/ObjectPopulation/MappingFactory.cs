@@ -19,6 +19,8 @@
         {
             var childMapperData = childMappingData.MapperData;
 
+            childMapperData.TargetMember.MapCreating(sourceMember.Type);
+
             var childObjectMappingData = ObjectMappingDataFactory.ForChild(
                 sourceMember,
                 childMapperData.TargetMember,
@@ -26,8 +28,6 @@
                 childMappingData.Parent);
 
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
-
-            childMapperData.TargetMember.MapCreating(sourceMember.Type);
 
             var mappingValues = new MappingValues(
                 sourceMemberAccess,
