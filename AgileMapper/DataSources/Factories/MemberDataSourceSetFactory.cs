@@ -2,38 +2,16 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions.Internal;
-    using MappingRoot;
-    using ObjectPopulation;
 
-    internal static class DataSourceSetFactory
+    internal static class MemberDataSourceSetFactory
     {
-        private static readonly IMappingRootDataSourceFactory[] _mappingRootDataSourceFactories =
-        {
-            new QueryProjectionRootDataSourceFactory(),
-            new EnumMappingRootDataSourceFactory(),
-            new DictionaryMappingRootDataSourceFactory(),
-            new EnumerableMappingRootDataSourceFactory(),
-            new ComplexTypeMappingRootDataSourceFactory()
-        };
-
-        private static readonly DataSourcesFactory[] _childDataSourceFactories =
+        private static readonly DataSourcesFactory[] _memberDataSourceFactories =
         {
             ConfiguredDataSourcesFactory.Create,
             MaptimeDataSourcesFactory.Create,
             SourceMemberDataSourcesFactory.Create,
             MetaMemberDataSourcesFactory.Create
         };
-
-        public static IDataSourceSet CreateFor(IObjectMappingData rootMappingData)
-        {
-            var rootDataSourceFactory = _mappingRootDataSourceFactories
-                .First(rootMappingData, (rmd, mef) => mef.IsFor(rmd));
-
-            var rootDataSource = rootDataSourceFactory.CreateFor(rootMappingData);
-
-            return DataSourceSet.For(rootDataSource, rootMappingData.MapperData);
-        }
 
         public static IDataSourceSet CreateFor(DataSourceFindContext findContext)
         {
@@ -44,7 +22,7 @@
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)
         {
-            foreach (var factory in _childDataSourceFactories)
+            foreach (var factory in _memberDataSourceFactories)
             {
                 foreach (var dataSource in factory.Invoke(context))
                 {

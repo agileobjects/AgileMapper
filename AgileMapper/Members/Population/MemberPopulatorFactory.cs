@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             }
 
             var dataSourceFindContext = context.GetDataSourceFindContext();
-            var dataSources = DataSourceSetFactory.CreateFor(dataSourceFindContext);
+            var dataSources = MemberDataSourceSetFactory.CreateFor(dataSourceFindContext);
 
             if (dataSources.None)
             {

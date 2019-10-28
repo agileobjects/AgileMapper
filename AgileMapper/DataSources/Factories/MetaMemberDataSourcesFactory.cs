@@ -112,7 +112,7 @@
                 currentMemberName,
                 memberNameParts[memberNameParts.Count - 1]));
 
-            return memberNameParts.Any();
+            return true;
         }
 
         private static string GetFinalMemberName(string memberName, string previousNamePart)

@@ -11,7 +11,7 @@
     {
         public static bool TryGet(
             IMemberMapperData mapperData,
-            out MaptimeDataSourceFactory maptimeDataSourceFactory)
+            out Func<IChildMemberMappingData, IEnumerable<IDataSource>> maptimeDataSourceFactory)
         {
             if ((mapperData.TargetMember.IsComplex && mapperData.Context.IsStandalone) ||
                  DoesNotHaveUseableSourceDictionary(mapperData))
