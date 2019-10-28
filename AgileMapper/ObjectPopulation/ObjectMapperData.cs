@@ -30,7 +30,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 3);
 
         private ExpressionInfoFinder _expressionInfoFinder;
-        private IDataSourceSet _emptyDataSourceSet;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
@@ -492,12 +491,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public ExpressionInfoFinder ExpressionInfoFinder
             => _expressionInfoFinder ?? (_expressionInfoFinder = GetExpressionInfoFinder());
 
-        public IDataSourceSet EmptyDataSourceSet
-            => _emptyDataSourceSet ?? (_emptyDataSourceSet = new EmptyDataSourceSet(this));
-
         private ExpressionInfoFinder GetExpressionInfoFinder()
         {
-            return new ExpressionInfoFinder(Context.IsForToTargetMapping 
+            return new ExpressionInfoFinder(Context.IsForToTargetMapping
                 ? OriginalMapperData.MappingDataObject
                 : MappingDataObject);
         }

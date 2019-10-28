@@ -5,7 +5,6 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using DataSources;
     using ObjectPopulation;
 
     internal interface IMemberMapperData : IBasicMapperData
@@ -33,7 +32,5 @@
         Expression TargetInstance { get; }
 
         ExpressionInfoFinder ExpressionInfoFinder { get; }
-
-        IDataSourceSet EmptyDataSourceSet { get; }
     }
 }

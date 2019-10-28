@@ -105,7 +105,7 @@
 
                 plan.ShouldContain("// Map PublicProperty<string> -> PublicTwoFields<string, object>");
                 plan.ShouldContain(".Value1 = ppsToPtfsoData.Source.Value");
-                plan.ShouldContain("// No data source for Value2");
+                plan.ShouldContain("// No data sources for Value2");
             }
         }
 

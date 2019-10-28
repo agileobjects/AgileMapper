@@ -37,12 +37,12 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             if (TargetMemberIsUnmappable(context, out var reason))
             {
-                return MemberPopulator.Unmappable(context, reason);
+                return NullMemberPopulator.Unmappable(context, reason);
             }
 
             if (context.TargetMemberIsUnconditionallyIgnored(out var populateCondition))
             {
-                return MemberPopulator.IgnoredMember(context);
+                return NullMemberPopulator.IgnoredMember(context);
             }
 
             var dataSourceFindContext = context.GetDataSourceFindContext();
@@ -50,10 +50,15 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             if (dataSources.None)
             {
-                return MemberPopulator.NoDataSource(context);
+                return NullMemberPopulator.NoDataSources(context);
             }
 
-            return MemberPopulator.WithRegistration(dataSources, populateCondition);
+            dataSourceFindContext.MemberMapperData.RegisterTargetMemberDataSourcesIfRequired(dataSources);
+
+            return new MemberPopulator(
+                dataSources,
+                dataSourceFindContext.MemberMapperData,
+                populateCondition);
         }
 
         private static bool TargetMemberIsUnmappable(MemberPopulationContext context, out string reason)

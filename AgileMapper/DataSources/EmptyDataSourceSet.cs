@@ -7,16 +7,10 @@ namespace AgileObjects.AgileMapper.DataSources
 #else
     using System.Linq.Expressions;
 #endif
-    using Members;
 
     internal class EmptyDataSourceSet : IDataSourceSet
     {
-        public EmptyDataSourceSet(IMemberMapperData mapperData)
-        {
-            MapperData = mapperData;
-        }
-
-        public IMemberMapperData MapperData { get; }
+        public static readonly IDataSourceSet Instance = new EmptyDataSourceSet();
 
         public bool None => true;
 

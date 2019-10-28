@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.DataSources
             switch (dataSources.Count)
             {
                 case 0:
-                    return mapperData.EmptyDataSourceSet;
+                    return EmptyDataSourceSet.Instance;
 
                 case 1:
                     return For(dataSources.First(), mapperData, valueBuilder);
@@ -104,6 +104,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private class SingleValueDataSourceSet : IDataSourceSet
         {
             private readonly IDataSource _dataSource;
+            private readonly IMemberMapperData _mapperData;
             private readonly Func<IDataSource, IMemberMapperData, Expression> _valueBuilder;
             private Expression _value;
 
@@ -113,7 +114,7 @@ namespace AgileObjects.AgileMapper.DataSources
                 Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
             {
                 _dataSource = dataSource;
-                MapperData = mapperData;
+                _mapperData = mapperData;
 
                 if (valueBuilder == null)
                 {
@@ -124,8 +125,6 @@ namespace AgileObjects.AgileMapper.DataSources
                     _valueBuilder = (ds, md) => valueBuilder.Invoke(new[] { ds }, md);
                 }
             }
-
-            public IMemberMapperData MapperData { get; }
 
             public bool None => false;
 
@@ -142,7 +141,7 @@ namespace AgileObjects.AgileMapper.DataSources
             public int Count => 1;
 
             public Expression BuildValue()
-                => _value ?? (_value = _valueBuilder.Invoke(_dataSource, MapperData));
+                => _value ?? (_value = _valueBuilder.Invoke(_dataSource, _mapperData));
 
             #region IEnumerable<IDataSource> Members
 
@@ -164,6 +163,7 @@ namespace AgileObjects.AgileMapper.DataSources
         private class MultipleValueDataSourceSet : IDataSourceSet
         {
             private readonly IList<IDataSource> _dataSources;
+            private readonly IMemberMapperData _mapperData;
             private readonly Func<IList<IDataSource>, IMemberMapperData, Expression> _valueBuilder;
             private Expression _value;
 
@@ -173,8 +173,8 @@ namespace AgileObjects.AgileMapper.DataSources
                 Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
             {
                 _dataSources = dataSources;
+                _mapperData = mapperData;
                 _valueBuilder = valueBuilder ?? ValueExpressionBuilders.ConditionTree;
-                MapperData = mapperData;
 
                 var dataSourcesCount = dataSources.Count;
                 var variables = default(List<ParameterExpression>);
@@ -219,8 +219,6 @@ namespace AgileObjects.AgileMapper.DataSources
                     : Enumerable<ParameterExpression>.EmptyArray;
             }
 
-            public IMemberMapperData MapperData { get; }
-
             public bool None => false;
 
             public bool HasValue { get; }
@@ -236,7 +234,7 @@ namespace AgileObjects.AgileMapper.DataSources
             public int Count => _dataSources.Count;
 
             public Expression BuildValue()
-                => _value ?? (_value = _valueBuilder.Invoke(_dataSources, MapperData));
+                => _value ?? (_value = _valueBuilder.Invoke(_dataSources, _mapperData));
 
             #region IEnumerable<IDataSource> Members
 

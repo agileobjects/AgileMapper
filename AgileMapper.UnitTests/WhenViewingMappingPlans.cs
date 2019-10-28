@@ -48,7 +48,7 @@
             plan.ShouldContain("Map AnonymousType<string, int> -> MysteryCustomer");
             plan.ShouldContain("mysteryCustomer.Name = fatsiToMcData.Source.Name;");
             plan.ShouldContain("mysteryCustomer.Discount = fatsiToMcData.Source.Discount;");
-            plan.ShouldContain("// No data source for Report");
+            plan.ShouldContain("// No data sources for Report");
         }
 
         [Fact]
@@ -170,7 +170,7 @@
                 .GetPlanFor<PersonViewModel>()
                 .OnTo<Person>();
 
-            plan.ShouldContain("// No data source for Title");
+            plan.ShouldContain("// No data sources for Title");
         }
 
         [Fact]
@@ -395,7 +395,7 @@
                 .GetPlanFor(new { Int = default(int) })
                 .ToANew<PublicField<Address>>();
 
-            plan.ShouldContain("No data source for Value or any of its child members");
+            plan.ShouldContain("No data sources for Value or any of its child members");
         }
 
         [Fact]

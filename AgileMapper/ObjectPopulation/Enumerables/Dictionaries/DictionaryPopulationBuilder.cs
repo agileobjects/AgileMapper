@@ -237,6 +237,11 @@
         {
             var elementMapping = loopData.GetElementMapping(dictionaryMappingData);
 
+            if (elementMapping == Constants.EmptyExpression)
+            {
+                return elementMapping;
+            }
+
             if (dictionaryEntryMember.HasKey &&
                 dictionaryEntryMember.CheckExistingElementValue &&
                 dictionaryMappingData.MapperData.TargetCouldBePopulated())
@@ -260,10 +265,8 @@
             var sourceMember = mappingData.MapperData.SourceMember;
             var mappingDataSource = new AdHocDataSource(sourceMember, elementMapping);
             var mappingDataSources = DataSourceSet.For(mappingDataSource, elementMapperData);
-
-            var populationExpression = MemberPopulator
-                .WithoutRegistration(mappingDataSources)
-                .GetPopulation();
+            var populator = new MemberPopulator(mappingDataSources, elementMapperData);
+            var populationExpression = populator.GetPopulation();
 
             return populationExpression;
         }
