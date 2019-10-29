@@ -1,15 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using Configuration;
-    using Members;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Members;
+    using NetStandardPolyfills;
 
     internal class ConfiguredObjectFactory :
         UserConfiguredItemBase,
@@ -18,7 +17,6 @@
         , IComparable<ConfiguredObjectFactory>
 #endif
     {
-        private readonly Type _objectType;
         private readonly ConfiguredLambdaInfo _factoryInfo;
 
         public ConfiguredObjectFactory(
@@ -27,11 +25,11 @@
             ConfiguredLambdaInfo factoryInfo)
             : base(configInfo)
         {
-            _objectType = objectType;
+            ObjectType = objectType;
             _factoryInfo = factoryInfo;
         }
 
-        public string ObjectTypeName => _objectType.GetFriendlyName();
+        public Type ObjectType { get; }
 
         public bool UsesMappingDataObjectParameter => _factoryInfo.UsesMappingDataObjectParameter;
 
@@ -49,12 +47,12 @@
         protected override bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
         {
             return base.HasOverlappingTypes(otherConfiguredItem) &&
-                (((ConfiguredObjectFactory)otherConfiguredItem)._objectType == _objectType);
+                (((ConfiguredObjectFactory)otherConfiguredItem).ObjectType == ObjectType);
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
-            return _objectType.IsAssignableTo(mapperData.TargetType) &&
+            return ObjectType.IsAssignableTo(mapperData.TargetType) &&
                    base.AppliesTo(mapperData) &&
                   _factoryInfo.Supports(mapperData.RuleSet);
         }
@@ -67,7 +65,7 @@
 
         public IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredObjectFactory(ConfigInfo, _objectType, _factoryInfo)
+            return new ConfiguredObjectFactory(ConfigInfo, ObjectType, _factoryInfo)
             {
                 WasAutoCreated = true
             };

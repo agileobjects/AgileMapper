@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool _isEntryPoint;
 
         private ObjectMapperData(
-            IObjectMappingData mappingData,
+            IMappingContextOwner contextOwner,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             int? dataSourceIndex,
@@ -46,14 +46,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ObjectMapperData parent,
             bool isForStandaloneMapping)
             : base(
-                mappingData.MappingContext.RuleSet,
+                contextOwner.MappingContext.RuleSet,
                 sourceMember.Type,
                 targetMember.Type,
                 sourceMember,
                 targetMember,
                 parent)
         {
-            MapperContext = mappingData.MappingContext.MapperContext;
+            MapperContext = contextOwner.MappingContext.MapperContext;
             DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
             ChildMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();

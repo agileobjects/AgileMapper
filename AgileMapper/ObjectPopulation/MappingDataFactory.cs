@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Enumerables;
     using Extensions.Internal;
     using MapperKeys;
-    using Members;
     using NetStandardPolyfills;
 
     internal static class MappingDataFactory

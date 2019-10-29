@@ -333,7 +333,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/165
         [Fact]
-        public void ShouldUseAConfiguredFactoryForABclStruct()
+        public void ShouldUseAConfiguredDateTimeFactory()
         {
             using (var mapper = Mapper.CreateNew())
             {
