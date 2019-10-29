@@ -90,14 +90,29 @@
                     continue;
                 }
 
-                var dataSources = targetMemberAndDataSource
-                    .Value
-                    .Filter(targetEnumType, IsValidOtherEnumType)
-                    .ToArray();
+                var dataSources = targetMemberAndDataSource.Value;
+                var validDataSources = default(List<IDataSource>);
 
-                if (dataSources.Any())
+                for (var i = 0; i < dataSources.Count; i++)
                 {
-                    yield return new TargetMemberData(targetMember, dataSources);
+                    var dataSource = dataSources[i];
+
+                    if (!IsValidOtherEnumType(targetEnumType, dataSource))
+                    {
+                        continue;
+                    }
+
+                    if (validDataSources == null)
+                    {
+                        validDataSources = new List<IDataSource>();
+                    }
+
+                    validDataSources.Add(dataSource);
+                }
+
+                if (validDataSources?.Any() == true)
+                {
+                    yield return new TargetMemberData(targetMember, validDataSources);
                 }
             }
 

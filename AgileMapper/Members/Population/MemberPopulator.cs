@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.Members.Population
 {
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -118,6 +117,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 #endif
         #endregion
         public override string ToString()
-            => $"{MapperData.TargetMember} ({_dataSources.Count()} data source(s))";
+            => $"{MapperData.TargetMember} ({_dataSources.Count} data source(s))";
     }
 }

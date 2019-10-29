@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
-    using System.Collections;
     using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -28,10 +27,5 @@ namespace AgileObjects.AgileMapper.DataSources
         public int Count => 0;
 
         public Expression BuildValue() => Constants.EmptyExpression;
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public IEnumerator<IDataSource> GetEnumerator()
-            => Enumerable<IDataSource>.Empty.GetEnumerator();
     }
 }

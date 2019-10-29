@@ -7,7 +7,7 @@ namespace AgileObjects.AgileMapper.DataSources
     using System.Linq.Expressions;
 #endif
 
-    internal interface IDataSourceSet : IEnumerable<IDataSource>
+    internal interface IDataSourceSet
     {
         bool None { get; }
 

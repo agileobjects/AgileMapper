@@ -511,8 +511,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 var conditions = default(Expression);
 
-                foreach (var dataSource in dataSources.Filter(ds => ds.IsConditional))
+                for (var i = 0; i < dataSources.Count;)
                 {
+                    var dataSource = dataSources[i++];
+
+                    if (!dataSource.IsConditional)
+                    {
+                        continue;
+                    }
+
                     if (conditions == null)
                     {
                         conditions = dataSource.Condition;

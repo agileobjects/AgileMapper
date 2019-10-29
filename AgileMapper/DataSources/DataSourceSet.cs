@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.DataSources
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -142,22 +141,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
             public Expression BuildValue()
                 => _value ?? (_value = _valueBuilder.Invoke(_dataSource, _mapperData));
-
-            #region IEnumerable<IDataSource> Members
-
-            #region ExcludeFromCodeCoverage
-#if DEBUG
-            [ExcludeFromCodeCoverage]
-#endif
-            #endregion
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-            public IEnumerator<IDataSource> GetEnumerator()
-            {
-                yield return _dataSource;
-            }
-
-            #endregion
         }
 
         private class MultipleValueDataSourceSet : IDataSourceSet
@@ -235,19 +218,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
             public Expression BuildValue()
                 => _value ?? (_value = _valueBuilder.Invoke(_dataSources, _mapperData));
-
-            #region IEnumerable<IDataSource> Members
-
-            #region ExcludeFromCodeCoverage
-#if DEBUG
-            [ExcludeFromCodeCoverage]
-#endif
-            #endregion
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-            public IEnumerator<IDataSource> GetEnumerator() => _dataSources.GetEnumerator();
-
-            #endregion
         }
     }
 }
