@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
             if (factoryInfo != null)
             {
-                return RegisterObjectFactory(factoryInfo, ConfiguredObjectFactory.For);
+                return RegisterObjectFactory(factoryInfo);
             }
 
             var contextTypeName = typeof(IMappingData<TSource, TTarget>).GetFriendlyName();
@@ -81,7 +81,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         {
             ThrowIfRedundantFactoryConfiguration(factoryLambda);
 
-            return RegisterObjectFactory(factoryLambda, ConfiguredObjectFactory.For);
+            return RegisterObjectFactory(ConfiguredLambdaInfo.For(factoryLambda));
         }
 
         private void ThrowIfRedundantFactoryConfiguration(LambdaExpr factoryLambda)
@@ -109,11 +109,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             }
         }
 
-        private MappingConfigContinuation<TSource, TTarget> RegisterObjectFactory<TFactory>(
-            TFactory factory,
-            Func<MappingConfigInfo, Type, TFactory, ConfiguredObjectFactory> objectFactoryFactory)
+        private MappingConfigContinuation<TSource, TTarget> RegisterObjectFactory(ConfiguredLambdaInfo factoryInfo)
         {
-            var objectFactory = objectFactoryFactory.Invoke(_configInfo, typeof(TObject), factory);
+            var objectFactory = new ConfiguredObjectFactory(_configInfo, typeof(TObject), factoryInfo);
 
             _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
 

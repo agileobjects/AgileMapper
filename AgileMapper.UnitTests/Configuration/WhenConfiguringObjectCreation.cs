@@ -331,6 +331,27 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/165
+        [Fact]
+        public void ShouldUseAConfiguredFactoryForABclStruct()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue165.Timestamp>()
+                    .To<DateTime>()
+                    .CreateInstancesUsing(ctx => ctx.Source.ToDateTime())
+                    .And
+                    .IgnoreTargetMembersWhere(_ => true);
+
+                var source = new { Value = new Issue165.Timestamp { Seconds = 1000 } };
+
+                var result = mapper.Map(source).ToANew<PublicField<DateTime>>();
+                result.ShouldNotBeNull();
+                result.Value.ShouldBe(source.Value.ToDateTime());
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/90
         [Fact]
         public void ShouldUseAConfiguredFactoryForAnUnconstructableType()
@@ -644,14 +665,16 @@
             {
                 public Status.StatusId ParentStatusId { get; set; }
 
-                // ReSharper disable once UnusedMember.Global
+                // ReSharper disable once UnusedMember.Local
                 public Status ParentStatus => Status.GetStatus(ParentStatusId);
             }
 
             public class ParentDto
             {
+                // ReSharper disable once UnusedAutoPropertyAccessor.Local
                 public Status.StatusId ParentStatusId { get; set; }
 
+                // ReSharper disable once UnusedAutoPropertyAccessor.Local
                 public Status ParentStatus { get; set; }
             }
         }
@@ -675,9 +698,11 @@
                 Address = address;
             }
 
+            // ReSharper disable once UnusedMember.Local
             public static ConstructionTester Create(int value1, int value2)
                 => new ConstructionTester(value1, value2);
 
+            // ReSharper disable once UnusedMember.Local
             public static ConstructionTester GetInstance(int value1, int value2, Address address)
                 => new ConstructionTester(value1, value2, address);
 
@@ -686,6 +711,17 @@
             public int Value2 { get; }
 
             public Address Address { get; }
+        }
+
+        private static class Issue165
+        {
+            public class Timestamp
+            {
+                public double Seconds { get; set; }
+
+                public DateTime ToDateTime()
+                    => DateTime.UtcNow.Date.AddSeconds(Seconds);
+            }
         }
 
         #endregion

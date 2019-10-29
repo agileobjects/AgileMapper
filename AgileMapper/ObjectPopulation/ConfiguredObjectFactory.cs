@@ -21,7 +21,7 @@
         private readonly Type _objectType;
         private readonly ConfiguredLambdaInfo _factoryInfo;
 
-        private ConfiguredObjectFactory(
+        public ConfiguredObjectFactory(
             MappingConfigInfo configInfo,
             Type objectType,
             ConfiguredLambdaInfo factoryInfo)
@@ -30,19 +30,6 @@
             _objectType = objectType;
             _factoryInfo = factoryInfo;
         }
-
-        #region Factory Methods
-
-        public static ConfiguredObjectFactory For(MappingConfigInfo configInfo, Type objectType, LambdaExpression factory)
-            => For(configInfo, objectType, ConfiguredLambdaInfo.For(factory));
-
-        public static ConfiguredObjectFactory For(
-            MappingConfigInfo configInfo,
-            Type objectType,
-            ConfiguredLambdaInfo factoryInfo)
-            => new ConfiguredObjectFactory(configInfo, objectType, factoryInfo);
-
-        #endregion
 
         public string ObjectTypeName => _objectType.GetFriendlyName();
 
