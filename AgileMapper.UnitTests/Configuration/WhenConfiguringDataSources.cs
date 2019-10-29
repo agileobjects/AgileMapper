@@ -139,6 +139,26 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredInterfaceMemberBetweenInterfaces()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<IPublicInterface<int>>()
+                    .To<IPublicInterface>()
+                    .Map(ctx => ctx.Source.Value * 2)
+                    .To(pp => pp.Value);
+
+                var source = new PublicOtherImplementation<int> { Value = 2 };
+                var target = new PublicImplementation<long> { Value = 2L };
+                
+                mapper.Map(source).Over((IPublicInterface)target);
+
+                target.Value.ShouldBe(4L);
+            }
+        }
+
+        [Fact]
         public void ShouldApplyMultipleConfiguredMembersBySourceType()
         {
             using (var mapper = Mapper.CreateNew())

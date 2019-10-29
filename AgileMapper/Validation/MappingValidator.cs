@@ -127,7 +127,7 @@
             var configuredFactories = mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetObjectFactories(mapperData);
+                .QueryObjectFactories(mapperData);
 
             return configuredFactories.None();
         }

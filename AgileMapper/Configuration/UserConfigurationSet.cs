@@ -285,13 +285,13 @@
         {
             ThrowIfConflictingItemExists(
                 objectFactory,
-                _objectFactories,
-                (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
+               _objectFactories,
+               (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
 
             ObjectFactories.AddOrReplaceThenSort(objectFactory);
         }
 
-        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
+        public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IBasicMapperData mapperData)
             => _objectFactories.FindMatches(mapperData);
 
         #endregion

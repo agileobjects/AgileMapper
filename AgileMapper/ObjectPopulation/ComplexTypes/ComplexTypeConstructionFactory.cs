@@ -71,7 +71,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var configuredFactories = mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetObjectFactories(mapperData);
+                .QueryObjectFactories(mapperData);
 
             foreach (var configuredFactory in configuredFactories)
             {
