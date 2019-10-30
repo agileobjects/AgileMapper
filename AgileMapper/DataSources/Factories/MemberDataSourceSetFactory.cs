@@ -9,7 +9,6 @@
         {
             ConfiguredDataSourcesFactory.Create,
             MaptimeDataSourcesFactory.Create,
-            ConfiguredSimpleTypeFactoryDataSourcesFactory.Create,
             SourceMemberDataSourcesFactory.Create,
             MetaMemberDataSourcesFactory.Create
         };

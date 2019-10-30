@@ -290,13 +290,13 @@
 
             if (objectFactory.ObjectType.IsSimple())
             {
-                HasSimpleTypeObjectFactories = true;
+                HasSimpleTypeValueFactories = true;
             }
 
             ObjectFactories.AddOrReplaceThenSort(objectFactory);
         }
 
-        public bool HasSimpleTypeObjectFactories { get; private set; }
+        public bool HasSimpleTypeValueFactories { get; private set; }
 
         public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IBasicMapperData mapperData)
             => _objectFactories.FindMatches(mapperData);

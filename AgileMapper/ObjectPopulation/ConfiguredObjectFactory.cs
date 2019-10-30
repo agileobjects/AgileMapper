@@ -19,17 +19,13 @@
     {
         private readonly ConfiguredLambdaInfo _factoryInfo;
 
-        public ConfiguredObjectFactory(
-            MappingConfigInfo configInfo,
-            Type objectType,
-            ConfiguredLambdaInfo factoryInfo)
+        public ConfiguredObjectFactory(MappingConfigInfo configInfo, ConfiguredLambdaInfo factoryInfo)
             : base(configInfo)
         {
-            ObjectType = objectType;
             _factoryInfo = factoryInfo;
         }
 
-        public Type ObjectType { get; }
+        public Type ObjectType => _factoryInfo.ReturnType;
 
         public bool UsesMappingDataObjectParameter => _factoryInfo.UsesMappingDataObjectParameter;
 
@@ -65,7 +61,7 @@
 
         public IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredObjectFactory(ConfigInfo, ObjectType, _factoryInfo)
+            return new ConfiguredObjectFactory(ConfigInfo, _factoryInfo)
             {
                 WasAutoCreated = true
             };

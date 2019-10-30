@@ -92,7 +92,7 @@
             }
 
             var converter = GetConverterOrNull(sourceValue.Type, targetType);
-            var conversion = converter.GetConversion(sourceValue, targetType);
+            var conversion = converter?.GetConversion(sourceValue, targetType);
 
             return conversion;
         }

@@ -44,7 +44,7 @@
                 return value;
             }
 
-            return mapperData.GetValueConversion(value, mapperData.TargetMember.Type);
+            return mapperData.GetValueConversionOrCreation(value, mapperData.TargetMember.Type);
         }
 
         #endregion

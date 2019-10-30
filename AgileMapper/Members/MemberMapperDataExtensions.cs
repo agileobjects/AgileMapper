@@ -19,6 +19,7 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using ReadableExpressions.Extensions;
     using static Member;
     using static System.StringComparison;
 
@@ -403,10 +404,77 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.MapperContext.UserConfigurations.GetSourceValueFilters(mapperData, sourceValueType);
 
         public static bool CanConvert(this IMemberMapperData mapperData, Type sourceType, Type targetType)
-            => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);
+        {
+            return mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType) ||
+                  (mapperData.HasConfiguredSimpleTypeValueFactories() &&
+                   mapperData.QuerySimpleTypeValueFactories(sourceType, targetType).Any());
+        }
+
+        public static Expression GetValueConversionOrCreation(
+            this IMemberMapperData mapperData,
+            Expression value,
+            Type targetType)
+        {
+            if (!mapperData.HasConfiguredSimpleTypeValueFactories())
+            {
+                return mapperData.GetValueConversion(value, targetType);
+            }
+
+            var sourceType = value.Type.GetNonNullableType();
+
+            var valueFactories = mapperData
+                .QuerySimpleTypeValueFactories(sourceType, targetType)
+                .ToArray();
+
+            if (valueFactories.None())
+            {
+                return mapperData.GetValueConversion(value, targetType);
+            }
+
+            var objectMapperData = new ObjectMapperData(
+                new SimpleMappingContext(mapperData.RuleSet, mapperData.MapperContext),
+                mapperData.SourceMember.WithType(sourceType),
+                mapperData.TargetMember,
+                mapperData.Parent);
+
+            var replacements = new ExpressionReplacementDictionary(3)
+            {
+                [objectMapperData.SourceObject] = value,
+                [objectMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
+                [objectMapperData.EnumerableIndex] = mapperData.EnumerableIndex
+            };
+
+            var valueFactoryExpression = valueFactories
+                .First()
+                .Create(objectMapperData)
+                .Replace(replacements);
+
+            return valueFactoryExpression;
+        }
 
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
             => mapperData.MapperContext.GetValueConversion(value, targetType);
+
+        private static bool HasConfiguredSimpleTypeValueFactories(this IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.HasSimpleTypeValueFactories;
+
+        private static IEnumerable<ConfiguredObjectFactory> QuerySimpleTypeValueFactories(
+            this IMemberMapperData mapperData,
+            Type sourceType,
+            Type targetType)
+        {
+            var queryMapperData = new BasicMapperData(
+                mapperData.RuleSet,
+                sourceType,
+                targetType,
+                QualifiedMember.All,
+                mapperData.Parent);
+
+            return mapperData
+                .MapperContext
+                .UserConfigurations
+                .QueryObjectFactories(queryMapperData);
+        }
 
         public static Expression GetMappingCallbackOrNull(
             this IBasicMapperData basicData,
@@ -494,13 +562,13 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData;
         }
 
-        public static bool TypesMatch(this IBasicMapperData mapperData, IList<Type> contextTypes)
-            => TypesMatch(mapperData, contextTypes[0], contextTypes[1]);
-
-        private static bool TypesMatch(IBasicMapperData mapperData, Type sourceType, Type targetType)
+        public static bool TypesMatch(this ITypePair typePair, IList<Type> contextTypes)
         {
-            return (mapperData.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(mapperData.SourceType)) &&
-                   (mapperData.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(mapperData.TargetType));
+            var sourceType = contextTypes[0];
+            var targetType = contextTypes[1];
+
+            return (typePair.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(typePair.SourceType)) &&
+                   (typePair.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(typePair.TargetType));
         }
 
         public static Expression GetTypedContextAccess(

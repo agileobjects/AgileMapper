@@ -349,6 +349,27 @@
             }
         }
 
+        [Fact]
+        public void ShouldUseAConfiguredDateTimeFactoryInARootList()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue165.Timestamp>()
+                    .To<DateTime>()
+                    .CreateInstancesUsing(ctx => ctx.Source.ToDateTime());
+
+                var source = new List<Issue165.Timestamp>
+                {
+                    new Issue165.Timestamp { Seconds = 100 },
+                    null,
+                    new Issue165.Timestamp { Seconds = 200 }
+                };
+
+                var result = mapper.Map(source).ToANew<List<DateTime>>();
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/90
         [Fact]
         public void ShouldUseAConfiguredFactoryForAnUnconstructableType()

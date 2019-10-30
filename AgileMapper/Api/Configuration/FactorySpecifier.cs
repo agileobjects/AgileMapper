@@ -111,7 +111,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
         private MappingConfigContinuation<TSource, TTarget> RegisterObjectFactory(ConfiguredLambdaInfo factoryInfo)
         {
-            var objectFactory = new ConfiguredObjectFactory(_configInfo, typeof(TObject), factoryInfo);
+            var objectFactory = new ConfiguredObjectFactory(_configInfo, factoryInfo);
 
             _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
 

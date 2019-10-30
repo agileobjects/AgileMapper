@@ -20,7 +20,7 @@
             IMemberMapperData mapperData)
             : base(
                   sourceMember,
-                  mapperData.GetValueConversion(sourceMemberValue, mapperData.TargetMember.Type),
+                  mapperData.GetValueConversionOrCreation(sourceMemberValue, mapperData.TargetMember.Type),
                   mapperData)
         {
             SourceMemberTypeTest = CreateSourceMemberTypeTest(sourceMemberValue, mapperData);

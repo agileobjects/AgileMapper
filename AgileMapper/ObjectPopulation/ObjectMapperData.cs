@@ -37,8 +37,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool? _isRepeatMapping;
         private bool _isEntryPoint;
 
+        public ObjectMapperData(
+            IMappingContext mappingContext,
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember,
+            ObjectMapperData parent)
+            : this(
+                mappingContext,
+                sourceMember,
+                targetMember,
+                default(int?),
+                null,
+                parent,
+                isForStandaloneMapping: false)
+        {
+        }
+
         private ObjectMapperData(
-            IMappingContextOwner contextOwner,
+            IMappingContext mappingContext,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             int? dataSourceIndex,
@@ -46,14 +62,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ObjectMapperData parent,
             bool isForStandaloneMapping)
             : base(
-                contextOwner.MappingContext.RuleSet,
+                mappingContext.RuleSet,
                 sourceMember.Type,
                 targetMember.Type,
                 sourceMember,
                 targetMember,
                 parent)
         {
-            MapperContext = contextOwner.MappingContext.MapperContext;
+            MapperContext = mappingContext.MapperContext;
             DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
             ChildMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
@@ -314,7 +330,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
 
             return new ObjectMapperData(
-                mappingData,
+                mappingData.MappingContext,
                 sourceMember,
                 targetMember,
                 dataSourceIndex,

@@ -80,6 +80,13 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private Expression GetPopulationExpression()
         {
+            if (_dataSources.Count == 1)
+            {
+                var dataSource = _dataSources[0];
+                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
+                return dataSource.FinalisePopulation(memberPopulation);
+            }
+
             var finalDataSourceIndex = _dataSources.Count - 1;
 
             Expression population = null;

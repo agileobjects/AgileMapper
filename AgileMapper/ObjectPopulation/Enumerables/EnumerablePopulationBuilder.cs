@@ -628,7 +628,7 @@
             => GetSimpleElementConversion(sourceElement, Context.TargetElementType);
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
-            => MapperData.GetValueConversion(sourceElement, targetType);
+            => MapperData.GetValueConversionOrCreation(sourceElement, targetType);
 
         private static Expression GetElementMapping(
             Expression sourceElement,

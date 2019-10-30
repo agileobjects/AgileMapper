@@ -261,7 +261,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             }
 
             var keyedAccess = GetKeyedAccess(mapperData);
-            var convertedValue = mapperData.GetValueConversion(value, ValueType);
+            var convertedValue = mapperData.GetValueConversionOrCreation(value, ValueType);
             var keyedAssignment = keyedAccess.AssignTo(convertedValue);
 
             return keyedAssignment;

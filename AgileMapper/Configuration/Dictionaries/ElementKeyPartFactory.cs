@@ -163,7 +163,7 @@
                 yield return _prefix;
             }
 
-            yield return ConfigInfo.MapperContext.ValueConverters.GetConversion(index, typeof(string));
+            yield return ConfigInfo.MapperContext.GetValueConversion(index, typeof(string));
 
             if (_suffix != null)
             {

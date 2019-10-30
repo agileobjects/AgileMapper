@@ -20,8 +20,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            if (HasConfiguredToTargetDataSources(mapperData, out var configuredRootDataSources) &&
-                configuredRootDataSources.Any(ds => ds.SourceMember.IsEnumerable))
+            if (HasConfiguredToTargetDataSources(mapperData, out var configuredToTargetDataSources) &&
+                configuredToTargetDataSources.Any(ds => ds.SourceMember.IsEnumerable))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
