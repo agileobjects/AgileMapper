@@ -339,9 +339,7 @@
                 mapper.WhenMapping
                     .From<Issue165.Timestamp>()
                     .To<DateTime>()
-                    .CreateInstancesUsing(ctx => ctx.Source.ToDateTime())
-                    .And
-                    .IgnoreTargetMembersWhere(_ => true);
+                    .CreateInstancesUsing(ctx => ctx.Source.ToDateTime());
 
                 var source = new { Value = new Issue165.Timestamp { Seconds = 1000 } };
 
