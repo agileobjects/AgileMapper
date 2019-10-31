@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
     using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
+    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
@@ -37,19 +38,21 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
             }
 
             var filterArgument = filterCreationCall.Arguments.First();
-
+#if NET35
+            var filterLinqLambda = (LinqExp.LambdaExpression)((ConstantExpression)filterArgument).Value;
+            var filterLambda = filterLinqLambda.ToDlrExpression();
+#else
             if (filterArgument.NodeType == ExpressionType.Quote)
             {
                 filterArgument = ((UnaryExpression)filterArgument).Operand;
             }
 
             var filterLambda = (LambdaExpression)filterArgument;
-
+#endif
             _filterParameter = filterLambda.Parameters.First();
             _filterExpression = filterLambda.Body;
 
-            _filterNestedAccessChecks = ExpressionInfoFinder
-                .Default
+            _filterNestedAccessChecks = ExpressionInfoFinder.Default
                 .FindIn(
                     _filterExpression,
                     checkMultiInvocations: false,
