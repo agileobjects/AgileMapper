@@ -431,10 +431,11 @@ namespace AgileObjects.AgileMapper.Members
                 return mapperData.GetValueConversion(value, targetType);
             }
 
-            var objectMapperData = new ObjectMapperData(
-                new SimpleMappingContext(mapperData.RuleSet, mapperData.MapperContext),
+            var objectMapperData = new SimpleMemberMapperData(
+                mapperData.RuleSet,
                 mapperData.SourceMember.WithType(sourceType),
                 mapperData.TargetMember,
+                mapperData.MapperContext,
                 mapperData.Parent);
 
             var replacements = new ExpressionReplacementDictionary(3)
@@ -467,8 +468,7 @@ namespace AgileObjects.AgileMapper.Members
                 mapperData.RuleSet,
                 sourceType,
                 targetType,
-                QualifiedMember.All,
-                mapperData.Parent);
+                QualifiedMember.All);
 
             return mapperData
                 .MapperContext
