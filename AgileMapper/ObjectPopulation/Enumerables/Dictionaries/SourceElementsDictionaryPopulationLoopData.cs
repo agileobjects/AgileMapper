@@ -157,7 +157,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             return dictionaryToElementMapping;
         }
 
-        private bool ElementTypesAreSimple => _builder.ElementTypesAreSimple;
+        private bool ElementTypesAreSimple => _builder.TargetElementsAreSimple;
 
         private bool PerformElementChecks { get; }
 

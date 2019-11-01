@@ -12,7 +12,7 @@
             EnumerablePopulationBuilder builder,
             IObjectMappingData enumerableMappingData)
         {
-            if (builder.ElementTypesAreSimple)
+            if (builder.TargetElementsAreSimple)
             {
                 if (builder.TargetTypeHelper.IsReadOnly)
                 {
