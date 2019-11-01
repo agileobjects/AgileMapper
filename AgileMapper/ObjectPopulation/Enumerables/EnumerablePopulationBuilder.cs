@@ -541,15 +541,6 @@
 
         private bool InsertSourceObjectElementNullCheck(IPopulationLoopData loopData, out Expression sourceElement)
         {
-            if (TargetElementsAreSimple &&
-               !Context.ElementTypesAreAssignable &&
-               (Context.SourceElementType != typeof(object)) &&
-                Context.SourceElementType.CanBeNull())
-            {
-                sourceElement = loopData.GetSourceElementValue();
-                return true;
-            }
-
             if (TargetTypeHelper.ElementType != typeof(object))
             {
                 sourceElement = null;

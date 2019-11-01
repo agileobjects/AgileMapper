@@ -66,7 +66,7 @@
             {
                 conversions = conversions.Append(new
                 {
-                    Value = mapperData.GetValueConversion(value, targetType) ?? mapperData.GetTargetMemberDefault(),
+                    Value = mapperData.GetValueConversion(value, targetType) ?? simpleMemberMapperData.GetTargetMemberDefault(),
                     Condition = default(Expression)
                 });
 

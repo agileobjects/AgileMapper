@@ -35,6 +35,7 @@
                 ToNumericConverter<decimal>.Instance,
                 ToNumericConverter<double>.Instance,
                 ToNumericConverter<long>.Instance,
+                TryParseConverter<TimeSpan>.Instance,
                 default(ToCharacterConverter),
                 ToNumericConverter<short>.Instance,
                 ToNumericConverter<byte>.Instance,

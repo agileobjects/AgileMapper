@@ -78,6 +78,32 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredTimeSpanFactoryInAMemberArray()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<TimeSpan?>()
+                    .To<TimeSpan>()
+                    .If(ctx => !ctx.Source.HasValue)
+                    .CreateInstancesUsing(ctx => TimeSpan.MinValue);
+
+                var source = new PublicProperty<List<TimeSpan?>>
+                {
+                    Value = new List<TimeSpan?>
+                    {
+                        TimeSpan.FromDays(1),
+                        default(TimeSpan?)
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicProperty<TimeSpan[]>>();
+
+                result.Value.ShouldBe(TimeSpan.FromDays(1), TimeSpan.MinValue);
+            }
+        }
+
+        [Fact]
         public void ShouldUseAConfiguredDateTimeFactoryConditionally()
         {
             using (var mapper = Mapper.CreateNew())
