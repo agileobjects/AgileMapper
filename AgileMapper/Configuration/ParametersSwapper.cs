@@ -188,14 +188,16 @@ namespace AgileObjects.AgileMapper.Configuration
         private static MappingContextInfo GetSimpleTypesMappingContextInfo(SwapArgs swapArgs)
         {
             var mapperData = swapArgs.MapperData;
-            IMemberMapperData contextMapperData = mapperData.Parent;
+            var contextMapperData = mapperData;
 
             IQualifiedMember targetMember;
+            IQualifiedMember sourceMember;
 
             while (true)
             {
                 if (contextMapperData.TargetMemberIsEnumerableElement())
                 {
+                    sourceMember = mapperData.SourceMember.RelativeTo(contextMapperData.SourceMember);
                     targetMember = mapperData.TargetMember.RelativeTo(contextMapperData.TargetMember);
                     break;
                 }
@@ -206,6 +208,7 @@ namespace AgileObjects.AgileMapper.Configuration
                     continue;
                 }
 
+                sourceMember = mapperData.SourceMember;
                 targetMember = mapperData.TargetMember;
 
                 contextMapperData = mapperData.GetAppropriateMappingContext(
@@ -218,7 +221,7 @@ namespace AgileObjects.AgileMapper.Configuration
             return new MappingContextInfo(
                 swapArgs,
                 mapperData.MappingDataObject,
-                mapperData.SourceMember.GetQualifiedAccess(contextMapperData.SourceObject),
+                sourceMember.GetQualifiedAccess(contextMapperData.SourceObject),
                 targetMember.GetQualifiedAccess(contextMapperData.TargetInstance));
         }
 

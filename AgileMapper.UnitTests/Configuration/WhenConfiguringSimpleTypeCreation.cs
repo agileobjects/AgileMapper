@@ -90,6 +90,45 @@
             }
         }
 
+        [Fact]
+        public void ShouldFallBackToDefaultValueConversion()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>()
+                    .To<TimeSpan>()
+                    .If((str, ts) => str == "HRS")
+                    .CreateInstancesUsing(ctx => TimeSpan.FromHours(ctx.EnumerableIndex.Value))
+                    .But
+                    .If((str, ts) => str == string.Empty)
+                    .CreateInstancesUsing(ctx => TimeSpan.FromMinutes(ctx.EnumerableIndex.Value));
+
+                var source = new PublicField<IEnumerable<string>>
+                {
+                    Value = new[]
+                    {
+                        TimeSpan.FromSeconds(10).ToString(),
+                        string.Empty,
+                        null,
+                        TimeSpan.FromMinutes(5).ToString(),
+                        "HRS",
+                        "NOPE"
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicProperty<ICollection<TimeSpan>>>();
+
+                result.Value.ShouldBe(
+                    TimeSpan.FromSeconds(10),
+                    TimeSpan.FromMinutes(1),
+                    default(TimeSpan),
+                    TimeSpan.FromMinutes(5),
+                    TimeSpan.FromHours(4),
+                    default(TimeSpan));
+            }
+        }
+
         #region Helper Classes
 
         private static class Issue165

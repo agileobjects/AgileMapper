@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -21,6 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             ParentObject = GetParentObjectAccess();
             EnumerableIndex = GetEnumerableIndexAccess();
+            EnumerableIndexValue = Parent.EnumerableIndex;
         }
 
         private SimpleMemberMapperData(
@@ -35,12 +37,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableMapperData)
         {
             ParentObject = GetParentObjectAccess();
-            EnumerableIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
+            EnumerableIndex = GetEnumerableIndexAccess();
+            EnumerableIndexValue = enumerableMapperData.EnumerablePopulationBuilder.Counter.GetConversionTo<int?>();
         }
 
         #region Factory Method
 
-        public static IMemberMapperData Create(Type sourceType, IMemberMapperData mapperData)
+        public static SimpleMemberMapperData Create(Type sourceType, IMemberMapperData mapperData)
         {
             if (!mapperData.TargetMember.IsEnumerable)
             {
@@ -67,6 +70,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression CreatedObject => null;
 
         public Expression EnumerableIndex { get; }
+
+        public Expression EnumerableIndexValue { get; }
 
         public Expression TargetInstance => TargetObject;
 

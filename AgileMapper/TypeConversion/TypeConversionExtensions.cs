@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -49,7 +50,7 @@
             {
                 [simpleMemberMapperData.SourceObject] = value,
                 [simpleMemberMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
-                [simpleMemberMapperData.EnumerableIndex] = mapperData.EnumerableIndex
+                [simpleMemberMapperData.EnumerableIndex] = simpleMemberMapperData.EnumerableIndexValue
             };
 
             var conversions = valueFactories
@@ -74,7 +75,7 @@
             for (var i = conversionCount; i > 0;)
             {
                 var conversion = conversions[--i];
-                
+
                 if (conversionExpression == null)
                 {
                     conversionExpression = conversion.Value;
@@ -101,6 +102,11 @@
             Type sourceType,
             Type targetType)
         {
+            if (!targetType.IsSimple())
+            {
+                return Enumerable<ConfiguredObjectFactory>.Empty;
+            }
+
             var queryMapperData = new BasicMapperData(
                 mapperData.RuleSet,
                 sourceType,
