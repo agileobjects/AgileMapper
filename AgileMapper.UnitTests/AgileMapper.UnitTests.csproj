@@ -115,6 +115,7 @@
     <Compile Include="Configuration\WhenConfiguringObjectCreationIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenConfiguringSimpleTypeCreation.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembers.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByGlobalFilter.cs" />

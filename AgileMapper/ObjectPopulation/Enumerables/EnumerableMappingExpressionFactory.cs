@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 #endif
     using Extensions.Internal;
     using Members;
+    using TypeConversion;
 
     internal class EnumerableMappingExpressionFactory : MappingExpressionFactoryBase
     {

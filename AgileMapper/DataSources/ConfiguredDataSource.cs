@@ -7,6 +7,7 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using TypeConversion;
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {

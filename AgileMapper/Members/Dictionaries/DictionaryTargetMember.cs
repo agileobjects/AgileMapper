@@ -4,11 +4,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System.Collections.Generic;
     using System.Dynamic;
     using System.Linq;
-    using Caching;
-    using Extensions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
     using static Microsoft.Scripting.Ast.ExpressionType;
@@ -16,6 +11,12 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using Caching;
+    using Extensions;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class DictionaryTargetMember : QualifiedMember
     {

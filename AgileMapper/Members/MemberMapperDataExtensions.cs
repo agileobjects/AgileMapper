@@ -19,7 +19,6 @@ namespace AgileObjects.AgileMapper.Members
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
     using static Member;
     using static System.StringComparison;
 
@@ -402,74 +401,6 @@ namespace AgileObjects.AgileMapper.Members
 
         public static IList<ConfiguredSourceValueFilter> GetSourceValueFilters(this IMemberMapperData mapperData, Type sourceValueType)
             => mapperData.MapperContext.UserConfigurations.GetSourceValueFilters(mapperData, sourceValueType);
-
-        public static bool CanConvert(this IMemberMapperData mapperData, Type sourceType, Type targetType)
-        {
-            return mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType) ||
-                  (mapperData.HasConfiguredSimpleTypeValueFactories() &&
-                   mapperData.QuerySimpleTypeValueFactories(sourceType, targetType).Any());
-        }
-
-        public static Expression GetValueConversionOrCreation(
-            this IMemberMapperData mapperData,
-            Expression value,
-            Type targetType)
-        {
-            if (!mapperData.HasConfiguredSimpleTypeValueFactories())
-            {
-                return mapperData.GetValueConversion(value, targetType);
-            }
-
-            var sourceType = value.Type.GetNonNullableType();
-
-            var valueFactories = mapperData
-                .QuerySimpleTypeValueFactories(sourceType, targetType)
-                .ToArray();
-
-            if (valueFactories.None())
-            {
-                return mapperData.GetValueConversion(value, targetType);
-            }
-
-            var simpleMemberMapperData = SimpleMemberMapperData.Create(sourceType, mapperData);
-
-            var replacements = new ExpressionReplacementDictionary(3)
-            {
-                [simpleMemberMapperData.SourceObject] = value,
-                [simpleMemberMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
-                [simpleMemberMapperData.EnumerableIndex] = mapperData.EnumerableIndex
-            };
-
-            var valueFactoryExpression = valueFactories
-                .First()
-                .Create(simpleMemberMapperData)
-                .Replace(replacements);
-
-            return valueFactoryExpression;
-        }
-
-        public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
-            => mapperData.MapperContext.GetValueConversion(value, targetType);
-
-        private static bool HasConfiguredSimpleTypeValueFactories(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.HasSimpleTypeValueFactories;
-
-        private static IEnumerable<ConfiguredObjectFactory> QuerySimpleTypeValueFactories(
-            this IMemberMapperData mapperData,
-            Type sourceType,
-            Type targetType)
-        {
-            var queryMapperData = new BasicMapperData(
-                mapperData.RuleSet,
-                sourceType,
-                targetType,
-                QualifiedMember.All);
-
-            return mapperData
-                .MapperContext
-                .UserConfigurations
-                .QueryObjectFactories(queryMapperData);
-        }
 
         public static Expression GetMappingCallbackOrNull(
             this IBasicMapperData basicData,

@@ -6,7 +6,7 @@
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
-    using Members;
+    using TypeConversion;
 
     internal class DictionaryEntryDataSource : DataSourceBase
     {

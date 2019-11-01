@@ -330,46 +330,6 @@
             }
         }
 
-        // See https://github.com/agileobjects/AgileMapper/issues/165
-        [Fact]
-        public void ShouldUseAConfiguredDateTimeFactory()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Issue165.Timestamp>()
-                    .To<DateTime>()
-                    .CreateInstancesUsing(ctx => ctx.Source.ToDateTime());
-
-                var source = new { Value = new Issue165.Timestamp { Seconds = 1000 } };
-
-                var result = mapper.Map(source).ToANew<PublicField<DateTime>>();
-                result.ShouldNotBeNull();
-                result.Value.ShouldBe(source.Value.ToDateTime());
-            }
-        }
-
-        [Fact]
-        public void ShouldUseAConfiguredDateTimeFactoryInARootList()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Issue165.Timestamp>()
-                    .To<DateTime>()
-                    .CreateInstancesUsing(ctx => ctx.Source.ToDateTime());
-
-                var source = new List<Issue165.Timestamp>
-                {
-                    new Issue165.Timestamp { Seconds = 100 },
-                    null,
-                    new Issue165.Timestamp { Seconds = 200 }
-                };
-
-                var result = mapper.Map(source).ToANew<List<DateTime>>();
-            }
-        }
-
         // See https://github.com/agileobjects/AgileMapper/issues/90
         [Fact]
         public void ShouldUseAConfiguredFactoryForAnUnconstructableType()
@@ -640,17 +600,6 @@
             public int Value2 { get; }
 
             public Address Address { get; }
-        }
-
-        private static class Issue165
-        {
-            public class Timestamp
-            {
-                public double Seconds { get; set; }
-
-                public DateTime ToDateTime()
-                    => DateTime.UtcNow.Date.AddSeconds(Seconds);
-            }
         }
 
         #endregion

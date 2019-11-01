@@ -10,6 +10,7 @@
     using Members;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class SourceMemberDataSource : DataSourceBase
     {

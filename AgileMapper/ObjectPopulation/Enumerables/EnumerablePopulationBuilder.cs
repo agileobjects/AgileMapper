@@ -15,6 +15,7 @@
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class EnumerablePopulationBuilder
     {
