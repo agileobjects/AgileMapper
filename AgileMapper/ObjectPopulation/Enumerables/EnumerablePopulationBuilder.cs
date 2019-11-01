@@ -244,7 +244,7 @@
 
         public EnumerablePopulationContext Context { get; }
 
-        public bool ElementTypesAreSimple => Context.ElementTypesAreSimple;
+        public bool TargetElementsAreSimple => Context.TargetElementsAreSimple;
 
         public EnumerableTypeHelper SourceTypeHelper { get; private set; }
 
@@ -495,7 +495,7 @@
 
         public void AddNewItemsToTargetVariable(IObjectMappingData mappingData)
         {
-            if (ElementTypesAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
+            if (TargetElementsAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
                 _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceVariable));
                 return;
@@ -531,7 +531,7 @@
             {
                 elementMapping = Expression.Condition(
                     sourceElement.GetIsDefaultComparison(),
-                    typeof(object).ToDefaultExpression(),
+                    elementMapping.Type.ToDefaultExpression(),
                     elementMapping);
             }
 
@@ -540,6 +540,15 @@
 
         private bool InsertSourceObjectElementNullCheck(IPopulationLoopData loopData, out Expression sourceElement)
         {
+            if (TargetElementsAreSimple &&
+               !Context.ElementTypesAreAssignable &&
+               (Context.SourceElementType != typeof(object)) &&
+                Context.SourceElementType.CanBeNull())
+            {
+                sourceElement = loopData.GetSourceElementValue();
+                return true;
+            }
+
             if (TargetTypeHelper.ElementType != typeof(object))
             {
                 sourceElement = null;
@@ -553,7 +562,7 @@
 
         public Expression GetElementConversion(Expression sourceElement, IObjectMappingData mappingData)
         {
-            if (ElementTypesAreSimple)
+            if (TargetElementsAreSimple)
             {
                 return GetSimpleElementConversion(sourceElement);
             }

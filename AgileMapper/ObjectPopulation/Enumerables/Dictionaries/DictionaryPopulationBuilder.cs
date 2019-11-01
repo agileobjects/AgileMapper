@@ -116,7 +116,7 @@
             DictionaryTargetMember dictionaryEntryMember,
             IObjectMappingData mappingData)
         {
-            if (_wrappedBuilder.ElementTypesAreSimple)
+            if (_wrappedBuilder.TargetElementsAreSimple)
             {
                 return GetPopulation(loopData, dictionaryEntryMember, mappingData);
             }

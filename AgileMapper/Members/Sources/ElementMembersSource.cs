@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.Members.Sources
     internal class ElementMembersSource : IMembersSource
     {
         private readonly ObjectMapperData _enumerableMapperData;
+        private QualifiedMember _targetMember;
 
         public ElementMembersSource(ObjectMapperData enumerableMapperData)
         {
@@ -13,10 +14,13 @@ namespace AgileObjects.AgileMapper.Members.Sources
 
         public int DataSourceIndex => _enumerableMapperData.DataSourceIndex;
 
-        public IQualifiedMember GetSourceMember<TSource, TTarget>()
+        IQualifiedMember IMembersSource.GetSourceMember<TSource, TTarget>()
+            => GetSourceMember();
+
+        public IQualifiedMember GetSourceMember()
         {
             var sourceElementMember = _enumerableMapperData.SourceMember.GetElementMember();
-            var targetElementMember = GetTargetMember<TSource, TTarget>();
+            var targetElementMember = GetTargetMember();
 
             sourceElementMember = _enumerableMapperData
                 .MapperContext
@@ -26,7 +30,10 @@ namespace AgileObjects.AgileMapper.Members.Sources
             return sourceElementMember;
         }
 
-        public QualifiedMember GetTargetMember<TSource, TTarget>()
-            => _enumerableMapperData.TargetMember.GetElementMember();
+        QualifiedMember IMembersSource.GetTargetMember<TSource, TTarget>()
+            => GetTargetMember();
+
+        public QualifiedMember GetTargetMember()
+            => _targetMember ?? (_targetMember = _enumerableMapperData.TargetMember.GetElementMember());
     }
 }

@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             _indexedSourceAccess = builder.GetSourceIndexAccess();
 
             _useDirectValueAccess =
-                builder.ElementTypesAreSimple ||
+                builder.TargetElementsAreSimple ||
                 builder.SourceTypeHelper.ElementType.RuntimeTypeNeeded() ||
                 builder.TargetTypeHelper.ElementType.RuntimeTypeNeeded();
 

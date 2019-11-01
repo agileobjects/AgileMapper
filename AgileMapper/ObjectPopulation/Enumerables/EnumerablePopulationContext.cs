@@ -25,7 +25,7 @@
             TargetElementType = mapperData.TargetMember.GetElementType(SourceElementType);
             ElementTypes = new[] { SourceElementType, TargetElementType };
             ElementTypesAreTheSame = SourceElementType == TargetElementType;
-            ElementTypesAreSimple = TargetElementType.IsSimple();
+            TargetElementsAreSimple = TargetElementType.IsSimple();
         }
 
         public Type SourceElementType { get; }
@@ -38,7 +38,7 @@
 
         public bool ElementTypesAreAssignable => SourceElementType.IsAssignableTo(TargetElementType);
 
-        public bool ElementTypesAreSimple { get; }
+        public bool TargetElementsAreSimple { get; }
 
         public ParameterExpression GetSourceParameterFor(Type type) => GetParameterFor(type, "source");
 

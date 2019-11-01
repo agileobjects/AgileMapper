@@ -69,7 +69,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         {
             Expression sourceItemsProjection;
 
-            if (Builder.Context.ElementTypesAreSimple)
+            if (Builder.Context.TargetElementsAreSimple)
             {
                 var linqCastMethod = typeof(Enumerable).GetPublicStaticMethod("Cast");
                 var typedCastMethod = linqCastMethod.MakeGenericMethod(typeof(object));
@@ -95,11 +95,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         public Expression GetSourceCountAccess() => _instanceDictionaryAdapter.GetSourceCountAccess();
 
         public override bool UseReadOnlyTargetWrapper
-            => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;
+            => base.UseReadOnlyTargetWrapper && Builder.Context.TargetElementsAreSimple;
 
         public Expression GetMappingShortCircuitOrNull()
         {
-            if (Builder.ElementTypesAreSimple)
+            if (Builder.TargetElementsAreSimple)
             {
                 return null;
             }
