@@ -56,7 +56,7 @@
             var conversions = valueFactories
                 .ProjectToArray(vf => new
                 {
-                    Value = vf.Create(simpleMemberMapperData).Replace(replacements),
+                    Value = vf.Create(simpleMemberMapperData).Replace(replacements).GetConversionTo(targetType),
                     Condition = vf.GetConditionOrNull(simpleMemberMapperData)?.Replace(replacements)
                 });
 
@@ -110,7 +110,7 @@
             var queryMapperData = new BasicMapperData(
                 mapperData.RuleSet,
                 sourceType,
-                targetType,
+                targetType.GetNonNullableType(),
                 QualifiedMember.All);
 
             return mapperData

@@ -34,6 +34,24 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredDateTimeFactoryToANullableDateTime()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue165.Timestamp>()
+                    .To<DateTime>()
+                    .CreateInstancesUsing(ctx => ctx.Source.ToDateTime());
+
+                var source = new { Value = new Issue165.Timestamp { Seconds = 100 } };
+
+                var result = mapper.Map(source).ToANew<PublicField<DateTime?>>();
+                result.ShouldNotBeNull();
+                result.Value.ShouldBe(source.Value.ToDateTime());
+            }
+        }
+
+        [Fact]
         public void ShouldUseAConfiguredDateTimeFactoryInARootList()
         {
             using (var mapper = Mapper.CreateNew())
