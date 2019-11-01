@@ -431,23 +431,18 @@ namespace AgileObjects.AgileMapper.Members
                 return mapperData.GetValueConversion(value, targetType);
             }
 
-            var objectMapperData = new SimpleMemberMapperData(
-                mapperData.RuleSet,
-                mapperData.SourceMember.WithType(sourceType),
-                mapperData.TargetMember,
-                mapperData.MapperContext,
-                mapperData.Parent);
+            var simpleMemberMapperData = SimpleMemberMapperData.Create(sourceType, mapperData);
 
             var replacements = new ExpressionReplacementDictionary(3)
             {
-                [objectMapperData.SourceObject] = value,
-                [objectMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
-                [objectMapperData.EnumerableIndex] = mapperData.EnumerableIndex
+                [simpleMemberMapperData.SourceObject] = value,
+                [simpleMemberMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
+                [simpleMemberMapperData.EnumerableIndex] = mapperData.EnumerableIndex
             };
 
             var valueFactoryExpression = valueFactories
                 .First()
-                .Create(objectMapperData)
+                .Create(simpleMemberMapperData)
                 .Replace(replacements);
 
             return valueFactoryExpression;
