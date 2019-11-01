@@ -60,6 +60,8 @@
                     Condition = vf.GetConditionOrNull(simpleMemberMapperData)?.Replace(replacements)
                 });
 
+            var conversionCount = conversions.Length;
+            
             if (valueFactories.Last().HasConfiguredCondition)
             {
                 conversions = conversions.Append(new
@@ -67,14 +69,20 @@
                     Value = mapperData.GetValueConversion(value, targetType) ?? mapperData.GetTargetMemberDefault(),
                     Condition = default(Expression)
                 });
+
+                ++conversionCount;
+            }
+            else if (conversionCount == 1)
+            {
+                return conversions[0].Value;
             }
 
-            var conversionCount = conversions.Length;
             var conversionExpression = default(Expression);
+            var conversionIndex = conversionCount;
 
-            for (var i = conversionCount; i > 0;)
+            while (true)
             {
-                var conversion = conversions[--i];
+                var conversion = conversions[--conversionIndex];
 
                 if (conversionExpression == null)
                 {
@@ -86,9 +94,12 @@
                     conversion.Condition,
                     conversion.Value,
                     conversionExpression);
-            }
 
-            return conversionExpression;
+                if (conversionIndex == 0)
+                {
+                    return conversionExpression;
+                }
+            }
         }
 
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
