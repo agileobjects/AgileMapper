@@ -91,6 +91,26 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredTwoParameterFactoryFunc()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Func<long, DateTimeOffset, DateTimeOffset> factory =
+                    (seconds, existing) => DateTimeOffset.FromUnixTimeSeconds(seconds);
+
+                mapper.WhenMapping
+                    .From<long>()
+                    .To<DateTimeOffset>()
+                    .CreateInstancesUsing(factory);
+
+                var source = new PublicField<long> { Value = 1234567L };
+                var result = mapper.Map(source).ToANew<PublicSetMethod<DateTimeOffset>>();
+
+                result.Value.ShouldBe(DateTimeOffset.FromUnixTimeSeconds(1234567L));
+            }
+        }
+
+        [Fact]
         public void ShouldFallBackToDefaultValueConversion()
         {
             using (var mapper = Mapper.CreateNew())

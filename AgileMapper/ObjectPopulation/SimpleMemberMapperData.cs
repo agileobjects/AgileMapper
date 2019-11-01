@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System;
     using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -12,10 +11,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class SimpleMemberMapperData : MemberMapperDataBase, IMemberMapperData
     {
-        private SimpleMemberMapperData(IMemberMapperData memberMapperData, Type sourceType)
+        private SimpleMemberMapperData(IQualifiedMember sourceMember, IMemberMapperData memberMapperData)
             : base(
                 memberMapperData.RuleSet,
-                memberMapperData.SourceMember.WithType(sourceType),
+                sourceMember,
                 memberMapperData.TargetMember,
                 memberMapperData.MapperContext,
                 memberMapperData.Parent)
@@ -43,18 +42,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Factory Method
 
-        public static SimpleMemberMapperData Create(Type sourceType, IMemberMapperData mapperData)
+        public static SimpleMemberMapperData Create(Expression sourceValue, IMemberMapperData mapperData)
         {
             if (!mapperData.TargetMember.IsEnumerable)
             {
-                return new SimpleMemberMapperData(mapperData, sourceType);
+                return new SimpleMemberMapperData(sourceValue.ToSourceMember(mapperData.MapperContext), mapperData);
             }
 
             var enumerableMapperData = (ObjectMapperData)mapperData;
             var membersSource = new ElementMembersSource(enumerableMapperData);
 
             return new SimpleMemberMapperData(
-                membersSource.GetSourceMember().WithType(sourceType),
+                membersSource.GetSourceMember().WithType(sourceValue.Type),
                 membersSource.GetTargetMember(),
                 enumerableMapperData);
         }

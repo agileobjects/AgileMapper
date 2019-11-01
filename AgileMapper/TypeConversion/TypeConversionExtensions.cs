@@ -44,7 +44,7 @@
                 return mapperData.GetValueConversion(value, targetType);
             }
 
-            var simpleMemberMapperData = SimpleMemberMapperData.Create(sourceType, mapperData);
+            var simpleMemberMapperData = SimpleMemberMapperData.Create(value, mapperData);
 
             var replacements = new ExpressionReplacementDictionary(3)
             {
