@@ -23,6 +23,7 @@
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>- Support for interface type-pairing, re: #163
 - Support for simple type creation with CreateInstancesUsing, re: #165
+- Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
 - Support for TimeSpan mapping
 - Fixing numeric to non-int-derived enum mapping
 - Adding package icon</PackageReleaseNotes>

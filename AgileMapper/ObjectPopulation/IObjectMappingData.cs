@@ -20,6 +20,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         ObjectMapperKeyBase MapperKey { get; set; }
 
+        bool MapperDataPopulated { get; }
+
         ObjectMapperData MapperData { get; }
 
         IObjectMapper GetOrCreateMapper();

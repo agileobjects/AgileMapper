@@ -95,6 +95,63 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/166
+        [Fact]
+        public void ShouldRuntimeTypeAChildMemberOnASingleMappingPath()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<DateTime>().To<Issue166.Target.Timestamp>()
+                    .CreateInstancesUsing(c => Issue166.Target.Timestamp.FromDateTime(c.Source.ToUniversalTime()))
+                    .And.IgnoreTargetMembersWhere(_ => true);
+
+                var input = new Issue166.Source.Container
+                {
+                    Tasks = new List<Issue166.Source.Task>
+                    {
+                        new Issue166.Source.Task { ModDate = DateTime.Today.AddSeconds(10) },
+                        new Issue166.Source.Task { ModDate = DateTime.Today.AddSeconds(25) }
+                    },
+                    Params = new List<Issue166.Source.Param>
+                    {
+                        new Issue166.Source.Param
+                        {
+                            CollectionCollection = new Issue166.Source.Coll
+                            {
+                                ValueList = new List<Issue166.Source.Value>
+                                {
+                                    new Issue166.Source.Value
+                                    {
+                                        Definition = new Issue166.Source.Def
+                                        {
+                                            Id = "Id",
+                                            Default = "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var result = mapper.Map(input).ToANew<Issue166.Target.Container>();
+
+                result.ShouldNotBeNull();
+
+                result.Tasks.ShouldNotBeNull().Count.ShouldBe(2);
+                result.Tasks.First().ModDate.ShouldNotBeNull().Seconds.ShouldBe(10L);
+                result.Tasks.Second().ModDate.ShouldNotBeNull().Seconds.ShouldBe(25L);
+
+                result.Params.ShouldNotBeNull().ShouldHaveSingleItem();
+                result.Params.First().CollectionCollection.ShouldNotBeNull();
+                result.Params.First().CollectionCollection.ValueList.ShouldNotBeNull().ShouldHaveSingleItem();
+                result.Params.First().CollectionCollection.ValueList.First().Definition.ShouldNotBeNull();
+                result.Params.First().CollectionCollection.ValueList.First().Definition.Id.ShouldBe("Id");
+                result.Params.First().CollectionCollection.ValueList.First().Definition.Default.ShouldBeNull();
+            }
+        }
+
         [Fact]
         public void ShouldUseAConfiguredParameterlessFactoryFuncForASpecifiedSourceAndTargetType()
         {
@@ -601,6 +658,93 @@
 
             public Address Address { get; }
         }
+
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
+        private static class Issue166
+        {
+            public static class Source
+            {
+                public class Container
+                {
+                    public IList<Task> Tasks { get; set; }
+
+                    public IEnumerable<Param> Params { get; set; }
+                }
+
+                public class Task
+                {
+                    public DateTime ModDate { get; set; }
+                }
+
+                public class Param
+                {
+                    public Coll CollectionCollection { get; set; }
+                }
+
+                public class Coll
+                {
+                    public IEnumerable<Value> ValueList { get; set; }
+                }
+
+                public class Value
+                {
+                    public Def Definition { get; set; }
+                }
+
+                public class Def
+                {
+                    public string Id { get; set; }
+
+                    public object Default { get; set; }
+                }
+            }
+
+            public static class Target
+            {
+                public class Container
+                {
+                    public IList<Task> Tasks { get; set; }
+
+                    public IEnumerable<Param> Params { get; set; }
+                }
+
+                public class Task
+                {
+                    public Timestamp ModDate { get; set; }
+                }
+
+                public class Timestamp
+                {
+                    public static Timestamp FromDateTime(DateTime dateTime)
+                        => new Timestamp { Seconds = dateTime.Second };
+
+                    public long Seconds { get; set; }
+                }
+
+                public class Param
+                {
+                    public Coll CollectionCollection { get; set; }
+                }
+
+                public class Coll
+                {
+                    public IEnumerable<Value> ValueList { get; set; }
+                }
+
+                public class Value
+                {
+                    public Def Definition { get; set; }
+                }
+
+                public class Def
+                {
+                    public string Id { get; set; }
+
+                    public PublicField<object> Default { get; set; }
+                }
+            }
+        }
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
 
         #endregion
     }
