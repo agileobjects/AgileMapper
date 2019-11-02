@@ -40,14 +40,14 @@
                     context.TargetMember,
                     context.MemberMapperData.Parent);
 
-                var configuredRootDataSources = context
+                var configuredToTargetDataSources = context
                     .MapperContext
                     .UserConfigurations
                     .GetDataSourcesForToTarget(updatedMapperData);
 
-                foreach (var configuredRootDataSource in configuredRootDataSources)
+                foreach (var configuredDataSource in configuredToTargetDataSources)
                 {
-                    yield return configuredRootDataSource;
+                    yield return configuredDataSource;
                 }
             }
 
@@ -88,7 +88,7 @@
         private static bool ReturnSimpleTypeToTargetDataSources(this DataSourceFindContext context)
         {
             return context.MatchingSourceMemberDataSource.SourceMember.IsSimple &&
-                   context.MapperContext.UserConfigurations.HasConfiguredToTargetDataSources;
+                   context.MapperContext.UserConfigurations.HasToTargetDataSources;
         }
 
         private static bool UseFallbackDataSource(this DataSourceFindContext context)

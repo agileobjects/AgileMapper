@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Members
+namespace AgileObjects.AgileMapper
 {
     using System;
 
@@ -7,5 +7,10 @@ namespace AgileObjects.AgileMapper.Members
         Type SourceType { get; }
 
         Type TargetType { get; }
+    }
+
+    internal interface IChild<out TParent>
+    {
+        TParent Parent { get; }
     }
 }

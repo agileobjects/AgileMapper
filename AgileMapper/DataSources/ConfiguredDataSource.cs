@@ -7,6 +7,7 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using TypeConversion;
 
     internal class ConfiguredDataSource : DataSourceBase, IConfiguredDataSource
     {
@@ -44,7 +45,7 @@
                 return value;
             }
 
-            return mapperData.GetValueConversion(value, mapperData.TargetMember.Type);
+            return mapperData.GetValueConversionOrCreation(value, mapperData.TargetMember.Type);
         }
 
         #endregion

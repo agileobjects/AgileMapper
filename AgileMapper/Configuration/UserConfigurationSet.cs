@@ -286,10 +286,17 @@
             ThrowIfConflictingItemExists(
                 objectFactory,
                _objectFactories,
-               (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
+               (of1, of2) => $"An object factory for type {of1.ObjectType.GetFriendlyName()} has already been configured");
+
+            if (objectFactory.ObjectType.IsSimple())
+            {
+                HasSimpleTypeValueFactories = true;
+            }
 
             ObjectFactories.AddOrReplaceThenSort(objectFactory);
         }
+
+        public bool HasSimpleTypeValueFactories { get; private set; }
 
         public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IBasicMapperData mapperData)
             => _objectFactories.FindMatches(mapperData);
@@ -396,7 +403,7 @@
 
             if (dataSourceFactory.TargetMember.IsRoot)
             {
-                HasConfiguredToTargetDataSources = true;
+                HasToTargetDataSources = true;
                 return;
             }
 
@@ -409,14 +416,14 @@
         public ConfiguredDataSourceFactory GetDataSourceFactoryFor(MappingConfigInfo configInfo)
             => _dataSourceFactories.First(configInfo, (ci, dsf) => dsf.ConfigInfo == ci);
 
-        public bool HasConfiguredToTargetDataSources { get; private set; }
+        public bool HasToTargetDataSources { get; private set; }
 
         public IList<ConfiguredDataSourceFactory> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
             => _dataSourceFactories.FindRelevantMatches(mapperData);
 
         public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
         {
-            if (!HasConfiguredToTargetDataSources)
+            if (!HasToTargetDataSources)
             {
                 return Enumerable<IConfiguredDataSource>.EmptyArray;
             }

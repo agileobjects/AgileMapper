@@ -1,15 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using Configuration;
-    using Members;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Members;
+    using NetStandardPolyfills;
 
     internal class ConfiguredObjectFactory :
         UserConfiguredItemBase,
@@ -18,33 +17,15 @@
         , IComparable<ConfiguredObjectFactory>
 #endif
     {
-        private readonly Type _objectType;
         private readonly ConfiguredLambdaInfo _factoryInfo;
 
-        private ConfiguredObjectFactory(
-            MappingConfigInfo configInfo,
-            Type objectType,
-            ConfiguredLambdaInfo factoryInfo)
+        public ConfiguredObjectFactory(MappingConfigInfo configInfo, ConfiguredLambdaInfo factoryInfo)
             : base(configInfo)
         {
-            _objectType = objectType;
             _factoryInfo = factoryInfo;
         }
 
-        #region Factory Methods
-
-        public static ConfiguredObjectFactory For(MappingConfigInfo configInfo, Type objectType, LambdaExpression factory)
-            => For(configInfo, objectType, ConfiguredLambdaInfo.For(factory));
-
-        public static ConfiguredObjectFactory For(
-            MappingConfigInfo configInfo,
-            Type objectType,
-            ConfiguredLambdaInfo factoryInfo)
-            => new ConfiguredObjectFactory(configInfo, objectType, factoryInfo);
-
-        #endregion
-
-        public string ObjectTypeName => _objectType.GetFriendlyName();
+        public Type ObjectType => _factoryInfo.ReturnType;
 
         public bool UsesMappingDataObjectParameter => _factoryInfo.UsesMappingDataObjectParameter;
 
@@ -62,12 +43,12 @@
         protected override bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
         {
             return base.HasOverlappingTypes(otherConfiguredItem) &&
-                (((ConfiguredObjectFactory)otherConfiguredItem)._objectType == _objectType);
+                (((ConfiguredObjectFactory)otherConfiguredItem).ObjectType == ObjectType);
         }
 
         public override bool AppliesTo(IBasicMapperData mapperData)
         {
-            return _objectType.IsAssignableTo(mapperData.TargetType) &&
+            return ObjectType.IsAssignableTo(mapperData.TargetType) &&
                    base.AppliesTo(mapperData) &&
                   _factoryInfo.Supports(mapperData.RuleSet);
         }
@@ -80,7 +61,7 @@
 
         public IPotentialAutoCreatedItem Clone()
         {
-            return new ConfiguredObjectFactory(ConfigInfo, _objectType, _factoryInfo)
+            return new ConfiguredObjectFactory(ConfigInfo, _factoryInfo)
             {
                 WasAutoCreated = true
             };

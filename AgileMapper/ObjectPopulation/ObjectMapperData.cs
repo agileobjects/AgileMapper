@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
     using System.Reflection;
 #if NET35
@@ -19,9 +18,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Sources;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
-    using static Members.Member;
 
-    internal class ObjectMapperData : BasicMapperData, IMemberMapperData
+    internal class ObjectMapperData : MemberMapperDataBase, IMemberMapperData
     {
         private static readonly MethodInfo _mapRepeatedChildMethod =
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 5);
@@ -38,7 +36,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool _isEntryPoint;
 
         private ObjectMapperData(
-            IObjectMappingData mappingData,
+            IMappingContext mappingContext,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
             int? dataSourceIndex,
@@ -46,36 +44,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ObjectMapperData parent,
             bool isForStandaloneMapping)
             : base(
-                mappingData.MappingContext.RuleSet,
-                sourceMember.Type,
-                targetMember.Type,
+                mappingContext.RuleSet,
                 sourceMember,
                 targetMember,
+                mappingContext.MapperContext,
                 parent)
         {
-            MapperContext = mappingData.MappingContext.MapperContext;
-            DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
             ChildMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
-            MappingDataObject = GetMappingDataObject(parent);
-
-            var mappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
-            SourceObject = GetMappingDataProperty(mappingDataType, RootSourceMemberName);
-            TargetObject = GetMappingDataProperty(RootTargetMemberName);
             CreatedObject = GetMappingDataProperty(nameof(CreatedObject));
 
             var isPartOfDerivedTypeMapping = declaredTypeMapperData != null;
 
             if (isPartOfDerivedTypeMapping)
             {
+                DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
                 EnumerableIndex = declaredTypeMapperData.EnumerableIndex;
                 ParentObject = declaredTypeMapperData.ParentObject;
             }
             else
             {
-                EnumerableIndex = GetMappingDataProperty(mappingDataType, nameof(EnumerableIndex));
-                ParentObject = GetMappingDataProperty(nameof(Parent));
+                EnumerableIndex = GetEnumerableIndexAccess();
+                ParentObject = GetParentObjectAccess();
             }
 
             DataSourcesByTargetMember = new Dictionary<QualifiedMember, IDataSourceSet>();
@@ -97,7 +88,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             parent.ChildMapperDatas.Add(this);
-            Parent = parent;
 
             if (!this.TargetMemberIsEnumerableElement())
             {
@@ -112,44 +102,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #region Setup
-
-        private ParameterExpression GetMappingDataObject(ObjectMapperData parent)
-        {
-            var mdType = typeof(IObjectMappingData<,>).MakeGenericType(SourceType, TargetType);
-
-            var variableNameIndex = default(int?);
-
-            while (parent != null)
-            {
-                if (parent.MappingDataObject.Type == mdType)
-                {
-                    variableNameIndex = variableNameIndex.HasValue ? (variableNameIndex + 1) : 2;
-                }
-
-                parent = parent.Parent;
-            }
-
-            var mappingDataVariableName = string.Format(
-                CultureInfo.InvariantCulture,
-                "{0}To{1}Data{2}",
-                SourceType.GetShortVariableName(),
-                TargetType.GetShortVariableName().ToPascalCase(),
-                variableNameIndex);
-
-            var parameter = Expression.Parameter(mdType, mappingDataVariableName);
-
-            return parameter;
-        }
-
-        private Expression GetMappingDataProperty(Type mappingDataType, string propertyName)
-        {
-            var property = mappingDataType.GetPublicInstanceProperty(propertyName);
-
-            return Expression.Property(MappingDataObject, property);
-        }
-
-        private Expression GetMappingDataProperty(string propertyName)
-            => Expression.Property(MappingDataObject, propertyName);
 
         private bool IsTargetTypeFirstMapping(ObjectMapperData parent)
         {
@@ -314,7 +266,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var targetMember = membersSource.GetTargetMember<TSource, TTarget>().WithType(typeof(TTarget));
 
             return new ObjectMapperData(
-                mappingData,
+                mappingData.MappingContext,
                 sourceMember,
                 targetMember,
                 dataSourceIndex,
@@ -383,11 +335,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public MapperContext MapperContext { get; }
-
         public IObjectMapper Mapper { get; set; }
-
-        public ObjectMapperData Parent { get; }
 
         public ObjectMapperData DeclaredTypeMapperData { get; }
 
@@ -424,8 +372,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public QualifiedMember GetTargetMemberFor(string targetMemberRegistrationName)
             => TargetMember.GetChildMember(targetMemberRegistrationName);
 
-        public ParameterExpression MappingDataObject { get; }
-
         public Expression ParentObject { get; }
 
         public bool CacheMappedObjects
@@ -460,10 +406,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private bool TargetTypeWillBeMappedAgain => !TargetTypeWillNotBeMappedAgain;
 
         public bool TargetTypeWillNotBeMappedAgain { get; }
-
-        public Expression SourceObject { get; set; }
-
-        public Expression TargetObject { get; set; }
 
         public Expression EnumerableIndex { get; }
 

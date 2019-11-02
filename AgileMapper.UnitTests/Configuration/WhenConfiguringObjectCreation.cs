@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using AgileMapper.Configuration;
     using AgileMapper.Members;
     using Common;
     using TestClasses;
@@ -474,95 +473,6 @@
             mappingEx.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
         }
 
-        [Fact]
-        public void ShouldErrorIfSingleParameterObjectFactorySpecifiedWithInvalidParameter()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    Func<DateTime, Address> addressFactory = dt => new Address();
-
-                    mapper
-                        .WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfTwoParameterObjectFactorySpecifiedWithInvalidParameters()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    Func<int, string, Address> addressFactory = (i, str) => new Address();
-
-                    mapper
-                        .WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfFourParameterObjectFactorySpecified()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    Func<object, object, int?, Address, Address> addressFactory = (i, str, dt, ts) => new Address();
-
-                    mapper
-                        .WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfConflictingFactoryConfigured()
-        {
-            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
-
-                    mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
-                }
-            });
-
-            factoryEx.Message.ShouldContain("has already been configured");
-        }
-
-        // See https://github.com/agileobjects/AgileMapper/issues/114
-        [Fact]
-        public void ShouldErrorIfPrimitiveTargetTypeSpecified()
-        {
-            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<string>()
-                        .To<int>()
-                        .CreateInstancesUsing(ctx => 123);
-                }
-            });
-
-            factoryEx.Message.ShouldContain("primitive type 'int'");
-        }
-
         #region Helper Classes
 
         private class CustomerCtor : Person
@@ -644,14 +554,16 @@
             {
                 public Status.StatusId ParentStatusId { get; set; }
 
-                // ReSharper disable once UnusedMember.Global
+                // ReSharper disable once UnusedMember.Local
                 public Status ParentStatus => Status.GetStatus(ParentStatusId);
             }
 
             public class ParentDto
             {
+                // ReSharper disable once UnusedAutoPropertyAccessor.Local
                 public Status.StatusId ParentStatusId { get; set; }
 
+                // ReSharper disable once UnusedAutoPropertyAccessor.Local
                 public Status ParentStatus { get; set; }
             }
         }
@@ -675,9 +587,11 @@
                 Address = address;
             }
 
+            // ReSharper disable once UnusedMember.Local
             public static ConstructionTester Create(int value1, int value2)
                 => new ConstructionTester(value1, value2);
 
+            // ReSharper disable once UnusedMember.Local
             public static ConstructionTester GetInstance(int value1, int value2, Address address)
                 => new ConstructionTester(value1, value2, address);
 

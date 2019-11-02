@@ -15,6 +15,7 @@
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class EnumerablePopulationBuilder
     {
@@ -244,7 +245,7 @@
 
         public EnumerablePopulationContext Context { get; }
 
-        public bool ElementTypesAreSimple => Context.ElementTypesAreSimple;
+        public bool TargetElementsAreSimple => Context.TargetElementsAreSimple;
 
         public EnumerableTypeHelper SourceTypeHelper { get; private set; }
 
@@ -495,7 +496,7 @@
 
         public void AddNewItemsToTargetVariable(IObjectMappingData mappingData)
         {
-            if (ElementTypesAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
+            if (TargetElementsAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
                 _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceVariable));
                 return;
@@ -531,7 +532,7 @@
             {
                 elementMapping = Expression.Condition(
                     sourceElement.GetIsDefaultComparison(),
-                    typeof(object).ToDefaultExpression(),
+                    elementMapping.Type.ToDefaultExpression(),
                     elementMapping);
             }
 
@@ -553,7 +554,7 @@
 
         public Expression GetElementConversion(Expression sourceElement, IObjectMappingData mappingData)
         {
-            if (ElementTypesAreSimple)
+            if (TargetElementsAreSimple)
             {
                 return GetSimpleElementConversion(sourceElement);
             }
@@ -628,7 +629,7 @@
             => GetSimpleElementConversion(sourceElement, Context.TargetElementType);
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
-            => MapperData.GetValueConversion(sourceElement, targetType);
+            => MapperData.GetValueConversionOrCreation(sourceElement, targetType);
 
         private static Expression GetElementMapping(
             Expression sourceElement,

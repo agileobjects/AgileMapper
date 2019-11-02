@@ -188,14 +188,16 @@ namespace AgileObjects.AgileMapper.Configuration
         private static MappingContextInfo GetSimpleTypesMappingContextInfo(SwapArgs swapArgs)
         {
             var mapperData = swapArgs.MapperData;
-            IMemberMapperData contextMapperData = mapperData.Parent;
+            var contextMapperData = mapperData;
 
             IQualifiedMember targetMember;
+            IQualifiedMember sourceMember;
 
             while (true)
             {
                 if (contextMapperData.TargetMemberIsEnumerableElement())
                 {
+                    sourceMember = mapperData.SourceMember.RelativeTo(contextMapperData.SourceMember);
                     targetMember = mapperData.TargetMember.RelativeTo(contextMapperData.TargetMember);
                     break;
                 }
@@ -206,6 +208,7 @@ namespace AgileObjects.AgileMapper.Configuration
                     continue;
                 }
 
+                sourceMember = mapperData.SourceMember;
                 targetMember = mapperData.TargetMember;
 
                 contextMapperData = mapperData.GetAppropriateMappingContext(
@@ -218,7 +221,7 @@ namespace AgileObjects.AgileMapper.Configuration
             return new MappingContextInfo(
                 swapArgs,
                 mapperData.MappingDataObject,
-                mapperData.SourceMember.GetQualifiedAccess(contextMapperData.SourceObject),
+                sourceMember.GetQualifiedAccess(contextMapperData.SourceObject),
                 targetMember.GetQualifiedAccess(contextMapperData.TargetInstance));
         }
 
@@ -288,6 +291,7 @@ namespace AgileObjects.AgileMapper.Configuration
         public class MappingContextInfo
         {
             private readonly SwapArgs _swapArgs;
+            private Expression _createdObject;
 
             public MappingContextInfo(SwapArgs swapArgs)
                 : this(swapArgs, swapArgs.MapperData.MappingDataObject)
@@ -311,11 +315,15 @@ namespace AgileObjects.AgileMapper.Configuration
             {
                 _swapArgs = swapArgs;
 
-                CreatedObject = GetCreatedObject(swapArgs);
                 SourceAccess = sourceAccess;
                 TargetAccess = targetAccess;
                 MappingDataAccess = swapArgs.GetTypedContextAccess(contextAccess);
             }
+
+            public Type[] ContextTypes => _swapArgs.ContextTypes;
+
+            public Expression CreatedObject
+                => _createdObject ?? (_createdObject = GetCreatedObject(_swapArgs));
 
             private static Expression GetCreatedObject(SwapArgs swapArgs)
             {
@@ -336,10 +344,6 @@ namespace AgileObjects.AgileMapper.Configuration
                     ? valueAccess.GetConversionTo(neededAccessType)
                     : valueAccess;
             }
-
-            public Type[] ContextTypes => _swapArgs.ContextTypes;
-
-            public Expression CreatedObject { get; }
 
             public Expression MappingDataAccess { get; }
 

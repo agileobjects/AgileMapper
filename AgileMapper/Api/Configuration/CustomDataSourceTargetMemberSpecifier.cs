@@ -177,8 +177,7 @@
             }
 
             var convertedConstantValue = MapperContext
-                .ValueConverters
-                .GetConversion(customValueLambda.Body, targetValueType);
+                .GetValueConversion(customValueLambda.Body, targetValueType);
 
             var funcType = GetFuncType(targetValueType);
             var valueLambda = Lambda(funcType, convertedConstantValue);

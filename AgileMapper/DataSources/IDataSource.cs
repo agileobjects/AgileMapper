@@ -9,7 +9,7 @@
     using Extensions.Internal;
     using Members;
 
-    internal interface IDataSource : IConditionallyChainable
+    internal interface IDataSource
     {
         IQualifiedMember SourceMember { get; }
 
@@ -22,6 +22,10 @@
         bool IsFallback { get; }
 
         IList<ParameterExpression> Variables { get; }
+
+        Expression Condition { get; }
+
+        Expression Value { get; }
 
         Expression AddSourceCondition(Expression value);
 

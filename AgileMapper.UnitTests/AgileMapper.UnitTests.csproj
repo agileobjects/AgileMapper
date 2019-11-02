@@ -112,8 +112,10 @@
     <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringEntityMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectCreationIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenConfiguringSimpleTypeCreation.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembers.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByGlobalFilter.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
     <Compile Include="MapperCloning\WhenCloningStringFormatting.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToTimeSpans.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToFlagsEnums.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />

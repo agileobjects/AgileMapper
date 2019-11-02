@@ -5,26 +5,31 @@
     <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <TargetFrameworks>netstandard1.0;netstandard1.3;net35;net40</TargetFrameworks>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
+
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <Title>AgileMapper</Title>
     <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
-    <PackageReleaseNotes>- Support for interface type-pairing, re: #163
-- Fixing numeric to non-int-derived enum mapping</PackageReleaseNotes>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>./Icon.png</PackageIcon>
+    <PackageReleaseNotes>- Support for interface type-pairing, re: #163
+- Support for simple type creation with CreateInstancesUsing, re: #165
+- Support for TimeSpan mapping
+- Fixing numeric to non-int-derived enum mapping
+- Adding package icon</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../Icon.png" Pack="true" PackagePath="./"/>
+    <None Include="../Icon.png" Pack="true" PackagePath="./" />
   </ItemGroup>
 
   <ItemGroup>

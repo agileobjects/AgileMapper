@@ -429,7 +429,7 @@
 
                 if (MapperData.TargetMember.IsSimple)
                 {
-                    return MapperData.GetValueConversion(valueAccess, MapperData.TargetMember.Type);
+                    return MapperData.GetValueConversionOrCreation(valueAccess, MapperData.TargetMember.Type);
                 }
 
                 return valueAccess;

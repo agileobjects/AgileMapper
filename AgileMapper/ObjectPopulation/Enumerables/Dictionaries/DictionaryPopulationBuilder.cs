@@ -3,16 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using DataSources;
-    using Extensions.Internal;
-    using Members;
-    using Members.Dictionaries;
-    using Members.Population;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Extensions.Internal;
+    using Members;
+    using Members.Dictionaries;
+    using Members.Population;
+    using TypeConversion;
 
     internal class DictionaryPopulationBuilder
     {
@@ -116,7 +117,7 @@
             DictionaryTargetMember dictionaryEntryMember,
             IObjectMappingData mappingData)
         {
-            if (_wrappedBuilder.ElementTypesAreSimple)
+            if (_wrappedBuilder.TargetElementsAreSimple)
             {
                 return GetPopulation(loopData, dictionaryEntryMember, mappingData);
             }

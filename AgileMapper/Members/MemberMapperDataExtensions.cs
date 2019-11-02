@@ -402,12 +402,6 @@ namespace AgileObjects.AgileMapper.Members
         public static IList<ConfiguredSourceValueFilter> GetSourceValueFilters(this IMemberMapperData mapperData, Type sourceValueType)
             => mapperData.MapperContext.UserConfigurations.GetSourceValueFilters(mapperData, sourceValueType);
 
-        public static bool CanConvert(this IMemberMapperData mapperData, Type sourceType, Type targetType)
-            => mapperData.MapperContext.ValueConverters.CanConvert(sourceType, targetType);
-
-        public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
-            => mapperData.MapperContext.GetValueConversion(value, targetType);
-
         public static Expression GetMappingCallbackOrNull(
             this IBasicMapperData basicData,
             CallbackPosition callbackPosition,
@@ -494,13 +488,13 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData;
         }
 
-        public static bool TypesMatch(this IBasicMapperData mapperData, IList<Type> contextTypes)
-            => TypesMatch(mapperData, contextTypes[0], contextTypes[1]);
-
-        private static bool TypesMatch(IBasicMapperData mapperData, Type sourceType, Type targetType)
+        public static bool TypesMatch(this ITypePair typePair, IList<Type> contextTypes)
         {
-            return (mapperData.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(mapperData.SourceType)) &&
-                   (mapperData.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(mapperData.TargetType));
+            var sourceType = contextTypes[0];
+            var targetType = contextTypes[1];
+
+            return (typePair.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(typePair.SourceType)) &&
+                   (typePair.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(typePair.TargetType));
         }
 
         public static Expression GetTypedContextAccess(

@@ -20,7 +20,7 @@
             IQualifiedMember sourceMember,
             IChildMemberMappingData contextMappingData,
             Expression condition,
-            bool isUseable = true)
+            bool isUseable)
         {
             SourceMember = sourceMember;
             ContextMappingData = contextMappingData;

@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             EnumerablePopulationBuilder builder,
             IObjectMappingData enumerableMappingData)
         {
-            if (builder.ElementTypesAreSimple)
+            if (builder.TargetElementsAreSimple)
             {
                 builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType().ExcludingTargetItems());
                 builder.AssignTargetVariable();

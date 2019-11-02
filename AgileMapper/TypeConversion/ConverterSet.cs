@@ -3,16 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Configuration;
-    using Extensions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Extensions;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class ConverterSet
     {
@@ -35,6 +35,7 @@
                 ToNumericConverter<decimal>.Instance,
                 ToNumericConverter<double>.Instance,
                 ToNumericConverter<long>.Instance,
+                TryParseConverter<TimeSpan>.Instance,
                 default(ToCharacterConverter),
                 ToNumericConverter<short>.Instance,
                 ToNumericConverter<byte>.Instance,
@@ -92,7 +93,7 @@
             }
 
             var converter = GetConverterOrNull(sourceValue.Type, targetType);
-            var conversion = converter.GetConversion(sourceValue, targetType);
+            var conversion = converter?.GetConversion(sourceValue, targetType);
 
             return conversion;
         }
