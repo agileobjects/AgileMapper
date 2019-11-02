@@ -140,7 +140,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 Func<long, DateTimeOffset, DateTimeOffset> factory =
-                    (seconds, existing) => DateTimeOffset.FromUnixTimeSeconds(seconds);
+                    (fileTime, existing) => DateTimeOffset.FromFileTime(fileTime);
 
                 mapper.WhenMapping
                     .From<long>()
@@ -150,7 +150,7 @@
                 var source = new PublicField<long> { Value = 1234567L };
                 var result = mapper.Map(source).ToANew<PublicSetMethod<DateTimeOffset>>();
 
-                result.Value.ShouldBe(DateTimeOffset.FromUnixTimeSeconds(1234567L));
+                result.Value.ShouldBe(DateTimeOffset.FromFileTime(1234567L));
             }
         }
 
