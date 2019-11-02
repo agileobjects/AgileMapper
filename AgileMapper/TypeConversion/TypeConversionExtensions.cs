@@ -3,12 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
@@ -33,10 +33,8 @@
                 return mapperData.GetValueConversion(value, targetType);
             }
 
-            var sourceType = value.Type.GetNonNullableType();
-
             var valueFactories = mapperData
-                .QuerySimpleTypeValueFactories(sourceType, targetType)
+                .QuerySimpleTypeValueFactories(value.Type, targetType)
                 .ToArray();
 
             if (valueFactories.None())
@@ -44,62 +42,7 @@
                 return mapperData.GetValueConversion(value, targetType);
             }
 
-            var simpleMemberMapperData = SimpleMemberMapperData.Create(value, mapperData);
-
-            var replacements = new ExpressionReplacementDictionary(3)
-            {
-                [simpleMemberMapperData.SourceObject] = value,
-                [simpleMemberMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
-                [simpleMemberMapperData.EnumerableIndex] = simpleMemberMapperData.EnumerableIndexValue
-            };
-
-            var conversions = valueFactories
-                .ProjectToArray(vf => new
-                {
-                    Value = vf.Create(simpleMemberMapperData).Replace(replacements).GetConversionTo(targetType),
-                    Condition = vf.GetConditionOrNull(simpleMemberMapperData)?.Replace(replacements)
-                });
-
-            var conversionCount = conversions.Length;
-            
-            if (valueFactories.Last().HasConfiguredCondition)
-            {
-                conversions = conversions.Append(new
-                {
-                    Value = mapperData.GetValueConversion(value, targetType) ?? simpleMemberMapperData.GetTargetMemberDefault(),
-                    Condition = default(Expression)
-                });
-
-                ++conversionCount;
-            }
-            else if (conversionCount == 1)
-            {
-                return conversions[0].Value;
-            }
-
-            var conversionExpression = default(Expression);
-            var conversionIndex = conversionCount;
-
-            while (true)
-            {
-                var conversion = conversions[--conversionIndex];
-
-                if (conversionExpression == null)
-                {
-                    conversionExpression = conversion.Value;
-                    continue;
-                }
-
-                conversionExpression = Expression.Condition(
-                    conversion.Condition,
-                    conversion.Value,
-                    conversionExpression);
-
-                if (conversionIndex == 0)
-                {
-                    return conversionExpression;
-                }
-            }
+            return mapperData.GetConversionOrCreationExpression(value, targetType, valueFactories);
         }
 
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
@@ -128,6 +71,101 @@
                 .MapperContext
                 .UserConfigurations
                 .QueryObjectFactories(queryMapperData);
+        }
+
+        private static Expression GetConversionOrCreationExpression(
+            this IMemberMapperData mapperData,
+            Expression value,
+            Type targetType,
+            IList<ConfiguredObjectFactory> valueFactories)
+        {
+            var simpleMemberMapperData = SimpleMemberMapperData.Create(value, mapperData);
+            
+            var checkNestedAccesses = 
+                simpleMemberMapperData.TargetMemberIsEnumerableElement() &&
+                value.Type.CanBeNull();
+
+            var replacements = new ExpressionReplacementDictionary(3)
+            {
+                [simpleMemberMapperData.SourceObject] = value,
+                [simpleMemberMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
+                [simpleMemberMapperData.EnumerableIndex] = simpleMemberMapperData.EnumerableIndexValue
+            };
+
+            var conversions = valueFactories.ProjectToArray(vf =>
+            {
+                var factoryExpression = vf.Create(simpleMemberMapperData);
+                var condition = vf.GetConditionOrNull(simpleMemberMapperData);
+
+                if (checkNestedAccesses)
+                {
+                    var nestedAccessChecks = ExpressionInfoFinder.Default
+                        .FindIn(factoryExpression, checkMultiInvocations: false)
+                        .NestedAccessChecks;
+
+                    if (nestedAccessChecks != null)
+                    {
+                        condition = condition != null
+                            ? Expression.AndAlso(nestedAccessChecks, condition)
+                            : nestedAccessChecks;
+                    }
+                }
+
+                return new SimpleTypeValueFactory
+                {
+                    Factory = factoryExpression.Replace(replacements).GetConversionTo(targetType),
+                    Condition = condition?.Replace(replacements)
+                };
+            });
+
+            if (conversions.Last().Condition != null)
+            {
+                conversions = conversions.Append(new SimpleTypeValueFactory
+                {
+                    Factory = mapperData.GetValueConversion(value, targetType) ??
+                              simpleMemberMapperData.GetTargetMemberDefault()
+                });
+            }
+            else if (conversions.Length == 1)
+            {
+                return conversions[0].Factory;
+            }
+
+            return GetConversionExpression(conversions);
+        }
+
+        private static Expression GetConversionExpression(IList<SimpleTypeValueFactory> conversions)
+        {
+            var conversionExpression = default(Expression);
+            var conversionIndex = conversions.Count;
+
+            while (true)
+            {
+                var conversion = conversions[--conversionIndex];
+
+                if (conversionExpression == null)
+                {
+                    conversionExpression = conversion.Factory;
+                    continue;
+                }
+
+                conversionExpression = Expression.Condition(
+                    conversion.Condition,
+                    conversion.Factory,
+                    conversionExpression);
+
+                if (conversionIndex == 0)
+                {
+                    return conversionExpression;
+                }
+            }
+        }
+
+        private class SimpleTypeValueFactory
+        {
+            public Expression Factory { get; set; }
+
+            public Expression Condition { get; set; }
         }
     }
 }
