@@ -659,6 +659,7 @@
             public Address Address { get; }
         }
 
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
         private static class Issue166
         {
             public static class Source
@@ -743,6 +744,7 @@
                 }
             }
         }
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
 
         #endregion
     }
