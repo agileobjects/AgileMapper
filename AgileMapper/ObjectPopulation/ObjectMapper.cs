@@ -33,12 +33,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 _mapperFunc = mappingLambda.Compile();
             }
-            else if (MapperData.Context.NeedsSubMapping)
+            else if (MapperData.Context.NeedsRuntimeTypedMapping)
             {
                 MapperData.Mapper = this;
             }
 
-            if (MapperData.Context.NeedsSubMapping)
+            if (MapperData.Context.NeedsRuntimeTypedMapping)
             {
                 _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }

@@ -72,24 +72,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool IsForNewElement { get; set; }
 
-        public bool NeedsSubMapping { get; private set; }
+        public bool NeedsRuntimeTypedMapping { get; private set; }
 
-        public void SubMappingNeeded()
+        public void RuntimeTypedMappingNeeded()
         {
-            if (NeedsSubMapping)
+            if (NeedsRuntimeTypedMapping)
             {
                 return;
             }
 
-            NeedsSubMapping = true;
-            BubbleSubMappingNeededToEntryPoint();
+            NeedsRuntimeTypedMapping = true;
+            BubbleRuntimeTypedMappingNeededToEntryPoint();
         }
 
-        private void BubbleSubMappingNeededToEntryPoint()
+        private void BubbleRuntimeTypedMappingNeededToEntryPoint()
         {
             if (!_mapperData.IsEntryPoint)
             {
-                _mapperData.Parent.Context.SubMappingNeeded();
+                _mapperData.Parent.Context.RuntimeTypedMappingNeeded();
             }
         }
 
@@ -141,7 +141,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 return (_isMappingDataObjectNeeded ??
                        (_isMappingDataObjectNeeded =
-                           NeedsSubMapping || UsesMappingDataObjectAsParameter ||
+                           NeedsRuntimeTypedMapping || UsesMappingDataObjectAsParameter ||
                           _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObject))).Value;
             }
         }

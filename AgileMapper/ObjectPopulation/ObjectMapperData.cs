@@ -526,7 +526,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return sourceObject;
             }
 
-            Context.SubMappingNeeded();
+            Context.RuntimeTypedMappingNeeded();
 
             var mapCall = Expression.Call(
                 MappingDataObject,
@@ -552,7 +552,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return sourceElement;
             }
 
-            Context.SubMappingNeeded();
+            Context.RuntimeTypedMappingNeeded();
 
             var mapCall = Expression.Call(
                 MappingDataObject,

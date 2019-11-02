@@ -94,7 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             parentMappingData = GetParentMappingData(mappingData);
 
             return parentMappingData.MapperDataPopulated &&
-                   parentMappingData.MapperData.Context.NeedsSubMapping;
+                   parentMappingData.MapperData.Context.NeedsRuntimeTypedMapping;
         }
 
         private static IObjectMappingData GetParentMappingData(IObjectMappingData mappingData)
