@@ -352,18 +352,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
         {
-            var targetMember = GetTargetMember(targetMemberRegistrationName, this);
+            var targetMember = GetTargetMember(targetMemberRegistrationName);
 
             return DataSourcesByTargetMember[targetMember][dataSourceIndex].SourceMember;
         }
 
-        private static QualifiedMember GetTargetMember(
-            string targetMemberRegistrationName,
-            ObjectMapperData mapperData)
+        private QualifiedMember GetTargetMember(string targetMemberRegistrationName)
         {
-            var targetMember = mapperData
-                .DataSourcesByTargetMember
-                .Keys
+            var targetMember = DataSourcesByTargetMember.Keys
                 .FirstOrDefault(k => k.RegistrationName == targetMemberRegistrationName);
 
             return targetMember;

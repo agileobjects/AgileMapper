@@ -32,20 +32,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingData = CreateMappingData(source, target, enumerableIndex, mapperKey, parent);
 
-            if (!ChildMappersNeeded(mappingData.Parent))
+            if (!mappingData.SubMappingNeeded(out var parentMappingData))
             {
                 return mappingData;
             }
 
-            var parentMappingData = GetParentMappingData(mappingData);
+            var mapperData = parentMappingData.MapperData.ChildMapperDatas.FirstOrDefault(md =>
+                (md.DataSourceIndex == dataSourceIndex) &&
+                (md.TargetMember.RegistrationName == targetMemberRegistrationName));
 
-            var mapperData = parentMappingData.MapperData.ChildMapperDatas.HasOne()
-                ? parentMappingData.MapperData.ChildMapperDatas.First()
-                : parentMappingData.MapperData.ChildMapperDatas.First(md =>
-                    (md.DataSourceIndex == dataSourceIndex) &&
-                    (md.TargetMember.RegistrationName == targetMemberRegistrationName));
-
-            mappingData.SetMapper(mapperData.Mapper);
+            if (mapperData != null)
+            {
+                mappingData.SetMapper(mapperData.Mapper);
+            }
 
             return mappingData;
         }
@@ -60,10 +59,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingData = CreateMappingData(sourceElement, targetElement, enumerableIndex, mapperKey, parent);
 
-            if (ChildMappersNeeded(mappingData.Parent))
+            if (mappingData.SubMappingNeeded(out var parentMappingData))
             {
                 mappingData.SetMapper(
-                    GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First().Mapper);
+                    parentMappingData.MapperData.ChildMapperDatas.First().Mapper);
             }
 
             return mappingData;
@@ -90,14 +89,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             };
         }
 
-        private static bool ChildMappersNeeded(IObjectMappingData mappingData)
+        private static bool SubMappingNeeded(this IObjectMappingData mappingData, out IObjectMappingData parentMappingData)
         {
-            while (!mappingData.IsStandalone())
-            {
-                mappingData = mappingData.Parent;
-            }
+            parentMappingData = GetParentMappingData(mappingData);
 
-            return mappingData.MapperData.Context.NeedsSubMapping;
+            return parentMappingData.MapperDataPopulated &&
+                   parentMappingData.MapperData.Context.NeedsSubMapping;
         }
 
         private static IObjectMappingData GetParentMappingData(IObjectMappingData mappingData)

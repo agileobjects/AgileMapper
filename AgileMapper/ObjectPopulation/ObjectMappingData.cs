@@ -117,6 +117,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public void SetMapper(IObjectMapper mapper)
             => _mapper = (ObjectMapper<TSource, TTarget>)mapper;
 
+        public bool MapperDataPopulated => (_mapperData ?? _mapper?.MapperData) != null;
+
         public ObjectMapperData MapperData
         {
             get => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For(this));
