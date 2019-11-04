@@ -74,15 +74,16 @@
                 return;
             }
 
-            var numberOfInvocations = valueInfo.MultiInvocations.Count;
-            variables = new ParameterExpression[numberOfInvocations];
-            var cacheVariablesByValue = new Dictionary<Expression, Expression>(numberOfInvocations);
-            var valueExpressions = new Expression[numberOfInvocations + 1];
+            // TODO: Optimise for single multi-invocation
+            var multiInvocationsCount = valueInfo.MultiInvocations.Count;
+            variables = new ParameterExpression[multiInvocationsCount];
+            var cacheVariablesByValue = new Dictionary<Expression, Expression>(multiInvocationsCount);
+            var valueExpressions = new Expression[multiInvocationsCount + 1];
 
-            for (var i = 0; i < numberOfInvocations; i++)
+            for (var i = 0; i < multiInvocationsCount; i++)
             {
                 var invocation = valueInfo.MultiInvocations[i];
-                var valueVariableName = invocation.Type.GetFriendlyName().ToCamelCase() + "Value";
+                var valueVariableName = invocation.Type.GetVariableNameInCamelCase() + "Value";
                 var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
                 var valueVariableValue = invocation.Replace(cacheVariablesByValue);
 
@@ -91,7 +92,7 @@
                 valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
             }
 
-            valueExpressions[numberOfInvocations] = value.Replace(cacheVariablesByValue);
+            valueExpressions[multiInvocationsCount] = value.Replace(cacheVariablesByValue);
             value = Expression.Block(valueExpressions);
         }
 

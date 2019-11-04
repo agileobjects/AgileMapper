@@ -149,6 +149,7 @@
         protected override Expression VisitBinary(BinaryExpression binary)
         {
             if ((binary.NodeType == ExpressionType.Assign) &&
+                (binary.Left.NodeType != ExpressionType.Parameter) &&
                  IsEnum(binary.Left.Type) &&
                  TryGetMatch(binary.Left, out var targetMemberData))
             {
