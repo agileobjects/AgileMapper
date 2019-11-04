@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using System.Collections.ObjectModel;
+    using AgileMapper.Members;
     using Common;
     using TestClasses;
 #if !NET35
@@ -188,5 +190,61 @@
                 plan.ShouldContain("readonly int");
             }
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/168
+        [Fact]
+        public void ShouldIncludeADataSourceFuncInvocation()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Func<IMappingData<Issue168.ISomething, Issue168.TgtSomething>, Issue168.SrcEnum> getEnum =
+                    ctxt => ctxt.Source is Issue168.SomethingB someB ? someB.MyLargeEnum : Issue168.SrcEnum.A;
+
+                mapper.WhenMapping
+                    .From<Issue168.ISomething>().To<Issue168.TgtSomething>()
+                    .Map(getEnum).To(tgt => tgt.MyLargeEnumg);
+
+                string mappingPlan = mapper.GetPlanFor<Issue168.ISomething>().ToANew<Issue168.TgtSomething>();
+
+                mappingPlan.ShouldNotBeNull();
+                mappingPlan.ShouldContain("srcEnumValue = ");
+                mappingPlan.ShouldContain(".Invoke(sToTsData)");
+            }
+        }
+
+        #region Helper Members
+
+        internal static class Issue168
+        {
+            public enum SrcEnum
+            {
+                A, B, C, D, E, F, G, H, I
+            }
+
+            public enum TgtEnum
+            {
+                A, B, C, D, E, F, G, H, I
+            }
+
+            public interface ISomething
+            {
+                string Name { get; }
+            }
+
+            public class SomethingB : ISomething
+            {
+                public string Name { get; set; }
+
+                public SrcEnum MyLargeEnum { get; set; }
+            }
+            public class TgtSomething
+            {
+                public string Name { get; set; }
+
+                public TgtEnum MyLargeEnumg { get; set; }
+            }
+        }
+
+        #endregion
     }
 }
