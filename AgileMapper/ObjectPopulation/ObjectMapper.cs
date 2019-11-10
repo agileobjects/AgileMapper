@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
                     mapping,
-                    mappingData.MapperData.MappingDataObject);
+                    MapperData.MappingDataObject);
 
                 _mapperFunc = mappingLambda.Compile();
             }

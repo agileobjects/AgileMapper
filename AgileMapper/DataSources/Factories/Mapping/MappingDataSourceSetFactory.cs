@@ -3,7 +3,7 @@
     using Extensions.Internal;
     using ObjectPopulation;
 
-    internal static class DataSourceSetFactory
+    internal static class MappingDataSourceSetFactory
     {
         private static readonly IMappingDataSourceFactory[] _mappingDataSourceFactories =
         {
@@ -17,7 +17,7 @@
         public static IDataSourceSet CreateFor(IObjectMappingData mappingData)
         {
             var dataSourceFactory = _mappingDataSourceFactories
-                .First(mappingData, (rmd, mef) => mef.IsFor(rmd));
+                .First(mappingData, (md, dsf) => dsf.IsFor(md));
 
             var dataSource = dataSourceFactory.CreateFor(mappingData);
 
