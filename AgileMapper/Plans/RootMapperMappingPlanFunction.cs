@@ -1,29 +1,29 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
-    using ObjectPopulation;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
-    using Validation;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using ObjectPopulation;
+    using ReadableExpressions;
+    using ReadableExpressions.Extensions;
+    using Validation;
 
     internal class RootMapperMappingPlanFunction : IMappingPlanFunction
     {
         private readonly ObjectMapperData _mapperData;
-        private readonly Expression _mappingLambda;
+        private readonly Expression _mapping;
 
         public RootMapperMappingPlanFunction(IObjectMapper mapper)
         {
             _mapperData = mapper.MapperData;
-            _mappingLambda = mapper.MappingLambda;
+            _mapping = mapper.Mapping;
         }
 
         public string GetDescription()
         {
-            var lambda = GetFinalMappingLambda();
+            var mapping = GetFinalMappingExpression();
 
             var sourceType = _mapperData.SourceType.GetFriendlyName();
             var targetType = _mapperData.TargetType.GetFriendlyName();
@@ -36,14 +36,14 @@
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-{lambda.ToReadableString()}".TrimStart();
+{mapping.ToReadableString()}".TrimStart();
         }
 
-        private Expression GetFinalMappingLambda()
+        private Expression GetFinalMappingExpression()
         {
-            var lambdaWithEnumMismatches = EnumMappingMismatchFinder.Process(_mappingLambda, _mapperData);
+            var mappingWithEnumMismatches = EnumMappingMismatchFinder.Process(_mapping, _mapperData);
 
-            return lambdaWithEnumMismatches;
+            return mappingWithEnumMismatches;
         }
     }
 }

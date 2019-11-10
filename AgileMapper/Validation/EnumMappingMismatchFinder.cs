@@ -50,18 +50,18 @@
             return mismatchSets;
         }
 
-        public static Expression Process(Expression lambda, ObjectMapperData mapperData)
+        public static Expression Process(Expression mapping, ObjectMapperData mapperData)
         {
             var targetMemberDatas = GetAllTargetMemberDatas(mapperData);
 
             if (targetMemberDatas.None())
             {
-                return lambda;
+                return mapping;
             }
 
             var finder = new EnumMappingMismatchFinder(mapperData, targetMemberDatas);
 
-            finder.Visit(lambda);
+            finder.Visit(mapping);
 
             var assignmentReplacements = finder._assignmentsByMismatchSet
                 .SelectMany(kvp => kvp.Value.Project(kvp.Key, (k, assignment) => new
@@ -71,7 +71,7 @@
                 }))
                 .ToDictionary(d => d.Assignment, d => d.AssignmentWithWarning);
 
-            var updatedLambda = lambda.Replace(assignmentReplacements);
+            var updatedLambda = mapping.Replace(assignmentReplacements);
 
             return updatedLambda;
         }

@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal interface IObjectMapperFunc
     {
-        LambdaExpression MappingLambda { get; }
+        Expression Mapping { get; }
 
         object Map(IObjectMappingData mappingData);
     }

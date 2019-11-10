@@ -27,11 +27,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             CreateMapperFunc(mappingData);
         }
 
+        public Expression Mapping { get; private set; }
+
         public Type SourceType => typeof(TChildSource);
 
         public Type TargetType => typeof(TChildTarget);
-
-        public LambdaExpression MappingLambda { get; private set; }
 
         public object Map(IObjectMappingData mappingData)
         {
@@ -67,10 +67,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             mappingData.MapperKey.MappingData = mappingData;
             mappingData.MapperKey.MapperData = mappingData.MapperData;
 
-            MappingLambda = mappingData.GetOrCreateMapper().MappingLambda;
+            var mappingLambda = Expression.Lambda<MapperFunc<TChildSource, TChildTarget>>(
+                mappingData.GetOrCreateMapper().Mapping,
+                mappingData.MapperData.MappingDataObject);
 
-            var typedMappingLambda = (Expression<MapperFunc<TChildSource, TChildTarget>>)MappingLambda;
-            _repeatedMappingFunc = typedMappingLambda.Compile();
+            Mapping = mappingLambda;
+
+            _repeatedMappingFunc = mappingLambda.Compile();
 
             if (isLazyLoading)
             {

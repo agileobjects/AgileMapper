@@ -195,12 +195,12 @@
                 return UseLocalValueVariable(
                     mapperData.MappingDataObject,
                     createMappingDataCall,
-                    mapper.MappingExpression,
+                    mapper.Mapping,
                     mapperData);
             }
 
             return GetDirectAccessMapping(
-                mapper.MappingLambda.Body,
+                mapper.Mapping,
                 mapperData,
                 mappingValues,
                 createMappingDataCall);

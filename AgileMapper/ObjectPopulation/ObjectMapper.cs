@@ -21,16 +21,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly ICache<ObjectMapperKeyBase, IRepeatedMapperFunc> _repeatedMappingFuncsByKey;
         private Action _resetCallback;
 
-        public ObjectMapper(
-            Expression<MapperFunc<TSource, TTarget>> mappingLambda,
-            IObjectMappingData mappingData)
+        public ObjectMapper(Expression mapping, IObjectMappingData mappingData)
         {
             _mapperKey = mappingData.MapperKey;
-            MappingLambda = mappingLambda;
+            Mapping = mapping;
             MapperData = mappingData.MapperData;
 
             if (MapperData.Context.Compile)
             {
+                var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
+                    mapping,
+                    mappingData.MapperData.MappingDataObject);
+
                 _mapperFunc = mappingLambda.Compile();
             }
             else if (MapperData.Context.NeedsRuntimeTypedMapping)
@@ -96,9 +98,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public LambdaExpression MappingLambda { get; }
-
-        public Expression MappingExpression => MappingLambda.Body;
+        public Expression Mapping { get; }
 
         public ObjectMapperData MapperData { get; }
 

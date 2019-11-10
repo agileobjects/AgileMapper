@@ -62,11 +62,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpression = MappingFactory
                 .UseLocalSourceValueVariableIfAppropriate(mappingExpression, mappingData.MapperData);
 
-            var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
-                mappingExpression,
-                mappingData.MapperData.MappingDataObject);
-
-            var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData);
+            var mapper = new ObjectMapper<TSource, TTarget>(mappingExpression, mappingData);
 
             if (_creationCallbacksByKey == null)
             {
