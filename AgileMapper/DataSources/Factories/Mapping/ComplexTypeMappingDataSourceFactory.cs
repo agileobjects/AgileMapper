@@ -1,8 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories.MappingRoot
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories.Mapping
 {
     using ObjectPopulation;
 
-    internal class ComplexTypeMappingRootDataSourceFactory : IMappingRootDataSourceFactory
+    internal class ComplexTypeMappingDataSourceFactory : IMappingDataSourceFactory
     {
         public bool IsFor(IObjectMappingData mappingData) => true;
 

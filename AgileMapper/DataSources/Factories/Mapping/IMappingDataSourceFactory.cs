@@ -1,8 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories.MappingRoot
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories.Mapping
 {
     using ObjectPopulation;
 
-    internal interface IMappingRootDataSourceFactory
+    internal interface IMappingDataSourceFactory
     {
         bool IsFor(IObjectMappingData mappingData);
 

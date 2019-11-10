@@ -2,13 +2,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using Caching;
-    using DataSources.Factories;
+    using DataSources.Factories.Mapping;
     using MapperKeys;
 
     internal class ObjectMapperFactory
@@ -52,7 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
-            var mappingExpression = RootDataSourceSetFactory.CreateFor(mappingData).BuildValue();
+            var mappingExpression = DataSourceSetFactory.CreateFor(mappingData).BuildValue();
 
             if (mappingExpression == Constants.EmptyExpression)
             {
