@@ -32,6 +32,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
+        private List<ObjectMapperData> _childMapperDatas;
+        private Dictionary<QualifiedMember, IDataSourceSet> _dataSourcesByTargetMember;
         private bool? _isRepeatMapping;
         private bool _isEntryPoint;
 
@@ -50,7 +52,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingContext.MapperContext,
                 parent)
         {
-            ChildMapperDatas = new List<ObjectMapperData>();
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
             CreatedObject = GetMappingDataProperty(nameof(CreatedObject));
@@ -69,8 +70,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ParentObject = GetParentObjectAccess();
             }
 
-            DataSourcesByTargetMember = new Dictionary<QualifiedMember, IDataSourceSet>();
-
             ReturnLabelTarget = Expression.Label(TargetType, "Return");
             _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
@@ -78,6 +77,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
             }
+
 
             if (IsRoot)
             {
@@ -341,7 +341,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData OriginalMapperData { get; set; }
 
-        public IList<ObjectMapperData> ChildMapperDatas { get; }
+        public IList<ObjectMapperData> ChildMapperDatas
+            => _childMapperDatas ?? (_childMapperDatas = new List<ObjectMapperData>());
 
         public int DataSourceIndex { get; set; }
 
@@ -514,7 +515,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IList<ObjectMapperKeyBase> RepeatedMapperFuncKeys { get; private set; }
 
-        public Dictionary<QualifiedMember, IDataSourceSet> DataSourcesByTargetMember { get; }
+        public Dictionary<QualifiedMember, IDataSourceSet> DataSourcesByTargetMember
+            => _dataSourcesByTargetMember ?? (_dataSourcesByTargetMember = new Dictionary<QualifiedMember, IDataSourceSet>());
 
         public Expression GetRuntimeTypedMapping(
             Expression sourceObject,
