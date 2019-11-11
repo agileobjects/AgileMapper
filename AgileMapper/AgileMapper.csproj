@@ -26,7 +26,8 @@
 - Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
 - Support for TimeSpan mapping
 - Fixing numeric to non-int-derived enum mapping
-- Adding package icon</PackageReleaseNotes>
+- Adding package icon
+- Performance improvements</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
