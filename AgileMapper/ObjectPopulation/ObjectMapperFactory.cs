@@ -3,13 +3,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using Caching;
+    using Caching.Dictionaries;
     using DataSources.Factories.Mapping;
     using MapperKeys;
 
     internal class ObjectMapperFactory
     {
         private readonly ICache<IRootMapperKey, IObjectMapper> _rootMappersCache;
-        private Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
+        private ISimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
 
         public ObjectMapperFactory(CacheSet mapperScopedCacheSet)
         {
@@ -23,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (_creationCallbacksByKey == null)
             {
                 _creationCallbacksByKey =
-                    new Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(default(MapperCreationCallbackKey.Comparer));
+                    new ExpandableSimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(3, default(MapperCreationCallbackKey.Comparer));
             }
 
             _creationCallbacksByKey.Add(creationCallbackKey, callback);

@@ -8,12 +8,18 @@ namespace AgileObjects.AgileMapper.Configuration
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using static Members.Member;
+#if NET35
+    using static Microsoft.Scripting.Ast.Expression;
+#else
+    using static System.Linq.Expressions.Expression;
+#endif
 
     internal class ParametersSwapper
     {
@@ -107,18 +113,17 @@ namespace AgileObjects.AgileMapper.Configuration
             var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
             var parentProperty = memberContextType.GetPublicInstanceProperty("Parent");
 
-            var replacementsByTarget = new ExpressionReplacementDictionary(5)
-            {
-                [Expression.Property(contextParameter, sourceProperty)] = contextInfo.SourceAccess,
-                [Expression.Property(contextParameter, targetProperty)] = contextInfo.TargetAccess,
-                [Expression.Property(contextParameter, indexProperty)] = contextInfo.Index,
-                [Expression.Property(contextParameter, parentProperty)] = contextInfo.Parent
-            };
+            var replacementsByTarget = FixedSizeExpressionReplacementDictionary
+                .WithEquivalentKeys(5)
+                .Add(Property(contextParameter, sourceProperty), contextInfo.SourceAccess)
+                .Add(Property(contextParameter, targetProperty), contextInfo.TargetAccess)
+                .Add(Property(contextParameter, indexProperty), contextInfo.Index)
+                .Add(Property(contextParameter, parentProperty), contextInfo.Parent);
 
             if (IsObjectCreationContext(contextTypes))
             {
                 replacementsByTarget.Add(
-                    Expression.Property(contextParameter, "CreatedObject"),
+                    Property(contextParameter, "CreatedObject"),
                     contextInfo.CreatedObject);
             }
 
@@ -136,7 +141,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 return lambda.ReplaceParameterWith(contextInfo.MappingDataAccess);
             }
 
-            var createObjectCreationContextCall = Expression.Call(
+            var createObjectCreationContextCall = Call(
                 ObjectCreationMappingData.CreateMethod.MakeGenericMethod(contextInfo.ContextTypes),
                 contextInfo.MappingDataAccess,
                 contextInfo.CreatedObject);
@@ -375,7 +380,7 @@ namespace AgileObjects.AgileMapper.Configuration
             public Type[] ContextTypes { get; }
 
             public Type SourceType => ContextTypes[0];
-            
+
             public Type TargetType => ContextTypes[1];
 
             public IMemberMapperData MapperData { get; }

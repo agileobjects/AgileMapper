@@ -2,15 +2,18 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.ExpressionType;
 #endif
     using Caching;
+    using Caching.Dictionaries;
+#if NET35
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using static System.Linq.Expressions.ExpressionType;
+#endif
 
     internal static partial class ExpressionExtensions
     {
@@ -21,10 +24,14 @@
                 return lambda.ReplaceParameterWith(replacements.First());
             }
 
-            var replacementsByParameter = lambda
-                .Parameters
-                .Project((p, i) => new { Parameter = p, Replacement = replacements[i] })
-                .ToDictionary(d => (Expression)d.Parameter, d => d.Replacement);
+            var parameterCount = lambda.Parameters.Count;
+
+            var replacementsByParameter = FixedSizeExpressionReplacementDictionary.WithEqualKeys(parameterCount);
+
+            for (var i = 0; i < parameterCount; ++i)
+            {
+                replacementsByParameter.Add(lambda.Parameters[i], replacements[i]);
+            }
 
             return lambda.Body.Replace(replacementsByParameter);
         }
@@ -66,21 +73,21 @@
             return new ExpressionReplacer(
                     target,
                     replacement,
-                    comparer ?? default(ReferenceEqualsComparer<Expression>))
+                    comparer ?? ReferenceEqualsComparer<Expression>.Default)
                 .Replace<TExpression>(expression);
         }
 
         public static TExpression Replace<TExpression>(
             this TExpression expression,
-            Dictionary<Expression, Expression> replacementsByTarget)
+            ISimpleDictionary<Expression, Expression> replacementsByTarget)
             where TExpression : Expression
         {
-            if ((expression == null) || replacementsByTarget.None())
+            if ((expression == null) || replacementsByTarget.None)
             {
                 return expression;
             }
 
-            var replacer = replacementsByTarget.HasOne()
+            var replacer = replacementsByTarget.HasOne
                 ? new ExpressionReplacer(
                     replacementsByTarget.Keys.First(),
                     replacementsByTarget.Values.First(),
@@ -113,13 +120,13 @@
 
         private class ExpressionReplacer
         {
-            private readonly Dictionary<Expression, Expression> _replacementsByTarget;
+            private readonly ISimpleDictionary<Expression, Expression> _replacementsByTarget;
             private readonly bool _hasDictionary;
             private readonly Expression _target;
             private readonly Expression _replacement;
             private readonly IEqualityComparer<Expression> _comparer;
 
-            public ExpressionReplacer(Dictionary<Expression, Expression> replacementsByTarget)
+            public ExpressionReplacer(ISimpleDictionary<Expression, Expression> replacementsByTarget)
             {
                 _replacementsByTarget = replacementsByTarget;
                 _hasDictionary = true;

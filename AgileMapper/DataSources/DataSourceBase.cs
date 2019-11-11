@@ -6,6 +6,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;
@@ -77,7 +78,7 @@
             // TODO: Optimise for single multi-invocation
             var multiInvocationsCount = valueInfo.MultiInvocations.Count;
             variables = new ParameterExpression[multiInvocationsCount];
-            var cacheVariablesByValue = new Dictionary<Expression, Expression>(multiInvocationsCount);
+            var cacheVariablesByValue = FixedSizeExpressionReplacementDictionary.WithEqualKeys(multiInvocationsCount);
             var valueExpressions = new Expression[multiInvocationsCount + 1];
 
             for (var i = 0; i < multiInvocationsCount; i++)

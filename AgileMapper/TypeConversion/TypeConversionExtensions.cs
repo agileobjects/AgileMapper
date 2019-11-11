@@ -8,6 +8,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -85,12 +86,11 @@
                 simpleMemberMapperData.TargetMemberIsEnumerableElement() &&
                 value.Type.CanBeNull();
 
-            var replacements = new ExpressionReplacementDictionary(3)
-            {
-                [simpleMemberMapperData.SourceObject] = value,
-                [simpleMemberMapperData.TargetObject] = mapperData.GetTargetMemberAccess(),
-                [simpleMemberMapperData.EnumerableIndex] = simpleMemberMapperData.EnumerableIndexValue
-            };
+            var replacements = FixedSizeExpressionReplacementDictionary
+                .WithEquivalentKeys(3)
+                .Add(simpleMemberMapperData.SourceObject, value)
+                .Add(simpleMemberMapperData.TargetObject, mapperData.GetTargetMemberAccess())
+                .Add(simpleMemberMapperData.EnumerableIndex, simpleMemberMapperData.EnumerableIndexValue);
 
             var conversions = valueFactories.ProjectToArray(vf =>
             {

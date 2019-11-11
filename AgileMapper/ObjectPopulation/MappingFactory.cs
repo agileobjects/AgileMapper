@@ -5,6 +5,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -229,12 +230,13 @@
                 sourceValueVariableValue = null;
             }
 
-            var replacementsByTarget = new ExpressionReplacementDictionary(3)
-            {
-                [mapperData.SourceObject] = sourceValue,
-                [mapperData.TargetObject] = mappingValues.TargetValue,
-                [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
-            };
+            var replacementsByTarget = FixedSizeExpressionReplacementDictionary
+                .WithEquivalentKeys(3)
+                .Add(mapperData.SourceObject, sourceValue)
+                .Add(mapperData.TargetObject, mappingValues.TargetValue)
+                .Add(
+                    mapperData.EnumerableIndex,
+                    mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type));
 
             mapping = mapping
                 .Replace(replacementsByTarget)

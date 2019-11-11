@@ -3,6 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
+    using Caching.Dictionaries;
     using DataSources;
     using Extensions;
     using Extensions.Internal;
@@ -10,11 +16,6 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class EnumMappingMismatchFinder : ExpressionVisitor
     {
@@ -63,13 +64,32 @@
 
             finder.Visit(mapping);
 
-            var assignmentReplacements = finder._assignmentsByMismatchSet
+            var assignmentData = finder._assignmentsByMismatchSet
                 .SelectMany(kvp => kvp.Value.Project(kvp.Key, (k, assignment) => new
                 {
                     Assignment = assignment,
                     AssignmentWithWarning = (Expression)Expression.Block(k.Warnings, assignment)
                 }))
-                .ToDictionary(d => d.Assignment, d => d.AssignmentWithWarning);
+                .ToArray();
+
+            var assignmentsCount = assignmentData.Length;
+
+            if (assignmentsCount == 1)
+            {
+                var singleData = assignmentData[0];
+
+                return mapping.Replace(singleData.Assignment, singleData.AssignmentWithWarning);
+            }
+
+            var assignmentReplacements = FixedSizeExpressionReplacementDictionary
+                .WithEqualKeys(assignmentsCount);
+
+            for (var i = 0; i < assignmentsCount;)
+            {
+                var data = assignmentData[i++];
+
+                assignmentReplacements.Add(data.Assignment, data.AssignmentWithWarning);
+            }
 
             var updatedLambda = mapping.Replace(assignmentReplacements);
 

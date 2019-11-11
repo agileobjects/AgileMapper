@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions.Internal;
     using Members.Population;
 
@@ -40,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             var objectNewings = NewExpressionFinder.FindIn(objectCreation);
-            var newingReplacements = new Dictionary<Expression, Expression>(objectNewings.Count);
+            var newingReplacements = FixedSizeExpressionReplacementDictionary.WithEqualKeys(objectNewings.Count);
 
             foreach (var objectNewing in objectNewings)
             {

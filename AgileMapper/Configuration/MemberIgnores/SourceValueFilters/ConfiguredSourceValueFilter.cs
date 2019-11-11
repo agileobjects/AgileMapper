@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
     using System.Linq.Expressions;
 #endif
     using Api.Configuration;
+    using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions;
@@ -184,7 +185,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
 
             protected override Expression GetFilterExpression(Expression sourceValue, ref bool hasFixedValueOperands)
             {
-                var conditionReplacements = new Dictionary<Expression, Expression>(_filterConditions.Count);
+                var conditionReplacements = FixedSizeExpressionReplacementDictionary.WithEqualKeys(_filterConditions.Count);
 
                 foreach (var filterCondition in _filterConditions)
                 {
