@@ -153,7 +153,7 @@
                   (sourceEnumType != targetEnumType);
         }
 
-        private static bool TargetMemberIsAnEnum(QualifiedMember targetMember, out Type targetEnumType)
+        private static bool TargetMemberIsAnEnum(IQualifiedMember targetMember, out Type targetEnumType)
         {
             if (targetMember.IsSimple && IsEnum(targetMember.Type, out targetEnumType))
             {

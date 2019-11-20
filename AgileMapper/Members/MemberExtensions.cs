@@ -405,7 +405,7 @@
                 parentMember = member;
             }
 
-            return QualifiedMember.From(memberChain, mapperContext);
+            return QualifiedMember.Create(memberChain, mapperContext);
         }
 
         public static IList<Expression> GetMemberAccessChain(

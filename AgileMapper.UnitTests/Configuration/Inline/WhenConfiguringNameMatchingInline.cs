@@ -68,12 +68,9 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper
-                    .WhenMapping
-                    .UseNameSuffixes("Str", "Int");
-
-                var source = new { ValueInt = 12345 };
-                var result = mapper.Map(source).ToANew<PublicField<string>>();
+                var result = mapper.Map(new { ValueInt = 12345 })
+                    .ToANew<PublicField<string>>(cfg => cfg
+                        .UseNameSuffixes("Str", "Int"));
 
                 result.Value.ShouldBe("12345");
             }

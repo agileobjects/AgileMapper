@@ -2,14 +2,14 @@
 {
     using System;
     using System.Dynamic;
-    using DataSources.Factories;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources.Factories;
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal class CustomDictionaryKey : UserConfiguredItemBase
     {
@@ -132,7 +132,7 @@
                 targetMemberChain[i] = mapperData.TargetMember.MemberChain[i];
             }
 
-            return QualifiedMember.From(targetMemberChain, ConfigInfo.MapperContext);
+            return QualifiedMember.Create(targetMemberChain, ConfigInfo.MapperContext);
         }
     }
 }

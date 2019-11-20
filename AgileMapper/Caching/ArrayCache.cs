@@ -172,7 +172,7 @@
             }
         }
 
-        private T[] ResizeToCapacity<T>(T[] existingArray)
+        private T[] ResizeToCapacity<T>(IList<T> existingArray)
         {
             var biggerArray = new T[_capacity];
 

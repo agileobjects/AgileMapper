@@ -4,16 +4,16 @@ namespace AgileObjects.AgileMapper.Members
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using Caching;
-    using Dictionaries;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching;
+    using Dictionaries;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class QualifiedMember : IQualifiedMember
     {
@@ -120,12 +120,12 @@ namespace AgileObjects.AgileMapper.Members
 
         #endregion
 
-        #region Factory Method
+        #region Factory Methods
 
-        public static QualifiedMember From(Member member, MapperContext mapperContext)
-            => new QualifiedMember(member, null, mapperContext);
+        public static QualifiedMember CreateRoot(Member rootMember, MapperContext mapperContext)
+            => new QualifiedMember(rootMember, null, mapperContext);
 
-        public static QualifiedMember From(Member[] memberChain, MapperContext mapperContext)
+        public static QualifiedMember Create(Member[] memberChain, MapperContext mapperContext)
         {
             var matchingNameSets = memberChain
                 .ProjectToArray(mapperContext.Naming.GetMatchingNamesFor);

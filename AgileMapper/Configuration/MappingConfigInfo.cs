@@ -14,10 +14,10 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
+    using static MappingRuleSet;
 
     internal class MappingConfigInfo : ITypePair
     {
-        private static readonly MappingRuleSet _allRuleSets = new MappingRuleSet("*");
 
         public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
             AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();
@@ -71,13 +71,13 @@
         }
 
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
-
-        public bool HasCompatibleTypes(MappingConfigInfo otherConfigInfo)
-            => ((ITypePair)this).HasCompatibleTypes(otherConfigInfo);
+        
+        public bool HasCompatibleTypes(ITypePair otherTypePair)
+            => this.HasCompatibleTypes(otherTypePair, sourceMember: null);
 
         public MappingRuleSet RuleSet { get; private set; }
 
-        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(_allRuleSets);
+        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(All);
 
         public MappingConfigInfo ForRuleSet(string ruleSetName)
             => ForRuleSet(MapperContext.RuleSets.GetByName(ruleSetName));
@@ -88,10 +88,10 @@
             return this;
         }
 
-        public bool IsForAllRuleSets => IsFor(_allRuleSets);
+        public bool IsForAllRuleSets => IsFor(All);
 
         public bool IsFor(MappingRuleSet mappingRuleSet)
-            => (RuleSet == _allRuleSets) || (mappingRuleSet == _allRuleSets) || (mappingRuleSet == RuleSet);
+            => (RuleSet == All) || (mappingRuleSet == All) || (mappingRuleSet == RuleSet);
 
         public Type SourceValueType { get; private set; }
 
@@ -224,7 +224,7 @@
         {
             if (targetMember == null)
             {
-                targetMember = QualifiedMember.From(Member.RootTarget(TargetType), MapperContext);
+                targetMember = QualifiedMember.CreateRoot(Member.RootTarget(TargetType), MapperContext);
             }
 
             return new BasicMapperData(

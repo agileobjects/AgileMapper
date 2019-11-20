@@ -110,7 +110,7 @@
                    TypesMatch(mapperData);
         }
 
-        private bool RuleSetMatches(IBasicMapperData mapperData) => ConfigInfo.IsFor(mapperData.RuleSet);
+        private bool RuleSetMatches(IRuleSetOwner ruleSetOwner) => ConfigInfo.IsFor(ruleSetOwner.RuleSet);
 
         private bool TargetMembersMatch(IBasicMapperData mapperData)
         {
@@ -138,8 +138,8 @@
         protected virtual bool TargetMembersAreCompatible(IBasicMapperData mapperData)
             => TargetMember == mapperData.TargetMember;
 
-        private bool HasCompatibleCondition(IBasicMapperData mapperData)
-            => !HasConfiguredCondition || ConfigInfo.ConditionSupports(mapperData.RuleSet);
+        private bool HasCompatibleCondition(IRuleSetOwner ruleSetOwner)
+            => !HasConfiguredCondition || ConfigInfo.ConditionSupports(ruleSetOwner.RuleSet);
 
         protected virtual bool TypesMatch(IBasicMapperData mapperData)
             => SourceAndTargetTypesMatch(mapperData);
@@ -156,25 +156,25 @@
                 return false;
             }
 
-            var objectMapperData = (IMemberMapperData)mapperData.Parent;
+            var parentMapperData = mapperData.Parent;
 
             while (true)
             {
-                if (objectMapperData.HasCompatibleTypes(ConfigInfo))
+                if (TypesAreCompatible(parentMapperData))
                 {
                     return true;
                 }
 
-                if (objectMapperData.IsEntryPoint)
+                if (parentMapperData.IsEntryPoint)
                 {
                     return false;
                 }
 
-                objectMapperData = objectMapperData.Parent;
+                parentMapperData = parentMapperData.Parent;
             }
         }
 
-        protected bool TypesAreCompatible(IBasicMapperData mapperData) => mapperData.HasCompatibleTypes(ConfigInfo);
+        protected bool TypesAreCompatible(ITypePair typePair) => typePair.HasCompatibleTypes(ConfigInfo);
 
         int IComparable<UserConfiguredItemBase>.CompareTo(UserConfiguredItemBase other)
             => DoComparisonTo(other);

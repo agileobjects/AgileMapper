@@ -154,21 +154,26 @@
         {
             var itemCount = items.Count;
 
-            if (itemCount == 0)
+            switch (itemCount)
             {
-                return Enumerable<TResult>.EmptyArray;
-            }
+                case 0:
+                    return Enumerable<TResult>.EmptyArray;
 
-            var result = new TResult[items.Count];
+                case 1:
+                    return new[] { projector.Invoke(argument, items[0]) };
 
-            for (var i = 0; ;)
-            {
-                result[i] = projector.Invoke(argument, items[i]);
+                default:
+                    var result = new TResult[items.Count];
 
-                if (++i == itemCount)
-                {
-                    return result;
-                }
+                    for (var i = 0; ;)
+                    {
+                        result[i] = projector.Invoke(argument, items[i]);
+
+                        if (++i == itemCount)
+                        {
+                            return result;
+                        }
+                    }
             }
         }
 

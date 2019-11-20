@@ -103,11 +103,13 @@
                 : EmptyTypeArray;
         }
 
-        private static IList<DerivedTypePair> GetTypePairsFor(IBasicMapperData pairTestMapperData, IMemberMapperData mapperData)
+        private static IList<DerivedTypePair> GetTypePairsFor(
+            IBasicMapperData pairTestMapperData, 
+            IMapperContextOwner mapperContextOwner)
         {
-            var derivedTypePairs = mapperData.MapperContext.UserConfigurations
+            var derivedTypePairs = mapperContextOwner.MapperContext.UserConfigurations
                 .DerivedTypes
-                .GetDerivedTypePairsFor(pairTestMapperData, mapperData.MapperContext);
+                .GetDerivedTypePairsFor(pairTestMapperData, mapperContextOwner.MapperContext);
 
             return derivedTypePairs;
         }

@@ -7,12 +7,8 @@
 #endif
     using ObjectPopulation;
 
-    internal interface IMemberMapperData : IBasicMapperData
+    internal interface IMemberMapperData : IBasicMapperData, IMapperContextOwner
     {
-        MapperContext MapperContext { get; }
-
-        bool IsEntryPoint { get; }
-
         new ObjectMapperData Parent { get; }
 
         MapperDataContext Context { get; }

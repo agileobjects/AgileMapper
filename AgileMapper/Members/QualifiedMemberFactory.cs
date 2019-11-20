@@ -18,10 +18,10 @@ namespace AgileObjects.AgileMapper.Members
         public IQualifiedMember RootSource<TSource, TTarget>()
         {
             var rootMember = _memberCache.GetOrAdd(
-                QualifiedMemberKey.ForSource<TSource, TTarget>(),
+                QualifiedMemberKey.Keys<TSource, TTarget>.Source,
                 k =>
                 {
-                    var sourceMember = QualifiedMember.From(Member.RootSource<TSource>(), _mapperContext);
+                    var sourceMember = QualifiedMember.CreateRoot(Member.RootSource<TSource>(), _mapperContext);
                     var matchedTargetMember = RootTarget<TSource, TTarget>();
 
                     return GetFinalSourceMember(sourceMember, matchedTargetMember);
@@ -45,10 +45,10 @@ namespace AgileObjects.AgileMapper.Members
         public QualifiedMember RootTarget<TSource, TTarget>()
         {
             var rootMember = _memberCache.GetOrAdd(
-                QualifiedMemberKey.ForTarget<TSource, TTarget>(),
+                QualifiedMemberKey.Keys<TSource, TTarget>.Target,
                 k =>
                 {
-                    var targetMember = QualifiedMember.From(Member.RootTarget<TTarget>(), _mapperContext);
+                    var targetMember = QualifiedMember.CreateRoot(Member.RootTarget<TTarget>(), _mapperContext);
 
                     return GetFinalTargetMember(targetMember);
                 });
@@ -70,20 +70,12 @@ namespace AgileObjects.AgileMapper.Members
 
         private class QualifiedMemberKey
         {
-            public static QualifiedMemberKey ForSource<TSource, TTarget>() => SourceKey<TSource, TTarget>.Instance;
-
-            public static QualifiedMemberKey ForTarget<TSource, TTarget>() => TargetKey<TSource, TTarget>.Instance;
-
             // ReSharper disable UnusedTypeParameter
             // ReSharper disable StaticMemberInGenericType
-            private static class SourceKey<T1, T2>
+            public static class Keys<T1, T2>
             {
-                public static readonly QualifiedMemberKey Instance = new QualifiedMemberKey();
-            }
-
-            private static class TargetKey<T1, T2>
-            {
-                public static readonly QualifiedMemberKey Instance = new QualifiedMemberKey();
+                public static readonly QualifiedMemberKey Source = new QualifiedMemberKey();
+                public static readonly QualifiedMemberKey Target = new QualifiedMemberKey();
             }
             // ReSharper restore StaticMemberInGenericType
             // ReSharper restore UnusedTypeParameter

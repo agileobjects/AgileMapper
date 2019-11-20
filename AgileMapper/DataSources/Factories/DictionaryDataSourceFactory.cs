@@ -78,7 +78,7 @@
             yield return new DictionaryNonSimpleMemberDataSource(sourceMember, mapperData);
         }
 
-        private static DictionarySourceMember GetSourceMember(IMemberMapperData mapperData)
+        private static DictionarySourceMember GetSourceMember(IBasicMapperData mapperData)
         {
             if (!mapperData.TargetMember.IsRecursion)
             {

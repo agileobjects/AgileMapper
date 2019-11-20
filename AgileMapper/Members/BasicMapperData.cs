@@ -51,6 +51,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsRoot { get; }
 
+        public virtual bool IsEntryPoint => IsRoot || SourceType == typeof(object);
+
         public MappingRuleSet RuleSet { get; }
 
         public Type SourceType { get; }

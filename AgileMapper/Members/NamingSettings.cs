@@ -11,10 +11,13 @@
 
     internal class NamingSettings
     {
+        private static readonly string[] _rootMatchingNames = { Constants.RootMemberName };
+        private static readonly string[] _defaultIdMemberNames = { "Id", "Identifier" };
+
         private readonly ICache<TypeKey, Member> _idMemberCache;
         private readonly List<Func<Member, string>> _matchingNameFactories;
         private readonly List<Func<IEnumerable<string>, string>> _joinedNameFactories;
-        private ICollection<Regex> _customNameMatchers;
+        private List<Regex> _customNameMatchers;
 
         public NamingSettings(CacheSet mapperScopedCache)
         {
@@ -34,7 +37,7 @@
             };
         }
 
-        private ICollection<Regex> CustomNameMatchers
+        private List<Regex> CustomNameMatchers
             => _customNameMatchers ?? (_customNameMatchers = new List<Regex>());
 
         private static string GetIdentifierName(Member member)
@@ -144,11 +147,9 @@
         private bool IsTypeIdentifier(Member member)
             => GetIdentifierOrNull(member.DeclaringType)?.Equals(member) == true;
 
-        public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));
-
-        public Member GetIdentifierOrNull(TypeKey typeIdKey)
+        public Member GetIdentifierOrNull(Type type)
         {
-            return _idMemberCache.GetOrAdd(typeIdKey, key =>
+            return _idMemberCache.GetOrAdd(TypeKey.ForTypeId(type), key =>
             {
                 var typeMembers = GlobalContext.Instance.MemberCache.GetSourceMembers(key.Type);
 
@@ -192,7 +193,7 @@
                 return false;
             }
 
-            potentialIds.InsertRange(0, new[] { "Id", "Identifier" });
+            potentialIds.InsertRange(0, _defaultIdMemberNames);
 
             return _customNameMatchers
                 .Project(member, (m, customNameMatcher) => customNameMatcher.Match(m.Name))
@@ -219,16 +220,15 @@
 
         #endregion
 
-        public string[] GetMatchingNamesFor(Member member) => EnumerateMatchingNames(member).ToArray();
+        public string[] GetMatchingNamesFor(Member member)
+        {
+            return member.IsRoot
+                ? _rootMatchingNames
+                : EnumerateMatchingNames(member).ToArray();
+        }
 
         private IEnumerable<string> EnumerateMatchingNames(Member member)
         {
-            if (member.IsRoot)
-            {
-                yield return Constants.RootMemberName;
-                yield break;
-            }
-
             var matchingName = default(string);
 
             if (_matchingNameFactories.Any(f => (matchingName = f.Invoke(member)) != null))
@@ -286,8 +286,7 @@
             {
                 if (isElementMember)
                 {
-                    extendedJoinedNames[index] = parentJoinedName + Constants.EnumerableElementName;
-                    ++index;
+                    extendedJoinedNames[index++] = parentJoinedName + Constants.EnumerableElementName;
                     continue;
                 }
 
@@ -295,15 +294,13 @@
                 {
                     if (wasElementMember)
                     {
-                        extendedJoinedNames[index] = parentJoinedName + "." + name;
-                        ++index;
+                        extendedJoinedNames[index++] = parentJoinedName + "." + name;
                         continue;
                     }
 
                     foreach (var joinedNameFactory in _joinedNameFactories)
                     {
-                        extendedJoinedNames[index] = joinedNameFactory.Invoke(new[] { parentJoinedName, name });
-                        ++index;
+                        extendedJoinedNames[index++] = joinedNameFactory.Invoke(new[] { parentJoinedName, name });
                     }
                 }
             }
@@ -313,8 +310,9 @@
 
         public void CloneTo(NamingSettings settings)
         {
-            settings._matchingNameFactories.AddRange(_matchingNameFactories);
-            settings._joinedNameFactories.AddRange(_joinedNameFactories);
+            settings._matchingNameFactories.AddRange(_matchingNameFactories.Skip(3));
+            settings._joinedNameFactories.AddRange(_joinedNameFactories.Skip(2));
+            _customNameMatchers?.CopyTo(settings.CustomNameMatchers);
         }
     }
 }

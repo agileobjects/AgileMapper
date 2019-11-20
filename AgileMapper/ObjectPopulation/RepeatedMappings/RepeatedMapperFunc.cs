@@ -1,12 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 {
     using System;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Members;
 
     internal class RepeatedMapperFunc<TChildSource, TChildTarget> : IRepeatedMapperFunc
     {
@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             {
                 _mappingFuncLock = new object();
                 _mapperData = mappingData.MapperData;
-                _mapperData.IsEntryPoint = true;
+                _mapperData.SetEntryPoint();
                 return;
             }
 

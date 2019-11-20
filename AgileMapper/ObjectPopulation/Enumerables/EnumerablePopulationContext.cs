@@ -1,19 +1,19 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
 
     internal class EnumerablePopulationContext
     {
-        public EnumerablePopulationContext(IMemberMapperData mapperData)
+        public EnumerablePopulationContext(IBasicMapperData mapperData)
         {
             SourceElementType = mapperData.SourceMember.ElementType;
 

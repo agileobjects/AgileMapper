@@ -254,10 +254,10 @@
         private static bool ShouldUseLocalSourceValueVariable(
             Expression sourceValue,
             Expression mapping,
-            IBasicMapperData mapperData)
+            IRuleSetOwner ruleSetOwner)
         {
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
-                   !mapperData.RuleSet.Settings.UseMemberInitialisation &&
+                   !ruleSetOwner.RuleSet.Settings.UseMemberInitialisation &&
                     SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
         }
 

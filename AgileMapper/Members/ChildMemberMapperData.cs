@@ -1,11 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    using ObjectPopulation;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using ObjectPopulation;
 
     internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
     {
@@ -35,7 +35,7 @@
 
         public MapperContext MapperContext => Parent.MapperContext;
 
-        public bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
+        public override bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
 
         private bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 

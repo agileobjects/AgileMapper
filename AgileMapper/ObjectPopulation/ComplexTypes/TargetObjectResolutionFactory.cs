@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static bool UseNullFallbackValue(
-            IMemberMapperData mapperData,
+            IBasicMapperData mapperData,
             Expression objectConstruction,
             IList<Expression> memberPopulations)
         {

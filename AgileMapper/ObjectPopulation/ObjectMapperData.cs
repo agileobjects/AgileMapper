@@ -472,11 +472,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapperData.OriginalMapperData;
         }
 
-        public bool IsEntryPoint
-        {
-            get => _isEntryPoint || IsRoot || Context.IsStandalone || IsRepeatMapping;
-            set => _isEntryPoint = value;
-        }
+        public override bool IsEntryPoint
+            => _isEntryPoint || IsRoot || Context.IsStandalone || IsRepeatMapping;
+
+        public void SetEntryPoint() => _isEntryPoint = true;
 
         public bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
 

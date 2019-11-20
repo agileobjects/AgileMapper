@@ -12,8 +12,15 @@ namespace AgileObjects.AgileMapper
     using ObjectPopulation.MapperKeys;
     using ObjectPopulation.RepeatedMappings;
 
+    internal interface IRuleSetOwner
+    {
+        MappingRuleSet RuleSet { get; }
+    }
+
     internal class MappingRuleSet
     {
+        public static readonly MappingRuleSet All = new MappingRuleSet("*");
+
         private Expression _nameConstant;
 
         public MappingRuleSet(
@@ -34,7 +41,7 @@ namespace AgileObjects.AgileMapper
             RootMapperKeyFactory = rootMapperKeyFactory;
         }
 
-        public MappingRuleSet(string name)
+        private MappingRuleSet(string name)
         {
             Name = name;
         }

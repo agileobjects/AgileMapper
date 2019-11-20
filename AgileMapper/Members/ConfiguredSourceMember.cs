@@ -3,16 +3,16 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Caching;
-    using Extensions;
-    using Extensions.Internal;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching;
+    using Extensions;
+    using Extensions.Internal;
+    using ReadableExpressions;
+    using ReadableExpressions.Extensions;
 
     internal class ConfiguredSourceMember : IQualifiedMember
     {

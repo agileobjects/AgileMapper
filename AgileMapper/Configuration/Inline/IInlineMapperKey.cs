@@ -8,11 +8,9 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
     using System.Linq.Expressions;
 #endif
 
-    internal interface IInlineMapperKey
+    internal interface IInlineMapperKey : IRuleSetOwner
     {
         MappingTypes MappingTypes { get; }
-
-        MappingRuleSet RuleSet { get; }
 
         Type ConfiguratorType { get; }
 

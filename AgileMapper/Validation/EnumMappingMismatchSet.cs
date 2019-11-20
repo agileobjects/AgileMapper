@@ -3,17 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using DataSources;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class EnumMappingMismatchSet
     {
@@ -135,7 +135,7 @@
                 IQualifiedMember targetMember,
                 IEnumerable<IQualifiedMember> sourceMembers,
                 IList<string> mismatches,
-                IMemberMapperData mapperData)
+                IBasicMapperData mapperData)
             {
                 _rootMapperData = mapperData.GetRootMapperData();
                 _sourceMembers = sourceMembers;
@@ -171,14 +171,14 @@
                 Type sourceEnumType,
                 Type targetEnumType,
                 IEnumerable<string> targetEnumNames,
-                IMemberMapperData mapperData)
+                IMapperContextOwner mapperContextOwner)
             {
                 var sourceEnumNames = Enum.GetNames(sourceEnumType);
                 var unmatchedSourceValues = sourceEnumNames.Except(targetEnumNames).ToList();
 
                 if (unmatchedSourceValues.Any())
                 {
-                    FilterOutConfiguredPairs(unmatchedSourceValues, sourceEnumType, targetEnumType, mapperData);
+                    FilterOutConfiguredPairs(unmatchedSourceValues, sourceEnumType, targetEnumType, mapperContextOwner);
                 }
 
                 if (unmatchedSourceValues.None())
@@ -196,9 +196,9 @@
                 ICollection<string> unmatchedSourceValues,
                 Type sourceEnumType,
                 Type targetEnumType,
-                IMemberMapperData mapperData)
+                IMapperContextOwner mapperContextOwner)
             {
-                var relevantEnumPairings = mapperData
+                var relevantEnumPairings = mapperContextOwner
                     .MapperContext
                     .UserConfigurations
                     .GetEnumPairingsFor(sourceEnumType, targetEnumType);

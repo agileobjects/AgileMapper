@@ -2,10 +2,8 @@
 {
     using ObjectPopulation;
 
-    internal interface IChildMemberMappingData
+    internal interface IChildMemberMappingData : IRuleSetOwner
     {
-        MappingRuleSet RuleSet { get; }
-
         IObjectMappingData Parent { get; }
 
         IMemberMapperData MapperData { get; }

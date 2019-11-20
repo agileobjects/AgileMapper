@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Members
 {
     using System;
+    using System.Linq.Expressions;
+    using AgileMapper.Members;
     using Common;
     using TestClasses;
 #if !NET35
@@ -102,5 +104,12 @@
 
             sourceMember.Matches(targetMember).ShouldBeFalse();
         }
+
+        #region Helper Members
+
+        internal IQualifiedMember SourceMemberFor<T>(Expression<Func<T, object>> childMemberExpression = null)
+            => SourceMemberFor(Member.RootSource<T>(), childMemberExpression);
+
+        #endregion
     }
 }

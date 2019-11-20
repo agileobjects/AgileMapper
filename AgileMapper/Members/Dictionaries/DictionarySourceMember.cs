@@ -1,19 +1,19 @@
 namespace AgileObjects.AgileMapper.Members.Dictionaries
 {
     using System;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using ReadableExpressions.Extensions;
 
     internal class DictionarySourceMember : IQualifiedMember
     {
         private readonly IQualifiedMember _wrappedSourceMember;
         private readonly QualifiedMember _matchedTargetMember;
 
-        public DictionarySourceMember(IMemberMapperData mapperData)
+        public DictionarySourceMember(IBasicMapperData mapperData)
             : this(mapperData.SourceMember, mapperData.TargetMember)
         {
         }

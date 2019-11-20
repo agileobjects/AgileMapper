@@ -60,7 +60,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public bool IsEntryPoint => false;
+        public override bool IsEntryPoint => false;
 
         public MapperDataContext Context => null;
 
