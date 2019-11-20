@@ -18,7 +18,7 @@
         public RootMapperMappingPlanFunction(IObjectMapper mapper)
         {
             _mapperData = mapper.MapperData;
-            _mapping = mapper.Mapping;
+            _mapping = mapper.GetMappingLambda();
         }
 
         public string GetDescription()

@@ -239,6 +239,8 @@
             {
                 string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
+                plan.ShouldContain("pToPData =>");
+                
                 plan.ShouldContain("pToPData.Register(sourceParent, parent)");
                 plan.ShouldContain("pToPData.Register(sourceParent.EldestChild, child)");
 
