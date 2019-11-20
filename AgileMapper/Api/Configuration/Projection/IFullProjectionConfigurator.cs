@@ -6,7 +6,8 @@
     /// <typeparam name="TSourceElement">The source element Type to which the configuration should apply.</typeparam>
     /// <typeparam name="TResultElement">The result element Type to which the configuration should apply.</typeparam>
     public interface IFullProjectionConfigurator<TSourceElement, TResultElement> :
-        IFullProjectionSettings<TSourceElement, TResultElement>
+        IFullProjectionSettings<TSourceElement, TResultElement>,
+        IFullMappingNamingSettings<IFullProjectionConfigurator<TSourceElement, TResultElement>>
     {
     }
 }

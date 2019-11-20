@@ -20,7 +20,9 @@
     using Validation;
 
     internal class MappingConfigurator<TSource, TTarget> :
+        IFullMappingConfigurator<TSource, TTarget>,
         IFullMappingInlineConfigurator<TSource, TTarget>,
+        IFullProjectionConfigurator<TSource, TTarget>,
         IFullProjectionInlineConfigurator<TSource, TTarget>,
         IConditionalRootMappingConfigurator<TSource, TTarget>,
         IConditionalRootProjectionConfigurator<TSource, TTarget>
@@ -40,6 +42,32 @@
         protected MapperContext MapperContext => ConfigInfo.MapperContext;
 
         private UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
+
+        #region IFullMappingConfigurator Members
+
+        #region Naming
+
+        IFullMappingConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingConfigurator<TSource, TTarget>>.UseNamePrefix(string prefix)
+            => UseNamePrefixes(prefix);
+
+        IFullMappingConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingConfigurator<TSource, TTarget>>.UseNamePrefixes(params string[] prefixes)
+            => UseNamePrefixes(prefixes);
+
+        IFullMappingConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingConfigurator<TSource, TTarget>>.UseNameSuffix(string suffix)
+            => UseNameSuffixes(suffix);
+
+        IFullMappingConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingConfigurator<TSource, TTarget>>.UseNameSuffixes(params string[] suffixes)
+            => UseNameSuffixes(suffixes);
+
+        IFullMappingConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingConfigurator<TSource, TTarget>>.UseNamePattern(string pattern)
+            => UseNamePatterns(pattern);
+
+        IFullMappingConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingConfigurator<TSource, TTarget>>.UseNamePatterns(params string[] patterns)
+            => UseNamePatterns(patterns);
+
+        #endregion
+
+        #endregion
 
         #region IFullMappingInlineConfigurator Members
 
@@ -66,29 +94,49 @@
 
         #region Naming
 
-        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePrefix(string prefix) => UseNamePrefixes(prefix);
+        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingInlineConfigurator<TSource, TTarget>>.UseNamePrefix(string prefix)
+            => UseNamePrefixes(prefix);
 
-        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePrefixes(params string[] prefixes)
-        {
-            MapperContext.Naming.AddNamePrefixes(prefixes);
-            return this;
-        }
+        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingInlineConfigurator<TSource, TTarget>>.UseNamePrefixes(params string[] prefixes)
+            => UseNamePrefixes(prefixes);
 
-        public IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffix(string suffix) => UseNameSuffixes(suffix);
+        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingInlineConfigurator<TSource, TTarget>>.UseNameSuffix(string suffix)
+            => UseNameSuffixes(suffix);
 
-        public IFullMappingInlineConfigurator<TSource, TTarget> UseNameSuffixes(params string[] suffixes)
-        {
-            MapperContext.Naming.AddNameSuffixes(suffixes);
-            return this;
-        }
+        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingInlineConfigurator<TSource, TTarget>>.UseNameSuffixes(params string[] suffixes)
+            => UseNameSuffixes(suffixes);
 
-        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePattern(string pattern) => UseNamePatterns(pattern);
+        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingInlineConfigurator<TSource, TTarget>>.UseNamePattern(string pattern)
+            => UseNamePatterns(pattern);
 
-        public IFullMappingInlineConfigurator<TSource, TTarget> UseNamePatterns(params string[] patterns)
-        {
-            MapperContext.Naming.AddNameMatchers(patterns);
-            return this;
-        }
+        IFullMappingInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullMappingInlineConfigurator<TSource, TTarget>>.UseNamePatterns(params string[] patterns)
+            => UseNamePatterns(patterns);
+
+        #endregion
+
+        #endregion
+
+        #region IFullProjectionConfigurator Members
+
+        #region Naming
+
+        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePrefix(string prefix)
+            => UseNamePrefixes(prefix);
+
+        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePrefixes(params string[] prefixes)
+            => UseNamePrefixes(prefixes);
+
+        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNameSuffix(string suffix)
+            => UseNameSuffixes(suffix);
+
+        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNameSuffixes(params string[] suffixes)
+            => UseNameSuffixes(suffixes);
+
+        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePattern(string pattern)
+            => UseNamePatterns(pattern);
+
+        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePatterns(params string[] patterns)
+            => UseNamePatterns(patterns);
 
         #endregion
 
@@ -109,35 +157,23 @@
 
         #region Naming
 
-        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePrefix(
-            string prefix) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNamePrefixes(prefix);
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionInlineConfigurator<TSource, TTarget>>.UseNamePrefix(string prefix)
+            => UseNamePrefixes(prefix);
 
-        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePrefixes(
-            params string[] prefixes)
-        {
-            MapperContext.Naming.AddNamePrefixes(prefixes);
-            return this;
-        }
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionInlineConfigurator<TSource, TTarget>>.UseNamePrefixes(params string[] prefixes)
+            => UseNamePrefixes(prefixes);
 
-        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNameSuffix(
-            string suffix) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNameSuffixes(suffix);
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionInlineConfigurator<TSource, TTarget>>.UseNameSuffix(string suffix)
+            => UseNameSuffixes(suffix);
 
-        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNameSuffixes(
-            params string[] suffixes)
-        {
-            MapperContext.Naming.AddNameSuffixes(suffixes);
-            return this;
-        }
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionInlineConfigurator<TSource, TTarget>>.UseNameSuffixes(params string[] suffixes)
+            => UseNameSuffixes(suffixes);
 
-        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePattern(
-            string pattern) => ((IFullProjectionInlineConfigurator<TSource, TTarget>)this).UseNamePatterns(pattern);
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionInlineConfigurator<TSource, TTarget>>.UseNamePattern(string pattern)
+            => UseNamePatterns(pattern);
 
-        IFullProjectionInlineConfigurator<TSource, TTarget> IFullProjectionInlineConfigurator<TSource, TTarget>.UseNamePatterns(
-            params string[] patterns)
-        {
-            MapperContext.Naming.AddNameMatchers(patterns);
-            return this;
-        }
+        IFullProjectionInlineConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionInlineConfigurator<TSource, TTarget>>.UseNamePatterns(params string[] patterns)
+            => UseNamePatterns(patterns);
 
         #endregion
 
@@ -521,6 +557,28 @@
             where TDerivedSource : TSource
         {
             return new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
+        }
+
+        #endregion
+
+        #region Naming
+
+        private MappingConfigurator<TSource, TTarget> UseNamePrefixes(params string[] prefixes)
+        {
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Prefixes(prefixes, ConfigInfo));
+            return this;
+        }
+
+        private MappingConfigurator<TSource, TTarget> UseNameSuffixes(params string[] suffixes)
+        {
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Suffixes(suffixes, ConfigInfo));
+            return this;
+        }
+
+        private MappingConfigurator<TSource, TTarget> UseNamePatterns(params string[] patterns)
+        {
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Create(patterns, ConfigInfo));
+            return this;
         }
 
         #endregion

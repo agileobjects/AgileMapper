@@ -158,7 +158,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNamePrefixes(params string[] prefixes)
         {
-            MapperContext.Naming.AddNamePrefixes(prefixes);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Prefixes(prefixes, GlobalConfigInfo));
             return this;
         }
 
@@ -182,7 +182,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNameSuffixes(params string[] suffixes)
         {
-            MapperContext.Naming.AddNameSuffixes(suffixes);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Suffixes(suffixes, GlobalConfigInfo));
             return this;
         }
 
@@ -212,7 +212,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNamePatterns(params string[] patterns)
         {
-            MapperContext.Naming.AddNameMatchers(patterns);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Create(patterns, GlobalConfigInfo));
             return this;
         }
 
