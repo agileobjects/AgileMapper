@@ -476,6 +476,28 @@
             thrownException.InnerException.Message.ShouldContain("An exception occurred mapping");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/176
+        [Fact]
+        public void ShouldHandleANullConfiguredMethodResult()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                mapper.WhenMapping
+                    .From<Address>()
+                    .To<PublicProperty<PublicProperty<string>>>()
+                    .CreateInstancesOf<PublicProperty<string>>()
+                    .Using(ctx => ReturnNull<PublicProperty<string>>());
+
+                var source = new Address();
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldBeNull();
+            }
+        }
+
         [Fact]
         public void ShouldWrapAnObjectCreationException()
         {
@@ -530,7 +552,7 @@
             mappingEx.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
         }
 
-        #region Helper Classes
+        #region Helper Members
 
         private class CustomerCtor : Person
         {
@@ -745,6 +767,12 @@
             }
         }
         // ReSharper restore UnusedAutoPropertyAccessor.Local
+
+        internal static T ReturnNull<T>()
+            where T : class
+        {
+            return null;
+        }
 
         #endregion
     }

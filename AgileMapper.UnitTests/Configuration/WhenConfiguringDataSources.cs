@@ -151,7 +151,7 @@
 
                 var source = new PublicOtherImplementation<int> { Value = 2 };
                 var target = new PublicImplementation<long> { Value = 2L };
-                
+
                 mapper.Map(source).Over((IPublicInterface)target);
 
                 target.Value.ShouldBe(4L);
@@ -431,6 +431,28 @@
                 var nullSourceResult = mapper.Map(nullSource).ToANew<PublicField<long>>();
 
                 nullSourceResult.Value.ShouldBeDefault();
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/176
+        [Fact]
+        public void ShouldHandleANullConfiguredMethodResult()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                mapper.WhenMapping
+                    .From<Address>()
+                    .To<PublicProperty<PublicProperty<string>>>()
+                    .Map((pf, _) => ReturnNull<PublicProperty<string>>())
+                    .To(pp => pp.Value);
+
+                var source = new Address();
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldBeNull();
             }
         }
 
@@ -1889,6 +1911,7 @@
         // ReSharper restore CollectionNeverQueried.Local
 
         // ReSharper disable InconsistentNaming
+
         internal static class Issue145
         {
             public class IdsSource
@@ -1990,6 +2013,12 @@
                     public string Name { get; set; }
                 }
             }
+        }
+
+        internal static T ReturnNull<T>()
+            where T : class
+        {
+            return null;
         }
 
         #endregion
