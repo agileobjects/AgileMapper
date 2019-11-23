@@ -44,7 +44,7 @@
         /// <summary>
         /// Setup Mapper configuration via <see cref="MapperConfiguration"/> instances.
         /// </summary>
-        public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.Mapper);
+        public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.MapperContext.Mapper);
 
         #region Service Providers
 

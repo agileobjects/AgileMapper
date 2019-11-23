@@ -113,7 +113,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         {
             var objectFactory = new ConfiguredObjectFactory(_configInfo, factoryInfo);
 
-            _configInfo.MapperContext.UserConfigurations.Add(objectFactory);
+            _configInfo.UserConfigurations.Add(objectFactory);
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }

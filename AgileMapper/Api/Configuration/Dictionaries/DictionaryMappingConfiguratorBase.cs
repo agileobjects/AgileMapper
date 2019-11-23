@@ -16,21 +16,21 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         {
             var flattenedJoiningNameFactory = JoiningNameFactory.Flattened(configInfo ?? ConfigInfo);
 
-            ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
+            ConfigInfo.UserConfigurations.Dictionaries.Add(flattenedJoiningNameFactory);
         }
 
         protected void SetupMemberNameSeparator(string separator, MappingConfigInfo configInfo = null)
         {
             var joiningNameFactory = JoiningNameFactory.For(separator, configInfo ?? ConfigInfo);
 
-            ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(joiningNameFactory);
+            ConfigInfo.UserConfigurations.Dictionaries.Add(joiningNameFactory);
         }
 
         protected void SetupElementKeyPattern(string pattern, MappingConfigInfo configInfo = null)
         {
             var keyPartFactory = ElementKeyPartFactory.For(pattern, configInfo ?? ConfigInfo);
 
-            ConfigInfo.MapperContext.UserConfigurations.Dictionaries.Add(keyPartFactory);
+            ConfigInfo.UserConfigurations.Dictionaries.Add(keyPartFactory);
         }
 
         protected CustomDictionaryMappingTargetMemberSpecifier<TValue, TTarget> MapFullKey<TValue>(string fullMemberNameKey)

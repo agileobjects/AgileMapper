@@ -18,7 +18,6 @@
 
     internal class MappingConfigInfo : ITypePair
     {
-
         public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
             AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();
 
@@ -41,7 +40,7 @@
 
         public MapperContext MapperContext { get; }
 
-        public IMapperInternal Mapper => MapperContext.Mapper;
+        public UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
 
         public Type SourceType { get; private set; }
 

@@ -114,29 +114,31 @@
 
         private bool TargetMembersMatch(IBasicMapperData mapperData)
         {
+            var otherTargetMember = mapperData.TargetMember;
+
             // The order of these checks is significant!
-            if ((TargetMember == QualifiedMember.All) || (mapperData.TargetMember == QualifiedMember.All))
+            if ((TargetMember == QualifiedMember.All) || (otherTargetMember == QualifiedMember.All))
             {
                 return true;
             }
 
-            if (TargetMembersAreCompatible(mapperData))
+            if (TargetMembersAreCompatible(otherTargetMember))
             {
                 return true;
             }
 
-            if ((TargetMember == QualifiedMember.None) || (mapperData.TargetMember == QualifiedMember.None))
+            if ((TargetMember == QualifiedMember.None) || (otherTargetMember == QualifiedMember.None))
             {
                 return false;
             }
 
-            return (mapperData.TargetMember.Type == TargetMember.Type) &&
-                   (mapperData.TargetMember.Name == TargetMember.Name) &&
-                    mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableTo(TargetMember.LeafMember.DeclaringType);
+            return (otherTargetMember.Type == TargetMember.Type) &&
+                   (otherTargetMember.Name == TargetMember.Name) &&
+                    otherTargetMember.LeafMember.DeclaringType.IsAssignableTo(TargetMember.LeafMember.DeclaringType);
         }
 
-        protected virtual bool TargetMembersAreCompatible(IBasicMapperData mapperData)
-            => TargetMember == mapperData.TargetMember;
+        protected virtual bool TargetMembersAreCompatible(IQualifiedMember otherTargetMember)
+            => TargetMember == otherTargetMember;
 
         private bool HasCompatibleCondition(IRuleSetOwner ruleSetOwner)
             => !HasConfiguredCondition || ConfigInfo.ConditionSupports(ruleSetOwner.RuleSet);
