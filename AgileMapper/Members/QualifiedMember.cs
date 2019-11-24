@@ -21,7 +21,8 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly QualifiedMember None = new QualifiedMember(default(Member), null);
 
         private readonly MapperContext _mapperContext;
-        private readonly Func<string> _pathFactory;
+        private readonly QualifiedMember _parent;
+        private readonly Func<QualifiedMember, string> _pathFactory;
         private readonly ICache<Member, QualifiedMember> _childMemberCache;
         private ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
 
@@ -44,7 +45,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             MemberChain = memberChain;
             JoinedNames = joinedNames;
-            _pathFactory = () => MemberChain.GetFullName();
+            _pathFactory = m => m.MemberChain.GetFullName();
             IsRecursion = DetermineRecursion();
         }
 
@@ -57,14 +58,15 @@ namespace AgileObjects.AgileMapper.Members
             {
                 MemberChain = new[] { member };
                 JoinedNames = memberMatchingNames;
-                _pathFactory = () => MemberChain[0].JoiningName;
+                _pathFactory = m => m.LeafMember.JoiningName;
                 return;
             }
 
+            _parent = parent;
             MemberChain = parent.MemberChain.Append(member);
             JoinedNames = parent.JoinedNames.ExtendWith(memberMatchingNames, mapperContext);
 
-            _pathFactory = () => parent.GetPath() + member.JoiningName;
+            _pathFactory = m => m._parent.GetPath() + m.LeafMember.JoiningName;
             IsRecursion = DetermineRecursion();
         }
 
@@ -161,7 +163,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public IList<string> JoinedNames { get; }
 
-        public string GetPath() => _pathFactory.Invoke();
+        public string GetPath() => _pathFactory.Invoke(this);
 
         public bool IsComplex => LeafMember.IsComplex;
 
