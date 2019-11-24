@@ -37,8 +37,8 @@ namespace AgileObjects.AgileMapper.Members
             _isMatchedToRootTarget = mapperData.TargetMember.IsRoot;
         }
 
-        private static Member[] GetConfiguredMemberChainOrNull(Expression value, IMemberMapperData mapperData)
-            => value.ToSourceMember(mapperData.MapperContext, nt => { })?.MemberChain;
+        private static Member[] GetConfiguredMemberChainOrNull(Expression value, IMapperContextOwner mapperContextOwner)
+            => value.ToSourceMember(mapperContextOwner.MapperContext, nt => { })?.MemberChain;
 
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(

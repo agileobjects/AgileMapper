@@ -94,7 +94,7 @@
         private static bool DoNotApplyFilter(
             IQualifiedMember sourceMember,
             IDataSource dataSource,
-            IMemberMapperData mapperData)
+            IBasicMapperData mapperData)
         {
             if (!dataSource.IsValid)
             {
