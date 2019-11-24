@@ -49,8 +49,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingContext.RuleSet,
                 sourceMember,
                 targetMember,
-                mappingContext.MapperContext,
-                parent)
+                parent,
+                mappingContext.MapperContext)
         {
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
@@ -659,7 +659,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 TargetType,
                 SourceMember,
                 QualifiedMember.None,
-                Parent);
+                Parent,
+                MapperContext);
         }
 
         #region ToString

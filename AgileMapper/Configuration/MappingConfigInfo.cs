@@ -230,7 +230,9 @@
                 RuleSet,
                 SourceType,
                 TargetType,
-                targetMember);
+                targetMember,
+                parent: null,
+                mapperContext: MapperContext);
         }
 
         public MappingConfigInfo Copy()

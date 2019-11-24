@@ -73,7 +73,8 @@ namespace AgileObjects.AgileMapper.Members
                     mapperData.TargetMember.ElementType,
                     mapperData.SourceMember,
                     mapperData.TargetMember.GetElementMember(),
-                    mapperData);
+                    mapperData,
+                    mapperData.MapperContext);
             }
 
             return mapperData;

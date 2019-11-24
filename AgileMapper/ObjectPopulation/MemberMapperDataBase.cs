@@ -17,25 +17,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingRuleSet ruleSet,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            MapperContext mapperContext,
-            ObjectMapperData parent)
+            ObjectMapperData parent,
+            MapperContext mapperContext)
             : base(
                 ruleSet,
                 sourceMember.Type,
                 targetMember.Type,
                 sourceMember,
                 targetMember,
-                parent)
+                parent,
+                mapperContext)
         {
-            MapperContext = mapperContext;
             Parent = parent;
             MappingDataObject = CreateMappingDataObject();
             MappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
             SourceObject = GetMappingDataProperty(MappingDataType, Member.RootSourceMemberName);
             TargetObject = GetMappingDataProperty(Member.RootTargetMemberName);
         }
-
-        public MapperContext MapperContext { get; }
 
         public ObjectMapperData Parent { get; }
 

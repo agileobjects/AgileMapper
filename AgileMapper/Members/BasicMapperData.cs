@@ -16,7 +16,8 @@ namespace AgileObjects.AgileMapper.Members
                 parent.TargetType,
                 sourceMember,
                 targetMember,
-                parent)
+                parent,
+                parent.MapperContext)
         {
         }
 
@@ -26,8 +27,15 @@ namespace AgileObjects.AgileMapper.Members
             Type targetType,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            IBasicMapperData parent)
-            : this(ruleSet, sourceType, targetType, targetMember, parent)
+            IBasicMapperData parent,
+            MapperContext mapperContext)
+            : this(
+                ruleSet,
+                sourceType,
+                targetType,
+                targetMember,
+                parent,
+                mapperContext)
         {
             SourceMember = sourceMember;
         }
@@ -37,15 +45,26 @@ namespace AgileObjects.AgileMapper.Members
             Type sourceType,
             Type targetType,
             QualifiedMember targetMember,
-            IBasicMapperData parent = null)
+            IBasicMapperData parent,
+            MapperContext mapperContext)
         {
-            IsRoot = parent == null;
-            _parent = parent;
+            if (parent == null)
+            {
+                IsRoot = true;
+            }
+            else
+            {
+                _parent = parent;
+            }
+
             SourceType = sourceType;
             TargetType = targetType;
             RuleSet = ruleSet;
             TargetMember = targetMember ?? QualifiedMember.All;
+            MapperContext = mapperContext;
         }
+
+        public MapperContext MapperContext { get; }
 
         IBasicMapperData IBasicMapperData.Parent => _parent;
 

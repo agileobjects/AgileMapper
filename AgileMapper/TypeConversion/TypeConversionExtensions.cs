@@ -53,7 +53,7 @@
             => mapperContextOwner.MapperContext.UserConfigurations.HasSimpleTypeValueFactories;
 
         private static IEnumerable<ConfiguredObjectFactory> QuerySimpleTypeValueFactories(
-            this IMemberMapperData mapperData,
+            this IBasicMapperData mapperData,
             Type sourceType,
             Type targetType)
         {
@@ -66,7 +66,9 @@
                 mapperData.RuleSet,
                 sourceType,
                 targetType.GetNonNullableType(),
-                QualifiedMember.All);
+                QualifiedMember.All,
+                mapperData.Parent,
+                mapperData.MapperContext);
 
             return mapperData
                 .MapperContext
@@ -81,8 +83,8 @@
             IList<ConfiguredObjectFactory> valueFactories)
         {
             var simpleMemberMapperData = SimpleMemberMapperData.Create(value, mapperData);
-            
-            var checkNestedAccesses = 
+
+            var checkNestedAccesses =
                 simpleMemberMapperData.TargetMemberIsEnumerableElement() &&
                 value.Type.CanBeNull();
 

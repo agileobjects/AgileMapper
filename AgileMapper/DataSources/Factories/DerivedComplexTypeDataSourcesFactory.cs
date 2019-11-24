@@ -422,7 +422,8 @@
                 derivedSourceType,
                 targetType,
                 mapperData.TargetMember.WithType(targetType),
-                mapperData.Parent);
+                mapperData.Parent,
+                mapperData.MapperContext);
 
             return GetTypePairsFor(pairTestMapperData, mapperData);
         }
