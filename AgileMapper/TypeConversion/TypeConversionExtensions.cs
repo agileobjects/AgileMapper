@@ -49,8 +49,8 @@
         public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
             => mapperData.MapperContext.GetValueConversion(value, targetType);
 
-        private static bool HasConfiguredSimpleTypeValueFactories(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.HasSimpleTypeValueFactories;
+        private static bool HasConfiguredSimpleTypeValueFactories(this IMapperContextOwner mapperContextOwner)
+            => mapperContextOwner.MapperContext.UserConfigurations.HasSimpleTypeValueFactories;
 
         private static IEnumerable<ConfiguredObjectFactory> QuerySimpleTypeValueFactories(
             this IMemberMapperData mapperData,
