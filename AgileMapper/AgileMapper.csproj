@@ -26,6 +26,7 @@
 - Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
 - Support for TimeSpan mapping
 - Fixing numeric to non-int-derived enum mapping
+- Fixing runtime-typed, simple-to-complex to-target data sources, re: #174
 - Adding package icon
 - Performance improvements</PackageReleaseNotes>
   </PropertyGroup>
