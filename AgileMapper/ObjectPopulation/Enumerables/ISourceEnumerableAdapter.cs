@@ -8,6 +8,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
     internal interface ISourceEnumerableAdapter
     {
+        Expression GetElementKey();
+
         Expression GetSourceValues();
 
         Expression GetSourceCountAccess();

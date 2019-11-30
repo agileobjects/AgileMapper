@@ -162,7 +162,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PublicProperty<int>>()
                     .ToANew<PublicProperty<string>>()
-                    .If(ctx => ctx.EnumerableIndex > 0)
+                    .If(ctx => ctx.ElementIndex > 0)
                     .Ignore(p => p.Value);
 
                 var source = new[]

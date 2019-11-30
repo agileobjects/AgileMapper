@@ -287,7 +287,7 @@
                     .Before
                     .CreatingInstancesOf<Address>()
                     .If((s, t, i) => (i == 1) || (i == 2))
-                    .Call(ctx => createdAddressesByIndex[ctx.EnumerableIndex.GetValueOrDefault()] = ctx.Source.AddressLine1);
+                    .Call(ctx => createdAddressesByIndex[ctx.ElementIndex.GetValueOrDefault()] = ctx.Source.AddressLine1);
 
                 var source = new[]
                 {
@@ -530,7 +530,7 @@
                 parentContext.ShouldNotBeNull();
                 parentContext.Source.ShouldBeSameAs(source);
                 parentContext.Target.ShouldBeSameAs(target);
-                parentContext.EnumerableIndex.ShouldBeNull();
+                parentContext.ElementIndex.ShouldBeNull();
                 parentContext.Parent.ShouldBeNull();
 
                 result.Name.ShouldBe("Billy");

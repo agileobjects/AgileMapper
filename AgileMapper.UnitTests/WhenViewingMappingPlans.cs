@@ -218,7 +218,7 @@
                 .ToANew<PublicSetMethod<ICollection<Product>>>();
 
             plan.ShouldContain("// Map PublicProperty<object[]> -> PublicSetMethod<ICollection<Product>>");
-            plan.ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
+            RemoveWhiteSpace(plan).ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/24
@@ -422,7 +422,10 @@
             }
         }
 
-        #region Helper Classes
+        #region Helper Members
+
+        private static string RemoveWhiteSpace(string plan) 
+            => plan.Replace(Environment.NewLine, null).Replace(" ", null);
 
         internal static class Issue146
         {

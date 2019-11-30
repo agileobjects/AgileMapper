@@ -21,10 +21,17 @@
         object Target { get; }
 
         /// <summary>
-        /// Gets the index of the current enumerable being mapped when the mapping
-        /// Exception occurred, if applicable.
+        /// Gets the index of the current enumerable element being mapped when the mapping Exception
+        /// occurred, if applicable.
         /// </summary>
+        [Obsolete("Use ElementIndex instead. This property will be removed in a future release.")]
         int? EnumerableIndex { get; }
+
+        /// <summary>
+        /// Gets the index of the current enumerable element being mapped when the mapping Exception
+        /// occurred, if applicable.
+        /// </summary>
+        int? ElementIndex { get; }
 
         /// <summary>
         /// Get the Exception object describing the error that occurred during the mapping.

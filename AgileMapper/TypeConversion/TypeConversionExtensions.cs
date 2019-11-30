@@ -90,7 +90,7 @@
                 .WithEquivalentKeys(3)
                 .Add(simpleMemberMapperData.SourceObject, value)
                 .Add(simpleMemberMapperData.TargetObject, mapperData.GetTargetMemberAccess())
-                .Add(simpleMemberMapperData.EnumerableIndex, simpleMemberMapperData.EnumerableIndexValue);
+                .Add(simpleMemberMapperData.ElementIndex, simpleMemberMapperData.ElementIndexValue);
 
             var conversions = valueFactories.ProjectToArray(vf =>
             {

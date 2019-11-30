@@ -16,6 +16,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     {
         private readonly DictionaryEntryVariablePair _dictionaryVariables;
         private readonly EnumerablePopulationBuilder _builder;
+        private readonly bool _performElementChecks;
         private readonly Expression _targetMemberKey;
         private readonly bool _useDirectValueAccess;
         private readonly ParameterExpression _targetElementKey;
@@ -29,24 +30,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             _dictionaryVariables = dictionaryVariables;
             _builder = builder;
 
-            var sourceMember = dictionaryVariables.SourceMember;
+            var sourceDictionaryMember = dictionaryVariables.SourceMember;
 
-            PerformElementChecks =
+            _performElementChecks =
                ElementTypesAreSimple ||
-               sourceMember.HasObjectEntries ||
-              (builder.Context.ElementTypesAreAssignable && !sourceMember.ValueType.IsSimple());
+               sourceDictionaryMember.HasObjectEntries ||
+              (builder.Context.ElementTypesAreAssignable && !sourceDictionaryMember.ValueType.IsSimple());
 
             _targetMemberKey = dictionaryVariables
                 .GetTargetMemberDictionaryEnumerableElementKey(builder.Counter, MapperData);
 
             _useDirectValueAccess = ElementTypesAreSimple
                 ? builder.Context.ElementTypesAreAssignable
-                : sourceMember.HasObjectEntries;
+                : sourceDictionaryMember.HasObjectEntries;
 
-            var useSeparateTargetKeyVariable = !ElementTypesAreSimple && PerformElementChecks;
+            var useSeparateTargetKeyVariable = !ElementTypesAreSimple && _performElementChecks;
 
             _targetElementKey = useSeparateTargetKeyVariable
-                ? Expression.Variable(typeof(string), "targetKey")
+                ? Expression.Variable(typeof(string), "targetElementKey")
                 : dictionaryVariables.Key;
 
             _sourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
@@ -54,7 +55,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             LoopExitCheck = MapperData.IsRoot ? GetRootLoopExitCheck() : GetKeyNotFoundLoopExitCheck();
         }
 
-        private ObjectMapperData MapperData => _builder.MapperData;
+        #region Setup
 
         private Expression GetDictionaryEntryValueAccess()
             => _dictionaryVariables.GetEntryValueAccess(_targetElementKey);
@@ -108,6 +109,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         private Expression GetNoKeysWithMatchingStartQuery()
             => _dictionaryVariables.GetNoKeysWithMatchingStartQuery(_targetElementKey);
 
+        #endregion
+
+        private ObjectMapperData MapperData => _builder.MapperData;
+
         public bool NeedsContinueTarget { get; set; }
 
         public LabelTarget ContinueLoopTarget { get; }
@@ -159,9 +164,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
         private bool ElementTypesAreSimple => _builder.TargetElementsAreSimple;
 
-        private bool PerformElementChecks { get; }
-
-        private bool DoNotPerformElementChecks => !PerformElementChecks;
+        private bool DoNotPerformElementChecks => !_performElementChecks;
 
         private Expression GetElementMappingBlock(Expression elementMapping)
         {
@@ -181,23 +184,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
         public Expression Adapt(LoopExpression loop)
         {
-            loop = loop.InsertAssignment(Constants.BeforeLoopExitCheck, _targetElementKey, _targetMemberKey);
+            loop = loop
+                .InsertAssignment(Constants.BeforeLoopExitCheck, _dictionaryVariables.Key, _targetElementKey)
+                .InsertAssignment(Constants.BeforeLoopExitCheck, _targetElementKey, _targetMemberKey);
 
             var loopBody = (BlockExpression)loop.Body;
 
-            var loopVariables = new List<ParameterExpression>(loopBody.Variables);
+            IList<ParameterExpression> loopVariables = loopBody.Variables;
 
             if (_elementKeyExists != null)
             {
-                loopVariables.Add(_elementKeyExists);
-
-                if (PerformElementChecks && !MapperData.IsRoot)
-                {
-                    loopVariables.Add(_dictionaryVariables.Key);
-                }
+                loopVariables = loopVariables.Append(_elementKeyExists);
             }
 
-            if (loopVariables.Count == loopBody.Variables.Count)
+            if (ReferenceEquals(loopVariables, loopBody.Variables))
             {
                 return loop;
             }

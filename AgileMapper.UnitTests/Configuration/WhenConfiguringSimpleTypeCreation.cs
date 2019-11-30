@@ -163,10 +163,10 @@
                     .From<string>()
                     .To<TimeSpan>()
                     .If((str, ts) => str == "HRS")
-                    .CreateInstancesUsing(ctx => TimeSpan.FromHours(ctx.EnumerableIndex.Value))
+                    .CreateInstancesUsing(ctx => TimeSpan.FromHours(ctx.ElementIndex.Value))
                     .But
                     .If((str, ts) => str == string.Empty)
-                    .CreateInstancesUsing(ctx => TimeSpan.FromMinutes(ctx.EnumerableIndex.Value));
+                    .CreateInstancesUsing(ctx => TimeSpan.FromMinutes(ctx.ElementIndex.Value));
 
                 var source = new PublicField<IEnumerable<string>>
                 {

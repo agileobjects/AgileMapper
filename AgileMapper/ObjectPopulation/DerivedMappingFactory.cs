@@ -79,7 +79,8 @@
             var mappingValues = new MappingValues(
                 sourceValue,
                 targetValue,
-                typeof(int?).ToDefaultExpression());
+                typeof(int?).ToDefaultExpression(),
+                Constants.NullObject);
 
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(
                 derivedTypeMappingData,
@@ -100,7 +101,8 @@
             var mappingValues = new MappingValues(
                 sourceValue,
                 targetValue,
-                derivedTypeMapperData.EnumerableIndex);
+                derivedTypeMapperData.ElementIndex,
+                derivedTypeMapperData.ElementKey);
 
             return MappingFactory.GetChildMapping(
                 derivedTypeMappingData,
