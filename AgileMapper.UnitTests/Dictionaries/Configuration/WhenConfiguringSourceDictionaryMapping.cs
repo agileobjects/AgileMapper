@@ -265,7 +265,7 @@
         }
 
         [Fact]
-        public void ShouldApplyGlobalThenSpecificCustomSeparators()
+        public void ShouldApplyGlobalTypeSpecificCustomSeparators()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -422,7 +422,7 @@
                     ["One"] = new PublicField<int> { Value = 1 },
                     ["Two"] = new PublicField<int> { Value = 2 }
                 };
-                
+
                 var result = mapper.Map(source).ToANew<Dictionary<string, PublicTwoFields<int, string>>>();
 
                 result.Count.ShouldBe(2);
@@ -434,6 +434,32 @@
                 var result2 = result.ShouldContainKey("Two")["Two"];
                 result2.Value1.ShouldBe(2);
                 result2.Value2.ShouldBe("Two");
+            }
+        }
+
+
+
+        [Fact]
+        public void ShouldMapAnElementKeyToAComplexTypeCollectionFromTypedEntries()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MegaProduct>()
+                    .To<MegaProduct>()
+                    .Map(ctx => ctx.Source.ProductId + ctx.ElementKey)
+                    .To(mp => mp.ProductId);
+
+                var source = new Dictionary<string, MegaProduct>
+                {
+                    ["[0]"] = new MegaProduct { ProductId = "iyrfd" },
+                    ["[1]"] = new MegaProduct { ProductId = "4r6sf" }
+                };
+                var result = mapper.Map(source).ToANew<ICollection<MegaProduct>>();
+
+                result.Count.ShouldBe(2);
+                result.First().ProductId.ShouldBe("iyrfd[0]");
+                result.Second().ProductId.ShouldBe("4r6sf[1]");
             }
         }
 

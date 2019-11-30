@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             var useSeparateTargetKeyVariable = !ElementTypesAreSimple && _performElementChecks;
 
             _targetElementKey = useSeparateTargetKeyVariable
-                ? Expression.Variable(typeof(string), "targetKey")
+                ? Expression.Variable(typeof(string), "targetElementKey")
                 : dictionaryVariables.Key;
 
             _sourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
@@ -184,7 +184,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
         public Expression Adapt(LoopExpression loop)
         {
-            loop = loop.InsertAssignment(Constants.BeforeLoopExitCheck, _targetElementKey, _targetMemberKey);
+            loop = loop
+                .InsertAssignment(Constants.BeforeLoopExitCheck, _dictionaryVariables.Key, _targetElementKey)
+                .InsertAssignment(Constants.BeforeLoopExitCheck, _targetElementKey, _targetMemberKey);
 
             var loopBody = (BlockExpression)loop.Body;
 
@@ -193,11 +195,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             if (_elementKeyExists != null)
             {
                 loopVariables = loopVariables.Append(_elementKeyExists);
-            }
-
-            if (!loopVariables.Contains(_dictionaryVariables.Key))
-            {
-                loopVariables = loopVariables.Append(_dictionaryVariables.Key);
             }
 
             if (ReferenceEquals(loopVariables, loopBody.Variables))
