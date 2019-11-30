@@ -21,6 +21,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         protected EnumerableTypeHelper TargetTypeHelper => Builder.TargetTypeHelper;
 
+        public virtual Expression GetElementKey() => Constants.NullObject;
+
         public virtual Expression GetSourceValues() => Builder.MapperData.SourceObject;
 
         public virtual bool UseReadOnlyTargetWrapper =>

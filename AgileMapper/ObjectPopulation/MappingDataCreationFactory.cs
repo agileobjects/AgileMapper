@@ -103,7 +103,7 @@
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
                 mappingValues.ElementIndex,
-                mappingValues.ElementKey,
+                mappingValues.ElementKey.GetConversionToObject(),
                 enumerableMappingDataObject);
 
             return createCall;

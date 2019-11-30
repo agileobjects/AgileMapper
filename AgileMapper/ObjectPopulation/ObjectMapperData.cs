@@ -566,7 +566,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceElement,
                 targetElement,
                 EnumerablePopulationBuilder.Counter,
-                typeof(object).ToDefaultExpression());
+                EnumerablePopulationBuilder.GetElementKey());
 
             return GetSimpleTypeCheckedMapCall(sourceElement, targetElement.Type, mapCall);
         }

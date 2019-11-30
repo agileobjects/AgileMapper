@@ -412,6 +412,8 @@
                 mapper.WhenMapping
                     .From<PublicField<int>>()
                     .ToANew<PublicTwoFields<int, string>>()
+                    .Map(s => s.Value, ptf => ptf.Value1)
+                    .And
                     .Map(ctx => ctx.ElementKey)
                     .To(ptf => ptf.Value2);
 

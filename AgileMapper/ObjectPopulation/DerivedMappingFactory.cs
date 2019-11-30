@@ -80,7 +80,7 @@
                 sourceValue,
                 targetValue,
                 typeof(int?).ToDefaultExpression(),
-                typeof(object).ToDefaultExpression());
+                Constants.NullObject);
 
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(
                 derivedTypeMappingData,

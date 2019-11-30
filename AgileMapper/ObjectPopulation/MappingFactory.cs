@@ -138,7 +138,7 @@
             else
             {
                 elementIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
-                elementKey = typeof(object).ToDefaultExpression();
+                elementKey = enumerableMapperData.EnumerablePopulationBuilder.GetElementKey();
                 parentMappingDataObject = enumerableMapperData.MappingDataObject;
             }
 
@@ -235,9 +235,10 @@
             }
 
             var replacementsByTarget = FixedSizeExpressionReplacementDictionary
-                .WithEquivalentKeys(3)
+                .WithEquivalentKeys(4)
                 .Add(mapperData.SourceObject, sourceValue)
                 .Add(mapperData.TargetObject, mappingValues.TargetValue)
+                .Add(mapperData.ElementKey, mappingValues.ElementKey)
                 .Add(
                     mapperData.ElementIndex,
                     mappingValues.ElementIndex.GetConversionTo(mapperData.ElementIndex.Type));

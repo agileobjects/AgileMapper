@@ -83,7 +83,7 @@
             DictionaryToDictionaryPopulationLoopData loopData,
             IObjectMappingData mappingData)
         {
-            var keyVariable = Expression.Variable(_targetDictionaryMember.KeyType, "targetKey");
+            var keyVariable = (ParameterExpression)_wrappedBuilder.GetElementKey();
             var keyAccess = Expression.Property(loopData.SourceElement, "Key");
             var keyConversion = MapperData.GetValueConversion(keyAccess, keyVariable.Type);
             var keyAssignment = keyVariable.AssignTo(keyConversion);
