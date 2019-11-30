@@ -12,6 +12,7 @@
                 mappingData.Source,
                 mappingData.Target,
                 mappingData.ElementIndex,
+                mappingData.ElementKey,
                 mappingData.Parent,
                 ((IMappingContextOwner)mappingData).MappingContext)
         {
@@ -21,6 +22,7 @@
             TSource source,
             TTarget target,
             int? elementIndex,
+            object elementKey,
             IMappingData parent,
             IMappingContext mappingContext)
         {
@@ -29,6 +31,7 @@
             Source = source;
             Target = target;
             ElementIndex = elementIndex;
+            ElementKey = elementKey;
         }
 
         IMappingData IMappingData.Parent => _parent;
@@ -42,6 +45,8 @@
         int? IMappingData<TSource, TTarget>.EnumerableIndex => ElementIndex;
 
         public int? ElementIndex { get; }
+
+        public object ElementKey { get; }
 
         T IMappingData.GetSource<T>()
         {
@@ -67,6 +72,8 @@
 
         public int? GetElementIndex() => ElementIndex ?? _parent?.GetElementIndex();
 
+        public object GetElementKey() => ElementKey ?? _parent?.GetElementKey();
+
         IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
         {
             var thisMappingData = (IMappingData)this;
@@ -75,6 +82,7 @@
                 thisMappingData.GetSource<TDataSource>(),
                 thisMappingData.GetTarget<TDataTarget>(),
                 GetElementIndex(),
+                GetElementKey(),
                 _parent,
                 _mappingContext);
         }

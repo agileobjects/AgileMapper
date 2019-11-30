@@ -70,7 +70,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
-                null, // <- No element index because we're at the root
+                default(int?),   // <- No element index because we're at the root
+                default(object), // <- No element key because we're at the root
                 mappingTypes,
                 mappingContext,
                 parent: null,
@@ -97,7 +98,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Create(
                     source,
                     default(ExpandoObject),
-                    null,
+                    default(int?),
+                    default(object),
                     mappingTypes,
                     mappingContext);
             }
@@ -107,7 +109,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Create(
                 source,
                 target,
-                null,
+                default(int?),
+                default(object),
                 mappingTypes,
                 mappingContext);
         }
@@ -163,6 +166,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 default(TSource),
                 default(TTarget),
                 default(int?),
+                default(object),
                 mapperKey,
                 parentMappingData);
         }
@@ -171,6 +175,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? elementIndex,
+            object elementKey,
             string targetMemberRegistrationName,
             int dataSourceIndex,
             IObjectMappingData parent)
@@ -184,6 +189,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 elementIndex,
+                elementKey,
                 mapperKey,
                 parent);
         }
@@ -234,14 +240,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var source = mappingData.GetSource<TSource>();
             var target = mappingData.GetTarget<TTarget>();
             var index = mappingData.GetElementIndex().GetValueOrDefault();
+            var key = mappingData.GetElementKey();
 
-            return ForElement(source, target, index, mappingData);
+            return ForElement(source, target, index, key, mappingData);
         }
 
         public static IObjectMappingData ForElement<TSource, TTarget>(
             TSource source,
             TTarget target,
             int elementIndex,
+            object elementKey,
             IObjectMappingData parent)
         {
             var mapperKey = new ElementObjectMapperKey(MappingTypes.For(source, target));
@@ -250,6 +258,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 elementIndex,
+                elementKey,
                 mapperKey,
                 parent);
         }
@@ -258,6 +267,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource source,
             TDeclaredTarget target,
             int? elementIndex,
+            object elementKey,
             ObjectMapperKeyBase mapperKey,
             IObjectMappingData parent)
         {
@@ -265,6 +275,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 elementIndex,
+                elementKey,
                 mapperKey.MappingTypes,
                 parent.MappingContext,
                 parent);
@@ -278,6 +289,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource source,
             TDeclaredTarget target,
             int? elementIndex,
+            object elementKey,
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent = null)
@@ -288,6 +300,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     source,
                     target,
                     elementIndex,
+                    elementKey,
                     mappingTypes,
                     mappingContext,
                     parent);
@@ -302,6 +315,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     source,
                     target,
                     elementIndex,
+                    elementKey,
                     mappingTypes,
                     mappingContext,
                     parent);
@@ -313,12 +327,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 elementIndex,
+                elementKey,
                 mappingTypes,
                 mappingContext,
                 parent);
         }
 
-        private static Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object> GetPartialTrustMappingDataCreator<TSource, TTarget>(
+        private static Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object, object> GetPartialTrustMappingDataCreator<TSource, TTarget>(
             MappingTypes mappingTypes)
         {
             var createCallerKey = DeclaredAndRuntimeTypesKey.For<TSource, TTarget>(mappingTypes);
@@ -329,6 +344,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
                 var elementIndexParameter = Expression.Parameter(typeof(int?), "i");
+                var elementKeyParameter = Expression.Parameter(typeof(object), "key");
                 var mappingTypesParameter = Expression.Parameter(typeof(object), "mappingTypes");
                 var mappingContextParameter = Expression.Parameter(typeof(object), "mappingContext");
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
@@ -347,17 +363,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceParameter,
                     targetParameter,
                     elementIndexParameter,
+                    elementKeyParameter,
                     mappingTypesParameter,
                     mappingContextParameter,
                     parentParameter);
 
                 var createLambda = Expression
-                    .Lambda<Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object>>(
+                    .Lambda<Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object, object>>(
                         createCall,
                         bridgeParameter,
                         sourceParameter,
                         targetParameter,
                         elementIndexParameter,
+                        elementKeyParameter,
                         mappingTypesParameter,
                         mappingContextParameter,
                         parentParameter);
@@ -372,6 +390,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource source,
             TDeclaredTarget target,
             int? elementIndex,
+            object elementKey,
             object mappingTypes,
             object mappingContext,
             object parent)
@@ -380,6 +399,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 (TSource)source,
                 (TTarget)target,
                 elementIndex,
+                elementKey,
                 (MappingTypes)mappingTypes,
                 (IMappingContext)mappingContext,
                 (IObjectMappingData)parent);
@@ -389,6 +409,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? elementIndex,
+            object elementKey,
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent);
@@ -401,6 +422,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(constructorKey, k =>
             {
                 var elementIndexParameter = Expression.Parameter(typeof(int?), "i");
+                var elementKeyParameter = Expression.Parameter(typeof(object), "key");
                 var mappingTypesParameter = typeof(MappingTypes).GetOrCreateParameter("mappingTypes");
                 var mappingContextParameter = typeof(IMappingContext).GetOrCreateParameter("mappingContext");
                 var mappingDataParameter = typeof(IObjectMappingData).GetOrCreateParameter("mappingData");
@@ -420,6 +442,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceParameter.GetConversionTo(k.RuntimeSourceType),
                     targetParameterValue.GetConversionTo(k.RuntimeTargetType),
                     elementIndexParameter,
+                    elementKeyParameter,
                     mappingTypesParameter,
                     mappingContextParameter,
                     mappingDataParameter,
@@ -430,6 +453,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceParameter,
                     targetParameter,
                     elementIndexParameter,
+                    elementKeyParameter,
                     mappingTypesParameter,
                     mappingContextParameter,
                     mappingDataParameter);

@@ -232,7 +232,14 @@
             Assert.Contains("// Rule Set: Overwrite", plan);
             Assert.Contains("ptfooaToPtfccData.Map(", plan);
             Assert.Contains("\"Value1\"", plan);
-            Assert.Contains("customers.Add(oaToCsData.Map(objectArray[i]", plan);
+            Assert.Contains("customers.Add(oaToCsData.Map(objectArray[i]", RemoveWhiteSpace(plan));
         }
+
+        #region Helper Members
+
+        private static string RemoveWhiteSpace(string plan)
+            => plan.Replace(Environment.NewLine, null).Replace(" ", null);
+
+        #endregion
     }
 }

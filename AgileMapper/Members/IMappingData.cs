@@ -46,9 +46,19 @@
         /// </summary>
         /// <returns>
         /// The index of the current enumerable element being mapped in the mapping context described
-        /// by this <see cref="IMappingData"/>, otherwise null.
+        /// by this <see cref="IMappingData"/> if applicable, otherwise null.
         /// </returns>
         int? GetElementIndex();
+
+        /// <summary>
+        /// Gets the key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingData"/>, if applicable.
+        /// </summary>
+        /// <returns>
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingData"/> if applicable, otherwise null.
+        /// </returns>
+        object GetElementKey();
 
         /// <summary>
         /// Gets the <see cref="IMappingData"/> as a typed <see cref="IMappingData{TSource, TTarget}"/>.
@@ -97,5 +107,11 @@
         /// described by this <see cref="IMappingData{TSource, TTarget}"/>, if applicable.
         /// </summary>
         int? ElementIndex { get; }
+        
+        /// <summary>
+        /// Gets the key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingData{TSource, TTarget}"/>, if applicable.
+        /// </summary>
+        object ElementKey { get; }
     }
 }

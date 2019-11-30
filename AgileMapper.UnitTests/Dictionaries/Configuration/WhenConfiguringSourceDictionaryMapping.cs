@@ -386,7 +386,7 @@
         }
 
         [Fact]
-        public void ShouldApplyACustomConfiguredMember()
+        public void ShouldApplyACustomSourceMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -400,6 +400,38 @@
                 var result = mapper.Map(source).ToANew<PublicField<long>>();
 
                 result.Value.ShouldBe(2);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/162
+        [Fact]
+        public void ShouldApplyAnElementKey()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .ToANew<PublicTwoFields<int, string>>()
+                    .Map(ctx => ctx.ElementKey)
+                    .To(ptf => ptf.Value2);
+
+                var source = new Dictionary<string, PublicField<int>>
+                {
+                    ["One"] = new PublicField<int> { Value = 1 },
+                    ["Two"] = new PublicField<int> { Value = 2 }
+                };
+                
+                var result = mapper.Map(source).ToANew<Dictionary<string, PublicTwoFields<int, string>>>();
+
+                result.Count.ShouldBe(2);
+
+                var result1 = result.ShouldContainKey("One")["One"];
+                result1.Value1.ShouldBe(1);
+                result1.Value2.ShouldBe("One");
+
+                var result2 = result.ShouldContainKey("Two")["Two"];
+                result2.Value1.ShouldBe(2);
+                result2.Value2.ShouldBe("Two");
             }
         }
 

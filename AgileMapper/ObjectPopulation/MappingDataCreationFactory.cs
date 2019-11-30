@@ -75,6 +75,7 @@
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
                 mappingValues.ElementIndex,
+                mappingValues.ElementKey,
                 childMapperData.TargetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression(),
                 childMapperData.Parent.MappingDataObject);
@@ -102,6 +103,7 @@
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
                 mappingValues.ElementIndex,
+                mappingValues.ElementKey,
                 enumerableMappingDataObject);
 
             return createCall;

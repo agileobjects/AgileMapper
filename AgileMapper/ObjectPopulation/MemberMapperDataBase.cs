@@ -77,6 +77,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected Expression GetElementIndexAccess()
             => GetMappingDataProperty(MappingDataType, "ElementIndex");
 
+        protected Expression GetElementKeyAccess()
+            => GetMappingDataProperty(MappingDataType, "ElementKey");
+
         protected Expression GetParentObjectAccess()
             => GetMappingDataProperty(nameof(Parent));
 

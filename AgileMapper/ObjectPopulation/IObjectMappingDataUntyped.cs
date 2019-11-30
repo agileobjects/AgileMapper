@@ -56,6 +56,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// The index of the current enumerable element being mapped in the mapping context described
         /// by this <see cref="IObjectMappingDataUntyped"/>, if applicable.
         /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IObjectMappingDataUntyped"/>, if applicable.
+        /// </param>
         /// <param name="targetMemberName">The name of the target member being mapped.</param>
         /// <param name="dataSourceIndex">
         /// The index of the data source being used to perform the mapping.
@@ -65,6 +69,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? elementIndex,
+            object elementKey,
             string targetMemberName,
             int dataSourceIndex);
 
@@ -83,13 +88,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// <param name="targetElement">The target element to which to map.</param>
         /// <param name="elementIndex">
         /// The index of the current enumerable <paramref name="sourceElement"/> enumerable being
-        /// mapped in the mapping context described by this <see cref="IObjectMappingDataUntyped"/>.
+        /// mapped in the mapping context described by this <see cref="IObjectMappingDataUntyped"/>,
+        /// if applicable.
+        /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IObjectMappingDataUntyped"/>, if applicable.
         /// </param>
         /// <returns>The mapping result.</returns>
         TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceElement,
             TDeclaredTarget targetElement,
-            int elementIndex);
+            int elementIndex,
+            object elementKey);
 
         /// <summary>
         /// Gets the <see cref="IObjectMappingDataUntyped"/> typed as an 

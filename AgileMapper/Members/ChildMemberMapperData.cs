@@ -55,6 +55,8 @@
 
         public Expression ElementIndex => Parent.ElementIndex;
 
+        public Expression ElementKey => Parent.ElementKey;
+
         public Expression TargetInstance => Parent.TargetInstance;
 
         public ExpressionInfoFinder ExpressionInfoFinder => Parent.ExpressionInfoFinder;

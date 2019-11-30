@@ -48,6 +48,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// <param name="elementIndex">
         /// The index of the current enumerable element being mapped, if applicable.
         /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped, if applicable.
+        /// </param>
         /// <param name="mapperKey">A key object uniquely identifying the context being mapped.</param>
         /// <param name="mappingContext">An object describing the context of the current mapping.</param>
         /// <param name="parent">
@@ -58,6 +61,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource source,
             TDeclaredTarget target,
             int? elementIndex,
+            object elementKey,
             object mapperKey,
             object mappingContext,
             object parent)

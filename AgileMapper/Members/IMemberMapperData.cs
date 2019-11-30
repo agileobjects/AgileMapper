@@ -25,6 +25,8 @@
 
         Expression ElementIndex { get; }
 
+        Expression ElementKey { get; }
+
         Expression TargetInstance { get; }
 
         ExpressionInfoFinder ExpressionInfoFinder { get; }

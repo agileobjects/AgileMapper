@@ -21,6 +21,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             ParentObject = GetParentObjectAccess();
             ElementIndex = GetElementIndexAccess();
+            ElementKey = GetElementKeyAccess();
             ElementIndexValue = Parent.ElementIndex;
         }
 
@@ -37,6 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             ParentObject = GetParentObjectAccess();
             ElementIndex = GetElementIndexAccess();
+            ElementKey = GetElementKeyAccess();
             ElementIndexValue = enumerableMapperData.EnumerablePopulationBuilder.Counter.GetConversionTo<int?>();
         }
 
@@ -69,6 +71,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression CreatedObject => null;
 
         public Expression ElementIndex { get; }
+
+        public Expression ElementKey { get; }
 
         public Expression ElementIndexValue { get; }
 

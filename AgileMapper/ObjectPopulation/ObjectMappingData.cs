@@ -29,6 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? elementIndex,
+            object elementKey,
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent,
@@ -37,6 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   source,
                   target,
                   elementIndex,
+                  elementKey,
                   mappingTypes,
                   mappingContext,
                   null,
@@ -49,12 +51,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? elementIndex,
+            object elementKey,
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData declaredTypeMappingData,
             IObjectMappingData parent,
             bool createMapper)
-            : base(source, target, elementIndex, parent, mappingContext)
+            : base(source, target, elementIndex, elementKey, parent, mappingContext)
         {
             MappingTypes = mappingTypes;
             MappingContext = mappingContext;
@@ -219,6 +222,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceValue,
                 targetValue,
                 GetElementIndex(),
+                GetElementKey(),
                 targetMemberRegistrationName,
                 dataSourceIndex);
 
@@ -229,6 +233,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? elementIndex,
+            object elementKey,
             string targetMemberRegistrationName,
             int dataSourceIndex)
         {
@@ -236,6 +241,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceValue,
                 targetValue,
                 elementIndex,
+                elementKey,
                 targetMemberRegistrationName,
                 dataSourceIndex,
                 this);
@@ -244,9 +250,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public TTargetElement Map<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
-            int elementIndex)
+            int elementIndex,
+            object elementKey)
         {
-            var elementMappingData = GetElementMappingData(sourceElement, targetElement, elementIndex);
+            var elementMappingData = GetElementMappingData(sourceElement, targetElement, elementIndex, elementKey);
 
             return (TTargetElement)_mapper.MapSubObject(elementMappingData);
         }
@@ -254,12 +261,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private IObjectMappingData GetElementMappingData<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
-            int elementIndex)
+            int elementIndex,
+            object elementKey)
         {
             return ObjectMappingDataFactory.ForElement(
                 sourceElement,
                 targetElement,
                 elementIndex,
+                elementKey,
                 this);
         }
 
@@ -267,6 +276,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
             int? elementIndex,
+            object elementKey,
             string targetMemberRegistrationName,
             int dataSourceIndex)
         {
@@ -276,6 +286,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     sourceValue,
                     targetValue,
                     elementIndex,
+                    elementKey,
                     targetMemberRegistrationName,
                     dataSourceIndex);
 
@@ -288,6 +299,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 sourceValue,
                 targetValue,
                 elementIndex,
+                elementKey,
                 targetMemberRegistrationName,
                 dataSourceIndex);
         }
@@ -295,21 +307,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         TDeclaredTarget IObjectMappingDataUntyped.MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceElement,
             TDeclaredTarget targetElement,
-            int elementIndex)
+            int elementIndex,
+            object elementKey)
         {
             if (IsRoot || MapperKey.MappingTypes.RuntimeTypesNeeded)
             {
                 var childMappingData = GetElementMappingData(
                     sourceElement,
                     targetElement,
-                    elementIndex);
+                    elementIndex,
+                    elementKey);
 
                 childMappingData.IsPartOfRepeatedMapping = true;
 
                 return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }
 
-            return Parent.MapRepeated(sourceElement, targetElement, elementIndex);
+            return Parent.MapRepeated(sourceElement, targetElement, elementIndex, elementKey);
         }
 
         #endregion
@@ -429,6 +443,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 typedSource,
                 typedTarget,
                 GetElementIndex(),
+                GetElementKey(),
                 mapperKey.MappingTypes,
                 MappingContext,
                 isForDerivedTypeMapping ? this : null,

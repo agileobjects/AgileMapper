@@ -33,7 +33,8 @@
             var mappingValues = new MappingValues(
                 sourceMemberAccess,
                 targetMemberAccess,
-                childMapperData.ElementIndex);
+                childMapperData.ElementIndex,
+                childMapperData.ElementKey);
 
             if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
@@ -126,23 +127,26 @@
             var enumerableMapperData = elementMappingData.Parent.MapperData;
             var elementMapperData = elementMappingData.MapperData;
 
-            Expression elementIndex, parentMappingDataObject;
+            Expression elementIndex, elementKey, parentMappingDataObject;
 
             if (elementMapperData.Context.IsStandalone)
             {
                 elementIndex = elementMapperData.ElementIndex.GetNullableValueAccess();
+                elementKey = elementMapperData.ElementKey;
                 parentMappingDataObject = typeof(IObjectMappingData).ToDefaultExpression();
             }
             else
             {
                 elementIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
+                elementKey = typeof(object).ToDefaultExpression();
                 parentMappingDataObject = enumerableMapperData.MappingDataObject;
             }
 
             var mappingValues = new MappingValues(
                 sourceElementValue,
                 targetElementValue,
-                elementIndex);
+                elementIndex,
+                elementKey);
 
             elementMapperData.Context.IsForNewElement =
                 (targetElementValue.NodeType == ExpressionType.Default) ||

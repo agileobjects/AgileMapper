@@ -21,6 +21,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? elementIndex,
+            object elementKey,
             string targetMemberRegistrationName,
             int dataSourceIndex,
             IObjectMappingDataUntyped parent)
@@ -30,7 +31,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 targetMemberRegistrationName,
                 dataSourceIndex);
 
-            var mappingData = CreateMappingData(source, target, elementIndex, mapperKey, parent);
+            var mappingData = CreateMappingData(source, target, elementIndex, elementKey, mapperKey, parent);
 
             if (!mappingData.SubMappingNeeded(out var parentMappingData))
             {
@@ -53,11 +54,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int elementIndex,
+            object elementKey,
             IObjectMappingDataUntyped parent)
         {
             var mapperKey = new ElementObjectMapperKey(MappingTypes<TSourceElement, TTargetElement>.Fixed);
 
-            var mappingData = CreateMappingData(sourceElement, targetElement, elementIndex, mapperKey, parent);
+            var mappingData = CreateMappingData(sourceElement, targetElement, elementIndex, elementKey, mapperKey, parent);
 
             if (mappingData.SubMappingNeeded(out var parentMappingData))
             {
@@ -72,6 +74,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             int? elementIndex,
+            object elementKey,
             ObjectMapperKeyBase mapperKey,
             IObjectMappingDataUntyped parent)
         {
@@ -81,6 +84,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 source,
                 target,
                 elementIndex,
+                elementKey,
                 mapperKey.MappingTypes,
                 mappingDataParent.MappingContext,
                 mappingDataParent)
