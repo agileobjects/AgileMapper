@@ -437,7 +437,36 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/162
+        [Fact]
+        public void ShouldApplyAnElementKeyToANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .ToANew<PublicTwoFields<long, PublicProperty<string>>>()
+                    .Map(ctx => ctx.Source.Value * 2)
+                    .To(ptf => ptf.Value1)
+                    .And
+                    .Map(ctx => ctx.ElementKey)
+                    .To(ptf => ptf.Value2.Value);
 
+                var source = new Dictionary<string, PublicField<int>>
+                {
+                    ["111"] = new PublicField<int> { Value = 123 }
+                };
+
+                var result = mapper.Map(source).ToANew<Dictionary<int, PublicTwoFields<long, PublicProperty<string>>>>();
+
+                result.ShouldHaveSingleItem();
+
+                var result1 = result.ShouldContainKey(111)[111];
+                result1.Value1.ShouldBe(246);
+                result1.Value2.ShouldNotBeNull();
+                result1.Value2.Value.ShouldBe("111");
+            }
+        }
 
         [Fact]
         public void ShouldMapAnElementKeyToAComplexTypeCollectionFromTypedEntries()
