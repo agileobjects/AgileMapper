@@ -52,9 +52,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// </typeparam>
         /// <param name="sourceValue">The source object from which to map.</param>
         /// <param name="targetValue">The target object to which to map.</param>
-        /// <param name="enumerableIndex">
-        /// The index of the current enumerable being mapped in the mapping context described by the 
-        /// <see cref="IObjectMappingDataUntyped"/>, if applicable.
+        /// <param name="elementIndex">
+        /// The index of the current enumerable element being mapped in the mapping context described
+        /// by this <see cref="IObjectMappingDataUntyped"/>, if applicable.
         /// </param>
         /// <param name="targetMemberName">The name of the target member being mapped.</param>
         /// <param name="dataSourceIndex">
@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
-            int? enumerableIndex,
+            int? elementIndex,
             string targetMemberName,
             int dataSourceIndex);
 
@@ -81,15 +81,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// </typeparam>
         /// <param name="sourceElement">The source element from which to map.</param>
         /// <param name="targetElement">The target element to which to map.</param>
-        /// <param name="enumerableIndex">
-        /// The index of the current enumerable being mapped in the mapping context described by the 
-        /// <see cref="IObjectMappingDataUntyped"/>
+        /// <param name="elementIndex">
+        /// The index of the current enumerable <paramref name="sourceElement"/> enumerable being
+        /// mapped in the mapping context described by this <see cref="IObjectMappingDataUntyped"/>.
         /// </param>
         /// <returns>The mapping result.</returns>
         TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceElement,
             TDeclaredTarget targetElement,
-            int enumerableIndex);
+            int elementIndex);
 
         /// <summary>
         /// Gets the <see cref="IObjectMappingDataUntyped"/> typed as an 

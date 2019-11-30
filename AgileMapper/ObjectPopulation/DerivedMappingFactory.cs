@@ -100,7 +100,7 @@
             var mappingValues = new MappingValues(
                 sourceValue,
                 targetValue,
-                derivedTypeMapperData.EnumerableIndex);
+                derivedTypeMapperData.ElementIndex);
 
             return MappingFactory.GetChildMapping(
                 derivedTypeMappingData,

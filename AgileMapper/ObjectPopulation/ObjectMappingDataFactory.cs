@@ -70,7 +70,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
-                null, // <- No enumerable index because we're at the root
+                null, // <- No element index because we're at the root
                 mappingTypes,
                 mappingContext,
                 parent: null,
@@ -170,7 +170,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static IObjectMappingData ForChild<TSource, TTarget>(
             TSource source,
             TTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
             string targetMemberRegistrationName,
             int dataSourceIndex,
             IObjectMappingData parent)
@@ -183,7 +183,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Create(
                 source,
                 target,
-                enumerableIndex,
+                elementIndex,
                 mapperKey,
                 parent);
         }
@@ -233,7 +233,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingData = (IObjectMappingData)parent;
             var source = mappingData.GetSource<TSource>();
             var target = mappingData.GetTarget<TTarget>();
-            var index = mappingData.GetEnumerableIndex().GetValueOrDefault();
+            var index = mappingData.GetElementIndex().GetValueOrDefault();
 
             return ForElement(source, target, index, mappingData);
         }
@@ -241,7 +241,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static IObjectMappingData ForElement<TSource, TTarget>(
             TSource source,
             TTarget target,
-            int enumerableIndex,
+            int elementIndex,
             IObjectMappingData parent)
         {
             var mapperKey = new ElementObjectMapperKey(MappingTypes.For(source, target));
@@ -249,7 +249,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Create(
                 source,
                 target,
-                enumerableIndex,
+                elementIndex,
                 mapperKey,
                 parent);
         }
@@ -257,14 +257,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IObjectMappingData Create<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource source,
             TDeclaredTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
             ObjectMapperKeyBase mapperKey,
             IObjectMappingData parent)
         {
             var mappingData = Create(
                 source,
                 target,
-                enumerableIndex,
+                elementIndex,
                 mapperKey.MappingTypes,
                 parent.MappingContext,
                 parent);
@@ -277,7 +277,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static IObjectMappingData Create<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource source,
             TDeclaredTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent = null)
@@ -287,7 +287,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return new ObjectMappingData<TDeclaredSource, TDeclaredTarget>(
                     source,
                     target,
-                    enumerableIndex,
+                    elementIndex,
                     mappingTypes,
                     mappingContext,
                     parent);
@@ -301,7 +301,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     _bridge,
                     source,
                     target,
-                    enumerableIndex,
+                    elementIndex,
                     mappingTypes,
                     mappingContext,
                     parent);
@@ -312,7 +312,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return constructionFunc.Invoke(
                 source,
                 target,
-                enumerableIndex,
+                elementIndex,
                 mappingTypes,
                 mappingContext,
                 parent);
@@ -328,7 +328,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
                 var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
-                var enumerableIndexParameter = Expression.Parameter(typeof(int?), "i");
+                var elementIndexParameter = Expression.Parameter(typeof(int?), "i");
                 var mappingTypesParameter = Expression.Parameter(typeof(object), "mappingTypes");
                 var mappingContextParameter = Expression.Parameter(typeof(object), "mappingContext");
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
@@ -346,7 +346,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     createMethod,
                     sourceParameter,
                     targetParameter,
-                    enumerableIndexParameter,
+                    elementIndexParameter,
                     mappingTypesParameter,
                     mappingContextParameter,
                     parentParameter);
@@ -357,7 +357,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         bridgeParameter,
                         sourceParameter,
                         targetParameter,
-                        enumerableIndexParameter,
+                        elementIndexParameter,
                         mappingTypesParameter,
                         mappingContextParameter,
                         parentParameter);
@@ -371,7 +371,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         object IObjectMappingDataFactoryBridge.CreateMappingData<TDeclaredSource, TDeclaredTarget, TSource, TTarget>(
             TDeclaredSource source,
             TDeclaredTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
             object mappingTypes,
             object mappingContext,
             object parent)
@@ -379,7 +379,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new ObjectMappingData<TSource, TTarget>(
                 (TSource)source,
                 (TTarget)target,
-                enumerableIndex,
+                elementIndex,
                 (MappingTypes)mappingTypes,
                 (IMappingContext)mappingContext,
                 (IObjectMappingData)parent);
@@ -388,7 +388,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private delegate IObjectMappingData MappingDataCreator<in TSource, in TTarget>(
             TSource source,
             TTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
             MappingTypes mappingTypes,
             IMappingContext mappingContext,
             IObjectMappingData parent);
@@ -400,7 +400,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var constructionFunc = GlobalContext.Instance.Cache.GetOrAdd(constructorKey, k =>
             {
-                var enumerableIndexParameter = Expression.Parameter(typeof(int?), "i");
+                var elementIndexParameter = Expression.Parameter(typeof(int?), "i");
                 var mappingTypesParameter = typeof(MappingTypes).GetOrCreateParameter("mappingTypes");
                 var mappingContextParameter = typeof(IMappingContext).GetOrCreateParameter("mappingContext");
                 var mappingDataParameter = typeof(IObjectMappingData).GetOrCreateParameter("mappingData");
@@ -419,7 +419,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     dataType.GetPublicInstanceConstructors().First(),
                     sourceParameter.GetConversionTo(k.RuntimeSourceType),
                     targetParameterValue.GetConversionTo(k.RuntimeTargetType),
-                    enumerableIndexParameter,
+                    elementIndexParameter,
                     mappingTypesParameter,
                     mappingContextParameter,
                     mappingDataParameter,
@@ -429,7 +429,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     constructorCall,
                     sourceParameter,
                     targetParameter,
-                    enumerableIndexParameter,
+                    elementIndexParameter,
                     mappingTypesParameter,
                     mappingContextParameter,
                     mappingDataParameter);

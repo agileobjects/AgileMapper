@@ -61,12 +61,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (isPartOfDerivedTypeMapping)
             {
                 DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
-                EnumerableIndex = declaredTypeMapperData.EnumerableIndex;
+                ElementIndex = declaredTypeMapperData.ElementIndex;
                 ParentObject = declaredTypeMapperData.ParentObject;
             }
             else
             {
-                EnumerableIndex = GetEnumerableIndexAccess();
+                ElementIndex = GetElementIndexAccess();
                 ParentObject = GetParentObjectAccess();
             }
 
@@ -404,7 +404,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool TargetTypeWillNotBeMappedAgain { get; }
 
-        public Expression EnumerableIndex { get; }
+        public Expression ElementIndex { get; }
 
         public Expression TargetInstance
         {
@@ -611,7 +611,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     mappingValues.SourceValue,
                     mappingValues.TargetValue,
-                    mappingValues.EnumerableIndex,
+                    mappingValues.ElementIndex,
                 };
             }
             else
@@ -622,7 +622,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     mappingValues.SourceValue,
                     mappingValues.TargetValue,
-                    EnumerableIndex,
+                    ElementIndex,
                     targetMember.RegistrationName.ToConstantExpression(),
                     dataSourceIndex.ToConstantExpression()
                 };

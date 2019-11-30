@@ -33,7 +33,7 @@
             var mappingValues = new MappingValues(
                 sourceMemberAccess,
                 targetMemberAccess,
-                childMapperData.EnumerableIndex);
+                childMapperData.ElementIndex);
 
             if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
@@ -126,23 +126,23 @@
             var enumerableMapperData = elementMappingData.Parent.MapperData;
             var elementMapperData = elementMappingData.MapperData;
 
-            Expression enumerableIndex, parentMappingDataObject;
+            Expression elementIndex, parentMappingDataObject;
 
             if (elementMapperData.Context.IsStandalone)
             {
-                enumerableIndex = elementMapperData.EnumerableIndex.GetNullableValueAccess();
+                elementIndex = elementMapperData.ElementIndex.GetNullableValueAccess();
                 parentMappingDataObject = typeof(IObjectMappingData).ToDefaultExpression();
             }
             else
             {
-                enumerableIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
+                elementIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
                 parentMappingDataObject = enumerableMapperData.MappingDataObject;
             }
 
             var mappingValues = new MappingValues(
                 sourceElementValue,
                 targetElementValue,
-                enumerableIndex);
+                elementIndex);
 
             elementMapperData.Context.IsForNewElement =
                 (targetElementValue.NodeType == ExpressionType.Default) ||
@@ -235,8 +235,8 @@
                 .Add(mapperData.SourceObject, sourceValue)
                 .Add(mapperData.TargetObject, mappingValues.TargetValue)
                 .Add(
-                    mapperData.EnumerableIndex,
-                    mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type));
+                    mapperData.ElementIndex,
+                    mappingValues.ElementIndex.GetConversionTo(mapperData.ElementIndex.Type));
 
             mapping = mapping
                 .Replace(replacementsByTarget)

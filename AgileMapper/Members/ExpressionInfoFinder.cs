@@ -263,7 +263,7 @@ namespace AgileObjects.AgileMapper.Members
 
                 switch (memberAccess.Member.Name)
                 {
-                    case nameof(IMappingData<int, int>.EnumerableIndex):
+                    case nameof(IMappingData<int, int>.ElementIndex):
                     case RootSourceMemberName:
                         return true;
 

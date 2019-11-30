@@ -11,7 +11,7 @@
             : this(
                 mappingData.Source,
                 mappingData.Target,
-                mappingData.EnumerableIndex,
+                mappingData.ElementIndex,
                 mappingData.Parent,
                 ((IMappingContextOwner)mappingData).MappingContext)
         {
@@ -20,7 +20,7 @@
         protected MappingInstanceData(
             TSource source,
             TTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
             IMappingData parent,
             IMappingContext mappingContext)
         {
@@ -28,7 +28,7 @@
             _mappingContext = mappingContext;
             Source = source;
             Target = target;
-            EnumerableIndex = enumerableIndex;
+            ElementIndex = elementIndex;
         }
 
         IMappingData IMappingData.Parent => _parent;
@@ -39,7 +39,9 @@
 
         public TTarget Target { get; set; }
 
-        public int? EnumerableIndex { get; }
+        int? IMappingData<TSource, TTarget>.EnumerableIndex => ElementIndex;
+
+        public int? ElementIndex { get; }
 
         T IMappingData.GetSource<T>()
         {
@@ -61,7 +63,9 @@
             return default(T);
         }
 
-        public int? GetEnumerableIndex() => EnumerableIndex ?? _parent?.GetEnumerableIndex();
+        int? IMappingData.GetEnumerableIndex() => GetElementIndex();
+
+        public int? GetElementIndex() => ElementIndex ?? _parent?.GetElementIndex();
 
         IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
         {
@@ -70,7 +74,7 @@
             return new MappingInstanceData<TDataSource, TDataTarget>(
                 thisMappingData.GetSource<TDataSource>(),
                 thisMappingData.GetTarget<TDataTarget>(),
-                GetEnumerableIndex(),
+                GetElementIndex(),
                 _parent,
                 _mappingContext);
         }

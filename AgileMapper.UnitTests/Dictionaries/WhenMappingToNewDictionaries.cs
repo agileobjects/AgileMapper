@@ -432,7 +432,7 @@
                         .WhenMapping
                         .From<A>()
                         .ToANew<B>()
-                        .Map(ctx => ctx.Parent.GetSource<StringKeyedDictionary<A>>().Keys.ElementAt(ctx.EnumerableIndex.Value))
+                        .Map(ctx => ctx.Parent.GetSource<StringKeyedDictionary<A>>().Keys.ElementAt(ctx.ElementIndex.Value))
                         .To(t => t.Something));
 
                 result.Count.ShouldBe(2);
