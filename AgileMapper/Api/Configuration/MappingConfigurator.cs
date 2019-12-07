@@ -116,32 +116,6 @@
 
         #endregion
 
-        #region IFullProjectionConfigurator Members
-
-        #region Naming
-
-        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePrefix(string prefix)
-            => UseNamePrefixes(prefix);
-
-        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePrefixes(params string[] prefixes)
-            => UseNamePrefixes(prefixes);
-
-        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNameSuffix(string suffix)
-            => UseNameSuffixes(suffix);
-
-        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNameSuffixes(params string[] suffixes)
-            => UseNameSuffixes(suffixes);
-
-        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePattern(string pattern)
-            => UseNamePatterns(pattern);
-
-        IFullProjectionConfigurator<TSource, TTarget> IFullMappingNamingSettings<IFullProjectionConfigurator<TSource, TTarget>>.UseNamePatterns(params string[] patterns)
-            => UseNamePatterns(patterns);
-
-        #endregion
-
-        #endregion
-
         #region IFullProjectionInlineConfigurator Members
 
         public IFullProjectionInlineConfigurator<TSource, TTarget> RecurseToDepth(int recursionDepth)

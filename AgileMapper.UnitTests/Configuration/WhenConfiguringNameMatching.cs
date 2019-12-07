@@ -238,7 +238,7 @@
             {
                 mapper.WhenMapping
                     .From(new { __Value__ = default(int) })
-                    .ToANew<PublicField<int>>()
+                    .To<PublicField<int>>()
                     .UseNamePatterns("^_abc(.+)xyz_$", "^__(.+)__$");
 
                 var source = new { __Value__ = 456 };

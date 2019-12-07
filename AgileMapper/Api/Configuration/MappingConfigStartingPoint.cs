@@ -612,7 +612,7 @@
         /// </summary>
         /// <typeparam name="TResult">The result Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TResult> ToANew<TResult>()
+        public IRuleSetMappingConfigurator<object, TResult> ToANew<TResult>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(CreateNew)).ToANew<TResult>();
 
         /// <summary>
@@ -621,7 +621,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> OnTo<TTarget>()
+        public IRuleSetMappingConfigurator<object, TTarget> OnTo<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Merge)).OnTo<TTarget>();
 
         /// <summary>
@@ -630,7 +630,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> Over<TTarget>()
+        public IRuleSetMappingConfigurator<object, TTarget> Over<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Overwrite)).Over<TTarget>();
 
         /// <summary>

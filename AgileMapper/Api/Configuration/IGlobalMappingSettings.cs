@@ -7,7 +7,7 @@
     /// <summary>
     /// Provides options for globally configuring how all mappers will perform mappings.
     /// </summary>
-    public interface IGlobalMappingSettings
+    public interface IGlobalMappingSettings : IFullMappingNamingSettings<IGlobalMappingSettings>
     {
         #region Exception Handling
 
@@ -32,76 +32,6 @@
         /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
         /// </returns>
         IGlobalMappingSettings PassExceptionsTo(Action<IMappingExceptionData> callback);
-
-        #endregion
-
-        #region Naming
-
-        /// <summary>
-        /// Expect members of all source and target types to potentially have the given name <paramref name="prefix"/>.
-        /// Source and target members will be matched as if the prefix is absent.
-        /// </summary>
-        /// <param name="prefix">The prefix to ignore when matching source and target members.</param>
-        /// <returns>
-        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
-        /// </returns>
-        IGlobalMappingSettings UseNamePrefix(string prefix);
-
-        /// <summary>
-        /// Expect members of all source and target types to potentially have any of the given name <paramref name="prefixes"/>.
-        /// Source and target members will be matched as if the prefixes are absent.
-        /// </summary>
-        /// <param name="prefixes">The prefixes to ignore when matching source and target members.</param>
-        /// <returns>
-        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
-        /// </returns>
-        IGlobalMappingSettings UseNamePrefixes(params string[] prefixes);
-
-        /// <summary>
-        /// Expect members of all source and target types to potentially have the given name <paramref name="suffix"/>.
-        /// Source and target members will be matched as if the suffix is absent.
-        /// </summary>
-        /// <param name="suffix">The suffix to ignore when matching source and target members.</param>
-        /// <returns>
-        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
-        /// </returns>
-        IGlobalMappingSettings UseNameSuffix(string suffix);
-
-        /// <summary>
-        /// Expect members of all source and target types to potentially have any of the given name <paramref name="suffixes"/>.
-        /// Source and target members will be matched as if the suffixes are absent.
-        /// </summary>
-        /// <param name="suffixes">The suffixes to ignore when matching source and target members.</param>
-        /// <returns>
-        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
-        /// </returns>
-        IGlobalMappingSettings UseNameSuffixes(params string[] suffixes);
-
-        /// <summary>
-        /// Expect members of all source and target types to potentially match the given name <paramref name="pattern"/>.
-        /// The pattern will be used to find the part of a name which should be used to match a source and target member.
-        /// </summary>
-        /// <param name="pattern">
-        /// The Regex pattern to check against source and target member names. The pattern is expected to start with the 
-        /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
-        /// </param>
-        /// <returns>
-        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
-        /// </returns>
-        IGlobalMappingSettings UseNamePattern(string pattern);
-
-        /// <summary>
-        /// Expect members of all source and target types to potentially match the given name <paramref name="patterns"/>.
-        /// The patterns will be used to find the part of a name which should be used to match a source and target member.
-        /// </summary>
-        /// <param name="patterns">
-        /// The Regex patterns to check against source and target member names. Each pattern is expected to start with the 
-        /// ^ character, end with the $ character and contain a single capturing group wrapped in parentheses, e.g. ^__(.+)__$
-        /// </param>
-        /// <returns>
-        /// An <see cref="IGlobalMappingSettings"/> with which to globally configure other mapping aspects.
-        /// </returns>
-        IGlobalMappingSettings UseNamePatterns(params string[] patterns);
 
         #endregion
 
@@ -139,7 +69,7 @@
         /// <summary>
         /// Setup Mapper configuration via <see cref="MapperConfiguration"/> instances.
         /// </summary>
-        MapperConfigurationSpecifier UseConfigurations {get;}
+        MapperConfigurationSpecifier UseConfigurations { get; }
 
         /// <summary>
         /// Gets a link back to the full <see cref="MappingConfigStartingPoint"/>, for api fluency.
