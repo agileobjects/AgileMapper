@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
         private readonly bool _isMatchedToRootTarget;
 
-        public ConfiguredSourceMember(Expression value, IMemberMapperData mapperData)
+        public ConfiguredSourceMember(Expression value, IBasicMapperData mapperData)
             : this(
                   value,
                   value.Type,

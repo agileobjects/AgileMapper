@@ -1,6 +1,6 @@
 namespace AgileObjects.AgileMapper.Members
 {
-    internal interface IBasicMapperData : ITypePair, IRuleSetOwner, IMapperContextOwner
+    internal interface IBasicMapperData : IMapperContextOwner, IRuleSetOwner, ITypePair
     {
         bool IsRoot { get; }
 
