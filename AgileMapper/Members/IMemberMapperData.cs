@@ -23,7 +23,9 @@
 
         Expression CreatedObject { get; }
 
-        Expression EnumerableIndex { get; }
+        Expression ElementIndex { get; }
+
+        Expression ElementKey { get; }
 
         Expression TargetInstance { get; }
 

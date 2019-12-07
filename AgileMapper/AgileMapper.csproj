@@ -22,6 +22,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>- Support for interface type-pairing, re: #163
+- Support for accessing Dictionary keys in custom data sources, re: #162
 - Support for simple type creation with CreateInstancesUsing, re: #165
 - Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
 - Support for TimeSpan mapping

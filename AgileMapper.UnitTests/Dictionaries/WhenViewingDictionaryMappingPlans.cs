@@ -38,8 +38,8 @@
                 .GetPlanFor<Dictionary<string, object>>()
                 .ToANew<Collection<Address>>();
 
-            plan.ShouldContain("targetKey = \"[\" + i + \"]\"");
-            plan.ShouldContain("elementKeyExists = sourceDictionary_String_Object.ContainsKey(targetKey)");
+            plan.ShouldContain("targetElementKey = \"[\" + i + \"]\"");
+            plan.ShouldContain("elementKeyExists = sourceDictionary_String_Object.ContainsKey(targetElementKey)");
             plan.ShouldContain("var line1Key = \"[\" + i + \"].Line1\"");
             plan.ShouldContain("line1 = sourceDictionary_String_Object[line1Key]");
             plan.ShouldContain("address.Line1 = line1.ToString()");

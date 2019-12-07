@@ -310,7 +310,7 @@
                 Mapper.WhenMapping
                     .From<CustomerViewModel>()
                     .ToDictionaries
-                    .Map(ctx => ctx.EnumerableIndex)
+                    .Map(ctx => ctx.ElementIndex)
                     .To(d => d[d.Count.ToString()]));
 
             configEx.Message.ShouldContain("must be constant string");

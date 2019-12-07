@@ -27,6 +27,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
         private DictionarySourceMember SourceMember => _dictionaryVariables.SourceMember;
 
+        public override Expression GetElementKey() => _dictionaryVariables.Key;
+
         public override Expression GetSourceValues()
         {
             var dictionaryAccess = base.GetSourceValues();

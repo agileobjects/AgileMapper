@@ -53,7 +53,9 @@
 
         public Expression CreatedObject => Parent.CreatedObject;
 
-        public Expression EnumerableIndex => Parent.EnumerableIndex;
+        public Expression ElementIndex => Parent.ElementIndex;
+
+        public Expression ElementKey => Parent.ElementKey;
 
         public Expression TargetInstance => Parent.TargetInstance;
 

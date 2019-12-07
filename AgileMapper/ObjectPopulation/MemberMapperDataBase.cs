@@ -74,8 +74,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected Type MappingDataType { get; }
 
-        protected Expression GetEnumerableIndexAccess()
-            => GetMappingDataProperty(MappingDataType, "EnumerableIndex");
+        protected Expression GetElementIndexAccess()
+            => GetMappingDataProperty(MappingDataType, "ElementIndex");
+
+        protected Expression GetElementKeyAccess()
+            => GetMappingDataProperty(MappingDataType, "ElementKey");
 
         protected Expression GetParentObjectAccess()
             => GetMappingDataProperty(nameof(Parent));

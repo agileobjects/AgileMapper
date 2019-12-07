@@ -110,7 +110,7 @@ namespace AgileObjects.AgileMapper.Configuration
             var memberContextType = IsCallbackContext(contextTypes) ? contextType : contextType.GetAllInterfaces().First();
             var sourceProperty = memberContextType.GetPublicInstanceProperty(RootSourceMemberName);
             var targetProperty = memberContextType.GetPublicInstanceProperty(RootTargetMemberName);
-            var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
+            var indexProperty = memberContextType.GetPublicInstanceProperty("ElementIndex");
             var parentProperty = memberContextType.GetPublicInstanceProperty("Parent");
 
             var replacementsByTarget = FixedSizeExpressionReplacementDictionary
@@ -374,7 +374,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public Expression TargetAccess { get; }
 
-            public Expression Index => _swapArgs.MapperData.EnumerableIndex;
+            public Expression Index => _swapArgs.MapperData.ElementIndex;
 
             public Expression Parent => _swapArgs.MapperData.ParentObject;
         }

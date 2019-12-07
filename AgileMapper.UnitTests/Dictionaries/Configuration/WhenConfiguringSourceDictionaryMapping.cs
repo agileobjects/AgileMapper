@@ -265,7 +265,7 @@
         }
 
         [Fact]
-        public void ShouldApplyGlobalThenSpecificCustomSeparators()
+        public void ShouldApplyGlobalTypeSpecificCustomSeparators()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -386,7 +386,7 @@
         }
 
         [Fact]
-        public void ShouldApplyACustomConfiguredMember()
+        public void ShouldApplyACustomSourceMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -400,6 +400,95 @@
                 var result = mapper.Map(source).ToANew<PublicField<long>>();
 
                 result.Value.ShouldBe(2);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/162
+        [Fact]
+        public void ShouldApplyAnElementKey()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .ToANew<PublicTwoFields<int, string>>()
+                    .Map(s => s.Value, ptf => ptf.Value1)
+                    .And
+                    .Map(ctx => ctx.ElementKey)
+                    .To(ptf => ptf.Value2);
+
+                var source = new Dictionary<string, PublicField<int>>
+                {
+                    ["One"] = new PublicField<int> { Value = 1 },
+                    ["Two"] = new PublicField<int> { Value = 2 }
+                };
+
+                var result = mapper.Map(source).ToANew<Dictionary<string, PublicTwoFields<int, string>>>();
+
+                result.Count.ShouldBe(2);
+
+                var result1 = result.ShouldContainKey("One")["One"];
+                result1.Value1.ShouldBe(1);
+                result1.Value2.ShouldBe("One");
+
+                var result2 = result.ShouldContainKey("Two")["Two"];
+                result2.Value1.ShouldBe(2);
+                result2.Value2.ShouldBe("Two");
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/162
+        [Fact]
+        public void ShouldApplyAnElementKeyToANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>()
+                    .ToANew<PublicTwoFields<long, PublicProperty<string>>>()
+                    .Map(ctx => ctx.Source.Value * 2)
+                    .To(ptf => ptf.Value1)
+                    .And
+                    .Map(ctx => ctx.ElementKey)
+                    .To(ptf => ptf.Value2.Value);
+
+                var source = new Dictionary<string, PublicField<int>>
+                {
+                    ["111"] = new PublicField<int> { Value = 123 }
+                };
+
+                var result = mapper.Map(source).ToANew<Dictionary<int, PublicTwoFields<long, PublicProperty<string>>>>();
+
+                result.ShouldHaveSingleItem();
+
+                var result1 = result.ShouldContainKey(111)[111];
+                result1.Value1.ShouldBe(246);
+                result1.Value2.ShouldNotBeNull();
+                result1.Value2.Value.ShouldBe("111");
+            }
+        }
+
+        [Fact]
+        public void ShouldMapAnElementKeyToAComplexTypeCollectionFromTypedEntries()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MegaProduct>()
+                    .To<MegaProduct>()
+                    .Map(ctx => ctx.Source.ProductId + ctx.ElementKey)
+                    .To(mp => mp.ProductId);
+
+                var source = new Dictionary<string, MegaProduct>
+                {
+                    ["[0]"] = new MegaProduct { ProductId = "iyrfd" },
+                    ["[1]"] = new MegaProduct { ProductId = "4r6sf" }
+                };
+                var result = mapper.Map(source).ToANew<ICollection<MegaProduct>>();
+
+                result.Count.ShouldBe(2);
+                result.First().ProductId.ShouldBe("iyrfd[0]");
+                result.Second().ProductId.ShouldBe("4r6sf[1]");
             }
         }
 

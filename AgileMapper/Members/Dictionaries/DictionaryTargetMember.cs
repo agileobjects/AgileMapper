@@ -183,9 +183,9 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         private Expression GetKey(IMemberMapperData mapperData)
         {
-            return (Key?.NodeType != Parameter)
-                ? mapperData.GetValueConversion(mapperData.GetTargetMemberDictionaryKey(), KeyType)
-                : Key;
+            return mapperData.GetValueConversion(
+               (Key?.NodeType != Parameter) ? mapperData.GetTargetMemberDictionaryKey() : Key,
+                KeyType);
         }
 
         private Expression GetDictionaryAccess(IMemberMapperData mapperData)

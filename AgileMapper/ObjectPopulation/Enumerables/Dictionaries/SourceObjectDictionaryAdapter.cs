@@ -2,14 +2,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
     using System.Collections;
     using System.Linq;
-    using Extensions.Internal;
-    using Members.Dictionaries;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members.Dictionaries;
+    using NetStandardPolyfills;
 
     internal class SourceObjectDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {
@@ -24,6 +24,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
             _instanceDictionaryAdapter = new SourceInstanceDictionaryAdapter(sourceMember, builder);
             _emptyTarget = TargetTypeHelper.GetEmptyInstanceCreation(TargetTypeHelper.EnumerableInterfaceType);
         }
+
+        public override Expression GetElementKey() => _instanceDictionaryAdapter.GetElementKey();
 
         public override Expression GetSourceValues()
         {
