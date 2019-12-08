@@ -37,8 +37,8 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         public override string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore)
             => ((IMemberIgnore)this).GetConflictMessage(conflictingSourceMemberIgnore);
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
-            => base.AppliesTo(mapperData) && SourceMembersMatch(mapperData.SourceMember as QualifiedMember);
+        public override bool AppliesTo(IQualifiedMemberContext context)
+            => base.AppliesTo(context) && SourceMembersMatch(context.SourceMember as QualifiedMember);
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {

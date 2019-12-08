@@ -53,7 +53,7 @@
             => mapperContextOwner.MapperContext.UserConfigurations.HasSimpleTypeValueFactories;
 
         private static IEnumerable<ConfiguredObjectFactory> QuerySimpleTypeValueFactories(
-            this IBasicMapperData mapperData,
+            this IQualifiedMemberContext context,
             Type sourceType,
             Type targetType)
         {
@@ -62,15 +62,15 @@
                 return Enumerable<ConfiguredObjectFactory>.Empty;
             }
 
-            var queryMapperData = new BasicMapperData(
-                mapperData.RuleSet,
+            var queryMapperData = new QualifiedMemberContext(
+                context.RuleSet,
                 sourceType,
                 targetType.GetNonNullableType(),
                 QualifiedMember.All,
-                mapperData.Parent,
-                mapperData.MapperContext);
+                context.Parent,
+                context.MapperContext);
 
-            return mapperData
+            return context
                 .MapperContext
                 .UserConfigurations
                 .QueryObjectFactories(queryMapperData);

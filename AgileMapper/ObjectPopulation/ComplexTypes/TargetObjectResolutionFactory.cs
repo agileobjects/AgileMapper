@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static bool UseNullFallbackValue(
-            IBasicMapperData mapperData,
+            IQualifiedMemberContext context,
             Expression objectConstruction,
             IList<Expression> memberPopulations)
         {
@@ -91,7 +91,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if ((objectConstruction.NodeType != ExpressionType.New) ||
                  MemberPopulationsExist(memberPopulations) ||
-                 mapperData.SourceMember.Matches(mapperData.TargetMember))
+                 context.SourceMember.Matches(context.TargetMember))
             {
                 return false;
             }

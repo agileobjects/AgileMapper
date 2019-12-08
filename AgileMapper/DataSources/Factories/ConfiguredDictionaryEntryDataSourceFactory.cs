@@ -19,15 +19,15 @@
 
         public bool IsFor(IMemberMapperData mapperData) => base.AppliesTo(mapperData);
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
+        public override bool AppliesTo(IQualifiedMemberContext context)
         {
-            if (mapperData.TargetMember.IsDictionary)
+            if (context.TargetMember.IsDictionary)
             {
                 return false;
             }
 
-            return mapperData.TargetMember.Matches(TargetDictionaryEntryMember) && 
-                   base.AppliesTo(mapperData);
+            return context.TargetMember.Matches(TargetDictionaryEntryMember) && 
+                   base.AppliesTo(context);
         }
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)

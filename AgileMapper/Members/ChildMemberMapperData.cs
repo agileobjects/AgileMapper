@@ -7,7 +7,7 @@
 #endif
     using ObjectPopulation;
 
-    internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
+    internal class ChildMemberMapperData : QualifiedMemberContext, IMemberMapperData
     {
         private readonly bool _useParentForTypeCheck;
         private bool? _isRepeatMapping;

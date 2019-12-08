@@ -71,12 +71,12 @@
             }
         }
 
-        public IList<DerivedTypePair> GetImplementationTypePairsFor(IBasicMapperData mapperData)
+        public IList<DerivedTypePair> GetImplementationTypePairsFor(IQualifiedMemberContext context)
         {
-            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
+            if (_typePairsByTargetType.TryGetValue(context.TargetType, out var typePairs))
             {
                 return typePairs
-                    .Filter(mapperData, (md, tp) => tp.IsImplementationPairing && tp.AppliesTo(md))
+                    .Filter(context, (md, tp) => tp.IsImplementationPairing && tp.AppliesTo(md))
                     .ToArray();
             }
 
@@ -84,19 +84,19 @@
         }
 
         public IList<DerivedTypePair> GetDerivedTypePairsFor(
-            IBasicMapperData mapperData,
+            IQualifiedMemberContext context,
             MapperContext mapperContext)
         {
-            LookForDerivedTypePairs(mapperData, mapperContext);
+            LookForDerivedTypePairs(context, mapperContext);
 
             if (_typePairsByTargetType.None())
             {
                 return Enumerable<DerivedTypePair>.EmptyArray;
             }
 
-            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
+            if (_typePairsByTargetType.TryGetValue(context.TargetType, out var typePairs))
             {
-                return typePairs.Filter(mapperData, (md, tp) => tp.AppliesTo(md)).ToArray();
+                return typePairs.Filter(context, (md, tp) => tp.AppliesTo(md)).ToArray();
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;
@@ -104,10 +104,10 @@
 
         #region Auto-Registration
 
-        private void LookForDerivedTypePairs(ITypePair mapperData, MapperContext mapperContext)
+        private void LookForDerivedTypePairs(ITypePair typePair, MapperContext mapperContext)
         {
-            var rootSourceType = GetRootType(mapperData.SourceType);
-            var rootTargetType = GetRootType(mapperData.TargetType);
+            var rootSourceType = GetRootType(typePair.SourceType);
+            var rootTargetType = GetRootType(typePair.TargetType);
             var typesKey = new SourceAndTargetTypesKey(rootSourceType, rootTargetType);
 
             if (TypesChecked(typesKey, 0))

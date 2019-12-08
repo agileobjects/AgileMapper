@@ -69,9 +69,9 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private static Expression CreateNullDataSourceDescription(
             Func<QualifiedMember, string> commentFactory,
-            IBasicMapperData mapperData)
+            IQualifiedMemberContext context)
         {
-            return ReadableExpression.Comment(commentFactory.Invoke(mapperData.TargetMember));
+            return ReadableExpression.Comment(commentFactory.Invoke(context.TargetMember));
         }
 
         #endregion

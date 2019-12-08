@@ -23,18 +23,18 @@ namespace AgileObjects.AgileMapper.Members
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
         private readonly bool _isMatchedToRootTarget;
 
-        public ConfiguredSourceMember(Expression value, IBasicMapperData mapperData)
+        public ConfiguredSourceMember(Expression value, IQualifiedMemberContext context)
             : this(
                   value,
                   value.Type,
                   value.Type.IsEnumerable(),
                   value.Type.IsSimple(),
                   value.ToReadableString(),
-                  mapperData.TargetMember.JoinedNames,
-                  mapperData.MapperContext,
-                  GetConfiguredMemberChainOrNull(value, mapperData))
+                  context.TargetMember.JoinedNames,
+                  context.MapperContext,
+                  GetConfiguredMemberChainOrNull(value, context))
         {
-            _isMatchedToRootTarget = mapperData.TargetMember.IsRoot;
+            _isMatchedToRootTarget = context.TargetMember.IsRoot;
         }
 
         private static Member[] GetConfiguredMemberChainOrNull(Expression value, IMapperContextOwner contextOwner)

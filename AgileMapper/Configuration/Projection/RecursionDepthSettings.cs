@@ -12,7 +12,7 @@
             _recursionDepth = recursionDepth;
         }
 
-        public bool IsBeyondDepth(IBasicMapperData mapperData)
+        public bool IsBeyondDepth(IQualifiedMemberContext context)
         {
             if (_recursionDepth == 0)
             {
@@ -21,15 +21,15 @@
 
             var recursionDepth = -1;
 
-            while (mapperData != null)
+            while (context != null)
             {
-                if (mapperData.TargetMember.IsRecursion && 
-                    mapperData.RuleSet.RepeatMappingStrategy.AppliesTo(mapperData))
+                if (context.TargetMember.IsRecursion && 
+                    context.RuleSet.RepeatMappingStrategy.AppliesTo(context))
                 {
                     ++recursionDepth;
                 }
 
-                mapperData = mapperData.Parent;
+                context = context.Parent;
             }
 
             return recursionDepth > _recursionDepth;

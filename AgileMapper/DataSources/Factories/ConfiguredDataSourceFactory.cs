@@ -190,8 +190,8 @@
 
         private string GetTargetMemberPath() => TargetMember.GetFriendlyTargetPath(ConfigInfo);
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
-            => base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
+        public override bool AppliesTo(IQualifiedMemberContext context)
+            => base.AppliesTo(context) && _dataSourceLambda.Supports(context.RuleSet);
 
         protected override bool TargetMembersAreCompatible(IQualifiedMember otherTargetMember)
         {

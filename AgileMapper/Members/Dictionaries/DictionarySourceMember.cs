@@ -13,8 +13,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         private readonly IQualifiedMember _wrappedSourceMember;
         private readonly QualifiedMember _matchedTargetMember;
 
-        public DictionarySourceMember(IBasicMapperData mapperData)
-            : this(mapperData.SourceMember, mapperData.TargetMember)
+        public DictionarySourceMember(IQualifiedMemberContext context)
+            : this(context.SourceMember, context.TargetMember)
         {
         }
 

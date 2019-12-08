@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using NetStandardPolyfills;
 
-    internal abstract class MemberMapperDataBase : BasicMapperData
+    internal abstract class MemberMapperDataBase : QualifiedMemberContext
     {
         protected MemberMapperDataBase(
             MappingRuleSet ruleSet,

@@ -104,16 +104,16 @@
             return GetElementMapping(mappingData, sourceElementValue, targetElementValue);
         }
 
-        private static bool CreateElementMappingDataFor(IBasicMapperData mapperData)
+        private static bool CreateElementMappingDataFor(IQualifiedMemberContext context)
         {
-            if (!mapperData.TargetMemberIsEnumerableElement())
+            if (!context.TargetMemberIsEnumerableElement())
             {
                 return true;
             }
 
-            if (mapperData.TargetMember.IsEnumerable)
+            if (context.TargetMember.IsEnumerable)
             {
-                return !mapperData.TargetMember.ElementType.IsSimple();
+                return !context.TargetMember.ElementType.IsSimple();
             }
 
             return false;

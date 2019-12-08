@@ -219,14 +219,14 @@
             return _mappingData;
         }
 
-        public IBasicMapperData ToMapperData(QualifiedMember targetMember = null)
+        public IQualifiedMemberContext ToMapperData(QualifiedMember targetMember = null)
         {
             if (targetMember == null)
             {
                 targetMember = QualifiedMember.CreateRoot(Member.RootTarget(TargetType), MapperContext);
             }
 
-            return new BasicMapperData(
+            return new QualifiedMemberContext(
                 RuleSet,
                 SourceType,
                 TargetType,

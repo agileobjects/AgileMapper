@@ -104,7 +104,7 @@
         }
 
         private static IList<DerivedTypePair> GetTypePairsFor(
-            IBasicMapperData pairTestMapperData, 
+            IQualifiedMemberContext pairTestMapperData, 
             IMapperContextOwner mapperContextOwner)
         {
             var derivedTypePairs = mapperContextOwner.MapperContext.UserConfigurations
@@ -417,7 +417,7 @@
             Type targetType,
             IMemberMapperData mapperData)
         {
-            var pairTestMapperData = new BasicMapperData(
+            var pairTestMapperData = new QualifiedMemberContext(
                 mapperData.RuleSet,
                 derivedSourceType,
                 targetType,

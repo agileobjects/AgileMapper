@@ -2,14 +2,14 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
 
-    internal class BasicMapperData : IBasicMapperData
+    internal class QualifiedMemberContext : IQualifiedMemberContext
     {
-        private readonly IBasicMapperData _parent;
+        private readonly IQualifiedMemberContext _parent;
 
-        public BasicMapperData(
+        public QualifiedMemberContext(
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            IBasicMapperData parent)
+            IQualifiedMemberContext parent)
             : this(
                 parent.RuleSet,
                 parent.SourceType,
@@ -21,13 +21,13 @@ namespace AgileObjects.AgileMapper.Members
         {
         }
 
-        public BasicMapperData(
+        public QualifiedMemberContext(
             MappingRuleSet ruleSet,
             Type sourceType,
             Type targetType,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            IBasicMapperData parent,
+            IQualifiedMemberContext parent,
             MapperContext mapperContext)
             : this(
                 ruleSet,
@@ -40,12 +40,12 @@ namespace AgileObjects.AgileMapper.Members
             SourceMember = sourceMember;
         }
 
-        public BasicMapperData(
+        public QualifiedMemberContext(
             MappingRuleSet ruleSet,
             Type sourceType,
             Type targetType,
             QualifiedMember targetMember,
-            IBasicMapperData parent,
+            IQualifiedMemberContext parent,
             MapperContext mapperContext)
         {
             if (parent == null)
@@ -66,7 +66,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public MapperContext MapperContext { get; }
 
-        IBasicMapperData IBasicMapperData.Parent => _parent;
+        IQualifiedMemberContext IQualifiedMemberContext.Parent => _parent;
 
         public bool IsRoot { get; }
 
