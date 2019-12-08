@@ -55,22 +55,22 @@
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
             => $"Configured dictionary key member {TargetMember.GetPath()} has a configured data source";
 
-        public bool AppliesTo(Member member, IMemberMapperData mapperData)
+        public bool AppliesTo(Member member, IQualifiedMemberContext context)
         {
-            if (!base.AppliesTo(mapperData))
+            if (!base.AppliesTo(context))
             {
                 return false;
             }
 
             if (((ConfigInfo.SourceValueType ?? Constants.AllTypes) != Constants.AllTypes) &&
-                 (mapperData.SourceType.GetDictionaryTypes().Value != ConfigInfo.SourceValueType))
+                 (context.SourceType.GetDictionaryTypes().Value != ConfigInfo.SourceValueType))
             {
                 return false;
             }
 
             var applicableDictionaryType = ConfigInfo.Get<DictionaryType>();
 
-            if (IsPartOfExpandoObjectMapping(mapperData) !=
+            if (IsPartOfExpandoObjectMapping(context) !=
                (applicableDictionaryType == DictionaryType.Expando))
             {
                 return false;
@@ -81,7 +81,7 @@
                 return true;
             }
 
-            var targetMember = GetTargetMember(member, mapperData);
+            var targetMember = GetTargetMember(member, context);
 
             if (targetMember.Depth < SourceMember.Depth)
             {
@@ -101,35 +101,35 @@
             return true;
         }
 
-        private static bool IsPartOfExpandoObjectMapping(IMemberMapperData mapperData)
+        private static bool IsPartOfExpandoObjectMapping(IQualifiedMemberContext context)
         {
-            while (mapperData != null)
+            while (context != null)
             {
-                if ((mapperData.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject)) ||
-                    (mapperData.TargetMember.GetFriendlyTypeName() == nameof(ExpandoObject)))
+                if ((context.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject)) ||
+                    (context.TargetMember.GetFriendlyTypeName() == nameof(ExpandoObject)))
                 {
                     return true;
                 }
 
-                mapperData = mapperData.Parent;
+                context = context.Parent;
             }
 
             return false;
         }
 
-        private QualifiedMember GetTargetMember(Member member, IBasicMapperData mapperData)
+        private QualifiedMember GetTargetMember(Member member, IQualifiedMemberContext context)
         {
-            if (mapperData.TargetMember.LeafMember == member)
+            if (context.TargetMember.LeafMember == member)
             {
-                return mapperData.TargetMember;
+                return context.TargetMember;
             }
 
-            var memberIndex = Array.LastIndexOf(mapperData.TargetMember.MemberChain, member);
+            var memberIndex = Array.LastIndexOf(context.TargetMember.MemberChain, member);
             var targetMemberChain = new Member[memberIndex + 1];
 
             for (var i = 0; i < targetMemberChain.Length; i++)
             {
-                targetMemberChain[i] = mapperData.TargetMember.MemberChain[i];
+                targetMemberChain[i] = context.TargetMember.MemberChain[i];
             }
 
             return QualifiedMember.Create(targetMemberChain, ConfigInfo.MapperContext);

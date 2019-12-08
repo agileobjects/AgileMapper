@@ -78,26 +78,26 @@
             yield return new DictionaryNonSimpleMemberDataSource(sourceMember, mapperData);
         }
 
-        private static DictionarySourceMember GetSourceMember(IBasicMapperData mapperData)
+        private static DictionarySourceMember GetSourceMember(IQualifiedMemberContext context)
         {
-            if (!mapperData.TargetMember.IsRecursion)
+            if (!context.TargetMember.IsRecursion)
             {
-                return new DictionarySourceMember(mapperData);
+                return new DictionarySourceMember(context);
             }
 
-            var parentMapperData = mapperData.Parent;
+            var parentContext = context.Parent;
 
-            while (!parentMapperData.IsRoot)
+            while (!parentContext.IsRoot)
             {
-                if (parentMapperData.TargetMember.LeafMember.Equals(mapperData.TargetMember.LeafMember))
+                if (parentContext.TargetMember.LeafMember.Equals(context.TargetMember.LeafMember))
                 {
                     break;
                 }
 
-                parentMapperData = parentMapperData.Parent;
+                parentContext = parentContext.Parent;
             }
 
-            return (DictionarySourceMember)parentMapperData.SourceMember;
+            return (DictionarySourceMember)parentContext.SourceMember;
         }
     }
 }

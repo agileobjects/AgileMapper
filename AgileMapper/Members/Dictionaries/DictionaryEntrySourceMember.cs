@@ -141,6 +141,12 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         public Expression GetQualifiedAccess(Expression parentInstance)
             => _childMembers.GetQualifiedAccess(parentInstance);
 
+        public IQualifiedMember SetContext(IQualifiedMemberContext context)
+        {
+            _matchedTargetMember.SetContext(context);
+            return this;
+        }
+
         #region ExcludeFromCodeCoverage
 #if DEBUG
         [ExcludeFromCodeCoverage]

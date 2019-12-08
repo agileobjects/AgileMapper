@@ -49,8 +49,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingContext.RuleSet,
                 sourceMember,
                 targetMember,
-                mappingContext.MapperContext,
-                parent)
+                parent,
+                mappingContext.MapperContext)
         {
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
@@ -130,7 +130,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        private bool HasTypeBeenMapped(Type targetType, IBasicMapperData requestingMapperData)
+        private bool HasTypeBeenMapped(Type targetType, IQualifiedMemberContext requestingMapperData)
         {
             var mappedType = TargetMember.IsEnumerable ? TargetMember.ElementType : TargetType;
 
@@ -651,15 +651,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapRepeatedCall;
         }
 
-        public IBasicMapperData WithNoTargetMember()
+        public IQualifiedMemberContext WithNoTargetMember()
         {
-            return new BasicMapperData(
+            return new QualifiedMemberContext(
                 RuleSet,
                 SourceType,
                 TargetType,
                 SourceMember,
                 QualifiedMember.None,
-                Parent);
+                Parent,
+                MapperContext);
         }
 
         #region ToString

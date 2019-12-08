@@ -44,7 +44,7 @@
         /// <summary>
         /// Setup Mapper configuration via <see cref="MapperConfiguration"/> instances.
         /// </summary>
-        public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.Mapper);
+        public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.MapperContext.Mapper);
 
         #region Service Providers
 
@@ -158,7 +158,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNamePrefixes(params string[] prefixes)
         {
-            MapperContext.Naming.AddNamePrefixes(prefixes);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Prefixes(prefixes, GlobalConfigInfo));
             return this;
         }
 
@@ -182,7 +182,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNameSuffixes(params string[] suffixes)
         {
-            MapperContext.Naming.AddNameSuffixes(suffixes);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Suffixes(suffixes, GlobalConfigInfo));
             return this;
         }
 
@@ -212,7 +212,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNamePatterns(params string[] patterns)
         {
-            MapperContext.Naming.AddNameMatchers(patterns);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Create(patterns, GlobalConfigInfo));
             return this;
         }
 
@@ -612,7 +612,7 @@
         /// </summary>
         /// <typeparam name="TResult">The result Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TResult> ToANew<TResult>()
+        public IRuleSetMappingConfigurator<object, TResult> ToANew<TResult>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(CreateNew)).ToANew<TResult>();
 
         /// <summary>
@@ -621,7 +621,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> OnTo<TTarget>()
+        public IRuleSetMappingConfigurator<object, TTarget> OnTo<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Merge)).OnTo<TTarget>();
 
         /// <summary>
@@ -630,7 +630,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> Over<TTarget>()
+        public IRuleSetMappingConfigurator<object, TTarget> Over<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Overwrite)).Over<TTarget>();
 
         /// <summary>

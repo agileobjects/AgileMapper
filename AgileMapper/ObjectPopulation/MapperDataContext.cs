@@ -33,30 +33,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ObjectMapperData mapperData,
             bool isStandalone,
             bool isForDerivedType,
-            IBasicMapperData basicMapperData)
+            IQualifiedMemberContext context)
         {
             _mapperData = mapperData;
             IsStandalone = isStandalone;
             IsForDerivedType = isForDerivedType;
-            UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(basicMapperData);
+            UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(context);
         }
 
-        private static bool ShouldUseLocalVariable(IBasicMapperData mapperData)
+        private static bool ShouldUseLocalVariable(IQualifiedMemberContext context)
         {
-            if (mapperData.TargetMember.IsSimple &&
-               !mapperData.TargetType.GetNonNullableType().IsEnum())
+            if (context.TargetMember.IsSimple &&
+               !context.TargetType.GetNonNullableType().IsEnum())
             {
                 return false;
             }
 
-            if (mapperData.UseSingleMappingExpression())
+            if (context.UseSingleMappingExpression())
             {
                 return false;
             }
 
-            if (mapperData.TargetMember.IsComplex &&
-               (mapperData.TargetMember.IsReadOnly || mapperData.TargetIsDefinitelyPopulated()) &&
-               !mapperData.TargetMemberIsUserStruct())
+            if (context.TargetMember.IsComplex &&
+               (context.TargetMember.IsReadOnly || context.TargetIsDefinitelyPopulated()) &&
+               !context.TargetMemberIsUserStruct())
             {
                 return false;
             }
@@ -104,7 +104,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public bool IsPartOfQueryableMapping()
             => CheckHierarchy(mapperData => mapperData.SourceType.IsQueryable());
 
-        private bool CheckHierarchy(Func<IBasicMapperData, bool> predicate)
+        private bool CheckHierarchy(Func<IQualifiedMemberContext, bool> predicate)
         {
             var mapperData = _mapperData;
 

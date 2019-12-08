@@ -82,9 +82,9 @@
 
         private bool IsFlattened => _separator == string.Empty;
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
+        public override bool AppliesTo(IQualifiedMemberContext context)
         {
-            if (!base.AppliesTo(mapperData))
+            if (!base.AppliesTo(context))
             {
                 return false;
             }
@@ -96,14 +96,14 @@
                 return true;
             }
 
-            while (mapperData != null)
+            while (context != null)
             {
-                if (mapperData.TargetMember.IsDictionary)
+                if (context.TargetMember.IsDictionary)
                 {
                     return false;
                 }
 
-                mapperData = mapperData.Parent;
+                context = context.Parent;
             }
 
             return true;

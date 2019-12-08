@@ -53,10 +53,10 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         public string GetConflictMessage(ConfiguredSourceMemberIgnore conflictingMemberIgnore)
             => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
+        public override bool AppliesTo(IQualifiedMemberContext context)
         {
-            return base.AppliesTo(mapperData) &&
-                  (mapperData.SourceMember is QualifiedMember sourceMember) &&
+            return base.AppliesTo(context) &&
+                  (context.SourceMember is QualifiedMember sourceMember) &&
                    IsFiltered(sourceMember);
         }
 

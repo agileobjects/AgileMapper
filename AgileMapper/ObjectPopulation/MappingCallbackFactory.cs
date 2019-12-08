@@ -25,10 +25,10 @@
 
         protected CallbackPosition CallbackPosition { get; }
 
-        public virtual bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
-            => (CallbackPosition == callbackPosition) && base.AppliesTo(mapperData);
+        public virtual bool AppliesTo(CallbackPosition callbackPosition, IQualifiedMemberContext context)
+            => (CallbackPosition == callbackPosition) && base.AppliesTo(context);
 
-        protected override bool TypesMatch(IBasicMapperData mapperData) => TypesAreCompatible(mapperData);
+        protected override bool TypesMatch(IQualifiedMemberContext context) => TypesAreCompatible(context);
 
         public Expression Create(IMemberMapperData mapperData)
         {

@@ -52,7 +52,7 @@
               (_relevantSourceMemberIgnores = UserConfigurations.GetRelevantSourceMemberIgnores(MemberMapperData));
 
         public ConfiguredSourceMemberIgnoreBase GetSourceMemberIgnoreOrNull(IQualifiedMember sourceMember)
-            => RelevantSourceMemberIgnores.FindMatch(new BasicMapperData(sourceMember, TargetMember, MemberMapperData));
+            => RelevantSourceMemberIgnores.FindMatch(new QualifiedMemberContext(sourceMember, TargetMember, MemberMapperData));
 
         public SourceMemberMatch CreateSourceMemberMatch(IQualifiedMember matchingSourceMember = null, bool isUseable = true)
         {

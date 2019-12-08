@@ -7,7 +7,7 @@
 #endif
     using ObjectPopulation;
 
-    internal interface IMemberMapperData : IBasicMapperData, IMapperContextOwner
+    internal interface IMemberMapperData : IQualifiedMemberContext
     {
         new ObjectMapperData Parent { get; }
 

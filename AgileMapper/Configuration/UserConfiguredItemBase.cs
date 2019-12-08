@@ -99,78 +99,80 @@
         protected virtual Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
             => ConfigInfo.GetConditionOrNull(mapperData, position, TargetMember);
 
-        public bool CouldApplyTo(IBasicMapperData mapperData)
-            => RuleSetMatches(mapperData) && TypesMatch(mapperData);
+        public bool CouldApplyTo(IQualifiedMemberContext context)
+            => RuleSetMatches(context) && TypesMatch(context);
 
-        public virtual bool AppliesTo(IBasicMapperData mapperData)
+        public virtual bool AppliesTo(IQualifiedMemberContext context)
         {
-            return RuleSetMatches(mapperData) &&
-                   TargetMembersMatch(mapperData) &&
-                   HasCompatibleCondition(mapperData) &&
-                   TypesMatch(mapperData);
+            return RuleSetMatches(context) &&
+                   TargetMembersMatch(context) &&
+                   HasCompatibleCondition(context) &&
+                   TypesMatch(context);
         }
 
         private bool RuleSetMatches(IRuleSetOwner ruleSetOwner) => ConfigInfo.IsFor(ruleSetOwner.RuleSet);
 
-        private bool TargetMembersMatch(IBasicMapperData mapperData)
+        private bool TargetMembersMatch(IQualifiedMemberContext context)
         {
+            var otherTargetMember = context.TargetMember;
+
             // The order of these checks is significant!
-            if ((TargetMember == QualifiedMember.All) || (mapperData.TargetMember == QualifiedMember.All))
+            if ((TargetMember == QualifiedMember.All) || (otherTargetMember == QualifiedMember.All))
             {
                 return true;
             }
 
-            if (TargetMembersAreCompatible(mapperData))
+            if (TargetMembersAreCompatible(otherTargetMember))
             {
                 return true;
             }
 
-            if ((TargetMember == QualifiedMember.None) || (mapperData.TargetMember == QualifiedMember.None))
+            if ((TargetMember == QualifiedMember.None) || (otherTargetMember == QualifiedMember.None))
             {
                 return false;
             }
 
-            return (mapperData.TargetMember.Type == TargetMember.Type) &&
-                   (mapperData.TargetMember.Name == TargetMember.Name) &&
-                    mapperData.TargetMember.LeafMember.DeclaringType.IsAssignableTo(TargetMember.LeafMember.DeclaringType);
+            return (otherTargetMember.Type == TargetMember.Type) &&
+                   (otherTargetMember.Name == TargetMember.Name) &&
+                    otherTargetMember.LeafMember.DeclaringType.IsAssignableTo(TargetMember.LeafMember.DeclaringType);
         }
 
-        protected virtual bool TargetMembersAreCompatible(IBasicMapperData mapperData)
-            => TargetMember == mapperData.TargetMember;
+        protected virtual bool TargetMembersAreCompatible(IQualifiedMember otherTargetMember)
+            => TargetMember == otherTargetMember;
 
         private bool HasCompatibleCondition(IRuleSetOwner ruleSetOwner)
             => !HasConfiguredCondition || ConfigInfo.ConditionSupports(ruleSetOwner.RuleSet);
 
-        protected virtual bool TypesMatch(IBasicMapperData mapperData)
-            => SourceAndTargetTypesMatch(mapperData);
+        protected virtual bool TypesMatch(IQualifiedMemberContext context)
+            => SourceAndTargetTypesMatch(context);
 
-        protected bool SourceAndTargetTypesMatch(IBasicMapperData mapperData)
+        protected bool SourceAndTargetTypesMatch(IQualifiedMemberContext context)
         {
-            if (TypesAreCompatible(mapperData))
+            if (TypesAreCompatible(context))
             {
                 return true;
             }
 
-            if (mapperData.IsRoot)
+            if (context.IsRoot)
             {
                 return false;
             }
 
-            var parentMapperData = mapperData.Parent;
+            context = context.Parent;
 
             while (true)
             {
-                if (TypesAreCompatible(parentMapperData))
+                if (TypesAreCompatible(context))
                 {
                     return true;
                 }
 
-                if (parentMapperData.IsEntryPoint)
+                if (context.IsEntryPoint)
                 {
                     return false;
                 }
 
-                parentMapperData = parentMapperData.Parent;
+                context = context.Parent;
             }
         }
 

@@ -200,7 +200,7 @@
     internal static class ConfigurationExtensions
     {
         public static void IgnoreNameAndDiscount(
-            this IFullMappingConfigurator<CustomerViewModel, Customer> config)
+            this IFullMappingInlineConfigurator<CustomerViewModel, Customer> config)
         {
             config.Ignore(c => c.Name, c => c.Discount);
         }

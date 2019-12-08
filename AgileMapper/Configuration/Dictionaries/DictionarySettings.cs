@@ -145,14 +145,14 @@
             throw new MappingConfigurationException(conflictingFactory.GetConflictMessage());
         }
 
-        public Expression GetElementKeyPartMatcher(IBasicMapperData mapperData)
-            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyPartMatcher();
+        public Expression GetElementKeyPartMatcher(IQualifiedMemberContext context)
+            => _elementKeyPartFactories.FindMatch(context).GetElementKeyPartMatcher();
 
-        public Expression GetElementKeyPrefixOrNull(IBasicMapperData mapperData)
-            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyPrefixOrNull();
+        public Expression GetElementKeyPrefixOrNull(IQualifiedMemberContext context)
+            => _elementKeyPartFactories.FindMatch(context).GetElementKeyPrefixOrNull();
 
-        public IList<Expression> GetElementKeyParts(Expression index, IBasicMapperData mapperData)
-            => _elementKeyPartFactories.FindMatch(mapperData).GetElementKeyParts(index).ToArray();
+        public IList<Expression> GetElementKeyParts(Expression index, IQualifiedMemberContext context)
+            => _elementKeyPartFactories.FindMatch(context).GetElementKeyParts(index).ToArray();
 
         public void CloneTo(DictionarySettings dictionaries)
         {

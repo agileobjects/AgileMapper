@@ -16,8 +16,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 memberMapperData.RuleSet,
                 sourceMember,
                 memberMapperData.TargetMember,
-                memberMapperData.MapperContext,
-                memberMapperData.Parent)
+                memberMapperData.Parent,
+                memberMapperData.MapperContext)
         {
             ParentObject = GetParentObjectAccess();
             ElementIndex = GetElementIndexAccess();
@@ -33,8 +33,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableMapperData.RuleSet,
                 sourceMember,
                 targetMember,
-                enumerableMapperData.MapperContext,
-                enumerableMapperData)
+                enumerableMapperData,
+                enumerableMapperData.MapperContext)
         {
             ParentObject = GetParentObjectAccess();
             ElementIndex = GetElementIndexAccess();

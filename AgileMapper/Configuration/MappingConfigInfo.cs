@@ -18,7 +18,6 @@
 
     internal class MappingConfigInfo : ITypePair
     {
-
         public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
             AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();
 
@@ -41,7 +40,7 @@
 
         public MapperContext MapperContext { get; }
 
-        public IMapperInternal Mapper => MapperContext.Mapper;
+        public UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
 
         public Type SourceType { get; private set; }
 
@@ -55,7 +54,7 @@
             return this;
         }
 
-        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) 
+        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo)
             => otherConfigInfo.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
@@ -71,7 +70,7 @@
         }
 
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
-        
+
         public bool HasCompatibleTypes(ITypePair otherTypePair)
             => this.HasCompatibleTypes(otherTypePair, sourceMember: null);
 
@@ -220,18 +219,20 @@
             return _mappingData;
         }
 
-        public IBasicMapperData ToMapperData(QualifiedMember targetMember = null)
+        public IQualifiedMemberContext ToMemberContext(QualifiedMember targetMember = null)
         {
             if (targetMember == null)
             {
                 targetMember = QualifiedMember.CreateRoot(Member.RootTarget(TargetType), MapperContext);
             }
 
-            return new BasicMapperData(
+            return new QualifiedMemberContext(
                 RuleSet,
                 SourceType,
                 TargetType,
-                targetMember);
+                targetMember,
+                parent: null,
+                mapperContext: MapperContext);
         }
 
         public MappingConfigInfo Copy()

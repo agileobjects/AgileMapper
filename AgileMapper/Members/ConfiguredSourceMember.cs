@@ -22,23 +22,24 @@ namespace AgileObjects.AgileMapper.Members
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
         private readonly bool _isMatchedToRootTarget;
+        private IQualifiedMemberContext _context;
 
-        public ConfiguredSourceMember(Expression value, IMemberMapperData mapperData)
+        public ConfiguredSourceMember(Expression value, IQualifiedMemberContext context)
             : this(
                   value,
                   value.Type,
                   value.Type.IsEnumerable(),
                   value.Type.IsSimple(),
                   value.ToReadableString(),
-                  mapperData.TargetMember.JoinedNames,
-                  mapperData.MapperContext,
-                  GetConfiguredMemberChainOrNull(value, mapperData))
+                  context.TargetMember.JoinedNames,
+                  context.MapperContext,
+                  GetConfiguredMemberChainOrNull(value, context))
         {
-            _isMatchedToRootTarget = mapperData.TargetMember.IsRoot;
+            _isMatchedToRootTarget = context.TargetMember.IsRoot;
         }
 
-        private static Member[] GetConfiguredMemberChainOrNull(Expression value, IMapperContextOwner mapperContextOwner)
-            => value.ToSourceMember(mapperContextOwner.MapperContext, nt => { })?.MemberChain;
+        private static Member[] GetConfiguredMemberChainOrNull(Expression value, IMapperContextOwner contextOwner)
+            => value.ToSourceMember(contextOwner.MapperContext, nt => { })?.MemberChain;
 
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(
@@ -48,7 +49,7 @@ namespace AgileObjects.AgileMapper.Members
                   childMember.IsSimple,
                   parent.Name + childMember.JoiningName,
                   parent._matchedTargetMemberJoinedNames.ExtendWith(
-                      parent._mapperContext.Naming.GetMatchingNamesFor(childMember),
+                      parent._mapperContext.Naming.GetMatchingNamesFor(childMember, parent._context),
                       parent._mapperContext),
                   parent._mapperContext,
                   parent._childMembers.Append(childMember))
@@ -86,7 +87,6 @@ namespace AgileObjects.AgileMapper.Members
                     : type.GetEnumerableElementType();
             }
 
-            // TODO: Lazy-load this:
             _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>(
                 default(HashCodeComparer<Member>));
         }
@@ -168,6 +168,12 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             return _childMembers.GetQualifiedAccess(parentInstance);
+        }
+
+        public IQualifiedMember SetContext(IQualifiedMemberContext context)
+        {
+            _context = context;
+            return this;
         }
 
         public IQualifiedMember WithType(Type runtimeType)

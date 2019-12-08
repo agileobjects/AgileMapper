@@ -11,11 +11,11 @@
 
     internal struct MapToDepthRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public bool AppliesTo(IBasicMapperData mapperData)
-            => !mapperData.TargetMemberIsEnumerableElement();
+        public bool AppliesTo(IQualifiedMemberContext context)
+            => !context.TargetMemberIsEnumerableElement();
 
-        public bool WillNotMap(IBasicMapperData mapperData)
-            => AppliesTo(mapperData) && ShortCircuitRecursion(mapperData);
+        public bool WillNotMap(IQualifiedMemberContext context)
+            => AppliesTo(context) && ShortCircuitRecursion(context);
 
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
@@ -36,17 +36,17 @@
             return inlineMappingBlock;
         }
 
-        private static bool ShortCircuitRecursion(IBasicMapperData mapperData)
+        private static bool ShortCircuitRecursion(IQualifiedMemberContext context)
         {
-            if (!mapperData.TargetMember.IsRecursion)
+            if (!context.TargetMember.IsRecursion)
             {
                 return false;
             }
 
-            return ((IMemberMapperData)mapperData.Parent)
+            return context
                 .MapperContext
                 .UserConfigurations
-                .ShortCircuitRecursion(mapperData);
+                .ShortCircuitRecursion(context);
         }
 
         private static Expression GetMappingShortCircuit(IObjectMappingData childMappingData)

@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// </param>
         public void IdentifyUsing<TId>(Expression<Func<TObject, TId>> idExpression)
         {
-            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(
+            _configInfo.UserConfigurations.Identifiers.Add(
                 typeof(TObject),
                 idExpression
 #if NET35
@@ -100,7 +100,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
             var compositeIdLambda = Lambda<Func<TObject, string>>(compositeId, entityParameter);
 
-            _configInfo.MapperContext.UserConfigurations.Identifiers.Add(typeof(TObject), compositeIdLambda);
+            _configInfo.UserConfigurations.Identifiers.Add(typeof(TObject), compositeIdLambda);
         }
 
         private Expression GetIdPartOrThrow(Expression idPart)

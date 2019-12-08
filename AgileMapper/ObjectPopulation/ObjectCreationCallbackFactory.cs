@@ -25,11 +25,11 @@
             _creationTargetType = creationTargetType;
         }
 
-        public override bool AppliesTo(CallbackPosition callbackPosition, IBasicMapperData mapperData)
-            => mapperData.TargetMember.Type.IsAssignableTo(_creationTargetType) && base.AppliesTo(callbackPosition, mapperData);
+        public override bool AppliesTo(CallbackPosition callbackPosition, IQualifiedMemberContext context)
+            => context.TargetMember.Type.IsAssignableTo(_creationTargetType) && base.AppliesTo(callbackPosition, context);
 
-        protected override bool TypesMatch(IBasicMapperData mapperData)
-             => SourceAndTargetTypesMatch(mapperData);
+        protected override bool TypesMatch(IQualifiedMemberContext context)
+             => SourceAndTargetTypesMatch(context);
 
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {

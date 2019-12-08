@@ -59,7 +59,7 @@
             var mapperData = configInfo
                 .Copy()
                 .ForSourceType<TDerivedSource>()
-                .ToMapperData();
+                .ToMemberContext();
 
             var matchingAutoTypePairing = configInfo
                 .MapperContext
@@ -91,21 +91,21 @@
 
         public Type DerivedTargetType { get; }
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
+        public override bool AppliesTo(IQualifiedMemberContext context)
         {
-            if (!base.AppliesTo(mapperData))
+            if (!base.AppliesTo(context))
             {
                 return false;
             }
 
-            if (mapperData.SourceType.IsAssignableTo(DerivedSourceType))
+            if (context.SourceType.IsAssignableTo(DerivedSourceType))
             {
                 return true;
             }
 
             return _isInterfacePairing &&
-                    mapperData.SourceType.IsAssignableTo(SourceType) &&
-                    mapperData.TargetType.IsAssignableTo(TargetType);
+                    context.SourceType.IsAssignableTo(SourceType) &&
+                    context.TargetType.IsAssignableTo(TargetType);
         }
 
         int IComparable<DerivedTypePair>.CompareTo(DerivedTypePair other)

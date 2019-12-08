@@ -55,8 +55,8 @@ namespace AgileObjects.AgileMapper.DataSources
             Variables = UseDirectValueAccess ? new[] { Key } : new[] { Key, Value };
         }
 
-        private static string GetTargetMemberName(IBasicMapperData mapperData)
-            => mapperData.TargetMember.Name.ToCamelCase();
+        private static string GetTargetMemberName(IQualifiedMemberContext context)
+            => context.TargetMember.Name.ToCamelCase();
 
         public DictionarySourceMember SourceMember { get; }
 
