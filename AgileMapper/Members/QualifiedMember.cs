@@ -75,7 +75,6 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (leafMember == null)
             {
-                IsRoot = true;
                 return;
             }
 
@@ -308,7 +307,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             Context = context;
 
-            if (IsRoot || JoinedNames.Any())
+            if (IsRoot || (JoinedNames?.Any() != false))
             {
                 return this;
             }
