@@ -22,6 +22,7 @@ namespace AgileObjects.AgileMapper.Members
         private readonly Member[] _childMembers;
         private readonly ICache<Member, ConfiguredSourceMember> _childMemberCache;
         private readonly bool _isMatchedToRootTarget;
+        private IQualifiedMemberContext _context;
 
         public ConfiguredSourceMember(Expression value, IQualifiedMemberContext context)
             : this(
@@ -48,7 +49,7 @@ namespace AgileObjects.AgileMapper.Members
                   childMember.IsSimple,
                   parent.Name + childMember.JoiningName,
                   parent._matchedTargetMemberJoinedNames.ExtendWith(
-                      parent._mapperContext.Naming.GetMatchingNamesFor(childMember),
+                      parent._mapperContext.Naming.GetMatchingNamesFor(childMember, parent._context),
                       parent._mapperContext),
                   parent._mapperContext,
                   parent._childMembers.Append(childMember))
@@ -86,7 +87,6 @@ namespace AgileObjects.AgileMapper.Members
                     : type.GetEnumerableElementType();
             }
 
-            // TODO: Lazy-load this:
             _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>(
                 default(HashCodeComparer<Member>));
         }
@@ -168,6 +168,12 @@ namespace AgileObjects.AgileMapper.Members
             }
 
             return _childMembers.GetQualifiedAccess(parentInstance);
+        }
+
+        public IQualifiedMember SetContext(IQualifiedMemberContext context)
+        {
+            _context = context;
+            return this;
         }
 
         public IQualifiedMember WithType(Type runtimeType)

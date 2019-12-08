@@ -59,7 +59,7 @@
             var mapperData = configInfo
                 .Copy()
                 .ForSourceType<TDerivedSource>()
-                .ToMapperData();
+                .ToMemberContext();
 
             var matchingAutoTypePairing = configInfo
                 .MapperContext

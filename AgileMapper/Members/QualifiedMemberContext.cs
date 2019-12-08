@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.Members
                 parent,
                 mapperContext)
         {
-            SourceMember = sourceMember;
+            SourceMember = sourceMember.SetContext(this);
         }
 
         public QualifiedMemberContext(
@@ -60,8 +60,20 @@ namespace AgileObjects.AgileMapper.Members
             SourceType = sourceType;
             TargetType = targetType;
             RuleSet = ruleSet;
-            TargetMember = targetMember ?? QualifiedMember.All;
             MapperContext = mapperContext;
+            TargetMember = (targetMember?.SetContext(this)) ?? QualifiedMember.All;
+        }
+
+        public static void Set(QualifiedMember qualifiedMember, MapperContext mapperContext)
+        {
+            // ReSharper disable once ObjectCreationAsStatement
+            new QualifiedMemberContext(
+                MappingRuleSet.All,
+                typeof(object),
+                typeof(object),
+                qualifiedMember,
+                null,
+                mapperContext);
         }
 
         public MapperContext MapperContext { get; }

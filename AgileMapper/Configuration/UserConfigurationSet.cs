@@ -188,10 +188,10 @@
         }
 
         public bool AutoDataSourceReversalEnabled(ConfiguredDataSourceFactory dataSourceFactory)
-            => AutoDataSourceReversalEnabled(dataSourceFactory, dsf => dsf.ConfigInfo.ToMapperData(dsf.TargetMember));
+            => AutoDataSourceReversalEnabled(dataSourceFactory, dsf => dsf.ConfigInfo.ToMemberContext(dsf.TargetMember));
 
         public bool AutoDataSourceReversalEnabled(MappingConfigInfo configInfo)
-            => AutoDataSourceReversalEnabled(configInfo, ci => ci.ToMapperData());
+            => AutoDataSourceReversalEnabled(configInfo, ci => ci.ToMemberContext());
 
         private bool AutoDataSourceReversalEnabled<T>(T dataItem, Func<T, IQualifiedMemberContext> mapperDataFactory)
         {
@@ -532,7 +532,7 @@
 
         private void ThrowIfMemberIsUnmappable(ConfiguredMemberIgnoreBase memberIgnore)
         {
-            if (memberIgnore.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
+            if (memberIgnore.ConfigInfo.ToMemberContext().TargetMemberIsUnmappable(
                 memberIgnore.TargetMember,
                 QueryDataSourceFactories,
                 this,

@@ -54,7 +54,7 @@
             return this;
         }
 
-        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo) 
+        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo)
             => otherConfigInfo.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
@@ -70,7 +70,7 @@
         }
 
         public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
-        
+
         public bool HasCompatibleTypes(ITypePair otherTypePair)
             => this.HasCompatibleTypes(otherTypePair, sourceMember: null);
 
@@ -219,7 +219,7 @@
             return _mappingData;
         }
 
-        public IQualifiedMemberContext ToMapperData(QualifiedMember targetMember = null)
+        public IQualifiedMemberContext ToMemberContext(QualifiedMember targetMember = null)
         {
             if (targetMember == null)
             {

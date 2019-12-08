@@ -10,7 +10,7 @@
 
     internal class NamingSettings
     {
-        private static readonly string[] _rootMatchingNames = { Constants.RootMemberName };
+        public static readonly string[] RootMatchingNames = { Constants.RootMemberName };
         private static readonly string[] _defaultIdMemberNames = { "Id", "Identifier" };
 
         private readonly ICache<TypeKey, Member> _idMemberCache;
@@ -120,20 +120,25 @@
 
         #endregion
 
-        public string[] GetMatchingNamesFor(Member member)
+        public string[] GetMatchingNamesFor(Member member, IQualifiedMemberContext context)
         {
             return member.IsRoot
-                ? _rootMatchingNames
-                : EnumerateMatchingNames(member).ToArray();
+                ? RootMatchingNames
+                : EnumerateMatchingNames(member, context).ToArray();
         }
 
-        private IEnumerable<string> EnumerateMatchingNames(Member member)
+        private IEnumerable<string> EnumerateMatchingNames(Member member, IQualifiedMemberContext context)
         {
             var matchingName = default(string);
 
             for (var i = 0; i < _matchingNameFactories.Count;)
             {
                 var factory = _matchingNameFactories[i++];
+
+                if (!factory.AppliesTo(context))
+                {
+                    continue;
+                }
 
                 matchingName = factory.GetMemberName(member);
 

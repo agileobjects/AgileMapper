@@ -34,6 +34,8 @@ namespace AgileObjects.AgileMapper.Members
                 return;
             }
 
+            Context = adaptedMember.Context;
+
             foreach (var childMember in adaptedMember._childMemberCache.Values)
             {
                 _childMemberCache.GetOrAdd(childMember.LeafMember, m => childMember);
@@ -52,18 +54,17 @@ namespace AgileObjects.AgileMapper.Members
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
             : this(member, mapperContext)
         {
-            var memberMatchingNames = mapperContext.Naming.GetMatchingNamesFor(member);
-
             if (parent == null)
             {
                 MemberChain = new[] { member };
-                JoinedNames = memberMatchingNames;
+                JoinedNames = NamingSettings.RootMatchingNames;
                 _pathFactory = m => m.LeafMember.JoiningName;
                 return;
             }
 
             _parent = parent;
             MemberChain = parent.MemberChain.Append(member);
+            var memberMatchingNames = mapperContext.Naming.GetMatchingNamesFor(member, parent.Context);
             JoinedNames = parent.JoinedNames.ExtendWith(memberMatchingNames, mapperContext);
 
             _pathFactory = m => m._parent.GetPath() + m.LeafMember.JoiningName;
@@ -74,9 +75,11 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (leafMember == null)
             {
+                IsRoot = true;
                 return;
             }
 
+            IsRoot = leafMember.IsRoot;
             LeafMember = leafMember;
             _mapperContext = mapperContext;
 
@@ -129,17 +132,18 @@ namespace AgileObjects.AgileMapper.Members
 
         public static QualifiedMember Create(Member[] memberChain, MapperContext mapperContext)
         {
-            var matchingNameSets = memberChain
-                .ProjectToArray(mapperContext.Naming.GetMatchingNamesFor);
+            var qualifiedMember = new QualifiedMember(memberChain, Enumerable<string>.EmptyArray, mapperContext);
 
-            var joinedNames = mapperContext.Naming.GetJoinedNamesFor(matchingNameSets);
+            QualifiedMemberContext.Set(qualifiedMember, mapperContext);
 
-            return new QualifiedMember(memberChain, joinedNames, mapperContext);
+            return qualifiedMember;
         }
 
         #endregion
 
-        public virtual bool IsRoot => LeafMember?.IsRoot == true;
+        public IQualifiedMemberContext Context { get; private set; }
+
+        public virtual bool IsRoot { get; }
 
         public Member[] MemberChain { get; }
 
@@ -161,7 +165,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public virtual string RegistrationName { get; }
 
-        public IList<string> JoinedNames { get; }
+        public IList<string> JoinedNames { get; private set; }
 
         public string GetPath() => _pathFactory.Invoke(this);
 
@@ -265,6 +269,8 @@ namespace AgileObjects.AgileMapper.Members
 
         private QualifiedMember CreateFinalMember(QualifiedMember member)
         {
+            member.SetContext(Context);
+
             return member.IsTargetMember
                 ? _mapperContext.QualifiedMemberFactory.GetFinalTargetMember(member)
                 : member;
@@ -294,6 +300,26 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression parentInstance)
             => MemberChain.GetQualifiedAccess(parentInstance);
+
+        IQualifiedMember IQualifiedMember.SetContext(IQualifiedMemberContext context)
+            => SetContext(context);
+
+        public QualifiedMember SetContext(IQualifiedMemberContext context)
+        {
+            Context = context;
+
+            if (IsRoot || JoinedNames.Any())
+            {
+                return this;
+            }
+
+            var matchingNameSets = MemberChain.ProjectToArray(
+                context,
+               (ctx, m) => ctx.MapperContext.Naming.GetMatchingNamesFor(m, ctx));
+
+            JoinedNames = _mapperContext.Naming.GetJoinedNamesFor(matchingNameSets);
+            return this;
+        }
 
         public virtual bool CheckExistingElementValue => false;
 

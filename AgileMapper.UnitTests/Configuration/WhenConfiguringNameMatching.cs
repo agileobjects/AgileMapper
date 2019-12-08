@@ -187,6 +187,24 @@
         }
 
         [Fact]
+        public void ShouldUseACustomNamingPrefixPatternForGivenSourceAndTargetTypesInANestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From(new { _Value_ = default(int) })
+                    .To<PublicField<string>>()
+                    .UseNamePattern("^_(.+)_$");
+
+                var source = new { Value = new { _Value_ = 999 } };
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicField<string>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldBe("999");
+            }
+        }
+
+        [Fact]
         public void ShouldUseACustomNamingSuffixPattern()
         {
             using (var mapper = Mapper.CreateNew())
@@ -211,9 +229,9 @@
                     .UseNamePattern("^(.+)__$");
 
                 var source = new { Value__ = 878 };
-                var result = mapper.Map(source).ToANew<PublicField<long>>();
+                var result = mapper.Map(source).ToANew<PublicField<string>>();
 
-                result.Value.ShouldBe(878);
+                result.Value.ShouldBe("878");
             }
         }
 
