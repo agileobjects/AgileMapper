@@ -37,7 +37,7 @@
             var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMapperData);
             var hasDerivedTargetTypes = derivedTargetTypes.Any();
 
-            var declaredSourceTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
+            var declaredSourceTypePairs = declaredTypeMapperData.GetDerivedTypePairs();
             var hasDeclaredSourceTypePairs = declaredSourceTypePairs.Any();
 
             if (hasNoDerivedSourceTypes && !hasDerivedTargetTypes && !hasDeclaredSourceTypePairs)
@@ -101,17 +101,6 @@
             return mapperData.TargetCouldBePopulated()
                 ? mapperData.GetDerivedTargetTypes()
                 : EmptyTypeArray;
-        }
-
-        private static IList<DerivedTypePair> GetTypePairsFor(
-            IQualifiedMemberContext pairTestMapperData, 
-            IMapperContextOwner mapperContextOwner)
-        {
-            var derivedTypePairs = mapperContextOwner.MapperContext.UserConfigurations
-                .DerivedTypes
-                .GetDerivedTypePairsFor(pairTestMapperData, mapperContextOwner.MapperContext);
-
-            return derivedTypePairs;
         }
 
         private static void AddDeclaredSourceTypeDataSources(
@@ -425,7 +414,7 @@
                 mapperData.Parent,
                 mapperData.MapperContext);
 
-            return GetTypePairsFor(pairTestMapperData, mapperData);
+            return pairTestMapperData.GetDerivedTypePairs();
         }
 
         private static void AddDerivedTargetTypeDataSources(

@@ -106,7 +106,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return null;
             }
 
-            if (MapperContext.UserConfigurations.ValidateMappingPlans)
+            if (IsRoot && MapperContext.UserConfigurations.ValidateMappingPlans)
             {
                 // TODO: Test coverage for validation of standalone child mappers
                 MappingValidator.Validate(_mapper.MapperData);

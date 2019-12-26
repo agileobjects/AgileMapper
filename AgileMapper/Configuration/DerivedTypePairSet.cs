@@ -12,11 +12,13 @@
     {
         private static readonly object _lookupSync = new object();
 
+        private readonly MapperContext _mapperContext;
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
         private readonly List<SourceAndTargetTypesKey> _checkedTypes;
 
-        public DerivedTypePairSet()
+        public DerivedTypePairSet(MapperContext mapperContext)
         {
+            _mapperContext = mapperContext;
             _typePairsByTargetType = new Dictionary<Type, List<DerivedTypePair>>();
             _checkedTypes = new List<SourceAndTargetTypesKey>();
         }
@@ -83,11 +85,9 @@
             return Enumerable<DerivedTypePair>.EmptyArray;
         }
 
-        public IList<DerivedTypePair> GetDerivedTypePairsFor(
-            IQualifiedMemberContext context,
-            MapperContext mapperContext)
+        public IList<DerivedTypePair> GetDerivedTypePairsFor(IQualifiedMemberContext context)
         {
-            LookForDerivedTypePairs(context, mapperContext);
+            LookForDerivedTypePairs(context);
 
             if (_typePairsByTargetType.None())
             {
@@ -104,7 +104,7 @@
 
         #region Auto-Registration
 
-        private void LookForDerivedTypePairs(ITypePair typePair, MapperContext mapperContext)
+        private void LookForDerivedTypePairs(ITypePair typePair)
         {
             var rootSourceType = GetRootType(typePair.SourceType);
             var rootTargetType = GetRootType(typePair.TargetType);
@@ -129,7 +129,7 @@
 
                 if (rootSourceType == rootTargetType)
                 {
-                    AddSameRootTypePairs(rootSourceType, mapperContext);
+                    AddSameRootTypePairs(rootSourceType);
                     return;
                 }
 
@@ -175,8 +175,7 @@
                         rootSourceType,
                         candidatePairData.DerivedSourceType,
                         rootTargetType,
-                        derivedTargetType,
-                        mapperContext);
+                        derivedTargetType);
 
                     Add(derivedTypePair);
                 }
@@ -288,13 +287,13 @@
         }
         // ReSharper restore InconsistentlySynchronizedField
 
-        private void AddSameRootTypePairs(Type rootType, MapperContext mapperContext)
+        private void AddSameRootTypePairs(Type rootType)
         {
             var derivedTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootType);
 
             foreach (var derivedType in derivedTypes)
             {
-                Add(CreatePairFor(rootType, derivedType, rootType, derivedType, mapperContext));
+                Add(CreatePairFor(rootType, derivedType, rootType, derivedType));
             }
         }
 
@@ -384,14 +383,13 @@
             return type;
         }
 
-        private static DerivedTypePair CreatePairFor(
+        private DerivedTypePair CreatePairFor(
             Type rootSourceType,
             Type derivedSourceType,
             Type rootTargetType,
-            Type derivedTargetType,
-            MapperContext mapperContext)
+            Type derivedTargetType)
         {
-            var configInfo = new MappingConfigInfo(mapperContext)
+            var configInfo = new MappingConfigInfo(_mapperContext)
                 .ForAllRuleSets()
                 .ForSourceType(rootSourceType)
                 .ForTargetType(rootTargetType);

@@ -60,9 +60,10 @@
             {
                 testAction.Invoke();
             }
-            catch (TException)
+            catch (TException ex)
             {
-                throw new Exception("Did not expect exception of type " + typeof(TException).Name);
+                throw new Exception(
+                    $"Did not expect exception of type {ex.GetType().Name}: {ex.Message}");
             }
         }
     }

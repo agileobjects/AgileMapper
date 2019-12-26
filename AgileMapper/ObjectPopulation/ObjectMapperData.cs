@@ -33,6 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private ParameterExpression _instanceVariable;
         private MappedObjectCachingMode _mappedObjectCachingMode;
         private List<ObjectMapperData> _childMapperDatas;
+        private List<ObjectMapperData> _derivedMapperDatas;
         private Dictionary<QualifiedMember, IDataSourceSet> _dataSourcesByTargetMember;
         private bool? _isRepeatMapping;
         private bool _isEntryPoint;
@@ -64,6 +65,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ElementIndex = declaredTypeMapperData.ElementIndex;
                 ElementKey = declaredTypeMapperData.ElementKey;
                 ParentObject = declaredTypeMapperData.ParentObject;
+                declaredTypeMapperData.DerivedMapperDatas.Add(this);
             }
             else
             {
@@ -79,7 +81,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
             }
-
 
             if (IsRoot)
             {
@@ -345,6 +346,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IList<ObjectMapperData> ChildMapperDatas
             => _childMapperDatas ?? (_childMapperDatas = new List<ObjectMapperData>());
+
+        public IList<ObjectMapperData> DerivedMapperDatas
+            => _derivedMapperDatas ?? (_derivedMapperDatas = new List<ObjectMapperData>());
 
         public int DataSourceIndex { get; set; }
 
