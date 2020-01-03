@@ -56,16 +56,13 @@
 
         private static void ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(MappingConfigInfo configInfo)
         {
-            var mapperData = configInfo
+            var memberContext = configInfo
                 .Copy()
                 .ForSourceType<TDerivedSource>()
                 .ToMemberContext();
 
-            var matchingAutoTypePairing = configInfo
-                .MapperContext
-                .UserConfigurations
-                .DerivedTypes
-                .GetDerivedTypePairsFor(mapperData, configInfo.MapperContext)
+            var matchingAutoTypePairing = memberContext
+                .GetDerivedTypePairs()
                 .FirstOrDefault(tp =>
                     !tp.HasConfiguredCondition &&
                     (tp.DerivedSourceType == typeof(TDerivedSource)) &&

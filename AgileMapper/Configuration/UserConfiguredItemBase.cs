@@ -87,12 +87,6 @@
         protected virtual bool MembersConflict(UserConfiguredItemBase otherItem)
             => TargetMember.Matches(otherItem.TargetMember);
 
-        protected bool SourceAndTargetTypesAreTheSame(UserConfiguredItemBase otherItem)
-        {
-            return ConfigInfo.HasSameSourceTypeAs(otherItem.ConfigInfo) &&
-                   ConfigInfo.HasSameTargetTypeAs(otherItem.ConfigInfo);
-        }
-
         public Expression GetConditionOrNull(IMemberMapperData mapperData)
             => GetConditionOrNull(mapperData, CallbackPosition.After);
 
@@ -188,9 +182,9 @@
                 return 0;
             }
 
-            if (ConfigInfo.HasSameSourceTypeAs(other.ConfigInfo))
+            if (ConfigInfo.HasSameSourceTypeAs(other))
             {
-                if (ConfigInfo.HasSameTargetTypeAs(other.ConfigInfo))
+                if (ConfigInfo.HasSameTargetTypeAs(other))
                 {
                     return GetConditionOrder(other) ?? 0;
                 }

@@ -193,14 +193,14 @@
         public bool AutoDataSourceReversalEnabled(MappingConfigInfo configInfo)
             => AutoDataSourceReversalEnabled(configInfo, ci => ci.ToMemberContext());
 
-        private bool AutoDataSourceReversalEnabled<T>(T dataItem, Func<T, IQualifiedMemberContext> mapperDataFactory)
+        private bool AutoDataSourceReversalEnabled<T>(T dataItem, Func<T, IQualifiedMemberContext> memberContextFactory)
         {
             if (_dataSourceReversalSettings == null)
             {
                 return false;
             }
 
-            var basicData = mapperDataFactory.Invoke(dataItem);
+            var basicData = memberContextFactory.Invoke(dataItem);
 
             return _dataSourceReversalSettings
                 .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?.Reverse == true;
@@ -478,7 +478,7 @@
 
         #endregion
 
-        public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet());
+        public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet(_mapperContext));
 
         #region RecursionDepthSettings
 

@@ -3,16 +3,16 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using Api.Configuration.Dictionaries;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Api.Configuration.Dictionaries;
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal class DictionarySettings
     {
@@ -25,15 +25,19 @@
         {
             _joiningNameFactories = new List<JoiningNameFactory>
             {
+#if FEATURE_DYNAMIC
                 JoiningNameFactory.UnderscoredForSourceDynamics(mapperContext),
                 JoiningNameFactory.UnderscoredForTargetDynamics(mapperContext),
+#endif
                 JoiningNameFactory.Dotted(mapperContext)
             };
 
             _elementKeyPartFactories = new List<ElementKeyPartFactory>
             {
+#if FEATURE_DYNAMIC
                 ElementKeyPartFactory.UnderscoredIndexForSourceDynamics(mapperContext),
                 ElementKeyPartFactory.UnderscoredIndexForTargetDynamics(mapperContext),
+#endif
                 ElementKeyPartFactory.SquareBracketedIndex(mapperContext)
             };
         }
@@ -129,11 +133,6 @@
             IList<TKeyPartFactory> existingFactories)
             where TKeyPartFactory : DictionaryKeyPartFactoryBase
         {
-            if (existingFactories.HasOne())
-            {
-                return;
-            }
-
             var conflictingFactory = existingFactories
                 .FirstOrDefault(factory, (f, kpf) => kpf.ConflictsWith(f));
 
@@ -172,8 +171,11 @@
 
         private IEnumerable<JoiningNameFactory> GetNonDefaultJoiningNameFactories()
         {
+#if FEATURE_DYNAMIC
             const int DEFAULT_JOINING_NAME_FACTORY_LENGTH = 3;
-
+#else
+            const int DEFAULT_JOINING_NAME_FACTORY_LENGTH = 1;
+#endif
             return _joiningNameFactories
                 .Take(_joiningNameFactories.Count - DEFAULT_JOINING_NAME_FACTORY_LENGTH)
                 .Reverse();
@@ -181,8 +183,11 @@
 
         private IEnumerable<ElementKeyPartFactory> GetNonDefaultElementKeyPartFactories()
         {
+#if FEATURE_DYNAMIC
             const int DEFAULT_ELEMENT_KEY_PART_FACTORY_LENGTH = 3;
-
+#else
+            const int DEFAULT_ELEMENT_KEY_PART_FACTORY_LENGTH = 1;
+#endif
             return _elementKeyPartFactories
                 .Take(_elementKeyPartFactories.Count - DEFAULT_ELEMENT_KEY_PART_FACTORY_LENGTH)
                 .Reverse();

@@ -77,8 +77,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
                 return false;
             }
 
-            return ConfigInfo.HasSameSourceTypeAs(clonedIgnoredSourceMember.ConfigInfo) &&
-                   ConfigInfo.HasSameTargetTypeAs(clonedIgnoredSourceMember.ConfigInfo) &&
+            return ConfigInfo.HasSameTypesAs(clonedIgnoredSourceMember) &&
                    MembersConflict(clonedIgnoredSourceMember);
         }
 

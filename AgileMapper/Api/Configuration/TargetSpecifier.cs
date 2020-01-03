@@ -24,6 +24,19 @@
         }
 
         /// <summary>
+        /// Specify that the behaviour being configured should apply only to the specified
+        /// <typeparamref name="TSource"/> type, not any types derived from <typeparamref name="TSource"/>.
+        /// </summary>
+        public TargetSpecifier<TSource> ButNotDerivedTypes
+        {
+            get
+            {
+                _configInfo.ForSourceTypeOnly();
+                return this;
+            }
+        }
+
+        /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured in all mapping rule sets 
         /// (create new, overwrite, etc), to the target type specified by the given <typeparamref name="TTarget"/> 
         /// argument.

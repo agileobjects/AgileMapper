@@ -140,11 +140,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
             string ruleSetName)
-            => CreateDictionaryConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
+        {
+            return CreateDictionaryConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
+        }
 
         private static SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
             MappingConfigInfo configInfo)
-            => new SourceDictionaryMappingConfigurator<TValue, TTarget>(configInfo);
+        {
+            return new SourceDictionaryMappingConfigurator<TValue, TTarget>(configInfo);
+        }
 
         #endregion
 
@@ -165,11 +169,15 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private SourceDynamicMappingConfigurator<TTarget> CreateDynamicConfigurator<TTarget>(
             string ruleSetName)
-            => CreateDynamicConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
+        {
+            return CreateDynamicConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
+        }
 
         private static SourceDynamicMappingConfigurator<TTarget> CreateDynamicConfigurator<TTarget>(
             MappingConfigInfo configInfo)
-            => new SourceDynamicMappingConfigurator<TTarget>(configInfo);
+        {
+            return new SourceDynamicMappingConfigurator<TTarget>(configInfo);
+        }
 
         #endregion
 #endif

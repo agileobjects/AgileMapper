@@ -16,6 +16,7 @@
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using ReadableExpressions;
     using static Constants;
     using static TypeComparer;
 
@@ -37,7 +38,7 @@
             var derivedTargetTypes = GetDerivedTargetTypesIfNecessary(declaredTypeMapperData);
             var hasDerivedTargetTypes = derivedTargetTypes.Any();
 
-            var declaredSourceTypePairs = GetTypePairsFor(declaredTypeMapperData, declaredTypeMapperData);
+            var declaredSourceTypePairs = declaredTypeMapperData.GetDerivedTypePairs();
             var hasDeclaredSourceTypePairs = declaredSourceTypePairs.Any();
 
             if (hasNoDerivedSourceTypes && !hasDerivedTargetTypes && !hasDeclaredSourceTypePairs)
@@ -101,17 +102,6 @@
             return mapperData.TargetCouldBePopulated()
                 ? mapperData.GetDerivedTargetTypes()
                 : EmptyTypeArray;
-        }
-
-        private static IList<DerivedTypePair> GetTypePairsFor(
-            IQualifiedMemberContext pairTestMapperData, 
-            IMapperContextOwner mapperContextOwner)
-        {
-            var derivedTypePairs = mapperContextOwner.MapperContext.UserConfigurations
-                .DerivedTypes
-                .GetDerivedTypePairsFor(pairTestMapperData, mapperContextOwner.MapperContext);
-
-            return derivedTypePairs;
         }
 
         private static void AddDeclaredSourceTypeDataSources(
@@ -246,8 +236,7 @@
                         derivedSourceCheck,
                         targetType);
 
-                    derivedTypeDataSources.Insert(sourceVariableIsDerivedTypeDataSource, insertionOffset);
-                    continue;
+                    goto AddDataSourceIfValid;
                 }
 
                 var hasUnconditionalDerivedTargetTypeMapping = HasUnconditionalDerivedTargetTypeMapping(
@@ -264,8 +253,7 @@
                         derivedSourceCheck,
                         unconditionalDerivedTargetType);
 
-                    derivedTypeDataSources.Insert(sourceVariableIsDerivedTypeDataSource, insertionOffset);
-                    continue;
+                    goto AddDataSourceIfValid;
                 }
 
                 sourceVariableIsDerivedTypeDataSource = GetMapFromConditionOrDefaultDataSource(
@@ -275,7 +263,11 @@
                     groupedTypePairs,
                     targetType);
 
-                derivedTypeDataSources.Insert(sourceVariableIsDerivedTypeDataSource, insertionOffset);
+                AddDataSourceIfValid:
+                if (sourceVariableIsDerivedTypeDataSource.IsValid)
+                {
+                    derivedTypeDataSources.Insert(sourceVariableIsDerivedTypeDataSource, insertionOffset);
+                }
             }
         }
 
@@ -304,6 +296,11 @@
                     typePairGroup.DerivedTargetType,
                     out derivedTypeMappingData);
 
+                if (derivedTypeMapping == EmptyExpression)
+                {
+                    continue;
+                }
+
                 var typePairDataSource = new DerivedComplexTypeDataSource(
                     derivedTypeMappingData.MapperData.SourceMember,
                     typePairsCondition,
@@ -323,9 +320,23 @@
                 targetType,
                 out derivedTypeMappingData);
 
-            var derivedTypeMappings = Block(
-                derivedTargetTypeDataSources.BuildValue(),
-                derivedTypeMapping);
+            var derivedTypeMappings = derivedTargetTypeDataSources.BuildValue();
+
+            if (derivedTypeMappings != EmptyExpression)
+            {
+                if (derivedTypeMapping != EmptyExpression)
+                {
+                    derivedTypeMappings = Block(derivedTypeMappings, derivedTypeMapping);
+                }
+            }
+            else if (derivedTypeMapping != EmptyExpression)
+            {
+                derivedTypeMappings = derivedTypeMapping;
+            }
+            else
+            {
+                return new NullDataSource(ReadableExpression.Comment("No data sources"));
+            }
 
             return new DerivedComplexTypeDataSource(
                 derivedTypeMappingData.MapperData.SourceMember,
@@ -380,9 +391,20 @@
             out Type unconditionalDerivedTargetType,
             out TypePairGroup[] groupedTypePairs)
         {
+            IEnumerable<TypePairGroup> unconditionalTypePairs;
+
             if (derivedTypePairs.Count == 1)
             {
-                groupedTypePairs = new[] { new TypePairGroup(derivedTypePairs) };
+                var typePairGroup = new TypePairGroup(derivedTypePairs);
+                groupedTypePairs = new[] { typePairGroup };
+
+                if (typePairGroup.TypePairs.Any(tp => tp.HasConfiguredCondition))
+                {
+                    unconditionalDerivedTargetType = null;
+                    return false;
+                }
+
+                unconditionalTypePairs = groupedTypePairs;
             }
             else
             {
@@ -391,10 +413,10 @@
                     .Project(group => new TypePairGroup(group))
                     .OrderBy(tp => tp.DerivedTargetType, MostToLeastDerived)
                     .ToArray();
+            
+                unconditionalTypePairs = groupedTypePairs
+                    .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
             }
-
-            var unconditionalTypePairs = groupedTypePairs
-                .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
 
             foreach (var unconditionalTypePair in unconditionalTypePairs)
             {
@@ -425,7 +447,7 @@
                 mapperData.Parent,
                 mapperData.MapperContext);
 
-            return GetTypePairsFor(pairTestMapperData, mapperData);
+            return pairTestMapperData.GetDerivedTypePairs();
         }
 
         private static void AddDerivedTargetTypeDataSources(

@@ -116,25 +116,21 @@
         }
 
         [Fact]
-        public void ShouldErrorIfComplexTypeMemberIsUnconstructable()
+        public void ShouldErrorIfRootComplexTypeIsUnmappable()
         {
             var validationEx = Should.Throw<MappingValidationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    var exampleSource = new { Value = new { Value2 = default(int) } };
-
-                    mapper
-                        .GetPlanFor(exampleSource)
-                        .ToANew<PublicProperty<PublicTwoParamCtor<int, int>>>();
+                    mapper.GetPlanFor(new { Value = default(int) })
+                          .ToANew<PublicUnconstructable<int>>();
 
                     mapper.ThrowNowIfAnyMappingPlanIsIncomplete();
                 }
             });
 
-            validationEx.Message.ShouldContain("AnonymousType<AnonymousType<int>> -> PublicProperty<PublicTwoParamCtor<int, int>>");
-            validationEx.Message.ShouldContain("Unconstructable target Types");
-            validationEx.Message.ShouldContain("AnonymousType<int> -> PublicTwoParamCtor<int, int>");
+            validationEx.Message.ShouldContain("AnonymousType<int> -> PublicUnconstructable<int>");
+            validationEx.Message.ShouldContain("Unmappable target Types");
         }
 
         [Fact]
@@ -213,6 +209,27 @@
             });
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/183
+        [Fact]
+        public void ShouldNotErrorIfAbstractMemberHasDiscoverableDerivedTypePairs()
+        {
+            Should.NotThrow(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                    mapper.WhenMapping
+                        .From<Issue183.ThingBase>().ButNotDerivedTypes
+                        .To<Issue183.ThingDto>()     
+                        .Ignore(t => t.Value);
+
+                    mapper.GetPlanFor<PublicField<Issue183.ThingBase>>()
+                          .ToANew<PublicField<Issue183.ThingBaseDto>>();
+                }
+            });
+        }
+
         [Fact]
         public void ShouldErrorIfEnumerableMemberHasNonEnumerableSource()
         {
@@ -234,7 +251,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfEnumerableMemberHasUnconstructableElements()
+        public void ShouldErrorIfEnumerableMemberHasUnmappableElements()
         {
             var validationEx = Should.Throw<MappingValidationException>(() =>
             {
@@ -249,7 +266,7 @@
             });
 
             validationEx.Message.ShouldContain("Address[] -> PublicCtor<string>[]");
-            validationEx.Message.ShouldContain("Unconstructable target Types");
+            validationEx.Message.ShouldContain("Unmappable target Types");
             validationEx.Message.ShouldContain("Address -> PublicCtor<string>");
         }
 
@@ -378,6 +395,27 @@
             // ReSharper disable once MemberCanBePrivate.Local
             // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Value { get; }
+        }
+
+        public static class Issue183
+        {
+            public abstract class ThingBase
+            {
+            }
+
+            public class Thing : ThingBase
+            {
+                public string Value { get; set; }
+            }
+
+            public abstract class ThingBaseDto
+            {
+            }
+
+            public class ThingDto : ThingBaseDto
+            {
+                public string Value { get; set; }
+            }
         }
 
         #endregion
