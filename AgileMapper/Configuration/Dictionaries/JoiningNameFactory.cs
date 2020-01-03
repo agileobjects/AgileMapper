@@ -1,16 +1,18 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using System;
-    using System.Dynamic;
-    using Extensions.Internal;
-    using Members;
-    using Members.Dictionaries;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+#if FEATURE_DYNAMIC
+    using Api.Configuration.Dynamics;
+#endif
+    using Extensions.Internal;
+    using Members;
+    using Members.Dictionaries;
+    using ReadableExpressions.Extensions;
     using static DictionaryContext;
 
     internal class JoiningNameFactory : DictionaryKeyPartFactoryBase
@@ -37,14 +39,12 @@
         }
 
         #region Factory Methods
-
+#if FEATURE_DYNAMIC
         public static JoiningNameFactory UnderscoredForSourceDynamics(MapperContext mapperContext)
         {
             var sourceExpandoObject = new MappingConfigInfo(mapperContext)
-                .ForAllRuleSets()
-                .ForSourceType<ExpandoObject>()
-                .ForAllTargetTypes()
-                .Set(DictionaryType.Expando);
+                .ForSourceExpandoObject()
+                .ForAllTargetTypes();
 
             return ForDefault("_", sourceExpandoObject);
         }
@@ -52,14 +52,12 @@
         public static JoiningNameFactory UnderscoredForTargetDynamics(MapperContext mapperContext)
         {
             var targetExpandoObject = new MappingConfigInfo(mapperContext)
-                .ForAllRuleSets()
                 .ForAllSourceTypes()
-                .ForTargetType<ExpandoObject>()
-                .Set(DictionaryType.Expando);
+                .ForTargetExpandoObject();
 
             return ForDefault("_", targetExpandoObject);
         }
-
+#endif
         public static JoiningNameFactory Dotted(MapperContext mapperContext)
             => ForDefault(".", MappingConfigInfo.AllRuleSetsSourceTypesAndTargetTypes);
 
@@ -78,7 +76,7 @@
             => _separatorConstant ?? (_separatorConstant = _separator.ToConstantExpression());
 
         private string SeparatorDescription
-            => IsFlattened ? "flattened" : "separated with '" + _separator + "'";
+            => IsFlattened ? "flattened" : $"separated with '{_separator}'";
 
         private bool IsFlattened => _separator == string.Empty;
 
@@ -89,9 +87,9 @@
                 return false;
             }
 
-            var applicableDictionarycontext = ConfigInfo.Get<DictionaryContext>();
+            var applicableDictionaryContext = ConfigInfo.Get<DictionaryContext>();
 
-            if (applicableDictionarycontext == All)
+            if (applicableDictionaryContext == All)
             {
                 return true;
             }

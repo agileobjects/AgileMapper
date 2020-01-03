@@ -108,7 +108,7 @@
 
         private static bool TargetIsUnmappable(ObjectMapperData mapperData)
         {
-            if (!mapperData.TargetMember.IsComplex || mapperData.TargetIsDefinitelyPopulated())
+            if (!mapperData.TargetMember.IsComplex)
             {
                 return false;
             }
@@ -133,14 +133,9 @@
                 return false;
             }
 
-            if (mapperData.TargetType.IsAbstract())
+            if (mapperData.TargetCouldBePopulated())
             {
-                return mapperData.DerivedMapperDatas.None();
-            }
-
-            if (mapperData.DeclaredTypeMapperData != null)
-            {
-                return false;
+                return mapperData.DataSourcesByTargetMember.Values.Any(ds => !ds.HasValue);
             }
 
             return true;

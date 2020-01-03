@@ -96,7 +96,7 @@
 
             if (_typePairsByTargetType.TryGetValue(context.TargetType, out var typePairs))
             {
-                return typePairs.Filter(context, (md, tp) => tp.AppliesTo(md)).ToArray();
+                return typePairs.Filter(context, (ctx, tp) => tp.AppliesTo(ctx)).ToArray();
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;

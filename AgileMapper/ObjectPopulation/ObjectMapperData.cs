@@ -3,12 +3,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
     using DataSources;
     using Enumerables;
     using Extensions;
@@ -353,9 +353,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public int DataSourceIndex { get; set; }
 
         public MapperDataContext Context { get; }
-
-        public override bool HasCompatibleTypes(ITypePair typePair)
-            => typePair.HasCompatibleTypes(this, SourceMember, TargetMember);
 
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
         {

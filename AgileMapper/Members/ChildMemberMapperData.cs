@@ -64,7 +64,7 @@
         {
             return _useParentForTypeCheck
                 ? Parent.HasCompatibleTypes(typePair)
-                : typePair.HasCompatibleTypes(this, SourceMember, TargetMember);
+                : base.HasCompatibleTypes(typePair);
         }
     }
 }

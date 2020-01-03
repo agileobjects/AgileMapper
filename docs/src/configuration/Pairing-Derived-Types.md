@@ -1,4 +1,4 @@
-Derived type pairing matches particular derived sources types to particular derived target types. Most of the time [this is done automatically](/Derived-Types), but if your derived types aren't consistently-named, or you want to make derived type mapping conditional, you can configure it.
+Derived type pairing matches particular derived sources types to particular derived target types. In many cases [this is done automatically](/Derived-Types), but if your derived types aren't consistently-named, or you want to make derived type mapping conditional, you can configure it.
 
 For example:
 

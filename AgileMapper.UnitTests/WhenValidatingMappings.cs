@@ -116,24 +116,21 @@
         }
 
         [Fact]
-        public void ShouldErrorIfComplexTypeMemberIsUnmappable()
+        public void ShouldErrorIfRootComplexTypeIsUnmappable()
         {
             var validationEx = Should.Throw<MappingValidationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    var exampleSource = new { Value = new { Value2 = default(int) } };
-
-                    mapper.GetPlanFor(exampleSource)
-                          .ToANew<PublicProperty<PublicUnconstructable<int>>>();
+                    mapper.GetPlanFor(new { Value = default(int) })
+                          .ToANew<PublicUnconstructable<int>>();
 
                     mapper.ThrowNowIfAnyMappingPlanIsIncomplete();
                 }
             });
 
-            validationEx.Message.ShouldContain("AnonymousType<AnonymousType<int>> -> PublicProperty<PublicUnconstructable<int>>");
-            validationEx.Message.ShouldContain("Unmappable target Types");
             validationEx.Message.ShouldContain("AnonymousType<int> -> PublicUnconstructable<int>");
+            validationEx.Message.ShouldContain("Unmappable target Types");
         }
 
         [Fact]
@@ -222,8 +219,13 @@
                 {
                     mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
 
-                    mapper.GetPlanFor<PublicField<Issue183.SourceBase>>()
-                          .ToANew<PublicField<Issue183.TargetBase>>();
+                    mapper.WhenMapping
+                        .From<Issue183.ThingBase>().ButNotDerivedTypes
+                        .To<Issue183.ThingDto>()     
+                        .Ignore(t => t.Value);
+
+                    mapper.GetPlanFor<PublicField<Issue183.ThingBase>>()
+                          .ToANew<PublicField<Issue183.ThingBaseDto>>();
                 }
             });
         }
@@ -397,24 +399,22 @@
 
         public static class Issue183
         {
-            public abstract class SourceBase
+            public abstract class ThingBase
             {
-                public string Value1 { get; set; }
             }
 
-            public class Source : SourceBase
+            public class Thing : ThingBase
             {
-                public string Value2 { get; set; }
+                public string Value { get; set; }
             }
 
-            public abstract class TargetBase
+            public abstract class ThingBaseDto
             {
-                public string Value1 { get; set; }
             }
 
-            public class Target : TargetBase
+            public class ThingDto : ThingBaseDto
             {
-                public string Value2 { get; set; }
+                public string Value { get; set; }
             }
         }
 

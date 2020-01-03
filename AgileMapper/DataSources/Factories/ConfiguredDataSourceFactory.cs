@@ -149,7 +149,7 @@
                 return true;
             }
 
-            if (SourceAndTargetTypesAreTheSame(otherDataSource))
+            if (ConfigInfo.HasSameTypesAs(otherDataSource))
             {
                 return true;
             }

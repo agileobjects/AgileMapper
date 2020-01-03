@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.Members
 {
-    using System;
     using NetStandardPolyfills;
 
     internal static class TypePairExtensions
@@ -9,38 +8,12 @@ namespace AgileObjects.AgileMapper.Members
             => typePair.SourceType == Constants.AllTypes;
 
         public static bool IsForSourceType(this ITypePair typePair, ITypePair otherTypePair)
-            => typePair.IsForSourceType(otherTypePair.SourceType);
-
-        private static bool IsForSourceType(this ITypePair typePair, Type sourceType)
-            => IsForAllSourceTypes(typePair) || sourceType.IsAssignableTo(typePair.SourceType);
+            => IsForAllSourceTypes(typePair) || otherTypePair.SourceType.IsAssignableTo(typePair.SourceType);
 
         public static bool IsForTargetType(this ITypePair typePair, ITypePair otherTypePair)
             => otherTypePair.TargetType.IsAssignableTo(typePair.TargetType);
 
-        public static bool IsForAllTargetTypes(this ITypePair typePair)
-            => typePair.TargetType == typeof(object);
-
-        public static bool HasCompatibleTypes<TOtherTypePair>(
-            this ITypePair typePair,
-            TOtherTypePair otherTypePair,
-            IQualifiedMember sourceMember = null,
-            QualifiedMember targetMember = null)
-            where TOtherTypePair : ITypePair
-        {
-            var sourceTypesMatch =
-                typePair.IsForSourceType(otherTypePair.SourceType) ||
-               (sourceMember?.HasCompatibleType(typePair.SourceType) == true);
-
-            if (!sourceTypesMatch)
-            {
-                return false;
-            }
-
-            var targetTypesMatch =
-               (targetMember?.HasCompatibleType(typePair.TargetType) == true) ||
-                otherTypePair.TargetType.IsAssignableTo(typePair.TargetType);
-
-            return targetTypesMatch;
-        }
+        public static bool HasTypesCompatibleWith(this ITypePair typePair, ITypePair otherTypePair) 
+            => typePair.IsForSourceType(otherTypePair) && typePair.IsForTargetType(otherTypePair);
     }
 }

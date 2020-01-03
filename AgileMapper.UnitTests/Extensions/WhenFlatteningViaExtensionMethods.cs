@@ -210,10 +210,10 @@
                     .ForDictionaries
                     .UseElementKeyPattern("(i)"));
 
-                result["(0)Line1"].ShouldBe("1_1");
-                result["(0)Line2"].ShouldBe("1_2");
-                result["(1)Line1"].ShouldBe("2_1");
-                result["(1)Line2"].ShouldBe("2_2");
+                result.ShouldContainKeyAndValue("(0)Line1", "1_1");
+                result.ShouldContainKeyAndValue("(0)Line2", "1_2");
+                result.ShouldContainKeyAndValue("(1)Line1", "2_1");
+                result.ShouldContainKeyAndValue("(1)Line2", "2_2");
             }
         }
 

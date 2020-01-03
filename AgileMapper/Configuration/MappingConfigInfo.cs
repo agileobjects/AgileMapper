@@ -16,6 +16,10 @@
     using ReadableExpressions;
     using static MappingRuleSet;
 
+    internal delegate bool SourceTypeComparer(ITypePair typePair, ITypePair otherTypePair);
+    
+    internal delegate bool TargetTypeComparer(ITypePair typePair, ITypePair otherTypePair);
+
     internal class MappingConfigInfo : ITypePair
     {
         public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
@@ -25,6 +29,7 @@
         private bool _negateCondition;
         private Dictionary<Type, object> _data;
         private IObjectMappingData _mappingData;
+        private bool _isForSourceTypeOnly;
 
         public MappingConfigInfo(MapperContext mapperContext)
         {
@@ -42,9 +47,21 @@
 
         public UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
 
+        public bool HasSameTypesAs(UserConfiguredItemBase userConfiguredItem)
+            => HasSameSourceTypeAs(userConfiguredItem) && HasSameTargetTypeAs(userConfiguredItem);
+
+        public bool HasCompatibleTypes(ITypePair otherTypePair)
+            => this.HasTypesCompatibleWith(otherTypePair);
+
         public Type SourceType { get; private set; }
 
         public MappingConfigInfo ForAllSourceTypes() => ForSourceType(Constants.AllTypes);
+
+        public MappingConfigInfo ForSourceTypeOnly()
+        {
+            _isForSourceTypeOnly = true;
+            return this;
+        }
 
         public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
 
@@ -54,10 +71,25 @@
             return this;
         }
 
-        public bool HasSameSourceTypeAs(MappingConfigInfo otherConfigInfo)
-            => otherConfigInfo.SourceType == SourceType;
+        bool ITypePair.IsForSourceType(ITypePair typePair)
+        {
+            if (_isForSourceTypeOnly)
+            {
+                return this.IsForAllSourceTypes() || HasSameSourceTypeAs(typePair);
+            }
+
+            return Get<SourceTypeComparer>()?.Invoke(this, typePair) ??
+                   this.IsForSourceType(typePair);
+        }
+
+        public bool HasSameSourceTypeAs(UserConfiguredItemBase userConfiguredItem)
+            => HasSameSourceTypeAs(userConfiguredItem.ConfigInfo);
+
+        private bool HasSameSourceTypeAs(ITypePair typePair) => typePair.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
+        
+        public bool IsForAllTargetTypes() => TargetType == typeof(object);
 
         public MappingConfigInfo ForAllTargetTypes() => ForTargetType<object>();
 
@@ -69,10 +101,14 @@
             return this;
         }
 
-        public bool HasSameTargetTypeAs(MappingConfigInfo otherConfigInfo) => TargetType == otherConfigInfo.TargetType;
+        bool ITypePair.IsForTargetType(ITypePair typePair)
+        {
+            return Get<TargetTypeComparer>()?.Invoke(this, typePair) ??
+                   this.IsForTargetType(typePair);
+        }
 
-        public bool HasCompatibleTypes(ITypePair otherTypePair)
-            => this.HasCompatibleTypes(otherTypePair, sourceMember: null);
+        public bool HasSameTargetTypeAs(UserConfiguredItemBase userConfiguredItem)
+            => TargetType == userConfiguredItem.TargetType;
 
         public MappingRuleSet RuleSet { get; private set; }
 
@@ -189,7 +225,15 @@
 
         #endregion
 
-        public T Get<T>() => Data.TryGetValue(typeof(T), out var value) ? (T)value : default(T);
+        public T Get<T>()
+        {
+            if (_data == null)
+            {
+                return default;
+            }
+
+            return _data.TryGetValue(typeof(T), out var value) ? (T)value : default;
+        }
 
         public MappingConfigInfo Set<T>(T value)
         {

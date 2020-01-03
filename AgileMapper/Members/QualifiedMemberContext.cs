@@ -95,6 +95,10 @@ namespace AgileObjects.AgileMapper.Members
         public QualifiedMember TargetMember { get; }
 
         public virtual bool HasCompatibleTypes(ITypePair typePair)
-            => typePair.HasCompatibleTypes(this, SourceMember, TargetMember);
+            => typePair.HasTypesCompatibleWith(this);
+
+        bool ITypePair.IsForSourceType(ITypePair typePair) => this.IsForSourceType(typePair);
+        
+        bool ITypePair.IsForTargetType(ITypePair typePair) => this.IsForTargetType(typePair);
     }
 }
