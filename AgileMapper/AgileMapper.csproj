@@ -28,6 +28,7 @@
 - Static API support for type-specific naming rules, re: #175
 - Support for applying custom data sources to root types only, re: #183
 - Support for TimeSpan mapping
+- Support for DateTimeOffset mapping
 - Improved detection of unmappable target types in mapping validation, re: #183
 - Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
 - Fixing numeric to non-int-derived enum mapping
@@ -53,7 +54,7 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
     <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
-    <DefineConstants>$(DefineConstants);NET_35;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;NET_35;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -62,7 +63,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_ISET;NET_40;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_ISET;FEATURE_DRAWING;NET_40;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
