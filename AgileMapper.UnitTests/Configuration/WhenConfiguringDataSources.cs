@@ -529,6 +529,30 @@
         }
 
         [Fact]
+        public void ShouldApplyASourceMemberToABaseSourceTypeOnly()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Customer>().ButNotDerivedTypes
+                    .To<CustomerViewModel>()
+                    .Map(c => c.Id, x => x.Name);
+
+                var source = new Customer[]
+                { 
+                    new Customer { Id = Guid.NewGuid(), Address = new Address() },
+                    new MysteryCustomer { Id = Guid.NewGuid(), Name = "Whaaaat?!?" },
+                };
+                
+                var result = mapper.Map(source).ToANew<IEnumerable<CustomerViewModel>>();
+
+                result.Count().ShouldBe(2);
+                result.First().Name.ShouldBe(source.First().Id.ToString());
+                result.Second().Name.ShouldBe("Whaaaat?!?");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAnExpression()
         {
             using (var mapper = Mapper.CreateNew())

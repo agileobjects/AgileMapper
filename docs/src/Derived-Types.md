@@ -2,7 +2,7 @@ For many cases, derived type mapping is supported without configuration.
 
 For example, with the following classes:
 
-```cs
+```csharp
 public class Person {}
 public class Customer : Person
 {
@@ -16,18 +16,19 @@ public class CustomerViewModel : PersonViewModel
 }
 ```
 
-...the derived `Customer` type is recognised and mapped to a `CustomerViewModel`, even though the source variable is of type `Person` and the requested target type is `PersonViewModel`:
+...`Customer` and `CustomerViewModel are auto-discovered, and paired up based on the [Type] -> [TypeViewModel] naming convention.
+Mapping a `customer` variable of type `Person` to a `PersonViewModel` automatically maps to a `CustomerViewModel` instead:
 
-```cs
+```csharp
 var person = new Customer { Discount = 0.1f } as Person;
 var viewModel = Mapper.Map(person).ToANew<PersonViewModel>();
 // viewModel is of type CustomerViewModel
 // viewModel.Discount is 0.1
 ```
 
-Derived types are also paired up automatically - for example, with the following classes:
+Other type pairs are also paired up automatically - for example, with the following classes:
 
-```cs
+```csharp
 public class Animal {}
 public class Dog : Animal {}
 public class Cat : Animal {}
@@ -39,7 +40,7 @@ public class CatDto : AnimalDto {}
 
 The following mappings are performed:
 
-```cs
+```csharp
 var sourceAnimal = new Dog() as Animal;
 var resultAnimal = Mapper.Map(sourceDog).ToANew<Animal>();
 // resultAnimal is of type Dog
@@ -50,4 +51,6 @@ var resultAnimals = Mapper.Map(sourceAnimals).ToANew<AnimalDto[]>();
 // resultAnimals[1] is of type DogDto
 ```
 
-In the second example above, the `Dog` -> `DogDto` and `Cat` -> `CatDto` types are paired by convention based on the names of the original `Animal` -> `AnimalDto` pairing. You can configure [type pairs](/configuration/Pairing-Derived-Types) which don't have a consistent naming convention, and [in which assemblies](/configuration/Assembly-Scanning) to look for derived types.
+In the second example above, the `Dog` -> `DogDto` and `Cat` -> `CatDto` types are paired by convention based on the names of the original 
+`Animal` -> `AnimalDto` pairing. You can configure [type pairs](/configuration/Pairing-Derived-Types) which don't have a consistent naming 
+convention, and [in which assemblies](/configuration/Assembly-Scanning) to look for derived types.

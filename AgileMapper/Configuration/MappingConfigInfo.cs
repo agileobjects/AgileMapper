@@ -14,6 +14,7 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
+    using ReadableExpressions.Extensions;
     using static MappingRuleSet;
 
     internal delegate bool SourceTypeComparer(ITypePair typePair, ITypePair otherTypePair);
@@ -59,6 +60,12 @@
 
         public MappingConfigInfo ForSourceTypeOnly()
         {
+            if (SourceType.IsSealed())
+            {
+                throw new MappingConfigurationException(
+                    $"Source type {SourceType.GetFriendlyName()} is sealed, so cannot have derived types");
+            }
+
             _isForSourceTypeOnly = true;
             return this;
         }
