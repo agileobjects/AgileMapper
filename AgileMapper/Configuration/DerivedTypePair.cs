@@ -30,20 +30,10 @@
 
         public static DerivedTypePair For<TDerivedSource, TTarget, TDerivedTarget>(MappingConfigInfo configInfo)
         {
-            ThrowIfInvalidSourceType<TDerivedSource>(configInfo);
             ThrowIfInvalidTargetType<TTarget, TDerivedTarget>();
             ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(configInfo);
 
             return new DerivedTypePair(configInfo, typeof(TDerivedSource), typeof(TDerivedTarget));
-        }
-
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private static void ThrowIfInvalidSourceType<TDerivedSource>(MappingConfigInfo configInfo)
-        {
-            if ((configInfo.SourceType == typeof(TDerivedSource)) && !configInfo.HasCondition)
-            {
-                throw new MappingConfigurationException("A derived source type must be specified.");
-            }
         }
 
         private static void ThrowIfInvalidTargetType<TTarget, TDerivedTarget>()

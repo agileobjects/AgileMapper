@@ -36,6 +36,27 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/172
+        [Fact]
+        public void ShouldMapACustomTypePairSourceToADerivedTarget()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Product>()
+                    .To<ProductDto>()
+                    .MapTo<ProductDtoMega>();
+
+                var source = new Product { ProductId = "12345", Price = 1.99 };
+
+                var result = mapper.Map(source).ToANew<ProductDto>();
+
+                result.ShouldBeOfType<ProductDtoMega>();
+                result.ProductId.ShouldBe("12345");
+                result.Price.ShouldBe(1.99m);
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/163
         [Fact]
         public void ShouldMapACustomInterfaceTypePair()
@@ -85,6 +106,8 @@
                     .StatusId.ShouldBe(404);
             }
         }
+
+
 
         [Fact]
         public void ShouldMapADerivedTypePairConditionally()

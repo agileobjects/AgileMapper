@@ -530,6 +530,11 @@
         public IMappingDerivedPairTargetTypeSpecifier<TSource, TTarget> Map<TDerivedSource>()
             where TDerivedSource : TSource
         {
+            if (!ConfigInfo.HasCondition && (typeof(TSource) == typeof(TDerivedSource)))
+            {
+                throw new MappingConfigurationException("A derived source type must be specified.");
+            }
+
             return new DerivedPairTargetTypeSpecifier<TSource, TDerivedSource, TTarget>(ConfigInfo);
         }
 
