@@ -29,5 +29,17 @@
         /// </returns>
         IMappingDerivedPairTargetTypeSpecifier<TSource, TTarget> Map<TDerivedSource>()
             where TDerivedSource : TSource;
+
+        /// <summary>
+        /// Map the source type being configured to the derived target type specified by 
+        /// <typeparamref name="TDerivedTarget"/>.
+        /// </summary>
+        /// <typeparam name="TDerivedTarget">The derived target type to create.</typeparam>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> MapTo<TDerivedTarget>()
+            where TDerivedTarget : TTarget;
     }
 }

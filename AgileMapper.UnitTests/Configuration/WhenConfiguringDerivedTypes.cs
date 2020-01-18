@@ -36,6 +36,27 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/172
+        [Fact]
+        public void ShouldMapACustomTypePairToAFixedDerivedTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Product>()
+                    .To<ProductDto>()
+                    .MapTo<ProductDtoMega>();
+
+                var source = new Product { ProductId = "12345", Price = 1.99 };
+
+                var result = mapper.Map(source).ToANew<ProductDto>();
+
+                result.ShouldBeOfType<ProductDtoMega>();
+                result.ProductId.ShouldBe("12345");
+                result.Price.ShouldBe(1.99m);
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/163
         [Fact]
         public void ShouldMapACustomInterfaceTypePair()
@@ -58,6 +79,71 @@
                     .ShouldNotBeNull()
                     .ShouldBeOfType<Issue163.Target>()
                     .StatusId.ShouldBe(500);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/172
+        [Fact]
+        public void ShouldMapACustomInterfaceTypePairToAFixedDerivedTargetType()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue163.ISource>()
+                    .To<Issue163.ITarget>()
+                    .MapTo<Issue163.Target>()
+                    .And
+                    .Map(s => s.Status, t => t.StatusId);
+
+                Issue163.ISource source = new Issue163.Source { Status = 200 };
+
+                var result = mapper.Map(source).ToANew<Issue163.ITarget>();
+
+                result
+                    .ShouldNotBeNull()
+                    .ShouldBeOfType<Issue163.Target>()
+                    .StatusId.ShouldBe(200);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/172
+        [Fact]
+        public void ShouldMapACustomInterfaceTypePairToAFixedDerivedTargetTypeMemberConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue163.ISource>()
+                    .To<PublicField<Issue163.ITarget>>()
+                    .Map(ctx => ctx.Source).To(dst => dst.Value);
+
+                mapper.WhenMapping
+                    .From<Issue163.ISource>()
+                    .To<Issue163.ITarget>()
+                    .Map(s => s.Status, t => t.StatusId)
+                    .And
+                    .If(ctx => ctx.Source.Status == 404)
+                    .MapTo<Issue163.Target>();
+                    
+                Issue163.ISource source404 = new Issue163.Source { Status = 404 };
+
+                var result404 = mapper.Map(source404).ToANew<PublicField<Issue163.ITarget>>();
+
+                result404
+                    .ShouldNotBeNull()
+                    .Value
+                    .ShouldNotBeNull()
+                    .ShouldBeOfType<Issue163.Target>()
+                    .StatusId.ShouldBe(404);
+                    
+                Issue163.ISource source503 = new Issue163.Source { Status = 503 };
+
+                var result503 = mapper.Map(source503).ToANew<PublicField<Issue163.ITarget>>();
+
+                result503
+                    .ShouldNotBeNull()
+                    .Value
+                    .ShouldBeNull();
             }
         }
 
