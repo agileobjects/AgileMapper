@@ -1,10 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
+﻿#if FEATURE_DYNAMIC_ROOT_SOURCE
+namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Collections.Generic;
     using System.Dynamic;
     using System.Linq;
     using AgileMapper.Extensions.Internal;
-    using Api;
     using Common;
     using TestClasses;
     using Xunit;
@@ -15,7 +15,6 @@
         public void ShouldMapToASimpleTypeCollectionFromASourceArray()
         {
             dynamic source = new ExpandoObject();
-
             source.Value = new long[] { 4, 5, 6 };
 
             var target = new PublicProperty<ICollection<long>>
@@ -23,7 +22,7 @@
                 Value = new List<long> { 2, 3 }
             };
 
-            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            Mapper.Map(source).Over(target);
 
             target.Value.ShouldBe(4L, 5L, 6L);
         }
@@ -41,7 +40,7 @@
 
             var target = new PublicProperty<PersonViewModel[]>();
 
-            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            Mapper.Map(source).Over(target);
 
             target.Value.Length.ShouldBe(2);
             target.Value.First().Name.ShouldBe("Mr Pants");
@@ -52,13 +51,12 @@
         public void ShouldMapToAComplexTypeEnumerableFromFlattenedEntries()
         {
             dynamic source = new ExpandoObject();
-
             source._0ProductId = "Hose";
             source._0Price = "1.99";
 
             IEnumerable<Product> target = new List<Product>();
 
-            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            Mapper.Map(source).Over(target);
 
             target.ShouldHaveSingleItem();
             target.First().ProductId.ShouldBe("Hose");
@@ -66,3 +64,4 @@
         }
     }
 }
+#endif

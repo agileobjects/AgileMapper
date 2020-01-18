@@ -63,10 +63,11 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_ISET;FEATURE_DRAWING;NET_40;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_40;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Linq.Queryable">
       <Version>4.3.0</Version>
@@ -86,7 +87,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_ISET;NET_STANDARD_2;</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_STANDARD_2;</DefineConstants>
   </PropertyGroup>
 
 </Project>
