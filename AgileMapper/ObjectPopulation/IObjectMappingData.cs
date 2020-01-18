@@ -94,14 +94,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// </typeparam>
         /// <param name="sourceElement">The source object from which to map.</param>
         /// <param name="targetElement">The target object to which to map.</param>
-        /// <param name="enumerableIndex">
-        /// The index of the current enumerable the elements of which are being mapped.
+        /// <param name="elementIndex">
+        /// The index of the current enumerable <paramref name="sourceElement"/> being mapped in the
+        /// mapping context described by this <see cref="IObjectMappingData{TSource, TTarget}"/>, if
+        /// applicable.
+        /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dicionary KeyValuePair being mapped in the mapping context described
+        /// by this <see cref="IObjectMappingData{TSource, TTarget}"/>, if applicable.
         /// </param>
         /// <returns>The element mapping result.</returns>
         TTargetElement Map<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
-            int enumerableIndex);
+            int elementIndex,
+            object elementKey);
 
         /// <summary>
         /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> as an 

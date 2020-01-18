@@ -39,14 +39,14 @@ namespace AgileObjects.AgileMapper.DataSources.Factories
                 return mapperData.GetTargetMemberDefault();
             }
 
-            private static bool FallbackToCollection(IBasicMapperData mapperData)
+            private static bool FallbackToCollection(IQualifiedMemberContext context)
             {
-                if (mapperData.TargetMember.IsDictionary)
+                if (context.TargetMember.IsDictionary)
                 {
                     return true;
                 }
 
-                if (!(mapperData.TargetMember is DictionaryTargetMember dictionaryTargetMember))
+                if (!(context.TargetMember is DictionaryTargetMember dictionaryTargetMember))
                 {
                     return true;
                 }

@@ -30,20 +30,10 @@
 
         public static DerivedTypePair For<TDerivedSource, TTarget, TDerivedTarget>(MappingConfigInfo configInfo)
         {
-            ThrowIfInvalidSourceType<TDerivedSource>(configInfo);
             ThrowIfInvalidTargetType<TTarget, TDerivedTarget>();
             ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(configInfo);
 
             return new DerivedTypePair(configInfo, typeof(TDerivedSource), typeof(TDerivedTarget));
-        }
-
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private static void ThrowIfInvalidSourceType<TDerivedSource>(MappingConfigInfo configInfo)
-        {
-            if ((configInfo.SourceType == typeof(TDerivedSource)) && !configInfo.HasCondition)
-            {
-                throw new MappingConfigurationException("A derived source type must be specified.");
-            }
         }
 
         private static void ThrowIfInvalidTargetType<TTarget, TDerivedTarget>()
@@ -56,16 +46,13 @@
 
         private static void ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(MappingConfigInfo configInfo)
         {
-            var mapperData = configInfo
+            var memberContext = configInfo
                 .Copy()
                 .ForSourceType<TDerivedSource>()
-                .ToMapperData();
+                .ToMemberContext();
 
-            var matchingAutoTypePairing = configInfo
-                .MapperContext
-                .UserConfigurations
-                .DerivedTypes
-                .GetDerivedTypePairsFor(mapperData, configInfo.MapperContext)
+            var matchingAutoTypePairing = memberContext
+                .GetDerivedTypePairs()
                 .FirstOrDefault(tp =>
                     !tp.HasConfiguredCondition &&
                     (tp.DerivedSourceType == typeof(TDerivedSource)) &&
@@ -91,21 +78,21 @@
 
         public Type DerivedTargetType { get; }
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
+        public override bool AppliesTo(IQualifiedMemberContext context)
         {
-            if (!base.AppliesTo(mapperData))
+            if (!base.AppliesTo(context))
             {
                 return false;
             }
 
-            if (mapperData.SourceType.IsAssignableTo(DerivedSourceType))
+            if (context.SourceType.IsAssignableTo(DerivedSourceType))
             {
                 return true;
             }
 
             return _isInterfacePairing &&
-                    mapperData.SourceType.IsAssignableTo(SourceType) &&
-                    mapperData.TargetType.IsAssignableTo(TargetType);
+                    context.SourceType.IsAssignableTo(SourceType) &&
+                    context.TargetType.IsAssignableTo(TargetType);
         }
 
         int IComparable<DerivedTypePair>.CompareTo(DerivedTypePair other)

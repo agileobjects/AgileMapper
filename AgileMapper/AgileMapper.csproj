@@ -5,6 +5,7 @@
     <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <TargetFrameworks>netstandard1.0;netstandard1.3;net35;net40</TargetFrameworks>
+    <LangVersion>8.0</LangVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -18,14 +19,20 @@
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
+    <Copyright>Copyright © AgileObjects Ltd 2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>- Support for interface type-pairing, re: #163
+- Support for accessing Dictionary keys in custom data sources, re: #162
 - Support for simple type creation with CreateInstancesUsing, re: #165
-- Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
+- Static API support for type-specific naming rules, re: #175
+- Support for applying custom data sources to root types only, re: #183
 - Support for TimeSpan mapping
+- Support for DateTimeOffset mapping
+- Improved detection of unmappable target types in mapping validation, re: #183
+- Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
 - Fixing numeric to non-int-derived enum mapping
+- Fixing runtime-typed, simple-to-complex to-target data sources, re: #174
 - Adding package icon
 - Performance improvements</PackageReleaseNotes>
   </PropertyGroup>
@@ -47,7 +54,7 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
     <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
-    <DefineConstants>$(DefineConstants);NET_35;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;NET_35;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -56,10 +63,11 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_ISET;NET_40;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_40;</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Linq.Queryable">
       <Version>4.3.0</Version>
@@ -79,7 +87,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_ISET;NET_STANDARD_2;</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_STANDARD_2;</DefineConstants>
   </PropertyGroup>
 
 </Project>

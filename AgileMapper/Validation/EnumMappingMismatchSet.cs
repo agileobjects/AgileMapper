@@ -135,9 +135,9 @@
                 IQualifiedMember targetMember,
                 IEnumerable<IQualifiedMember> sourceMembers,
                 IList<string> mismatches,
-                IBasicMapperData mapperData)
+                IQualifiedMemberContext context)
             {
-                _rootMapperData = mapperData.GetRootMapperData();
+                _rootMapperData = context.GetRootMapperData();
                 _sourceMembers = sourceMembers;
                 _mismatches = mismatches;
                 TargetMemberPath = targetMember.GetFriendlyTargetPath(_rootMapperData);

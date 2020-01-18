@@ -24,6 +24,19 @@
         }
 
         /// <summary>
+        /// Specify that the behaviour being configured should apply only to the specified
+        /// <typeparamref name="TSource"/> type, not any types derived from <typeparamref name="TSource"/>.
+        /// </summary>
+        public TargetSpecifier<TSource> ButNotDerivedTypes
+        {
+            get
+            {
+                _configInfo.ForSourceTypeOnly();
+                return this;
+            }
+        }
+
+        /// <summary>
         /// Configure how this mapper performs mappings from the source type being configured in all mapping rule sets 
         /// (create new, overwrite, etc), to the target type specified by the given <typeparamref name="TTarget"/> 
         /// argument.
@@ -39,7 +52,7 @@
         /// </summary>
         /// <typeparam name="TResult">The result type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TResult> ToANew<TResult>()
+        public IRuleSetMappingConfigurator<TSource, TResult> ToANew<TResult>()
             => UsingRuleSet<TResult>(Constants.CreateNew);
 
         /// <summary>
@@ -49,7 +62,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TTarget> OnTo<TTarget>()
+        public IRuleSetMappingConfigurator<TSource, TTarget> OnTo<TTarget>()
             => UsingRuleSet<TTarget>(Constants.Merge);
 
         /// <summary>
@@ -59,7 +72,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<TSource, TTarget> Over<TTarget>()
+        public IRuleSetMappingConfigurator<TSource, TTarget> Over<TTarget>()
             => UsingRuleSet<TTarget>(Constants.Overwrite);
 
         /// <summary>

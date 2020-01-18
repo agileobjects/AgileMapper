@@ -13,16 +13,16 @@
 
     internal class EnumerablePopulationContext
     {
-        public EnumerablePopulationContext(IBasicMapperData mapperData)
+        public EnumerablePopulationContext(IQualifiedMemberContext context)
         {
-            SourceElementType = mapperData.SourceMember.ElementType;
+            SourceElementType = context.SourceMember.ElementType;
 
             if (SourceElementType == null)
             {
                 return;
             }
 
-            TargetElementType = mapperData.TargetMember.GetElementType(SourceElementType);
+            TargetElementType = context.TargetMember.GetElementType(SourceElementType);
             ElementTypes = new[] { SourceElementType, TargetElementType };
             ElementTypesAreTheSame = SourceElementType == TargetElementType;
             TargetElementsAreSimple = TargetElementType.IsSimple();

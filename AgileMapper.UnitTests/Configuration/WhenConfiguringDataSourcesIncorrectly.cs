@@ -565,5 +565,21 @@
 
             configurationException.Message.ShouldContain("not writeable");
         }
+
+        [Fact]
+        public void ShouldErrorIfBaseClassOnlySpecifiedForSealedType()
+        {
+            var configurationException = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicSealed<int>>().ButNotDerivedTypes
+                        .To<PublicField<int>>();
+                }
+            });
+
+            configurationException.Message.ShouldContain("sealed");
+        }
     }
 }

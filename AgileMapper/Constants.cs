@@ -23,6 +23,8 @@
 
         public static readonly Expression EmptyExpression = Expression.Empty();
 
+        public static readonly Expression NullObject = typeof(object).ToDefaultExpression();
+
         public const string CreateNew = nameof(CreateNew);
 
         public const string Merge = nameof(Merge);

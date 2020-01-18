@@ -112,7 +112,11 @@
                 expressionOffset = 1;
             }
 
-            loopBody = loopBody.Update(loopBody.Variables.Append(variable), loopBodyExpressions);
+            var loopVariables = loopBody.Variables.Contains(variable)
+                ? (IList<ParameterExpression>)loopBody.Variables
+                : loopBody.Variables.Append(variable);
+
+            loopBody = loopBody.Update(loopVariables, loopBodyExpressions);
 
             return loop.Update(loop.BreakLabel, loop.ContinueLabel, loopBody);
         }

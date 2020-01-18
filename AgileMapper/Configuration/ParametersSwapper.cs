@@ -110,7 +110,7 @@ namespace AgileObjects.AgileMapper.Configuration
             var memberContextType = IsCallbackContext(contextTypes) ? contextType : contextType.GetAllInterfaces().First();
             var sourceProperty = memberContextType.GetPublicInstanceProperty(RootSourceMemberName);
             var targetProperty = memberContextType.GetPublicInstanceProperty(RootTargetMemberName);
-            var indexProperty = memberContextType.GetPublicInstanceProperty("EnumerableIndex");
+            var indexProperty = memberContextType.GetPublicInstanceProperty("ElementIndex");
             var parentProperty = memberContextType.GetPublicInstanceProperty("Parent");
 
             var replacementsByTarget = FixedSizeExpressionReplacementDictionary
@@ -175,7 +175,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
         private static MappingContextInfo GetAppropriateMappingContext(SwapArgs swapArgs)
         {
-            if (swapArgs.SourceType.IsSimple())
+            if (UseSimpleTypeMappingContextInfo(swapArgs))
             {
                 return GetSimpleTypesMappingContextInfo(swapArgs);
             }
@@ -188,6 +188,24 @@ namespace AgileObjects.AgileMapper.Configuration
             var contextAccess = swapArgs.GetAppropriateMappingContextAccess();
 
             return new MappingContextInfo(swapArgs, contextAccess);
+        }
+
+        private static bool UseSimpleTypeMappingContextInfo(SwapArgs swapArgs)
+        {
+            if (!swapArgs.ContextSourceType.IsSimple())
+            {
+                return false;
+            }
+
+            if (swapArgs.ContextTargetType == typeof(object))
+            {
+                return false;
+            }
+
+            // Configured simple -> target context; use a parent context
+            // even if the MapperData types match the context types as
+            // the MapperData won't have the correct MappingDataObject:
+            return true;
         }
 
         private static MappingContextInfo GetSimpleTypesMappingContextInfo(SwapArgs swapArgs)
@@ -207,7 +225,7 @@ namespace AgileObjects.AgileMapper.Configuration
                     break;
                 }
 
-                if (!contextMapperData.IsRoot)
+                if (!contextMapperData.IsEntryPoint)
                 {
                     contextMapperData = contextMapperData.Parent;
                     continue;
@@ -307,8 +325,8 @@ namespace AgileObjects.AgileMapper.Configuration
                 : this(
                     swapArgs,
                     contextAccess,
-                    GetValueAccess(swapArgs.GetSourceAccess(contextAccess), swapArgs.SourceType),
-                    GetValueAccess(swapArgs.GetTargetAccess(contextAccess), swapArgs.TargetType))
+                    GetValueAccess(swapArgs.GetSourceAccess(contextAccess), swapArgs.ContextSourceType),
+                    GetValueAccess(swapArgs.GetTargetAccess(contextAccess), swapArgs.ContextTargetType))
             {
             }
 
@@ -356,7 +374,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public Expression TargetAccess { get; }
 
-            public Expression Index => _swapArgs.MapperData.EnumerableIndex;
+            public Expression Index => _swapArgs.MapperData.ElementIndex;
 
             public Expression Parent => _swapArgs.MapperData.ParentObject;
         }
@@ -379,9 +397,9 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public Type[] ContextTypes { get; }
 
-            public Type SourceType => ContextTypes[0];
+            public Type ContextSourceType => ContextTypes[0];
 
-            public Type TargetType => ContextTypes[1];
+            public Type ContextTargetType => ContextTypes[1];
 
             public IMemberMapperData MapperData { get; }
 
@@ -399,10 +417,10 @@ namespace AgileObjects.AgileMapper.Configuration
                 => MapperData.GetTypedContextAccess(contextAccess, ContextTypes);
 
             public Expression GetSourceAccess(Expression contextAccess)
-                => MapperData.GetSourceAccess(contextAccess, SourceType);
+                => MapperData.GetSourceAccess(contextAccess, ContextSourceType);
 
             public Expression GetTargetAccess(Expression contextAccess)
-                => TargetValueFactory.Invoke(MapperData, contextAccess, TargetType);
+                => TargetValueFactory.Invoke(MapperData, contextAccess, ContextTargetType);
         }
 
         #endregion

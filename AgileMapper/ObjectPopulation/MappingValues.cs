@@ -8,17 +8,24 @@
 
     internal class MappingValues
     {
-        public MappingValues(Expression sourceValue, Expression targetValue, Expression enumerableIndex)
+        public MappingValues(
+            Expression sourceValue, 
+            Expression targetValue, 
+            Expression elementIndex, 
+            Expression elementKey)
         {
             SourceValue = sourceValue;
             TargetValue = targetValue;
-            EnumerableIndex = enumerableIndex;
+            ElementIndex = elementIndex;
+            ElementKey = elementKey;
         }
 
         public Expression SourceValue { get; }
 
         public Expression TargetValue { get; }
 
-        public Expression EnumerableIndex { get; }
+        public Expression ElementIndex { get; }
+
+        public Expression ElementKey { get; }
     }
 }

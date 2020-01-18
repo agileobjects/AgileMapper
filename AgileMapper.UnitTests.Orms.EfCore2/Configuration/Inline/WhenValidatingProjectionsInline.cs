@@ -56,7 +56,7 @@
 
                 validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<PublicStringCtorDto>");
                 validationEx.Message.ShouldContain("Rule set: Project");
-                validationEx.Message.ShouldContain("Unconstructable target Types");
+                validationEx.Message.ShouldContain("Unmappable target Types");
                 validationEx.Message.ShouldContain("Address -> PublicStringCtorDto");
             });
         }

@@ -16,12 +16,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 memberMapperData.RuleSet,
                 sourceMember,
                 memberMapperData.TargetMember,
-                memberMapperData.MapperContext,
-                memberMapperData.Parent)
+                memberMapperData.Parent,
+                memberMapperData.MapperContext)
         {
             ParentObject = GetParentObjectAccess();
-            EnumerableIndex = GetEnumerableIndexAccess();
-            EnumerableIndexValue = Parent.EnumerableIndex;
+            ElementIndex = GetElementIndexAccess();
+            ElementKey = GetElementKeyAccess();
+            ElementIndexValue = Parent.ElementIndex;
         }
 
         private SimpleMemberMapperData(
@@ -32,12 +33,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 enumerableMapperData.RuleSet,
                 sourceMember,
                 targetMember,
-                enumerableMapperData.MapperContext,
-                enumerableMapperData)
+                enumerableMapperData,
+                enumerableMapperData.MapperContext)
         {
             ParentObject = GetParentObjectAccess();
-            EnumerableIndex = GetEnumerableIndexAccess();
-            EnumerableIndexValue = enumerableMapperData.EnumerablePopulationBuilder.Counter.GetConversionTo<int?>();
+            ElementIndex = GetElementIndexAccess();
+            ElementKey = GetElementKeyAccess();
+            ElementIndexValue = enumerableMapperData.EnumerablePopulationBuilder.Counter.GetConversionTo<int?>();
         }
 
         #region Factory Method
@@ -68,9 +70,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression CreatedObject => null;
 
-        public Expression EnumerableIndex { get; }
+        public Expression ElementIndex { get; }
 
-        public Expression EnumerableIndexValue { get; }
+        public Expression ElementKey { get; }
+
+        public Expression ElementIndexValue { get; }
 
         public Expression TargetInstance => TargetObject;
 

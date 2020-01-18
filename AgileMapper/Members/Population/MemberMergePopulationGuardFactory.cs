@@ -28,9 +28,9 @@ namespace AgileObjects.AgileMapper.Members.Population
             return Expression.AndAlso(populateCondition, existingValueIsDefault);
         }
 
-        private static bool SkipPopulationGuarding(IBasicMapperData mapperData)
+        private static bool SkipPopulationGuarding(IQualifiedMemberContext context)
         {
-            var targetMember = mapperData.TargetMember;
+            var targetMember = context.TargetMember;
 
             if (!targetMember.IsReadable)
             {

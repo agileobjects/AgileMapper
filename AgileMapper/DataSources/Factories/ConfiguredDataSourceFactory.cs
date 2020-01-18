@@ -149,7 +149,7 @@
                 return true;
             }
 
-            if (SourceAndTargetTypesAreTheSame(otherDataSource))
+            if (ConfigInfo.HasSameTypesAs(otherDataSource))
             {
                 return true;
             }
@@ -190,17 +190,17 @@
 
         private string GetTargetMemberPath() => TargetMember.GetFriendlyTargetPath(ConfigInfo);
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
-            => base.AppliesTo(mapperData) && _dataSourceLambda.Supports(mapperData.RuleSet);
+        public override bool AppliesTo(IQualifiedMemberContext context)
+            => base.AppliesTo(context) && _dataSourceLambda.Supports(context.RuleSet);
 
-        protected override bool TargetMembersAreCompatible(IBasicMapperData mapperData)
+        protected override bool TargetMembersAreCompatible(IQualifiedMember otherTargetMember)
         {
-            if (base.TargetMembersAreCompatible(mapperData))
+            if (base.TargetMembersAreCompatible(otherTargetMember))
             {
                 return true;
             }
 
-            return TargetMember.IsRoot && TargetMember.HasCompatibleType(mapperData.TargetMember.Type);
+            return TargetMember.IsRoot && TargetMember.HasCompatibleType(otherTargetMember.Type);
         }
 
         public IConfiguredDataSource Create(IMemberMapperData mapperData)

@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
-    using Common;
     using TestClasses;
     using Xunit;
 
@@ -17,14 +16,13 @@
             };
 
             dynamic target = new ExpandoObject();
-
             target.Value1 = default(string);
             target.Value2 = "Already populated!";
 
             Mapper.Map(source).OnTo(target);
 
-            ((string)target.Value1).ShouldBe("New value!");
-            ((string)target.Value2).ShouldBe("Already populated!");
+            Assert.Equal("New value!", target.Value1);
+            Assert.Equal("Already populated!", target.Value2);
         }
     }
 }

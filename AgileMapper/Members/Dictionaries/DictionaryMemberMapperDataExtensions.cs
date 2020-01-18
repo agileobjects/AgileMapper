@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
                 if (targetMember.IsEnumerableElement())
                 {
-                    var index = GetEnumerableIndexAccess(parentContextAccess, mapperData);
+                    var index = GetElementIndexAccess(parentContextAccess, mapperData);
                     AddEnumerableMemberNamePart(memberPartExpressions, mapperData, index);
                     joinedNameIsConstant = false;
                 }
@@ -130,7 +130,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return mapperData.SourceType.IsDictionary() && !mapperData.Parent.SourceType.IsDictionary();
         }
 
-        private static Expression GetEnumerableIndexAccess(Expression parentContextAccess, IMemberMapperData mapperData)
+        private static Expression GetElementIndexAccess(Expression parentContextAccess, IMemberMapperData mapperData)
         {
             if (parentContextAccess == null)
             {
@@ -150,10 +150,10 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             var mappingDataType = typeof(IMappingData<,>)
                 .MakeGenericType(parentContextAccess.Type.GetGenericTypeArguments());
 
-            var enumerableIndexProperty = mappingDataType.GetPublicInstanceProperty("EnumerableIndex");
+            var elementIndexProperty = mappingDataType.GetPublicInstanceProperty("ElementIndex");
 
             // ReSharper disable once AssignNullToNotNullAttribute
-            return Expression.Property(parentContextAccess, enumerableIndexProperty);
+            return Expression.Property(parentContextAccess, elementIndexProperty);
         }
 
         private static void AddEnumerableMemberNamePart(

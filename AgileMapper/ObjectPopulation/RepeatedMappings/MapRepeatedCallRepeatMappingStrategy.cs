@@ -1,40 +1,40 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 {
     using System;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal struct MapRepeatedCallRepeatMappingStrategy : IRepeatMappingStrategy
     {
-        public bool AppliesTo(IBasicMapperData mapperData) => !mapperData.TargetMember.IsEnumerable;
+        public bool AppliesTo(IQualifiedMemberContext context) => !context.TargetMember.IsEnumerable;
 
-        public bool WillNotMap(IBasicMapperData mapperData)
+        public bool WillNotMap(IQualifiedMemberContext context)
         {
-            if (!mapperData.TargetMember.IsRecursion)
+            if (!context.TargetMember.IsRecursion)
             {
                 return false;
             }
 
-            if (mapperData.SourceType.IsDictionary())
+            if (context.SourceType.IsDictionary())
             {
-                return mapperData.TargetMember.Depth > 3;
+                return context.TargetMember.Depth > 3;
             }
 
-            while (mapperData != null)
+            while (context != null)
             {
-                if (mapperData.TargetMember.IsDictionary ||
-                    mapperData.TargetType.Name.EndsWith("Dto", StringComparison.Ordinal) ||
-                    mapperData.TargetType.Name.EndsWith("DataTransferObject", StringComparison.Ordinal))
+                if (context.TargetMember.IsDictionary ||
+                    context.TargetType.Name.EndsWith("Dto", StringComparison.Ordinal) ||
+                    context.TargetType.Name.EndsWith("DataTransferObject", StringComparison.Ordinal))
                 {
                     return true;
                 }
 
-                mapperData = mapperData.Parent;
+                context = context.Parent;
             }
 
             return false;

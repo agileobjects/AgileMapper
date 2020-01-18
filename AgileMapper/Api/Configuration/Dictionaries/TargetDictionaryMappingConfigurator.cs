@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System.Collections.Generic;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
-    using AgileMapper.Configuration.Dictionaries;
     using Members;
     using ReadableExpressions;
 
@@ -13,7 +12,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         ITargetDictionaryMappingInlineConfigurator<TSource, TValue>
     {
         public TargetDictionaryMappingConfigurator(MappingConfigInfo configInfo)
-            : base(configInfo.Set(DictionaryType.Dictionary))
+            : base(configInfo.ForTargetDictionary())
         {
         }
 

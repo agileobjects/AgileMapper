@@ -80,8 +80,8 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
             return $"Source filter '{filterDescription}' has already been configured";
         }
 
-        public bool AppliesTo(Type sourceValueType, IBasicMapperData mapperData)
-            => AppliesTo(mapperData) && Filters(sourceValueType);
+        public bool AppliesTo(Type sourceValueType, IQualifiedMemberContext context)
+            => AppliesTo(context) && Filters(sourceValueType);
 
         protected abstract bool Filters(Type valueType);
 

@@ -3,6 +3,11 @@ namespace AgileObjects.AgileMapper.DataSources
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using Extensions;
     using Extensions.Internal;
@@ -10,10 +15,8 @@ namespace AgileObjects.AgileMapper.DataSources
     using Members.Dictionaries;
     using NetStandardPolyfills;
 #if NET35
-    using Microsoft.Scripting.Ast;
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
-    using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
 
@@ -52,8 +55,8 @@ namespace AgileObjects.AgileMapper.DataSources
             Variables = UseDirectValueAccess ? new[] { Key } : new[] { Key, Value };
         }
 
-        private static string GetTargetMemberName(IBasicMapperData mapperData)
-            => mapperData.TargetMember.Name.ToCamelCase();
+        private static string GetTargetMemberName(IQualifiedMemberContext context)
+            => context.TargetMember.Name.ToCamelCase();
 
         public DictionarySourceMember SourceMember { get; }
 

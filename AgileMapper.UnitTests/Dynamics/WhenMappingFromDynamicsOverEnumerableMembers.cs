@@ -1,10 +1,10 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
+﻿#if FEATURE_DYNAMIC_ROOT_SOURCE
+namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Dynamic;
     using System.Linq;
-    using Api;
     using Common;
     using TestClasses;
     using Xunit;
@@ -15,7 +15,6 @@
         public void ShouldOverwriteASimpleTypeCollection()
         {
             dynamic source = new ExpandoObject();
-
             source.Value = new List<int> { 10, 20, 30 };
 
             var target = new PublicField<ICollection<string>>
@@ -23,7 +22,7 @@
                 Value = new List<string> { "40" }
             };
 
-            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            Mapper.Map(source).Over(target);
 
             target.Value.ShouldBe("10", "20", "30");
         }
@@ -32,7 +31,6 @@
         public void ShouldOverwriteAComplexTypeCollectionToEmpty()
         {
             dynamic source = new ExpandoObject();
-
             source.Value = default(List<ProductDto>);
 
             var target = new PublicField<ICollection<ProductDto>>
@@ -40,7 +38,7 @@
                 Value = new List<ProductDto> { new ProductDto { ProductId = "p-1" } }
             };
 
-            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            Mapper.Map(source).Over(target);
 
             target.Value.ShouldBeEmpty();
         }
@@ -67,7 +65,7 @@
 
             var preMappingProd2 = target.Value.First();
 
-            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            Mapper.Map(source).Over(target);
 
             target.Value.Count.ShouldBe(2);
 
@@ -80,7 +78,6 @@
         public void ShouldOverwriteAComplexTypeCollectionFromElementEntries()
         {
             dynamic source = new ExpandoObject();
-
             source.Value_0 = new PublicField<string> { Value = "Value 0" };
             source.Value_1 = new PublicField<string> { Value = "Value 1" };
 
@@ -93,10 +90,11 @@
                 }
             };
 
-            ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).Over(target);
+            Mapper.Map(source).Over(target);
 
             target.Value.Count.ShouldBe(2);
             target.Value.ShouldBe(pf => pf.Value, "Value 0", "Value 1");
         }
     }
 }
+#endif

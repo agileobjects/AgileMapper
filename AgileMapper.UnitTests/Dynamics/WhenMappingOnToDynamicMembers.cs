@@ -22,7 +22,6 @@
             };
 
             dynamic targetDynamic = new ExpandoObject();
-
             targetDynamic.ONEah_ah_ah = guidOne;
             targetDynamic.TWOah_ah_ah = guidTwo;
             targetDynamic.THREEah_ah_ah = "gibblets";
@@ -30,10 +29,10 @@
             var target = new PublicField<dynamic> { Value = targetDynamic };
 
             Mapper.Map(source).Over(target);
-
-            ((Guid?)target.Value.ONEah_ah_ah).ShouldBe(guidOne);
-            ((Guid?)target.Value.TWOah_ah_ah).ShouldBe(guidTwo);
-            ((string)target.Value.THREEah_ah_ah).ShouldBe("gibblets");
+            
+            Assert.Equal(guidOne, target.Value.ONEah_ah_ah);
+            Assert.Equal(guidTwo, target.Value.TWOah_ah_ah);
+            Assert.Equal("gibblets", target.Value.THREEah_ah_ah);
         }
 
         [Fact]
@@ -50,7 +49,6 @@
             };
 
             dynamic targetDynamic = new ExpandoObject();
-
             targetDynamic._0_ProductId = default(string);
             targetDynamic._0_Price = default(double?);
             targetDynamic._0_HowMega = "UBER";
@@ -62,16 +60,16 @@
 
             Mapper.Map(source).OnTo(target);
 
-            ((string)targetDynamic._0_ProductId).ShouldBe("p-1");
-            ((decimal)targetDynamic._0_Price).ShouldBe(10.00m);
-            ((string)targetDynamic._0_HowMega).ShouldBe("UBER");
+            Assert.Equal("p-1", targetDynamic._0_ProductId);
+            Assert.Equal(10.00m, targetDynamic._0_Price);
+            Assert.Equal("UBER", targetDynamic._0_HowMega);
 
-            ((string)targetDynamic._1_ProductId).ShouldBe("p-m1");
-            ((decimal)targetDynamic._1_Price).ShouldBe(100.00m);
-            ((string)targetDynamic._1_HowMega).ShouldBe("OH SO");
+            Assert.Equal("p-m1", targetDynamic._1_ProductId);
+            Assert.Equal(100.00m, targetDynamic._1_Price);
+            Assert.Equal("OH SO", targetDynamic._1_HowMega);
 
-            ((string)targetDynamic._2_ProductId).ShouldBe("p-2");
-            ((decimal)targetDynamic._2_Price).ShouldBe(1.99m);
+            Assert.Equal("p-2", targetDynamic._2_ProductId);
+            Assert.Equal(1.99m, targetDynamic._2_Price);
             Should.Throw<RuntimeBinderException>(() => targetDynamic.Value_2_HowMega);
         }
     }

@@ -23,8 +23,8 @@
         IFullMappingSettings<TSource, TTarget> SwallowAllExceptions();
 
         /// <summary>
-        /// Pass Exceptions thrown during a mapping from and to the source and target types being configured to 
-        /// the given <paramref name="callback"/> instead of throwing them.
+        /// Pass Exceptions thrown during a mapping from and to the source and target types being configured
+        /// to the given <paramref name="callback"/> instead of throwing them.
         /// </summary>
         /// <param name="callback">
         /// The callback to which to pass thrown Exception information. If the thrown exception should not be 

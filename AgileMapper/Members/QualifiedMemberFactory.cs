@@ -21,8 +21,11 @@ namespace AgileObjects.AgileMapper.Members
                 QualifiedMemberKey.Keys<TSource, TTarget>.Source,
                 k =>
                 {
-                    var sourceMember = QualifiedMember.CreateRoot(Member.RootSource<TSource>(), _mapperContext);
                     var matchedTargetMember = RootTarget<TSource, TTarget>();
+
+                    var sourceMember = QualifiedMember
+                        .CreateRoot(Member.RootSource<TSource>(), _mapperContext)
+                        .SetContext(matchedTargetMember.Context);
 
                     return GetFinalSourceMember(sourceMember, matchedTargetMember);
                 });
@@ -50,10 +53,24 @@ namespace AgileObjects.AgileMapper.Members
                 {
                     var targetMember = QualifiedMember.CreateRoot(Member.RootTarget<TTarget>(), _mapperContext);
 
+                    SetContext<TSource, TTarget>(targetMember);
+
                     return GetFinalTargetMember(targetMember);
                 });
 
             return (QualifiedMember)rootMember;
+        }
+
+        private void SetContext<TSource, TTarget>(QualifiedMember targetMember)
+        {
+            // ReSharper disable once ObjectCreationAsStatement
+            new QualifiedMemberContext(
+                MappingRuleSet.All,
+                typeof(TSource),
+                typeof(TTarget),
+                targetMember,
+                parent: null,
+                mapperContext: _mapperContext);
         }
 
         public QualifiedMember GetFinalTargetMember(QualifiedMember targetMember)

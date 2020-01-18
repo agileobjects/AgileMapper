@@ -21,7 +21,8 @@ namespace AgileObjects.AgileMapper.Members
         public static readonly QualifiedMember None = new QualifiedMember(default(Member), null);
 
         private readonly MapperContext _mapperContext;
-        private readonly Func<string> _pathFactory;
+        private readonly QualifiedMember _parent;
+        private readonly Func<QualifiedMember, string> _pathFactory;
         private readonly ICache<Member, QualifiedMember> _childMemberCache;
         private ICache<Type, QualifiedMember> _runtimeTypedMemberCache;
 
@@ -32,6 +33,8 @@ namespace AgileObjects.AgileMapper.Members
             {
                 return;
             }
+
+            Context = adaptedMember.Context;
 
             foreach (var childMember in adaptedMember._childMemberCache.Values)
             {
@@ -44,27 +47,27 @@ namespace AgileObjects.AgileMapper.Members
         {
             MemberChain = memberChain;
             JoinedNames = joinedNames;
-            _pathFactory = () => MemberChain.GetFullName();
+            _pathFactory = m => m.MemberChain.GetFullName();
             IsRecursion = DetermineRecursion();
         }
 
         private QualifiedMember(Member member, QualifiedMember parent, MapperContext mapperContext)
             : this(member, mapperContext)
         {
-            var memberMatchingNames = mapperContext.Naming.GetMatchingNamesFor(member);
-
             if (parent == null)
             {
                 MemberChain = new[] { member };
-                JoinedNames = memberMatchingNames;
-                _pathFactory = () => MemberChain[0].JoiningName;
+                JoinedNames = NamingSettings.RootMatchingNames;
+                _pathFactory = m => m.LeafMember.JoiningName;
                 return;
             }
 
+            _parent = parent;
             MemberChain = parent.MemberChain.Append(member);
+            var memberMatchingNames = mapperContext.Naming.GetMatchingNamesFor(member, parent.Context);
             JoinedNames = parent.JoinedNames.ExtendWith(memberMatchingNames, mapperContext);
 
-            _pathFactory = () => parent.GetPath() + member.JoiningName;
+            _pathFactory = m => m._parent.GetPath() + m.LeafMember.JoiningName;
             IsRecursion = DetermineRecursion();
         }
 
@@ -75,6 +78,7 @@ namespace AgileObjects.AgileMapper.Members
                 return;
             }
 
+            IsRoot = leafMember.IsRoot;
             LeafMember = leafMember;
             _mapperContext = mapperContext;
 
@@ -127,17 +131,18 @@ namespace AgileObjects.AgileMapper.Members
 
         public static QualifiedMember Create(Member[] memberChain, MapperContext mapperContext)
         {
-            var matchingNameSets = memberChain
-                .ProjectToArray(mapperContext.Naming.GetMatchingNamesFor);
+            var qualifiedMember = new QualifiedMember(memberChain, Enumerable<string>.EmptyArray, mapperContext);
 
-            var joinedNames = mapperContext.Naming.GetJoinedNamesFor(matchingNameSets);
+            QualifiedMemberContext.Set(qualifiedMember, mapperContext);
 
-            return new QualifiedMember(memberChain, joinedNames, mapperContext);
+            return qualifiedMember;
         }
 
         #endregion
 
-        public virtual bool IsRoot => LeafMember?.IsRoot == true;
+        public IQualifiedMemberContext Context { get; private set; }
+
+        public virtual bool IsRoot { get; }
 
         public Member[] MemberChain { get; }
 
@@ -159,9 +164,9 @@ namespace AgileObjects.AgileMapper.Members
 
         public virtual string RegistrationName { get; }
 
-        public IList<string> JoinedNames { get; }
+        public IList<string> JoinedNames { get; private set; }
 
-        public string GetPath() => _pathFactory.Invoke();
+        public string GetPath() => _pathFactory.Invoke(this);
 
         public bool IsComplex => LeafMember.IsComplex;
 
@@ -263,6 +268,8 @@ namespace AgileObjects.AgileMapper.Members
 
         private QualifiedMember CreateFinalMember(QualifiedMember member)
         {
+            member.SetContext(Context);
+
             return member.IsTargetMember
                 ? _mapperContext.QualifiedMemberFactory.GetFinalTargetMember(member)
                 : member;
@@ -292,6 +299,26 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetQualifiedAccess(Expression parentInstance)
             => MemberChain.GetQualifiedAccess(parentInstance);
+
+        IQualifiedMember IQualifiedMember.SetContext(IQualifiedMemberContext context)
+            => SetContext(context);
+
+        public QualifiedMember SetContext(IQualifiedMemberContext context)
+        {
+            Context = context;
+
+            if (IsRoot || (JoinedNames?.Any() != false))
+            {
+                return this;
+            }
+
+            var matchingNameSets = MemberChain.ProjectToArray(
+                context,
+               (ctx, m) => ctx.MapperContext.Naming.GetMatchingNamesFor(m, ctx));
+
+            JoinedNames = _mapperContext.Naming.GetJoinedNamesFor(matchingNameSets);
+            return this;
+        }
 
         public virtual bool CheckExistingElementValue => false;
 

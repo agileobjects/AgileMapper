@@ -348,7 +348,7 @@
                     .To<CustomerCtor>()
                     .CreateInstancesUsing(ctx => new CustomerCtor((decimal)ctx.Source.Discount * 3)
                     {
-                        Number = ctx.EnumerableIndex + 1
+                        Number = ctx.ElementIndex + 1
                     });
 
                 var source = new[] { new PersonViewModel(), new CustomerViewModel { Discount = 5 } };

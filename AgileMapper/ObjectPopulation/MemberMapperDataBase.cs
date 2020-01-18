@@ -11,31 +11,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using NetStandardPolyfills;
 
-    internal abstract class MemberMapperDataBase : BasicMapperData
+    internal abstract class MemberMapperDataBase : QualifiedMemberContext
     {
         protected MemberMapperDataBase(
             MappingRuleSet ruleSet,
             IQualifiedMember sourceMember,
             QualifiedMember targetMember,
-            MapperContext mapperContext,
-            ObjectMapperData parent)
+            ObjectMapperData parent,
+            MapperContext mapperContext)
             : base(
                 ruleSet,
                 sourceMember.Type,
                 targetMember.Type,
                 sourceMember,
                 targetMember,
-                parent)
+                parent,
+                mapperContext)
         {
-            MapperContext = mapperContext;
             Parent = parent;
             MappingDataObject = CreateMappingDataObject();
             MappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
             SourceObject = GetMappingDataProperty(MappingDataType, Member.RootSourceMemberName);
             TargetObject = GetMappingDataProperty(Member.RootTargetMemberName);
         }
-
-        public MapperContext MapperContext { get; }
 
         public ObjectMapperData Parent { get; }
 
@@ -74,8 +72,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected Type MappingDataType { get; }
 
-        protected Expression GetEnumerableIndexAccess()
-            => GetMappingDataProperty(MappingDataType, "EnumerableIndex");
+        protected Expression GetElementIndexAccess()
+            => GetMappingDataProperty(MappingDataType, "ElementIndex");
+
+        protected Expression GetElementKeyAccess()
+            => GetMappingDataProperty(MappingDataType, "ElementKey");
 
         protected Expression GetParentObjectAccess()
             => GetMappingDataProperty(nameof(Parent));

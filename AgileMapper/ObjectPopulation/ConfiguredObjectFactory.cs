@@ -46,11 +46,11 @@
                 (((ConfiguredObjectFactory)otherConfiguredItem).ObjectType == ObjectType);
         }
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
+        public override bool AppliesTo(IQualifiedMemberContext context)
         {
-            return ObjectType.IsAssignableTo(mapperData.TargetType) &&
-                   base.AppliesTo(mapperData) &&
-                  _factoryInfo.Supports(mapperData.RuleSet);
+            return ObjectType.IsAssignableTo(context.TargetType) &&
+                   base.AppliesTo(context) &&
+                  _factoryInfo.Supports(context.RuleSet);
         }
 
         public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);

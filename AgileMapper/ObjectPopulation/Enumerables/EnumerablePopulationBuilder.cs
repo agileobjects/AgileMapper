@@ -164,6 +164,8 @@
             return Parameters.Create<int>(counterName.ToString());
         }
 
+        public Expression GetElementKey() => _sourceAdapter.GetElementKey();
+
         #region Type Identification
 
         public bool ElementsAreIdentifiable

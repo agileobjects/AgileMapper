@@ -12,11 +12,13 @@
     {
         private static readonly object _lookupSync = new object();
 
+        private readonly MapperContext _mapperContext;
         private readonly Dictionary<Type, List<DerivedTypePair>> _typePairsByTargetType;
         private readonly List<SourceAndTargetTypesKey> _checkedTypes;
 
-        public DerivedTypePairSet()
+        public DerivedTypePairSet(MapperContext mapperContext)
         {
+            _mapperContext = mapperContext;
             _typePairsByTargetType = new Dictionary<Type, List<DerivedTypePair>>();
             _checkedTypes = new List<SourceAndTargetTypesKey>();
         }
@@ -71,32 +73,30 @@
             }
         }
 
-        public IList<DerivedTypePair> GetImplementationTypePairsFor(IBasicMapperData mapperData)
+        public IList<DerivedTypePair> GetImplementationTypePairsFor(IQualifiedMemberContext context)
         {
-            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
+            if (_typePairsByTargetType.TryGetValue(context.TargetType, out var typePairs))
             {
                 return typePairs
-                    .Filter(mapperData, (md, tp) => tp.IsImplementationPairing && tp.AppliesTo(md))
+                    .Filter(context, (md, tp) => tp.IsImplementationPairing && tp.AppliesTo(md))
                     .ToArray();
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;
         }
 
-        public IList<DerivedTypePair> GetDerivedTypePairsFor(
-            IBasicMapperData mapperData,
-            MapperContext mapperContext)
+        public IList<DerivedTypePair> GetDerivedTypePairsFor(IQualifiedMemberContext context)
         {
-            LookForDerivedTypePairs(mapperData, mapperContext);
+            LookForDerivedTypePairs(context);
 
             if (_typePairsByTargetType.None())
             {
                 return Enumerable<DerivedTypePair>.EmptyArray;
             }
 
-            if (_typePairsByTargetType.TryGetValue(mapperData.TargetType, out var typePairs))
+            if (_typePairsByTargetType.TryGetValue(context.TargetType, out var typePairs))
             {
-                return typePairs.Filter(mapperData, (md, tp) => tp.AppliesTo(md)).ToArray();
+                return typePairs.Filter(context, (ctx, tp) => tp.AppliesTo(ctx)).ToArray();
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;
@@ -104,10 +104,10 @@
 
         #region Auto-Registration
 
-        private void LookForDerivedTypePairs(ITypePair mapperData, MapperContext mapperContext)
+        private void LookForDerivedTypePairs(ITypePair typePair)
         {
-            var rootSourceType = GetRootType(mapperData.SourceType);
-            var rootTargetType = GetRootType(mapperData.TargetType);
+            var rootSourceType = GetRootType(typePair.SourceType);
+            var rootTargetType = GetRootType(typePair.TargetType);
             var typesKey = new SourceAndTargetTypesKey(rootSourceType, rootTargetType);
 
             if (TypesChecked(typesKey, 0))
@@ -129,7 +129,7 @@
 
                 if (rootSourceType == rootTargetType)
                 {
-                    AddSameRootTypePairs(rootSourceType, mapperContext);
+                    AddSameRootTypePairs(rootSourceType);
                     return;
                 }
 
@@ -175,8 +175,7 @@
                         rootSourceType,
                         candidatePairData.DerivedSourceType,
                         rootTargetType,
-                        derivedTargetType,
-                        mapperContext);
+                        derivedTargetType);
 
                     Add(derivedTypePair);
                 }
@@ -288,13 +287,13 @@
         }
         // ReSharper restore InconsistentlySynchronizedField
 
-        private void AddSameRootTypePairs(Type rootType, MapperContext mapperContext)
+        private void AddSameRootTypePairs(Type rootType)
         {
             var derivedTypes = GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(rootType);
 
             foreach (var derivedType in derivedTypes)
             {
-                Add(CreatePairFor(rootType, derivedType, rootType, derivedType, mapperContext));
+                Add(CreatePairFor(rootType, derivedType, rootType, derivedType));
             }
         }
 
@@ -384,14 +383,13 @@
             return type;
         }
 
-        private static DerivedTypePair CreatePairFor(
+        private DerivedTypePair CreatePairFor(
             Type rootSourceType,
             Type derivedSourceType,
             Type rootTargetType,
-            Type derivedTargetType,
-            MapperContext mapperContext)
+            Type derivedTargetType)
         {
-            var configInfo = new MappingConfigInfo(mapperContext)
+            var configInfo = new MappingConfigInfo(_mapperContext)
                 .ForAllRuleSets()
                 .ForSourceType(rootSourceType)
                 .ForTargetType(rootTargetType);

@@ -2,13 +2,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System;
     using System.Collections.Generic;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
 
     internal static class TargetObjectResolutionFactory
     {
@@ -43,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (objectValue == null)
             {
-                if (!mappingData.HasSameTypedConfiguredDataSource())
+                if (MarkUnconstructableMemberAsReadOnly(mappingData))
                 {
                     mapperData.TargetMember.IsReadOnly = true;
                 }
@@ -79,8 +80,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             return objectValue;
         }
 
+        private static bool MarkUnconstructableMemberAsReadOnly(IObjectMappingData mappingData)
+        {
+            if (mappingData.HasSameTypedConfiguredDataSource())
+            {
+                // Configured data source for an otherwise-unconstructable complex type:
+                return false;
+            }
+                
+            // Don't set an non-readonly abstract member to readonly as we'll try to map
+            // it from derived types:
+            return !mappingData.MapperData.TargetMember.Type.IsAbstract();
+        }
+
         private static bool UseNullFallbackValue(
-            IBasicMapperData mapperData,
+            IQualifiedMemberContext context,
             Expression objectConstruction,
             IList<Expression> memberPopulations)
         {
@@ -91,7 +105,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if ((objectConstruction.NodeType != ExpressionType.New) ||
                  MemberPopulationsExist(memberPopulations) ||
-                 mapperData.SourceMember.Matches(mapperData.TargetMember))
+                 context.SourceMember.Matches(context.TargetMember))
             {
                 return false;
             }

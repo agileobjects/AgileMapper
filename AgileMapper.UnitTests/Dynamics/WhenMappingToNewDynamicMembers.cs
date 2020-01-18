@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
-    using Common;
     using TestClasses;
     using Xunit;
 
@@ -19,11 +18,12 @@
 
             var result = Mapper.Map(source).ToANew<PublicField<ExpandoObject>>();
 
-            ((object)result.Value).ShouldNotBeNull();
-            dynamic resultDynamic = result.Value;
-            ((string)resultDynamic.Line1).ShouldBe("Over here!");
-            ((string)resultDynamic.Line2).ShouldBe("Over there!");
-            ((string)resultDynamic.Line3).ShouldBe("Over where?!");
+            Assert.NotNull(result.Value);
+
+            dynamic resultValue = result.Value;
+            Assert.Equal("Over here!", resultValue.Line1);
+            Assert.Equal("Over there!", resultValue.Line2);
+            Assert.Equal("Over where?!", resultValue.Line3);
         }
 
         [Fact]
@@ -40,10 +40,11 @@
 
             var result = Mapper.Map(source).ToANew<PublicProperty<ExpandoObject>>();
 
-            ((object)result.Value).ShouldNotBeNull();
-            dynamic resultDynamic = result.Value;
-            ((string)resultDynamic.Line1).ShouldBe("One One One");
-            ((string)resultDynamic.Line2).ShouldBe("Two Two Two");
+            Assert.NotNull(result.Value);
+
+            dynamic resultValue = result.Value;
+            Assert.Equal("One One One", resultValue.Line1);
+            Assert.Equal("Two Two Two", resultValue.Line2);
         }
     }
 }

@@ -7,7 +7,7 @@
 #endif
     using ObjectPopulation;
 
-    internal class ChildMemberMapperData : BasicMapperData, IMemberMapperData
+    internal class ChildMemberMapperData : QualifiedMemberContext, IMemberMapperData
     {
         private readonly bool _useParentForTypeCheck;
         private bool? _isRepeatMapping;
@@ -27,13 +27,12 @@
                 targetMember.Type,
                 sourceMember,
                 targetMember,
-                parent)
+                parent,
+                parent.MapperContext)
         {
             Parent = parent;
             Context = new MapperDataContext(this);
         }
-
-        public MapperContext MapperContext => Parent.MapperContext;
 
         public override bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
 
@@ -53,7 +52,9 @@
 
         public Expression CreatedObject => Parent.CreatedObject;
 
-        public Expression EnumerableIndex => Parent.EnumerableIndex;
+        public Expression ElementIndex => Parent.ElementIndex;
+
+        public Expression ElementKey => Parent.ElementKey;
 
         public Expression TargetInstance => Parent.TargetInstance;
 
@@ -63,7 +64,7 @@
         {
             return _useParentForTypeCheck
                 ? Parent.HasCompatibleTypes(typePair)
-                : typePair.HasCompatibleTypes(this, SourceMember, TargetMember);
+                : base.HasCompatibleTypes(typePair);
         }
     }
 }

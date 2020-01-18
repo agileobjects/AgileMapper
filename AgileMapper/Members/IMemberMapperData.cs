@@ -7,7 +7,7 @@
 #endif
     using ObjectPopulation;
 
-    internal interface IMemberMapperData : IBasicMapperData, IMapperContextOwner
+    internal interface IMemberMapperData : IQualifiedMemberContext
     {
         new ObjectMapperData Parent { get; }
 
@@ -23,7 +23,9 @@
 
         Expression CreatedObject { get; }
 
-        Expression EnumerableIndex { get; }
+        Expression ElementIndex { get; }
+
+        Expression ElementKey { get; }
 
         Expression TargetInstance { get; }
 

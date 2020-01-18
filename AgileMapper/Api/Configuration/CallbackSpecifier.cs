@@ -70,7 +70,7 @@
                 callbackLambda,
                 _targetMember);
 
-            ConfigInfo.MapperContext.UserConfigurations.Add(creationCallbackFactory);
+            ConfigInfo.UserConfigurations.Add(creationCallbackFactory);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }

@@ -43,37 +43,38 @@ namespace AgileObjects.AgileMapper.Members
             return idMember?.IsEntityId() == true;
         }
 
-        public static bool UseSingleMappingExpression(this IBasicMapperData mapperData)
-            => mapperData.IsRoot && mapperData.RuleSet.Settings.UseSingleRootMappingExpression;
+        public static bool UseSingleMappingExpression(this IQualifiedMemberContext context)
+            => context.IsRoot && context.RuleSet.Settings.UseSingleRootMappingExpression;
 
         public static bool UseMemberInitialisations(this IMemberMapperData mapperData)
             => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping();
 
-        public static bool MapToNullCollections(this IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.MapToNullCollections(mapperData);
+        public static bool MapToNullCollections(this IQualifiedMemberContext context)
+            => context.MapperContext.UserConfigurations.MapToNullCollections(context);
 
         [DebuggerStepThrough]
-        public static ObjectMapperData GetRootMapperData(this IBasicMapperData mapperData)
+        public static ObjectMapperData GetRootMapperData(this IQualifiedMemberContext context)
         {
-            while (!mapperData.IsRoot)
+            while (!context.IsRoot)
             {
-                mapperData = mapperData.Parent;
+                context = context.Parent;
             }
 
-            return (ObjectMapperData)mapperData;
+            return (ObjectMapperData)context;
         }
 
-        public static IBasicMapperData GetElementMapperData(this IMemberMapperData mapperData)
+        public static IQualifiedMemberContext GetElementMapperData(this IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsEnumerable)
             {
-                return new BasicMapperData(
+                return new QualifiedMemberContext(
                     mapperData.RuleSet,
                     mapperData.SourceType,
                     mapperData.TargetMember.ElementType,
                     mapperData.SourceMember,
                     mapperData.TargetMember.GetElementMember(),
-                    mapperData);
+                    mapperData,
+                    mapperData.MapperContext);
             }
 
             return mapperData;
@@ -92,10 +93,10 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetCouldBePopulated(this IMemberMapperData mapperData)
             => !TargetIsDefinitelyUnpopulated(mapperData);
 
-        public static bool TargetIsDefinitelyPopulated(this IBasicMapperData mapperData)
+        public static bool TargetIsDefinitelyPopulated(this IQualifiedMemberContext context)
         {
-            return mapperData.RuleSet.Settings.RootHasPopulatedTarget &&
-                  (mapperData.IsRoot || mapperData.TargetMemberIsUserStruct());
+            return context.RuleSet.Settings.RootHasPopulatedTarget &&
+                  (context.IsRoot || context.TargetMemberIsUserStruct());
         }
 
         public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
@@ -136,12 +137,12 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         [DebuggerStepThrough]
-        public static Expression GetTargetMemberDefault(this IBasicMapperData mapperData)
-            => mapperData.TargetMember.Type.ToDefaultExpression();
+        public static Expression GetTargetMemberDefault(this IQualifiedMemberContext context)
+            => context.TargetMember.Type.ToDefaultExpression();
 
         [DebuggerStepThrough]
-        public static Expression GetTargetTypeDefault(this IBasicMapperData mapperData)
-            => mapperData.TargetType.ToDefaultExpression();
+        public static Expression GetTargetTypeDefault(this ITypePair typePair)
+            => typePair.TargetType.ToDefaultExpression();
 
         public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
             this IMemberMapperData mapperData,
@@ -203,7 +204,7 @@ namespace AgileObjects.AgileMapper.Members
             Func<TTMapperData, IEnumerable<ConfiguredDataSourceFactory>> configuredDataSourcesFactory,
             UserConfigurationSet userConfigurations,
             out string reason)
-            where TTMapperData : IBasicMapperData
+            where TTMapperData : IQualifiedMemberContext
         {
             if (targetMember == QualifiedMember.All)
             {
@@ -235,35 +236,35 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         [DebuggerStepThrough]
-        public static bool TargetMemberIsEnumerableElement(this IBasicMapperData mapperData)
-            => mapperData.TargetMember.IsEnumerableElement();
+        public static bool TargetMemberIsEnumerableElement(this IQualifiedMemberContext context)
+            => context.TargetMember.IsEnumerableElement();
 
         [DebuggerStepThrough]
         public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
             => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping();
 
         [DebuggerStepThrough]
-        public static bool TargetMemberIsUserStruct(this IBasicMapperData mapperData)
-            => mapperData.TargetMember.IsComplex && mapperData.TargetMember.Type.IsValueType();
+        public static bool TargetMemberIsUserStruct(this IQualifiedMemberContext context)
+            => context.TargetMember.IsComplex && context.TargetMember.Type.IsValueType();
 
-        public static bool IsRepeatMapping(this IBasicMapperData mapperData)
+        public static bool IsRepeatMapping(this IQualifiedMemberContext context)
         {
-            if (mapperData.IsRoot || (mapperData.TargetMember.Depth == 2))
+            if (context.IsRoot || (context.TargetMember.Depth == 2))
             {
                 return false;
             }
 
-            if (mapperData.TargetMember.IsRecursion)
+            if (context.TargetMember.IsRecursion)
             {
                 return true;
             }
 
-            if ((mapperData.TargetMember.Depth == 3) && mapperData.TargetMemberIsEnumerableElement())
+            if ((context.TargetMember.Depth == 3) && context.TargetMemberIsEnumerableElement())
             {
                 return false;
             }
 
-            if (TargetMemberHasRecursiveObjectGraph(mapperData.TargetMember) == false)
+            if (TargetMemberHasRecursiveObjectGraph(context.TargetMember) == false)
             {
                 return false;
             }
@@ -273,9 +274,9 @@ namespace AgileObjects.AgileMapper.Members
             // mapping graph. We therefore check if this member ever repeats; if so we'll map it
             // by calling MapRepeated, and it'll be the entry point of the RepeatedMapperFunc
             // which performs the repeated mapping:
-            var rootMember = mapperData.GetRootMapperData().TargetMember;
+            var rootMember = context.GetRootMapperData().TargetMember;
 
-            return TargetMemberEverRepeatsWithin(rootMember, mapperData.TargetMember);
+            return TargetMemberEverRepeatsWithin(rootMember, context.TargetMember);
         }
 
         private static IEnumerable<Member> GetTargetMembers(Type targetType)
@@ -403,14 +404,14 @@ namespace AgileObjects.AgileMapper.Members
             => mapperData.MapperContext.UserConfigurations.GetSourceValueFilters(mapperData, sourceValueType);
 
         public static Expression GetMappingCallbackOrNull(
-            this IBasicMapperData basicData,
+            this IQualifiedMemberContext context,
             CallbackPosition callbackPosition,
             IMemberMapperData mapperData)
         {
             return mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetCallbackOrNull(callbackPosition, basicData, mapperData);
+                .GetCallbackOrNull(callbackPosition, context, mapperData);
         }
 
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
