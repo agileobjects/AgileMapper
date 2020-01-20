@@ -213,6 +213,24 @@
             }
         }
 
+        [Fact]
+        public void ShouldApplyAConfiguredExpression()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .ToANew<Person>()
+                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.AddressLine1)
+                    .To(x => x.Address.Line1);
+
+                var source = new PersonViewModel { Name = "Fred", AddressLine1 = "Lala Land" };
+                var result = mapper.Map(source).ToANew<Person>();
+
+                result.Address.Line1.ShouldBe("Fred, Lala Land");
+            }
+        }
+
         // See https://github.com/agileobjects/AgileMapper/issues/111
         [Fact]
         public void ShouldApplyAToTargetSimpleTypeConstantConditionally()

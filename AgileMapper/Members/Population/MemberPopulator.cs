@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using DataSources;
     using Extensions.Internal;
 
@@ -82,24 +83,58 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             if (_dataSources.Count == 1)
             {
-                var dataSource = _dataSources[0];
-                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-                return dataSource.FinalisePopulation(memberPopulation);
+                return Finalise(GetPopulation(_dataSources[0]));
             }
 
-            var finalDataSourceIndex = _dataSources.Count - 1;
+            var population = default(Expression);
 
-            Expression population = null;
-
-            for (var i = finalDataSourceIndex; i >= 0; --i)
+            for (var i = _dataSources.Count; ;)
             {
-                var dataSource = _dataSources[i];
-                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
+                population = GetPopulation(_dataSources[--i], population);
 
-                population = (i != finalDataSourceIndex)
-                    ? dataSource.FinalisePopulation(memberPopulation, population)
-                    : dataSource.FinalisePopulation(memberPopulation);
+                if (i == 0)
+                {
+                    return Finalise(population);
+                }
             }
+        }
+
+        private Expression GetPopulation(IDataSource dataSource, Expression population = null)
+        {
+            var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
+            population = dataSource.FinalisePopulation(memberPopulation, population);
+            return population;
+        }
+
+        private Expression Finalise(Expression population)
+        {
+            var multiInvocations = MapperData.GetMultiInvocationsFor(population);
+
+            if (multiInvocations.None())
+            {
+                return population;
+            }
+
+            // TODO: Optimise for single multi-invocation
+            var multiInvocationsCount = multiInvocations.Count;
+            var variables = new ParameterExpression[multiInvocationsCount];
+            var cacheVariablesByValue = FixedSizeExpressionReplacementDictionary.WithEqualKeys(multiInvocationsCount);
+            var populationExpressions = new Expression[multiInvocationsCount + 1];
+
+            for (var i = 0; i < multiInvocationsCount; ++i)
+            {
+                var invocation = multiInvocations[i];
+                var valueVariableName = invocation.Type.GetVariableNameInCamelCase() + "Value";
+                var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
+                var valueVariableValue = invocation.Replace(cacheVariablesByValue);
+
+                cacheVariablesByValue.Add(invocation, valueVariable);
+                variables[i] = valueVariable;
+                populationExpressions[i] = valueVariable.AssignTo(valueVariableValue);
+            }
+
+            populationExpressions[multiInvocationsCount] = population.Replace(cacheVariablesByValue);
+            population = Expression.Block(variables, populationExpressions);
 
             return population;
         }

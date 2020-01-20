@@ -18,9 +18,6 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class ExpressionInfoFinder
     {
-        public static readonly ExpressionInfo EmptyExpressionInfo =
-            new ExpressionInfo(null, Enumerable<Expression>.EmptyArray);
-
         public static ExpressionInfoFinder Default =>
             _default ?? (_default = new ExpressionInfoFinder(mappingDataObject: null));
 
@@ -33,45 +30,44 @@ namespace AgileObjects.AgileMapper.Members
             _mappingDataObject = mappingDataObject;
         }
 
-        public ExpressionInfo FindIn(
+        public Expression GetNestedAccessChecksFor(
             Expression expression,
             bool targetCanBeNull = false,
-            bool checkMultiInvocations = true,
-            bool invertNestedAccessChecks = false)
+            bool invertChecks = false)
         {
-            var finder = new ExpressionInfoFinderInstance(
+            var factory = new NestedAccessChecksFactory(
                 _mappingDataObject,
                 targetCanBeNull,
-                checkMultiInvocations,
-                invertNestedAccessChecks);
+                invertChecks);
 
-            var info = finder.FindIn(expression);
-
-            return info;
+            var checks = factory.CreateFor(expression);
+            return checks;
         }
 
-        private class ExpressionInfoFinderInstance : ExpressionVisitor
+        public IList<Expression> FindMultiInvocationsIn(Expression expression)
+        {
+            var finder = new MultiInvocationFinder(_mappingDataObject);
+            var invocations = finder.FindIn(expression);
+            return invocations;
+        }
+
+        private class NestedAccessChecksFactory : ExpressionVisitor
         {
             private readonly Expression _mappingDataObject;
             private readonly bool _includeTargetNullChecking;
-            private readonly bool _checkMultiInvocations;
-            private readonly bool _invertNestedAccessChecks;
+            private readonly bool _invertChecks;
             private ICollection<Expression> _stringMemberAccessSubjects;
             private ICollection<string> _nullCheckSubjects;
             private Dictionary<string, Expression> _nestedAccessesByPath;
-            private ICollection<Expression> _allInvocations;
-            private ICollection<Expression> _multiInvocations;
 
-            public ExpressionInfoFinderInstance(
+            public NestedAccessChecksFactory(
                 Expression mappingDataObject,
                 bool targetCanBeNull,
-                bool checkMultiInvocations,
-                bool invertNestedAccessChecks)
+                bool invertChecks)
             {
                 _mappingDataObject = mappingDataObject;
                 _includeTargetNullChecking = targetCanBeNull;
-                _checkMultiInvocations = checkMultiInvocations;
-                _invertNestedAccessChecks = invertNestedAccessChecks;
+                _invertChecks = invertChecks;
             }
 
             private ICollection<Expression> StringMemberAccessSubjects
@@ -83,28 +79,11 @@ namespace AgileObjects.AgileMapper.Members
             private Dictionary<string, Expression> NestedAccessesByPath
                 => _nestedAccessesByPath ?? (_nestedAccessesByPath = new Dictionary<string, Expression>());
 
-            private ICollection<Expression> AllInvocations
-                => _allInvocations ?? (_allInvocations = new List<Expression>());
-
-            private ICollection<Expression> MultiInvocations
-                => _multiInvocations ?? (_multiInvocations = new List<Expression>());
-
-            public ExpressionInfo FindIn(Expression expression)
+            public Expression CreateFor(Expression expression)
             {
                 Visit(expression);
 
-                if ((_nestedAccessesByPath == null) && (_multiInvocations == null))
-                {
-                    return EmptyExpressionInfo;
-                }
-
-                var nestedAccessChecks = GetNestedAccessChecks();
-
-                var multiInvocations = _checkMultiInvocations && _multiInvocations?.Any() == true
-                    ? _multiInvocations.OrderBy(inv => inv.ToString()).ToArray()
-                    : Enumerable<Expression>.EmptyArray;
-
-                return new ExpressionInfo(nestedAccessChecks, multiInvocations);
+                return (_nestedAccessesByPath != null) ? GetNestedAccessChecks() : null;
             }
 
             private Expression GetNestedAccessChecks()
@@ -131,7 +110,7 @@ namespace AgileObjects.AgileMapper.Members
                         continue;
                     }
 
-                    nestedAccessCheckChain = _invertNestedAccessChecks
+                    nestedAccessCheckChain = _invertChecks
                         ? Expression.OrElse(nestedAccessCheckChain, nestedAccessCheck)
                         : Expression.AndAlso(nestedAccessCheckChain, nestedAccessCheck);
                 }
@@ -148,7 +127,7 @@ namespace AgileObjects.AgileMapper.Members
                         var arrayLength = Expression.ArrayLength(arrayIndexAccess.Left);
                         var arrayIndexValue = arrayIndexAccess.Right;
 
-                        return _invertNestedAccessChecks
+                        return _invertChecks
                             ? Expression.Equal(arrayLength, arrayIndexValue)
                             : Expression.GreaterThan(arrayLength, arrayIndexValue);
 
@@ -170,12 +149,12 @@ namespace AgileObjects.AgileMapper.Members
 
                         var indexValue = index.Arguments.First().GetConversionTo(count.Type);
 
-                        return _invertNestedAccessChecks
+                        return _invertChecks
                             ? Expression.LessThanOrEqual(count, indexValue)
                             : Expression.GreaterThan(count, indexValue);
 
                     default:
-                        return _invertNestedAccessChecks
+                        return _invertChecks
                             ? access.GetIsDefaultComparison()
                             : access.GetIsNotDefaultComparison();
                 }
@@ -323,7 +302,6 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 AddStringMemberAccessSubjectIfAppropriate(methodCall.Object);
-                AddInvocationIfNecessary(methodCall);
                 AddMemberAccessIfAppropriate(methodCall);
 
                 return base.VisitMethodCall(methodCall);
@@ -376,30 +354,6 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 return (expression.NodeType != MemberAccess) || IsNotRootObject(memberAccess);
-            }
-
-            protected override Expression VisitInvocation(InvocationExpression invocation)
-            {
-                AddInvocationIfNecessary(invocation);
-
-                return base.VisitInvocation(invocation);
-            }
-
-            private void AddInvocationIfNecessary(Expression invocation)
-            {
-                if (!_checkMultiInvocations)
-                {
-                    return;
-                }
-
-                if (_allInvocations?.Contains(invocation) != true)
-                {
-                    AllInvocations.Add(invocation);
-                }
-                else if (_multiInvocations?.Contains(invocation) != true)
-                {
-                    MultiInvocations.Add(invocation);
-                }
             }
 
             private void AddMemberAccessIfAppropriate(Expression memberAccess)
@@ -479,19 +433,70 @@ namespace AgileObjects.AgileMapper.Members
             }
         }
 
-        public class ExpressionInfo
+        private class MultiInvocationFinder : ExpressionVisitor
         {
-            public ExpressionInfo(
-                Expression nestedAccessChecks,
-                IList<Expression> multiInvocations)
+            private readonly Expression _mappingDataObject;
+            private ICollection<Expression> _allInvocations;
+            private ICollection<Expression> _multiInvocations;
+
+            public MultiInvocationFinder(Expression mappingDataObject)
             {
-                NestedAccessChecks = nestedAccessChecks;
-                MultiInvocations = multiInvocations;
+                _mappingDataObject = mappingDataObject;
             }
 
-            public Expression NestedAccessChecks { get; }
+            private ICollection<Expression> AllInvocations
+                => _allInvocations ?? (_allInvocations = new List<Expression>());
 
-            public IList<Expression> MultiInvocations { get; }
+            private ICollection<Expression> MultiInvocations
+                => _multiInvocations ?? (_multiInvocations = new List<Expression>());
+
+            public IList<Expression> FindIn(Expression expression)
+            {
+                Visit(expression);
+
+                if (_multiInvocations?.Any() != true)
+                {
+                    return Enumerable<Expression>.EmptyArray;
+                }
+
+                var multiInvocations = _multiInvocations
+                    .OrderBy(inv => inv.ToString())
+                    .ToArray();
+
+                return multiInvocations;
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression methodCall)
+            {
+                if ((methodCall.Object == _mappingDataObject) ||
+                    (methodCall.Method.DeclaringType == typeof(IMappingData)))
+                {
+                    return base.VisitMethodCall(methodCall);
+                }
+
+                AddInvocation(methodCall);
+
+                return base.VisitMethodCall(methodCall);
+            }
+
+            protected override Expression VisitInvocation(InvocationExpression invocation)
+            {
+                AddInvocation(invocation);
+
+                return base.VisitInvocation(invocation);
+            }
+
+            private void AddInvocation(Expression invocation)
+            {
+                if (_allInvocations?.Contains(invocation) != true)
+                {
+                    AllInvocations.Add(invocation);
+                }
+                else if (_multiInvocations?.Contains(invocation) != true)
+                {
+                    MultiInvocations.Add(invocation);
+                }
+            }
         }
     }
 }

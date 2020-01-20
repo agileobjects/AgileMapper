@@ -6,7 +6,6 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;
@@ -45,57 +44,15 @@
             Expression value,
             IMemberMapperData mapperData)
         {
+            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, targetCanBeNull: false);
+
             SourceMember = sourceMember;
-
-            ProcessMemberAccesses(
-                mapperData,
-                ref value,
-                out var nestedAccessChecks,
-                out var variables);
-
             Condition = GetCondition(nestedAccessChecks, mapperData);
-            Variables = variables;
+            Variables = Enumerable<ParameterExpression>.EmptyArray;
             Value = value;
         }
 
         #region Setup
-
-        private static void ProcessMemberAccesses(
-            IMemberMapperData mapperData,
-            ref Expression value,
-            out Expression nestedAccessChecks,
-            out IList<ParameterExpression> variables)
-        {
-            var valueInfo = mapperData.GetExpressionInfoFor(value, targetCanBeNull: false);
-            nestedAccessChecks = valueInfo.NestedAccessChecks;
-
-            if (valueInfo.MultiInvocations.None())
-            {
-                variables = Enumerable<ParameterExpression>.EmptyArray;
-                return;
-            }
-
-            // TODO: Optimise for single multi-invocation
-            var multiInvocationsCount = valueInfo.MultiInvocations.Count;
-            variables = new ParameterExpression[multiInvocationsCount];
-            var cacheVariablesByValue = FixedSizeExpressionReplacementDictionary.WithEqualKeys(multiInvocationsCount);
-            var valueExpressions = new Expression[multiInvocationsCount + 1];
-
-            for (var i = 0; i < multiInvocationsCount; i++)
-            {
-                var invocation = valueInfo.MultiInvocations[i];
-                var valueVariableName = invocation.Type.GetVariableNameInCamelCase() + "Value";
-                var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
-                var valueVariableValue = invocation.Replace(cacheVariablesByValue);
-
-                cacheVariablesByValue.Add(invocation, valueVariable);
-                variables[i] = valueVariable;
-                valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
-            }
-
-            valueExpressions[multiInvocationsCount] = value.Replace(cacheVariablesByValue);
-            value = Expression.Block(valueExpressions);
-        }
 
         private Expression GetCondition(Expression nestedAccessChecks, IMemberMapperData mapperData)
         {
@@ -197,15 +154,14 @@
 
         public virtual Expression FinalisePopulation(Expression population, Expression alternatePopulation)
         {
-            if (!IsConditional)
+            if (IsConditional)
             {
-                return population;
+                population = (alternatePopulation != null)
+                    ? Expression.IfThenElse(Condition, population, alternatePopulation)
+                    : Expression.IfThen(Condition, population);
             }
 
-            return (alternatePopulation != null)
-                ? Expression.IfThenElse(Condition, population, alternatePopulation)
-                : Expression.IfThen(Condition, population);
-
+            return population;
         }
     }
 }

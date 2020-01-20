@@ -219,8 +219,7 @@
             var targetCanBeNull = position.IsPriorToObjectCreation(targetMember);
 
             var conditionNestedAccessesChecks = mapperData
-                .GetExpressionInfoFor(condition, targetCanBeNull)
-                .NestedAccessChecks;
+                .GetNestedAccessChecksFor(condition, targetCanBeNull);
 
             if (conditionNestedAccessesChecks != null)
             {

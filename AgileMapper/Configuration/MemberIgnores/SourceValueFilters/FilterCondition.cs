@@ -53,11 +53,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
             _filterExpression = filterLambda.Body;
 
             _filterNestedAccessChecks = ExpressionInfoFinder.Default
-                .FindIn(
-                    _filterExpression,
-                    checkMultiInvocations: false,
-                    invertNestedAccessChecks: true)
-                .NestedAccessChecks;
+                .GetNestedAccessChecksFor(_filterExpression, invertChecks: true);
         }
 
         #region Factory Method

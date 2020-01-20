@@ -145,8 +145,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
             var idPartNestedAccessesChecks = _configInfo
                 .RuleSet
-                .GetExpressionInfoFor(idPart)
-                .NestedAccessChecks;
+                .GetNestedAccessChecksFor(idPart);
 
             if (idPartNestedAccessesChecks == null)
             {
