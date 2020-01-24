@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.Members.Population
 #else
     using System.Linq.Expressions;
 #endif
-    using Caching.Dictionaries;
     using DataSources;
     using Extensions.Internal;
 
@@ -83,7 +82,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             if (_dataSources.Count == 1)
             {
-                return Finalise(GetPopulation(_dataSources[0]));
+                return GetPopulation(_dataSources[0]);
             }
 
             var population = default(Expression);
@@ -94,7 +93,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
                 if (i == 0)
                 {
-                    return Finalise(population);
+                    return population;
                 }
             }
         }
@@ -103,39 +102,6 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
             population = dataSource.FinalisePopulation(memberPopulation, population);
-            return population;
-        }
-
-        private Expression Finalise(Expression population)
-        {
-            var multiInvocations = MapperData.GetMultiInvocationsFor(population);
-
-            if (multiInvocations.None())
-            {
-                return population;
-            }
-
-            // TODO: Optimise for single multi-invocation
-            var multiInvocationsCount = multiInvocations.Count;
-            var variables = new ParameterExpression[multiInvocationsCount];
-            var cacheVariablesByValue = FixedSizeExpressionReplacementDictionary.WithEqualKeys(multiInvocationsCount);
-            var populationExpressions = new Expression[multiInvocationsCount + 1];
-
-            for (var i = 0; i < multiInvocationsCount; ++i)
-            {
-                var invocation = multiInvocations[i];
-                var valueVariableName = invocation.Type.GetVariableNameInCamelCase() + "Value";
-                var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
-                var valueVariableValue = invocation.Replace(cacheVariablesByValue);
-
-                cacheVariablesByValue.Add(invocation, valueVariable);
-                variables[i] = valueVariable;
-                populationExpressions[i] = valueVariable.AssignTo(valueVariableValue);
-            }
-
-            populationExpressions[multiInvocationsCount] = population.Replace(cacheVariablesByValue);
-            population = Expression.Block(variables, populationExpressions);
-
             return population;
         }
 

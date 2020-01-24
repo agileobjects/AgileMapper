@@ -6,6 +6,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;
@@ -48,11 +49,47 @@
 
             SourceMember = sourceMember;
             Condition = GetCondition(nestedAccessChecks, mapperData);
-            Variables = Enumerable<ParameterExpression>.EmptyArray;
-            Value = value;
+            Value = HandleMultiInvocations(value, out var variables, mapperData);
+            Variables = variables;
         }
 
         #region Setup
+
+        private Expression HandleMultiInvocations(
+            Expression value,
+            out IList<ParameterExpression> variables,
+            IMemberMapperData mapperData)
+        {
+            var multiInvocations = mapperData.GetMultiInvocationsFor(value);
+
+            if (multiInvocations.None())
+            {
+                variables = Enumerable<ParameterExpression>.EmptyArray;
+                return value;
+            }
+
+            // TODO: Optimise for single multi-invocation
+            var multiInvocationsCount = multiInvocations.Count;
+            variables = new ParameterExpression[multiInvocationsCount];
+            var cacheVariablesByValue = FixedSizeExpressionReplacementDictionary.WithEqualKeys(multiInvocationsCount);
+            var valueExpressions = new Expression[multiInvocationsCount + 1];
+
+            for (var i = 0; i < multiInvocationsCount; ++i)
+            {
+                var invocation = multiInvocations[i];
+                var valueVariableName = invocation.Type.GetVariableNameInCamelCase() + "Value";
+                var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
+                var valueVariableValue = invocation.Replace(cacheVariablesByValue);
+
+                cacheVariablesByValue.Add(invocation, valueVariable);
+                variables[i] = valueVariable;
+                valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
+            }
+
+            valueExpressions[multiInvocationsCount] = value.Replace(cacheVariablesByValue);
+
+            return Expression.Block(valueExpressions);
+        }
 
         private Expression GetCondition(Expression nestedAccessChecks, IMemberMapperData mapperData)
         {
