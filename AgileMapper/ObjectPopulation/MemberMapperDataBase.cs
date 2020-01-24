@@ -38,9 +38,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public ObjectMapperData Parent { get; }
 
         public ParameterExpression MappingDataObject { get; }
-        
+
         public Expression SourceObject { get; set; }
-        
+
         public Expression TargetObject { get; set; }
 
         protected ParameterExpression CreateMappingDataObject()

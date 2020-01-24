@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
             _filterParameter = filterLambda.Parameters.First();
             _filterExpression = filterLambda.Body;
 
-            _filterNestedAccessChecks = ExpressionInfoFinder.Default
+            _filterNestedAccessChecks = ExpressionInfoFinder
                 .GetNestedAccessChecksFor(_filterExpression, invertChecks: true);
         }
 

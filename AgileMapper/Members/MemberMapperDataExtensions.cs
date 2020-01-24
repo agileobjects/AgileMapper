@@ -149,30 +149,39 @@ namespace AgileObjects.AgileMapper.Members
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.RuleSet.GetNestedAccessChecksFor(
+            return GetNestedAccessChecksFor(
                 value,
-                mapperData.ExpressionInfoFinder,
+                mapperData.RuleSet,
+                mapperData,
                 targetCanBeNull);
         }
 
         public static Expression GetNestedAccessChecksFor(
             this MappingRuleSet ruleSet,
             Expression value,
-            ExpressionInfoFinder infoFinder = null,
+            bool targetCanBeNull = false)
+        {
+            return GetNestedAccessChecksFor(value, ruleSet, mapperData: null, targetCanBeNull);
+        }
+
+        private static Expression GetNestedAccessChecksFor(
+            Expression value,
+            MappingRuleSet ruleSet,
+            IMemberMapperData mapperData,
             bool targetCanBeNull = false)
         {
             if (ruleSet.Settings?.GuardAccessTo(value) != false)
             {
-                return (infoFinder ?? ExpressionInfoFinder.Default)
-                    .GetNestedAccessChecksFor(value, targetCanBeNull);
+                return ExpressionInfoFinder
+                    .GetNestedAccessChecksFor(value, mapperData, targetCanBeNull);
             }
 
             return null;
         }
 
         public static IList<Expression> GetMultiInvocationsFor(this IMemberMapperData mapperData, Expression value)
-            => mapperData.ExpressionInfoFinder.FindMultiInvocationsIn(value);
-
+            => ExpressionInfoFinder.FindMultiInvocationsIn(value, mapperData);
+        
         public static bool SourceMemberIsStringKeyedDictionary(
             this IMemberMapperData mapperData,
             out DictionarySourceMember dictionarySourceMember)

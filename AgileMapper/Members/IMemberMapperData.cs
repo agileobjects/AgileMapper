@@ -17,6 +17,8 @@
 
         ParameterExpression MappingDataObject { get; }
 
+        Expression RootMappingDataObject { get; }
+
         Expression SourceObject { get; }
 
         Expression TargetObject { get; }
@@ -28,7 +30,5 @@
         Expression ElementKey { get; }
 
         Expression TargetInstance { get; }
-
-        ExpressionInfoFinder ExpressionInfoFinder { get; }
     }
 }

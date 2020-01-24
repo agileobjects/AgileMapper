@@ -16,27 +16,16 @@ namespace AgileObjects.AgileMapper.Members
     using ReadableExpressions.Extensions;
     using static Member;
 
-    internal class ExpressionInfoFinder
+    internal static class ExpressionInfoFinder
     {
-        public static ExpressionInfoFinder Default =>
-            _default ?? (_default = new ExpressionInfoFinder(mappingDataObject: null));
-
-        private static ExpressionInfoFinder _default;
-
-        private readonly Expression _mappingDataObject;
-
-        public ExpressionInfoFinder(Expression mappingDataObject)
-        {
-            _mappingDataObject = mappingDataObject;
-        }
-
-        public Expression GetNestedAccessChecksFor(
+        public static Expression GetNestedAccessChecksFor(
             Expression expression,
+            IMemberMapperData mapperData = null,
             bool targetCanBeNull = false,
             bool invertChecks = false)
         {
             var factory = new NestedAccessChecksFactory(
-                _mappingDataObject,
+                mapperData,
                 targetCanBeNull,
                 invertChecks);
 
@@ -44,16 +33,18 @@ namespace AgileObjects.AgileMapper.Members
             return checks;
         }
 
-        public IList<Expression> FindMultiInvocationsIn(Expression expression)
+        public static IList<Expression> FindMultiInvocationsIn(
+            Expression expression,
+            IMemberMapperData mapperData)
         {
-            var finder = new MultiInvocationFinder(_mappingDataObject);
+            var finder = new MultiInvocationFinder(mapperData);
             var invocations = finder.FindIn(expression);
             return invocations;
         }
 
         private class NestedAccessChecksFactory : ExpressionVisitor
         {
-            private readonly Expression _mappingDataObject;
+            private readonly Expression _rootMappingData;
             private readonly bool _includeTargetNullChecking;
             private readonly bool _invertChecks;
             private ICollection<Expression> _stringMemberAccessSubjects;
@@ -61,11 +52,11 @@ namespace AgileObjects.AgileMapper.Members
             private Dictionary<string, Expression> _nestedAccessesByPath;
 
             public NestedAccessChecksFactory(
-                Expression mappingDataObject,
+                IMemberMapperData mapperData,
                 bool targetCanBeNull,
                 bool invertChecks)
             {
-                _mappingDataObject = mappingDataObject;
+                _rootMappingData = mapperData?.RootMappingDataObject;
                 _includeTargetNullChecking = targetCanBeNull;
                 _invertChecks = invertChecks;
             }
@@ -235,7 +226,7 @@ namespace AgileObjects.AgileMapper.Members
                         .StartsWith(nameof(IMappingData), StringComparison.Ordinal);
                 }
 
-                if (memberAccess.Expression != _mappingDataObject)
+                if (memberAccess.Expression != _rootMappingData)
                 {
                     return false;
                 }
@@ -290,8 +281,7 @@ namespace AgileObjects.AgileMapper.Members
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)
             {
-                if ((methodCall.Object == _mappingDataObject) ||
-                    (methodCall.Method.DeclaringType == typeof(IMappingData)))
+                if (methodCall.IsMappingDataObjectCall(_rootMappingData))
                 {
                     return base.VisitMethodCall(methodCall);
                 }
@@ -372,7 +362,7 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 if (memberAccess.Type.CannotBeNull() ||
-                 ((_mappingDataObject != null) && !memberAccess.IsRootedIn(_mappingDataObject)))
+                 ((_rootMappingData != null) && !memberAccess.IsRootedIn(_rootMappingData)))
                 {
                     return false;
                 }
@@ -435,13 +425,13 @@ namespace AgileObjects.AgileMapper.Members
 
         private class MultiInvocationFinder : ExpressionVisitor
         {
-            private readonly Expression _mappingDataObject;
+            private readonly Expression _rootMappingData;
             private ICollection<Expression> _allInvocations;
             private ICollection<Expression> _multiInvocations;
 
-            public MultiInvocationFinder(Expression mappingDataObject)
+            public MultiInvocationFinder(IMemberMapperData mapperData)
             {
-                _mappingDataObject = mappingDataObject;
+                _rootMappingData = mapperData.RootMappingDataObject;
             }
 
             private ICollection<Expression> AllInvocations
@@ -468,8 +458,7 @@ namespace AgileObjects.AgileMapper.Members
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)
             {
-                if ((methodCall.Object == _mappingDataObject) ||
-                    (methodCall.Method.DeclaringType == typeof(IMappingData)))
+                if (methodCall.IsMappingDataObjectCall(_rootMappingData))
                 {
                     return base.VisitMethodCall(methodCall);
                 }
@@ -497,6 +486,14 @@ namespace AgileObjects.AgileMapper.Members
                     MultiInvocations.Add(invocation);
                 }
             }
+        }
+
+        private static bool IsMappingDataObjectCall(
+            this MethodCallExpression methodCall,
+            Expression rootMappingDataObject)
+        {
+            return (methodCall.Method.DeclaringType == typeof(IMappingData)) ||
+                   (methodCall.Object == rootMappingDataObject);
         }
     }
 }

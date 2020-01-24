@@ -101,7 +101,7 @@
 
                 if (checkNestedAccesses)
                 {
-                    var nestedAccessChecks = ExpressionInfoFinder.Default
+                    var nestedAccessChecks = ExpressionInfoFinder
                         .GetNestedAccessChecksFor(factoryExpression);
 
                     if (nestedAccessChecks != null)

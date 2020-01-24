@@ -45,6 +45,8 @@
         public Expression ParentObject => Parent.ParentObject;
 
         public ParameterExpression MappingDataObject => Parent.MappingDataObject;
+        
+        public Expression RootMappingDataObject => Parent.RootMappingDataObject;
 
         public Expression SourceObject => Parent.SourceObject;
 
@@ -57,8 +59,6 @@
         public Expression ElementKey => Parent.ElementKey;
 
         public Expression TargetInstance => Parent.TargetInstance;
-
-        public ExpressionInfoFinder ExpressionInfoFinder => Parent.ExpressionInfoFinder;
 
         public override bool HasCompatibleTypes(ITypePair typePair)
         {
