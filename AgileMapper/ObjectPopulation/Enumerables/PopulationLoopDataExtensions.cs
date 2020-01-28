@@ -7,7 +7,7 @@
     using System.Linq.Expressions;
 #endif
     using DataSources;
-    using Extensions.Internal;
+    using AgileObjects.AgileMapper.Extensions.Internal;
     using TypeConversion;
     using Members;
 

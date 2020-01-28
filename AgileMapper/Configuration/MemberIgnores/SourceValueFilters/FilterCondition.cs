@@ -4,15 +4,17 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
     using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
     using Api.Configuration;
     using Extensions.Internal;
-    using Members;
+    using Members.MemberExtensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
     using static FilterConstants;
 
     internal class FilterCondition
@@ -52,7 +54,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
             _filterParameter = filterLambda.Parameters.First();
             _filterExpression = filterLambda.Body;
 
-            _filterNestedAccessChecks = ExpressionInfoFinder
+            _filterNestedAccessChecks = NestedAccessChecksFactory
                 .GetNestedAccessChecksFor(_filterExpression, invertChecks: true);
         }
 

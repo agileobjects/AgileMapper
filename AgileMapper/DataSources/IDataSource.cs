@@ -6,7 +6,6 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Extensions.Internal;
     using Members;
 
     internal interface IDataSource
@@ -29,6 +28,6 @@
 
         Expression AddSourceCondition(Expression value);
 
-        Expression FinalisePopulation(Expression population, Expression alternatePopulation = null);
+        Expression FinalisePopulationBranch(Expression population, Expression alternatePopulation);
     }
 }

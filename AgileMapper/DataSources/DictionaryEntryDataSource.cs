@@ -71,9 +71,9 @@
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
 
-        public override Expression FinalisePopulation(Expression population, Expression alternatePopulation)
+        public override Expression FinalisePopulationBranch(Expression population, Expression alternatePopulation)
         {
-            population = base.FinalisePopulation(population, alternatePopulation);
+            population = base.FinalisePopulationBranch(population, alternatePopulation);
 
             var matchingKeyExists = GetMatchingKeyExistsTest();
             var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);

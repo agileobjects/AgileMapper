@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -9,10 +10,14 @@
     using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
+    using Members.MemberExtensions;
     using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
     {
+        private readonly IList<Expression> _multiInvocations;
+        private readonly IList<ParameterExpression> _variables;
+
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
             : this(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value)
         {
@@ -35,7 +40,7 @@
             Expression condition = null)
         {
             SourceMember = sourceMember;
-            Variables = variables;
+            _variables = variables;
             Value = value;
             Condition = condition;
         }
@@ -47,49 +52,18 @@
         {
             var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, targetCanBeNull: false);
 
+            MultiInvocationsHandler.Process(
+                value,
+                mapperData,
+                out _multiInvocations,
+                out _variables);
+
             SourceMember = sourceMember;
             Condition = GetCondition(nestedAccessChecks, mapperData);
-            Value = HandleMultiInvocations(value, out var variables, mapperData);
-            Variables = variables;
+            Value = value;
         }
 
         #region Setup
-
-        private Expression HandleMultiInvocations(
-            Expression value,
-            out IList<ParameterExpression> variables,
-            IMemberMapperData mapperData)
-        {
-            var multiInvocations = mapperData.GetMultiInvocationsFor(value);
-
-            if (multiInvocations.None())
-            {
-                variables = Enumerable<ParameterExpression>.EmptyArray;
-                return value;
-            }
-
-            // TODO: Optimise for single multi-invocation
-            var multiInvocationsCount = multiInvocations.Count;
-            variables = new ParameterExpression[multiInvocationsCount];
-            var cacheVariablesByValue = FixedSizeExpressionReplacementDictionary.WithEqualKeys(multiInvocationsCount);
-            var valueExpressions = new Expression[multiInvocationsCount + 1];
-
-            for (var i = 0; i < multiInvocationsCount; ++i)
-            {
-                var invocation = multiInvocations[i];
-                var valueVariableName = invocation.Type.GetVariableNameInCamelCase() + "Value";
-                var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
-                var valueVariableValue = invocation.Replace(cacheVariablesByValue);
-
-                cacheVariablesByValue.Add(invocation, valueVariable);
-                variables[i] = valueVariable;
-                valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
-            }
-
-            valueExpressions[multiInvocationsCount] = value.Replace(cacheVariablesByValue);
-
-            return Expression.Block(valueExpressions);
-        }
 
         private Expression GetCondition(Expression nestedAccessChecks, IMemberMapperData mapperData)
         {
@@ -183,13 +157,13 @@
 
         public virtual Expression Condition { get; }
 
-        public IList<ParameterExpression> Variables { get; }
+        public IList<ParameterExpression> Variables => _variables;
 
         public Expression Value { get; }
 
         public virtual Expression AddSourceCondition(Expression value) => value;
 
-        public virtual Expression FinalisePopulation(Expression population, Expression alternatePopulation)
+        public virtual Expression FinalisePopulationBranch(Expression population, Expression alternatePopulation)
         {
             if (IsConditional)
             {
@@ -198,7 +172,48 @@
                     : Expression.IfThen(Condition, population);
             }
 
-            return population;
+            if (_multiInvocations.NoneOrNull())
+            {
+                return population;
+            }
+
+            // TODO: Optimise for single multi-invocation
+            var multiInvocationsCount = _multiInvocations.Count;
+
+            var valueVariablesByInvocation = FixedSizeExpressionReplacementDictionary
+                .WithEquivalentKeys(multiInvocationsCount);
+
+            for (var i = 0; i < multiInvocationsCount; ++i)
+            {
+                var invocation = _multiInvocations[i];
+                var valueVariable = _variables[i];
+
+                var valueVariableValue = invocation;
+
+                for (int j = 0; j < i; ++j)
+                {
+                    valueVariableValue = valueVariableValue.Replace(
+                        valueVariablesByInvocation.Keys[j],
+                        valueVariablesByInvocation.Values[j],
+                        ExpressionEvaluation.Equivalator);
+                }
+
+                valueVariablesByInvocation.Add(valueVariableValue, valueVariable);
+
+                var valueVariableAssignment = valueVariable.AssignTo(valueVariableValue);
+
+                population = population.Replace(
+                    valueVariableValue,
+                    valueVariable,
+                    ExpressionEvaluation.Equivalator);
+
+                population = population.ReplaceParameter(
+                    valueVariable,
+                    valueVariableAssignment,
+                    replacementCount: 1);
+            }
+
+            return Expression.Block(population);
         }
     }
 }

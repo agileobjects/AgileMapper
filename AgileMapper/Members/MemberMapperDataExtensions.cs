@@ -17,8 +17,10 @@ namespace AgileObjects.AgileMapper.Members
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
+    using MemberExtensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using ObjectPopulation.Enumerables.EnumerableExtensions;
     using static Member;
     using static System.StringComparison;
 
@@ -172,16 +174,13 @@ namespace AgileObjects.AgileMapper.Members
         {
             if (ruleSet.Settings?.GuardAccessTo(value) != false)
             {
-                return ExpressionInfoFinder
+                return NestedAccessChecksFactory
                     .GetNestedAccessChecksFor(value, mapperData, targetCanBeNull);
             }
 
             return null;
         }
 
-        public static IList<Expression> GetMultiInvocationsFor(this IMemberMapperData mapperData, Expression value)
-            => ExpressionInfoFinder.FindMultiInvocationsIn(value, mapperData);
-        
         public static bool SourceMemberIsStringKeyedDictionary(
             this IMemberMapperData mapperData,
             out DictionarySourceMember dictionarySourceMember)

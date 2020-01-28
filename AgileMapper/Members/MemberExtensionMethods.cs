@@ -24,7 +24,7 @@
     using static Constants;
     using static Member;
 
-    internal static class MemberExtensions
+    internal static class MemberExtensionMethods
     {
         public static string GetFullName(this IEnumerable<Member> members)
             => members.Project(m => m.JoiningName).Join(string.Empty);

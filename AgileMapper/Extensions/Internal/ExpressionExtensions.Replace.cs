@@ -39,13 +39,14 @@
         public static Expression ReplaceParameterWith(this LambdaExpression lambda, Expression replacement)
             => ReplaceParameter(lambda.Body, lambda.Parameters[0], replacement);
 
-        private static TExpression ReplaceParameter<TExpression>(
-            TExpression expression,
+        public static TExpression ReplaceParameter<TExpression>(
+            this TExpression expression,
             Expression parameter,
-            Expression replacement)
+            Expression replacement,
+            int? replacementCount = null)
             where TExpression : Expression
         {
-            return new ParameterReplacer(parameter, replacement).ReplaceIn(expression);
+            return new ParameterReplacer(parameter, replacement, replacementCount).ReplaceIn(expression);
         }
 
         public static TExpression Replace<TExpression>(
@@ -97,16 +98,23 @@
             return replacer.Replace<TExpression>(expression);
         }
 
-        private class ParameterReplacer : ExpressionVisitor
+        private class ParameterReplacer : QuickUnwindExpressionVisitor
         {
             private readonly Expression _parameterToReplace;
             private readonly Expression _replacement;
+            private int _replacementCount;
 
-            public ParameterReplacer(Expression parameterToReplace, Expression replacement)
+            public ParameterReplacer(
+                Expression parameterToReplace,
+                Expression replacement,
+                int? replacementCount)
             {
                 _parameterToReplace = parameterToReplace;
                 _replacement = replacement;
+                _replacementCount = replacementCount ?? int.MaxValue;
             }
+
+            protected override bool QuickUnwind => _replacementCount == 0;
 
             public TExpression ReplaceIn<TExpression>(TExpression expression)
                 where TExpression : Expression
@@ -115,7 +123,15 @@
             }
 
             protected override Expression VisitParameter(ParameterExpression parameter)
-                => parameter == _parameterToReplace ? _replacement : parameter;
+            {
+                if (parameter != _parameterToReplace)
+                {
+                    return parameter;
+                }
+
+                --_replacementCount;
+                return _replacement;
+            }
         }
 
         private class ExpressionReplacer
@@ -126,7 +142,8 @@
             private readonly Expression _replacement;
             private readonly IEqualityComparer<Expression> _comparer;
 
-            public ExpressionReplacer(ISimpleDictionary<Expression, Expression> replacementsByTarget)
+            public ExpressionReplacer(
+                ISimpleDictionary<Expression, Expression> replacementsByTarget)
             {
                 _replacementsByTarget = replacementsByTarget;
                 _hasDictionary = true;

@@ -12,6 +12,7 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.MemberExtensions;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
@@ -101,7 +102,7 @@
 
                 if (checkNestedAccesses)
                 {
-                    var nestedAccessChecks = ExpressionInfoFinder
+                    var nestedAccessChecks = NestedAccessChecksFactory
                         .GetNestedAccessChecksFor(factoryExpression);
 
                     if (nestedAccessChecks != null)

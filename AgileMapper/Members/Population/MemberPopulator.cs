@@ -101,7 +101,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         private Expression GetPopulation(IDataSource dataSource, Expression population = null)
         {
             var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-            population = dataSource.FinalisePopulation(memberPopulation, population);
+            population = dataSource.FinalisePopulationBranch(memberPopulation, population);
             return population;
         }
 
