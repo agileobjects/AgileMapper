@@ -179,14 +179,20 @@
 
             // TODO: Optimise for single multi-invocation
             var multiInvocationsCount = _multiInvocations.Count;
+            var cachedValuesCount = multiInvocationsCount - 1;
 
             var valueVariablesByInvocation = FixedSizeExpressionReplacementDictionary
-                .WithEquivalentKeys(multiInvocationsCount);
+                .WithEquivalentKeys(cachedValuesCount);
+
+            var previousValueVariableAssignment = default(Expression);
+            var previousInvocation = default(Expression);
+            var previousValueVariable = default(ParameterExpression);
 
             for (var i = 0; i < multiInvocationsCount; ++i)
             {
                 var invocation = _multiInvocations[i];
                 var valueVariable = _variables[i];
+                var isLastInvocation = i == cachedValuesCount;
 
                 var valueVariableValue = invocation;
 
@@ -198,19 +204,54 @@
                         ExpressionEvaluation.Equivalator);
                 }
 
-                valueVariablesByInvocation.Add(valueVariableValue, valueVariable);
-
-                var valueVariableAssignment = valueVariable.AssignTo(valueVariableValue);
+                if (!isLastInvocation)
+                {
+                    valueVariablesByInvocation.Add(valueVariableValue, valueVariable);
+                }
 
                 population = population.Replace(
                     valueVariableValue,
                     valueVariable,
                     ExpressionEvaluation.Equivalator);
 
+                Expression valueVariableAssignment;
+
+                if ((previousInvocation != null) && invocation.IsRootedIn(previousInvocation))
+                {
+                    var chainedValueVariableInvocation = valueVariableValue
+                        .Replace(previousValueVariable, previousValueVariableAssignment);
+
+                    valueVariableAssignment = valueVariable.AssignTo(chainedValueVariableInvocation);
+
+                    var chainedAssignmentPopulation = population.Replace(
+                        chainedValueVariableInvocation,
+                        valueVariableAssignment,
+                        ExpressionEvaluation.Equivalator,
+                        replacementCount: 1);
+
+                    if (chainedAssignmentPopulation != population)
+                    {
+                        if (isLastInvocation)
+                        {
+                            return chainedAssignmentPopulation;
+                        }
+
+                        population = chainedAssignmentPopulation;
+                        goto SetPreviousValues;
+                    }
+                }
+
+                valueVariableAssignment = valueVariable.AssignTo(valueVariableValue);
+
                 population = population.ReplaceParameter(
                     valueVariable,
                     valueVariableAssignment,
                     replacementCount: 1);
+
+            SetPreviousValues:
+                previousInvocation = invocation;
+                previousValueVariable = valueVariable;
+                previousValueVariableAssignment = valueVariableAssignment;
             }
 
             return Expression.Block(population);

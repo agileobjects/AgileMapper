@@ -207,7 +207,7 @@
                 string mappingPlan = mapper.GetPlanFor<Issue168.ISomething>().ToANew<Issue168.TgtSomething>();
 
                 mappingPlan.ShouldNotBeNull();
-                mappingPlan.ShouldContain("srcEnumValue = ");
+                mappingPlan.ShouldContain("srcEnumResult = ");
                 mappingPlan.ShouldContain(".Invoke(sToTsData)");
             }
         }
