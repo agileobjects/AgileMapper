@@ -478,19 +478,22 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/176
         [Fact]
-        public void ShouldHandleANullConfiguredMethodResult()
+        public void ShouldHandleANullConfiguredFactoryMethodResult()
         {
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
 
                 mapper.WhenMapping
-                    .From<Address>()
+                    .From<PublicField<PublicField<string>>>()
                     .To<PublicProperty<PublicProperty<string>>>()
                     .CreateInstancesOf<PublicProperty<string>>()
                     .Using(ctx => ReturnNull<PublicProperty<string>>());
 
-                var source = new Address();
+                var source = new PublicField<PublicField<string>>
+                {
+                    Value = new PublicField<string> { Value = "Voila!" }
+                };
                 var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
 
                 result.ShouldNotBeNull();
