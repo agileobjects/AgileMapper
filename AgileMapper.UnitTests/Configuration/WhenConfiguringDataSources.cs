@@ -469,8 +469,7 @@
                 var source = new Address();
                 var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
 
-                result.ShouldNotBeNull();
-                result.Value.ShouldBeNull();
+                result.ShouldNotBeNull().Value.ShouldBeNull();
             }
         }
 
@@ -579,11 +578,11 @@
                     .Map(c => c.Id, x => x.Name);
 
                 var source = new Customer[]
-                { 
+                {
                     new Customer { Id = Guid.NewGuid(), Address = new Address() },
                     new MysteryCustomer { Id = Guid.NewGuid(), Name = "Whaaaat?!?" },
                 };
-                
+
                 var result = mapper.Map(source).ToANew<IEnumerable<CustomerViewModel>>();
 
                 result.Count().ShouldBe(2);
