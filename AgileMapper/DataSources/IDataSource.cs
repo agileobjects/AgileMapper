@@ -28,6 +28,6 @@
 
         Expression AddSourceCondition(Expression value);
 
-        Expression FinalisePopulationBranch(Expression population, Expression alternatePopulation);
+        Expression FinalisePopulationBranch(Expression alternatePopulation, IMemberMapperData mapperData);
     }
 }

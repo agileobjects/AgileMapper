@@ -41,8 +41,8 @@
         {
             SourceMember = sourceMember;
             _variables = variables;
-            Value = value;
             Condition = condition;
+            Value = value;
         }
 
         protected DataSourceBase(
@@ -50,8 +50,6 @@
             Expression value,
             IMemberMapperData mapperData)
         {
-            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, targetCanBeNull: false);
-
             MultiInvocationsHandler.Process(
                 value,
                 mapperData,
@@ -59,14 +57,16 @@
                 out _variables);
 
             SourceMember = sourceMember;
-            Condition = GetCondition(nestedAccessChecks, mapperData);
+            Condition = GetCondition(value, mapperData);
             Value = value;
         }
 
         #region Setup
 
-        private Expression GetCondition(Expression nestedAccessChecks, IMemberMapperData mapperData)
+        private Expression GetCondition(Expression value, IMemberMapperData mapperData)
         {
+            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, targetCanBeNull: false);
+
             if (nestedAccessChecks == null)
             {
                 return null;
@@ -163,8 +163,12 @@
 
         public virtual Expression AddSourceCondition(Expression value) => value;
 
-        public virtual Expression FinalisePopulationBranch(Expression population, Expression alternatePopulation)
+        public virtual Expression FinalisePopulationBranch(
+            Expression alternatePopulation,
+            IMemberMapperData mapperData)
         {
+            var population = mapperData.GetTargetMemberPopulation(Value);
+
             if (IsConditional)
             {
                 population = (alternatePopulation != null)
@@ -196,7 +200,6 @@
                     return population;
             }
 
-            // TODO: Optimise for single multi-invocation
             var multiInvocationsCount = _multiInvocations.Count;
             var cachedValuesCount = multiInvocationsCount - 1;
 
