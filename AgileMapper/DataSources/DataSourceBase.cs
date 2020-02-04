@@ -172,9 +172,28 @@
                     : Expression.IfThen(Condition, population);
             }
 
-            if (_multiInvocations.NoneOrNull())
+            switch (_multiInvocations?.Count)
             {
-                return population;
+                case null:
+                case 0:
+                    return population;
+
+                case 1:
+                    var valueVariable = _variables[0];
+                    var valueVariableValue = _multiInvocations[0];
+                    var valueVariableAssignment = valueVariable.AssignTo(valueVariableValue);
+
+                    population = population
+                        .Replace(
+                            valueVariableValue,
+                            valueVariable,
+                            ExpressionEvaluation.Equivalator)
+                        .ReplaceParameter(
+                            valueVariable,
+                            valueVariableAssignment,
+                            replacementCount: 1);
+
+                    return population;
             }
 
             // TODO: Optimise for single multi-invocation
