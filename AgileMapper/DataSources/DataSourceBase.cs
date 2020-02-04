@@ -15,9 +15,6 @@
 
     internal abstract class DataSourceBase : IDataSource
     {
-        private readonly IList<Expression> _multiInvocations;
-        private readonly IList<ParameterExpression> _variables;
-
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
             : this(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value)
         {
@@ -40,7 +37,7 @@
             Expression condition = null)
         {
             SourceMember = sourceMember;
-            _variables = variables;
+            Variables = variables;
             Condition = condition;
             Value = value;
         }
@@ -50,13 +47,8 @@
             Expression value,
             IMemberMapperData mapperData)
         {
-            MultiInvocationsHandler.Process(
-                value,
-                mapperData,
-                out _multiInvocations,
-                out _variables);
-
             SourceMember = sourceMember;
+            Variables = Enumerable<ParameterExpression>.EmptyArray;
             Condition = GetCondition(value, mapperData);
             Value = value;
         }
@@ -157,7 +149,7 @@
 
         public virtual Expression Condition { get; }
 
-        public IList<ParameterExpression> Variables => _variables;
+        public IList<ParameterExpression> Variables { get; private set; }
 
         public Expression Value { get; }
 
@@ -169,20 +161,25 @@
         {
             var population = mapperData.GetTargetMemberPopulation(Value);
 
+            MultiInvocationsHandler.Process(
+                population,
+                mapperData,
+                out var multiInvocations,
+                out var variables);
+
             if (IsConditional)
             {
                 population = Expression.IfThen(Condition, population);
             }
 
-            switch (_multiInvocations?.Count)
+            switch (multiInvocations.Count)
             {
-                case null:
                 case 0:
                     goto FinalisePopulation;
 
                 case 1:
-                    var valueVariable = _variables[0];
-                    var valueVariableValue = _multiInvocations[0];
+                    var valueVariable = variables[0];
+                    var valueVariableValue = multiInvocations[0];
                     var valueVariableAssignment = valueVariable.AssignTo(valueVariableValue);
 
                     population = population
@@ -196,9 +193,10 @@
                             replacementCount: 1);
 
                     goto FinalisePopulation;
+                    return Expression.Block(new[] { valueVariable }, population);
             }
 
-            var multiInvocationsCount = _multiInvocations.Count;
+            var multiInvocationsCount = multiInvocations.Count;
             var cachedValuesCount = multiInvocationsCount - 1;
 
             var valueVariablesByInvocation = FixedSizeExpressionReplacementDictionary
@@ -210,8 +208,8 @@
 
             for (var i = 0; i < multiInvocationsCount; ++i)
             {
-                var invocation = _multiInvocations[i];
-                var valueVariable = _variables[i];
+                var invocation = multiInvocations[i];
+                var valueVariable = variables[i];
                 var isLastInvocation = i == cachedValuesCount;
 
                 var valueVariableValue = invocation;
@@ -251,12 +249,13 @@
 
                     if (chainedAssignmentPopulation != population)
                     {
+                        population = chainedAssignmentPopulation;
+
                         if (isLastInvocation)
                         {
-                            return chainedAssignmentPopulation;
+                            goto ReturnPopulationBlock;
                         }
 
-                        population = chainedAssignmentPopulation;
                         goto SetPreviousValues;
                     }
                 }
@@ -274,6 +273,8 @@
                 previousValueVariableAssignment = valueVariableAssignment;
             }
 
+            ReturnPopulationBlock:
+            return Expression.Block(variables, population);
             population = Expression.Block(population);
 
             FinalisePopulation:
