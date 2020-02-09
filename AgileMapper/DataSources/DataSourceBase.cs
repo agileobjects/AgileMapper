@@ -171,16 +171,14 @@
 
             if (IsConditional)
             {
-                population = (alternatePopulation != null)
-                    ? Expression.IfThenElse(Condition, population, alternatePopulation)
-                    : Expression.IfThen(Condition, population);
+                population = Expression.IfThen(Condition, population);
             }
 
             switch (_multiInvocations?.Count)
             {
                 case null:
                 case 0:
-                    return population;
+                    goto FinalisePopulation;
 
                 case 1:
                     var valueVariable = _variables[0];
@@ -197,7 +195,7 @@
                             valueVariableAssignment,
                             replacementCount: 1);
 
-                    return population;
+                    goto FinalisePopulation;
             }
 
             var multiInvocationsCount = _multiInvocations.Count;
@@ -270,13 +268,26 @@
                     valueVariableAssignment,
                     replacementCount: 1);
 
-            SetPreviousValues:
+                SetPreviousValues:
                 previousInvocation = invocation;
                 previousValueVariable = valueVariable;
                 previousValueVariableAssignment = valueVariableAssignment;
             }
 
-            return Expression.Block(population);
+            population = Expression.Block(population);
+
+            FinalisePopulation:
+            if (alternatePopulation == null)
+            {
+                return population;
+            }
+
+            var ifConditionTruePopulate = (ConditionalExpression)population;
+
+            return ifConditionTruePopulate.Update(
+                ifConditionTruePopulate.Test,
+                ifConditionTruePopulate.IfTrue,
+                alternatePopulation);
         }
     }
 }
