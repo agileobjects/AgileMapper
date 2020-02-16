@@ -7,10 +7,9 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
-    using Members.MemberExtensions;
+    using Optimisation;
     using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
@@ -159,136 +158,28 @@
             Expression alternatePopulation,
             IMemberMapperData mapperData)
         {
-            var population = mapperData.GetTargetMemberPopulation(Value);
-
-            MultiInvocationsHandler.Process(
-                population,
+            MultiInvocationsProcessor.Process(
+                this,
                 mapperData,
-                out var multiInvocations,
+                out var condition,
+                out var value,
                 out var variables);
 
-            if (IsConditional)
+            var population = mapperData.GetTargetMemberPopulation(value);
+
+            if (condition != null)
             {
-                population = Expression.IfThen(Condition, population);
+                population = (alternatePopulation != null)
+                    ? Expression.IfThenElse(condition, population, alternatePopulation)
+                    : Expression.IfThen(condition, population);
             }
 
-            switch (multiInvocations.Count)
+            if (variables.Any())
             {
-                case 0:
-                    goto FinalisePopulation;
-
-                case 1:
-                    var valueVariable = variables[0];
-                    var valueVariableValue = multiInvocations[0];
-                    var valueVariableAssignment = valueVariable.AssignTo(valueVariableValue);
-
-                    population = population
-                        .Replace(
-                            valueVariableValue,
-                            valueVariable,
-                            ExpressionEvaluation.Equivalator)
-                        .ReplaceParameter(
-                            valueVariable,
-                            valueVariableAssignment,
-                            replacementCount: 1);
-
-                    goto FinalisePopulation;
-                    return Expression.Block(new[] { valueVariable }, population);
+                population = Expression.Block(variables, population);
             }
 
-            var multiInvocationsCount = multiInvocations.Count;
-            var cachedValuesCount = multiInvocationsCount - 1;
-
-            var valueVariablesByInvocation = FixedSizeExpressionReplacementDictionary
-                .WithEquivalentKeys(cachedValuesCount);
-
-            var previousValueVariableAssignment = default(Expression);
-            var previousInvocation = default(Expression);
-            var previousValueVariable = default(ParameterExpression);
-
-            for (var i = 0; i < multiInvocationsCount; ++i)
-            {
-                var invocation = multiInvocations[i];
-                var valueVariable = variables[i];
-                var isLastInvocation = i == cachedValuesCount;
-
-                var valueVariableValue = invocation;
-
-                for (int j = 0; j < i; ++j)
-                {
-                    valueVariableValue = valueVariableValue.Replace(
-                        valueVariablesByInvocation.Keys[j],
-                        valueVariablesByInvocation.Values[j],
-                        ExpressionEvaluation.Equivalator);
-                }
-
-                if (!isLastInvocation)
-                {
-                    valueVariablesByInvocation.Add(valueVariableValue, valueVariable);
-                }
-
-                population = population.Replace(
-                    valueVariableValue,
-                    valueVariable,
-                    ExpressionEvaluation.Equivalator);
-
-                Expression valueVariableAssignment;
-
-                if ((previousInvocation != null) && invocation.IsRootedIn(previousInvocation))
-                {
-                    var chainedValueVariableInvocation = valueVariableValue
-                        .Replace(previousValueVariable, previousValueVariableAssignment);
-
-                    valueVariableAssignment = valueVariable.AssignTo(chainedValueVariableInvocation);
-
-                    var chainedAssignmentPopulation = population.Replace(
-                        chainedValueVariableInvocation,
-                        valueVariableAssignment,
-                        ExpressionEvaluation.Equivalator,
-                        replacementCount: 1);
-
-                    if (chainedAssignmentPopulation != population)
-                    {
-                        population = chainedAssignmentPopulation;
-
-                        if (isLastInvocation)
-                        {
-                            goto ReturnPopulationBlock;
-                        }
-
-                        goto SetPreviousValues;
-                    }
-                }
-
-                valueVariableAssignment = valueVariable.AssignTo(valueVariableValue);
-
-                population = population.ReplaceParameter(
-                    valueVariable,
-                    valueVariableAssignment,
-                    replacementCount: 1);
-
-                SetPreviousValues:
-                previousInvocation = invocation;
-                previousValueVariable = valueVariable;
-                previousValueVariableAssignment = valueVariableAssignment;
-            }
-
-            ReturnPopulationBlock:
-            return Expression.Block(variables, population);
-            population = Expression.Block(population);
-
-            FinalisePopulation:
-            if (alternatePopulation == null)
-            {
-                return population;
-            }
-
-            var ifConditionTruePopulate = (ConditionalExpression)population;
-
-            return ifConditionTruePopulate.Update(
-                ifConditionTruePopulate.Test,
-                ifConditionTruePopulate.IfTrue,
-                alternatePopulation);
+            return population;
         }
     }
 }

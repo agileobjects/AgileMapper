@@ -509,7 +509,18 @@
 
             var methodCall = (MethodCallExpression)_customValueLambda.Body;
 
-            return methodCall.Method.IsStatic;
+            if (methodCall.Method.IsStatic)
+            {
+                return true;
+            }
+
+            var rootExpression = methodCall
+#if NET35
+                .ToDlrExpression()
+#endif
+                .GetRootExpression();
+
+            return rootExpression.NodeType != Parameter;
         }
 
         private void RegisterComplexTypeFactoryMethod<TSourceValue>()

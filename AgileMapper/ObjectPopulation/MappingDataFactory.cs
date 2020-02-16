@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mappingData;
             }
 
-            var mapperData = parentMappingData.MapperData.ChildMapperDatas.FirstOrDefault(md =>
+            var mapperData = parentMappingData.MapperData.ChildMapperDatasOrEmpty.FirstOrDefault(md =>
                 (md.DataSourceIndex == dataSourceIndex) &&
                 (md.TargetMember.RegistrationName == targetMemberRegistrationName));
 

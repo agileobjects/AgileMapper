@@ -86,7 +86,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             yield return mapperData;
 
-            foreach (var childMapperData in mapperData.ChildMapperDatas.SelectMany(md => md.EnumerateAllMapperDatas()))
+            foreach (var childMapperData in mapperData.ChildMapperDatasOrEmpty.SelectMany(md => md.EnumerateAllMapperDatas()))
             {
                 yield return childMapperData;
             }

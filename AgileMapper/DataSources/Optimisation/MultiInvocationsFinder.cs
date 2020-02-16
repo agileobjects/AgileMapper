@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Members.MemberExtensions
+﻿namespace AgileObjects.AgileMapper.DataSources.Optimisation
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -9,16 +9,18 @@
 #endif
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
+    using Members;
+    using Members.MemberExtensions;
 
-    internal static class MultiInvocationsHandler
+    internal static class MultiInvocationsFinder
     {
-        public static void Process(
+        public static void FindIn(
             Expression value,
             IMemberMapperData mapperData,
             out IList<Expression> multiInvocations,
             out IList<ParameterExpression> variables)
         {
-            var finder = new MultiInvocationsFinder(mapperData);
+            var finder = new MultiInvocationsFinderInstance(mapperData);
             multiInvocations = finder.FindIn(value);
 
             switch (multiInvocations.Count)
@@ -58,13 +60,13 @@
             return variableNameBase.ToCamelCase() + "Result";
         }
 
-        private class MultiInvocationsFinder : ExpressionVisitor
+        private class MultiInvocationsFinderInstance : ExpressionVisitor
         {
             private readonly Expression _rootMappingData;
             private ICollection<Expression> _allInvocations;
             private ICollection<Expression> _multiInvocations;
 
-            public MultiInvocationsFinder(IMemberMapperData mapperData)
+            public MultiInvocationsFinderInstance(IMemberMapperData mapperData)
             {
                 _rootMappingData = mapperData.RootMappingDataObject;
             }

@@ -309,6 +309,17 @@
         }
 
         [Fact]
+        public void ShouldCacheComplexTypeGetMethodResults()
+        {
+            string plan  = Mapper
+                .GetPlanFor<PublicField<PublicGetMethod<Address>>>()
+                .ToANew<PublicProperty<PublicProperty<Address>>>();
+
+            plan.ShouldContain("Value.GetValue()");
+            Regex.Matches(plan, @"Value.GetValue\(\)").Cast<Match>().ShouldHaveSingleItem();
+        }
+
+        [Fact]
         public void ShouldNotAttemptUnnecessaryObjectCreationCallbacks()
         {
             using (var mapper = Mapper.CreateNew())

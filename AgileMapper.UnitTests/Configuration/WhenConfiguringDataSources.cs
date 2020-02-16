@@ -18,6 +18,8 @@
 #endif
     public class WhenConfiguringDataSources
     {
+        private int _returnInstanceCount;
+
         [Fact]
         public void ShouldApplyAConstant()
         {
@@ -454,7 +456,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/176
         [Fact]
-        public void ShouldHandleANullConfiguredMethodResult()
+        public void ShouldHandleANullConfiguredStaticFactoryMethodResult()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -470,6 +472,28 @@
                 var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
 
                 result.ShouldNotBeNull().Value.ShouldBeNull();
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/176
+        [Fact]
+        public void ShouldCacheAConfiguredInstanceFactoryMethodResult()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                _returnInstanceCount = 0;
+
+                mapper.WhenMapping
+                    .From<Address>()
+                    .To<PublicProperty<PublicProperty<string>>>()
+                    .Map((s, t) => ReturnInstance<PublicProperty<string>>())
+                    .To(pp => pp.Value);
+
+                var source = new Address();
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
+
+                result.ShouldNotBeNull().Value.ShouldNotBeNull();
+                _returnInstanceCount.ShouldBe(1);
             }
         }
 
@@ -2061,6 +2085,14 @@
             where T : class
         {
             return null;
+        }
+
+        internal T ReturnInstance<T>()
+            where T : class, new()
+        {
+            ++_returnInstanceCount;
+
+            return new T();
         }
 
         #endregion

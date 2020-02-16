@@ -293,6 +293,21 @@
             return false;
         }
 
+        public static Expression GetRootExpression(this Expression expression)
+        {
+            while (true)
+            {
+                var parent = expression.GetParentOrNull();
+
+                if (parent == null)
+                {
+                    return expression;
+                }
+
+                expression = parent;
+            }
+        }
+
         public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
         {
             if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))
