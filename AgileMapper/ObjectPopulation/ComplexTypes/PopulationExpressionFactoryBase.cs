@@ -23,6 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             GetCreationCallbacks(context, out var preCreationCallback, out var postCreationCallback);
 
             var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToList();
+            var guardPopulations = false;
 
             if (context.InstantiateLocalVariable && mapperData.Context.UseLocalVariable)
             {
@@ -30,11 +31,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 {
                     yield return preCreationCallback;
                 }
-                
+
                 var hasPostCreationCallback = postCreationCallback != null;
                 var assignCreatedObject = hasPostCreationCallback;
 
-                yield return GetLocalVariableInstantiation(assignCreatedObject, populationsAndCallbacks, mappingData);
+                var localVariableInstantiation = GetLocalVariableInstantiation(
+                    assignCreatedObject,
+                    populationsAndCallbacks,
+                    mappingData);
+
+                yield return localVariableInstantiation;
+
+                guardPopulations = LocalVariableCouldBeNull(localVariableInstantiation);
 
                 if (hasPostCreationCallback)
                 {
@@ -47,11 +55,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 yield return GetObjectRegistrationCall(mapperData);
             }
 
+            if (populationsAndCallbacks.None())
+            {
+                goto AddTypeTester;
+            }
+
+            if (guardPopulations)
+            {
+                yield return Expression.IfThen(
+                    mappingData.MapperData.LocalVariable.GetIsNotDefaultComparison(),
+                    Expression.Block(populationsAndCallbacks));
+
+                goto AddTypeTester;
+            }
+
             foreach (var population in populationsAndCallbacks)
             {
                 yield return population;
             }
 
+        AddTypeTester:
             mappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(mappingData);
         }
 
@@ -119,6 +142,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .MapperContext
                 .ConstructionFactory
                 .GetTargetObjectCreation(mappingData);
+        }
+
+        private bool LocalVariableCouldBeNull(Expression instantiation)
+        {
+            while (true)
+            {
+                switch (instantiation.NodeType)
+                {
+                    case ExpressionType.Assign:
+                    case ExpressionType.Coalesce:
+                        var binary = (BinaryExpression)instantiation;
+                        instantiation = binary.Right;
+                        continue;
+
+                    case ExpressionType.Call:
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
         }
 
         #region Object Registration

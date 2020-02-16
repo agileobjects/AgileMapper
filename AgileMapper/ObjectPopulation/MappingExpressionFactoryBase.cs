@@ -4,17 +4,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.ExpressionType;
 #endif
     using DataSources;
+    using Enumerables.EnumerableExtensions;
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.MemberExtensions;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using static System.Linq.Expressions.ExpressionType;
+#endif
 
     internal abstract class MappingExpressionFactoryBase
     {

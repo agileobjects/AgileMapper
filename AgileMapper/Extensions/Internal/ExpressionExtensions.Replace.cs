@@ -39,20 +39,22 @@
         public static Expression ReplaceParameterWith(this LambdaExpression lambda, Expression replacement)
             => ReplaceParameter(lambda.Body, lambda.Parameters[0], replacement);
 
-        private static TExpression ReplaceParameter<TExpression>(
-            TExpression expression,
+        public static TExpression ReplaceParameter<TExpression>(
+            this TExpression expression,
             Expression parameter,
-            Expression replacement)
+            Expression replacement,
+            int? replacementCount = null)
             where TExpression : Expression
         {
-            return new ParameterReplacer(parameter, replacement).ReplaceIn(expression);
+            return new ParameterReplacer(parameter, replacement, replacementCount).ReplaceIn(expression);
         }
 
         public static TExpression Replace<TExpression>(
             this TExpression expression,
             Expression target,
             Expression replacement,
-            IEqualityComparer<Expression> comparer = null)
+            IEqualityComparer<Expression> comparer = null,
+            int? replacementCount = null)
             where TExpression : Expression
         {
             if (target == replacement)
@@ -67,13 +69,14 @@
 
             if (target.NodeType == Parameter)
             {
-                return ReplaceParameter(expression, target, replacement);
+                return ReplaceParameter(expression, target, replacement, replacementCount);
             }
 
             return new ExpressionReplacer(
                     target,
                     replacement,
-                    comparer ?? ReferenceEqualsComparer<Expression>.Default)
+                    comparer ?? ReferenceEqualsComparer<Expression>.Default,
+                    replacementCount)
                 .Replace<TExpression>(expression);
         }
 
@@ -97,16 +100,23 @@
             return replacer.Replace<TExpression>(expression);
         }
 
-        private class ParameterReplacer : ExpressionVisitor
+        private class ParameterReplacer : QuickUnwindExpressionVisitor
         {
             private readonly Expression _parameterToReplace;
             private readonly Expression _replacement;
+            private int _replacementCount;
 
-            public ParameterReplacer(Expression parameterToReplace, Expression replacement)
+            public ParameterReplacer(
+                Expression parameterToReplace,
+                Expression replacement,
+                int? replacementCount)
             {
                 _parameterToReplace = parameterToReplace;
                 _replacement = replacement;
+                _replacementCount = replacementCount ?? int.MaxValue;
             }
+
+            protected override bool QuickUnwind => _replacementCount == 0;
 
             public TExpression ReplaceIn<TExpression>(TExpression expression)
                 where TExpression : Expression
@@ -115,7 +125,15 @@
             }
 
             protected override Expression VisitParameter(ParameterExpression parameter)
-                => parameter == _parameterToReplace ? _replacement : parameter;
+            {
+                if (parameter != _parameterToReplace)
+                {
+                    return parameter;
+                }
+
+                --_replacementCount;
+                return _replacement;
+            }
         }
 
         private class ExpressionReplacer
@@ -125,8 +143,10 @@
             private readonly Expression _target;
             private readonly Expression _replacement;
             private readonly IEqualityComparer<Expression> _comparer;
+            private int _replacementCount;
 
             public ExpressionReplacer(ISimpleDictionary<Expression, Expression> replacementsByTarget)
+                : this(replacementCount: null)
             {
                 _replacementsByTarget = replacementsByTarget;
                 _hasDictionary = true;
@@ -135,12 +155,17 @@
             public ExpressionReplacer(
                 Expression target,
                 Expression replacement,
-                IEqualityComparer<Expression> comparer)
+                IEqualityComparer<Expression> comparer,
+                int? replacementCount = null)
+                : this(replacementCount)
             {
                 _target = target;
                 _replacement = replacement;
                 _comparer = comparer;
             }
+
+            private ExpressionReplacer(int? replacementCount)
+                => _replacementCount = replacementCount ?? int.MaxValue;
 
             public TExpression Replace<TExpression>(Expression expression)
                 where TExpression : Expression
@@ -150,6 +175,11 @@
 
             private Expression ReplaceIn(Expression expression)
             {
+                if (_replacementCount == 0)
+                {
+                    return expression;
+                }
+
                 switch (expression.NodeType)
                 {
                     case Add:
@@ -248,7 +278,7 @@
             {
                 return ReplaceIn(
                     block,
-                    b => b.Update(b.Variables.ProjectToArray(ReplaceIn), b.Expressions.ProjectToArray(Replace)));
+                    b => b.Update(ReplaceIn(b.Variables), ReplaceIn(b.Expressions)));
             }
 
             private Expression ReplaceIn(MethodCallExpression call)
@@ -259,7 +289,7 @@
             private Expression ReplaceIn(GotoExpression @goto) => ReplaceIn(@goto, gt => gt.Update(gt.Target, Replace(gt.Value)));
 
             private Expression ReplaceIn(IndexExpression indexAccess)
-                => ReplaceIn(indexAccess, idx => idx.Update(Replace(idx.Object), idx.Arguments.ProjectToArray(Replace)));
+                => ReplaceIn(indexAccess, idx => idx.Update(Replace(idx.Object), ReplaceIn(idx.Arguments)));
 
             private Expression ReplaceIn(InvocationExpression invocation)
                 => ReplaceIn(invocation, inv => ReplaceInCall(inv.Expression, inv.Arguments, inv.Update));
@@ -269,19 +299,19 @@
                 IList<Expression> arguments,
                 Func<Expression, IEnumerable<Expression>, Expression> replacer)
             {
-                return replacer.Invoke(Replace(subject), arguments.ProjectToArray(Replace));
+                return replacer.Invoke(Replace(subject), ReplaceIn(arguments));
             }
 
             private Expression ReplaceIn(LabelExpression label)
                 => ReplaceIn(label, l => l.Update(l.Target, Replace(l.DefaultValue)));
 
             private Expression ReplaceIn(LambdaExpression lambda)
-                => ReplaceIn(lambda, l => Expression.Lambda(l.Type, Replace(l.Body), l.Parameters.ProjectToArray(ReplaceIn)));
+                => ReplaceIn(lambda, l => Expression.Lambda(l.Type, Replace(l.Body), ReplaceIn(l.Parameters)));
 
             private Expression ReplaceIn(MemberExpression memberAccess) => ReplaceIn(memberAccess, ma => ma.Update(Replace(ma.Expression)));
 
             private Expression ReplaceIn(MemberInitExpression memberInit)
-                => ReplaceIn(memberInit, mi => mi.Update(ReplaceInNew(mi.NewExpression), mi.Bindings.ProjectToArray(ReplaceIn)));
+                => ReplaceIn(memberInit, mi => mi.Update(ReplaceInNew(mi.NewExpression), ReplaceIn(mi.Bindings)));
 
             private Expression ReplaceIn(ListInitExpression listInit)
                 => ReplaceIn(listInit, li => li.Update(ReplaceInNew(li.NewExpression), ReplaceIn(li.Initializers)));
@@ -302,14 +332,14 @@
 
                     case MemberBindingType.MemberBinding:
                         var memberBinding = (MemberMemberBinding)binding;
-                        return memberBinding.Update(memberBinding.Bindings.ProjectToArray(ReplaceIn));
+                        return memberBinding.Update(ReplaceIn(memberBinding.Bindings));
                 }
 
                 throw new ArgumentOutOfRangeException();
             }
 
             private IEnumerable<ElementInit> ReplaceIn(IList<ElementInit> initializers)
-                => initializers.ProjectToArray(init => init.Update(init.Arguments.ProjectToArray(Replace)));
+                => ReplaceIn(initializers, init => init.Update(ReplaceIn(init.Arguments)));
 
             private Expression ReplaceIn(NewExpression newing) => ReplaceIn(newing, ReplaceInNew);
 
@@ -317,10 +347,10 @@
             {
                 return newing.Arguments.None()
                     ? newing
-                    : newing.Update(newing.Arguments.ProjectToArray(Replace));
+                    : newing.Update(ReplaceIn(newing.Arguments));
             }
 
-            private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(na.Expressions.ProjectToArray(Replace)));
+            private Expression ReplaceIn(NewArrayExpression newArray) => ReplaceIn(newArray, na => na.Update(ReplaceIn(na.Expressions)));
 
             private ParameterExpression ReplaceIn(ParameterExpression parameter) => (ParameterExpression)ReplaceIn(parameter, p => p);
 
@@ -332,7 +362,7 @@
             {
                 return ReplaceIn(
                     @try,
-                    t => t.Update(Replace(t.Body), t.Handlers.ProjectToArray(ReplaceIn), Replace(t.Finally), Replace(t.Fault)));
+                    t => t.Update(Replace(t.Body), ReplaceIn(t.Handlers, ReplaceIn), Replace(t.Finally), Replace(t.Fault)));
             }
 
             private CatchBlock ReplaceIn(CatchBlock @catch)
@@ -346,7 +376,7 @@
                     return null;
                 }
 
-                if (expression.NodeType == Default)
+                if ((_replacementCount == 0) || (expression.NodeType == Default))
                 {
                     return expression;
                 }
@@ -355,15 +385,79 @@
                 {
                     if (_replacementsByTarget.TryGetValue(expression, out var replacement))
                     {
+                        --_replacementCount;
                         return replacement;
                     }
                 }
                 else if (_comparer.Equals(_target, expression))
                 {
+                    --_replacementCount;
                     return _replacement;
                 }
 
                 return replacer.Invoke(expression);
+            }
+
+            private IEnumerable<ParameterExpression> ReplaceIn(IList<ParameterExpression> parameters)
+                => ReplaceIn(parameters, ReplaceIn);
+
+            private IEnumerable<Expression> ReplaceIn(IList<Expression> expressions)
+                => ReplaceIn(expressions, Replace);
+
+            private IEnumerable<MemberBinding> ReplaceIn(IList<MemberBinding> bindings)
+                => ReplaceIn(bindings, ReplaceIn);
+
+            private IEnumerable<TItem> ReplaceIn<TItem>(IList<TItem> items, Func<TItem, TItem> replacer)
+                where TItem : class
+            {
+                var itemCount = items.Count;
+
+                IList<TItem> replacedItems;
+                TItem item, replacedItem;
+
+                switch (itemCount)
+                {
+                    case 0:
+                        return items;
+
+                    case 1:
+                        item = items[0];
+                        replacedItem = replacer.Invoke(item);
+                        return (replacedItem != item) ? new[] { replacedItem } : items;
+
+                    default:
+                        replacedItems = null;
+
+                        for (var i = 0; i < itemCount; ++i)
+                        {
+                            item = items[i];
+                            replacedItem = replacer.Invoke(item);
+
+                            if (replacedItem == item)
+                            {
+                                if (replacedItems != null)
+                                {
+                                    replacedItems[i] = item;
+                                }
+
+                                continue;
+                            }
+
+                            if (replacedItems == null)
+                            {
+                                replacedItems = new TItem[itemCount];
+
+                                for (var j = 0; j < i; ++j)
+                                {
+                                    replacedItems[j] = items[j];
+                                }
+                            }
+
+                            replacedItems[i] = replacedItem;
+                        }
+
+                        return replacedItems ?? items;
+                }
             }
         }
     }

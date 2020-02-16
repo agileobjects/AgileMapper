@@ -1,14 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
-    using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
+    using Optimisation;
     using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
@@ -36,8 +37,8 @@
         {
             SourceMember = sourceMember;
             Variables = variables;
-            Value = value;
             Condition = condition;
+            Value = value;
         }
 
         protected DataSourceBase(
@@ -46,59 +47,17 @@
             IMemberMapperData mapperData)
         {
             SourceMember = sourceMember;
-
-            ProcessMemberAccesses(
-                mapperData,
-                ref value,
-                out var nestedAccessChecks,
-                out var variables);
-
-            Condition = GetCondition(nestedAccessChecks, mapperData);
-            Variables = variables;
+            Variables = Enumerable<ParameterExpression>.EmptyArray;
+            Condition = GetCondition(value, mapperData);
             Value = value;
         }
 
         #region Setup
 
-        private static void ProcessMemberAccesses(
-            IMemberMapperData mapperData,
-            ref Expression value,
-            out Expression nestedAccessChecks,
-            out IList<ParameterExpression> variables)
+        private Expression GetCondition(Expression value, IMemberMapperData mapperData)
         {
-            var valueInfo = mapperData.GetExpressionInfoFor(value, targetCanBeNull: false);
-            nestedAccessChecks = valueInfo.NestedAccessChecks;
+            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, targetCanBeNull: false);
 
-            if (valueInfo.MultiInvocations.None())
-            {
-                variables = Enumerable<ParameterExpression>.EmptyArray;
-                return;
-            }
-
-            // TODO: Optimise for single multi-invocation
-            var multiInvocationsCount = valueInfo.MultiInvocations.Count;
-            variables = new ParameterExpression[multiInvocationsCount];
-            var cacheVariablesByValue = FixedSizeExpressionReplacementDictionary.WithEqualKeys(multiInvocationsCount);
-            var valueExpressions = new Expression[multiInvocationsCount + 1];
-
-            for (var i = 0; i < multiInvocationsCount; i++)
-            {
-                var invocation = valueInfo.MultiInvocations[i];
-                var valueVariableName = invocation.Type.GetVariableNameInCamelCase() + "Value";
-                var valueVariable = Expression.Variable(invocation.Type, valueVariableName);
-                var valueVariableValue = invocation.Replace(cacheVariablesByValue);
-
-                cacheVariablesByValue.Add(invocation, valueVariable);
-                variables[i] = valueVariable;
-                valueExpressions[i] = valueVariable.AssignTo(valueVariableValue);
-            }
-
-            valueExpressions[multiInvocationsCount] = value.Replace(cacheVariablesByValue);
-            value = Expression.Block(valueExpressions);
-        }
-
-        private Expression GetCondition(Expression nestedAccessChecks, IMemberMapperData mapperData)
-        {
             if (nestedAccessChecks == null)
             {
                 return null;
@@ -189,23 +148,38 @@
 
         public virtual Expression Condition { get; }
 
-        public IList<ParameterExpression> Variables { get; }
+        public IList<ParameterExpression> Variables { get; private set; }
 
         public Expression Value { get; }
 
         public virtual Expression AddSourceCondition(Expression value) => value;
 
-        public virtual Expression FinalisePopulation(Expression population, Expression alternatePopulation)
+        public virtual Expression FinalisePopulationBranch(
+            Expression alternatePopulation,
+            IMemberMapperData mapperData)
         {
-            if (!IsConditional)
+            MultiInvocationsProcessor.Process(
+                this,
+                mapperData,
+                out var condition,
+                out var value,
+                out var variables);
+
+            var population = mapperData.GetTargetMemberPopulation(value);
+
+            if (condition != null)
             {
-                return population;
+                population = (alternatePopulation != null)
+                    ? Expression.IfThenElse(condition, population, alternatePopulation)
+                    : Expression.IfThen(condition, population);
             }
 
-            return (alternatePopulation != null)
-                ? Expression.IfThenElse(Condition, population, alternatePopulation)
-                : Expression.IfThen(Condition, population);
+            if (variables.Any())
+            {
+                population = Expression.Block(variables, population);
+            }
 
+            return population;
         }
     }
 }

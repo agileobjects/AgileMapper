@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 #else
     using System.Linq.Expressions;
 #endif
+    using EnumerableExtensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;

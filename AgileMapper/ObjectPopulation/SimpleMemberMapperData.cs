@@ -68,6 +68,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression ParentObject { get; }
 
+        public Expression RootMappingDataObject => Parent.RootMappingDataObject;
+
         public Expression CreatedObject => null;
 
         public Expression ElementIndex { get; }
@@ -77,7 +79,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression ElementIndexValue { get; }
 
         public Expression TargetInstance => TargetObject;
-
-        public ExpressionInfoFinder ExpressionInfoFinder => Parent.ExpressionInfoFinder;
     }
 }

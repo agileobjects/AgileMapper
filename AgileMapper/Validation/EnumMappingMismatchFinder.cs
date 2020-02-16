@@ -137,7 +137,7 @@
             }
 
             var childTargetMembersAndDataSources = mapperData
-                .ChildMapperDatas
+                .ChildMapperDatasOrEmpty
                 .SelectMany(EnumerateTargetMemberDatas);
 
             foreach (var childTargetMemberAndDataSources in childTargetMembersAndDataSources)

@@ -82,27 +82,24 @@ namespace AgileObjects.AgileMapper.Members.Population
         {
             if (_dataSources.Count == 1)
             {
-                var dataSource = _dataSources[0];
-                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
-                return dataSource.FinalisePopulation(memberPopulation);
+                return GetPopulation(_dataSources[0]);
             }
 
-            var finalDataSourceIndex = _dataSources.Count - 1;
+            var population = default(Expression);
 
-            Expression population = null;
-
-            for (var i = finalDataSourceIndex; i >= 0; --i)
+            for (var i = _dataSources.Count; ;)
             {
-                var dataSource = _dataSources[i];
-                var memberPopulation = MapperData.GetTargetMemberPopulation(dataSource.Value);
+                population = GetPopulation(_dataSources[--i], population);
 
-                population = (i != finalDataSourceIndex)
-                    ? dataSource.FinalisePopulation(memberPopulation, population)
-                    : dataSource.FinalisePopulation(memberPopulation);
+                if (i == 0)
+                {
+                    return population;
+                }
             }
-
-            return population;
         }
+
+        private Expression GetPopulation(IDataSource dataSource, Expression population = null) 
+            => dataSource.FinalisePopulationBranch(population, MapperData);
 
         private Expression GetPopulationWithVariables(Expression population)
         {

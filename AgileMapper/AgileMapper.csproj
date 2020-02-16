@@ -27,14 +27,15 @@
 - Support for simple type creation with CreateInstancesUsing, re: #165
 - Static API support for type-specific naming rules, re: #175
 - Support for applying custom data sources to root types only, re: #183
+- Handling null return values from custom factory methods, re: #176
 - Support for TimeSpan mapping
 - Support for DateTimeOffset mapping
 - Improved detection of unmappable target types in mapping validation, re: #183
 - Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
 - Fixing numeric to non-int-derived enum mapping
 - Fixing runtime-typed, simple-to-complex to-target data sources, re: #174
-- Adding package icon
-- Performance improvements</PackageReleaseNotes>
+- Performance improvements
+- Adding package icon</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

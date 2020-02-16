@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     using System.Linq.Expressions;
 #endif
     using DataSources;
-    using Extensions.Internal;
+    using EnumerableExtensions;
     using Members.Dictionaries;
 
     internal class SourceInstanceDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter

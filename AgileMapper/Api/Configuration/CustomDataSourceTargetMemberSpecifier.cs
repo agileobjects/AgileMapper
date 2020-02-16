@@ -18,10 +18,13 @@
     using TypeConversion;
 #if NET35
     using Dlr = Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.Expression;
+    using Expr = Microsoft.Scripting.Ast.Expression;
+    using ExprType = Microsoft.Scripting.Ast.ExpressionType;
 #else
-    using static System.Linq.Expressions.Expression;
+    using Expr = System.Linq.Expressions.Expression;
+    using ExprType = System.Linq.Expressions.ExpressionType;
 #endif
+    using static System.Linq.Expressions.ExpressionType;
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
         ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>,
@@ -36,7 +39,7 @@
             MappingConfigInfo configInfo,
             LambdaExpression customValueLambda,
             bool valueCouldBeSourceMember)
-            : this(configInfo, default(ConfiguredLambdaInfo))
+            : this(configInfo, default)
         {
             _customValueLambda = customValueLambda;
             _valueCouldBeSourceMember = valueCouldBeSourceMember;
@@ -167,7 +170,7 @@
             const Dlr.ExpressionType CONSTANT = Dlr.ExpressionType.Constant;
 #else
             var customValueLambda = _customValueLambda;
-            const ExpressionType CONSTANT = ExpressionType.Constant;
+            const ExpressionType CONSTANT = Constant;
 #endif
             if ((customValueLambda.Body.NodeType != CONSTANT) ||
                 (targetValueType == typeof(object)) ||
@@ -179,11 +182,11 @@
             var convertedConstantValue = MapperContext
                 .GetValueConversion(customValueLambda.Body, targetValueType);
 
-            var funcType = GetFuncType(targetValueType);
-            var valueLambda = Lambda(funcType, convertedConstantValue);
+            var funcType = Expr.GetFuncType(targetValueType);
+            var valueLambda = Expr.Lambda(funcType, convertedConstantValue);
             var valueFunc = valueLambda.Compile();
             var value = valueFunc.DynamicInvoke().ToConstantExpression(targetValueType);
-            var constantValueLambda = Lambda(funcType, value);
+            var constantValueLambda = Expr.Lambda(funcType, value);
             var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
 
             return _customValueLambdaInfo = valueLambdaInfo;
@@ -191,7 +194,7 @@
 
         private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
         {
-            if (targetMemberLambda.Body.NodeType != ExpressionType.Call)
+            if (targetMemberLambda.Body.NodeType != Call)
             {
                 entryMember = null;
                 return false;
@@ -210,7 +213,7 @@
 
             var entryKeyExpression = methodCall.Arguments[0];
 
-            if (entryKeyExpression.NodeType != ExpressionType.Constant)
+            if (entryKeyExpression.NodeType != Constant)
             {
                 throw new MappingConfigurationException(
                     "Target dictionary entry keys must be constant string values.");
@@ -389,6 +392,7 @@
         {
             ThrowIfInvalid(targetMemberType);
 
+            RegisterComplexTypeFactoryMethodIfAppropriate(targetMemberType);
             MapperContext.UserConfigurations.Add(dataSourceFactoryFactory.Invoke());
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
@@ -469,7 +473,7 @@
 
         private string GetSourceValueDescription(Expression customValue)
         {
-            if (customValue.NodeType != ExpressionType.MemberAccess)
+            if (customValue.NodeType != MemberAccess)
             {
                 return $"Source type '{customValue.Type.GetFriendlyName()}'";
             }
@@ -485,6 +489,46 @@
             var sourceMemberPath = sourceMember.GetFriendlyMemberPath(rootSourceMember);
 
             return sourceMemberPath + " " + GetTypeDescription(sourceMember.Type);
+        }
+
+        private void RegisterComplexTypeFactoryMethodIfAppropriate(Type targetMemberType)
+        {
+            if (SourceIsComplexTypeFactoryMethod(targetMemberType))
+            {
+                typeof(CustomDataSourceTargetMemberSpecifier<TSource, TTarget>)
+                    .GetNonPublicInstanceMethod(nameof(RegisterComplexTypeFactoryMethod))
+                    .MakeGenericMethod(_customValueLambda.Type)
+                    .Invoke(this, Enumerable<object>.EmptyArray);
+            }
+        }
+
+        private bool SourceIsComplexTypeFactoryMethod(Type targetMemberType)
+        {
+            if ((_customValueLambda?.Body.NodeType != Call) || !targetMemberType.IsComplex())
+            {
+                return false;
+            }
+
+            var methodCall = (MethodCallExpression)_customValueLambda.Body;
+
+            if (methodCall.Method.IsStatic)
+            {
+                return true;
+            }
+
+            var rootExpression = methodCall
+#if NET35
+                .ToDlrExpression()
+#endif
+                .GetRootExpression();
+
+            return rootExpression.NodeType != ExprType.Parameter;
+        }
+
+        private void RegisterComplexTypeFactoryMethod<TSourceValue>()
+        {
+            new FactorySpecifier<TSource, TTarget, TSourceValue>(_configInfo)
+                .Using(_customValueLambda);
         }
 
         private struct AnyParameterType { }

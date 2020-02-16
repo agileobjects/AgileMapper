@@ -36,11 +36,19 @@
         public void ShouldHandleANullSourceMember()
         {
             var source = new Person { Name = "Freddie" };
-
             var result = Mapper.Map(source).ToANew<Person>();
 
             result.Name.ShouldBe(source.Name);
             result.Address.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleANullSourceGetMethodResult()
+        {
+            var source = new PublicGetMethod<Address>(default);
+            var result = Mapper.Map(source).ToANew<PublicField<Address>>();
+
+            result.ShouldNotBeNull().Value.ShouldBeNull();
         }
 
         [Fact]
@@ -80,24 +88,6 @@
 
             result.ShouldNotBeNull();
             result.Value.ShouldBeNull();
-        }
-
-        [Fact]
-        public void ShouldApplyAConfiguredExpression()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .ToANew<Person>()
-                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.AddressLine1)
-                    .To(x => x.Address.Line1);
-
-                var source = new PersonViewModel { Name = "Fred", AddressLine1 = "Lala Land" };
-                var result = mapper.Map(source).ToANew<Person>();
-
-                result.Address.Line1.ShouldBe("Fred, Lala Land");
-            }
         }
 
         [Fact]

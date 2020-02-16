@@ -18,6 +18,8 @@
 #endif
     public class WhenConfiguringDataSources
     {
+        private int _returnInstanceCount;
+
         [Fact]
         public void ShouldApplyAConstant()
         {
@@ -210,6 +212,24 @@
                 result.ShouldNotBeNull();
                 sourceData.ShouldNotBeNull();
                 sourceData.ShouldBeSameAs(source.Empty);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConfiguredExpression()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .ToANew<Person>()
+                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.AddressLine1)
+                    .To(x => x.Address.Line1);
+
+                var source = new PersonViewModel { Name = "Fred", AddressLine1 = "Lala Land" };
+                var result = mapper.Map(source).ToANew<Person>();
+
+                result.Address.Line1.ShouldBe("Fred, Lala Land");
             }
         }
 
@@ -434,6 +454,49 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/176
+        [Fact]
+        public void ShouldHandleANullConfiguredStaticFactoryMethodResult()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                mapper.WhenMapping
+                    .From<Address>()
+                    .To<PublicProperty<PublicProperty<string>>>()
+                    .Map((pf, _) => ReturnNull<PublicProperty<string>>())
+                    .To(pp => pp.Value);
+
+                var source = new Address();
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
+
+                result.ShouldNotBeNull().Value.ShouldBeNull();
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/176
+        [Fact]
+        public void ShouldCacheAConfiguredInstanceFactoryMethodResult()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                _returnInstanceCount = 0;
+
+                mapper.WhenMapping
+                    .From<Address>()
+                    .To<PublicProperty<PublicProperty<string>>>()
+                    .Map((s, t) => ReturnInstance<PublicProperty<string>>())
+                    .To(pp => pp.Value);
+
+                var source = new Address();
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
+
+                result.ShouldNotBeNull().Value.ShouldNotBeNull();
+                _returnInstanceCount.ShouldBe(1);
+            }
+        }
+
         [Fact]
         public void ShouldWrapAnExceptionThrownInACondition()
         {
@@ -539,11 +602,11 @@
                     .Map(c => c.Id, x => x.Name);
 
                 var source = new Customer[]
-                { 
+                {
                     new Customer { Id = Guid.NewGuid(), Address = new Address() },
                     new MysteryCustomer { Id = Guid.NewGuid(), Name = "Whaaaat?!?" },
                 };
-                
+
                 var result = mapper.Map(source).ToANew<IEnumerable<CustomerViewModel>>();
 
                 result.Count().ShouldBe(2);
@@ -1914,6 +1977,7 @@
         // ReSharper restore CollectionNeverQueried.Local
 
         // ReSharper disable InconsistentNaming
+
         internal static class Issue145
         {
             public class IdsSource
@@ -2015,6 +2079,20 @@
                     public string Name { get; set; }
                 }
             }
+        }
+
+        internal static T ReturnNull<T>()
+            where T : class
+        {
+            return null;
+        }
+
+        internal T ReturnInstance<T>()
+            where T : class, new()
+        {
+            ++_returnInstanceCount;
+
+            return new T();
         }
 
         #endregion

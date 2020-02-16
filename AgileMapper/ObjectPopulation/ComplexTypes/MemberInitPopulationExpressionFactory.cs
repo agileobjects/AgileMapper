@@ -26,6 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             if (objectCreation == null)
             {
                 memberPopulations.Clear();
+                return null;
             }
 
             if (memberPopulations.None())
@@ -57,9 +58,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static ICollection<MemberBinding> GetMemberBindingsFrom(IList<Expression> memberPopulations)
         {
-            var memberBindings = new List<MemberBinding>(memberPopulations.Count);
+            var memberPopulationCount = memberPopulations.Count;
+            var memberBindings = new MemberBinding[memberPopulationCount];
 
-            for (var i = memberPopulations.Count - 1; i >= 0; --i)
+            for (var i = memberPopulationCount - 1; i >= 0; --i)
             {
                 var population = memberPopulations[i];
 
@@ -72,11 +74,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 var assignedMember = (MemberExpression)assignment.Left;
                 var memberBinding = Expression.Bind(assignedMember.Member, assignment.Right);
 
-                memberBindings.Insert(0, memberBinding);
+                memberBindings[i] = memberBinding;
                 memberPopulations.RemoveAt(i);
             }
 
-            return memberBindings;
+            var addedBindingsCount = memberPopulationCount - memberPopulations.Count;
+
+            if (addedBindingsCount == 0)
+            {
+                return Enumerable<MemberBinding>.EmptyArray;
+            }
+
+            if (addedBindingsCount == memberPopulationCount)
+            {
+                return memberBindings;
+            }
+
+            var nonNullBindings = new MemberBinding[addedBindingsCount];
+            var bindingIndex = 0;
+
+            while (true)
+            {
+                nonNullBindings[bindingIndex++] = memberBindings[--memberPopulationCount];
+
+                if (bindingIndex == addedBindingsCount)
+                {
+                    break;
+                }
+            }
+
+            return nonNullBindings;
         }
 
         #region Helper Class

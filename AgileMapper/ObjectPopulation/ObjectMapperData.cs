@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly MethodInfo _mapRepeatedElementMethod =
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 4);
 
-        private ExpressionInfoFinder _expressionInfoFinder;
+        private Expression _rootMappingDataObject;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
@@ -140,7 +140,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            foreach (var childMapperData in ChildMapperDatas)
+            foreach (var childMapperData in ChildMapperDatasOrEmpty)
             {
                 if (childMapperData == requestingMapperData)
                 {
@@ -304,7 +304,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperTypes = new[] { typeof(TSource), typeof(TTarget) };
 
             existingMapperData = GetMapperDataOrNull(
-                parentMapperData.ChildMapperDatas,
+                parentMapperData,
                 mapperTypes,
                 childMembersSource.TargetMemberRegistrationName);
 
@@ -312,11 +312,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private static ObjectMapperData GetMapperDataOrNull(
-            IEnumerable<ObjectMapperData> mapperDatas,
+            ObjectMapperData parentMapperData,
             IList<Type> mapperTypes,
             string targetMemberRegistrationName)
         {
-            foreach (var mapperData in mapperDatas)
+            foreach (var mapperData in parentMapperData.ChildMapperDatasOrEmpty)
             {
                 if ((mapperData.TypesMatch(mapperTypes)) &&
                     (mapperData.TargetMember.RegistrationName == targetMemberRegistrationName))
@@ -324,10 +324,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return mapperData;
                 }
 
-                if (mapperData.ChildMapperDatas.Any())
+                if (mapperData.HasChildMapperDatas)
                 {
                     return GetMapperDataOrNull(
-                        mapperData.ChildMapperDatas,
+                        mapperData,
                         mapperTypes,
                         targetMemberRegistrationName);
                 }
@@ -344,8 +344,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData OriginalMapperData { get; set; }
 
+        public bool HasChildMapperDatas => _childMapperDatas?.Count > 0;
+
+        public bool AnyChildMapperDataMatches(Func<ObjectMapperData, bool> matcher) 
+            => _childMapperDatas?.Any(matcher) == true;
+
         public IList<ObjectMapperData> ChildMapperDatas
             => _childMapperDatas ?? (_childMapperDatas = new List<ObjectMapperData>());
+
+        public IList<ObjectMapperData> ChildMapperDatasOrEmpty
+            => _childMapperDatas ?? (IList<ObjectMapperData>)Enumerable<ObjectMapperData>.EmptyArray;
 
         public IList<ObjectMapperData> DerivedMapperDatas
             => _derivedMapperDatas ?? (_derivedMapperDatas = new List<ObjectMapperData>());
@@ -432,14 +440,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ?? Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
         }
 
-        public ExpressionInfoFinder ExpressionInfoFinder
-            => _expressionInfoFinder ?? (_expressionInfoFinder = GetExpressionInfoFinder());
+        public Expression RootMappingDataObject
+            => _rootMappingDataObject ?? (_rootMappingDataObject = GetRootMappingDataObject());
 
-        private ExpressionInfoFinder GetExpressionInfoFinder()
+        private Expression GetRootMappingDataObject()
         {
-            return new ExpressionInfoFinder(Context.IsForToTargetMapping
+            return Context.IsForToTargetMapping
                 ? OriginalMapperData.MappingDataObject
-                : MappingDataObject);
+                : MappingDataObject;
         }
 
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }

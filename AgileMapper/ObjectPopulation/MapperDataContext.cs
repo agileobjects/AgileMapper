@@ -126,7 +126,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             get
             {
                 return _mapperData.Context._usesMappingDataObjectAsParameter ||
-                       _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObjectAsParameter);
+                       _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.UsesMappingDataObjectAsParameter);
             }
             set
             {
@@ -142,7 +142,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return (_isMappingDataObjectNeeded ??
                        (_isMappingDataObjectNeeded =
                            NeedsRuntimeTypedMapping || UsesMappingDataObjectAsParameter ||
-                          _mapperData.ChildMapperDatas.Any(cmd => cmd.Context.UsesMappingDataObject))).Value;
+                          _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.UsesMappingDataObject))) == true;
             }
         }
 

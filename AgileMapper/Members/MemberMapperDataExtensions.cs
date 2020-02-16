@@ -17,8 +17,10 @@ namespace AgileObjects.AgileMapper.Members
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
+    using MemberExtensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
+    using ObjectPopulation.Enumerables.EnumerableExtensions;
     using static Member;
     using static System.StringComparison;
 
@@ -84,7 +86,7 @@ namespace AgileObjects.AgileMapper.Members
         {
             yield return mapperData;
 
-            foreach (var childMapperData in mapperData.ChildMapperDatas.SelectMany(md => md.EnumerateAllMapperDatas()))
+            foreach (var childMapperData in mapperData.ChildMapperDatasOrEmpty.SelectMany(md => md.EnumerateAllMapperDatas()))
             {
                 yield return childMapperData;
             }
@@ -144,26 +146,39 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetTypeDefault(this ITypePair typePair)
             => typePair.TargetType.ToDefaultExpression();
 
-        public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
+        public static Expression GetNestedAccessChecksFor(
             this IMemberMapperData mapperData,
             Expression value,
             bool targetCanBeNull)
         {
-            return mapperData.RuleSet.GetExpressionInfoFor(
+            return GetNestedAccessChecksFor(
                 value,
-                mapperData.ExpressionInfoFinder,
+                mapperData.RuleSet,
+                mapperData,
                 targetCanBeNull);
         }
 
-        public static ExpressionInfoFinder.ExpressionInfo GetExpressionInfoFor(
+        public static Expression GetNestedAccessChecksFor(
             this MappingRuleSet ruleSet,
             Expression value,
-            ExpressionInfoFinder infoFinder = null,
             bool targetCanBeNull = false)
         {
-            return ruleSet.Settings?.GuardAccessTo(value) != false
-                ? (infoFinder ?? ExpressionInfoFinder.Default).FindIn(value, targetCanBeNull)
-                : ExpressionInfoFinder.EmptyExpressionInfo;
+            return GetNestedAccessChecksFor(value, ruleSet, mapperData: null, targetCanBeNull);
+        }
+
+        private static Expression GetNestedAccessChecksFor(
+            Expression value,
+            MappingRuleSet ruleSet,
+            IMemberMapperData mapperData,
+            bool targetCanBeNull = false)
+        {
+            if (ruleSet.Settings?.GuardAccessTo(value) != false)
+            {
+                return NestedAccessChecksFactory
+                    .GetNestedAccessChecksFor(value, mapperData, targetCanBeNull);
+            }
+
+            return null;
         }
 
         public static bool SourceMemberIsStringKeyedDictionary(

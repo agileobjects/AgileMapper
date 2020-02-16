@@ -9,6 +9,7 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.MemberExtensions;
 
     internal static class MappingFactory
     {
