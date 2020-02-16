@@ -6,29 +6,35 @@
     using Members;
     using Members.Dictionaries;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 
-    internal struct DictionaryDataSourceFactory : IMaptimeDataSourceFactory
+    internal static class DictionaryDataSourceFactory
     {
-        public bool IsFor(IMemberMapperData mapperData)
+        public static bool TryGet(
+            IMemberMapperData mapperData,
+            out Func<IChildMemberMappingData, IEnumerable<IDataSource>> maptimeDataSourceFactory)
         {
-            if (mapperData.TargetMember.IsComplex && mapperData.Context.IsStandalone)
+            if ((mapperData.TargetMember.IsComplex && mapperData.Context.IsStandalone) ||
+                 DoesNotHaveUseableSourceDictionary(mapperData))
             {
+                maptimeDataSourceFactory = null;
                 return false;
             }
 
-            return HasUseableSourceDictionary(mapperData);
+            maptimeDataSourceFactory = Create;
+            return true;
         }
 
-        private static bool HasUseableSourceDictionary(IMemberMapperData mapperData)
+        private static bool DoesNotHaveUseableSourceDictionary(IMemberMapperData mapperData)
         {
             if (!mapperData.SourceMemberIsStringKeyedDictionary(out var dictionarySourceMember))
             {
-                return false;
+                return true;
             }
 
             if (dictionarySourceMember.HasObjectEntries)
             {
-                return true;
+                return false;
             }
 
             var valueType = dictionarySourceMember.ValueType;
@@ -39,14 +45,14 @@
             {
                 if (valueType.IsEnumerable())
                 {
-                    return true;
+                    return false;
                 }
 
                 targetType = mapperData.TargetMember.ElementType;
 
                 if ((valueType == targetType) || targetType.IsComplex())
                 {
-                    return true;
+                    return false;
                 }
             }
             else
@@ -54,10 +60,10 @@
                 targetType = mapperData.TargetMember.Type;
             }
 
-            return mapperData.CanConvert(valueType, targetType);
+            return !mapperData.CanConvert(valueType, targetType);
         }
 
-        public IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)
+        private static IEnumerable<IDataSource> Create(IChildMemberMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
@@ -72,26 +78,26 @@
             yield return new DictionaryNonSimpleMemberDataSource(sourceMember, mapperData);
         }
 
-        private static DictionarySourceMember GetSourceMember(IMemberMapperData mapperData)
+        private static DictionarySourceMember GetSourceMember(IQualifiedMemberContext context)
         {
-            if (!mapperData.TargetMember.IsRecursion)
+            if (!context.TargetMember.IsRecursion)
             {
-                return new DictionarySourceMember(mapperData);
+                return new DictionarySourceMember(context);
             }
 
-            var parentMapperData = mapperData.Parent;
+            var parentContext = context.Parent;
 
-            while (!parentMapperData.IsRoot)
+            while (!parentContext.IsRoot)
             {
-                if (parentMapperData.TargetMember.LeafMember.Equals(mapperData.TargetMember.LeafMember))
+                if (parentContext.TargetMember.LeafMember.Equals(context.TargetMember.LeafMember))
                 {
                     break;
                 }
 
-                parentMapperData = parentMapperData.Parent;
+                parentContext = parentContext.Parent;
             }
 
-            return (DictionarySourceMember)parentMapperData.SourceMember;
+            return (DictionarySourceMember)parentContext.SourceMember;
         }
     }
 }

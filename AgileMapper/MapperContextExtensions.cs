@@ -1,17 +1,28 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
-    using Caching;
-    using Extensions.Internal;
-    using Members;
+    using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching;
+    using Configuration;
+    using Extensions.Internal;
+    using Members;
 
     internal static class MapperContextExtensions
     {
+        public static IList<DerivedTypePair> GetDerivedTypePairs(this IQualifiedMemberContext context)
+        {
+            return context
+                .MapperContext
+                .UserConfigurations
+                .DerivedTypes
+                .GetDerivedTypePairsFor(context);
+        }
+
         public static Expression GetIdentifierOrNull(
             this MapperContext context,
             Expression subject,

@@ -254,16 +254,16 @@
         {
             if (underlyingType == typeof(int))
             {
-                return GetEnumValuesConstant<int>(enumType);
+                return GetEnumValuesConstantWithUnderlyingType<int>(enumType);
             }
 
             return (Expression)typeof(ToEnumConverter)
-                .GetNonPublicStaticMethod("GetEnumValuesConstant")
+                .GetNonPublicStaticMethod(nameof(GetEnumValuesConstantWithUnderlyingType))
                 .MakeGenericMethod(underlyingType)
                 .Invoke(null, new object[] { enumType });
         }
 
-        private static Expression GetEnumValuesConstant<TUnderlyingType>(Type enumType)
+        private static Expression GetEnumValuesConstantWithUnderlyingType<TUnderlyingType>(Type enumType)
         {
             return Enum
                 .GetValues(enumType)

@@ -319,14 +319,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool UseDictionaryCloneConstructor(
             IQualifiedMember sourceDictionaryMember,
-            IBasicMapperData mapperData,
+            IQualifiedMemberContext context,
             out ConstructorInfo cloneConstructor)
         {
             cloneConstructor = null;
 
-            return (sourceDictionaryMember.Type == mapperData.TargetType) &&
-                    mapperData.TargetMember.ElementType.IsSimple() &&
-                  ((cloneConstructor = GetDictionaryCloneConstructor(mapperData)) != null);
+            return (sourceDictionaryMember.Type == context.TargetType) &&
+                    context.TargetMember.ElementType.IsSimple() &&
+                  ((cloneConstructor = GetDictionaryCloneConstructor(context)) != null);
         }
 
         private static ConstructorInfo GetDictionaryCloneConstructor(ITypePair mapperData)
@@ -414,14 +414,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool UseParameterlessConstructor(
             DictionarySourceMember sourceDictionaryMember,
-            IBasicMapperData mapperData)
+            IQualifiedMemberContext context)
         {
             if (sourceDictionaryMember.Type.IsInterface())
             {
                 return true;
             }
 
-            return sourceDictionaryMember.ValueType != mapperData.TargetMember.ElementType;
+            return sourceDictionaryMember.ValueType != context.TargetMember.ElementType;
         }
 
         private static Expression GetParameterlessDictionaryAssignment(IObjectMappingData mappingData)

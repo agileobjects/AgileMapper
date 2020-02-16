@@ -112,7 +112,7 @@
                 currentMemberName,
                 memberNameParts[memberNameParts.Count - 1]));
 
-            return memberNameParts.Any();
+            return true;
         }
 
         private static string GetFinalMemberName(string memberName, string previousNamePart)
@@ -429,7 +429,7 @@
 
                 if (MapperData.TargetMember.IsSimple)
                 {
-                    return MapperData.GetValueConversion(valueAccess, MapperData.TargetMember.Type);
+                    return MapperData.GetValueConversionOrCreation(valueAccess, MapperData.TargetMember.Type);
                 }
 
                 return valueAccess;

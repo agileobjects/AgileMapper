@@ -5,6 +5,8 @@
     using System.Linq;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using Caching;
+    using Caching.Dictionaries;
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -159,7 +161,10 @@
 
             var configurationCount = configurationData.Count;
             var configurationDataByType = configurationData.ToDictionary(d => d.ConfigurationType);
-            var configurationIndexesByType = new Dictionary<Type, int>(configurationCount);
+
+            var configurationIndexesByType = new FixedSizeSimpleDictionary<Type, int>(
+                configurationCount,
+                ReferenceEqualsComparer<Type>.Default);
 
             var configurationIndex = -1;
 
@@ -200,7 +205,7 @@
 
         private static void InsertWithOrder(
             ConfigurationData configurationItem,
-            IDictionary<Type, int> configurationIndexesByType,
+            ISimpleDictionary<Type, int> configurationIndexesByType,
             IDictionary<Type, ConfigurationData> configurationDataByType,
             ICollection<Type> checkedTypes)
         {
@@ -250,7 +255,7 @@
 
         private static int GetIndexOf(
             Type configurationType,
-            IDictionary<Type, int> configurationIndexesByType,
+            ISimpleDictionary<Type, int> configurationIndexesByType,
             IDictionary<Type, ConfigurationData> configurationDataByType,
             ICollection<Type> checkedTypes)
         {

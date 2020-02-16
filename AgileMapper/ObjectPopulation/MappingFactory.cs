@@ -5,9 +5,11 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.MemberExtensions;
 
     internal static class MappingFactory
     {
@@ -19,6 +21,8 @@
         {
             var childMapperData = childMappingData.MapperData;
 
+            childMapperData.TargetMember.MapCreating(sourceMember.Type);
+
             var childObjectMappingData = ObjectMappingDataFactory.ForChild(
                 sourceMember,
                 childMapperData.TargetMember,
@@ -27,12 +31,11 @@
 
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
-            childMapperData.TargetMember.MapCreating(sourceMember.Type);
-
             var mappingValues = new MappingValues(
                 sourceMemberAccess,
                 targetMemberAccess,
-                childMapperData.EnumerableIndex);
+                childMapperData.ElementIndex,
+                childMapperData.ElementKey);
 
             if (childObjectMappingData.MappingTypes.RuntimeTypesNeeded)
             {
@@ -102,16 +105,16 @@
             return GetElementMapping(mappingData, sourceElementValue, targetElementValue);
         }
 
-        private static bool CreateElementMappingDataFor(IBasicMapperData mapperData)
+        private static bool CreateElementMappingDataFor(IQualifiedMemberContext context)
         {
-            if (!mapperData.TargetMemberIsEnumerableElement())
+            if (!context.TargetMemberIsEnumerableElement())
             {
                 return true;
             }
 
-            if (mapperData.TargetMember.IsEnumerable)
+            if (context.TargetMember.IsEnumerable)
             {
-                return !mapperData.TargetMember.ElementType.IsSimple();
+                return !context.TargetMember.ElementType.IsSimple();
             }
 
             return false;
@@ -125,23 +128,26 @@
             var enumerableMapperData = elementMappingData.Parent.MapperData;
             var elementMapperData = elementMappingData.MapperData;
 
-            Expression enumerableIndex, parentMappingDataObject;
+            Expression elementIndex, elementKey, parentMappingDataObject;
 
             if (elementMapperData.Context.IsStandalone)
             {
-                enumerableIndex = elementMapperData.EnumerableIndex.GetNullableValueAccess();
+                elementIndex = elementMapperData.ElementIndex.GetNullableValueAccess();
+                elementKey = elementMapperData.ElementKey;
                 parentMappingDataObject = typeof(IObjectMappingData).ToDefaultExpression();
             }
             else
             {
-                enumerableIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
+                elementIndex = enumerableMapperData.EnumerablePopulationBuilder.Counter;
+                elementKey = enumerableMapperData.EnumerablePopulationBuilder.GetElementKey();
                 parentMappingDataObject = enumerableMapperData.MappingDataObject;
             }
 
             var mappingValues = new MappingValues(
                 sourceElementValue,
                 targetElementValue,
-                enumerableIndex);
+                elementIndex,
+                elementKey);
 
             elementMapperData.Context.IsForNewElement =
                 (targetElementValue.NodeType == ExpressionType.Default) ||
@@ -195,12 +201,12 @@
                 return UseLocalValueVariable(
                     mapperData.MappingDataObject,
                     createMappingDataCall,
-                    mapper.MappingExpression,
+                    mapper.Mapping,
                     mapperData);
             }
 
             return GetDirectAccessMapping(
-                mapper.MappingLambda.Body,
+                mapper.Mapping,
                 mapperData,
                 mappingValues,
                 createMappingDataCall);
@@ -229,12 +235,14 @@
                 sourceValueVariableValue = null;
             }
 
-            var replacementsByTarget = new ExpressionReplacementDictionary(3)
-            {
-                [mapperData.SourceObject] = sourceValue,
-                [mapperData.TargetObject] = mappingValues.TargetValue,
-                [mapperData.EnumerableIndex] = mappingValues.EnumerableIndex.GetConversionTo(mapperData.EnumerableIndex.Type)
-            };
+            var replacementsByTarget = FixedSizeExpressionReplacementDictionary
+                .WithEquivalentKeys(4)
+                .Add(mapperData.SourceObject, sourceValue)
+                .Add(mapperData.TargetObject, mappingValues.TargetValue)
+                .Add(mapperData.ElementKey, mappingValues.ElementKey)
+                .Add(
+                    mapperData.ElementIndex,
+                    mappingValues.ElementIndex.GetConversionTo(mapperData.ElementIndex.Type));
 
             mapping = mapping
                 .Replace(replacementsByTarget)
@@ -252,10 +260,10 @@
         private static bool ShouldUseLocalSourceValueVariable(
             Expression sourceValue,
             Expression mapping,
-            IBasicMapperData mapperData)
+            IRuleSetOwner ruleSetOwner)
         {
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
-                   !mapperData.RuleSet.Settings.UseMemberInitialisation &&
+                   !ruleSetOwner.RuleSet.Settings.UseMemberInitialisation &&
                     SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
         }
 

@@ -45,8 +45,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// <typeparam name="TTarget">The actual type of child target object being mapped to.</typeparam>
         /// <param name="source">The source object being mapped from.</param>
         /// <param name="target">The target object being mapped to.</param>
-        /// <param name="enumerableIndex">
-        /// The index of the current enumerable being mapped, if applicable.
+        /// <param name="elementIndex">
+        /// The index of the current enumerable element being mapped, if applicable.
+        /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped, if applicable.
         /// </param>
         /// <param name="mapperKey">A key object uniquely identifying the context being mapped.</param>
         /// <param name="mappingContext">An object describing the context of the current mapping.</param>
@@ -57,7 +60,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         object CreateMappingData<TDeclaredSource, TDeclaredTarget, TSource, TTarget>(
             TDeclaredSource source,
             TDeclaredTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
+            object elementKey,
             object mapperKey,
             object mappingContext,
             object parent)

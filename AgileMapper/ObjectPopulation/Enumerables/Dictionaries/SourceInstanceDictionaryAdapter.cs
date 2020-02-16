@@ -1,13 +1,13 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 {
-    using DataSources;
-    using Extensions.Internal;
-    using Members.Dictionaries;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using EnumerableExtensions;
+    using Members.Dictionaries;
 
     internal class SourceInstanceDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {
@@ -23,6 +23,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         }
 
         public DictionaryEntryVariablePair DictionaryVariables { get; }
+
+        public override Expression GetElementKey() => DictionaryVariables.Key;
 
         public override Expression GetSourceValues()
         {

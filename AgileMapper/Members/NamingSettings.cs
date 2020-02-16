@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using Caching;
     using Configuration;
     using Extensions;
@@ -11,20 +10,23 @@
 
     internal class NamingSettings
     {
+        public static readonly string[] RootMatchingNames = { Constants.RootMemberName };
+        private static readonly string[] _defaultIdMemberNames = { "Id", "Identifier" };
+
         private readonly ICache<TypeKey, Member> _idMemberCache;
-        private readonly List<Func<Member, string>> _matchingNameFactories;
+        private readonly List<ConfiguredNamingPattern> _matchingNameFactories;
         private readonly List<Func<IEnumerable<string>, string>> _joinedNameFactories;
-        private ICollection<Regex> _customNameMatchers;
+        private List<ConfiguredNamingPattern> _customNameMatchers;
 
         public NamingSettings(CacheSet mapperScopedCache)
         {
             _idMemberCache = mapperScopedCache.CreateScoped<TypeKey, Member>(default(HashCodeComparer<TypeKey>));
 
-            _matchingNameFactories = new List<Func<Member, string>>
+            _matchingNameFactories = new List<ConfiguredNamingPattern>
             {
-                member => IsTypeIdentifier(member) ? "Id" : null,
-                GetGetOrSetMethodName,
-                GetIdentifierName
+                ConfiguredNamingPattern.Global(member => IsTypeIdentifier(member) ? "Id" : null),
+                ConfiguredNamingPattern.ForGetOrSetMethod,
+                ConfiguredNamingPattern.ForIdentifierName
             };
 
             _joinedNameFactories = new List<Func<IEnumerable<string>, string>>
@@ -34,121 +36,21 @@
             };
         }
 
-        private ICollection<Regex> CustomNameMatchers
-            => _customNameMatchers ?? (_customNameMatchers = new List<Regex>());
+        private List<ConfiguredNamingPattern> CustomNameMatchers
+            => _customNameMatchers ?? (_customNameMatchers = new List<ConfiguredNamingPattern>());
 
-        private static string GetIdentifierName(Member member)
+        public void Add(IList<ConfiguredNamingPattern> patterns)
         {
-            return member.Name.EndsWith("Identifier", StringComparison.Ordinal)
-                ? member.Name.Substring(0, member.Name.Length - 8)
-                : null;
-        }
-
-        private static string GetGetOrSetMethodName(Member member)
-        {
-            if ((member.MemberType == MemberType.GetMethod) ||
-                (member.MemberType == MemberType.SetMethod))
-            {
-                return member.Name.Substring(3);
-            }
-
-            return null;
-        }
-
-        public void AddNamePrefixes(IList<string> prefixes)
-            => AddNameMatchers(prefixes.ProjectToArray(p => "^" + p + "(.+)$"));
-
-        public void AddNameSuffixes(IList<string> suffixes)
-            => AddNameMatchers(suffixes.ProjectToArray(s => "^(.+)" + s + "$"));
-
-        public void AddNameMatchers(IList<string> patterns)
-        {
-            ValidatePatterns(patterns);
-
-            foreach (var pattern in patterns)
-            {
-                var nameMatcher = new Regex(pattern, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
-                _matchingNameFactories.Add(member => GetMemberName(nameMatcher.Match(member.Name)));
-
-                CustomNameMatchers.Add(nameMatcher);
-            }
-        }
-
-        private static string GetMemberName(Match memberNameMatch)
-            => memberNameMatch.Groups.Cast<Group>().ElementAtOrDefault(1)?.Value;
-
-        private static void ValidatePatterns(IList<string> patterns)
-        {
-            if (patterns.None())
-            {
-                throw new ArgumentException("No naming patterns supplied", nameof(patterns));
-            }
-
-            for (var i = 0; i < patterns.Count; i++)
-            {
-                var pattern = patterns[i];
-
-                if (pattern == null)
-                {
-                    throw new ArgumentNullException(nameof(patterns), "Naming patterns cannot be null");
-                }
-
-                if (pattern.Contains(Environment.NewLine))
-                {
-                    throw CreateConfigurationException(pattern);
-                }
-
-                if (!pattern.StartsWith('^'))
-                {
-                    patterns[i] = pattern = "^" + pattern;
-                }
-
-                if (!pattern.EndsWith('$'))
-                {
-                    patterns[i] = pattern = pattern + "$";
-                }
-
-                ThrowIfPatternIsInvalid(pattern);
-            }
-        }
-
-        private static readonly Regex _patternChecker =
-            new Regex(@"^\^(?<Prefix>[^(]+){0,1}\(\.\+\)(?<Suffix>[^$]+){0,1}\$$");
-
-        private static void ThrowIfPatternIsInvalid(string pattern)
-        {
-            var match = _patternChecker.Match(pattern);
-
-            if (!match.Success)
-            {
-                throw CreateConfigurationException(pattern);
-            }
-
-            var prefix = match.Groups["Prefix"].Value;
-            var suffix = match.Groups["Suffix"].Value;
-
-            if (string.IsNullOrEmpty(prefix) && string.IsNullOrEmpty(suffix))
-            {
-                throw CreateConfigurationException(pattern);
-            }
-        }
-
-        private static Exception CreateConfigurationException(string pattern)
-        {
-            return new MappingConfigurationException(
-                "Name pattern '" + pattern + "' is not valid. " +
-                "Please specify a regular expression pattern in the format '^{prefix}(.+){suffix}$'");
+            _matchingNameFactories.AddRange(patterns);
+            CustomNameMatchers.AddRange(patterns);
         }
 
         private bool IsTypeIdentifier(Member member)
             => GetIdentifierOrNull(member.DeclaringType)?.Equals(member) == true;
 
-        public Member GetIdentifierOrNull(Type type) => GetIdentifierOrNull(TypeKey.ForTypeId(type));
-
-        public Member GetIdentifierOrNull(TypeKey typeIdKey)
+        public Member GetIdentifierOrNull(Type type)
         {
-            return _idMemberCache.GetOrAdd(typeIdKey, key =>
+            return _idMemberCache.GetOrAdd(TypeKey.ForTypeId(type), key =>
             {
                 var typeMembers = GlobalContext.Instance.MemberCache.GetSourceMembers(key.Type);
 
@@ -192,13 +94,12 @@
                 return false;
             }
 
-            potentialIds.InsertRange(0, new[] { "Id", "Identifier" });
+            potentialIds.InsertRange(0, _defaultIdMemberNames);
 
             return _customNameMatchers
-                .Project(member, (m, customNameMatcher) => customNameMatcher.Match(m.Name))
-                .Any(memberNameMatch =>
-                    memberNameMatch.Success &&
-                    potentialIds.Contains(GetMemberName(memberNameMatch)));
+                .Project(member, (m, customNameMatcher) => customNameMatcher.GetMemberName(m))
+                .WhereNotNull()
+                .Any(potentialIds.Contains);
         }
 
         private static void AddPotentialTypeIdsIfApplicable(
@@ -219,21 +120,33 @@
 
         #endregion
 
-        public string[] GetMatchingNamesFor(Member member) => EnumerateMatchingNames(member).ToArray();
-
-        private IEnumerable<string> EnumerateMatchingNames(Member member)
+        public string[] GetMatchingNamesFor(Member member, IQualifiedMemberContext context)
         {
-            if (member.IsRoot)
-            {
-                yield return Constants.RootMemberName;
-                yield break;
-            }
+            return member.IsRoot
+                ? RootMatchingNames
+                : EnumerateMatchingNames(member, context).ToArray();
+        }
 
+        private IEnumerable<string> EnumerateMatchingNames(Member member, IQualifiedMemberContext context)
+        {
             var matchingName = default(string);
 
-            if (_matchingNameFactories.Any(f => (matchingName = f.Invoke(member)) != null))
+            for (var i = 0; i < _matchingNameFactories.Count;)
             {
-                yield return matchingName;
+                var factory = _matchingNameFactories[i++];
+
+                if (!factory.AppliesTo(context))
+                {
+                    continue;
+                }
+
+                matchingName = factory.GetMemberName(member);
+
+                if (matchingName != null)
+                {
+                    yield return matchingName;
+                    break;
+                }
             }
 
             if (member.Name != matchingName)
@@ -286,8 +199,7 @@
             {
                 if (isElementMember)
                 {
-                    extendedJoinedNames[index] = parentJoinedName + Constants.EnumerableElementName;
-                    ++index;
+                    extendedJoinedNames[index++] = parentJoinedName + Constants.EnumerableElementName;
                     continue;
                 }
 
@@ -295,15 +207,13 @@
                 {
                     if (wasElementMember)
                     {
-                        extendedJoinedNames[index] = parentJoinedName + "." + name;
-                        ++index;
+                        extendedJoinedNames[index++] = parentJoinedName + "." + name;
                         continue;
                     }
 
                     foreach (var joinedNameFactory in _joinedNameFactories)
                     {
-                        extendedJoinedNames[index] = joinedNameFactory.Invoke(new[] { parentJoinedName, name });
-                        ++index;
+                        extendedJoinedNames[index++] = joinedNameFactory.Invoke(new[] { parentJoinedName, name });
                     }
                 }
             }
@@ -313,8 +223,9 @@
 
         public void CloneTo(NamingSettings settings)
         {
-            settings._matchingNameFactories.AddRange(_matchingNameFactories);
-            settings._joinedNameFactories.AddRange(_joinedNameFactories);
+            settings._matchingNameFactories.AddRange(_matchingNameFactories.Skip(3));
+            settings._joinedNameFactories.AddRange(_joinedNameFactories.Skip(2));
+            _customNameMatchers?.CopyTo(settings.CustomNameMatchers);
         }
     }
 }

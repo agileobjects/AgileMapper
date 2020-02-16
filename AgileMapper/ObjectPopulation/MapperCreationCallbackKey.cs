@@ -10,8 +10,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly Type _sourceType;
         private readonly Type _targetType;
 
-        public MapperCreationCallbackKey(IBasicMapperData mapperData)
-            : this(mapperData.RuleSet, mapperData.SourceType, mapperData.TargetType)
+        public MapperCreationCallbackKey(IQualifiedMemberContext context)
+            : this(context.RuleSet, context.SourceType, context.TargetType)
         {
         }
 

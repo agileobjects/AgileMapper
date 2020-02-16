@@ -32,5 +32,7 @@
         object IMappingExceptionData.Target => Target;
 
         public Exception Exception { get; }
+
+        int? IMappingExceptionData.EnumerableIndex => ElementIndex;
     }
 }

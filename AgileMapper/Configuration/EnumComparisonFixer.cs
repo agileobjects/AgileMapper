@@ -1,24 +1,19 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
-    using System.Collections.Generic;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class EnumComparisonFixer : ExpressionVisitor
     {
-        private readonly Dictionary<Expression, Expression> _comparisonReplacements;
-
-        public EnumComparisonFixer()
-        {
-            _comparisonReplacements = new Dictionary<Expression, Expression>();
-        }
+        private ISimpleDictionary<Expression, Expression> _comparisonReplacements;
 
         public static LambdaExpression Check(LambdaExpression lambda)
         {
@@ -26,10 +21,18 @@
 
             fixer.Visit(lambda.Body);
 
+            if (fixer._comparisonReplacements == null)
+            {
+                return lambda;
+            }
+
             var updatedLambda = lambda.Replace(fixer._comparisonReplacements);
 
             return updatedLambda;
         }
+
+        private ISimpleDictionary<Expression, Expression> ComparisonReplacements
+            => _comparisonReplacements ?? (_comparisonReplacements = new ExpandableExpressionReplacementDictionary());
 
         protected override Expression VisitBinary(BinaryExpression binary)
         {
@@ -42,7 +45,7 @@
                 {
                     var enumComparison = binary.Update(enumMember, binary.Conversion, enumValue);
 
-                    _comparisonReplacements.Add(binary, enumComparison);
+                    ComparisonReplacements.Add(binary, enumComparison);
                 }
 
             }

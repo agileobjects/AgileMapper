@@ -203,6 +203,15 @@
         }
 
         [Fact]
+        public void ShouldHandleUnmappableComplexTypeElements()
+        {
+            var source = new[] { TitleShortlist.Mr, TitleShortlist.Mrs };
+            var result = Mapper.Map(source).ToANew<List<PersonViewModel>>();
+
+            result.ShouldBeEmpty();
+        }
+
+        [Fact]
         public void ShouldCreateAnEmptyListByDefault()
         {
             var source = new PublicProperty<string>();

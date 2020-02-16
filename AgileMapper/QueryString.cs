@@ -51,6 +51,7 @@
             var keyValuePairs = new Dictionary<string, string>();
 
             var previousAmpersandIndex = queryString[0] == '?' ? 1 : 0;
+            var queryStringLength = queryString.Length;
 
             while (true)
             {
@@ -58,7 +59,7 @@
 
                 if (nextAmpersandIndex == -1)
                 {
-                    nextAmpersandIndex = queryString.Length;
+                    nextAmpersandIndex = queryStringLength;
                 }
 
                 var equalsSignIndex = queryString.IndexOf('=', previousAmpersandIndex);
@@ -103,7 +104,7 @@
 
                 previousAmpersandIndex = nextAmpersandIndex + 1;
 
-                if ((previousAmpersandIndex == queryString.Length) || (nextAmpersandIndex == queryString.Length))
+                if ((previousAmpersandIndex == queryStringLength) || (nextAmpersandIndex == queryStringLength))
                 {
                     return new QueryString(keyValuePairs);
                 }
@@ -136,7 +137,8 @@
         /// <returns>The query string-formatted representation of the <see cref="QueryString"/>.</returns>
         public override string ToString()
         {
-            var queryStringParts = new string[_keyValuePairs.Count * 4];
+            var queryStringParts = new string[(_keyValuePairs.Count * 4) - 1];
+            var queryStringPartsCount = queryStringParts.Length;
 
             var i = 0;
 
@@ -145,10 +147,12 @@
                 queryStringParts[i++] = Uri.EscapeDataString(keyValuePair.Key);
                 queryStringParts[i++] = "=";
                 queryStringParts[i++] = Uri.EscapeDataString(keyValuePair.Value);
-                queryStringParts[i++] = "&";
-            }
 
-            queryStringParts[queryStringParts.Length - 1] = string.Empty;
+                if (i++ != queryStringPartsCount)
+                {
+                    queryStringParts[i] = "&";
+                }
+            }
 
             var queryString = queryStringParts.Join(string.Empty);
 #if NET35

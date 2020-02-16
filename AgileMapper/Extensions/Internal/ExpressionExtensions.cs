@@ -7,36 +7,25 @@
 #if NET35
     using Microsoft.Scripting.Ast;
     using ReadableExpressions.Translations;
+#else
+    using System.Linq.Expressions;
+#endif
+    using System.Reflection;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
+#if NET35
     using LinqExp = System.Linq.Expressions;
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
-    using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
-    using System.Reflection;
-    using Members;
-    using NetStandardPolyfills;
-    using ObjectPopulation.Enumerables;
-    using ReadableExpressions.Extensions;
 
     internal static partial class ExpressionExtensions
     {
-        private static readonly MethodInfo _listToArrayMethod;
-        private static readonly MethodInfo _collectionToArrayMethod;
-        private static readonly MethodInfo _linqToArrayMethod;
-        private static readonly MethodInfo _linqToListMethod;
         private static readonly MethodInfo _stringEqualsMethod;
 
         static ExpressionExtensions()
         {
-            var toArrayExtensionMethods = typeof(PublicEnumerableExtensions).GetPublicStaticMethods("ToArray").ToArray();
-            _listToArrayMethod = toArrayExtensionMethods.First();
-            _collectionToArrayMethod = toArrayExtensionMethods.Last();
-
-            var linqEnumerableMethods = typeof(Enumerable).GetPublicStaticMethods().ToArray();
-            _linqToArrayMethod = linqEnumerableMethods.First(m => m.Name == "ToArray");
-            _linqToListMethod = linqEnumerableMethods.First(m => m.Name == "ToList");
-
             _stringEqualsMethod = typeof(string)
                 .GetPublicStaticMethod("Equals", parameterCount: 3);
         }
@@ -112,7 +101,11 @@
                 expressionOffset = 1;
             }
 
-            loopBody = loopBody.Update(loopBody.Variables.Append(variable), loopBodyExpressions);
+            var loopVariables = loopBody.Variables.Contains(variable)
+                ? (IList<ParameterExpression>)loopBody.Variables
+                : loopBody.Variables.Append(variable);
+
+            loopBody = loopBody.Update(loopVariables, loopBodyExpressions);
 
             return loop.Update(loop.BreakLabel, loop.ContinueLabel, loopBody);
         }
@@ -261,73 +254,6 @@
             return Expression.Convert(expression, targetType);
         }
 
-        public static Expression WithOrderingLinqCall(
-            this Expression enumerable,
-            string orderingMethodName,
-            ParameterExpression element,
-            Expression orderMemberAccess)
-        {
-            var funcTypes = new[] { element.Type, orderMemberAccess.Type };
-
-            var orderingMethod = typeof(Enumerable)
-                .GetPublicStaticMethod(orderingMethodName, parameterCount: 2)
-                .MakeGenericMethod(funcTypes);
-
-            var orderLambda = Expression.Lambda(
-                Expression.GetFuncType(funcTypes),
-                orderMemberAccess,
-                element);
-
-            return Expression.Call(orderingMethod, enumerable, orderLambda);
-        }
-
-        public static Expression WithToArrayLinqCall(this Expression enumerable, Type elementType)
-            => GetToEnumerableCall(enumerable, _linqToArrayMethod, elementType);
-
-        public static Expression WithToArrayCall(this Expression enumerable, Type elementType)
-        {
-            var conversionMethod = GetToArrayConversionMethod(enumerable, elementType);
-
-            return GetToEnumerableCall(enumerable, conversionMethod, elementType);
-        }
-
-        private static MethodInfo GetToArrayConversionMethod(Expression enumerable, Type elementType)
-        {
-            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
-
-            if (TryGetWrapperMethod(typeHelper, "ToArray", out var method))
-            {
-                return method;
-            }
-
-            if (typeHelper.HasListInterface)
-            {
-                return _listToArrayMethod;
-            }
-
-            return GetNonListToArrayConversionMethod(typeHelper);
-        }
-
-        private static bool TryGetWrapperMethod(
-            EnumerableTypeHelper typeHelper,
-            string methodName,
-            out MethodInfo method)
-        {
-            var wrapperType = typeHelper.WrapperType;
-
-            if (typeHelper.EnumerableType != wrapperType)
-            {
-                method = null;
-                return false;
-            }
-
-            method = wrapperType.GetPublicInstanceMethod(methodName);
-            return true;
-        }
-
-        private static MethodInfo GetNonListToArrayConversionMethod(EnumerableTypeHelper typeHelper)
-            => typeHelper.HasCollectionInterface ? _collectionToArrayMethod : _linqToArrayMethod;
-
         [DebuggerStepThrough]
         public static MethodCallExpression WithToStringCall(this Expression value)
         {
@@ -338,53 +264,7 @@
             return Expression.Call(value, toStringMethodType.GetPublicInstanceMethod("ToString", parameterCount: 0));
         }
 
-        public static Expression GetReadOnlyCollectionCreation(this Expression enumerable, Type elementType)
-        {
-            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
-
-            if (TryGetWrapperMethod(typeHelper, "ToReadOnlyCollection", out var method))
-            {
-                return GetToEnumerableCall(enumerable, method, typeHelper.ElementType);
-            }
-
-            if (typeHelper.IsList)
-            {
-                return Expression.Call(enumerable, typeHelper.ListType.GetPublicInstanceMethod("AsReadOnly"));
-            }
-
-            if (typeHelper.HasListInterface)
-            {
-                return GetReadOnlyCollectionCreation(typeHelper, enumerable);
-            }
-
-            var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
-            var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, typeHelper.ElementType);
-
-            return GetReadOnlyCollectionCreation(typeHelper, toArrayCall);
-        }
-
-        public static Expression GetCollectionTypeCreation(this Expression enumerable, Type elementType)
-        {
-            var typeHelper = new EnumerableTypeHelper(enumerable.Type, elementType);
-
-            if (typeHelper.HasListInterface)
-            {
-                return GetCollectionTypeCreation(typeHelper, enumerable.GetConversionTo(typeHelper.ListInterfaceType));
-            }
-
-            var nonListToArrayMethod = GetNonListToArrayConversionMethod(typeHelper);
-            var toArrayCall = GetToEnumerableCall(enumerable, nonListToArrayMethod, typeHelper.ElementType);
-
-            return GetCollectionTypeCreation(typeHelper, toArrayCall);
-        }
-
-        private static Expression GetCollectionTypeCreation(EnumerableTypeHelper typeHelper, Expression list)
-            => GetCopyListCollectionCreation(typeHelper, typeHelper.CollectionType, list);
-
-        public static Expression WithToListLinqCall(this Expression enumerable, Type elementType)
-            => GetToEnumerableCall(enumerable, _linqToListMethod, elementType);
-
-        private static Expression GetToEnumerableCall(Expression enumerable, MethodInfo method, Type elementType)
+        public static Expression GetToEnumerableCall(this Expression enumerable, MethodInfo method, Type elementType)
         {
             if (!method.IsGenericMethod)
             {
@@ -394,57 +274,6 @@
             var typedToEnumerableMethod = method.MakeGenericMethod(elementType);
 
             return Expression.Call(typedToEnumerableMethod, enumerable);
-        }
-
-        public static Expression GetEmptyInstanceCreation(
-            this Type enumerableType,
-            Type elementType,
-            EnumerableTypeHelper typeHelper = null)
-        {
-            if (enumerableType.IsArray)
-            {
-                return GetEmptyArray(elementType);
-            }
-
-            if (enumerableType.IsValueType())
-            {
-                return Expression.New(enumerableType);
-            }
-
-            if (typeHelper == null)
-            {
-                typeHelper = new EnumerableTypeHelper(enumerableType, elementType);
-            }
-
-            if (typeHelper.IsEnumerableOrQueryable)
-            {
-                return Expression.Field(null, typeof(Enumerable<>).MakeGenericType(elementType), "Empty");
-            }
-
-            if (typeHelper.IsReadOnlyCollection)
-            {
-                return GetReadOnlyCollectionCreation(typeHelper, GetEmptyArray(elementType));
-            }
-
-            return Expression.New(typeHelper.GetEmptyInstanceCreationFallbackType());
-        }
-
-        private static Expression GetEmptyArray(Type elementType)
-             => Expression.Field(null, typeof(Enumerable<>).MakeGenericType(elementType), "EmptyArray");
-
-        private static Expression GetReadOnlyCollectionCreation(EnumerableTypeHelper typeHelper, Expression list)
-            => GetCopyListCollectionCreation(typeHelper, typeHelper.ReadOnlyCollectionType, list);
-
-        private static Expression GetCopyListCollectionCreation(
-            EnumerableTypeHelper typeHelper,
-            Type collectonType,
-            Expression list)
-        {
-            var copyListConstructor = collectonType.GetPublicInstanceConstructor(typeHelper.ListInterfaceType);
-
-            return (copyListConstructor != null)
-                ? Expression.New(copyListConstructor, list)
-                : Expression.New(collectonType);
         }
 
         public static bool IsRootedIn(this Expression expression, Expression possibleParent)
@@ -462,6 +291,21 @@
             }
 
             return false;
+        }
+
+        public static Expression GetRootExpression(this Expression expression)
+        {
+            while (true)
+            {
+                var parent = expression.GetParentOrNull();
+
+                if (parent == null)
+                {
+                    return expression;
+                }
+
+                expression = parent;
+            }
         }
 
         public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
@@ -485,34 +329,5 @@
         public static Expression ToDlrExpression(this LinqExp.Expression linqExpression)
             => LinqExpressionToDlrExpressionConverter.Convert(linqExpression);
 #endif
-        public static TryExpression WrapInTryCatch(this Expression mapping, IMemberMapperData mapperData)
-        {
-            var configuredCallback = mapperData.MapperContext.UserConfigurations.GetExceptionCallbackOrNull(mapperData);
-            var exceptionVariable = Parameters.Create<Exception>("ex");
-
-            if (configuredCallback == null)
-            {
-                var catchBody = Expression.Throw(
-                    MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
-                    mapping.Type);
-
-                return CreateTryCatch(mapping, exceptionVariable, catchBody);
-            }
-
-            var configuredCatchBody = configuredCallback
-                .ToCatchBody(exceptionVariable, mapping.Type, mapperData);
-
-            return CreateTryCatch(mapping, exceptionVariable, configuredCatchBody);
-        }
-
-        private static TryExpression CreateTryCatch(
-            Expression mappingBlock,
-            ParameterExpression exceptionVariable,
-            Expression catchBody)
-        {
-            var catchBlock = Expression.Catch(exceptionVariable, catchBody);
-
-            return Expression.TryCatch(mappingBlock, catchBlock);
-        }
     }
 }

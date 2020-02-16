@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Dynamic;
-    using Common;
     using TestClasses;
     using Xunit;
 
@@ -14,12 +13,11 @@
             var source = new { Value = 123 };
 
             dynamic target = new ExpandoObject();
-
             target.Value = 456;
 
             Mapper.Map(source).Over(target);
 
-            ((int)target.Value).ShouldBe(123);
+            Assert.Equal(123, target.Value);
         }
 
         [Fact]
@@ -31,12 +29,11 @@
             };
 
             dynamic target = new ExpandoObject();
-
             target.Value = Title.Mr;
 
             Mapper.Map(source).Over(target);
 
-            ((TitleShortlist)target.Value).ShouldBe(TitleShortlist.Mrs);
+            Assert.Equal(TitleShortlist.Mrs, target.Value);
         }
 
         [Fact]
@@ -50,17 +47,15 @@
             };
 
             dynamic target = new ExpandoObject();
-
             target._0_Value = 10;
             target._2_Value = 30;
 
             Mapper.Map(source).Over(target);
 
-            ((IDictionary<string, object>)target).Count.ShouldBe(3);
-
-            ((int)target._0_Value).ShouldBe(1);
-            ((int)target._1_Value).ShouldBe(2);
-            ((int)target._2_Value).ShouldBe(3);
+            Assert.Equal(3, ((IDictionary<string, object>)target).Count);
+            Assert.Equal(1, target._0_Value);
+            Assert.Equal(2, target._1_Value);
+            Assert.Equal(3, target._2_Value);
         }
 
         [Fact]
@@ -73,16 +68,14 @@
             };
 
             dynamic target = new ExpandoObject();
-
             target._0_Value_ProductId = "0";
-            target._1_Value_ProductId = "0";
+            target._1_Value_ProductId = "1";
 
             Mapper.Map(source).Over(target);
 
-            ((IDictionary<string, object>)target).Count.ShouldBe(2);
-
-            ((string)target._0_Value_ProductId).ShouldBe("0");
-            ((string)target._1_Value_ProductId).ShouldBe("0");
+            Assert.Equal(2, ((IDictionary<string, object>)target).Count);
+            Assert.Equal("0", target._0_Value_ProductId);
+            Assert.Equal("1", target._1_Value_ProductId);
         }
     }
 }

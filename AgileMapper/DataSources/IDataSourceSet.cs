@@ -6,12 +6,9 @@ namespace AgileObjects.AgileMapper.DataSources
 #else
     using System.Linq.Expressions;
 #endif
-    using Members;
 
-    internal interface IDataSourceSet : IEnumerable<IDataSource>
+    internal interface IDataSourceSet
     {
-        IMemberMapperData MapperData { get; }
-
         bool None { get; }
 
         bool HasValue { get; }
@@ -27,7 +24,5 @@ namespace AgileObjects.AgileMapper.DataSources
         int Count { get; }
 
         Expression BuildValue();
-
-        Expression GetFinalValueOrNull();
     }
 }

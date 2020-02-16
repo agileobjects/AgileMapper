@@ -2,6 +2,11 @@
 {
     using System;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
@@ -9,11 +14,6 @@
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class ConfiguredLambdaInfo
     {

@@ -1,8 +1,7 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
+﻿#if FEATURE_DYNAMIC_ROOT_SOURCE
+namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
-    using Api;
-    using Common;
     using TestClasses;
     using Xunit;
 
@@ -19,13 +18,12 @@
                 Line2 = "Dynamic Line 2!",
             };
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
-                .ToANew<Customer>();
+            var result = Mapper.Map(source).ToANew<Customer>();
 
-            result.Name = "Dynamic Customer!";
-            result.Address.ShouldNotBeNull();
-            result.Address.Line1.ShouldBe("Dynamic Line 1!");
-            result.Address.Line2.ShouldBe("Dynamic Line 2!");
+            Assert.Equal("Dynamic Customer!", result.Name);
+            Assert.NotNull(result.Address);
+            Assert.Equal("Dynamic Line 1!", result.Address.Line1);
+            Assert.Equal("Dynamic Line 2!", result.Address.Line2);
         }
 
         [Fact]
@@ -36,13 +34,12 @@
             source.addressLine1 = "Dynamic Line 1";
             source.addressLine2 = "Dynamic Line 2";
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
-                .ToANew<Person>();
+            var result = Mapper.Map(source).ToANew<Person>();
 
-            result.Name = "Dynamic Person";
-            result.Address.ShouldNotBeNull();
-            result.Address.Line1.ShouldBe("Dynamic Line 1");
-            result.Address.Line2.ShouldBe("Dynamic Line 2");
+            Assert.Equal("Dynamic Person", result.Name);
+            Assert.NotNull(result.Address);
+            Assert.Equal("Dynamic Line 1", result.Address.Line1);
+            Assert.Equal("Dynamic Line 2", result.Address.Line2);
         }
 
         [Fact]
@@ -55,13 +52,13 @@
             source.Address.Line1 = "Dynamic House";
             source.Address.Line2 = "Dynamic Street";
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
-                .ToANew<Customer>();
+            var result = Mapper.Map(source).ToANew<Customer>();
 
-            result.Name.ShouldBe("Captain Dynamic");
-            result.Address.ShouldNotBeNull();
-            result.Address.Line1.ShouldBe("Dynamic House");
-            result.Address.Line2.ShouldBe("Dynamic Street");
+            Assert.Equal("Captain Dynamic", result.Name);
+            Assert.NotNull(result.Address);
+            Assert.Equal("Dynamic House", result.Address.Line1);
+            Assert.Equal("Dynamic Street", result.Address.Line2);
         }
     }
 }
+#endif

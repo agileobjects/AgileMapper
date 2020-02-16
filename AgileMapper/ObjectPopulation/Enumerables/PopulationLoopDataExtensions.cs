@@ -7,7 +7,7 @@
     using System.Linq.Expressions;
 #endif
     using DataSources;
-    using Extensions.Internal;
+    using AgileObjects.AgileMapper.Extensions.Internal;
     using TypeConversion;
     using Members;
 
@@ -24,6 +24,11 @@
             var breakLoop = Expression.Break(Expression.Label(typeof(void), "Break"));
 
             var elementPopulation = elementPopulationFactory.Invoke(loopData, mappingData);
+
+            if (elementPopulation == Constants.EmptyExpression)
+            {
+                return elementPopulation;
+            }
 
             var loopBody = GetLoopBody(loopData, builder, breakLoop, elementPopulation);
 

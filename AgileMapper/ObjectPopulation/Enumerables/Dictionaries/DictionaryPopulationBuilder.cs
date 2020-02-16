@@ -3,16 +3,17 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using DataSources;
-    using Extensions.Internal;
-    using Members;
-    using Members.Dictionaries;
-    using Members.Population;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Extensions.Internal;
+    using Members;
+    using Members.Dictionaries;
+    using Members.Population;
+    using TypeConversion;
 
     internal class DictionaryPopulationBuilder
     {
@@ -82,7 +83,7 @@
             DictionaryToDictionaryPopulationLoopData loopData,
             IObjectMappingData mappingData)
         {
-            var keyVariable = Expression.Variable(_targetDictionaryMember.KeyType, "targetKey");
+            var keyVariable = (ParameterExpression)_wrappedBuilder.GetElementKey();
             var keyAccess = Expression.Property(loopData.SourceElement, "Key");
             var keyConversion = MapperData.GetValueConversion(keyAccess, keyVariable.Type);
             var keyAssignment = keyVariable.AssignTo(keyConversion);
@@ -116,7 +117,7 @@
             DictionaryTargetMember dictionaryEntryMember,
             IObjectMappingData mappingData)
         {
-            if (_wrappedBuilder.ElementTypesAreSimple)
+            if (_wrappedBuilder.TargetElementsAreSimple)
             {
                 return GetPopulation(loopData, dictionaryEntryMember, mappingData);
             }
@@ -237,6 +238,11 @@
         {
             var elementMapping = loopData.GetElementMapping(dictionaryMappingData);
 
+            if (elementMapping == Constants.EmptyExpression)
+            {
+                return elementMapping;
+            }
+
             if (dictionaryEntryMember.HasKey &&
                 dictionaryEntryMember.CheckExistingElementValue &&
                 dictionaryMappingData.MapperData.TargetCouldBePopulated())
@@ -260,10 +266,8 @@
             var sourceMember = mappingData.MapperData.SourceMember;
             var mappingDataSource = new AdHocDataSource(sourceMember, elementMapping);
             var mappingDataSources = DataSourceSet.For(mappingDataSource, elementMapperData);
-
-            var populationExpression = MemberPopulator
-                .WithoutRegistration(mappingDataSources)
-                .GetPopulation();
+            var populator = new MemberPopulator(mappingDataSources, elementMapperData);
+            var populationExpression = populator.GetPopulation();
 
             return populationExpression;
         }

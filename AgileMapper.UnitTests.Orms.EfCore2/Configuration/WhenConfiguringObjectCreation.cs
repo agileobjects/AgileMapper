@@ -26,7 +26,7 @@
                 mapper.WhenMapping
                     .From<PublicInt>()
                     .To<PublicIntDto>()
-                    .CreateInstancesUsing(ctx => new PublicIntDto { Value = ctx.EnumerableIndex.GetValueOrDefault() });
+                    .CreateInstancesUsing(ctx => new PublicIntDto { Value = ctx.ElementIndex.GetValueOrDefault() });
 
                 await context.IntItems.AddAsync(new PublicInt { Value = 17 });
                 await context.SaveChangesAsync();

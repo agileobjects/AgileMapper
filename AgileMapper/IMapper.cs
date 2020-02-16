@@ -157,8 +157,8 @@
         IUnflatteningSelector<IDictionary<string, TValue>> Unflatten<TValue>(IDictionary<string, TValue> source);
 
         /// <summary>
-        /// Unflatten the given <paramref name="queryString"/> to a specified result Type, using the default mapper.
-        /// Strings can be converted to a <see cref="QueryString"/> instance explicitly, or by using the
+        /// Unflatten the given <paramref name="queryString"/> to a specified result Type. Strings
+        /// can be cast to a <see cref="QueryString"/> instance explicitly, or by using the
         /// string.ToQueryString() extension method.
         /// </summary>
         /// <param name="queryString">The <see cref="QueryString"/> from which to unflatten.</param>

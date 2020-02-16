@@ -21,24 +21,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private readonly ICache<ObjectMapperKeyBase, IRepeatedMapperFunc> _repeatedMappingFuncsByKey;
         private Action _resetCallback;
 
-        public ObjectMapper(
-            Expression<MapperFunc<TSource, TTarget>> mappingLambda,
-            IObjectMappingData mappingData)
+        public ObjectMapper(Expression mapping, IObjectMappingData mappingData)
         {
             _mapperKey = mappingData.MapperKey;
-            MappingLambda = mappingLambda;
+            Mapping = mapping;
             MapperData = mappingData.MapperData;
 
             if (MapperData.Context.Compile)
             {
-                _mapperFunc = mappingLambda.Compile();
+                _mapperFunc = GetMappingLambda().Compile();
             }
-            else if (MapperData.Context.NeedsSubMapping)
+            else if (MapperData.Context.NeedsRuntimeTypedMapping)
             {
                 MapperData.Mapper = this;
             }
 
-            if (MapperData.Context.NeedsSubMapping)
+            if (MapperData.Context.NeedsRuntimeTypedMapping)
             {
                 _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
@@ -96,9 +94,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #endregion
 
-        public LambdaExpression MappingLambda { get; }
+        public Expression Mapping { get; }
 
-        public Expression MappingExpression => MappingLambda.Body;
+        LambdaExpression IObjectMapper.GetMappingLambda() => GetMappingLambda();
+
+        private Expression<MapperFunc<TSource, TTarget>> GetMappingLambda()
+        {
+            return Expression.Lambda<MapperFunc<TSource, TTarget>>(
+                Mapping,
+                MapperData.MappingDataObject);
+        }
 
         public ObjectMapperData MapperData { get; }
 

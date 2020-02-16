@@ -3,6 +3,9 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+#if FEATURE_DRAWING
+    using System.Drawing;
+#endif
     using System.Linq;
     using System.Reflection;
     using NetStandardPolyfills;
@@ -10,10 +13,16 @@
 
     internal static class TypeExtensions
     {
-        private static readonly Assembly _msCorLib = typeof(string).GetAssembly();
-#if NET35
-        private static readonly Assembly _systemCoreLib = typeof(Func<>).GetAssembly();
+        private static readonly Assembly[] _bclAssemblies =
+        {
+            typeof(string).GetAssembly(),
+#if FEATURE_DRAWING
+            typeof(Image).GetAssembly(),
 #endif
+#if NET35
+            typeof(Func<>).GetAssembly()
+#endif
+        };
 
         public static string GetSourceValueVariableName(this Type sourceType)
             => "source" + sourceType.GetVariableNameInPascalCase();
@@ -104,14 +113,7 @@
                    (type == typeof(ICollection));
         }
 
-        public static bool IsFromBcl(this Type type)
-        {
-            return ReferenceEquals(type.GetAssembly(), _msCorLib)
-#if NET35
-                || ReferenceEquals(type.GetAssembly(), _systemCoreLib)
-#endif
-                ;
-        }
+        public static bool IsFromBcl(this Type type) => _bclAssemblies.Contains(type.GetAssembly());
 
         public static bool IsQueryable(this Type type) => type.IsClosedTypeOf(typeof(IQueryable<>));
 

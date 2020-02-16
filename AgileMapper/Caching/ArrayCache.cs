@@ -78,9 +78,7 @@
                     _keys[_length] = key;
                 }
 
-                _values[_length] = value;
-
-                ++_length;
+                _values[_length++] = value;
             }
 
             return value;
@@ -174,7 +172,7 @@
             }
         }
 
-        private T[] ResizeToCapacity<T>(T[] existingArray)
+        private T[] ResizeToCapacity<T>(IList<T> existingArray)
         {
             var biggerArray = new T[_capacity];
 

@@ -54,6 +54,6 @@ var anonSource = new { _PriceValue = default(double) };
 
 Mapper.WhenMapping
     .From(anonSource)  // Apply to this anon type's mappings
-    .ToANew<Product>() // Apply to Product creations
+    .To<Product>()     // Apply to Product mappings
     .UseNamePattern("^_(.+)Value$"); // Match '_PriceValue' to 'Price'
 ```

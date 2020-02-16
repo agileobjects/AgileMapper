@@ -3,6 +3,12 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
+    using Caching.Dictionaries;
     using DataSources;
     using Extensions;
     using Extensions.Internal;
@@ -10,11 +16,6 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class EnumMappingMismatchFinder : ExpressionVisitor
     {
@@ -50,28 +51,47 @@
             return mismatchSets;
         }
 
-        public static Expression Process(Expression lambda, ObjectMapperData mapperData)
+        public static Expression Process(Expression mapping, ObjectMapperData mapperData)
         {
             var targetMemberDatas = GetAllTargetMemberDatas(mapperData);
 
             if (targetMemberDatas.None())
             {
-                return lambda;
+                return mapping;
             }
 
             var finder = new EnumMappingMismatchFinder(mapperData, targetMemberDatas);
 
-            finder.Visit(lambda);
+            finder.Visit(mapping);
 
-            var assignmentReplacements = finder._assignmentsByMismatchSet
+            var assignmentData = finder._assignmentsByMismatchSet
                 .SelectMany(kvp => kvp.Value.Project(kvp.Key, (k, assignment) => new
                 {
                     Assignment = assignment,
                     AssignmentWithWarning = (Expression)Expression.Block(k.Warnings, assignment)
                 }))
-                .ToDictionary(d => d.Assignment, d => d.AssignmentWithWarning);
+                .ToArray();
 
-            var updatedLambda = lambda.Replace(assignmentReplacements);
+            var assignmentsCount = assignmentData.Length;
+
+            if (assignmentsCount == 1)
+            {
+                var singleData = assignmentData[0];
+
+                return mapping.Replace(singleData.Assignment, singleData.AssignmentWithWarning);
+            }
+
+            var assignmentReplacements = FixedSizeExpressionReplacementDictionary
+                .WithEqualKeys(assignmentsCount);
+
+            for (var i = 0; i < assignmentsCount;)
+            {
+                var data = assignmentData[i++];
+
+                assignmentReplacements.Add(data.Assignment, data.AssignmentWithWarning);
+            }
+
+            var updatedLambda = mapping.Replace(assignmentReplacements);
 
             return updatedLambda;
         }
@@ -90,19 +110,34 @@
                     continue;
                 }
 
-                var dataSources = targetMemberAndDataSource
-                    .Value
-                    .Filter(targetEnumType, IsValidOtherEnumType)
-                    .ToArray();
+                var dataSources = targetMemberAndDataSource.Value;
+                var validDataSources = default(List<IDataSource>);
 
-                if (dataSources.Any())
+                for (var i = 0; i < dataSources.Count; i++)
                 {
-                    yield return new TargetMemberData(targetMember, dataSources);
+                    var dataSource = dataSources[i];
+
+                    if (!IsValidOtherEnumType(targetEnumType, dataSource))
+                    {
+                        continue;
+                    }
+
+                    if (validDataSources == null)
+                    {
+                        validDataSources = new List<IDataSource>();
+                    }
+
+                    validDataSources.Add(dataSource);
+                }
+
+                if (validDataSources?.Any() == true)
+                {
+                    yield return new TargetMemberData(targetMember, validDataSources);
                 }
             }
 
             var childTargetMembersAndDataSources = mapperData
-                .ChildMapperDatas
+                .ChildMapperDatasOrEmpty
                 .SelectMany(EnumerateTargetMemberDatas);
 
             foreach (var childTargetMemberAndDataSources in childTargetMembersAndDataSources)
@@ -118,7 +153,7 @@
                   (sourceEnumType != targetEnumType);
         }
 
-        private static bool TargetMemberIsAnEnum(QualifiedMember targetMember, out Type targetEnumType)
+        private static bool TargetMemberIsAnEnum(IQualifiedMember targetMember, out Type targetEnumType)
         {
             if (targetMember.IsSimple && IsEnum(targetMember.Type, out targetEnumType))
             {
@@ -134,6 +169,7 @@
         protected override Expression VisitBinary(BinaryExpression binary)
         {
             if ((binary.NodeType == ExpressionType.Assign) &&
+                (binary.Left.NodeType != ExpressionType.Parameter) &&
                  IsEnum(binary.Left.Type) &&
                  TryGetMatch(binary.Left, out var targetMemberData))
             {

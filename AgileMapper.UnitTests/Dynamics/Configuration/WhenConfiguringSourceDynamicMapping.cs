@@ -1,9 +1,11 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics.Configuration
+﻿#if FEATURE_DYNAMIC_ROOT_SOURCE
+namespace AgileObjects.AgileMapper.UnitTests.Dynamics.Configuration
 {
+    using System;
     using System.Collections.Generic;
     using System.Dynamic;
-    using System.Linq;
-    using Api;
+    using System.Linq.Expressions;
+    using Api.Configuration;
     using Common;
     using TestClasses;
     using Xunit;
@@ -26,14 +28,14 @@
                 source.LaLaLa = 1;
                 source.Value = 2;
 
-                var result = ((ITargetSelector<ExpandoObject>)mapper.Map(source)).ToANew<PublicField<int>>();
+                var result = mapper.Map(source).ToANew<PublicField<int>>();
 
-                result.ShouldNotBeNull();
-                result.Value.ShouldBe(1);
+                Assert.NotNull(result);
+                Assert.Equal(1, result.Value);
 
-                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).Over(result);
-
-                result.Value.ShouldBe(2);
+                mapper.Map(source).Over(result);
+                
+                Assert.Equal(2, result.Value);
             }
         }
 
@@ -63,10 +65,10 @@
                     Value = new Address { Line1 = "??", Line2 = "??" }
                 };
 
-                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).Over(target);
+                mapper.Map(source).Over(target);
 
-                target.Value.Line1.ShouldBe("10");
-                target.Value.Line2.ShouldBe("Street Road");
+                Assert.Equal("10", target.Value.Line1);
+                Assert.Equal("Street Road", target.Value.Line2);
             }
         }
 
@@ -93,15 +95,15 @@
 
                 var target = new PublicField<IList<Address>> { Value = new List<Address>() };
 
-                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).OnTo(target);
-
-                target.Value.Count.ShouldBe(2);
-
-                target.Value.First().Line1.ShouldBe("Street Zero");
-                target.Value.First().Line2.ShouldBe("City Zero");
-
-                target.Value.Second().Line1.ShouldBe("Street One");
-                target.Value.Second().Line2.ShouldBe("City One");
+                mapper.Map(source).OnTo(target);
+                
+                Assert.Equal(2, target.Value.Count);
+                
+                Assert.Equal("Street Zero", target.Value[0].Line1);
+                Assert.Equal("City Zero", target.Value[0].Line2);
+                
+                Assert.Equal("Street One", target.Value[1].Line1);
+                Assert.Equal("City One", target.Value[1].Line2);
             }
         }
 
@@ -130,22 +132,20 @@
                 ((IDictionary<string, object>)targetDynamic)["_1-Value"] = 2;
 
                 var targetResult = (IDictionary<string, object>)mapper.Map(source).Over(targetDynamic);
+                
+                Assert.Equal(3, targetResult.Count);
 
-                targetResult.Count.ShouldBe(3);
-
-                targetResult["_0-Value"].ShouldBe(10);
-                targetResult["_1-Value"].ShouldBe(20);
-                targetResult["_2-Value"].ShouldBe(30);
+                Assert.Equal(10, targetResult["_0-Value"]);
+                Assert.Equal(20, targetResult["_1-Value"]);
+                Assert.Equal(30, targetResult["_2-Value"]);
 
                 dynamic sourceDynamic = new ExpandoObject();
 
                 ((IDictionary<string, object>)sourceDynamic)["Value+Value"] = 123;
 
-
-                var sourceResult = ((ITargetSelector<ExpandoObject>)mapper.Map(sourceDynamic))
-                    .ToANew<PublicField<PublicField<int>>>();
-
-                sourceResult.Value.Value.ShouldBe(123);
+                var sourceResult = mapper.Map(sourceDynamic).ToANew<PublicField<PublicField<int>>>();
+                
+                Assert.Equal(123, sourceResult.Value.Value);
             }
         }
 
@@ -161,15 +161,14 @@
                     .To(pf => pf.Value);
 
                 dynamic source = new ExpandoObject();
-
                 source.One = 1;
                 source.Two = 2;
 
                 var target = new PublicField<long>();
 
-                ((ITargetSelector<ExpandoObject>)mapper.Map(source)).Over(target);
+                mapper.Map(source).Over(target);
 
-                target.Value.ShouldBe(2);
+                Assert.Equal(2, target.Value);
             }
         }
 
@@ -191,27 +190,24 @@
 
                 source.Name = "Person";
 
-                var personResult = ((ITargetSelector<ExpandoObject>)mapper.Map(source))
-                    .ToANew<PersonViewModel>();
+                var personResult = mapper.Map(source).ToANew<PersonViewModel>();
 
-                personResult.ShouldBeOfType<PersonViewModel>();
-                personResult.Name.ShouldBe("Person");
+                Assert.IsType<PersonViewModel>(personResult);
+                Assert.Equal("Person", personResult.Name);
 
                 source.Discount = 0.05;
 
-                var customerResult = ((ITargetSelector<ExpandoObject>)mapper.Map(source))
-                    .ToANew<PersonViewModel>();
-
-                customerResult.ShouldBeOfType<CustomerViewModel>();
-                ((CustomerViewModel)customerResult).Discount.ShouldBe(0.05);
+                var customerResult = mapper.Map(source).ToANew<PersonViewModel>();
+                
+                Assert.IsType<CustomerViewModel>(customerResult);
+                Assert.Equal(0.05, ((CustomerViewModel)customerResult).Discount);
 
                 source.Report = "Very good!";
 
-                var mysteryCustomerResult = ((ITargetSelector<ExpandoObject>)mapper.Map(source))
-                    .ToANew<PersonViewModel>();
-
-                mysteryCustomerResult.ShouldBeOfType<MysteryCustomerViewModel>();
-                ((MysteryCustomerViewModel)mysteryCustomerResult).Report.ShouldBe("Very good!");
+                var mysteryCustomerResult = mapper.Map(source).ToANew<PersonViewModel>();
+                
+                Assert.IsType<MysteryCustomerViewModel>(mysteryCustomerResult);
+                Assert.Equal("Very good!", ((MysteryCustomerViewModel)mysteryCustomerResult).Report);
             }
         }
 
@@ -224,13 +220,16 @@
             ((IDictionary<string, object>)source)["-1-"] = "b";
             ((IDictionary<string, object>)source)["-2-"] = "c";
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).ToANew<char[]>(cfg => cfg
-                .WhenMapping.FromDynamics.UseElementKeyPattern("-i-"));
+            var result = Mapper.Map(source).ToANew<char[]>(
+                new Expression<Action<IFullMappingInlineConfigurator<ExpandoObject, char[]>>>[]
+                {
+                    cfg => cfg.WhenMapping.FromDynamics.UseElementKeyPattern("-i-")
+                });
 
-            result.Length.ShouldBe(3);
-            result.First().ShouldBe('a');
-            result.Second().ShouldBe('b');
-            result.Third().ShouldBe('c');
+            Assert.Equal(3, result.Length);
+            Assert.Equal('a', result[0]);
+            Assert.Equal('b', result[1]);
+            Assert.Equal('c', result[2]);
         }
 
         [Fact]
@@ -242,16 +241,20 @@
             ((IDictionary<string, object>)source)["Value[1]"] = "xyz";
             ((IDictionary<string, object>)source)["Value[2]"] = "123";
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source)).ToANew<PublicField<List<string>>>(cfg => cfg
-                .WhenMapping
-                .FromDynamics
-                .ToANew<List<string>>()
-                .UseElementKeyPattern("[i]"));
+            var result = Mapper.Map(source).ToANew<PublicField<List<string>>>(
+                new Expression<Action<IFullMappingInlineConfigurator<ExpandoObject, PublicField<List<string>>>>>[]
+                {
+                    cfg => cfg
+                        .WhenMapping
+                        .FromDynamics
+                        .ToANew<List<string>>()
+                        .UseElementKeyPattern("[i]")
+                });
 
-            result.Value.Count.ShouldBe(3);
-            result.Value.First().ShouldBe("abc");
-            result.Value.Second().ShouldBe("xyz");
-            result.Value.Third().ShouldBe("123");
+            Assert.Equal(3, result.Value.Count);
+            Assert.Equal("abc", result.Value[0]);
+            Assert.Equal("xyz", result.Value[1]);
+            Assert.Equal("123", result.Value[2]);
         }
 
         [Fact]
@@ -270,10 +273,10 @@
                 source.LaLaLa = 1;
                 source.Value = 2;
 
-                var result = ((ITargetSelector<ExpandoObject>)mapper.Map(source)).ToANew<PublicField<string>>();
+                var result = mapper.Map(source).ToANew<PublicField<string>>();
 
-                result.ShouldNotBeNull();
-                result.Value.ShouldBe("2");
+                Assert.NotNull(result);
+                Assert.Equal("2", result.Value);
             }
         }
 
@@ -322,22 +325,22 @@
 
                 var dictionaryResult = mapper.Map(dictionarySource).ToANew<PublicField<Address>>();
 
-                dictionaryResult.Value.ShouldNotBeNull();
-                dictionaryResult.Value.Line1.ShouldBe("Line 1!");
-                dictionaryResult.Value.Line2.ShouldBe("Line 2!");
+                Assert.NotNull(dictionaryResult.Value);
+                Assert.Equal("Line 1!", dictionaryResult.Value.Line1);
+                Assert.Equal("Line 2!", dictionaryResult.Value.Line2);
 
                 dynamic dynamicSource = new ExpandoObject();
 
                 ((IDictionary<string, object>)dynamicSource)["Value+Line1"] = "Line 1?!";
                 ((IDictionary<string, object>)dynamicSource)["Value+Line2"] = "Line 2?!";
 
-                var dynamicResult = ((ITargetSelector<ExpandoObject>)mapper.Map(dynamicSource))
-                    .ToANew<PublicField<Address>>();
+                var dynamicResult = mapper.Map(dynamicSource).ToANew<PublicField<Address>>();
 
-                dynamicResult.Value.ShouldNotBeNull();
-                dynamicResult.Value.Line1.ShouldBe("Line 1?!");
-                dynamicResult.Value.Line2.ShouldBe("Line 2?!");
+                Assert.NotNull(dynamicResult.Value);
+                Assert.Equal("Line 1?!", dynamicResult.Value.Line1);
+                Assert.Equal("Line 2?!", dynamicResult.Value.Line2);
             }
         }
     }
 }
+#endif

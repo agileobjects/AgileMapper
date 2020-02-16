@@ -3,18 +3,19 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
     using Caching;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class EnumerablePopulationBuilder
     {
@@ -163,6 +164,8 @@
             return Parameters.Create<int>(counterName.ToString());
         }
 
+        public Expression GetElementKey() => _sourceAdapter.GetElementKey();
+
         #region Type Identification
 
         public bool ElementsAreIdentifiable
@@ -244,7 +247,7 @@
 
         public EnumerablePopulationContext Context { get; }
 
-        public bool ElementTypesAreSimple => Context.ElementTypesAreSimple;
+        public bool TargetElementsAreSimple => Context.TargetElementsAreSimple;
 
         public EnumerableTypeHelper SourceTypeHelper { get; private set; }
 
@@ -495,7 +498,7 @@
 
         public void AddNewItemsToTargetVariable(IObjectMappingData mappingData)
         {
-            if (ElementTypesAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
+            if (TargetElementsAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
                 _populationExpressions.Add(GetTargetMethodCall("AddRange", _sourceVariable));
                 return;
@@ -515,18 +518,23 @@
                 mappingData,
                 elementPopulationFactory);
 
-            _populationExpressions.Add(populationLoop);
+            _populationExpressions.AddUnlessNullOrEmpty(populationLoop);
         }
 
         private Expression GetElementPopulation(IPopulationLoopData loopData, IObjectMappingData mappingData)
         {
             var elementMapping = loopData.GetElementMapping(mappingData);
 
+            if (elementMapping == Constants.EmptyExpression)
+            {
+                return elementMapping;
+            }
+
             if (InsertSourceObjectElementNullCheck(loopData, out var sourceElement))
             {
                 elementMapping = Expression.Condition(
                     sourceElement.GetIsDefaultComparison(),
-                    typeof(object).ToDefaultExpression(),
+                    elementMapping.Type.ToDefaultExpression(),
                     elementMapping);
             }
 
@@ -548,7 +556,7 @@
 
         public Expression GetElementConversion(Expression sourceElement, IObjectMappingData mappingData)
         {
-            if (ElementTypesAreSimple)
+            if (TargetElementsAreSimple)
             {
                 return GetSimpleElementConversion(sourceElement);
             }
@@ -623,7 +631,7 @@
             => GetSimpleElementConversion(sourceElement, Context.TargetElementType);
 
         private Expression GetSimpleElementConversion(Expression sourceElement, Type targetType)
-            => MapperData.GetValueConversion(sourceElement, targetType);
+            => MapperData.GetValueConversionOrCreation(sourceElement, targetType);
 
         private static Expression GetElementMapping(
             Expression sourceElement,
@@ -788,7 +796,7 @@
                 }
 
                 _result = _builder.GetSourceItemsProjection(
-                    sourceEnumerableValue, 
+                    sourceEnumerableValue,
                     sourceElement => _builder.GetElementConversion(sourceElement, mappingData));
 
                 return this;

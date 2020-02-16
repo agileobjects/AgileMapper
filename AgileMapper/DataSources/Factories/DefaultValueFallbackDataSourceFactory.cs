@@ -9,8 +9,8 @@ namespace AgileObjects.AgileMapper.DataSources.Factories
 
         private class DefaultValueFallbackDataSource : DataSourceBase
         {
-            public DefaultValueFallbackDataSource(IMemberMapperData mapperData)
-                : base(mapperData.SourceMember, mapperData.GetTargetMemberDefault())
+            public DefaultValueFallbackDataSource(IQualifiedMemberContext context)
+                : base(context.SourceMember, context.GetTargetMemberDefault())
             {
             }
 

@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .MapperContext
                 .UserConfigurations
                 .DerivedTypes
-                .GetImplementationTypePairsFor(mapperData, mapperData.MapperContext);
+                .GetImplementationTypePairsFor(mapperData);
 
             return configuredImplementationTypePairs.Any() ||
                    mapperData.GetDerivedTargetTypes().Any();
@@ -72,13 +72,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Short-Circuits
 
-        protected override bool ShortCircuitMapping(MappingCreationContext context, out Expression mapping)
+        protected override bool ShortCircuitMapping(MappingCreationContext context)
         {
             var derivedTypeDataSources = DerivedComplexTypeDataSourcesFactory.CreateFor(context.MappingData);
 
             if (derivedTypeDataSources.None())
             {
-                return base.ShortCircuitMapping(context, out mapping);
+                return false;
             }
 
             var derivedTypeDataSourceSet = DataSourceSet.For(
@@ -86,9 +86,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 context.MapperData,
                 ValueExpressionBuilders.ValueSequence);
 
-            mapping = derivedTypeDataSourceSet.BuildValue();
+            var mapping = derivedTypeDataSourceSet.BuildValue();
 
-            if (derivedTypeDataSources.Last().IsConditional)
+            if (derivedTypeDataSources.Last().IsConditional && !context.MapperData.TargetType.IsAbstract())
             {
                 context.MappingExpressions.Add(mapping);
                 return false;
@@ -104,15 +104,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             if (mapping.NodeType == ExpressionType.Goto)
             {
                 mapping = ((GotoExpression)mapping).Value;
-                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping));
             }
             else
             {
                 context.MappingExpressions.Add(mapping);
-                context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping.Type.ToDefaultExpression()));
+                mapping = context.MapperData.GetTargetTypeDefault();
             }
 
-            mapping = Expression.Block(context.MappingExpressions);
+            context.MappingExpressions.Add(context.MapperData.GetReturnLabel(mapping));
             return true;
         }
 
@@ -122,11 +121,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (SourceObjectCouldBeNull(mapperData))
             {
-                var returnNull = Expression.Return(
-                    mapperData.ReturnLabelTarget,
-                    mapperData.TargetType.ToDefaultExpression());
-
-                yield return Expression.IfThen(mapperData.SourceObject.GetIsDefaultComparison(), returnNull);
+                yield return Expression.IfThen(
+                    mapperData.SourceObject.GetIsDefaultComparison(),
+                    GetReturnNull(mapperData));
             }
 
             var alreadyMappedShortCircuit = GetAlreadyMappedObjectShortCircuitOrNull(mapperData);
@@ -161,6 +158,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             return false;
         }
+
+        private static Expression GetReturnNull(ObjectMapperData mapperData)
+            => Expression.Return(mapperData.ReturnLabelTarget, mapperData.GetTargetTypeDefault());
 
         private static Expression GetAlreadyMappedObjectShortCircuitOrNull(ObjectMapperData mapperData)
         {

@@ -1,31 +1,31 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
+    using NetStandardPolyfills;
 
     internal class EnumerablePopulationContext
     {
-        public EnumerablePopulationContext(IMemberMapperData mapperData)
+        public EnumerablePopulationContext(IQualifiedMemberContext context)
         {
-            SourceElementType = mapperData.SourceMember.ElementType;
+            SourceElementType = context.SourceMember.ElementType;
 
             if (SourceElementType == null)
             {
                 return;
             }
 
-            TargetElementType = mapperData.TargetMember.GetElementType(SourceElementType);
+            TargetElementType = context.TargetMember.GetElementType(SourceElementType);
             ElementTypes = new[] { SourceElementType, TargetElementType };
             ElementTypesAreTheSame = SourceElementType == TargetElementType;
-            ElementTypesAreSimple = TargetElementType.IsSimple();
+            TargetElementsAreSimple = TargetElementType.IsSimple();
         }
 
         public Type SourceElementType { get; }
@@ -38,7 +38,7 @@
 
         public bool ElementTypesAreAssignable => SourceElementType.IsAssignableTo(TargetElementType);
 
-        public bool ElementTypesAreSimple { get; }
+        public bool TargetElementsAreSimple { get; }
 
         public ParameterExpression GetSourceParameterFor(Type type) => GetParameterFor(type, "source");
 

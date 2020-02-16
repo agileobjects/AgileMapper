@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
+    using System;
+
     /// <summary>
     /// Provides the data being used at a particular point during a mapping.
     /// </summary>
@@ -28,14 +30,35 @@
         TTarget GetTarget<TTarget>();
 
         /// <summary>
-        /// Gets the index of the current enumerable being mapped in the mapping context described by the 
-        /// <see cref="IMappingData"/>, if applicable.
+        /// Gets the index of the current enumerable element being mapped in the mapping context
+        /// described by this <see cref="IMappingData"/>, if applicable.
         /// </summary>
         /// <returns>
-        /// The index of the current enumerable being mapped in the mapping context described by the 
-        /// <see cref="IMappingData"/>, otherwise null.
+        /// The index of the current enumerable element being mapped in the mapping context described
+        /// by this <see cref="IMappingData"/>, otherwise null.
         /// </returns>
+        [Obsolete("Use GetElementIndex() instead. This method will be removed in a future release.")]
         int? GetEnumerableIndex();
+
+        /// <summary>
+        /// Gets the index of the current enumerable element being mapped in the mapping context
+        /// described by this <see cref="IMappingData"/>, if applicable.
+        /// </summary>
+        /// <returns>
+        /// The index of the current enumerable element being mapped in the mapping context described
+        /// by this <see cref="IMappingData"/> if applicable, otherwise null.
+        /// </returns>
+        int? GetElementIndex();
+
+        /// <summary>
+        /// Gets the key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingData"/>, if applicable.
+        /// </summary>
+        /// <returns>
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingData"/> if applicable, otherwise null.
+        /// </returns>
+        object GetElementKey();
 
         /// <summary>
         /// Gets the <see cref="IMappingData"/> as a typed <see cref="IMappingData{TSource, TTarget}"/>.
@@ -73,9 +96,22 @@
         TTarget Target { get; }
 
         /// <summary>
-        /// Gets the index of the current enumerable being mapped in the mapping context described by the 
-        /// <see cref="IMappingData{TSource, TTarget}"/>, if applicable.
+        /// Gets the index of the current enumerable element being mapped in the mapping context
+        /// described by this <see cref="IMappingData{TSource, TTarget}"/>, if applicable.
         /// </summary>
+        [Obsolete("Use ElementIndex instead. This property will be removed in a future release.")]
         int? EnumerableIndex { get; }
+
+        /// <summary>
+        /// Gets the index of the current enumerable element being mapped in the mapping context
+        /// described by this <see cref="IMappingData{TSource, TTarget}"/>, if applicable.
+        /// </summary>
+        int? ElementIndex { get; }
+        
+        /// <summary>
+        /// Gets the key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingData{TSource, TTarget}"/>, if applicable.
+        /// </summary>
+        object ElementKey { get; }
     }
 }

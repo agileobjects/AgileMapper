@@ -4,15 +4,15 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using Extensions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class ConfiguredServiceProvider
     {
@@ -202,7 +202,7 @@
             return new ConfiguredServiceProvider(getServiceLambda.Compile(), providerObject);
         }
 
-        private static void ThrowIfNoProvidersFound(ICollection<ConfiguredServiceProvider> providers, ConstantExpression providerObject)
+        private static void ThrowIfNoProvidersFound(ICollection<ConfiguredServiceProvider> providers, Expression providerObject)
         {
             if (providers.Any())
             {

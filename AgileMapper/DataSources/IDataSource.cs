@@ -6,10 +6,9 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Extensions.Internal;
     using Members;
 
-    internal interface IDataSource : IConditionallyChainable
+    internal interface IDataSource
     {
         IQualifiedMember SourceMember { get; }
 
@@ -23,8 +22,12 @@
 
         IList<ParameterExpression> Variables { get; }
 
+        Expression Condition { get; }
+
+        Expression Value { get; }
+
         Expression AddSourceCondition(Expression value);
 
-        Expression FinalisePopulation(Expression population, Expression alternatePopulation = null);
+        Expression FinalisePopulationBranch(Expression alternatePopulation, IMemberMapperData mapperData);
     }
 }

@@ -1,12 +1,12 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories.MappingRoot
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories.Mapping
 {
     using Extensions.Internal;
     using ObjectPopulation;
     using Queryables;
 
-    internal class QueryProjectionRootDataSourceFactory : MappingRootDataSourceFactoryBase
+    internal class QueryProjectionDataSourceFactory : MappingDataSourceFactoryBase
     {
-        public QueryProjectionRootDataSourceFactory()
+        public QueryProjectionDataSourceFactory()
             : base(new QueryProjectionExpressionFactory())
         {
         }

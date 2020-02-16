@@ -2,12 +2,12 @@ namespace AgileObjects.AgileMapper.Configuration.Inline
 {
     using System;
     using System.Collections.Generic;
-    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
 
     internal class InlineMapperKey<TSource, TTarget, TConfigurator> : IInlineMapperKey
     {

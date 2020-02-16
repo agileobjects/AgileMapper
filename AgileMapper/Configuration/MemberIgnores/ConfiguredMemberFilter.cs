@@ -59,8 +59,8 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         public override string GetIgnoreMessage(IQualifiedMember targetMember)
             => $"{targetMember.Name} is ignored by filter:{Environment.NewLine}{TargetMemberFilter}";
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
-            => base.AppliesTo(mapperData) && IsFiltered(mapperData.TargetMember);
+        public override bool AppliesTo(IQualifiedMemberContext context)
+            => base.AppliesTo(context) && IsFiltered(context.TargetMember);
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {

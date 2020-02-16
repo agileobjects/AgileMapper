@@ -4,4 +4,9 @@
     {
         T Value { get; set; }
     }
+
+    public interface IPublicInterface
+    {
+        object Value { get; set; }
+    }
 }

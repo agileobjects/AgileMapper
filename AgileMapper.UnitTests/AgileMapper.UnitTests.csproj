@@ -26,7 +26,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET40</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;NET40;FEATURE_DYNAMIC_ROOT_SOURCE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -35,7 +35,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET40</DefineConstants>
+    <DefineConstants>TRACE;NET40;FEATURE_DYNAMIC_ROOT_SOURCE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -112,8 +112,10 @@
     <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringEntityMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectCreationIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs" />
+    <Compile Include="Configuration\WhenConfiguringSimpleTypeCreation.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembers.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByFilter.cs" />
     <Compile Include="Configuration\WhenIgnoringSourceMembersByGlobalFilter.cs" />
@@ -171,6 +173,8 @@
     <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
     <Compile Include="MapperCloning\WhenCloningStringFormatting.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimeOffsets.cs" />
+    <Compile Include="SimpleTypeConversion\WhenConvertingToTimeSpans.cs" />
     <Compile Include="SimpleTypeConversion\WhenConvertingToFlagsEnums.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
     <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
@@ -232,6 +236,7 @@
     <Compile Include="TestClasses\PublicEnumerable.cs" />
     <Compile Include="TestClasses\PublicImplementation.cs" />
     <Compile Include="TestClasses\PublicIndex.cs" />
+    <Compile Include="TestClasses\PublicOtherImplementation.cs" />
     <Compile Include="TestClasses\PublicSealed.cs" />
     <Compile Include="TestClasses\PublicPropertyStruct.cs" />
     <Compile Include="TestClasses\PublicTwoFields.cs" />

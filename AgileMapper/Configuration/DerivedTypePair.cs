@@ -4,8 +4,6 @@
     using System.Globalization;
 #if NET35
     using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
     using Members;
@@ -14,13 +12,16 @@
 
     internal class DerivedTypePair : UserConfiguredItemBase, IComparable<DerivedTypePair>
     {
+        private readonly bool _isInterfacePairing;
+
         public DerivedTypePair(
             MappingConfigInfo configInfo,
             Type derivedSourceType,
             Type derivedTargetType)
             : base(configInfo)
         {
-            IsImplementationPairing = configInfo.TargetType.IsInterface();
+            IsImplementationPairing = configInfo.TargetType.IsAbstract();
+            _isInterfacePairing = IsImplementationPairing && configInfo.TargetType.IsInterface();
             DerivedSourceType = derivedSourceType;
             DerivedTargetType = derivedTargetType;
         }
@@ -29,20 +30,10 @@
 
         public static DerivedTypePair For<TDerivedSource, TTarget, TDerivedTarget>(MappingConfigInfo configInfo)
         {
-            ThrowIfInvalidSourceType<TDerivedSource>(configInfo);
             ThrowIfInvalidTargetType<TTarget, TDerivedTarget>();
             ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(configInfo);
 
             return new DerivedTypePair(configInfo, typeof(TDerivedSource), typeof(TDerivedTarget));
-        }
-
-        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-        private static void ThrowIfInvalidSourceType<TDerivedSource>(MappingConfigInfo configInfo)
-        {
-            if ((configInfo.SourceType == typeof(TDerivedSource)) && !configInfo.HasCondition)
-            {
-                throw new MappingConfigurationException("A derived source type must be specified.");
-            }
         }
 
         private static void ThrowIfInvalidTargetType<TTarget, TDerivedTarget>()
@@ -55,16 +46,13 @@
 
         private static void ThrowIfPairingIsUnnecessary<TDerivedSource, TDerivedTarget>(MappingConfigInfo configInfo)
         {
-            var mapperData = configInfo
+            var memberContext = configInfo
                 .Copy()
                 .ForSourceType<TDerivedSource>()
-                .ToMapperData();
+                .ToMemberContext();
 
-            var matchingAutoTypePairing = configInfo
-                .MapperContext
-                .UserConfigurations
-                .DerivedTypes
-                .GetDerivedTypePairsFor(mapperData, configInfo.MapperContext)
+            var matchingAutoTypePairing = memberContext
+                .GetDerivedTypePairs()
                 .FirstOrDefault(tp =>
                     !tp.HasConfiguredCondition &&
                     (tp.DerivedSourceType == typeof(TDerivedSource)) &&
@@ -90,8 +78,22 @@
 
         public Type DerivedTargetType { get; }
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
-            => mapperData.SourceType.IsAssignableTo(DerivedSourceType) && base.AppliesTo(mapperData);
+        public override bool AppliesTo(IQualifiedMemberContext context)
+        {
+            if (!base.AppliesTo(context))
+            {
+                return false;
+            }
+
+            if (context.SourceType.IsAssignableTo(DerivedSourceType))
+            {
+                return true;
+            }
+
+            return _isInterfacePairing &&
+                    context.SourceType.IsAssignableTo(SourceType) &&
+                    context.TargetType.IsAssignableTo(TargetType);
+        }
 
         int IComparable<DerivedTypePair>.CompareTo(DerivedTypePair other)
         {
@@ -116,7 +118,7 @@
         [ExcludeFromCodeCoverage]
         public override string ToString()
         {
-            var rootSourceType = ConfigInfo.SourceType.GetFriendlyName();
+            var rootSourceType = SourceTypeName;
             var rootTargetType = TargetTypeName;
             var derivedSourceType = DerivedSourceType.GetFriendlyName();
             var derivedTargetType = DerivedTargetType.GetFriendlyName();

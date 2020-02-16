@@ -4,17 +4,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.ExpressionType;
 #endif
     using DataSources;
+    using Enumerables.EnumerableExtensions;
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.MemberExtensions;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+#if NET35
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using static System.Linq.Expressions.ExpressionType;
+#endif
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -31,9 +36,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var context = new MappingCreationContext(mappingData);
 
-            if (ShortCircuitMapping(context, out var mapping))
+            if (ShortCircuitMapping(context))
             {
-                return mapping;
+                return context.MappingExpressions.HasOne()
+                    ? context.MappingExpressions.First()
+                    : Expression.Block(context.MappingExpressions);
             }
 
             AddPopulationsAndCallbacks(context);
@@ -62,13 +69,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected virtual Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
-            => mapperData.TargetType.ToDefaultExpression();
+            => mapperData.GetTargetTypeDefault();
 
-        protected virtual bool ShortCircuitMapping(MappingCreationContext context, out Expression mapping)
-        {
-            mapping = null;
-            return false;
-        }
+        protected virtual bool ShortCircuitMapping(MappingCreationContext context) => false;
 
         protected virtual IEnumerable<Expression> GetShortCircuitReturns(IObjectMappingData mappingData)
             => Enumerable<Expression>.Empty;
@@ -173,6 +176,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             if (assignedValue == context.MapperData.TargetObject)
+            {
+                return true;
+            }
+
+            if ((assignedValue.NodeType == New) &&
+                 context.MapperData.TargetMemberIsEnumerableElement() &&
+               ((NewExpression)assignedValue).Arguments.None())
             {
                 return true;
             }

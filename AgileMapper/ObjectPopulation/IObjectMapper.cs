@@ -1,18 +1,18 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
-    using RepeatedMappings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using RepeatedMappings;
 
     internal interface IObjectMapper : IObjectMapperFunc
     {
-        Expression MappingExpression { get; }
-
         ObjectMapperData MapperData { get; }
+
+        LambdaExpression GetMappingLambda();
 
         IEnumerable<IRepeatedMapperFunc> RepeatedMappingFuncs { get; }
 

@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System.Collections.Generic;
+    using System.Diagnostics;
     using DataSources;
     using Extensions.Internal;
     using Members;
@@ -9,6 +10,7 @@
 
     internal static class MappingDataExtensions
     {
+        [DebuggerStepThrough]
         public static bool IsStandalone(this IObjectMappingData mappingData)
             => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 

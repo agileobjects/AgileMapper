@@ -1,12 +1,12 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories.MappingRoot
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories.Mapping
 {
     using ObjectPopulation;
 
-    internal abstract class MappingRootDataSourceFactoryBase : IMappingRootDataSourceFactory
+    internal abstract class MappingDataSourceFactoryBase : IMappingDataSourceFactory
     {
         private readonly MappingExpressionFactoryBase _mappingExpressionFactory;
 
-        protected MappingRootDataSourceFactoryBase(MappingExpressionFactoryBase mappingExpressionFactory)
+        protected MappingDataSourceFactoryBase(MappingExpressionFactoryBase mappingExpressionFactory)
         {
             _mappingExpressionFactory = mappingExpressionFactory;
         }

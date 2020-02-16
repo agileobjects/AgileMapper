@@ -9,9 +9,12 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
 #endif
     using Api.Configuration;
     using Extensions.Internal;
-    using Members;
+    using Members.MemberExtensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
     using static FilterConstants;
 
     internal class FilterCondition
@@ -37,24 +40,22 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
             }
 
             var filterArgument = filterCreationCall.Arguments.First();
-
+#if NET35
+            var filterLinqLambda = (LinqExp.LambdaExpression)((ConstantExpression)filterArgument).Value;
+            var filterLambda = filterLinqLambda.ToDlrExpression();
+#else
             if (filterArgument.NodeType == ExpressionType.Quote)
             {
                 filterArgument = ((UnaryExpression)filterArgument).Operand;
             }
 
             var filterLambda = (LambdaExpression)filterArgument;
-
+#endif
             _filterParameter = filterLambda.Parameters.First();
             _filterExpression = filterLambda.Body;
 
-            _filterNestedAccessChecks = ExpressionInfoFinder
-                .Default
-                .FindIn(
-                    _filterExpression,
-                    checkMultiInvocations: false,
-                    invertNestedAccessChecks: true)
-                .NestedAccessChecks;
+            _filterNestedAccessChecks = NestedAccessChecksFactory
+                .GetNestedAccessChecksFor(_filterExpression, invertChecks: true);
         }
 
         #region Factory Method

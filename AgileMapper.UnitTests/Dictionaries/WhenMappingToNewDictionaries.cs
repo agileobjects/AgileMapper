@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using Common;
     using TestClasses;
 #if !NET35
@@ -418,6 +419,39 @@
             var result = Mapper.Map(source).ToANew<Dictionary<DateTime, string>>();
 
             result.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void ShouldMapDictionaryKeys()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var result = mapper
+                    .Map(new StringKeyedDictionary<A> { ["Key1"] = new A(), ["Key2"] = new A() })
+                    .ToANew<StringKeyedDictionary<B>>(cfg => cfg
+                        .WhenMapping
+                        .From<A>()
+                        .ToANew<B>()
+                        .Map(ctx => ctx.Parent.GetSource<StringKeyedDictionary<A>>().Keys.ElementAt(ctx.ElementIndex.Value))
+                        .To(t => t.Something));
+
+                result.Count.ShouldBe(2);
+
+                result.ShouldContainKey("Key1");
+                result["Key1"].ShouldNotBeNull();
+                result["Key1"].Something.ShouldBe("Key1");
+
+                result.ShouldContainKey("Key2");
+                result["Key2"].ShouldNotBeNull();
+                result["Key2"].Something.ShouldBe("Key2");
+            }
+        }
+
+        public class A { }
+
+        public class B
+        {
+            public string Something { get; set; }
         }
     }
 }

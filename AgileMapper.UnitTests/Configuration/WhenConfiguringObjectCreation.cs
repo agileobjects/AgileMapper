@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
-    using AgileMapper.Configuration;
     using AgileMapper.Members;
     using Common;
     using TestClasses;
@@ -93,6 +92,63 @@
                 var matchingResult = mapper.Map(matchingSource).ToANew<CustomerCtor>();
 
                 matchingResult.Discount.ShouldBe(5);
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/166
+        [Fact]
+        public void ShouldRuntimeTypeAChildMemberOnASingleMappingPath()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<DateTime>().To<Issue166.Target.Timestamp>()
+                    .CreateInstancesUsing(c => Issue166.Target.Timestamp.FromDateTime(c.Source.ToUniversalTime()))
+                    .And.IgnoreTargetMembersWhere(_ => true);
+
+                var input = new Issue166.Source.Container
+                {
+                    Tasks = new List<Issue166.Source.Task>
+                    {
+                        new Issue166.Source.Task { ModDate = DateTime.Today.AddSeconds(10) },
+                        new Issue166.Source.Task { ModDate = DateTime.Today.AddSeconds(25) }
+                    },
+                    Params = new List<Issue166.Source.Param>
+                    {
+                        new Issue166.Source.Param
+                        {
+                            CollectionCollection = new Issue166.Source.Coll
+                            {
+                                ValueList = new List<Issue166.Source.Value>
+                                {
+                                    new Issue166.Source.Value
+                                    {
+                                        Definition = new Issue166.Source.Def
+                                        {
+                                            Id = "Id",
+                                            Default = "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                var result = mapper.Map(input).ToANew<Issue166.Target.Container>();
+
+                result.ShouldNotBeNull();
+
+                result.Tasks.ShouldNotBeNull().Count.ShouldBe(2);
+                result.Tasks.First().ModDate.ShouldNotBeNull().Seconds.ShouldBe(10L);
+                result.Tasks.Second().ModDate.ShouldNotBeNull().Seconds.ShouldBe(25L);
+
+                result.Params.ShouldNotBeNull().ShouldHaveSingleItem();
+                result.Params.First().CollectionCollection.ShouldNotBeNull();
+                result.Params.First().CollectionCollection.ValueList.ShouldNotBeNull().ShouldHaveSingleItem();
+                result.Params.First().CollectionCollection.ValueList.First().Definition.ShouldNotBeNull();
+                result.Params.First().CollectionCollection.ValueList.First().Definition.Id.ShouldBe("Id");
+                result.Params.First().CollectionCollection.ValueList.First().Definition.Default.ShouldBeNull();
             }
         }
 
@@ -292,7 +348,7 @@
                     .To<CustomerCtor>()
                     .CreateInstancesUsing(ctx => new CustomerCtor((decimal)ctx.Source.Discount * 3)
                     {
-                        Number = ctx.EnumerableIndex + 1
+                        Number = ctx.ElementIndex + 1
                     });
 
                 var source = new[] { new PersonViewModel(), new CustomerViewModel { Discount = 5 } };
@@ -420,6 +476,31 @@
             thrownException.InnerException.Message.ShouldContain("An exception occurred mapping");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/176
+        [Fact]
+        public void ShouldHandleANullConfiguredFactoryMethodResult()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<string>>>()
+                    .To<PublicProperty<PublicProperty<string>>>()
+                    .CreateInstancesOf<PublicProperty<string>>()
+                    .Using(ctx => ReturnNull<PublicProperty<string>>());
+
+                var source = new PublicField<PublicField<string>>
+                {
+                    Value = new PublicField<string> { Value = "Voila!" }
+                };
+                var result = mapper.Map(source).ToANew<PublicProperty<PublicProperty<string>>>();
+
+                result.ShouldNotBeNull();
+                result.Value.ShouldBeNull();
+            }
+        }
+
         [Fact]
         public void ShouldWrapAnObjectCreationException()
         {
@@ -474,96 +555,7 @@
             mappingEx.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
         }
 
-        [Fact]
-        public void ShouldErrorIfSingleParameterObjectFactorySpecifiedWithInvalidParameter()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    Func<DateTime, Address> addressFactory = dt => new Address();
-
-                    mapper
-                        .WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfTwoParameterObjectFactorySpecifiedWithInvalidParameters()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    Func<int, string, Address> addressFactory = (i, str) => new Address();
-
-                    mapper
-                        .WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfFourParameterObjectFactorySpecified()
-        {
-            Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    Func<object, object, int?, Address, Address> addressFactory = (i, str, dt, ts) => new Address();
-
-                    mapper
-                        .WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
-                }
-            });
-        }
-
-        [Fact]
-        public void ShouldErrorIfConflictingFactoryConfigured()
-        {
-            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
-
-                    mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
-                }
-            });
-
-            factoryEx.Message.ShouldContain("has already been configured");
-        }
-
-        // See https://github.com/agileobjects/AgileMapper/issues/114
-        [Fact]
-        public void ShouldErrorIfPrimitiveTargetTypeSpecified()
-        {
-            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<string>()
-                        .To<int>()
-                        .CreateInstancesUsing(ctx => 123);
-                }
-            });
-
-            factoryEx.Message.ShouldContain("primitive type 'int'");
-        }
-
-        #region Helper Classes
+        #region Helper Members
 
         private class CustomerCtor : Person
         {
@@ -644,14 +636,16 @@
             {
                 public Status.StatusId ParentStatusId { get; set; }
 
-                // ReSharper disable once UnusedMember.Global
+                // ReSharper disable once UnusedMember.Local
                 public Status ParentStatus => Status.GetStatus(ParentStatusId);
             }
 
             public class ParentDto
             {
+                // ReSharper disable once UnusedAutoPropertyAccessor.Local
                 public Status.StatusId ParentStatusId { get; set; }
 
+                // ReSharper disable once UnusedAutoPropertyAccessor.Local
                 public Status ParentStatus { get; set; }
             }
         }
@@ -675,9 +669,11 @@
                 Address = address;
             }
 
+            // ReSharper disable once UnusedMember.Local
             public static ConstructionTester Create(int value1, int value2)
                 => new ConstructionTester(value1, value2);
 
+            // ReSharper disable once UnusedMember.Local
             public static ConstructionTester GetInstance(int value1, int value2, Address address)
                 => new ConstructionTester(value1, value2, address);
 
@@ -686,6 +682,99 @@
             public int Value2 { get; }
 
             public Address Address { get; }
+        }
+
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
+        private static class Issue166
+        {
+            public static class Source
+            {
+                public class Container
+                {
+                    public IList<Task> Tasks { get; set; }
+
+                    public IEnumerable<Param> Params { get; set; }
+                }
+
+                public class Task
+                {
+                    public DateTime ModDate { get; set; }
+                }
+
+                public class Param
+                {
+                    public Coll CollectionCollection { get; set; }
+                }
+
+                public class Coll
+                {
+                    public IEnumerable<Value> ValueList { get; set; }
+                }
+
+                public class Value
+                {
+                    public Def Definition { get; set; }
+                }
+
+                public class Def
+                {
+                    public string Id { get; set; }
+
+                    public object Default { get; set; }
+                }
+            }
+
+            public static class Target
+            {
+                public class Container
+                {
+                    public IList<Task> Tasks { get; set; }
+
+                    public IEnumerable<Param> Params { get; set; }
+                }
+
+                public class Task
+                {
+                    public Timestamp ModDate { get; set; }
+                }
+
+                public class Timestamp
+                {
+                    public static Timestamp FromDateTime(DateTime dateTime)
+                        => new Timestamp { Seconds = dateTime.Second };
+
+                    public long Seconds { get; set; }
+                }
+
+                public class Param
+                {
+                    public Coll CollectionCollection { get; set; }
+                }
+
+                public class Coll
+                {
+                    public IEnumerable<Value> ValueList { get; set; }
+                }
+
+                public class Value
+                {
+                    public Def Definition { get; set; }
+                }
+
+                public class Def
+                {
+                    public string Id { get; set; }
+
+                    public PublicField<object> Default { get; set; }
+                }
+            }
+        }
+        // ReSharper restore UnusedAutoPropertyAccessor.Local
+
+        internal static T ReturnNull<T>()
+            where T : class
+        {
+            return null;
         }
 
         #endregion

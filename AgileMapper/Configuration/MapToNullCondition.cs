@@ -33,8 +33,8 @@
         public string GetConflictMessage()
             => $"Type {TargetTypeName} already has a configured map-to-null condition";
 
-        public override bool AppliesTo(IBasicMapperData mapperData)
-            => !mapperData.TargetMemberIsEnumerableElement() && base.AppliesTo(mapperData);
+        public override bool AppliesTo(IQualifiedMemberContext context)
+            => !context.TargetMemberIsEnumerableElement() && base.AppliesTo(context);
 
         protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
         {

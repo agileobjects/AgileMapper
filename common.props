@@ -2,16 +2,16 @@
 
   <PropertyGroup>
     <Company>AgileObjects Ltd</Company>
-    <Copyright>Copyright © AgileObjects Ltd 2019</Copyright>
+    <Copyright>Copyright © AgileObjects Ltd 2020</Copyright>
     <Authors>Steve Wilkes</Authors>
     <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AgileObjects/AgileMapper</RepositoryUrl>
-    <Version>1.5.0</Version>
-    <AssemblyVersion>1.5.0.0</AssemblyVersion>
-    <FileVersion>1.5.0.0</FileVersion>
+    <Version>1.6.0-preview5</Version>
+    <AssemblyVersion>1.6.0.0</AssemblyVersion>
+    <FileVersion>1.6.0.0</FileVersion>
   </PropertyGroup>
 
 </Project>

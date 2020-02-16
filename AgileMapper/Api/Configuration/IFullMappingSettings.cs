@@ -10,6 +10,8 @@
     /// <typeparam name="TTarget">The target type to which the configured settings should apply.</typeparam>
     public interface IFullMappingSettings<TSource, TTarget> : IConditionalMappingConfigurator<TSource, TTarget>
     {
+        #region Exception Handling
+
         /// <summary>
         /// Swallow exceptions thrown during a mapping from and to the source and target types being configured. 
         /// Object mappings which encounter an Exception will return null.
@@ -21,8 +23,8 @@
         IFullMappingSettings<TSource, TTarget> SwallowAllExceptions();
 
         /// <summary>
-        /// Pass Exceptions thrown during a mapping from and to the source and target types being configured to 
-        /// the given <paramref name="callback"/> instead of throwing them.
+        /// Pass Exceptions thrown during a mapping from and to the source and target types being configured
+        /// to the given <paramref name="callback"/> instead of throwing them.
         /// </summary>
         /// <param name="callback">
         /// The callback to which to pass thrown Exception information. If the thrown exception should not be 
@@ -33,6 +35,8 @@
         /// target types being configured.
         /// </returns>
         IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback);
+        
+        #endregion
 
         /// <summary>
         /// Ensure 1-to-1 relationships between source and mapped objects during a mapping from and to the source and 

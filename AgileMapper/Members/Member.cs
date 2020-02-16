@@ -2,17 +2,17 @@ namespace AgileObjects.AgileMapper.Members
 {
     using System;
     using System.Reflection;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
 
     internal class Member
     {

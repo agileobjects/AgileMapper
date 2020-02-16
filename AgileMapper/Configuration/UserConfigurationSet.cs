@@ -70,15 +70,15 @@
             MappedObjectCachingSettings.AddThenSort(setting);
         }
 
-        public MappedObjectCachingMode CacheMappedObjects(IBasicMapperData basicData)
+        public MappedObjectCachingMode CacheMappedObjects(IQualifiedMemberContext context)
         {
-            if (MappedObjectCachingSettings.None() || !basicData.TargetMember.IsComplex)
+            if (MappedObjectCachingSettings.None() || !context.TargetMember.IsComplex)
             {
                 return MappedObjectCachingMode.AutoDetect;
             }
 
             var applicableSettings = _mappedObjectCachingSettings
-                .FirstOrDefault(basicData, (bd, tm) => tm.AppliesTo(bd));
+                .FirstOrDefault(context, (ctx, tm) => tm.AppliesTo(ctx));
 
             if (applicableSettings == null)
             {
@@ -118,8 +118,8 @@
 
         public void Add(NullCollectionsSetting setting) => NullCollectionsSettings.Add(setting);
 
-        public bool MapToNullCollections(IBasicMapperData basicData)
-            => _nullCollectionsSettings?.Any(basicData, (bd, s) => s.AppliesTo(bd)) == true;
+        public bool MapToNullCollections(IQualifiedMemberContext context)
+            => _nullCollectionsSettings?.Any(context, (ctx, s) => s.AppliesTo(ctx)) == true;
 
         #endregion
 
@@ -135,14 +135,14 @@
             EntityKeyMappingSettings.AddThenSort(setting);
         }
 
-        public bool MapEntityKeys(IBasicMapperData basicData)
+        public bool MapEntityKeys(IQualifiedMemberContext context)
         {
             var applicableSetting = _entityKeyMappingSettings?
-                .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?
+                .FirstOrDefault(context, (ctx, s) => s.AppliesTo(ctx))?
                 .MapKeys;
 
             return (applicableSetting == true) ||
-                   (basicData.RuleSet.Settings.AllowEntityKeyMapping && (applicableSetting != false));
+                   (context.RuleSet.Settings.AllowEntityKeyMapping && (applicableSetting != false));
         }
 
         #endregion
@@ -188,19 +188,19 @@
         }
 
         public bool AutoDataSourceReversalEnabled(ConfiguredDataSourceFactory dataSourceFactory)
-            => AutoDataSourceReversalEnabled(dataSourceFactory, dsf => dsf.ConfigInfo.ToMapperData(dsf.TargetMember));
+            => AutoDataSourceReversalEnabled(dataSourceFactory, dsf => dsf.ConfigInfo.ToMemberContext(dsf.TargetMember));
 
         public bool AutoDataSourceReversalEnabled(MappingConfigInfo configInfo)
-            => AutoDataSourceReversalEnabled(configInfo, ci => ci.ToMapperData());
+            => AutoDataSourceReversalEnabled(configInfo, ci => ci.ToMemberContext());
 
-        private bool AutoDataSourceReversalEnabled<T>(T dataItem, Func<T, IBasicMapperData> mapperDataFactory)
+        private bool AutoDataSourceReversalEnabled<T>(T dataItem, Func<T, IQualifiedMemberContext> memberContextFactory)
         {
             if (_dataSourceReversalSettings == null)
             {
                 return false;
             }
 
-            var basicData = mapperDataFactory.Invoke(dataItem);
+            var basicData = memberContextFactory.Invoke(dataItem);
 
             return _dataSourceReversalSettings
                 .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?.Reverse == true;
@@ -285,14 +285,21 @@
         {
             ThrowIfConflictingItemExists(
                 objectFactory,
-                _objectFactories,
-                (of1, of2) => $"An object factory for type {of1.ObjectTypeName} has already been configured");
+               _objectFactories,
+               (of1, of2) => $"An object factory for type {of1.ObjectType.GetFriendlyName()} has already been configured");
+
+            if (objectFactory.ObjectType.IsSimple())
+            {
+                HasSimpleTypeValueFactories = true;
+            }
 
             ObjectFactories.AddOrReplaceThenSort(objectFactory);
         }
 
-        public IEnumerable<ConfiguredObjectFactory> GetObjectFactories(IBasicMapperData mapperData)
-            => _objectFactories.FindMatches(mapperData);
+        public bool HasSimpleTypeValueFactories { get; private set; }
+
+        public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IQualifiedMemberContext context)
+            => _objectFactories.FindMatches(context);
 
         #endregion
 
@@ -312,10 +319,10 @@
             SourceValueFilters.AddOrReplaceThenSort(sourceValueFilter);
         }
 
-        public IList<ConfiguredSourceValueFilter> GetSourceValueFilters(IBasicMapperData mapperData, Type sourceValueType)
+        public IList<ConfiguredSourceValueFilter> GetSourceValueFilters(IQualifiedMemberContext context, Type sourceValueType)
         {
             return HasSourceValueFilters
-                ? _sourceValueFilters.Filter(svf => svf.AppliesTo(sourceValueType, mapperData)).ToArray()
+                ? _sourceValueFilters.Filter(svf => svf.AppliesTo(sourceValueType, context)).ToArray()
                 : Enumerable<ConfiguredSourceValueFilter>.EmptyArray;
         }
 
@@ -335,11 +342,11 @@
             IgnoredSourceMembers.AddOrReplaceThenSort(sourceMemberIgnore);
         }
 
-        public IList<ConfiguredSourceMemberIgnoreBase> GetRelevantSourceMemberIgnores(IBasicMapperData mapperData)
-            => _ignoredSourceMembers.FindRelevantMatches(mapperData);
+        public IList<ConfiguredSourceMemberIgnoreBase> GetRelevantSourceMemberIgnores(IQualifiedMemberContext context)
+            => _ignoredSourceMembers.FindRelevantMatches(context);
 
-        public ConfiguredSourceMemberIgnoreBase GetSourceMemberIgnoreOrNull(IBasicMapperData mapperData)
-            => _ignoredSourceMembers.FindMatch(mapperData);
+        public ConfiguredSourceMemberIgnoreBase GetSourceMemberIgnoreOrNull(IQualifiedMemberContext context)
+            => _ignoredSourceMembers.FindMatch(context);
 
         private List<ConfiguredMemberIgnoreBase> IgnoredMembers
             => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredMemberIgnoreBase>());
@@ -353,8 +360,8 @@
             IgnoredMembers.AddOrReplaceThenSort(memberIgnore);
         }
 
-        public IList<ConfiguredMemberIgnoreBase> GetRelevantMemberIgnores(IBasicMapperData mapperData)
-            => _ignoredMembers.FindRelevantMatches(mapperData);
+        public IList<ConfiguredMemberIgnoreBase> GetRelevantMemberIgnores(IQualifiedMemberContext context)
+            => _ignoredMembers.FindRelevantMatches(context);
 
         #endregion
 
@@ -396,7 +403,7 @@
 
             if (dataSourceFactory.TargetMember.IsRoot)
             {
-                HasConfiguredToTargetDataSources = true;
+                HasToTargetDataSources = true;
                 return;
             }
 
@@ -409,14 +416,14 @@
         public ConfiguredDataSourceFactory GetDataSourceFactoryFor(MappingConfigInfo configInfo)
             => _dataSourceFactories.First(configInfo, (ci, dsf) => dsf.ConfigInfo == ci);
 
-        public bool HasConfiguredToTargetDataSources { get; private set; }
+        public bool HasToTargetDataSources { get; private set; }
 
         public IList<ConfiguredDataSourceFactory> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
             => _dataSourceFactories.FindRelevantMatches(mapperData);
 
         public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
         {
-            if (!HasConfiguredToTargetDataSources)
+            if (!HasToTargetDataSources)
             {
                 return Enumerable<IConfiguredDataSource>.EmptyArray;
             }
@@ -429,8 +436,8 @@
             return toTargetDataSources;
         }
 
-        public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IBasicMapperData mapperData)
-            => _dataSourceFactories.FindMatches(mapperData);
+        public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IQualifiedMemberContext context)
+            => _dataSourceFactories.FindMatches(context);
 
         #endregion
 
@@ -443,10 +450,10 @@
 
         public Expression GetCallbackOrNull(
             CallbackPosition position,
-            IBasicMapperData basicData,
+            IQualifiedMemberContext context,
             IMemberMapperData mapperData)
         {
-            return _mappingCallbackFactories?.FirstOrDefault(f => f.AppliesTo(position, basicData))?.Create(mapperData);
+            return _mappingCallbackFactories?.FirstOrDefault(f => f.AppliesTo(position, context))?.Create(mapperData);
         }
 
         private List<ObjectCreationCallbackFactory> CreationCallbackFactories
@@ -466,12 +473,12 @@
 
         public void Add(ExceptionCallback callback) => ExceptionCallbackFactories.Add(callback);
 
-        public ExceptionCallback GetExceptionCallbackOrNull(IBasicMapperData mapperData)
-            => _exceptionCallbackFactories.FindMatch(mapperData);
+        public ExceptionCallback GetExceptionCallbackOrNull(IQualifiedMemberContext context)
+            => _exceptionCallbackFactories.FindMatch(context);
 
         #endregion
 
-        public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet());
+        public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet(_mapperContext));
 
         #region RecursionDepthSettings
 
@@ -483,14 +490,14 @@
             RecursionDepthSettings.Add(settings);
         }
 
-        public bool ShortCircuitRecursion(IBasicMapperData mapperData)
+        public bool ShortCircuitRecursion(IQualifiedMemberContext context)
         {
             if (_recursionDepthSettings == null)
             {
                 return true;
             }
 
-            return RecursionDepthSettings.FindMatch(mapperData)?.IsBeyondDepth(mapperData) != false;
+            return RecursionDepthSettings.FindMatch(context)?.IsBeyondDepth(context) != false;
         }
 
         #endregion
@@ -525,7 +532,7 @@
 
         private void ThrowIfMemberIsUnmappable(ConfiguredMemberIgnoreBase memberIgnore)
         {
-            if (memberIgnore.ConfigInfo.ToMapperData().TargetMemberIsUnmappable(
+            if (memberIgnore.ConfigInfo.ToMemberContext().TargetMemberIsUnmappable(
                 memberIgnore.TargetMember,
                 QueryDataSourceFactories,
                 this,

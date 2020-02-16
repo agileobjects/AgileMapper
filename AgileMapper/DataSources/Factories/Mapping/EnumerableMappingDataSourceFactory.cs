@@ -1,11 +1,11 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories.MappingRoot
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories.Mapping
 {
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
 
-    internal class EnumerableMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase
+    internal class EnumerableMappingDataSourceFactory : MappingDataSourceFactoryBase
     {
-        public EnumerableMappingRootDataSourceFactory()
+        public EnumerableMappingDataSourceFactory()
             : base(new EnumerableMappingExpressionFactory())
         {
         }

@@ -5,7 +5,6 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
     using ObjectPopulation.ComplexTypes;

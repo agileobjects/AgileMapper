@@ -94,7 +94,7 @@
         private static bool DoNotApplyFilter(
             IQualifiedMember sourceMember,
             IDataSource dataSource,
-            IMemberMapperData mapperData)
+            IQualifiedMemberContext context)
         {
             if (!dataSource.IsValid)
             {
@@ -103,8 +103,8 @@
 
             // Non-simple enumerable elements will be filtered out elsewhere,
             // unless they're being runtime-typed:
-            return !sourceMember.IsSimple && !mapperData.IsEntryPoint &&
-                    mapperData.TargetMemberIsEnumerableElement();
+            return !sourceMember.IsSimple && !context.IsEntryPoint &&
+                    context.TargetMemberIsEnumerableElement();
         }
 
         public static Expression GetFilterConditionsOrNull(

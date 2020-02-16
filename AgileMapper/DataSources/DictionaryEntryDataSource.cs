@@ -6,6 +6,8 @@
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
+    using Members;
+    using TypeConversion;
 
     internal class DictionaryEntryDataSource : DataSourceBase
     {
@@ -29,10 +31,9 @@
                 return dictionaryVariables.GetEntryValueAccess();
             }
 
-            var valueConversion = dictionaryVariables.MapperData
-                .MapperContext
-                .ValueConverters
-                .GetConversion(dictionaryVariables.Value, dictionaryVariables.MapperData.TargetMember.Type);
+            var valueConversion = dictionaryVariables.MapperData.GetValueConversionOrCreation(
+                dictionaryVariables.Value,
+                dictionaryVariables.MapperData.TargetMember.Type);
 
             return valueConversion;
         }
@@ -71,9 +72,9 @@
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
 
-        public override Expression FinalisePopulation(Expression population, Expression alternatePopulation)
+        public override Expression FinalisePopulationBranch(Expression alternatePopulation, IMemberMapperData mapperData)
         {
-            population = base.FinalisePopulation(population, alternatePopulation);
+            var population = base.FinalisePopulationBranch(alternatePopulation, mapperData);
 
             var matchingKeyExists = GetMatchingKeyExistsTest();
             var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);

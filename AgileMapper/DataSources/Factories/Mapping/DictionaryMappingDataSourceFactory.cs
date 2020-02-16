@@ -1,11 +1,11 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories.MappingRoot
+﻿namespace AgileObjects.AgileMapper.DataSources.Factories.Mapping
 {
     using Members.Dictionaries;
     using ObjectPopulation;
 
-    internal class DictionaryMappingRootDataSourceFactory : MappingRootDataSourceFactoryBase
+    internal class DictionaryMappingDataSourceFactory : MappingDataSourceFactoryBase
     {
-        public DictionaryMappingRootDataSourceFactory()
+        public DictionaryMappingDataSourceFactory()
             : base(new DictionaryMappingExpressionFactory())
         {
         }

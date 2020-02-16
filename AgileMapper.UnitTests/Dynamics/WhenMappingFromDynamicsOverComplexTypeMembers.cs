@@ -11,7 +11,6 @@
         public void ShouldMapFromANestedDynamicToANestedComplexType()
         {
             dynamic sourceDynamic = new ExpandoObject();
-
             sourceDynamic.Line1 = "Over there";
 
             var source = new PublicTwoFields<dynamic, string>
@@ -40,7 +39,6 @@
         public void ShouldMapFlattenedMembersFromANestedDynamicToANestedComplexType()
         {
             dynamic sourceDynamic = new ExpandoObject();
-
             sourceDynamic.Name = "Mystery :o";
             sourceDynamic.AddressLine1 = "Over here";
             sourceDynamic.AddressLine2 = "Over there";

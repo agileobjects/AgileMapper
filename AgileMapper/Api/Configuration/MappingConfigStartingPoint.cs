@@ -18,7 +18,6 @@
     using Members;
     using Projection;
     using static Constants;
-    using static AgileMapper.Configuration.Dictionaries.DictionaryType;
 
     /// <summary>
     /// Provides options for configuring how a mapper performs a mapping.
@@ -44,7 +43,7 @@
         /// <summary>
         /// Setup Mapper configuration via <see cref="MapperConfiguration"/> instances.
         /// </summary>
-        public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.Mapper);
+        public MapperConfigurationSpecifier UseConfigurations => new MapperConfigurationSpecifier(_configInfo.MapperContext.Mapper);
 
         #region Service Providers
 
@@ -158,7 +157,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNamePrefixes(params string[] prefixes)
         {
-            MapperContext.Naming.AddNamePrefixes(prefixes);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Prefixes(prefixes, GlobalConfigInfo));
             return this;
         }
 
@@ -182,7 +181,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNameSuffixes(params string[] suffixes)
         {
-            MapperContext.Naming.AddNameSuffixes(suffixes);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Suffixes(suffixes, GlobalConfigInfo));
             return this;
         }
 
@@ -212,7 +211,7 @@
         /// </returns>
         public IGlobalMappingSettings UseNamePatterns(params string[] patterns)
         {
-            MapperContext.Naming.AddNameMatchers(patterns);
+            MapperContext.Naming.Add(ConfiguredNamingPattern.Create(patterns, GlobalConfigInfo));
             return this;
         }
 
@@ -515,7 +514,7 @@
         /// with any Dictionary value type.
         /// </summary>
         public IGlobalDictionarySettings<object> Dictionaries
-            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: AllTypes);
+            => CreateDictionaryConfigurator<object>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from or to source Dictionary{string, TValue} instances.
@@ -527,14 +526,14 @@
         /// An IGlobalDictionarySettings with which to continue other global aspects of Dictionary mapping.
         /// </returns>
         public IGlobalDictionarySettings<TValue> DictionariesWithValueType<TValue>()
-            => CreateDictionaryConfigurator<TValue>(Dictionary);
+            => CreateDictionaryConfigurator<TValue>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary instances with 
         /// any Dictionary value type.
         /// </summary>
         public ISourceDictionaryTargetTypeSelector<object> FromDictionaries
-            => CreateDictionaryConfigurator<object>(Dictionary, sourceValueType: AllTypes);
+            => CreateDictionaryConfigurator<object>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from source Dictionary{string, TValue} instances.
@@ -547,30 +546,39 @@
         /// configuration will apply.
         /// </returns>
         public ISourceDictionaryTargetTypeSelector<TValue> FromDictionariesWithValueType<TValue>()
-            => CreateDictionaryConfigurator<TValue>(Dictionary);
+            => CreateDictionaryConfigurator<TValue>();
 
 #if FEATURE_DYNAMIC
         /// <summary>
         /// Configure how this mapper performs mappings from or to ExpandoObject instances.
         /// </summary>
-        public IGlobalDynamicSettings Dynamics
-            => CreateDictionaryConfigurator<object>(Expando, sourceValueType: AllTypes);
+        public IGlobalDynamicSettings Dynamics => CreateExpandoObjectConfigurator<object>();
 
         /// <summary>
         /// Configure how this mapper performs mappings from source ExpandoObject instances.
         /// </summary>
         public ISourceDynamicTargetTypeSelector FromDynamics
-            => CreateDictionaryConfigurator<object>(Expando, typeof(ExpandoObject), sourceValueType: AllTypes);
-#endif
-        private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
-            DictionaryType dictionaryType,
-            Type sourceType = null,
-            Type sourceValueType = null)
+            => CreateExpandoObjectConfigurator<object>(cfg => cfg.ForSourceType<ExpandoObject>());
+
+        private DictionaryMappingConfigurator<TValue> CreateExpandoObjectConfigurator<TValue>(
+            Action<MappingConfigInfo> configSetup = null)
         {
-            var configInfo = _configInfo
-                .ForSourceType(sourceType ?? AllTypes)
-                .ForSourceValueType(sourceValueType ?? typeof(TValue))
-                .Set(dictionaryType);
+            return CreateDictionaryConfigurator<TValue>(cfg =>
+            {
+                configSetup?.Invoke(cfg);
+                cfg.ForExpandoObject();
+            });
+        }
+#endif
+        private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>()
+            => CreateDictionaryConfigurator<TValue>(cfg => cfg.Set(DictionaryType.Dictionary));
+
+        private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
+            Action<MappingConfigInfo> configSetup)
+        {
+            var configInfo = _configInfo.ForAllSourceTypes().ForSourceValueType(typeof(TValue));
+
+            configSetup.Invoke(configInfo);
 
             return new DictionaryMappingConfigurator<TValue>(configInfo);
         }
@@ -612,7 +620,7 @@
         /// </summary>
         /// <typeparam name="TResult">The result Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TResult> ToANew<TResult>()
+        public IRuleSetMappingConfigurator<object, TResult> ToANew<TResult>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(CreateNew)).ToANew<TResult>();
 
         /// <summary>
@@ -621,7 +629,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> OnTo<TTarget>()
+        public IRuleSetMappingConfigurator<object, TTarget> OnTo<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Merge)).OnTo<TTarget>();
 
         /// <summary>
@@ -630,7 +638,7 @@
         /// </summary>
         /// <typeparam name="TTarget">The target Type to which the configuration will apply.</typeparam>
         /// <returns>An IFullMappingConfigurator with which to complete the configuration.</returns>
-        public IFullMappingConfigurator<object, TTarget> Over<TTarget>()
+        public IRuleSetMappingConfigurator<object, TTarget> Over<TTarget>()
             => GetAllSourcesTargetTypeSpecifier(ci => ci.ForRuleSet(Overwrite)).Over<TTarget>();
 
         /// <summary>

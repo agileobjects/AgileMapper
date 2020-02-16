@@ -1,8 +1,8 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
+﻿#if FEATURE_DYNAMIC_ROOT_SOURCE
+namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System;
     using System.Dynamic;
-    using Api;
     using Common;
     using TestClasses;
     using Xunit;
@@ -16,10 +16,9 @@
 
             source.value = 123;
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
-                .ToANew<PublicField<int>>();
+            var result = Mapper.Map(source).ToANew<PublicField<int>>();
 
-            result.Value.ShouldBe(123);
+            Assert.Equal(123, result.Value);
         }
 
         [Fact]
@@ -29,10 +28,9 @@
 
             source.Value = "728";
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
-                .ToANew<PublicField<long>>();
+            var result = Mapper.Map(source).ToANew<PublicField<long>>();
 
-            result.Value.ShouldBe(728L);
+            Assert.Equal(728L, result.Value);
         }
 
         [Fact]
@@ -42,10 +40,9 @@
 
             source.Value = default(string);
 
-            var result = ((ITargetSelector<ExpandoObject>)Mapper.Map(source))
-                .ToANew<PublicSetMethod<string>>();
+            var result = Mapper.Map(source).ToANew<PublicSetMethod<string>>();
 
-            result.Value.ShouldBeNull();
+            Assert.Null(result.Value);
         }
 
         [Fact]
@@ -62,11 +59,11 @@
                     .Call(ctx => throw new InvalidOperationException("I DON'T LIKE ADDRESSES"));
 
                 var mappingEx = Should.Throw<MappingException>(() =>
-                    ((ITargetSelector<ExpandoObject>)mapper.Map(source))
-                        .ToANew<PublicField<Address>>());
+                    mapper.Map(source).ToANew<PublicField<Address>>());
 
-                mappingEx.Message.ShouldContain(nameof(ExpandoObject));
+                Assert.Contains(nameof(ExpandoObject), mappingEx.Message);
             }
         }
     }
 }
+#endif

@@ -162,7 +162,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 mapper.WhenMapping
                     .From<PublicProperty<int>>()
                     .ToANew<PublicProperty<string>>()
-                    .If(ctx => ctx.EnumerableIndex > 0)
+                    .If(ctx => ctx.ElementIndex > 0)
                     .Ignore(p => p.Value);
 
                 var source = new[]
@@ -285,6 +285,34 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/183
+        [Fact]
+        public void ShouldIgnoreBaseClassSourcesOnly()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                mapper.WhenMapping
+                    .From<Issue183.ThingBase>().ButNotDerivedTypes
+                    .To<Issue183.ThingDto>()     
+                    .Ignore(t => t.Value);
+
+                var source = new PublicField<Issue183.ThingBase>
+                {
+                    Value = new Issue183.Thing { Value = "From the source!" }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<Issue183.ThingBaseDto>>();
+
+                result.ShouldNotBeNull()
+                    .Value
+                    .ShouldNotBeNull()
+                    .ShouldBeOfType<Issue183.ThingDto>()
+                    .Value.ShouldBe("From the source!");
+            }
+        }
+
         [Fact]
         public void ShouldCompareIgnoredMembersConsistently()
         {
@@ -309,5 +337,30 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
                 compareResult1.ShouldNotBe(compareResult2);
             }
         }
+
+        #region Helper Classes
+
+        public static class Issue183
+        {
+            public abstract class ThingBase
+            {
+            }
+
+            public class Thing : ThingBase
+            {
+                public string Value { get; set; }
+            }
+
+            public abstract class ThingBaseDto
+            {
+            }
+
+            public class ThingDto : ThingBaseDto
+            {
+                public string Value { get; set; }
+            }
+        }
+
+        #endregion
     }
 }

@@ -1,17 +1,15 @@
 namespace AgileObjects.AgileMapper.Members
 {
-    internal interface IBasicMapperData : ITypePair
+    internal interface IQualifiedMemberContext : IMapperContextOwner, IRuleSetOwner, ITypePair
     {
-        MappingRuleSet RuleSet { get; }
-
         bool IsRoot { get; }
 
-        IBasicMapperData Parent { get; }
+        bool IsEntryPoint { get; }
+
+        IQualifiedMemberContext Parent { get; }
 
         IQualifiedMember SourceMember { get; }
         
         QualifiedMember TargetMember { get; }
-
-        bool HasCompatibleTypes(ITypePair typePair);
     }
 }

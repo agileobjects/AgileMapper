@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Enumerables;
     using Extensions.Internal;
     using MapperKeys;
-    using Members;
     using NetStandardPolyfills;
 
     internal static class MappingDataFactory
@@ -21,7 +20,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static ObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
             TSource source,
             TTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
+            object elementKey,
             string targetMemberRegistrationName,
             int dataSourceIndex,
             IObjectMappingDataUntyped parent)
@@ -31,22 +31,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 targetMemberRegistrationName,
                 dataSourceIndex);
 
-            var mappingData = CreateMappingData(source, target, enumerableIndex, mapperKey, parent);
+            var mappingData = CreateMappingData(source, target, elementIndex, elementKey, mapperKey, parent);
 
-            if (!ChildMappersNeeded(mappingData.Parent))
+            if (!mappingData.SubMappingNeeded(out var parentMappingData))
             {
                 return mappingData;
             }
 
-            var parentMappingData = GetParentMappingData(mappingData);
+            var mapperData = parentMappingData.MapperData.ChildMapperDatasOrEmpty.FirstOrDefault(md =>
+                (md.DataSourceIndex == dataSourceIndex) &&
+                (md.TargetMember.RegistrationName == targetMemberRegistrationName));
 
-            var mapperData = parentMappingData.MapperData.ChildMapperDatas.HasOne()
-                ? parentMappingData.MapperData.ChildMapperDatas.First()
-                : parentMappingData.MapperData.ChildMapperDatas.First(md =>
-                    (md.DataSourceIndex == dataSourceIndex) &&
-                    (md.TargetMember.RegistrationName == targetMemberRegistrationName));
-
-            mappingData.SetMapper(mapperData.Mapper);
+            if (mapperData != null)
+            {
+                mappingData.SetMapper(mapperData.Mapper);
+            }
 
             return mappingData;
         }
@@ -54,17 +53,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static ObjectMappingData<TSourceElement, TTargetElement> ForElement<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
-            int enumerableIndex,
+            int elementIndex,
+            object elementKey,
             IObjectMappingDataUntyped parent)
         {
             var mapperKey = new ElementObjectMapperKey(MappingTypes<TSourceElement, TTargetElement>.Fixed);
 
-            var mappingData = CreateMappingData(sourceElement, targetElement, enumerableIndex, mapperKey, parent);
+            var mappingData = CreateMappingData(sourceElement, targetElement, elementIndex, elementKey, mapperKey, parent);
 
-            if (ChildMappersNeeded(mappingData.Parent))
+            if (mappingData.SubMappingNeeded(out var parentMappingData))
             {
                 mappingData.SetMapper(
-                    GetParentMappingData(mappingData).MapperData.ChildMapperDatas.First().Mapper);
+                    parentMappingData.MapperData.ChildMapperDatas.First().Mapper);
             }
 
             return mappingData;
@@ -73,7 +73,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static ObjectMappingData<TSource, TTarget> CreateMappingData<TSource, TTarget>(
             TSource source,
             TTarget target,
-            int? enumerableIndex,
+            int? elementIndex,
+            object elementKey,
             ObjectMapperKeyBase mapperKey,
             IObjectMappingDataUntyped parent)
         {
@@ -82,7 +83,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
-                enumerableIndex,
+                elementIndex,
+                elementKey,
                 mapperKey.MappingTypes,
                 mappingDataParent.MappingContext,
                 mappingDataParent)
@@ -91,14 +93,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             };
         }
 
-        private static bool ChildMappersNeeded(IObjectMappingData mappingData)
+        private static bool SubMappingNeeded(this IObjectMappingData mappingData, out IObjectMappingData parentMappingData)
         {
-            while (!mappingData.IsStandalone())
-            {
-                mappingData = mappingData.Parent;
-            }
+            parentMappingData = GetParentMappingData(mappingData);
 
-            return mappingData.MapperData.Context.NeedsSubMapping;
+            return parentMappingData.MapperDataPopulated &&
+                   parentMappingData.MapperData.Context.NeedsRuntimeTypedMapping;
         }
 
         private static IObjectMappingData GetParentMappingData(IObjectMappingData mappingData)

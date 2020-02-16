@@ -1,12 +1,12 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 {
     using System;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Members;
 
     internal class RepeatedMapperFunc<TChildSource, TChildTarget> : IRepeatedMapperFunc
     {
@@ -20,18 +20,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             {
                 _mappingFuncLock = new object();
                 _mapperData = mappingData.MapperData;
-                _mapperData.IsEntryPoint = true;
+                _mapperData.SetEntryPoint();
                 return;
             }
 
             CreateMapperFunc(mappingData);
         }
 
+        public Expression Mapping { get; private set; }
+
         public Type SourceType => typeof(TChildSource);
 
         public Type TargetType => typeof(TChildTarget);
-
-        public LambdaExpression MappingLambda { get; private set; }
 
         public object Map(IObjectMappingData mappingData)
         {
@@ -67,10 +67,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             mappingData.MapperKey.MappingData = mappingData;
             mappingData.MapperKey.MapperData = mappingData.MapperData;
 
-            MappingLambda = mappingData.GetOrCreateMapper().MappingLambda;
+            var mappingLambda = Expression.Lambda<MapperFunc<TChildSource, TChildTarget>>(
+                mappingData.GetOrCreateMapper().Mapping,
+                mappingData.MapperData.MappingDataObject);
 
-            var typedMappingLambda = (Expression<MapperFunc<TChildSource, TChildTarget>>)MappingLambda;
-            _repeatedMappingFunc = typedMappingLambda.Compile();
+            Mapping = mappingLambda;
+
+            _repeatedMappingFunc = mappingLambda.Compile();
 
             if (isLazyLoading)
             {

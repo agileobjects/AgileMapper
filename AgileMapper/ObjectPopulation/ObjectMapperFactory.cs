@@ -2,19 +2,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using Caching;
-    using DataSources.Factories;
+    using Caching.Dictionaries;
+    using DataSources.Factories.Mapping;
     using MapperKeys;
 
     internal class ObjectMapperFactory
     {
         private readonly ICache<IRootMapperKey, IObjectMapper> _rootMappersCache;
-        private Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
+        private ISimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>> _creationCallbacksByKey;
 
         public ObjectMapperFactory(CacheSet mapperScopedCacheSet)
         {
@@ -28,7 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (_creationCallbacksByKey == null)
             {
                 _creationCallbacksByKey =
-                    new Dictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(default(MapperCreationCallbackKey.Comparer));
+                    new ExpandableSimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(3, default(MapperCreationCallbackKey.Comparer));
             }
 
             _creationCallbacksByKey.Add(creationCallbackKey, callback);
@@ -52,7 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
-            var mappingExpression = DataSourceSetFactory.CreateFor(mappingData).BuildValue();
+            var mappingExpression = MappingDataSourceSetFactory.CreateFor(mappingData).BuildValue();
 
             if (mappingExpression == Constants.EmptyExpression)
             {
@@ -62,11 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             mappingExpression = MappingFactory
                 .UseLocalSourceValueVariableIfAppropriate(mappingExpression, mappingData.MapperData);
 
-            var mappingLambda = Expression.Lambda<MapperFunc<TSource, TTarget>>(
-                mappingExpression,
-                mappingData.MapperData.MappingDataObject);
-
-            var mapper = new ObjectMapper<TSource, TTarget>(mappingLambda, mappingData);
+            var mapper = new ObjectMapper<TSource, TTarget>(mappingExpression, mappingData);
 
             if (_creationCallbacksByKey == null)
             {

@@ -12,6 +12,7 @@
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
+    using Caching.Dictionaries;
     using Configuration;
     using Extensions;
     using Extensions.Internal;
@@ -23,7 +24,7 @@
     using static Constants;
     using static Member;
 
-    internal static class MemberExtensions
+    internal static class MemberExtensionMethods
     {
         public static string GetFullName(this IEnumerable<Member> members)
             => members.Project(m => m.JoiningName).Join(string.Empty);
@@ -240,13 +241,11 @@
 
         private delegate Expression PopulationFactory(Expression instance, Member member, Expression value);
 
-        private static readonly Dictionary<MemberType, PopulationFactory> _populationFactoriesByMemberType =
-            new Dictionary<MemberType, PopulationFactory>
-            {
-                { MemberType.Field, AssignMember },
-                { MemberType.Property, AssignMember },
-                { MemberType.SetMethod, CallSetMethod }
-            };
+        private static readonly ISimpleDictionary<MemberType, PopulationFactory> _populationFactoriesByMemberType =
+            new FixedSizeSimpleDictionary<MemberType, PopulationFactory>(3)
+                .Add(MemberType.Field, AssignMember)
+                .Add(MemberType.Property, AssignMember)
+                .Add(MemberType.SetMethod, CallSetMethod);
 
         private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
             => targetMember.GetAccess(instance).AssignTo(value);
@@ -406,7 +405,7 @@
                 parentMember = member;
             }
 
-            return QualifiedMember.From(memberChain, mapperContext);
+            return QualifiedMember.Create(memberChain, mapperContext);
         }
 
         public static IList<Expression> GetMemberAccessChain(

@@ -1,11 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
-    internal interface IMappingContext
+    internal interface IMappingContext : IMapperContextOwner, IRuleSetOwner
     {
-        MapperContext MapperContext { get; }
-
-        MappingRuleSet RuleSet { get; }
-
         bool AddUnsuccessfulMemberPopulations { get; }
 
         bool LazyLoadRepeatMappingFuncs { get; }

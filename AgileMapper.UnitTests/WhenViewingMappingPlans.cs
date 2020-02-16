@@ -48,7 +48,7 @@
             plan.ShouldContain("Map AnonymousType<string, int> -> MysteryCustomer");
             plan.ShouldContain("mysteryCustomer.Name = fatsiToMcData.Source.Name;");
             plan.ShouldContain("mysteryCustomer.Discount = fatsiToMcData.Source.Discount;");
-            plan.ShouldContain("// No data source for Report");
+            plan.ShouldContain("// No data sources for Report");
         }
 
         [Fact]
@@ -170,7 +170,7 @@
                 .GetPlanFor<PersonViewModel>()
                 .OnTo<Person>();
 
-            plan.ShouldContain("// No data source for Title");
+            plan.ShouldContain("// No data sources for Title");
         }
 
         [Fact]
@@ -218,7 +218,7 @@
                 .ToANew<PublicSetMethod<ICollection<Product>>>();
 
             plan.ShouldContain("// Map PublicProperty<object[]> -> PublicSetMethod<ICollection<Product>>");
-            plan.ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
+            RemoveWhiteSpace(plan).ShouldContain("products.Add(oaToPsData.Map(objectArray[i]");
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/24
@@ -239,6 +239,8 @@
             {
                 string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
+                plan.ShouldContain("pToPData =>");
+                
                 plan.ShouldContain("pToPData.Register(sourceParent, parent)");
                 plan.ShouldContain("pToPData.Register(sourceParent.EldestChild, child)");
 
@@ -304,6 +306,17 @@
                 plan.ShouldNotContain("Select(v => v * 2) != null");
                 plan.ShouldNotContain("ToArray() != null");
             }
+        }
+
+        [Fact]
+        public void ShouldCacheComplexTypeGetMethodResults()
+        {
+            string plan  = Mapper
+                .GetPlanFor<PublicField<PublicGetMethod<Address>>>()
+                .ToANew<PublicProperty<PublicProperty<Address>>>();
+
+            plan.ShouldContain("Value.GetValue()");
+            Regex.Matches(plan, @"Value.GetValue\(\)").Cast<Match>().ShouldHaveSingleItem();
         }
 
         [Fact]
@@ -395,7 +408,7 @@
                 .GetPlanFor(new { Int = default(int) })
                 .ToANew<PublicField<Address>>();
 
-            plan.ShouldContain("No data source for Value or any of its child members");
+            plan.ShouldContain("No data sources for Value or any of its child members");
         }
 
         [Fact]
@@ -420,7 +433,10 @@
             }
         }
 
-        #region Helper Classes
+        #region Helper Members
+
+        private static string RemoveWhiteSpace(string plan) 
+            => plan.Replace(Environment.NewLine, null).Replace(" ", null);
 
         internal static class Issue146
         {

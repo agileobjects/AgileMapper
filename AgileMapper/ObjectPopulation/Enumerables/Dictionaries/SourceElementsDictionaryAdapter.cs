@@ -27,11 +27,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
 
         private DictionarySourceMember SourceMember => _dictionaryVariables.SourceMember;
 
+        public override Expression GetElementKey() => _dictionaryVariables.Key;
+
         public override Expression GetSourceValues()
         {
             var dictionaryAccess = base.GetSourceValues();
 
-            if (!Builder.ElementTypesAreSimple)
+            if (!Builder.TargetElementsAreSimple)
             {
                 return Expression.Property(dictionaryAccess, "Values");
             }
@@ -85,13 +87,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
         public Expression GetSourceCountAccess() => Expression.Property(SourceValue, "Count");
 
         public override bool UseReadOnlyTargetWrapper
-            => base.UseReadOnlyTargetWrapper && Builder.Context.ElementTypesAreSimple;
+            => base.UseReadOnlyTargetWrapper && Builder.Context.TargetElementsAreSimple;
 
         public Expression GetMappingShortCircuitOrNull() => null;
 
         public IPopulationLoopData GetPopulationLoopData()
         {
-            if (Builder.ElementTypesAreSimple)
+            if (Builder.TargetElementsAreSimple)
             {
                 return new EnumerableSourcePopulationLoopData(Builder);
             }

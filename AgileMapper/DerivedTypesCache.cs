@@ -32,19 +32,19 @@
             }
         }
 
-        public IList<Type> GetTypesDerivedFrom(Type type)
+        public IList<Type> GetTypesDerivedFrom(Type baseType)
         {
-            if (type.IsSealed() || type.IsFromBcl())
+            if (baseType.IsInterface() || baseType.IsSealed() || baseType.IsFromBcl())
             {
                 return Constants.EmptyTypeArray;
             }
 
-            return _derivedTypesByType.GetOrAdd(type, GetDerivedTypesForType);
+            return _derivedTypesByType.GetOrAdd(baseType, GetDerivedTypesForType);
         }
 
-        private IList<Type> GetDerivedTypesForType(Type type)
+        private IList<Type> GetDerivedTypesForType(Type baseType)
         {
-            var typeAssemblies = new[] { type.GetAssembly() };
+            var typeAssemblies = new[] { baseType.GetAssembly() };
 
             Assembly[] assemblies;
 
@@ -59,27 +59,27 @@
                 .SelectMany(assembly => _typesByAssembly
                     .GetOrAdd(assembly, GetRelevantTypesFromAssembly));
 
-            var derivedTypes = assemblyTypes.Filter(t => t.IsDerivedFrom(type)).ToArray();
-
-            if (derivedTypes.None())
-            {
-                return Constants.EmptyTypeArray;
-            }
-
-            var derivedTypesList = derivedTypes
-                .OrderBy(t => t, TypeComparer.MostToLeastDerived)
+            var derivedTypes = assemblyTypes
+                .Filter(baseType, (bt, dt) => dt.IsDerivedFrom(bt))
                 .ToArray();
 
-            return derivedTypesList;
+            switch (derivedTypes.Length)
+            {
+                case 0:
+                    return Constants.EmptyTypeArray;
+
+                case 1:
+                    return derivedTypes;
+
+                default:
+                    return derivedTypes
+                        .OrderBy(t => t, TypeComparer.MostToLeastDerived)
+                        .ToArray();
+            }
         }
 
         private static IEnumerable<Type> GetRelevantTypesFromAssembly(Assembly assembly)
-        {
-            return assembly
-                .QueryTypes()
-                .Filter(t => t.IsClass() && !t.IsAbstract())
-                .ToArray();
-        }
+            => assembly.QueryTypes().Filter(t => t.IsClass() && !t.IsAbstract()).ToArray();
 
         internal void Reset() => _derivedTypesByType.Empty();
     }

@@ -2,15 +2,18 @@
 {
     using System.Collections.Generic;
     using System.Dynamic;
-    using System.Text.RegularExpressions;
-    using Extensions.Internal;
-    using Members;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Text.RegularExpressions;
+#if FEATURE_DYNAMIC
+    using Api.Configuration.Dynamics;
+#endif
+    using Extensions.Internal;
+    using Members;
+    using ReadableExpressions.Extensions;
 
     internal class ElementKeyPartFactory : DictionaryKeyPartFactoryBase
     {
@@ -40,14 +43,12 @@
         }
 
         #region Factory Methods
-
+#if FEATURE_DYNAMIC
         public static ElementKeyPartFactory UnderscoredIndexForSourceDynamics(MapperContext mapperContext)
         {
             var sourceExpandoObject = new MappingConfigInfo(mapperContext)
-                .ForAllRuleSets()
                 .ForAllSourceTypes()
-                .ForTargetType<ExpandoObject>()
-                .Set(DictionaryType.Expando);
+                .ForTargetExpandoObject();
 
             return new ElementKeyPartFactory("_", null, sourceExpandoObject);
         }
@@ -55,14 +56,12 @@
         public static ElementKeyPartFactory UnderscoredIndexForTargetDynamics(MapperContext mapperContext)
         {
             var sourceExpandoObject = new MappingConfigInfo(mapperContext)
-                .ForAllRuleSets()
-                .ForSourceType<ExpandoObject>()
-                .ForAllTargetTypes()
-                .Set(DictionaryType.Expando);
+                .ForSourceExpandoObject()
+                .ForAllTargetTypes();
 
             return new ElementKeyPartFactory("_", null, sourceExpandoObject);
         }
-
+#endif
         public static ElementKeyPartFactory SquareBracketedIndex(MapperContext mapperContext)
         {
             return new ElementKeyPartFactory(
@@ -163,7 +162,7 @@
                 yield return _prefix;
             }
 
-            yield return ConfigInfo.MapperContext.ValueConverters.GetConversion(index, typeof(string));
+            yield return ConfigInfo.MapperContext.GetValueConversion(index, typeof(string));
 
             if (_suffix != null)
             {
@@ -180,9 +179,9 @@
         {
             var sourceType = ConfigInfo.IsForAllSourceTypes()
                 ? "All sources"
-                : ConfigInfo.SourceType.GetFriendlyName();
+                : SourceTypeName;
 
-            var targetTypeName = ConfigInfo.TargetType == typeof(object)
+            var targetTypeName = TargetType == typeof(object)
                 ? "All targets"
                 : TargetTypeName;
 

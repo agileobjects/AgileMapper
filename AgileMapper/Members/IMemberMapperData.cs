@@ -7,12 +7,8 @@
 #endif
     using ObjectPopulation;
 
-    internal interface IMemberMapperData : IBasicMapperData
+    internal interface IMemberMapperData : IQualifiedMemberContext
     {
-        MapperContext MapperContext { get; }
-
-        bool IsEntryPoint { get; }
-
         new ObjectMapperData Parent { get; }
 
         MapperDataContext Context { get; }
@@ -21,16 +17,18 @@
 
         ParameterExpression MappingDataObject { get; }
 
+        Expression RootMappingDataObject { get; }
+
         Expression SourceObject { get; }
 
         Expression TargetObject { get; }
 
         Expression CreatedObject { get; }
 
-        Expression EnumerableIndex { get; }
+        Expression ElementIndex { get; }
+
+        Expression ElementKey { get; }
 
         Expression TargetInstance { get; }
-
-        ExpressionInfoFinder ExpressionInfoFinder { get; }
     }
 }

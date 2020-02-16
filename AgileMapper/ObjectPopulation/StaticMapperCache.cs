@@ -62,7 +62,7 @@
                 }
             }
 
-            public bool TryGetMapper(IObjectMappingData key, out ObjectMapper<TSource, TTarget> mapper)
+            public bool TryGetMapper(IMappingContextOwner key, out ObjectMapper<TSource, TTarget> mapper)
             {
                 if (_mapper?.MapperData.MapperContext != key.MappingContext.MapperContext)
                 {
