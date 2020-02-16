@@ -19,8 +19,10 @@
 #if NET35
     using Dlr = Microsoft.Scripting.Ast;
     using Expr = Microsoft.Scripting.Ast.Expression;
+    using ExprType = Microsoft.Scripting.Ast.ExpressionType;
 #else
     using Expr = System.Linq.Expressions.Expression;
+    using ExprType = System.Linq.Expressions.ExpressionType;
 #endif
     using static System.Linq.Expressions.ExpressionType;
 
@@ -520,7 +522,7 @@
 #endif
                 .GetRootExpression();
 
-            return rootExpression.NodeType != Parameter;
+            return rootExpression.NodeType != ExprType.Parameter;
         }
 
         private void RegisterComplexTypeFactoryMethod<TSourceValue>()

@@ -16,8 +16,10 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
     {
         private static readonly IEqualityComparer<Expression> _equator = new ExpressionEquator(MemberAccessesAreEqual);
 
-        public static readonly IEqualityComparer<Expression> Equivalator = new ExpressionEquator((e, x, y) => MemberAccessesAreEquivalent(x, y));
-
+        public static readonly IEqualityComparer<Expression> Equivalator = ExpressionEquator.Equivalator;
+#if NET35
+        public static readonly IComparer<Expression> EquivalatorComparer = ExpressionEquator.Equivalator;
+#endif
         public static bool AreEqual(Expression x, Expression y) => _equator.Equals(x, y);
 
         public static bool AreEquivalent(Expression x, Expression y) => Equivalator.Equals(x, y);
@@ -42,7 +44,13 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
         #endregion
 
         private class ExpressionEquator : IEqualityComparer<Expression>
+#if NET35
+            , IComparer<Expression>
+#endif
         {
+            public static readonly ExpressionEquator Equivalator =
+                new ExpressionEquator((e, x, y) => MemberAccessesAreEquivalent(x, y));
+
             private readonly Func<ExpressionEquator, MemberExpression, MemberExpression, bool> _memberAccessComparer;
 
             public ExpressionEquator(
@@ -345,6 +353,9 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
                 => (x.TypeOperand == y.TypeOperand) && Equals(x.Expression, y.Expression);
 
             public int GetHashCode(Expression obj) => 0;
+#if NET35
+            public int Compare(Expression x, Expression y) => Equals(x, y) ? 0 : -1;
+#endif
         }
     }
 }

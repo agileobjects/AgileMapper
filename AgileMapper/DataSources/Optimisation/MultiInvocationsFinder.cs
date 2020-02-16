@@ -63,7 +63,7 @@
         private class MultiInvocationsFinderInstance : ExpressionVisitor
         {
             private readonly Expression _rootMappingData;
-            private ICollection<Expression> _allInvocations;
+            private List<Expression> _allInvocations;
             private ICollection<Expression> _multiInvocations;
 
             public MultiInvocationsFinderInstance(IMemberMapperData mapperData)
@@ -112,7 +112,7 @@
 
             private void AddInvocation(Expression invocation)
             {
-                if (_allInvocations?.Contains(invocation) != true)
+                if (IsFirstInvocation(invocation))
                 {
                     AllInvocations.Add(invocation);
                 }
@@ -120,6 +120,19 @@
                 {
                     MultiInvocations.Add(invocation);
                 }
+            }
+
+            private bool IsFirstInvocation(Expression invocation)
+            {
+                if (_allInvocations == null)
+                {
+                    return true;
+                }
+#if NET35
+                return _allInvocations.BinarySearch(invocation, ExpressionEvaluation.EquivalatorComparer) == -1;
+#else
+                return !_allInvocations.Contains(invocation);
+#endif
             }
         }
     }
