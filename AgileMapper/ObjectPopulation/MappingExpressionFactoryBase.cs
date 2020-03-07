@@ -93,9 +93,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield break;
             }
 
-            for (var i = 0; i < configuredToTargetDataSources.Count;)
+            for (var i = 0; i < configuredToTargetDataSources.Count; ++i)
             {
-                var configuredToTargetDataSource = configuredToTargetDataSources[i++];
+                var configuredToTargetDataSource = configuredToTargetDataSources[i];
                 var newSourceContext = context.WithDataSource(configuredToTargetDataSource);
 
                 AddPopulationsAndCallbacks(newSourceContext);
@@ -123,7 +123,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                if (context.MapperData.TargetMember.IsComplex || (i > 1))
+                if (context.MapperData.TargetMember.IsComplex || (i > 0))
                 {
                     yield return Expression.IfThen(configuredToTargetDataSource.Condition, mapping);
                     continue;

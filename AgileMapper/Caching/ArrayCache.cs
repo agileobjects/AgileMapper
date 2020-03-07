@@ -42,9 +42,9 @@
         {
             get
             {
-                for (var i = 0; i < _length;)
+                for (var i = 0; i < _length; ++i)
                 {
-                    yield return _values[i++];
+                    yield return _values[i];
                 }
             }
         }

@@ -86,9 +86,9 @@
         [DebuggerStepThrough]
         public static bool TryFindMatch<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate, out T match)
         {
-            for (int i = 0, n = items.Count; i < n;)
+            for (int i = 0, n = items.Count; i < n; ++i)
             {
-                match = items[i++];
+                match = items[i];
 
                 if (predicate.Invoke(argument, match))
                 {

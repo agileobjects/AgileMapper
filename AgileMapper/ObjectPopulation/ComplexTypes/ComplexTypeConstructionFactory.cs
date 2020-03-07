@@ -102,9 +102,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             int i;
 
-            for (i = 0; i < greediestAvailableFactoryInfos.Length;)
+            for (i = 0; i < greediestAvailableFactoryInfos.Length; ++i)
             {
-                greediestAvailableFactoryInfos[i++].AddTo(constructionInfos, key);
+                greediestAvailableFactoryInfos[i].AddTo(constructionInfos, key);
             }
 
             if (constructors.Any())
@@ -114,9 +114,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     key,
                     greediestUnconditionalFactoryInfo);
 
-                for (i = 0; i < greediestAvailableNewingInfos.Length;)
+                for (i = 0; i < greediestAvailableNewingInfos.Length; ++i)
                 {
-                    greediestAvailableNewingInfos[i++].AddTo(constructionInfos, key);
+                    greediestAvailableNewingInfos[i].AddTo(constructionInfos, key);
                 }
             }
 
@@ -511,9 +511,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 var conditions = default(Expression);
 
-                for (var i = 0; i < dataSources.Count;)
+                for (var i = 0; i < dataSources.Count; ++i)
                 {
-                    var dataSource = dataSources[i++];
+                    var dataSource = dataSources[i];
 
                     if (!dataSource.IsConditional)
                     {

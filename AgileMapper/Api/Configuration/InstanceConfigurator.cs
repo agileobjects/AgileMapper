@@ -88,9 +88,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
             compositeIdParts.Add(GetIdPartOrThrow(idParts.First().Body));
 
-            for (var i = 1; i < idParts.Length;)
+            for (var i = 1; i < idParts.Length; ++i)
             {
-                var idPart = GetIdPartOrThrow(idParts[i++].ReplaceParameterWith(entityParameter));
+                var idPart = GetIdPartOrThrow(idParts[i].ReplaceParameterWith(entityParameter));
 
                 compositeIdParts.Add(StringExpressionExtensions.Underscore);
                 compositeIdParts.Add(idPart);

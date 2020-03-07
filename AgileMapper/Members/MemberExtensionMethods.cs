@@ -391,7 +391,7 @@
 
             for (var i = 0; i < memberAccesses.Count;)
             {
-                var memberAccess = memberAccesses[i++];
+                var memberAccess = memberAccesses[i];
                 var memberName = GetMemberName(memberAccess);
                 var members = membersFactory.Invoke(parentMember.Type);
                 var member = members.FirstOrDefault(memberName, (mn, m) => m.Name == mn);
@@ -401,7 +401,7 @@
                     return null;
                 }
 
-                memberChain[i] = member;
+                memberChain[++i] = member;
                 parentMember = member;
             }
 
