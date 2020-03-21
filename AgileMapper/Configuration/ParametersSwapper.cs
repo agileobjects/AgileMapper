@@ -381,6 +381,8 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public class SwapArgs
         {
+            private readonly Func<IMemberMapperData, Expression, Type, Expression> _targetValueFactory;
+
             public SwapArgs(
                 LambdaExpression lambda,
                 Type[] contextTypes,
@@ -390,7 +392,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 Lambda = lambda;
                 ContextTypes = (contextTypes.Length > 1) ? contextTypes : contextTypes.Append(typeof(object));
                 MapperData = mapperData;
-                TargetValueFactory = targetValueFactory;
+                _targetValueFactory = targetValueFactory;
             }
 
             public LambdaExpression Lambda { get; }
@@ -403,15 +405,10 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public IMemberMapperData MapperData { get; }
 
-            public Func<IMemberMapperData, Expression, Type, Expression> TargetValueFactory { get; }
-
             public bool ContextTypesMatch() => MapperData.TypesMatch(ContextTypes);
 
             public Expression GetAppropriateMappingContextAccess()
-                => GetAppropriateMappingContextAccess(ContextTypes);
-
-            public Expression GetAppropriateMappingContextAccess(params Type[] contextTypes)
-                => MapperData.GetAppropriateMappingContextAccess(contextTypes);
+                => MapperData.GetAppropriateMappingContextAccess(ContextTypes);
 
             public Expression GetTypedContextAccess(Expression contextAccess)
                 => MapperData.GetTypedContextAccess(contextAccess, ContextTypes);
@@ -420,7 +417,7 @@ namespace AgileObjects.AgileMapper.Configuration
                 => MapperData.GetSourceAccess(contextAccess, ContextSourceType);
 
             public Expression GetTargetAccess(Expression contextAccess)
-                => TargetValueFactory.Invoke(MapperData, contextAccess, ContextTargetType);
+                => _targetValueFactory.Invoke(MapperData, contextAccess, ContextTargetType);
         }
 
         #endregion

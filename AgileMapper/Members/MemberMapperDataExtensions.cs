@@ -542,13 +542,13 @@ namespace AgileObjects.AgileMapper.Members
             IList<Type> contextTypes,
             IList<Type> contextAccessTypes = null)
         {
-            if ((contextAccessTypes == null) && !contextAccess.Type.IsGenericType())
-            {
-                return contextAccess;
-            }
-
             if (contextAccessTypes == null)
             {
+                if (!contextAccess.Type.IsGenericType())
+                {
+                    return contextAccess;
+                }
+
                 contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
             }
 
@@ -653,7 +653,6 @@ namespace AgileObjects.AgileMapper.Members
                     .MakeGenericType(contextTypes[0], contextTypes[1])
                     .GetPublicInstanceProperty(propertyName);
 
-            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(contextAccess, property);
         }
 
