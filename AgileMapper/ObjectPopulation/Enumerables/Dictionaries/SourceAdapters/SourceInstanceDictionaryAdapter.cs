@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.SourceAdaptation
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.SourceAdapters
 {
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Sou
     using DataSources;
     using EnumerableExtensions;
     using Enumerables.Looping;
-    using Enumerables.SourceAdaptation;
+    using Enumerables.SourceAdapters;
     using Members.Dictionaries;
 
     internal class SourceInstanceDictionaryAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter

@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.SourceAdaptation
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.SourceAdapters
 {
     using System.Collections;
     using System.Linq;
@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Sou
     using System.Linq.Expressions;
 #endif
     using Enumerables.Looping;
-    using Enumerables.SourceAdaptation;
+    using Enumerables.SourceAdapters;
     using Extensions.Internal;
     using Looping;
     using Members.Dictionaries;

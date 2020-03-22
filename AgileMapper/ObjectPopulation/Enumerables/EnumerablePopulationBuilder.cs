@@ -10,13 +10,13 @@
 #endif
     using System.Reflection;
     using Caching;
-    using Enumerables.Looping;
     using Extensions;
     using Extensions.Internal;
+    using Looping;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
-    using SourceAdaptation;
+    using SourceAdapters;
     using TypeConversion;
 
     internal class EnumerablePopulationBuilder
@@ -357,7 +357,7 @@
 
             if (MapperData.TargetIsDefinitelyUnpopulated())
             {
-                return GetNullTargetConstruction();
+                return GetNullExistingTargetVariableValue();
             }
 
             if (_sourceAdapter.UseReadOnlyTargetWrapper)
@@ -365,41 +365,20 @@
                 return GetCopyIntoWrapperConstruction();
             }
 
-            Expression nonNullTargetVariableValue;
-
-            if (TargetTypeHelper.IsDeclaredReadOnly)
-            {
-                nonNullTargetVariableValue = GetNonNullEnumerableTargetVariableValue();
-            }
-            else if (TargetTypeHelper.HasCollectionInterface && TargetTypeHelper.CouldBeReadOnly())
-            {
-                var isReadOnlyProperty = TargetTypeHelper
-                    .CollectionInterfaceType
-                    .GetPublicInstanceProperty("IsReadOnly");
-
-                nonNullTargetVariableValue = Expression.Condition(
-                    Expression.Property(MapperData.TargetObject, isReadOnlyProperty),
-                    GetUnusableTargetValue(MapperData.TargetObject.Type),
-                    MapperData.TargetObject,
-                    MapperData.TargetObject.Type);
-            }
-            else
-            {
-                nonNullTargetVariableValue = MapperData.TargetObject;
-            }
+            var nonNullExistingTargetVariableValue = GetNonNullExistingTargetVariableValue();
 
             if (MapperData.TargetMember.IsReadOnly || MapperData.TargetIsDefinitelyPopulated())
             {
-                return nonNullTargetVariableValue;
+                return nonNullExistingTargetVariableValue;
             }
 
-            var nullTargetVariableValue = GetNullTargetConstruction();
+            var nullExistingTargetVariableValue = GetNullExistingTargetVariableValue();
 
             var targetVariableValue = Expression.Condition(
                 MapperData.TargetObject.GetIsNotDefaultComparison(),
-                nonNullTargetVariableValue,
-                nullTargetVariableValue,
-                nonNullTargetVariableValue.Type);
+                nonNullExistingTargetVariableValue,
+                nullExistingTargetVariableValue,
+                nonNullExistingTargetVariableValue.Type);
 
             return targetVariableValue;
         }
@@ -407,9 +386,9 @@
         private Expression GetCopyIntoWrapperConstruction()
             => TargetTypeHelper.GetWrapperConstruction(MapperData.TargetObject, GetSourceCountAccess());
 
-        private Expression GetNullTargetConstruction()
+        private Expression GetNullExistingTargetVariableValue()
         {
-            var nullTargetVariableType = GetNullTargetVariableType();
+            var nullTargetVariableType = GetNullExistingTargetVariableType();
 
             if (SourceTypeHelper.IsEnumerableOrQueryable)
             {
@@ -424,7 +403,7 @@
                 : Expression.New(capacityConstructor, GetSourceCountAccess());
         }
 
-        private Type GetNullTargetVariableType()
+        private Type GetNullExistingTargetVariableType()
         {
             if (TargetTypeHelper.IsDeclaredReadOnly)
             {
@@ -445,7 +424,22 @@
             return MapperData.TargetType;
         }
 
-        private Expression GetNonNullEnumerableTargetVariableValue()
+        private Expression GetNonNullExistingTargetVariableValue()
+        {
+            if (TargetTypeHelper.IsDeclaredReadOnly)
+            {
+                return GetNonNullDeclaredReadOnlyExistingTargetVariableValue();
+            }
+            
+            if (TargetTypeHelper.HasCollectionInterface && TargetTypeHelper.CouldBeReadOnly())
+            {
+                return GetIfReadOnlyCollectionConditional(MapperData.TargetObject);
+            }
+
+            return MapperData.TargetObject;
+        }
+
+        private Expression GetNonNullDeclaredReadOnlyExistingTargetVariableValue()
         {
             if (TargetTypeHelper.IsReadOnly)
             {
@@ -459,23 +453,34 @@
             var assignedCollection = tempCollection.AssignTo(targetAsCollection);
             var assignedCollectionNotNull = assignedCollection.GetIsNotDefaultComparison();
 
-            var unusableCollectionValue = GetUnusableTargetValue(tempCollection.Type);
-
-            var isReadOnlyProperty = tempCollection.Type.GetPublicInstanceProperty("IsReadOnly");
-
-            var writeableCollectionOrFallback = Expression.Condition(
-                Expression.Property(tempCollection, isReadOnlyProperty),
-                unusableCollectionValue,
-                tempCollection,
-                tempCollection.Type);
+            var writeableCollectionOrFallback = GetIfReadOnlyCollectionConditional(tempCollection);
 
             var collectionResolution = Expression.Condition(
                 assignedCollectionNotNull,
                 writeableCollectionOrFallback,
-                unusableCollectionValue,
+                writeableCollectionOrFallback.IfTrue,
                 TargetTypeHelper.CollectionInterfaceType);
 
             return Expression.Block(new[] { tempCollection }, collectionResolution);
+        }
+
+        private Expression GetCopyIntoObjectConstruction()
+            => TargetTypeHelper.GetCopyIntoObjectConstruction(MapperData.TargetObject);
+
+        private ConditionalExpression GetIfReadOnlyCollectionConditional(Expression collection)
+        {
+            var isReadOnlyProperty = TargetTypeHelper
+                .CollectionInterfaceType
+                .GetPublicInstanceProperty("IsReadOnly");
+            
+            var collectionType = collection.Type;
+            var ifReadOnlyValue = GetUnusableTargetValue(collectionType);
+
+            return Expression.Condition(
+                Expression.Property(collection, isReadOnlyProperty),
+                ifReadOnlyValue,
+                collection,
+                collectionType);
         }
 
         private Expression GetUnusableTargetValue(Type fallbackCollectionType)
@@ -484,9 +489,6 @@
                 ? fallbackCollectionType.ToDefaultExpression()
                 : GetCopyIntoObjectConstruction();
         }
-
-        private Expression GetCopyIntoObjectConstruction()
-            => TargetTypeHelper.GetCopyIntoObjectConstruction(MapperData.TargetObject);
 
         private bool TargetCouldBeUnusable()
             => !MapperData.TargetMember.LeafMember.IsWriteable && TargetTypeHelper.CouldBeReadOnly();

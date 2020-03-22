@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.SourceAdaptation
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.SourceAdapters
 {
 #if NET35
     using Microsoft.Scripting.Ast;
