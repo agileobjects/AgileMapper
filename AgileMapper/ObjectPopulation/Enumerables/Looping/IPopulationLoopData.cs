@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
+﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
 {
 #if NET35
     using Microsoft.Scripting.Ast;

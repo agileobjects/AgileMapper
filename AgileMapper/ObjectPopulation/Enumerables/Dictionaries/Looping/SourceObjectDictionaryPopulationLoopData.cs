@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Looping
 {
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
     using System.Linq.Expressions;
 #endif
     using DataSources;
+    using Enumerables.Looping;
     using Extensions.Internal;
 
     internal class SourceObjectDictionaryPopulationLoopData : IPopulationLoopData

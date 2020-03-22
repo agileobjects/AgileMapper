@@ -1,16 +1,17 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Looping
 {
     using System;
     using System.Collections.Generic;
-    using DataSources;
-    using Extensions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Enumerables.Looping;
+    using Extensions;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
 
     internal class SourceElementsDictionaryPopulationLoopData : IPopulationLoopData
     {

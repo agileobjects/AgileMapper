@@ -144,7 +144,7 @@
         {
             if (indexedExpression.Type.IsArray)
             {
-                return Expression.ArrayIndex(indexedExpression, indexValue);
+                return Expression.ArrayAccess(indexedExpression, indexValue);
             }
 
             var relevantTypes = new[] { indexedExpression.Type }

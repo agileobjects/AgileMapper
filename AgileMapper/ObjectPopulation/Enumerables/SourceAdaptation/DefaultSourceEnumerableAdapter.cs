@@ -1,10 +1,11 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.SourceAdaptation
 {
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Looping;
 
     internal class DefaultSourceEnumerableAdapter : SourceEnumerableAdapterBase, ISourceEnumerableAdapter
     {

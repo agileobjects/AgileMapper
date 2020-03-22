@@ -1,6 +1,6 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.SourceAdaptation
 {
-    using Dictionaries;
+    using Dictionaries.SourceAdaptation;
     using Members;
 
     internal static class SourceEnumerableAdapterFactory

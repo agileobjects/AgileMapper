@@ -1,11 +1,11 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
 {
-    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
 
     internal class IndexedSourcePopulationLoopData : IPopulationLoopData
     {

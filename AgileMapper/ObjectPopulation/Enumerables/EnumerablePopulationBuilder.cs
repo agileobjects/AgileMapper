@@ -10,11 +10,13 @@
 #endif
     using System.Reflection;
     using Caching;
+    using Enumerables.Looping;
     using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using SourceAdaptation;
     using TypeConversion;
 
     internal class EnumerablePopulationBuilder

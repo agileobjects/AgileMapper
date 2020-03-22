@@ -1,16 +1,16 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
+namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Reflection;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
 
     internal class EnumerableSourcePopulationLoopData : IPopulationLoopData
     {

@@ -1,12 +1,13 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries
+﻿namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Looping
 {
     using System.Collections.Generic;
-    using Members.Dictionaries;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Enumerables.Looping;
+    using Members.Dictionaries;
 
     internal class DictionaryToDictionaryPopulationLoopData : EnumerableSourcePopulationLoopData
     {
