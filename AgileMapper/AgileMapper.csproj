@@ -22,20 +22,10 @@
     <Copyright>Copyright © AgileObjects Ltd 2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Support for interface type-pairing, re: #163
-- Support for accessing Dictionary keys in custom data sources, re: #162
-- Support for simple type creation with CreateInstancesUsing, re: #165
-- Static API support for type-specific naming rules, re: #175
-- Support for applying custom data sources to root types only, re: #183
-- Handling null return values from custom factory methods, re: #176
-- Support for TimeSpan mapping
-- Support for DateTimeOffset mapping
-- Improved detection of unmappable target types in mapping validation, re: #183
-- Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
-- Fixing numeric to non-int-derived enum mapping
-- Fixing runtime-typed, simple-to-complex to-target data sources, re: #174
-- Performance improvements
-- Adding package icon</PackageReleaseNotes>
+    <PackageReleaseNotes>
+      - Fixing caching of custom method struct creation factory
+      - Performance improvements
+    </PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

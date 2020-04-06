@@ -146,6 +146,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private bool LocalVariableCouldBeNull(Expression instantiation)
         {
+            if (instantiation.Type.CannotBeNull())
+            {
+                return false;
+            }
+
             while (true)
             {
                 switch (instantiation.NodeType)

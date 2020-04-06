@@ -555,6 +555,25 @@
             mappingEx.InnerException.InnerException.Message.ShouldBe("Can't make an address, sorry");
         }
 
+        [Fact]
+        public void ShouldCacheACustomStructCreationFactory()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<CloneableStruct>()
+                    .ToANew<CloneableStruct>()
+                    .CreateInstancesUsing(ctx => ctx.Source.Clone());
+
+                mapper.GetPlanFor<CloneableStruct>().ToANew<CloneableStruct>();
+
+                var source = new CloneableStruct { Value = 123 };
+                var result = mapper.Map(source).ToANew<CloneableStruct>();
+
+                result.Value.ShouldBe(123);
+            }
+        }
+
         #region Helper Members
 
         private class CustomerCtor : Person
@@ -775,6 +794,16 @@
             where T : class
         {
             return null;
+        }
+
+        private struct CloneableStruct
+        {
+            public int Value { get; internal set; }
+
+            public CloneableStruct Clone()
+            {
+                return new CloneableStruct { Value = Value };
+            }
         }
 
         #endregion
