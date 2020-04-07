@@ -112,6 +112,7 @@
     <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
     <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringEntityMapping.cs" />
+    <Compile Include="Configuration\WhenConfiguringObjectMapping.cs" />
     <Compile Include="Configuration\WhenConfiguringObjectCreationIncorrectly.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSources.cs" />
     <Compile Include="Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs" />

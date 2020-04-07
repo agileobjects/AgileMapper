@@ -66,6 +66,27 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>();
 
         /// <summary>
+        /// Use the given <paramref name="factory"/> expression to map instances of the target type 
+        /// being configured. The factory expression is passed a context object containing the current
+        /// mapping's source and target objects, as well as other contextual information.
+        /// This method configures a complete mapping - no further mapping of the target object is
+        /// performed. To configure creation of the target object, and have the mapper populate its 
+        /// members, use
+        /// <see cref="CreateInstancesUsing(Expression{Func{IMappingData{TSource, TTarget}, TTarget}})"/>.
+        /// </summary>
+        /// <param name="factory">
+        /// The factory expression to use to create instances of the type being configured.
+        /// </param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
+        /// target type being configured.
+        /// </returns>
+        /// <seealso cref="CreateInstancesUsing(Expression{Func{IMappingData{TSource, TTarget}, TTarget}})"/>
+        /// <seealso cref="CreateInstancesUsing{TFactory}(TFactory)"/>
+        IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing(
+            Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory);
+
+        /// <summary>
         /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>, when
         /// mapping from and to the source and target types being configured. Matching member values
         /// will not be used to populate target members.

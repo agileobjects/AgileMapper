@@ -180,20 +180,20 @@
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
-            return RegisterFactory(factory);
+            return RegisterFactory(factory, FactoryType.Creation);
         }
 
         public IProjectionConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<TSource, TTarget>> factory)
         {
-            return RegisterFactory(factory);
+            return RegisterFactory(factory, FactoryType.Creation);
         }
 
-        private MappingConfigContinuation<TSource, TTarget> RegisterFactory(LambdaExpression factory)
+        private MappingConfigContinuation<TSource, TTarget> RegisterFactory(LambdaExpression factory, FactoryType type)
         {
             CreateFactorySpecifier<TTarget>().Using(factory);
 
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo.Set(type));
         }
 
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory)
@@ -219,6 +219,16 @@
             }
 
             return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
+        }
+
+        #endregion
+
+        #region Instance Mapping
+
+        public IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing(
+            Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
+        {
+            return RegisterFactory(factory, FactoryType.Mapping);
         }
 
         #endregion
