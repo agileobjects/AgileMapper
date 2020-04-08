@@ -9,6 +9,7 @@
     using System.Linq.Expressions;
 #endif
     using Caching.Dictionaries;
+    using Configuration;
     using Extensions;
     using Extensions.Internal;
     using Members;

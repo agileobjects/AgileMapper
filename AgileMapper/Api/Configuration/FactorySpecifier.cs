@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using Members;
-    using ObjectPopulation;
     using Projection;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;

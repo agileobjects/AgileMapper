@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation
+﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
 #if NET35
@@ -6,7 +6,6 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Configuration;
     using Members;
     using NetStandardPolyfills;
 
