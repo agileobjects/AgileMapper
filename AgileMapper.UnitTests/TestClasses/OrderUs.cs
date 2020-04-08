@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
     using System;
+    using Common.TestClasses;
 
     public class OrderUs
     {

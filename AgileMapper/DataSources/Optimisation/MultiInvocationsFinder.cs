@@ -8,7 +8,6 @@
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
-    using ReadableExpressions.Extensions;
     using Members;
     using Members.MemberExtensions;
 
@@ -64,7 +63,7 @@
         {
             private readonly Expression _rootMappingData;
             private List<Expression> _allInvocations;
-            private ICollection<Expression> _multiInvocations;
+            private List<Expression> _multiInvocations;
 
             public MultiInvocationsFinderInstance(IMemberMapperData mapperData)
             {
@@ -72,10 +71,10 @@
             }
 
             private ICollection<Expression> AllInvocations
-                => _allInvocations ?? (_allInvocations = new List<Expression>());
+                => _allInvocations ??= new List<Expression>();
 
             private ICollection<Expression> MultiInvocations
-                => _multiInvocations ?? (_multiInvocations = new List<Expression>());
+                => _multiInvocations ??= new List<Expression>();
 
             public IList<Expression> FindIn(Expression expression)
             {
@@ -112,28 +111,66 @@
 
             private void AddInvocation(Expression invocation)
             {
-                if (IsFirstInvocation(invocation))
+                if (InvocationDoesNotExist(invocation, _allInvocations))
                 {
                     AllInvocations.Add(invocation);
                 }
-                else if (_multiInvocations?.Contains(invocation) != true)
+                else if (InvocationDoesNotExist(invocation, _multiInvocations))
                 {
                     MultiInvocations.Add(invocation);
                 }
             }
 
-            private bool IsFirstInvocation(Expression invocation)
+            private static bool InvocationDoesNotExist(Expression invocation, ICollection<Expression> invocations)
             {
-                if (_allInvocations == null)
+                if (invocations == null)
                 {
                     return true;
                 }
+
+                if (invocations.Contains(invocation))
+                {
+                    return false;
+                }
 #if NET35
-                return _allInvocations.BinarySearch(invocation, ExpressionEvaluation.EquivalatorComparer) == -1;
-#else
-                return !_allInvocations.Contains(invocation);
+                if (invocations.Contains(invocation, CapturedInstanceMethodCallComparer.Instance))
+                {
+                    return false;
+                }
 #endif
+                return true;
             }
+#if NET35
+            private class CapturedInstanceMethodCallComparer : IEqualityComparer<Expression>
+            {
+                public static readonly IEqualityComparer<Expression> Instance =
+                    new CapturedInstanceMethodCallComparer();
+
+                public bool Equals(Expression x, Expression y)
+                {
+                    if (x?.NodeType != ExpressionType.Call || y?.NodeType != ExpressionType.Call)
+                    {
+                        return false;
+                    }
+
+                    var methodCallX = (MethodCallExpression)x;
+
+                    if (methodCallX.Method.IsStatic)
+                    {
+                        return false;
+                    }
+
+                    var methodCallY = (MethodCallExpression)y;
+
+                    return (methodCallX.Method == methodCallY.Method) &&
+                           (methodCallX.Object.NodeType == ExpressionType.Constant) &&
+                           (methodCallY.Object.NodeType == ExpressionType.Constant) &&
+                            ExpressionEvaluation.AreEqual(methodCallX.Object, methodCallY.Object);
+                }
+
+                public int GetHashCode(Expression obj) => 0;
+            }
+#endif
         }
     }
 }

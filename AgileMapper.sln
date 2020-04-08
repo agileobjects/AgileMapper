@@ -1,23 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05AB6D17-6066-41D5-8E79-31C342DFC2DC}"
 	ProjectSection(SolutionItems) = preProject
 		common.props = common.props
-		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
 		LICENCE.md = LICENCE.md
 		NuGetPack.bat = NuGetPack.bat
 		README.md = README.md
-		VersionInfo.cs = VersionInfo.cs
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests", "AgileMapper.UnitTests\AgileMapper.UnitTests.csproj", "{A3F2D405-8C0B-4033-9EC5-1B64007593FB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.PerformanceTester.Net461", "AgileMapper.PerformanceTester.Net461\AgileMapper.PerformanceTester.Net461.csproj", "{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.PerformanceTester.Net45", "AgileMapper.PerformanceTester.Net45\AgileMapper.PerformanceTester.Net45.csproj", "{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.NonParallel", "AgileMapper.UnitTests.NonParallel\AgileMapper.UnitTests.NonParallel.csproj", "{254D5970-FCEF-4386-8E5E-2028B765982B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NonParallel", "AgileMapper.UnitTests.NonParallel\AgileMapper.UnitTests.NonParallel.csproj", "{254D5970-FCEF-4386-8E5E-2028B765982B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper", "AgileMapper\AgileMapper.csproj", "{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}"
 EndProject
@@ -27,25 +23,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.MoreT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore2", "AgileMapper.UnitTests.NetCore2\AgileMapper.UnitTests.NetCore2.csproj", "{EBE1A3AE-1DE2-40A2-ACD3-2C15A5D10D66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef6", "AgileMapper.UnitTests.Orms.Ef6\AgileMapper.UnitTests.Orms.Ef6.csproj", "{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.Ef6", "AgileMapper.UnitTests.Orms.Ef6\AgileMapper.UnitTests.Orms.Ef6.csproj", "{63B8975D-0CDE-48F5-8CA9-8AF8FE729610}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms", "AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj", "{66522D44-19F5-4AF5-9D43-483A3CD6F958}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms", "AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj", "{66522D44-19F5-4AF5-9D43-483A3CD6F958}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef5", "AgileMapper.UnitTests.Orms.Ef5\AgileMapper.UnitTests.Orms.Ef5.csproj", "{D87103FD-3851-4724-BD8F-9CEF19C8F193}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.Ef5", "AgileMapper.UnitTests.Orms.Ef5\AgileMapper.UnitTests.Orms.Ef5.csproj", "{D87103FD-3851-4724-BD8F-9CEF19C8F193}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.EfCore2", "AgileMapper.UnitTests.Orms.EfCore2\AgileMapper.UnitTests.Orms.EfCore2.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.EfCore2", "AgileMapper.UnitTests.Orms.EfCore2\AgileMapper.UnitTests.Orms.EfCore2.csproj", "{2E3DF5C2-8A38-4A03-86D7-8D463C917E47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.EfCore1", "AgileMapper.UnitTests.Orms.EfCore1\AgileMapper.UnitTests.Orms.EfCore1.csproj", "{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.EfCore1", "AgileMapper.UnitTests.Orms.EfCore1\AgileMapper.UnitTests.Orms.EfCore1.csproj", "{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef5.LocalDb", "AgileMapper.UnitTests.Orms.Ef5.LocalDb\AgileMapper.UnitTests.Orms.Ef5.LocalDb.csproj", "{48B855A9-F42C-4D2A-9549-97ED27D59336}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.Ef5.LocalDb", "AgileMapper.UnitTests.Orms.Ef5.LocalDb\AgileMapper.UnitTests.Orms.Ef5.LocalDb.csproj", "{48B855A9-F42C-4D2A-9549-97ED27D59336}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Orms.Ef6.LocalDb", "AgileMapper.UnitTests.Orms.Ef6.LocalDb\AgileMapper.UnitTests.Orms.Ef6.LocalDb.csproj", "{B75D1A61-006A-4951-82FE-A2943296A872}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.EfCore2.NetCore2", "AgileMapper.UnitTests.Orms.EFCore2.NetCore2\AgileMapper.UnitTests.Orms.EfCore2.NetCore2.csproj", "{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Orms.Ef6.LocalDb", "AgileMapper.UnitTests.Orms.Ef6.LocalDb\AgileMapper.UnitTests.Orms.Ef6.LocalDb.csproj", "{B75D1A61-006A-4951-82FE-A2943296A872}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore2.1", "AgileMapper.UnitTests.NetCore2.1\AgileMapper.UnitTests.NetCore2.1.csproj", "{26C562E5-43EB-47D7-801A-CF772C7B3A0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgileMapper.UnitTests.Net35", "AgileMapper.UnitTests.Net35\AgileMapper.UnitTests.Net35.csproj", "{E0706509-4A4B-4C0D-A3B2-4A713FFC6ED4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Net35", "AgileMapper.UnitTests.Net35\AgileMapper.UnitTests.Net35.csproj", "{E0706509-4A4B-4C0D-A3B2-4A713FFC6ED4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Common", "AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj", "{69C1F1A9-F8A4-4CEE-90E3-67B8D6DAE8F6}"
 EndProject
@@ -63,16 +57,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orms", "Orms", "{86B68C08-2
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore3", "AgileMapper.UnitTests.NetCore3\AgileMapper.UnitTests.NetCore3.csproj", "{A6A0E6FF-E114-4F26-99E9-CAD1C03BD743}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests", "AgileMapper.UnitTests\AgileMapper.UnitTests.csproj", "{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A3F2D405-8C0B-4033-9EC5-1B64007593FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3F2D405-8C0B-4033-9EC5-1B64007593FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3F2D405-8C0B-4033-9EC5-1B64007593FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3F2D405-8C0B-4033-9EC5-1B64007593FB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -125,10 +117,6 @@ Global
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B75D1A61-006A-4951-82FE-A2943296A872}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19}.Release|Any CPU.Build.0 = Release|Any CPU
 		{26C562E5-43EB-47D7-801A-CF772C7B3A0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{26C562E5-43EB-47D7-801A-CF772C7B3A0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{26C562E5-43EB-47D7-801A-CF772C7B3A0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -157,12 +145,15 @@ Global
 		{A6A0E6FF-E114-4F26-99E9-CAD1C03BD743}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6A0E6FF-E114-4F26-99E9-CAD1C03BD743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6A0E6FF-E114-4F26-99E9-CAD1C03BD743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A3F2D405-8C0B-4033-9EC5-1B64007593FB} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81} = {8155DEC6-431B-4371-9EBC-D8E729AF3096}
 		{254D5970-FCEF-4386-8E5E-2028B765982B} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{55D6C11F-FE58-415E-AAB0-DA7F1FCC2811} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
@@ -175,7 +166,6 @@ Global
 		{FDEC5C57-9B2B-4599-80A6-DF0791BC7E1B} = {86B68C08-267A-47BD-BCBC-427710D2654F}
 		{48B855A9-F42C-4D2A-9549-97ED27D59336} = {86B68C08-267A-47BD-BCBC-427710D2654F}
 		{B75D1A61-006A-4951-82FE-A2943296A872} = {86B68C08-267A-47BD-BCBC-427710D2654F}
-		{A6A9D59E-905E-4EC8-ABDD-62FA4E3B6B19} = {86B68C08-267A-47BD-BCBC-427710D2654F}
 		{26C562E5-43EB-47D7-801A-CF772C7B3A0B} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{E0706509-4A4B-4C0D-A3B2-4A713FFC6ED4} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{69C1F1A9-F8A4-4CEE-90E3-67B8D6DAE8F6} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
@@ -185,6 +175,7 @@ Global
 		{8155DEC6-431B-4371-9EBC-D8E729AF3096} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{86B68C08-267A-47BD-BCBC-427710D2654F} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{A6A0E6FF-E114-4F26-99E9-CAD1C03BD743} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C39E9BDB-0077-445C-8F09-801CAE1AF8AB}

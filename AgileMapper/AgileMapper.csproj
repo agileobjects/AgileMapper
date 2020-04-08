@@ -2,24 +2,23 @@
   <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
-    <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
-    <TargetFrameworks>netstandard1.0;netstandard1.3;net35;net40</TargetFrameworks>
+    <TargetFrameworks>net35;net40;netstandard1.0;netstandard1.3</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
+    <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
+    <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
-    <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
 
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <Title>AgileMapper</Title>
+    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
     <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <Copyright>Copyright © AgileObjects Ltd 2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>
@@ -45,7 +44,7 @@
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
     <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
-    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;NET_35;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DRAWING</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">

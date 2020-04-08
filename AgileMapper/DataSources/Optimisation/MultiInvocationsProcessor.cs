@@ -120,7 +120,7 @@
 
                 var valueVariableValue = invocation;
 
-                for (int j = 0; j < i; ++j)
+                for (var j = 0; j < i; ++j)
                 {
                     valueVariableValue = valueVariableValue.Replace(
                         valueVariablesByInvocation.Keys[j],

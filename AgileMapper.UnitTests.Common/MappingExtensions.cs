@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.MoreTestClasses
+﻿namespace AgileObjects.AgileMapper.UnitTests.Common
 {
     using System;
     using System.Collections.Generic;
@@ -7,9 +7,7 @@
     public static class MappingExtensions
     {
         public static object RootMapperCountShouldBeOne(this IMapper mapper)
-        {
-            return RootMapperCountShouldBe(mapper, 1).First();
-        }
+            => RootMapperCountShouldBe(mapper, 1).First();
 
         public static ICollection<object> RootMapperCountShouldBe(this IMapper mapper, int expected)
         {

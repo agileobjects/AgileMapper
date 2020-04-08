@@ -1,369 +1,48 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\xunit.runner.visualstudio.2.4.1\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.4.1\build\net20\xunit.runner.visualstudio.props')" />
-  <Import Project="..\packages\xunit.core.2.4.1\build\xunit.core.props" Condition="Exists('..\packages\xunit.core.2.4.1\build\xunit.core.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\common.props" />
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A3F2D405-8C0B-4033-9EC5-1B64007593FB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
+    <TargetFramework>net461</TargetFramework>
+    <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors></WarningsAsErrors>
+    <NoWarn>0649;1701;1702</NoWarn>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE;NET40;FEATURE_DYNAMIC_ROOT_SOURCE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET40;FEATURE_DYNAMIC_ROOT_SOURCE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);TRACE;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_40;</DefineConstants>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="AgileObjects.NetStandardPolyfills, Version=1.4.0.0, Culture=neutral, PublicKeyToken=06131ac1c008ad4e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.NetStandardPolyfills.1.4.0\lib\net40\AgileObjects.NetStandardPolyfills.dll</HintPath>
-    </Reference>
-    <Reference Include="AgileObjects.ReadableExpressions, Version=2.3.2.0, Culture=neutral, PublicKeyToken=9f54ad81db69da8e, processorArchitecture=MSIL">
-      <HintPath>..\packages\AgileObjects.ReadableExpressions.2.3.2\lib\net40\AgileObjects.ReadableExpressions.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Primitives.2.0.0\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
-    <Reference Include="xunit.abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.abstractions.2.0.3\lib\net35\xunit.abstractions.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="xunit.assert, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.assert.2.4.1\lib\netstandard1.1\xunit.assert.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.core, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.extensibility.core.2.4.1\lib\net452\xunit.core.dll</HintPath>
-    </Reference>
-    <Reference Include="xunit.execution.desktop, Version=2.4.1.0, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">
-      <HintPath>..\packages\xunit.extensibility.execution.2.4.1\lib\net452\xunit.execution.desktop.dll</HintPath>
-    </Reference>
+    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.3.2" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.0.0" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.5.2" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\VersionInfo.cs">
-      <Link>VersionInfo.cs</Link>
-    </Compile>
-    <Compile Include="Caching\WhenCachingWithHashCodes.cs" />
-    <Compile Include="Configuration\AssemblyScanningTestClassBase.cs" />
-    <Compile Include="Configuration\Inline\InlineMappingExtensions.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringCallbacksInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringConstructorDataSourcesInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringDataSourcesInlineIncorrectly.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringDerivedTypesInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringEntityMappingInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringEnumMappingInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringNameMatchingInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringObjectCreationInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringObjectTrackingInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringStringFormattingInline.cs" />
-    <Compile Include="Configuration\Inline\WhenConfiguringTypeIdentifiersInline.cs" />
-    <Compile Include="Configuration\Inline\WhenIgnoringMembersInline.cs" />
-    <Compile Include="Configuration\Inline\WhenIgnoringMembersInlineIncorrectly.cs" />
-    <Compile Include="Configuration\Inline\WhenIgnoringSourceMemberInlineIncorrectly.cs" />
-    <Compile Include="Configuration\Inline\WhenIgnoringSourceMembersByValueFilterInline.cs" />
-    <Compile Include="Configuration\Inline\WhenIgnoringSourceMembersInline.cs" />
-    <Compile Include="Configuration\Inline\WhenMappingToNullInline.cs" />
-    <Compile Include="Configuration\Inline\WhenValidatingMappingsInline.cs" />
-    <Compile Include="Configuration\Inline\WhenViewingMappingPlans.cs" />
-    <Compile Include="Configuration\WhenApplyingMapperConfigurations.cs" />
-    <Compile Include="Configuration\WhenApplyingMapperConfigurationsIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringEntityMapping.cs" />
-    <Compile Include="Configuration\WhenConfiguringObjectMapping.cs" />
-    <Compile Include="Configuration\WhenConfiguringObjectCreationIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringReverseDataSources.cs" />
-    <Compile Include="Configuration\WhenConfiguringReverseDataSourcesIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringSimpleTypeCreation.cs" />
-    <Compile Include="Configuration\WhenIgnoringSourceMembers.cs" />
-    <Compile Include="Configuration\WhenIgnoringSourceMembersByFilter.cs" />
-    <Compile Include="Configuration\WhenIgnoringSourceMembersByGlobalFilter.cs" />
-    <Compile Include="Configuration\WhenIgnoringSourceMembersByValueFilter.cs" />
-    <Compile Include="Configuration\WhenIgnoringSourceMembersByValueFilterIncorrectly.cs" />
-    <Compile Include="Configuration\WhenIgnoringSourceMembersIncorrectly.cs" />
-    <Compile Include="Configuration\WhenResolvingServices.cs" />
-    <Compile Include="Configuration\WhenViewingMappingPlans.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToComplexTypes.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesOnToEnumerableMembers.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesOverComplexTypes.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewComplexTypeMembers.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewEnumerableMembers.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewEnumerables.cs" />
-    <Compile Include="Dynamics\Configuration\WhenConfiguringDynamicMappingIncorrectly.cs" />
-    <Compile Include="Dynamics\Configuration\WhenConfiguringSourceDynamicMapping.cs" />
-    <Compile Include="Dynamics\Configuration\WhenConfiguringTargetDynamicMapping.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsOverComplexTypeMembers.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsOverComplexTypes.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsOverEnumerableMembers.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsOverEnumerables.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsToNewComplexTypeMembers.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsToNewComplexTypes.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsToNewEnumerableMembers.cs" />
-    <Compile Include="Dynamics\WhenMappingFromDynamicsToNewEnumerables.cs" />
-    <Compile Include="Dynamics\WhenMappingOnToDynamics.cs" />
-    <Compile Include="Dynamics\WhenMappingOnToDynamicMembers.cs" />
-    <Compile Include="Dynamics\WhenMappingOverDynamicMembers.cs" />
-    <Compile Include="Dynamics\WhenMappingOverDynamics.cs" />
-    <Compile Include="Dynamics\WhenMappingToNewEnumerablesOfDynamic.cs" />
-    <Compile Include="Dynamics\WhenMappingToNewDynamicMembers.cs" />
-    <Compile Include="Dynamics\WhenMappingToNewDynamics.cs" />
-    <Compile Include="Extensions\Internal\WhenEquatingExpressions.cs" />
-    <Compile Include="Extensions\WhenFlatteningToQueryStringViaExtensionMethods.cs" />
-    <Compile Include="Extensions\WhenFlatteningViaExtensionMethods.cs" />
-    <Compile Include="Extensions\WhenMappingViaExtensionMethods.cs" />
-    <Compile Include="Extensions\WhenUnflatteningFromQueryStringsViaExtensionMethods.cs" />
-    <Compile Include="Extensions\WhenUnflatteningViaExtensionMethods.cs" />
-    <Compile Include="MapperCloning\WhenCloningConstructorDataSources.cs" />
-    <Compile Include="MapperCloning\WhenCloningDictionarySettings.cs" />
-    <Compile Include="MapperCloning\WhenCloningMemberIgnores.cs" />
-    <Compile Include="Configuration\WhenConfiguringObjectTracking.cs" />
-    <Compile Include="Configuration\WhenConfiguringObjectTrackingIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringDerivedTypesIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringStringFormatting.cs" />
-    <Compile Include="Configuration\WhenIgnoringMembersByFilter.cs" />
-    <Compile Include="Configuration\WhenIgnoringMembersByGlobalFilter.cs" />
-    <Compile Include="Configuration\WhenIgnoringMembersIncorrectly.cs" />
-    <Compile Include="Configuration\WhenMappingToNull.cs" />
-    <Compile Include="Dictionaries\Configuration\WhenConfiguringSourceDictionaryMapping.cs" />
-    <Compile Include="Dictionaries\Configuration\WhenConfiguringDictionaryMappingIncorrectly.cs" />
-    <Compile Include="Dictionaries\Configuration\WhenConfiguringNestedDictionaryMapping.cs" />
-    <Compile Include="Dictionaries\Configuration\WhenConfiguringTargetDictionaryMapping.cs" />
-    <Compile Include="Dictionaries\WhenCreatingRootDictionaryMembers.cs" />
-    <Compile Include="MapperCloning\WhenCloningObjectFactories.cs" />
-    <Compile Include="MapperCloning\WhenCloningStringFormatting.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToCharacters.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimeOffsets.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToTimeSpans.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToFlagsEnums.cs" />
-    <Compile Include="Structs\Configuration\WhenConfiguringStructCreationCallbacks.cs" />
-    <Compile Include="Structs\Configuration\WhenConfiguringStructDataSources.cs" />
-    <Compile Include="Structs\Configuration\WhenConfiguringStructMappingCallbacks.cs" />
-    <Compile Include="Structs\Dictionaries\WhenMappingFromDictionariesToStructs.cs" />
-    <Compile Include="Structs\WhenMappingOnToStructMembers.cs" />
-    <Compile Include="Structs\WhenMappingOnToStructs.cs" />
-    <Compile Include="Structs\WhenMappingOverStructMembers.cs" />
-    <Compile Include="Structs\WhenMappingOverStructs.cs" />
-    <Compile Include="Structs\WhenMappingToStructEnumerables.cs" />
-    <Compile Include="Structs\WhenMappingToUnmappableStructMembers.cs" />
-    <Compile Include="Structs\WhenMappingToNewStructMembers.cs" />
-    <Compile Include="Structs\WhenMappingToNewStructs.cs" />
-    <Compile Include="TestClasses\CategoryDto.cs" />
-    <Compile Include="TestClasses\CategoryEntity.cs" />
-    <Compile Include="TestClasses\DtoBase.cs" />
-    <Compile Include="TestClasses\Earthworm.cs" />
-    <Compile Include="TestClasses\EntityBase.cs" />
-    <Compile Include="TestClasses\IPublicInterface.cs" />
-    <Compile Include="TestClasses\MegaProduct.cs" />
-    <Compile Include="TestClasses\OrderDto.cs" />
-    <Compile Include="TestClasses\OrderEntity.cs" />
-    <Compile Include="TestClasses\OrderItemDto.cs" />
-    <Compile Include="TestClasses\OrderItemEntity.cs" />
-    <Compile Include="TestClasses\ProductEntity.cs" />
-    <Compile Include="TestClasses\ProductDto.cs" />
-    <Compile Include="TestClasses\ProductDtoMega.cs" />
-    <Compile Include="Configuration\WhenConfiguringConstructorDataSources.cs" />
-    <Compile Include="Configuration\WhenConfiguringDataSourcesIncorrectly.cs" />
-    <Compile Include="Configuration\WhenConfiguringDerivedTypes.cs" />
-    <Compile Include="Configuration\WhenConfiguringEnumMapping.cs" />
-    <Compile Include="Configuration\WhenConfiguringExceptionHandling.cs" />
-    <Compile Include="Configuration\WhenConfiguringMappingCallbacks.cs" />
-    <Compile Include="Configuration\WhenConfiguringNameMatching.cs" />
-    <Compile Include="Configuration\WhenConfiguringObjectCreation.cs" />
-    <Compile Include="Configuration\WhenConfiguringObjectCreationCallbacks.cs" />
-    <Compile Include="Configuration\WhenConfiguringDataSources.cs" />
-    <Compile Include="Configuration\WhenConfiguringTypeIdentifiers.cs" />
-    <Compile Include="Configuration\WhenIgnoringMembers.cs" />
-    <Compile Include="Extensions\Internal\WhenGeneratingVariableNames.cs" />
-    <Compile Include="Members\MemberTestsBase.cs" />
-    <Compile Include="Members\WhenCreatingTargetMembersFromExpressions.cs" />
-    <Compile Include="Members\WhenDeterminingATypeIdentifier.cs" />
-    <Compile Include="Members\WhenDeterminingRecursion.cs" />
-    <Compile Include="Members\WhenFindingDataSources.cs" />
-    <Compile Include="Members\WhenFindingSourceMembers.cs" />
-    <Compile Include="Members\WhenFindingTargetMembers.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToBools.cs" />
-    <Compile Include="TestClasses\FacebookUser.cs" />
-    <Compile Include="TestClasses\MysteryCustomer.cs" />
-    <Compile Include="TestClasses\MysteryCustomerViewModel.cs" />
-    <Compile Include="TestClasses\Order.cs" />
-    <Compile Include="TestClasses\OrderItem.cs" />
-    <Compile Include="TestClasses\OrderUk.cs" />
-    <Compile Include="TestClasses\OrderUs.cs" />
-    <Compile Include="TestClasses\PaymentTypeUk.cs" />
-    <Compile Include="TestClasses\PaymentTypeUs.cs" />
-    <Compile Include="TestClasses\PublicCtorStruct.cs" />
-    <Compile Include="TestClasses\PublicEnumerable.cs" />
-    <Compile Include="TestClasses\PublicImplementation.cs" />
-    <Compile Include="TestClasses\PublicIndex.cs" />
-    <Compile Include="TestClasses\PublicOtherImplementation.cs" />
-    <Compile Include="TestClasses\PublicSealed.cs" />
-    <Compile Include="TestClasses\PublicPropertyStruct.cs" />
-    <Compile Include="TestClasses\PublicTwoFields.cs" />
-    <Compile Include="TestClasses\PublicTwoFieldsStruct.cs" />
-    <Compile Include="TestClasses\PublicTwoParamCtor.cs" />
-    <Compile Include="TestClasses\PublicUnconstructable.cs" />
-    <Compile Include="TestClasses\SaveOrderItemRequest.cs" />
-    <Compile Include="TestClasses\SaveOrderRequest.cs" />
-    <Compile Include="TestClasses\Status.cs" />
-    <Compile Include="TestClasses\StringKeyedDictionary.cs" />
-    <Compile Include="TestClasses\Wedding.cs" />
-    <Compile Include="TestClasses\WeddingDto.cs" />
-    <Compile Include="Dictionaries\WhenUnflatteningFromDictionaries.cs" />
-    <Compile Include="Dictionaries\WhenFlatteningToDictionaries.cs" />
-    <Compile Include="WhenMappingConcurrently.cs" />
-    <Compile Include="WhenMappingEntities.cs" />
-    <Compile Include="WhenMappingToMetaMembers.cs" />
-    <Compile Include="WhenUnflatteningFromQueryStrings.cs" />
-    <Compile Include="WhenUsingFactoryMethods.cs" />
-    <Compile Include="WhenValidatingMappings.cs" />
-    <Compile Include="WhenAnalysingCollections.cs" />
-    <Compile Include="MapperCloning\WhenCloningDataSources.cs" />
-    <Compile Include="Dynamics\WhenFlatteningToDynamics.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionariesToNewComplexTypes.cs" />
-    <Compile Include="Dictionaries\WhenMappingFromDictionaryMembers.cs" />
-    <Compile Include="Dictionaries\WhenMappingOnToDictionaries.cs" />
-    <Compile Include="Dictionaries\WhenMappingOnToDictionaryMembers.cs" />
-    <Compile Include="Dictionaries\WhenMappingOverDictionaries.cs" />
-    <Compile Include="Dictionaries\WhenMappingOverDictionaryMembers.cs" />
-    <Compile Include="WhenMappingToConstructors.cs" />
-    <Compile Include="Dictionaries\WhenMappingToNewDictionaryMembers.cs" />
-    <Compile Include="Dictionaries\WhenMappingToNewDictionaries.cs" />
-    <Compile Include="WhenUsingPartialTrust.cs" />
-    <Compile Include="Dictionaries\WhenViewingDictionaryMappingPlans.cs" />
-    <Compile Include="WhenViewingMappingPlans.cs" />
-    <Compile Include="Reflection\WhenAccessingTypeInformation.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToDoubles.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToEnums.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToGuids.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToBytes.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToDecimals.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToShorts.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToInts.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToLongs.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToStrings.cs" />
-    <Compile Include="SimpleTypeConversion\WhenConvertingToDateTimes.cs" />
-    <Compile Include="TestClasses\Address.cs" />
-    <Compile Include="TestClasses\Child.cs" />
-    <Compile Include="TestClasses\Customer.cs" />
-    <Compile Include="TestClasses\CustomerViewModel.cs" />
-    <Compile Include="TestClasses\InternalField.cs" />
-    <Compile Include="TestClasses\Parent.cs" />
-    <Compile Include="TestClasses\Person.cs" />
-    <Compile Include="TestClasses\PersonViewModel.cs" />
-    <Compile Include="TestClasses\Product.cs" />
-    <Compile Include="TestClasses\PublicCtor.cs" />
-    <Compile Include="TestClasses\PublicField.cs" />
-    <Compile Include="TestClasses\PublicGetMethod.cs" />
-    <Compile Include="TestClasses\PublicProperty.cs" />
-    <Compile Include="TestClasses\PublicReadOnlyProperty.cs" />
-    <Compile Include="TestClasses\PublicSetMethod.cs" />
-    <Compile Include="TestClasses\PublicWriteOnlyProperty.cs" />
-    <Compile Include="TestClasses\PublicReadOnlyField.cs" />
-    <Compile Include="TestClasses\Title.cs" />
-    <Compile Include="TestClasses\TitleShortlist.cs" />
-    <Compile Include="WhenMappingCircularReferences.cs" />
-    <Compile Include="WhenMappingDerivedTypes.cs" />
-    <Compile Include="WhenMappingOnToComplexTypeMembers.cs" />
-    <Compile Include="WhenMappingOnToComplexTypes.cs" />
-    <Compile Include="WhenMappingOnToEnumerableMembers.cs" />
-    <Compile Include="WhenMappingOnToEnumerables.cs" />
-    <Compile Include="WhenMappingOverComplexTypeMembers.cs" />
-    <Compile Include="WhenMappingOverComplexTypes.cs" />
-    <Compile Include="WhenMappingOverEnumerableMembers.cs" />
-    <Compile Include="WhenMappingOverEnumerables.cs" />
-    <Compile Include="WhenMappingToNewComplexTypeMembers.cs" />
-    <Compile Include="WhenMappingToNewComplexTypes.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WhenMappingToNewEnumerableMembers.cs" />
-    <Compile Include="WhenMappingToNewEnumerables.cs" />
-    <Compile Include="Members\WhenMatchingSourceToTargetMembers.cs" />
-    <Compile Include="WhenWorkingWithQueryStrings.cs" />
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj">
-      <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
-      <Name>AgileMapper.UnitTests.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj">
-      <Project>{0d045f11-1cbb-4be1-b854-d7e5d348c2fe}</Project>
-      <Name>AgileMapper.UnitTests.MoreTestClasses</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
-      <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
-      <Name>AgileMapper</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Analyzer Include="..\packages\xunit.analyzers.0.10.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\xunit.core.2.4.1\build\xunit.core.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.4.1\build\xunit.core.props'))" />
-    <Error Condition="!Exists('..\packages\xunit.core.2.4.1\build\xunit.core.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.core.2.4.1\build\xunit.core.targets'))" />
-    <Error Condition="!Exists('..\packages\xunit.runner.visualstudio.2.4.1\build\net20\xunit.runner.visualstudio.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\xunit.runner.visualstudio.2.4.1\build\net20\xunit.runner.visualstudio.props'))" />
-  </Target>
-  <Import Project="..\packages\xunit.core.2.4.1\build\xunit.core.targets" Condition="Exists('..\packages\xunit.core.2.4.1\build\xunit.core.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>

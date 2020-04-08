@@ -6,7 +6,6 @@
     using Common;
     using Infrastructure;
     using Microsoft.EntityFrameworkCore;
-    using MoreTestClasses;
     using Orms.Infrastructure;
     using TestClasses;
     using Xunit;

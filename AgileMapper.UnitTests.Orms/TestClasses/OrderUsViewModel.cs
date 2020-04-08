@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.TestClasses
 {
     using System;
-    using UnitTests.TestClasses;
+    using Common.TestClasses;
 
     public class OrderUsViewModel
     {
