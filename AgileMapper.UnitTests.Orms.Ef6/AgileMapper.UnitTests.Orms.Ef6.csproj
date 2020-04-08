@@ -119,13 +119,13 @@
     <Compile Include="WhenViewingProjectionPlans.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj">
+      <Project>{69c1f1a9-f8a4-4cee-90e3-67b8d6dae8f6}</Project>
+      <Name>AgileMapper.UnitTests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AgileMapper.UnitTests.Orms\AgileMapper.UnitTests.Orms.csproj">
       <Project>{66522d44-19f5-4af5-9d43-483a3cd6f958}</Project>
       <Name>AgileMapper.UnitTests.Orms</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\AgileMapper.UnitTests\AgileMapper.UnitTests.csproj">
-      <Project>{A3F2D405-8C0B-4033-9EC5-1B64007593FB}</Project>
-      <Name>AgileMapper.UnitTests</Name>
     </ProjectReference>
     <ProjectReference Include="..\AgileMapper\AgileMapper.csproj">
       <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>

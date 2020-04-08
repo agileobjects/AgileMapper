@@ -5,6 +5,7 @@
     using System.Security;
     using System.Security.Permissions;
     using System.Security.Policy;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

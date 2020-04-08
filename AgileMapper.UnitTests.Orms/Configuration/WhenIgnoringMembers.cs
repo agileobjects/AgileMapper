@@ -1,6 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Configuration
 {
     using System.Linq;
+#if NET_STANDARD
+    using System.Reflection;
+#endif
     using System.Threading.Tasks;
     using Common;
     using Infrastructure;

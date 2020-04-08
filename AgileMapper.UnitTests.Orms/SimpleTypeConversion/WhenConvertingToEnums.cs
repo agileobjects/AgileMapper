@@ -4,9 +4,9 @@
     using Common;
     using Infrastructure;
     using TestClasses;
-    using UnitTests.TestClasses;
+    using UnitTests.Common.TestClasses;
     using Xunit;
-    using static UnitTests.TestClasses.Title;
+    using static UnitTests.Common.TestClasses.Title;
 
     public abstract class WhenConvertingToEnums<TOrmContext> : OrmTestClassBase<TOrmContext>
         where TOrmContext : ITestDbContext, new()

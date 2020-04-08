@@ -2,8 +2,9 @@
 {
     using System.Collections.Generic;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
-    using static TestClasses.Title;
+    using static Common.TestClasses.Title;
 #if !NET35
     using Xunit;
 #else

@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Dynamic;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

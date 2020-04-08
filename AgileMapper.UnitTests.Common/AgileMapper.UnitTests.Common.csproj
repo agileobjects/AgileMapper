@@ -2,7 +2,7 @@
   <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>net35;netstandard1.0</TargetFrameworks>
+    <TargetFrameworks>net35;net461;netstandard1.0</TargetFrameworks>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.Common</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.Common</RootNamespace>
   </PropertyGroup>

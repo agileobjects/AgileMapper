@@ -6,8 +6,6 @@
     internal static class InlineMappingExtensions
     {
         public static IList<MapperContext> InlineContexts(this IMapper mapper)
-        {
-            return ((Mapper)mapper).Context.InlineContexts.ToArray();
-        }
+            => ((Mapper)mapper).Context.InlineContexts.ToArray();
     }
 }

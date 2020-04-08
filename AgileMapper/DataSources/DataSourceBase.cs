@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else

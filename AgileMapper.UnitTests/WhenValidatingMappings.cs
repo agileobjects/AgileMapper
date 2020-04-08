@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Validation;
 #if !NET35
@@ -221,7 +222,7 @@
 
                     mapper.WhenMapping
                         .From<Issue183.ThingBase>().ButNotDerivedTypes
-                        .To<Issue183.ThingDto>()     
+                        .To<Issue183.ThingDto>()
                         .Ignore(t => t.Value);
 
                     mapper.GetPlanFor<PublicField<Issue183.ThingBase>>()

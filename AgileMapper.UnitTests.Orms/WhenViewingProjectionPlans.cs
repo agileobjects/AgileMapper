@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using Common;
     using Infrastructure;
-    using MoreTestClasses;
     using ObjectPopulation;
     using TestClasses;
     using Xunit;
@@ -42,7 +41,7 @@
 
                 usedMapper.ShouldBe(cachedMapper);
 
-                return Task.CompletedTask;
+                return Task.FromResult(1);
             });
         }
 
@@ -63,7 +62,7 @@
                     allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");
                     allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonViewModel>");
 
-                    return Task.CompletedTask;
+                    return Task.FromResult(1);
                 }
                 finally
                 {

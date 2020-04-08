@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <Company>AgileObjects Ltd</Company>
-    <Copyright>Copyright © AgileObjects Ltd 2020</Copyright>
+    <Product>AgileObjects.AgileMapper</Product>
     <Authors>Steve Wilkes</Authors>
+    <Copyright>Copyright © AgileObjects Ltd 2020</Copyright>
+    <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
     <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>

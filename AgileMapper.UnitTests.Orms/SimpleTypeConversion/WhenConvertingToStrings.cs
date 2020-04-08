@@ -5,9 +5,9 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Common;
+    using Common.TestClasses;
     using Infrastructure;
     using TestClasses;
-    using UnitTests.TestClasses;
     using Xunit;
 
     public abstract class WhenConvertingToStrings<TOrmContext> : OrmTestClassBase<TOrmContext>
