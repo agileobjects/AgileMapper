@@ -4,9 +4,11 @@
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
     <LangVersion>8.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.Net35</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.Net35</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors></WarningsAsErrors>
+    <NoWarn>0649;1701;1702</NoWarn>
     <DebugType>full</DebugType>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -24,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\AgileMapper.UnitTests\**\*.cs" Exclude="..\AgileMapper.UnitTests\obj\**\*.cs;..\AgileMapper.UnitTests\Dynamics\**\*.cs;..\AgileMapper.UnitTests\WhenUsingPartialTrust.cs;..\AgileMapper.UnitTests\WhenFlatteningToDynamics.cs;..\AgileMapper.UnitTests\WhenMappingConcurrently.cs;">
+    <Compile Include="..\AgileMapper.UnitTests\**\*.cs" Exclude="..\AgileMapper.UnitTests\Properties\*.cs;..\AgileMapper.UnitTests\obj\**\*.cs;..\AgileMapper.UnitTests\Dynamics\**\*.cs;..\AgileMapper.UnitTests\WhenUsingPartialTrust.cs;..\AgileMapper.UnitTests\WhenFlatteningToDynamics.cs;..\AgileMapper.UnitTests\WhenMappingConcurrently.cs;">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>

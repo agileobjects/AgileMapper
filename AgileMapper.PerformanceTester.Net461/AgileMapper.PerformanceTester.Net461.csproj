@@ -70,12 +70,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CommonAssemblyInfo.cs">
-      <Link>CommonAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\VersionInfo.cs">
-      <Link>VersionInfo.cs</Link>
-    </Compile>
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperComplexTypeMapper.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperComplexTypeMapperSetup.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperCtorMapper.cs" />
@@ -84,7 +78,6 @@
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperFlatteningMapper.cs" />
     <Compile Include="ConcreteMappers\ExpressMapper\ExpressMapperInstantiation.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -101,6 +94,9 @@
       <Project>{46d95c53-b4cb-4ee7-9573-5d3ef96099c0}</Project>
       <Name>AgileMapper</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

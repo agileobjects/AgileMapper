@@ -8,6 +8,8 @@
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore3</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.NetCore3</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors></WarningsAsErrors>
+    <NoWarn>0649;1701;1702</NoWarn>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -25,7 +27,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\AgileMapper.UnitTests\**\*.cs" Exclude="..\AgileMapper.UnitTests\obj\**\*.cs;..\AgileMapper.UnitTests\WhenUsingPartialTrust.cs;">
+    <Compile Include="..\AgileMapper.UnitTests\**\*.cs" Exclude="..\AgileMapper.UnitTests\obj\**\*.cs;..\AgileMapper.UnitTests\Properties\*.cs;..\AgileMapper.UnitTests\WhenUsingPartialTrust.cs;">
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Compile>
   </ItemGroup>

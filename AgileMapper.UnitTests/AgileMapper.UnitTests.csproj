@@ -4,9 +4,11 @@
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
     <LangVersion>8.0</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors></WarningsAsErrors>
+    <NoWarn>0649;1701;1702</NoWarn>
     <DebugType>full</DebugType>
     <IsPackable>false</IsPackable>
   </PropertyGroup>

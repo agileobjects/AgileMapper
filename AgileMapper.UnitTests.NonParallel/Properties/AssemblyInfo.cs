@@ -1,6 +1,3 @@
-﻿using System.Runtime.InteropServices;
-using Xunit;
-
-[assembly: ComVisible(false)]
+﻿using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
