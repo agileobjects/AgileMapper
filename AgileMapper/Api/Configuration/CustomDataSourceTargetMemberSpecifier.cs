@@ -291,10 +291,9 @@
                     Ctor = ctor,
                     MatchingParameters = ctor
                         .GetParameters()
-                        .Filter(so, (si, p) =>
+                        .FilterToArray(so, (si, p) =>
                             (si.IgnoreParameterType || (p.ParameterType == typeof(TParam))) &&
                             (si.IgnoreParameterName || (p.Name == name)))
-                        .ToArray()
                 })
                 .Filter(d => d.MatchingParameters.Any())
                 .ToArray();
@@ -306,7 +305,7 @@
 
             var matchingParameterData = matchingParameters.First();
 
-            if (matchingParameterData.MatchingParameters.Length > 1)
+            if (matchingParameterData.MatchingParameters.Count > 1)
             {
                 throw AmbiguousParameterException(GetParameterMatchInfo<TParam>(name, !settings.IgnoreParameterType));
             }

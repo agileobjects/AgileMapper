@@ -348,11 +348,10 @@
 
         private static Expression GetTypePairsCondition(
             this IMemberMapperData mapperData,
-            IEnumerable<DerivedTypePair> derivedTypePairs)
+            IList<DerivedTypePair> derivedTypePairs)
         {
             var conditionalPairs = derivedTypePairs
-                .Filter(pair => pair.HasConfiguredCondition)
-                .ToArray();
+                .FilterToArray(pair => pair.HasConfiguredCondition);
 
             var pairConditions = conditionalPairs.Chain(
                 firstPair => firstPair.GetConditionOrNull(mapperData),
@@ -415,7 +414,7 @@
                     .ToArray();
             
                 unconditionalTypePairs = groupedTypePairs
-                    .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
+                    .FilterToArray(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
             }
 
             foreach (var unconditionalTypePair in unconditionalTypePairs)

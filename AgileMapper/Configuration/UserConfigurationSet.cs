@@ -53,12 +53,12 @@
         public bool ValidateMappingPlans { get; set; }
 
         public ICollection<Type> AppliedConfigurationTypes
-            => _appliedConfigurationTypes ?? (_appliedConfigurationTypes = new List<Type>());
+            => _appliedConfigurationTypes ??= new List<Type>();
 
         #region MappedObjectCachingSettings
 
         private List<MappedObjectCachingSetting> MappedObjectCachingSettings
-            => _mappedObjectCachingSettings ?? (_mappedObjectCachingSettings = new List<MappedObjectCachingSetting>());
+            => _mappedObjectCachingSettings ??= new List<MappedObjectCachingSetting>();
 
         public void Add(MappedObjectCachingSetting setting)
         {
@@ -95,7 +95,7 @@
         #region MapToNullConditions
 
         private List<MapToNullCondition> MapToNullConditions
-            => _mapToNullConditions ?? (_mapToNullConditions = new List<MapToNullCondition>());
+            => _mapToNullConditions ??= new List<MapToNullCondition>();
 
         public void Add(MapToNullCondition condition)
         {
@@ -114,7 +114,7 @@
         #region NullCollectionSettings
 
         private List<NullCollectionsSetting> NullCollectionsSettings
-            => _nullCollectionsSettings ?? (_nullCollectionsSettings = new List<NullCollectionsSetting>());
+            => _nullCollectionsSettings ??= new List<NullCollectionsSetting>();
 
         public void Add(NullCollectionsSetting setting) => NullCollectionsSettings.Add(setting);
 
@@ -126,7 +126,7 @@
         #region EntityKeyMappingSettings
 
         private List<EntityKeyMappingSetting> EntityKeyMappingSettings
-            => _entityKeyMappingSettings ?? (_entityKeyMappingSettings = new List<EntityKeyMappingSetting>());
+            => _entityKeyMappingSettings ??= new List<EntityKeyMappingSetting>();
 
         public void Add(EntityKeyMappingSetting setting)
         {
@@ -150,7 +150,7 @@
         #region ConfiguredDataSourceReversalSettings
 
         private List<DataSourceReversalSetting> DataSourceReversalSettings
-            => _dataSourceReversalSettings ?? (_dataSourceReversalSettings = new List<DataSourceReversalSetting>());
+            => _dataSourceReversalSettings ??= new List<DataSourceReversalSetting>();
 
         public void Add(DataSourceReversalSetting setting)
         {
@@ -279,7 +279,7 @@
         #region ObjectFactories
 
         private List<ConfiguredObjectFactory> ObjectFactories
-            => _objectFactories ?? (_objectFactories = new List<ConfiguredObjectFactory>());
+            => _objectFactories ??= new List<ConfiguredObjectFactory>();
 
         public void Add(ConfiguredObjectFactory objectFactory)
         {
@@ -303,14 +303,14 @@
 
         #endregion
 
-        public MemberIdentifierSet Identifiers => _identifiers ?? (_identifiers = new MemberIdentifierSet(_mapperContext));
+        public MemberIdentifierSet Identifiers => _identifiers ??= new MemberIdentifierSet(_mapperContext);
 
         #region SourceValueFilters
 
         public bool HasSourceValueFilters => _sourceValueFilters?.Any() == true;
 
         private List<ConfiguredSourceValueFilter> SourceValueFilters
-            => _sourceValueFilters ?? (_sourceValueFilters = new List<ConfiguredSourceValueFilter>());
+            => _sourceValueFilters ??= new List<ConfiguredSourceValueFilter>();
 
         public void Add(ConfiguredSourceValueFilter sourceValueFilter)
         {
@@ -322,7 +322,7 @@
         public IList<ConfiguredSourceValueFilter> GetSourceValueFilters(IQualifiedMemberContext context, Type sourceValueType)
         {
             return HasSourceValueFilters
-                ? _sourceValueFilters.Filter(svf => svf.AppliesTo(sourceValueType, context)).ToArray()
+                ? _sourceValueFilters.FilterToArray(svf => svf.AppliesTo(sourceValueType, context))
                 : Enumerable<ConfiguredSourceValueFilter>.EmptyArray;
         }
 
@@ -333,7 +333,7 @@
         public bool HasSourceMemberIgnores => _ignoredSourceMembers?.Any() == true;
 
         private List<ConfiguredSourceMemberIgnoreBase> IgnoredSourceMembers
-            => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredSourceMemberIgnoreBase>());
+            => _ignoredSourceMembers ??= new List<ConfiguredSourceMemberIgnoreBase>();
 
         public void Add(ConfiguredSourceMemberIgnoreBase sourceMemberIgnore)
         {
@@ -349,7 +349,7 @@
             => _ignoredSourceMembers.FindMatch(context);
 
         private List<ConfiguredMemberIgnoreBase> IgnoredMembers
-            => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredMemberIgnoreBase>());
+            => _ignoredMembers ??= new List<ConfiguredMemberIgnoreBase>();
 
         public void Add(ConfiguredMemberIgnoreBase memberIgnore)
         {
@@ -367,18 +367,16 @@
 
         #region EnumPairing
 
-        private List<EnumMemberPair> EnumPairings
-            => _enumPairings ?? (_enumPairings = new List<EnumMemberPair>());
+        private List<EnumMemberPair> EnumPairings => _enumPairings ??= new List<EnumMemberPair>();
 
         public void Add(EnumMemberPair enumPairing) => EnumPairings.Add(enumPairing);
 
-        public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
-            => _enumPairings?.Filter(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.Empty;
+        public IList<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
+            => _enumPairings?.FilterToArray(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.EmptyArray;
 
         #endregion
 
-        public DictionarySettings Dictionaries =>
-            _dictionaries ?? (_dictionaries = new DictionarySettings(_mapperContext));
+        public DictionarySettings Dictionaries => _dictionaries ??= new DictionarySettings(_mapperContext);
 
         #region DataSources
 
@@ -389,7 +387,7 @@
         }
 
         private List<ConfiguredDataSourceFactory> DataSourceFactories
-            => _dataSourceFactories ?? (_dataSourceFactories = new List<ConfiguredDataSourceFactory>());
+            => _dataSourceFactories ??= new List<ConfiguredDataSourceFactory>();
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
@@ -444,7 +442,7 @@
         #region MappingCallbacks
 
         private List<MappingCallbackFactory> MappingCallbackFactories
-            => _mappingCallbackFactories ?? (_mappingCallbackFactories = new List<MappingCallbackFactory>());
+            => _mappingCallbackFactories ??= new List<MappingCallbackFactory>();
 
         public void Add(MappingCallbackFactory callbackFactory) => MappingCallbackFactories.Add(callbackFactory);
 
@@ -457,7 +455,7 @@
         }
 
         private List<ObjectCreationCallbackFactory> CreationCallbackFactories
-            => _creationCallbackFactories ?? (_creationCallbackFactories = new List<ObjectCreationCallbackFactory>());
+            => _creationCallbackFactories ??= new List<ObjectCreationCallbackFactory>();
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => CreationCallbackFactories.Add(callbackFactory);
 
@@ -469,7 +467,7 @@
         #region ExceptionCallbacks
 
         private List<ExceptionCallback> ExceptionCallbackFactories
-            => _exceptionCallbackFactories ?? (_exceptionCallbackFactories = new List<ExceptionCallback>());
+            => _exceptionCallbackFactories ??= new List<ExceptionCallback>();
 
         public void Add(ExceptionCallback callback) => ExceptionCallbackFactories.Add(callback);
 
@@ -478,12 +476,12 @@
 
         #endregion
 
-        public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet(_mapperContext));
+        public DerivedTypePairSet DerivedTypes => _derivedTypes ??= new DerivedTypePairSet(_mapperContext);
 
         #region RecursionDepthSettings
 
         private List<RecursionDepthSettings> RecursionDepthSettings
-            => _recursionDepthSettings ?? (_recursionDepthSettings = new List<RecursionDepthSettings>());
+            => _recursionDepthSettings ??= new List<RecursionDepthSettings>();
 
         public void Add(RecursionDepthSettings settings)
         {

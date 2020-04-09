@@ -2,7 +2,6 @@
 {
     using System;
     using System.Linq;
-    using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
@@ -50,8 +49,7 @@
             }
 
             var nonConfigurationTypes = preceedingMapperConfigurationTypes
-                .Filter(t => !t.IsDerivedFrom(typeof(MapperConfiguration)))
-                .ToArray();
+                .FilterToArray(t => !t.IsDerivedFrom(typeof(MapperConfiguration)));
 
             if (nonConfigurationTypes.Any())
             {
