@@ -63,7 +63,7 @@
 
         [DebuggerStepThrough]
         public static T FirstOrDefault<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
-            => TryFindMatch(items, argument, predicate, out var match) ? match : default(T);
+            => TryFindMatch(items, argument, predicate, out var match) ? match : default;
 
         [DebuggerStepThrough]
         public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> items, Func<T, bool> predicate)
@@ -96,7 +96,7 @@
                 }
             }
 
-            match = default(T);
+            match = default;
             return false;
         }
 
@@ -239,6 +239,71 @@
 
         [DebuggerStepThrough]
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Filter(item => item != null);
+
+        public static IList<T> FilterToArray<T>(this IList<T> items, Func<T, bool> predicate)
+            => FilterToArray(items, predicate, (p, item) => p.Invoke(item));
+
+        public static IList<TItem> FilterToArray<TArg, TItem>(
+            this IList<TItem> items,
+            TArg argument,
+            Func<TArg, TItem, bool> predicate)
+        {
+            if (items == null)
+            {
+                return null;
+            }
+
+            var itemCount = items.Count;
+
+            switch (itemCount)
+            {
+                case 0:
+                    return Enumerable<TItem>.EmptyArray;
+
+                case 1:
+                    if (predicate.Invoke(argument, items[0]))
+                    {
+                        return items;
+                    }
+
+                    goto case 0;
+
+                    default:
+                        var filteredItems = default(TItem[]);
+                        var filteredItemsCount = itemCount;
+                        var filteredItemsIndex = 0;
+
+                        for (var i = 0; i < itemCount; i++)
+                        {
+                            var item = items[i];
+
+                            if (!predicate.Invoke(argument, item))
+                            {
+                                --filteredItemsCount;
+                                continue;
+                            }
+
+                            if (filteredItems == null)
+                            {
+                                filteredItems = new TItem[filteredItemsCount];
+                            }
+
+                            filteredItems[filteredItemsIndex++] = item;
+                        }
+
+                        if (filteredItems == null)
+                        {
+                            goto case 0;
+                        }
+
+                        if (filteredItemsIndex == itemCount)
+                        {
+                            return items;
+                        }
+
+                        return new FilteredArray<TItem>(filteredItems, filteredItemsIndex);
+            }
+        }
 
         public static T[] Prepend<T>(this IList<T> items, T initialItem)
         {

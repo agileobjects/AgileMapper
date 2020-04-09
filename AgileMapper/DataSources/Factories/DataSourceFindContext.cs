@@ -33,8 +33,7 @@
         public bool StopFind { get; set; }
 
         private IEnumerable<ConfiguredDataSourceFactory> RelevantConfiguredDataSourceFactories
-            => _relevantConfiguredDataSourceFactories ??
-              (_relevantConfiguredDataSourceFactories = GetRelevantConfiguredDataSourceFactories());
+            => _relevantConfiguredDataSourceFactories ??= GetRelevantConfiguredDataSourceFactories();
 
         private IList<ConfiguredDataSourceFactory> GetRelevantConfiguredDataSourceFactories()
         {
@@ -62,16 +61,15 @@
         {
             get
             {
-                return _configuredDataSources ?? (_configuredDataSources =
-                   RelevantConfiguredDataSourceFactories
-                       .FindMatches(MemberMapperData)
-                       .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
-                       .ToArray());
+                return _configuredDataSources ??= RelevantConfiguredDataSourceFactories
+                    .FindMatches(MemberMapperData)
+                    .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
+                    .ToArray();
             }
         }
 
         public IDataSource MatchingSourceMemberDataSource
-            => _matchingSourceMemberDataSource ?? (_matchingSourceMemberDataSource = GetSourceMemberDataSource());
+            => _matchingSourceMemberDataSource ??= GetSourceMemberDataSource();
 
         private IDataSource GetSourceMemberDataSource()
         {
@@ -88,8 +86,7 @@
         }
 
         public SourceMemberMatch BestSourceMemberMatch =>
-            _bestSourceMemberMatch ??
-           (_bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(SourceMemberMatchContext));
+            _bestSourceMemberMatch ??= SourceMemberMatcher.GetMatchFor(SourceMemberMatchContext);
 
         private SourceMemberMatchContext SourceMemberMatchContext =>
             (_sourceMemberMatchContext != null)

@@ -55,11 +55,11 @@
         {
             try
             {
-                IEnumerable<Type> types = assembly.GetAllTypes();
+                IList<Type> types = assembly.GetAllTypes();
 
                 if (ReflectionNotPermitted)
                 {
-                    types = types.Filter(t => t.IsPublic());
+                    types = types.FilterToArray(t => t.IsPublic());
                 }
 
                 return types;

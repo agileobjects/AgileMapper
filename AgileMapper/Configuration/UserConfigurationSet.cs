@@ -322,7 +322,7 @@
         public IList<ConfiguredSourceValueFilter> GetSourceValueFilters(IQualifiedMemberContext context, Type sourceValueType)
         {
             return HasSourceValueFilters
-                ? _sourceValueFilters.Filter(svf => svf.AppliesTo(sourceValueType, context)).ToArray()
+                ? _sourceValueFilters.FilterToArray(svf => svf.AppliesTo(sourceValueType, context))
                 : Enumerable<ConfiguredSourceValueFilter>.EmptyArray;
         }
 
@@ -367,18 +367,16 @@
 
         #region EnumPairing
 
-        private List<EnumMemberPair> EnumPairings
-            => _enumPairings ??= new List<EnumMemberPair>();
+        private List<EnumMemberPair> EnumPairings => _enumPairings ??= new List<EnumMemberPair>();
 
         public void Add(EnumMemberPair enumPairing) => EnumPairings.Add(enumPairing);
 
-        public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
-            => _enumPairings?.Filter(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.Empty;
+        public IList<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
+            => _enumPairings?.FilterToArray(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.EmptyArray;
 
         #endregion
 
-        public DictionarySettings Dictionaries =>
-            _dictionaries ??= new DictionarySettings(_mapperContext);
+        public DictionarySettings Dictionaries => _dictionaries ??= new DictionarySettings(_mapperContext);
 
         #region DataSources
 
