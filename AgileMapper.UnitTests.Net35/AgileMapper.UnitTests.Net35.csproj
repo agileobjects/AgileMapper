@@ -14,6 +14,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <FrameworkPathOverride>$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <DefineConstants>$(DefineConstants);TRACE;FEATURE_DRAWING</DefineConstants>
   </PropertyGroup>
 
