@@ -148,33 +148,33 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetNestedAccessChecksFor(
             this IMemberMapperData mapperData,
             Expression value,
-            bool targetCanBeNull)
+            bool checkForNullTarget)
         {
             return GetNestedAccessChecksFor(
                 value,
                 mapperData.RuleSet,
                 mapperData,
-                targetCanBeNull);
+                checkForNullTarget);
         }
 
         public static Expression GetNestedAccessChecksFor(
             this MappingRuleSet ruleSet,
             Expression value,
-            bool targetCanBeNull = false)
+            bool checkForNullTarget = false)
         {
-            return GetNestedAccessChecksFor(value, ruleSet, mapperData: null, targetCanBeNull);
+            return GetNestedAccessChecksFor(value, ruleSet, mapperData: null, checkForNullTarget);
         }
 
         private static Expression GetNestedAccessChecksFor(
             Expression value,
             MappingRuleSet ruleSet,
             IMemberMapperData mapperData,
-            bool targetCanBeNull = false)
+            bool checkForNullTarget = false)
         {
             if (ruleSet.Settings?.GuardAccessTo(value) != false)
             {
                 return NestedAccessChecksFactory
-                    .GetNestedAccessChecksFor(value, mapperData, targetCanBeNull);
+                    .GetNestedAccessChecksFor(value, mapperData, checkForNullTarget);
             }
 
             return null;

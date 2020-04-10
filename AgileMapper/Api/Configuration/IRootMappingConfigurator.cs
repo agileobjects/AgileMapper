@@ -78,13 +78,47 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// The factory expression to use to create instances of the type being configured.
         /// </param>
         /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to
+        /// the source and target type being configured.
         /// </returns>
         /// <seealso cref="CreateInstancesUsing(Expression{Func{IMappingData{TSource, TTarget}, TTarget}})"/>
         /// <seealso cref="CreateInstancesUsing{TFactory}(TFactory)"/>
         IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory);
+
+        /// <summary>
+        /// Use the given <paramref name="factory"/> function to map instances of the target type
+        /// being configured. The following factory function signatures are supported:
+        /// <para>
+        /// Func&lt;TTarget&gt; - parameterless.
+        /// </para>
+        /// <para>
+        /// Func&lt;IMappingData&lt;TSource, TTarget&gt;, TTarget&gt; - taking a context object containing the 
+        /// current mapping's source and target objects.
+        /// </para>
+        /// <para>
+        /// Func&lt;TSource, TTarget, TTarget&gt; - taking the source and target objects.
+        /// </para>
+        /// <para>
+        /// Func&lt;TSource, TTarget, int?, TTarget&gt; - taking the source and target objects and the current 
+        /// enumerable index, if applicable.
+        /// </para>
+        /// This method configures a complete mapping - no further mapping of the target object is
+        /// performed. To configure creation of the target object, and have the mapper populate its 
+        /// members, use
+        /// <see cref="CreateInstancesUsing{TFactory}(TFactory)"/>.
+        /// </summary>
+        /// <param name="factory">
+        /// The factory function to use to map instances of the type being configured.
+        /// </param>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to
+        /// the source and target type being configured.
+        /// </returns>
+        /// <seealso cref="CreateInstancesUsing(Expression{Func{IMappingData{TSource, TTarget}, TTarget}})"/>
+        /// <seealso cref="CreateInstancesUsing{TFactory}(TFactory)"/>
+        IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing<TFactory>(TFactory factory)
+            where TFactory : class;
 
         /// <summary>
         /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>, when

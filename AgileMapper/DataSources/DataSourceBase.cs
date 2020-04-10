@@ -55,7 +55,7 @@
 
         private Expression GetCondition(Expression value, IMemberMapperData mapperData)
         {
-            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, targetCanBeNull: false);
+            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, checkForNullTarget: false);
 
             if (nestedAccessChecks == null)
             {

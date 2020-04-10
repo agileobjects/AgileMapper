@@ -17,7 +17,7 @@
 #else
     using static System.Linq.Expressions.ExpressionType;
 #endif
-    using static AgileObjects.AgileMapper.Members.Member;
+    using static Member;
 
     internal class NestedAccessChecksFactory : ExpressionVisitor
     {
@@ -30,23 +30,23 @@
 
         private NestedAccessChecksFactory(
             IMemberMapperData mapperData,
-            bool targetCanBeNull,
+            bool checkForNullTarget,
             bool invertChecks)
         {
             _rootMappingData = mapperData?.RootMappingDataObject;
-            _includeTargetNullChecking = targetCanBeNull;
+            _includeTargetNullChecking = checkForNullTarget;
             _invertChecks = invertChecks;
         }
 
         public static Expression GetNestedAccessChecksFor(
             Expression expression,
             IMemberMapperData mapperData = null,
-            bool targetCanBeNull = false,
+            bool checkForNullTarget = false,
             bool invertChecks = false)
         {
             var factory = new NestedAccessChecksFactory(
                 mapperData,
-                targetCanBeNull,
+                checkForNullTarget,
                 invertChecks);
 
             var checks = factory.CreateFor(expression);

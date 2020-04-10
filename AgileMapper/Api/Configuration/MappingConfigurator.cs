@@ -180,18 +180,24 @@
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
-            return RegisterFactory(factory, FactoryType.Creation);
+            return RegisterFactoryLambda(factory, FactoryType.Creation);
         }
 
         public IProjectionConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<TSource, TTarget>> factory)
         {
-            return RegisterFactory(factory, FactoryType.Creation);
+            return RegisterFactoryLambda(factory, FactoryType.Creation);
         }
 
-        private MappingConfigContinuation<TSource, TTarget> RegisterFactory(LambdaExpression factory, FactoryType type)
+        private MappingConfigContinuation<TSource, TTarget> RegisterFactoryLambda(LambdaExpression factory, FactoryType type)
+            => RegisterFactory(factory, (fs, f) => fs.Using(f), type);
+
+        private MappingConfigContinuation<TSource, TTarget> RegisterFactory<TFactory>(
+            TFactory factory,
+            Action<FactorySpecifier<TSource, TTarget, TTarget>, TFactory> specifier,
+            FactoryType type)
         {
-            CreateFactorySpecifier<TTarget>().Using(factory);
+            specifier.Invoke(CreateFactorySpecifier<TTarget>(), factory);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo.Set(type));
         }
@@ -199,9 +205,13 @@
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory)
             where TFactory : class
         {
-            CreateFactorySpecifier<TTarget>().Using(factory);
+            return RegisterFactory(factory, FactoryType.Creation);
+        }
 
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+        private IMappingConfigContinuation<TSource, TTarget> RegisterFactory<TFactory>(TFactory factory, FactoryType type)
+            where TFactory : class
+        {
+            return RegisterFactory(factory, (fs, f) => fs.Using(f), type);
         }
 
         public IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>()
@@ -227,6 +237,12 @@
 
         public IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
+        {
+            return RegisterFactoryLambda(factory, FactoryType.Mapping);
+        }
+
+        public IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing<TFactory>(TFactory factory)
+            where TFactory : class
         {
             return RegisterFactory(factory, FactoryType.Mapping);
         }

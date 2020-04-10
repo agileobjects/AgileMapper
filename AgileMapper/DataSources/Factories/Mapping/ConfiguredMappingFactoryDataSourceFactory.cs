@@ -10,13 +10,13 @@
     internal class ConfiguredMappingFactoryDataSourceFactory : IMappingDataSourceFactory
     {
         public bool IsFor(IObjectMappingData mappingData)
-            => QueryObjectFactories(mappingData.MapperData).Any();
+            => QueryMappingFactories(mappingData.MapperData).Any();
 
         public IDataSource CreateFor(IObjectMappingData mappingData)
         {
             var mapperData = mappingData.MapperData;
 
-            var mappingFactoryDataSources = QueryObjectFactories(mapperData)
+            var mappingFactoryDataSources = QueryMappingFactories(mapperData)
                 .Project(mapperData, (md, cof) => (IDataSource)new ConfiguredDataSource(
                     md.SourceMember,
                     cof.GetConditionOrNull(md),
@@ -27,7 +27,7 @@
             var mappingFactories = DataSourceSet.For(
                 mappingFactoryDataSources,
                 mapperData,
-                ValueExpressionBuilders.ValueSequence);
+                ValueExpressionBuilders.ConditionTree);
 
             return new AdHocDataSource(
                 mapperData.SourceMember,
@@ -36,13 +36,13 @@
                 mappingFactories.Variables);
         }
 
-        private static IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(
+        private static IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(
             IQualifiedMemberContext context)
         {
             return context
                 .MapperContext
                 .UserConfigurations
-                .QueryObjectFactories(context);
+                .QueryMappingFactories(context);
         }
     }
 }

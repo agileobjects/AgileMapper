@@ -298,7 +298,10 @@
         public bool HasSimpleTypeValueFactories { get; private set; }
 
         public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IQualifiedMemberContext context)
-            => _objectFactories.FindMatches(context);
+            => _objectFactories.FindMatches(context).Filter(of => of.ConfigInfo.Get<FactoryType>() == FactoryType.Creation);
+
+        public IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
+            => _objectFactories.FindMatches(context).Filter(of => of.ConfigInfo.Get<FactoryType>() == FactoryType.Mapping);
 
         #endregion
 

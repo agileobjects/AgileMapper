@@ -8,6 +8,7 @@
 #endif
     using Members;
     using NetStandardPolyfills;
+    using ObjectPopulation;
 
     internal class ConfiguredObjectFactory :
         UserConfiguredItemBase,
@@ -52,7 +53,8 @@
                   _factoryInfo.Supports(context.RuleSet);
         }
 
-        public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
+        public Expression Create(IMemberMapperData mapperData) 
+            => _factoryInfo.GetBody(mapperData, CallbackPosition.Before, QualifiedMember.All);
 
         #region IPotentialAutoCreatedItem Members
 
