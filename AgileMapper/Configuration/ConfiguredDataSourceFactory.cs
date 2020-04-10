@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories
+﻿namespace AgileObjects.AgileMapper.Configuration
 {
 #if NET35
     using System;
@@ -6,7 +6,7 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Configuration;
+    using DataSources;
     using Members;
 
     internal class ConfiguredDataSourceFactory :

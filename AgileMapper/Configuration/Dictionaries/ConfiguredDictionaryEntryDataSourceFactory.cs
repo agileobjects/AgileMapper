@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.DataSources.Factories
+﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using Configuration;
     using Members;
@@ -26,7 +26,7 @@
                 return false;
             }
 
-            return context.TargetMember.Matches(TargetDictionaryEntryMember) && 
+            return context.TargetMember.Matches(TargetDictionaryEntryMember) &&
                    base.AppliesTo(context);
         }
 
