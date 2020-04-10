@@ -216,10 +216,7 @@
                 condition = condition.Negate();
             }
 
-            var targetCanBeNull = position.IsPriorToObjectCreation(targetMember);
-
-            var conditionNestedAccessesChecks = mapperData
-                .GetNestedAccessChecksFor(condition, targetCanBeNull);
+            var conditionNestedAccessesChecks = mapperData.GetNestedAccessChecksFor(condition);
 
             if (conditionNestedAccessesChecks != null)
             {

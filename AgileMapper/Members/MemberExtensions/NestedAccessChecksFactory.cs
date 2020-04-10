@@ -22,33 +22,23 @@
     internal class NestedAccessChecksFactory : ExpressionVisitor
     {
         private readonly Expression _rootMappingData;
-        private readonly bool _includeTargetNullChecking;
         private readonly bool _invertChecks;
         private ICollection<Expression> _stringMemberAccessSubjects;
         private ICollection<string> _nullCheckSubjects;
         private Dictionary<string, Expression> _nestedAccessesByPath;
 
-        private NestedAccessChecksFactory(
-            IMemberMapperData mapperData,
-            bool checkForNullTarget,
-            bool invertChecks)
+        private NestedAccessChecksFactory(IMemberMapperData mapperData, bool invertChecks)
         {
             _rootMappingData = mapperData?.RootMappingDataObject;
-            _includeTargetNullChecking = checkForNullTarget;
             _invertChecks = invertChecks;
         }
 
         public static Expression GetNestedAccessChecksFor(
             Expression expression,
             IMemberMapperData mapperData = null,
-            bool checkForNullTarget = false,
             bool invertChecks = false)
         {
-            var factory = new NestedAccessChecksFactory(
-                mapperData,
-                checkForNullTarget,
-                invertChecks);
-
+            var factory = new NestedAccessChecksFactory(mapperData, invertChecks);
             var checks = factory.CreateFor(expression);
             return checks;
         }
@@ -227,10 +217,8 @@
             {
                 case nameof(IMappingData<int, int>.ElementIndex):
                 case RootSourceMemberName:
-                    return true;
-
                 case RootTargetMemberName:
-                    return _includeTargetNullChecking;
+                    return true;
 
                 default:
                     return false;
