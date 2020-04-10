@@ -3,11 +3,9 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #if NET35
     using System;
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
-    using DataSources.Factories;
     using Members;
 
     internal abstract class ConfiguredMemberIgnoreBase :
