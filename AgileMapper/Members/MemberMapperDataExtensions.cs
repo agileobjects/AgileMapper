@@ -13,7 +13,6 @@ namespace AgileObjects.AgileMapper.Members
     using Configuration;
     using Configuration.MemberIgnores.SourceValueFilters;
     using DataSources;
-    using DataSources.Factories;
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
