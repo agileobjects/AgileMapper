@@ -119,11 +119,11 @@
 
         public MappingConfigInfo GetReverseConfigInfo()
         {
-            return _reverseConfigInfo ?? (_reverseConfigInfo = ConfigInfo
+            return _reverseConfigInfo ??= ConfigInfo
                 .Copy()
                 .ForSourceType(TargetType)
                 .ForTargetType(SourceType)
-                .ForSourceValueType(TargetMember.Type));
+                .ForSourceValueType(TargetMember.Type);
         }
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)

@@ -27,13 +27,13 @@
 
         #region Setup
 
-        private static IQualifiedMember CreateSourceMember(Expression value, IMemberMapperData mapperData)
+        private static IQualifiedMember CreateSourceMember(Expression value, IQualifiedMemberContext context)
         {
-            var sourceMember = new ConfiguredSourceMember(value, mapperData);
+            var sourceMember = new ConfiguredSourceMember(value, context);
 
-            var finalSourceMember = mapperData.MapperContext
+            var finalSourceMember = context.MapperContext
                 .QualifiedMemberFactory
-                .GetFinalSourceMember(sourceMember, mapperData.TargetMember);
+                .GetFinalSourceMember(sourceMember, context.TargetMember);
 
             return finalSourceMember;
         }
@@ -50,7 +50,7 @@
 
         #endregion
 
-        private ConfiguredDataSource(
+        public ConfiguredDataSource(
             IQualifiedMember sourceMember,
             Expression configuredCondition,
             Expression convertedValue,
