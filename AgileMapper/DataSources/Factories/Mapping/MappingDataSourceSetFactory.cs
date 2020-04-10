@@ -7,6 +7,7 @@
     {
         private static readonly IMappingDataSourceFactory[] _mappingDataSourceFactories =
         {
+            new ConfiguredMappingFactoryDataSourceFactory(), 
             new QueryProjectionDataSourceFactory(),
             new RootEnumMappingDataSourceFactory(),
             new DictionaryMappingDataSourceFactory(),
