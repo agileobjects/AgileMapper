@@ -23,7 +23,7 @@
                     .MapInstancesUsing(ctx => new Address
                     {
                         Line1 = ctx.Source.Line1 + "!",
-                        Line2 = ctx.Source.Line2 + "!",
+                        Line2 = ctx.Source.Line2 + "!"
                     });
 
                 var source = new Address { Line1 = "Over here", Line2 = "Over there" };
@@ -42,7 +42,7 @@
                 static Address MapAddress(Address srcAddr, Address tgtAddr) => new Address
                 {
                     Line1 = srcAddr.Line1 + "?",
-                    Line2 = srcAddr.Line2 + "?",
+                    Line2 = srcAddr.Line2 + "?"
                 };
 
                 mapper.WhenMapping
@@ -73,15 +73,21 @@
                     .If(ctx => string.IsNullOrEmpty(ctx.Source.Line2))
                     .MapInstancesUsing(ctx => new Address
                     {
-                        Line1 = ctx.Source.Line1 + "!",
-                        Line2 = ctx.Source.Line2 + "!",
+                        Line1 = ctx.Source.Line1,
+                        Line2 = ctx.Source.Line1 + " again"
                     });
 
-                var source = new Address { Line1 = "Over here", Line2 = "Over there" };
-                var result = mapper.Map(source).ToANew<Address>();
+                var matchingSource = new Address { Line1 = "Over here" };
+                var matchingResult = mapper.Map(matchingSource).ToANew<Address>();
 
-                result.Line1.ShouldBe("Over here!");
-                result.Line2.ShouldBe("Over there!");
+                matchingResult.Line1.ShouldBe("Over here");
+                matchingResult.Line2.ShouldBe("Over here again");
+
+                var nonMatchingSource = new Address { Line1 = "Over here", Line2 = "Over there" };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Address>();
+
+                nonMatchingResult.Line1.ShouldBe("Over here");
+                nonMatchingResult.Line2.ShouldBe("Over there");
             }
         }
     }
