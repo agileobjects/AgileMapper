@@ -649,8 +649,5 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
             => Expression.Call(subject, method.MakeGenericMethod(typeArgument));
-
-        public static Expression GetReturnExpression(this ObjectMapperData mapperData, Expression value)
-            => Expression.Return(mapperData.ReturnLabelTarget, value, mapperData.TargetType);
     }
 }

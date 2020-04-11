@@ -25,7 +25,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
             var fallbackValue = GetFallbackValue(mappingData);
 
             var noMatchingKeys = dictionaryVariables.GetNoKeysWithMatchingStartQuery();
-            var returnFallback = Expression.Return(mapperData.ReturnLabelTarget, fallbackValue);
+            var returnFallback = mapperData.GetReturnExpression(fallbackValue);
             var ifNoMatchingKeysShortCircuit = Expression.IfThen(noMatchingKeys, returnFallback);
 
             var foundValueNonNull = dictionaryVariables.Value.GetIsNotDefaultComparison();
@@ -35,7 +35,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
             var mapValueCall = GetMapValueCall(dictionaryVariables.Value, mapperData);
 
             var valueMappingOrFallback = Expression.Condition(foundValueNonNull, mapValueCall, fallbackValue);
-            var returnMapValueResult = Expression.Return(mapperData.ReturnLabelTarget, valueMappingOrFallback);
+            var returnMapValueResult = mapperData.GetReturnExpression(valueMappingOrFallback);
             var ifEntryExistsShortCircuit = Expression.IfThen(entryExistsTest, returnMapValueResult);
 
             return Expression.Block(

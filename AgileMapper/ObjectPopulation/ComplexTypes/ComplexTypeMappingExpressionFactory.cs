@@ -93,23 +93,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     continue;
                 }
 
+                AddAlternateMapping(context, mapping, isConditional);
+
                 if (isConditional)
                 {
-                    context.MappingExpressions.Add(mapping);
                     continue;
                 }
 
-                if (mapping.NodeType == ExpressionType.Goto)
-                {
-                    mapping = ((GotoExpression)mapping).Value;
-                }
-                else
-                {
-                    context.MappingExpressions.Add(mapping);
-                    mapping = mappingData.MapperData.GetTargetTypeDefault();
-                }
-
-                context.MappingExpressions.Add(mappingData.MapperData.GetReturnLabel(mapping));
                 return true;
             }
 

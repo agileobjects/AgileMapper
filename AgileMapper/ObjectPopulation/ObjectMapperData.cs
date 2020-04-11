@@ -27,6 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly MethodInfo _mapRepeatedElementMethod =
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 4);
 
+        private readonly LabelTarget _returnLabelTarget;
         private Expression _rootMappingDataObject;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
@@ -74,7 +75,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ParentObject = GetParentObjectAccess();
             }
 
-            ReturnLabelTarget = Expression.Label(TargetType, "Return");
+            _returnLabelTarget = Expression.Label(TargetType, "Return");
             _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
             if (targetMember.IsEnumerable)
@@ -349,7 +350,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool HasChildMapperDatas => _childMapperDatas?.Count > 0;
 
-        public bool AnyChildMapperDataMatches(Func<ObjectMapperData, bool> matcher) 
+        public bool AnyChildMapperDataMatches(Func<ObjectMapperData, bool> matcher)
             => _childMapperDatas?.Any(matcher) == true;
 
         public IList<ObjectMapperData> ChildMapperDatas
@@ -454,11 +455,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
         public Expression CreatedObject { get; }
-
-        public LabelTarget ReturnLabelTarget { get; }
-
-        public Expression GetReturnLabel(Expression defaultValue)
-            => Expression.Label(ReturnLabelTarget, defaultValue);
 
         public ObjectMapperData EntryPointMapperData
             => _entryPointMapperData ??= GetNearestEntryPointObjectMapperData();
@@ -660,6 +656,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return mapRepeatedCall;
         }
+
+        public Expression GetReturnExpression(Expression value)
+            => Expression.Return(_returnLabelTarget, value, TargetType);
+
+        public Expression GetReturnLabel(Expression defaultValue)
+            => Expression.Label(_returnLabelTarget, defaultValue);
 
         public IQualifiedMemberContext WithNoTargetMember()
         {

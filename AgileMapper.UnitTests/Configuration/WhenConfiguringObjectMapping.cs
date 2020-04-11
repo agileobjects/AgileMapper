@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
@@ -223,6 +224,31 @@
                 mapper.Map(source).Over(target);
 
                 target.ShouldBe(1, 2, 3, 4, 5, 6);
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredFactoryForARootCollectionMappingConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<ICollection<int>>()
+                    .ToANew<ICollection<int>>()
+                    .If(ctx => ctx.Source.Count == 3)
+                    .MapInstancesUsing(ctx => ctx.Source
+                        .Select((item, index) => item + index)
+                        .ToList());
+
+                ICollection<int> matchingSource = new[] { 1, 1, 1 };
+                var matchingResult = mapper.Map(matchingSource).ToANew<ICollection<int>>();
+
+                matchingResult.ShouldBe(1, 2, 3);
+
+                ICollection<int> nonMatchingSource = new[] { 4, 5, 6, 7 };
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<ICollection<int>>();
+
+                nonMatchingResult.ShouldBe(4, 5, 6, 7);
             }
         }
     }

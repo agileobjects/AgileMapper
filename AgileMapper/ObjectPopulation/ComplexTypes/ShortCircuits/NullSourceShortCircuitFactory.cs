@@ -20,9 +20,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
                 return null;
             }
 
-            var returnNull = Expression.Return(
-                mapperData.ReturnLabelTarget,
-                mapperData.GetTargetTypeDefault());
+            var returnNull = mapperData.GetReturnExpression(mapperData.GetTargetTypeDefault());
 
             return Expression.IfThen(
                 mapperData.SourceObject.GetIsDefaultComparison(),

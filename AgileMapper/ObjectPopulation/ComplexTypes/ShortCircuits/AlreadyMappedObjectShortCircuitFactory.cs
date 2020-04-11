@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
 #else
     using System.Linq.Expressions;
 #endif
+    using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -31,7 +32,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
 
             var ifTryGetReturn = Expression.IfThen(
                 tryGetCall,
-                Expression.Return(mapperData.ReturnLabelTarget, mapperData.TargetInstance));
+                mapperData.GetReturnExpression(mapperData.TargetInstance));
 
             return ifTryGetReturn;
         }

@@ -52,15 +52,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return false;
             }
 
-            var isUnconditional = !isConditional;
-
-            if (isUnconditional)
-            {
-                mapping = context.MapperData.GetReturnLabel(mapping);
-            }
-
-            context.MappingExpressions.Add(mapping);
-            return isUnconditional;
+            AddAlternateMapping(context, mapping, isConditional);
+            return !isConditional;
         }
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)

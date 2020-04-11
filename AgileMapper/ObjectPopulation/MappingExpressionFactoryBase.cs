@@ -73,6 +73,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected virtual bool ShortCircuitMapping(MappingCreationContext context) => false;
 
+        protected void AddAlternateMapping(
+            MappingCreationContext context,
+            Expression mapping,
+            bool isConditional)
+        {
+            if (isConditional)
+            {
+                context.MappingExpressions.Add(mapping);
+                return;
+            }
+
+            var mapperData = context.MappingData.MapperData;
+
+            if (mapping.NodeType == Goto)
+            {
+                mapping = ((GotoExpression)mapping).Value;
+            }
+            else
+            {
+                context.MappingExpressions.Add(mapping);
+                mapping = mapperData.GetTargetTypeDefault();
+            }
+
+            context.MappingExpressions.Add(mapperData.GetReturnLabel(mapping));
+        }
+
         protected virtual void InsertShortCircuitReturns(MappingCreationContext context)
         {
         }
