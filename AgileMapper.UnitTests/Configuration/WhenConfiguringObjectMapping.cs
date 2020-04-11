@@ -109,6 +109,7 @@
                 mapper.WhenMapping
                     .From<MysteryCustomerViewModel>()
                     .To<MysteryCustomer>()
+                    .If((mcVm, mc) => mcVm.Discount > 0.5)
                     .MapInstancesUsing(mysteryCustomerMapper);
 
                 var source = new PublicField<ICollection<CustomerViewModel>>
@@ -127,13 +128,20 @@
                             AddressLine1 = "Customer 2 House",
                             Discount = 0.75,
                             Report = "Pretty good!"
+                        },
+                        new MysteryCustomerViewModel
+                        {
+                            Name = "Customer 3",
+                            AddressLine1 = "Customer 3 House",
+                            Discount = 0.25,
+                            Report = "Pretty great!"
                         }
                     }
                 };
 
                 var result = mapper.Map(source).ToANew<PublicProperty<IList<Customer>>>();
 
-                result.Value.ShouldNotBeNull().Count.ShouldBe(2);
+                result.Value.ShouldNotBeNull().Count.ShouldBe(3);
 
                 var result1 = result.Value.First().ShouldBeOfType<Customer>();
                 result1.Name.ShouldBe("Customer 1");
@@ -145,6 +153,12 @@
                 result2.Address.ShouldBeNull();
                 result2.Discount.ShouldBe(2.0m);
                 result2.Report.ShouldBe("Pretty good!");
+
+                var result3 = result.Value.Third().ShouldBeOfType<MysteryCustomer>();
+                result3.Name.ShouldBe("Customer 3");
+                result3.Address.ShouldNotBeNull().Line1.ShouldBe("Customer 3 House");
+                result3.Discount.ShouldBe(0.25m);
+                result3.Report.ShouldBe("Pretty great!");
             }
         }
     }
