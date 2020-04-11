@@ -44,13 +44,13 @@
         }
 
         private ICollection<Expression> StringMemberAccessSubjects
-            => _stringMemberAccessSubjects ?? (_stringMemberAccessSubjects = new List<Expression>());
+            => _stringMemberAccessSubjects ??= new List<Expression>();
 
         private ICollection<string> NullCheckSubjects
-            => _nullCheckSubjects ?? (_nullCheckSubjects = new List<string>());
+            => _nullCheckSubjects ??= new List<string>();
 
         private Dictionary<string, Expression> NestedAccessesByPath
-            => _nestedAccessesByPath ?? (_nestedAccessesByPath = new Dictionary<string, Expression>());
+            => _nestedAccessesByPath ??= new Dictionary<string, Expression>();
 
         public Expression CreateFor(Expression expression)
         {

@@ -18,7 +18,7 @@
     using static MappingRuleSet;
 
     internal delegate bool SourceTypeComparer(ITypePair typePair, ITypePair otherTypePair);
-    
+
     internal delegate bool TargetTypeComparer(ITypePair typePair, ITypePair otherTypePair);
 
     internal class MappingConfigInfo : ITypePair
@@ -95,7 +95,7 @@
         private bool HasSameSourceTypeAs(ITypePair typePair) => typePair.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
-        
+
         public bool IsForAllTargetTypes() => TargetType == typeof(object);
 
         public MappingConfigInfo ForAllTargetTypes() => ForTargetType<object>();
@@ -244,7 +244,7 @@
             return this;
         }
 
-        private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
+        private Dictionary<Type, object> Data => (_data ??= new Dictionary<Type, object>());
 
         public IObjectMappingData ToMappingData<TSource, TTarget>()
         {
