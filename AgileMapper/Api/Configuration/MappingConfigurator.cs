@@ -197,9 +197,9 @@
             Action<FactorySpecifier<TSource, TTarget, TTarget>, TFactory> specifier,
             FactoryType type)
         {
-            specifier.Invoke(CreateFactorySpecifier<TTarget>(), factory);
+            specifier.Invoke(CreateFactorySpecifier<TTarget>(type), factory);
 
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo.Set(type));
+            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
 
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory)
@@ -215,12 +215,12 @@
         }
 
         public IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>()
-            => CreateFactorySpecifier<TObject>();
+            => CreateFactorySpecifier<TObject>(FactoryType.Creation);
 
         IProjectionFactorySpecifier<TSource, TTarget, TObject> IRootProjectionConfigurator<TSource, TTarget>.CreateInstancesOf<TObject>()
-            => CreateFactorySpecifier<TObject>();
+            => CreateFactorySpecifier<TObject>(FactoryType.Creation);
 
-        private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>()
+        private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>(FactoryType type)
         {
             if (typeof(TObject).IsPrimitive())
             {
@@ -228,7 +228,7 @@
                     $"Unable to configure the creation of primitive type '{typeof(TObject).GetFriendlyName()}'");
             }
 
-            return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
+            return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo.Set(type));
         }
 
         #endregion
@@ -246,6 +246,9 @@
         {
             return RegisterFactory(factory, FactoryType.Mapping);
         }
+
+        public IMappingFactorySpecifier<TSource, TTarget, TObject> MapInstancesOf<TObject>()
+            => CreateFactorySpecifier<TObject>(FactoryType.Mapping);
 
         #endregion
 

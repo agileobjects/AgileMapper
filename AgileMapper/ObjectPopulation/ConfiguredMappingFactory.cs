@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
+namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;

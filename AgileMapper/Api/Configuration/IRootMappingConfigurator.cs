@@ -56,7 +56,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             where TFactory : class;
 
         /// <summary>
-        /// Configure a factory to use to create instances of the <typeparamref name="TObject"/> Type.
+        /// Configure a factory with which to create instances of the <typeparamref name="TObject"/> Type,
+        /// in mappings from and to the source and target types being configured.
         /// </summary>
         /// <typeparam name="TObject">The Type of object the creation of which is to be configured.</typeparam>
         /// <returns>
@@ -70,8 +71,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// being configured. The factory expression is passed a context object containing the current
         /// mapping's source and target objects, as well as other contextual information.
         /// This method configures a complete mapping - no further mapping of the target object is
-        /// performed. To configure creation of the target object, and have the mapper populate its 
-        /// members, use
+        /// performed. To configure creation of the target object only and have the mapper populate
+        /// its members, use
         /// <see cref="CreateInstancesUsing(Expression{Func{IMappingData{TSource, TTarget}, TTarget}})"/>.
         /// </summary>
         /// <param name="factory">
@@ -119,6 +120,21 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// <seealso cref="CreateInstancesUsing{TFactory}(TFactory)"/>
         IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing<TFactory>(TFactory factory)
             where TFactory : class;
+
+        /// <summary>
+        /// Configure a factory with which to map instances of the <typeparamref name="TObject"/>
+        /// type, in mappings from and to the source and target types being configured.
+        /// This method configures a complete mapping - no further mapping of the target object is
+        /// performed. To configure creation of the target object only and have the mapper populate
+        /// its members, use <see cref="CreateInstancesOf{TObject}"/>.
+        /// </summary>
+        /// <typeparam name="TObject">The Type of object the creation of which is to be configured.</typeparam>
+        /// <returns>
+        /// An IMappingFactorySpecifier with which to configure the factory for  the 
+        /// <typeparamref name="TObject"/> Type.
+        /// </returns>
+        /// <seealso cref="CreateInstancesOf{TObject}"/>
+        IMappingFactorySpecifier<TSource, TTarget, TObject> MapInstancesOf<TObject>();
 
         /// <summary>
         /// Ignore all source members with a value matching the <paramref name="valuesFilter"/>, when

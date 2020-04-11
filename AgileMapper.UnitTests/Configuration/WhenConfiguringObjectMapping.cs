@@ -94,7 +94,7 @@
         }
 
         [Fact]
-        public void ShouldUseAConfiguredThreeParameterFactoryForANestedEnumerableMappingConditionally()
+        public void ShouldUseAConfiguredThreeParameterFactoryForANestedListElementMappingConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -159,6 +159,45 @@
                 result3.Address.ShouldNotBeNull().Line1.ShouldBe("Customer 3 House");
                 result3.Discount.ShouldBe(0.25m);
                 result3.Report.ShouldBe("Pretty great!");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguedThreeParameterFactoryForARootArrayElementMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Func<Address[], Address[], int?, Address> addressMapper = (srcAddrs, tgtAddrs, index) =>
+                {
+                    var sourceAddress = srcAddrs[index.GetValueOrDefault()];
+
+                    return new Address
+                    {
+                        Line1 = (index + 1) + " " + sourceAddress.Line1,
+                        Line2 = sourceAddress.Line2
+                    };
+                };
+
+                mapper.WhenMapping
+                    .From<Address[]>()
+                    .ToANew<Address[]>()
+                    .MapInstancesOf<Address>().Using(addressMapper);
+
+                var source = new[]
+                {
+                    new Address { Line1 = "Line 1.1", Line2 = "Line 1.2" },
+                    new Address { Line1 = "Line 2.1" }
+                };
+
+                var result = mapper.Map(source).ToANew<Address[]>();
+
+                result.Length.ShouldBe(2);
+
+                result.First().Line1.ShouldBe("1 Line 1.1");
+                result.First().Line2.ShouldBe("Line 1.2");
+
+                result.Second().Line1.ShouldBe("2 Line 2.1");
+                result.Second().Line2.ShouldBeNull();
             }
         }
     }

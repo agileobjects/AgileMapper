@@ -132,21 +132,21 @@
         [Fact]
         public void ShouldErrorIfDuplicateTargetInstanceFactoryIsConfigured()
         {
-            using (var mapper = Mapper.CreateNew())
+            var factoryEx = Should.Throw<MappingConfigurationException>(() =>
             {
-                mapper.WhenMapping
-                    .Over<Product>()
-                    .CreateInstancesUsing(ctx => new Product { ProductId = "La la la" });
-
-                var factoryEx = Should.Throw<MappingConfigurationException>(() =>
+                using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
                         .Over<Product>()
                         .CreateInstancesUsing(ctx => new Product { ProductId = "La la la" });
-                });
 
-                factoryEx.Message.ShouldContain("already been configured");
-            }
+                    mapper.WhenMapping
+                        .Over<Product>()
+                        .CreateInstancesUsing(ctx => new Product { ProductId = "La la la" });
+                }
+            });
+
+            factoryEx.Message.ShouldContain("already been configured");
         }
     }
 }
