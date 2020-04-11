@@ -145,39 +145,23 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetTypeDefault(this ITypePair typePair)
             => typePair.TargetType.ToDefaultExpression();
 
-        public static Expression GetNestedAccessChecksFor(
-            this IMemberMapperData mapperData,
-            Expression value,
-            bool targetCanBeNull)
-        {
-            return GetNestedAccessChecksFor(
-                value,
-                mapperData.RuleSet,
-                mapperData,
-                targetCanBeNull);
-        }
+        public static Expression GetNestedAccessChecksFor(this IMemberMapperData mapperData, Expression value)
+            => GetNestedAccessChecksFor(value, mapperData.RuleSet, mapperData);
 
-        public static Expression GetNestedAccessChecksFor(
-            this MappingRuleSet ruleSet,
-            Expression value,
-            bool targetCanBeNull = false)
-        {
-            return GetNestedAccessChecksFor(value, ruleSet, mapperData: null, targetCanBeNull);
-        }
+        public static Expression GetNestedAccessChecksFor(this MappingRuleSet ruleSet, Expression value)
+            => GetNestedAccessChecksFor(value, ruleSet, mapperData: null);
 
         private static Expression GetNestedAccessChecksFor(
             Expression value,
             MappingRuleSet ruleSet,
-            IMemberMapperData mapperData,
-            bool targetCanBeNull = false)
+            IMemberMapperData mapperData)
         {
-            if (ruleSet.Settings?.GuardAccessTo(value) != false)
+            if (ruleSet.Settings?.GuardAccessTo(value) == false)
             {
-                return NestedAccessChecksFactory
-                    .GetNestedAccessChecksFor(value, mapperData, targetCanBeNull);
+                return null;
             }
 
-            return null;
+            return NestedAccessChecksFactory.GetNestedAccessChecksFor(value, mapperData);
         }
 
         public static bool SourceMemberIsStringKeyedDictionary(
@@ -466,8 +450,7 @@ namespace AgileObjects.AgileMapper.Members
                 {
                     var dataAccessParentProperty =
                         dataAccess.Type.GetPublicInstanceProperty("Parent") ??
-                       (parentProperty ??
-                       (parentProperty = typeof(IMappingData).GetPublicInstanceProperty("Parent")));
+                       (parentProperty ??= typeof(IMappingData).GetPublicInstanceProperty("Parent"));
 
                     dataAccess = Expression.Property(dataAccess, dataAccessParentProperty);
                 }

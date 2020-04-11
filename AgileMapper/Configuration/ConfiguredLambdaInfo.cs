@@ -233,7 +233,7 @@
 
         public Expression GetBody(
             IMemberMapperData mapperData,
-            CallbackPosition? position = null,
+            CallbackPosition position = CallbackPosition.Before,
             QualifiedMember targetMember = null)
         {
             var contextTypes = _contextTypes;
