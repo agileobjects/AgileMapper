@@ -42,6 +42,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.GetFallbackCollectionValue();
 
+        protected override bool ShortCircuitMapping(MappingCreationContext context)
+        {
+            var mapping = ConfiguredMappingFactory
+                .GetMappingOrNull(context.MappingData, out var isConditional);
+
+            if (mapping == null)
+            {
+                return false;
+            }
+
+            var isUnconditional = !isConditional;
+
+            if (isUnconditional)
+            {
+                mapping = context.MapperData.GetReturnLabel(mapping);
+            }
+
+            context.MappingExpressions.Add(mapping);
+            return isUnconditional;
+        }
+
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {
             if (!HasCompatibleSourceMember(context.MapperData))

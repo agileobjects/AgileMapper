@@ -200,5 +200,30 @@
                 result.Second().Line2.ShouldBeNull();
             }
         }
+
+        [Fact]
+        public void ShouldUseAConfiguredTwoParameterFactoryForARootListMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Func<List<int>, List<int>, List<int>> listMapper = (srcList, tgtList) =>
+                {
+                    tgtList.AddRange(srcList);
+                    return tgtList;
+                };
+
+                mapper.WhenMapping
+                    .From<List<int>>()
+                    .Over<List<int>>()
+                    .MapInstancesUsing(listMapper);
+
+                var source = new List<int> { 4, 5, 6 };
+                var target = new List<int> { 1, 2, 3 };
+
+                mapper.Map(source).Over(target);
+
+                target.ShouldBe(1, 2, 3, 4, 5, 6);
+            }
+        }
     }
 }
