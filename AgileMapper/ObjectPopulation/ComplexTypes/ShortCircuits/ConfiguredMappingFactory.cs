@@ -53,14 +53,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
             ObjectMapperData mapperData,
             ConfiguredObjectFactory factory)
         {
-            if (mapperData.OriginalMapperData != null)
-            {
-                mapperData = mapperData.OriginalMapperData;
-            }
-
             var condition = factory.GetConditionOrNull(mapperData);
             var value = factory.Create(mapperData);
-            var returnValue = mapperData.GetReturnExpression(value);
+            var returnLabelMapperData = mapperData.OriginalMapperData ?? mapperData;
+            var returnValue = returnLabelMapperData.GetReturnExpression(value);
 
             return new ConfiguredDataSource(
                 mapperData.SourceMember,

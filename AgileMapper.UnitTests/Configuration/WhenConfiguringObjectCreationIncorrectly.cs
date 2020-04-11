@@ -48,6 +48,24 @@
         }
 
         [Fact]
+        public void ShouldErrorIfThreeParameterObjectFactorySpecifiedWithInvalidParameters()
+        {
+            Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    Func<CustomerViewModel, Customer, int?, CustomerViewModel> customerFactory =
+                        (srcCVm, tgtC, i) => new CustomerViewModel { Name = srcCVm.Name };
+
+                    mapper.WhenMapping
+                        .From<CustomerViewModel>()
+                        .To<Customer>()
+                        .CreateInstancesUsing(customerFactory);
+                }
+            });
+        }
+
+        [Fact]
         public void ShouldErrorIfFourParameterObjectFactorySpecified()
         {
             Should.Throw<MappingConfigurationException>(() =>

@@ -147,7 +147,7 @@
 
         public virtual Expression Condition { get; }
 
-        public IList<ParameterExpression> Variables { get; private set; }
+        public IList<ParameterExpression> Variables { get; }
 
         public Expression Value { get; }
 

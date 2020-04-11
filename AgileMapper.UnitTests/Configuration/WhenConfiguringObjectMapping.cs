@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections.Generic;
+    using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
 #if !NET35
@@ -63,7 +65,7 @@
         }
 
         [Fact]
-        public void ShouldConditionallyUseAConfiguredFactoryForARootMapping()
+        public void ShouldUseAConfiguredFactoryForARootMappingConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -88,6 +90,61 @@
 
                 nonMatchingResult.Line1.ShouldBe("Over here");
                 nonMatchingResult.Line2.ShouldBe("Over there");
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAConfiguredThreeParameterFactoryForANestedEnumerableMappingConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Func<MysteryCustomerViewModel, MysteryCustomer, int?, MysteryCustomer> mysteryCustomerMapper =
+                    (srcMcVm, tgtMc, index) => new MysteryCustomer
+                    {
+                        Name = srcMcVm.Name,
+                        Discount = index.GetValueOrDefault() * 2.0m,
+                        Report = srcMcVm.Report
+                    };
+
+                mapper.WhenMapping
+                    .From<MysteryCustomerViewModel>()
+                    .To<MysteryCustomer>()
+                    .MapInstancesUsing(mysteryCustomerMapper);
+
+                var source = new PublicField<ICollection<CustomerViewModel>>
+                {
+                    Value = new[]
+                    {
+                        new CustomerViewModel
+                        {
+                            Name = "Customer 1",
+                            AddressLine1 = "Customer 1 House",
+                            Discount = 0.5
+                        },
+                        new MysteryCustomerViewModel
+                        {
+                            Name = "Customer 2",
+                            AddressLine1 = "Customer 2 House",
+                            Discount = 0.75,
+                            Report = "Pretty good!"
+                        }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicProperty<IList<Customer>>>();
+
+                result.Value.ShouldNotBeNull().Count.ShouldBe(2);
+
+                var result1 = result.Value.First().ShouldBeOfType<Customer>();
+                result1.Name.ShouldBe("Customer 1");
+                result1.Address.ShouldNotBeNull().Line1.ShouldBe("Customer 1 House");
+                result1.Discount.ShouldBe(0.5m);
+
+                var result2 = result.Value.Second().ShouldBeOfType<MysteryCustomer>();
+                result2.Name.ShouldBe("Customer 2");
+                result2.Address.ShouldBeNull();
+                result2.Discount.ShouldBe(2.0m);
+                result2.Report.ShouldBe("Pretty good!");
             }
         }
     }
