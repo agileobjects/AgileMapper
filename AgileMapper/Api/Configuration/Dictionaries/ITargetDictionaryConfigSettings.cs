@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <summary>
         /// Use the given <paramref name="pattern"/> to create the part of a Dictionary key representing an 
         /// enumerable element - the default is '[i]. The pattern must contain a single 'i' character as a 
-        /// placeholder for the enumerable index. For example, calling UseElementKeyPattern("(i)") and mapping 
+        /// placeholder for the element index. For example, calling UseElementKeyPattern("(i)") and mapping 
         /// from a collection of ints to a Dictionary will generate keys '(0)', '(1)', '(2)', etc.
         /// </summary>
         /// <param name="pattern">
