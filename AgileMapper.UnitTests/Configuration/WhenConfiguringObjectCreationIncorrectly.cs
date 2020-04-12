@@ -22,8 +22,7 @@
                 {
                     Func<DateTime, Address> addressFactory = dt => new Address();
 
-                    mapper
-                        .WhenMapping
+                    mapper.WhenMapping
                         .InstancesOf<Address>()
                         .CreateUsing(addressFactory);
                 }
@@ -39,8 +38,7 @@
                 {
                     Func<int, string, Address> addressFactory = (i, str) => new Address();
 
-                    mapper
-                        .WhenMapping
+                    mapper.WhenMapping
                         .InstancesOf<Address>()
                         .CreateUsing(addressFactory);
                 }
@@ -74,8 +72,7 @@
                 {
                     Func<object, object, int?, Address, Address> addressFactory = (i, str, dt, ts) => new Address();
 
-                    mapper
-                        .WhenMapping
+                    mapper.WhenMapping
                         .InstancesOf<Address>()
                         .CreateUsing(addressFactory);
                 }
@@ -83,7 +80,7 @@
         }
 
         [Fact]
-        public void ShouldErrorIfConflictingFactoryConfigured()
+        public void ShouldErrorIfConflictingCreationFactoriesConfigured()
         {
             var factoryEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -118,6 +115,29 @@
             });
 
             factoryEx.Message.ShouldContain("primitive type 'int'");
+        }
+
+        [Fact]
+        public void ShouldErrorIfCreationFactoryConflictsWithMappingFactory()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Address>()
+                        .ToANew<Address>()
+                        .MapInstancesUsing(ctx => new Address { Line1 = "Mapping!" });
+
+                    mapper.WhenMapping
+                        .From<Address>()
+                        .ToANew<Address>()
+                        .CreateInstancesUsing(ctx => new Address { Line1 = "Mapping!" });
+                }
+            });
+
+            configEx.Message.ShouldContain("A mapping factory");
+            configEx.Message.ShouldContain("already been configured");
         }
     }
 }

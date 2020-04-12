@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -63,8 +64,8 @@
         {
             ThrowIfConflictingItemExists(
                 setting,
-                _mappedObjectCachingSettings,
-                (s, conflicting) => conflicting.GetConflictMessage(s));
+               _mappedObjectCachingSettings,
+               (stn, conflicting) => conflicting.GetConflictMessage(stn));
 
             MappedObjectCachingSettings.AddThenSort(setting);
         }
@@ -98,11 +99,12 @@
 
         public void Add(MapToNullCondition condition)
         {
-            var conditions = MapToNullConditions;
+            ThrowIfConflictingItemExists(
+                condition,
+               _mapToNullConditions,
+               (cdn, conflicting) => cdn.GetConflictMessage());
 
-            ThrowIfConflictingItemExists(condition, conditions, (c, cC) => c.GetConflictMessage());
-
-            conditions.AddThenSort(condition);
+            MapToNullConditions.AddThenSort(condition);
         }
 
         public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
@@ -285,7 +287,11 @@
             ThrowIfConflictingItemExists(
                 objectFactory,
                _objectFactories,
-               (of1, of2) => $"An object factory for type {of1.ObjectType.GetFriendlyName()} has already been configured");
+               (factory, conflictingFactory) => string.Format(
+                   CultureInfo.InvariantCulture,
+                   "{0} factory for type {1} has already been configured",
+                   conflictingFactory.IsCreationFactory() ? "An object" : "A mapping",
+                   factory.ObjectType.GetFriendlyName()));
 
             if (objectFactory.ObjectType.IsSimple())
             {
@@ -298,10 +304,10 @@
         public bool HasSimpleTypeValueFactories { get; private set; }
 
         public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IQualifiedMemberContext context)
-            => _objectFactories.FindMatches(context).Filter(of => of.ConfigInfo.Get<FactoryType>() == FactoryType.Creation);
+            => _objectFactories.FindMatches(context).Filter(of => of.IsCreationFactory());
 
         public IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
-            => _objectFactories.FindMatches(context).Filter(of => of.ConfigInfo.Get<FactoryType>() == FactoryType.Mapping);
+            => _objectFactories.FindMatches(context).Filter(of => !of.IsCreationFactory());
 
         #endregion
 
@@ -316,7 +322,10 @@
 
         public void Add(ConfiguredSourceValueFilter sourceValueFilter)
         {
-            ThrowIfConflictingItemExists(sourceValueFilter, _sourceValueFilters, (svf, cSvf) => svf.GetConflictMessage());
+            ThrowIfConflictingItemExists(
+                sourceValueFilter, 
+               _sourceValueFilters,
+               (svf, conflicting) => svf.GetConflictMessage());
 
             SourceValueFilters.AddOrReplaceThenSort(sourceValueFilter);
         }
@@ -513,8 +522,8 @@
 
             ThrowIfConflictingItemExists(
                 setting,
-                _entityKeyMappingSettings,
-                (s, conflicting) => conflicting.GetConflictMessage(s));
+               _entityKeyMappingSettings,
+               (stn, conflicting) => conflicting.GetConflictMessage(stn));
         }
 
         private void ThrowIfConflictingDataSourceReversalSettingExists(DataSourceReversalSetting setting)
@@ -526,8 +535,8 @@
 
             ThrowIfConflictingItemExists(
                 setting,
-                _dataSourceReversalSettings,
-                (s, conflicting) => conflicting.GetConflictMessage(s));
+               _dataSourceReversalSettings,
+               (stn, conflicting) => conflicting.GetConflictMessage(stn));
         }
 
         private void ThrowIfMemberIsUnmappable(ConfiguredMemberIgnoreBase memberIgnore)
