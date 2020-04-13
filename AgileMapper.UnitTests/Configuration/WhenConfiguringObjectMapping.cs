@@ -296,5 +296,42 @@
                 result.Value2.Second().Line1.ShouldBe("Line 1 again");
             }
         }
+
+        [Fact]
+        public void ShouldHandleANullSourceMemberInAConfiguredFactory()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address>()
+                    .OnTo<Address>()
+                    .MapInstancesUsing(ctx => new Address
+                    {
+                        Line1 = ctx.Source.Line1 + " YEAH!"
+                    });
+
+                var source = new PublicTwoFields<PublicField<string>, Address>
+                {
+                    Value1 = new PublicField<string> { Value = "Source!" }
+                };
+
+                var target = new PublicTwoFields<PublicProperty<string>, Address>
+                {
+                    Value1 = new PublicProperty<string> { Value = "Target!" },
+                    Value2 = new Address { Line1 = "Line 1.1!" }
+                };
+
+                mapper.Map(source).OnTo(target);
+
+                target.Value1.Value.ShouldBe("Target!");
+                target.Value2.Line1.ShouldBe("Line 1.1!");
+                
+                source.Value2 = new Address { Line1 = "Line 1.2!" };
+                
+                mapper.Map(source).OnTo(target);
+
+                target.Value2.Line1.ShouldBe("Line 1.2! YEAH!");
+            }
+        }
     }
 }
