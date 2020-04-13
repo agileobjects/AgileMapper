@@ -253,6 +253,22 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredSimpleTypeToEnumerableFactoryForARootListMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>()
+                    .To<List<char>>()
+                    .MapInstancesUsing(ctx => new List<char>(ctx.Source));
+
+                var result = mapper.Map("ABC").ToANew<List<char>>();
+
+                result.ShouldBe('A', 'B', 'C');
+            }
+        }
+
+        [Fact]
         public void ShouldUseAConfiguredNonEnumerableToEnumerableFactoryForANestedArrayMapping()
         {
             using (var mapper = Mapper.CreateNew())
