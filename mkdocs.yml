@@ -57,6 +57,7 @@ nav:
         - Ignoring source values: configuration/Ignoring-Source-Values.md
         - Ignoring source members: configuration/Ignoring-Source-Members.md
         - Ignoring target members: configuration/Ignoring-Target-Members.md
+        - Object mapping: configuration/Object-Mapping.md
         - Object identifiers: configuration/Object-Identifiers.md
         - Object construction: configuration/Object-Construction.md
         - Null results: configuration/Null-Results.md
