@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using DataSources;
     using Extensions;
     using Extensions.Internal;
+    using Members;
 
     internal static class ConfiguredMappingFactory
     {
@@ -40,13 +41,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static IList<IDataSource> GetMappingFactoryDataSources(ObjectMapperData mapperData)
         {
-            return mapperData
-                .MapperContext
-                .UserConfigurations
-                .QueryMappingFactories(mapperData)
+            return QueryMappingFactories(mapperData)
                 .Project(mapperData, GetMappingFactoryDataSource)
                 .ToArray();
         }
+
+        public static IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
+            => context.MapperContext.UserConfigurations.QueryMappingFactories(context);
 
         private static IDataSource GetMappingFactoryDataSource(
             ObjectMapperData mapperData,

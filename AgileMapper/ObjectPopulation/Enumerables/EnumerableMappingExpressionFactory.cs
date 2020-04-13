@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -17,6 +18,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             var mapperData = mappingData.MapperData;
 
             if (HasCompatibleSourceMember(mapperData))
+            {
+                return base.TargetCannotBeMapped(mappingData, out reason);
+            }
+
+            if (ConfiguredMappingFactory.QueryMappingFactories(mapperData).Any())
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
