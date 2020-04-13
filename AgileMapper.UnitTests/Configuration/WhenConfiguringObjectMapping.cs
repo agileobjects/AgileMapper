@@ -356,5 +356,44 @@
                 target.Value2.Line1.ShouldBe("Line 1.2! YEAH!");
             }
         }
+
+        [Fact]
+        public void ShouldSupportConfiguredMappingAndCreationFactories()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address>()
+                    .OnTo<Address>()
+                    .If((srcAddr, tgtAddr) => srcAddr.Line2 == string.Empty)
+                    .MapInstancesUsing(ctx => new Address
+                    {
+                        Line1 = ctx.Source.Line1,
+                        Line2 = "[Not supplied]"
+                    })
+                    .But
+                    .CreateInstancesUsing(ctx => new Address
+                    {
+                        Line2 = "[None]"
+                    });
+
+                var source = new PublicProperty<Address[]>
+                {
+                    Value = new[]
+                    {
+                        new Address { Line1 = "Here", Line2 = string.Empty },
+                        new Address { Line1 = "There" }
+                    }
+                };
+
+                var result = mapper.Map(source).OnTo(new PublicField<List<Address>>());
+
+                result.Value.ShouldNotBeNull().Count.ShouldBe(2);
+                result.Value.First().Line1.ShouldBe("Here");
+                result.Value.First().Line2.ShouldBe("[Not supplied]");
+                result.Value.Second().Line1.ShouldBe("There");
+                result.Value.Second().Line2.ShouldBe("[None]");
+            }
+        }
     }
 }
