@@ -50,7 +50,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
-            context.MappingExpressions.InsertRange(0, GetShortCircuitReturns(mappingData));
+            InsertShortCircuitReturns(context);
 
             var mappingBlock = GetMappingBlock(context);
 
@@ -73,8 +73,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected virtual bool ShortCircuitMapping(MappingCreationContext context) => false;
 
-        protected virtual IEnumerable<Expression> GetShortCircuitReturns(IObjectMappingData mappingData)
-            => Enumerable<Expression>.Empty;
+        protected void AddAlternateMapping(
+            MappingCreationContext context,
+            Expression mapping,
+            bool isConditional)
+        {
+            if (isConditional)
+            {
+                context.MappingExpressions.Add(mapping);
+                return;
+            }
+
+            var returnLabel = context.MapperData
+                .GetFinalisedReturnLabel(mapping, out var returnsNull);
+
+            if (returnsNull)
+            {
+                context.MappingExpressions.Add(mapping);
+            }
+
+            context.MappingExpressions.Add(returnLabel);
+        }
+
+        protected virtual void InsertShortCircuitReturns(MappingCreationContext context)
+        {
+        }
 
         private void AddPopulationsAndCallbacks(MappingCreationContext context)
         {

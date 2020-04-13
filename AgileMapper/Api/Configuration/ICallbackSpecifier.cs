@@ -35,7 +35,7 @@
 
         /// <summary>
         /// Specify a callback to be executed. The condition expression is passed the current mapping's source 
-        /// and target objects and the current enumerable index, if applicable.
+        /// and target objects and the current element index, if applicable.
         /// </summary>
         /// <param name="callback">The callback to execute.</param>
         /// <returns>

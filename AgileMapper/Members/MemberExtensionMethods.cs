@@ -131,6 +131,19 @@
         public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)
             => member.GetAccess(mapperData.TargetInstance, mapperData);
 
+        public static Expression GetRelativeQualifiedAccess(this IQualifiedMember member, IMemberMapperData mapperData)
+            => GetRelativeQualifiedAccess(member, mapperData, out _);
+
+        public static Expression GetRelativeQualifiedAccess(
+            this IQualifiedMember member,
+            IMemberMapperData mapperData,
+            out IQualifiedMember relativeMember)
+        {
+            relativeMember = member.RelativeTo(mapperData.SourceMember);
+            var qualifiedAccess = relativeMember.GetQualifiedAccess(mapperData);
+            return qualifiedAccess;
+        }
+
         public static Expression GetQualifiedAccess(this IQualifiedMember sourceMember, IMemberMapperData mapperData)
             => sourceMember.GetQualifiedAccess(mapperData.SourceObject);
 

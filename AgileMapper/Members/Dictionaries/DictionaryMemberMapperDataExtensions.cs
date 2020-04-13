@@ -170,13 +170,13 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             this IMemberMapperData mapperData,
             Expression index)
         {
-            var elementMapperData = mapperData.GetElementMapperData();
+            var elementContext = mapperData.GetElementMemberContext();
 
             return mapperData
                 .MapperContext
                 .UserConfigurations
                 .Dictionaries
-                .GetElementKeyParts(index, elementMapperData);
+                .GetElementKeyParts(index, elementContext);
         }
 
         private static Expression AddMemberNamePart(

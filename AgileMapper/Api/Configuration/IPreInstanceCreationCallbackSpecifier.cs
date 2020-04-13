@@ -36,7 +36,7 @@
 
         /// <summary>
         /// Configure a callback to call in the configured conditions. The callback is passed the current 
-        /// mapping's source and target objects and the current enumerable index, if applicable.
+        /// mapping's source and target objects and the current element index, if applicable.
         /// </summary>
         /// <param name="callback">The callback to call.</param>
         /// <returns>

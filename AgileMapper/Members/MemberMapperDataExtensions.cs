@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             return (ObjectMapperData)context;
         }
 
-        public static IQualifiedMemberContext GetElementMapperData(this IMemberMapperData mapperData)
+        public static IQualifiedMemberContext GetElementMemberContext(this IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsEnumerable)
             {
@@ -649,5 +649,19 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
             => Expression.Call(subject, method.MakeGenericMethod(typeArgument));
+
+        public static Expression GetFinalisedReturnLabel(
+            this ObjectMapperData mapperData,
+            Expression value,
+            out bool returnsNull)
+        {
+            returnsNull = value.NodeType != ExpressionType.Goto;
+
+            value = returnsNull
+                ? mapperData.GetTargetTypeDefault()
+                : ((GotoExpression)value).Value;
+
+            return mapperData.GetReturnLabel(value);
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Sou
     using Enumerables.SourceAdapters;
     using Extensions.Internal;
     using Looping;
+    using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;
 
@@ -116,7 +117,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Sou
             var allowEnumerableAssignment = Builder.MapperData.RuleSet.Settings.AllowEnumerableAssignment;
             var convertedProjection = TargetTypeHelper.GetEnumerableConversion(Builder.SourceValue, allowEnumerableAssignment);
             var projectionResult = Expression.Coalesce(projectionAsTargetType, convertedProjection);
-            var returnConvertedProjection = Expression.Return(Builder.MapperData.ReturnLabelTarget, projectionResult);
+            var returnConvertedProjection = Builder.MapperData.GetReturnExpression(projectionResult);
             var ifProjectedReturn = Expression.IfThen(sourceEnumerableFoundTest, returnConvertedProjection);
 
             return ifProjectedReturn;

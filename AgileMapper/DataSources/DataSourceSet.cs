@@ -140,7 +140,7 @@ namespace AgileObjects.AgileMapper.DataSources
             public int Count => 1;
 
             public Expression BuildValue()
-                => _value ?? (_value = _valueBuilder.Invoke(_dataSource, _mapperData));
+                => _value ??= _valueBuilder.Invoke(_dataSource, _mapperData);
         }
 
         private class MultipleValueDataSourceSet : IDataSourceSet

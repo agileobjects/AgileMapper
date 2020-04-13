@@ -45,7 +45,7 @@
         /// <summary>
         /// Configure a condition which must evaluate to true for the configuration to apply. The condition
         /// expression is passed the current mapping's source, target and created objects and the current 
-        /// enumerable index, if applicable.
+        /// element index, if applicable.
         /// </summary>
         /// <param name="condition">The condition to evaluate.</param>
         /// <returns>An IPostInstanceCreationCallbackSpecifier with which to complete the configuration.</returns>

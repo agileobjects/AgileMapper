@@ -186,7 +186,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// </para>
         /// <para>
         /// Func&lt;object, object, int?, TObject&gt; - taking the source and target objects as untyped 
-        /// arguments and the current enumerable index, if applicable.
+        /// arguments and the current element index, if applicable.
         /// </para>
         /// </summary>
         /// <param name="factory">

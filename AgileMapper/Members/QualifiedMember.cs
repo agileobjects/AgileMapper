@@ -249,19 +249,20 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private ICache<Type, QualifiedMember> RuntimeTypedMemberCache
-            => _runtimeTypedMemberCache ??
-              (_runtimeTypedMemberCache = _mapperContext.Cache.CreateNew<Type, QualifiedMember>(default(HashCodeComparer<Type>)));
+            => _runtimeTypedMemberCache ??= 
+               _mapperContext.Cache.CreateNew<Type, QualifiedMember>(default(HashCodeComparer<Type>));
 
         protected virtual QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
         {
             var newMemberChain = new Member[Depth];
+            var finalMemberIndex = Depth - 1;
 
-            for (var i = 0; i < Depth - 1; i++)
+            for (var i = 0; i < finalMemberIndex; ++i)
             {
                 newMemberChain[i] = MemberChain[i];
             }
 
-            newMemberChain[Depth - 1] = LeafMember.WithType(runtimeType);
+            newMemberChain[finalMemberIndex] = LeafMember.WithType(runtimeType);
 
             return CreateFinalMember(new QualifiedMember(newMemberChain, this));
         }

@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         /// <summary>
         /// Use the given <paramref name="pattern"/> to create the part of an expected source Dictionary 
         /// key representing an enumerable element - the default is '[i]'. The pattern must contain a 
-        /// single 'i' character as a placeholder for the enumerable index. For example, calling 
+        /// single 'i' character as a placeholder for the element index. For example, calling 
         /// UseElementKeyPattern("(i)") and mapping from a Dictionary to a collection of ints will generate 
         /// searches for keys '(0)', '(1)', '(2)', etc.
         /// </summary>

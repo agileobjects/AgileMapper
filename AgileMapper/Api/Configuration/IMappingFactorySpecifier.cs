@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// </para>
         /// <para>
         /// Func&lt;TSource, TTarget, int?, TObject&gt; - taking the source and target objects and the current 
-        /// enumerable index, if applicable.
+        /// element index, if applicable.
         /// </para>
         /// </summary>
         /// <param name="factory">

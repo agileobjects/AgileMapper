@@ -10,7 +10,8 @@
             ConfiguredDataSourcesFactory.Create,
             MaptimeDataSourcesFactory.Create,
             SourceMemberDataSourcesFactory.Create,
-            MetaMemberDataSourcesFactory.Create
+            MetaMemberDataSourcesFactory.Create,
+            ConfiguredMappingDataSourcesFactory.Create
         };
 
         public static IDataSourceSet CreateFor(DataSourceFindContext findContext)

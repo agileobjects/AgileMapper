@@ -25,7 +25,7 @@
             SourceMember = sourceMember;
             ContextMappingData = contextMappingData;
             Condition = condition;
-            IsUseable = isUseable;
+            IsUseable = isUseable && (sourceMember != null);
         }
 
         public bool IsUseable { get; }
@@ -39,14 +39,13 @@
         public IDataSource CreateDataSource()
         {
             var mapperData = ContextMappingData.MapperData;
-            var sourceMember = SourceMember.RelativeTo(mapperData.SourceMember);
 
-            var sourceMemberValue = sourceMember
-                .GetQualifiedAccess(mapperData)
-                .GetConversionTo(sourceMember.Type);
+            var sourceMemberValue = SourceMember
+                .GetRelativeQualifiedAccess(mapperData, out var relativeSourceMember)
+                .GetConversionTo(relativeSourceMember.Type);
 
             var sourceMemberDataSource = new SourceMemberDataSource(
-                sourceMember,
+                relativeSourceMember,
                 sourceMemberValue,
                 Condition,
                 mapperData);

@@ -117,7 +117,7 @@
         {
             return new MappingConfigurationException(
                 "An enumerable element key pattern must contain a single 'i' character " +
-                "as a placeholder for the enumerable index");
+                "as a placeholder for the element index");
         }
 
         #endregion
@@ -125,7 +125,7 @@
         private string Pattern => _prefixString + "i" + _suffixString;
 
         public Expression GetElementKeyPartMatcher()
-            => _keyPartMatcher ?? (_keyPartMatcher = CreateKeyPartRegex().ToConstantExpression());
+            => _keyPartMatcher ??= CreateKeyPartRegex().ToConstantExpression();
 
         private Regex CreateKeyPartRegex()
         {

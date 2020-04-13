@@ -1,20 +1,50 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
+namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
 {
-    using DataSources;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
 
-    internal class SourceDictionaryShortCircuitFactory : ISourceShortCircuitFactory
+    internal static class SourceDictionaryShortCircuitFactory
     {
-        public static readonly ISourceShortCircuitFactory Instance = new SourceDictionaryShortCircuitFactory();
+        public static Expression GetShortCircuitOrNull(IObjectMappingData mappingData)
+        {
+            var mapperData = mappingData.MapperData;
 
-        public bool IsFor(ObjectMapperData mapperData)
+            if (!IsFor(mapperData))
+            {
+                return null;
+            }
+
+            var dictionaryVariables = new DictionaryEntryVariablePair(mapperData);
+            var fallbackValue = GetFallbackValue(mappingData);
+
+            var noMatchingKeys = dictionaryVariables.GetNoKeysWithMatchingStartQuery();
+            var returnFallback = mapperData.GetReturnExpression(fallbackValue);
+            var ifNoMatchingKeysShortCircuit = Expression.IfThen(noMatchingKeys, returnFallback);
+
+            var foundValueNonNull = dictionaryVariables.Value.GetIsNotDefaultComparison();
+
+            var entryExistsTest = GetEntryExistsTest(dictionaryVariables);
+
+            var mapValueCall = GetMapValueCall(dictionaryVariables.Value, mapperData);
+
+            var valueMappingOrFallback = Expression.Condition(foundValueNonNull, mapValueCall, fallbackValue);
+            var returnMapValueResult = mapperData.GetReturnExpression(valueMappingOrFallback);
+            var ifEntryExistsShortCircuit = Expression.IfThen(entryExistsTest, returnMapValueResult);
+
+            return Expression.Block(
+                dictionaryVariables.Variables,
+                ifNoMatchingKeysShortCircuit,
+                ifEntryExistsShortCircuit);
+        }
+
+        private static bool IsFor(IMemberMapperData mapperData)
         {
             if (mapperData.Context.IsStandalone)
             {
@@ -38,34 +68,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             }
 
             return dictionarySourceMember.HasObjectEntries ||
-                  !dictionarySourceMember.ValueType.IsSimple();
-        }
-
-        public Expression GetShortCircuit(IObjectMappingData mappingData)
-        {
-            var mapperData = mappingData.MapperData;
-
-            var dictionaryVariables = new DictionaryEntryVariablePair(mapperData);
-            var fallbackValue = GetFallbackValue(mappingData);
-
-            var noMatchingKeys = dictionaryVariables.GetNoKeysWithMatchingStartQuery();
-            var returnFallback = Expression.Return(mapperData.ReturnLabelTarget, fallbackValue);
-            var ifNoMatchingKeysShortCircuit = Expression.IfThen(noMatchingKeys, returnFallback);
-
-            var foundValueNonNull = dictionaryVariables.Value.GetIsNotDefaultComparison();
-
-            var entryExistsTest = GetEntryExistsTest(dictionaryVariables);
-
-            var mapValueCall = GetMapValueCall(dictionaryVariables.Value, mapperData);
-
-            var valueMappingOrFallback = Expression.Condition(foundValueNonNull, mapValueCall, fallbackValue);
-            var returnMapValueResult = Expression.Return(mapperData.ReturnLabelTarget, valueMappingOrFallback);
-            var ifEntryExistsShortCircuit = Expression.IfThen(entryExistsTest, returnMapValueResult);
-
-            return Expression.Block(
-                dictionaryVariables.Variables,
-                ifNoMatchingKeysShortCircuit,
-                ifEntryExistsShortCircuit);
+                   !dictionarySourceMember.ValueType.IsSimple();
         }
 
         private static Expression GetEntryExistsTest(DictionaryEntryVariablePair dictionaryVariables)

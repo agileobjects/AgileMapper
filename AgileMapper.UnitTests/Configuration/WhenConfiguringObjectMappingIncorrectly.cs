@@ -11,7 +11,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
-    public class WhenConfiguringObjectCreationIncorrectly
+    public class WhenConfiguringObjectMappingIncorrectly
     {
         [Fact]
         public void ShouldErrorIfSingleParameterObjectFactorySpecifiedWithInvalidParameter()
@@ -23,8 +23,9 @@
                     Func<DateTime, Address> addressFactory = dt => new Address();
 
                     mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
+                        .From<Address>()
+                        .To<Address>()
+                        .MapInstancesUsing(addressFactory);
                 }
             });
         }
@@ -39,8 +40,9 @@
                     Func<int, string, Address> addressFactory = (i, str) => new Address();
 
                     mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
+                        .From<Address>()
+                        .To<Address>()
+                        .MapInstancesUsing(addressFactory);
                 }
             });
         }
@@ -58,7 +60,7 @@
                     mapper.WhenMapping
                         .From<CustomerViewModel>()
                         .To<Customer>()
-                        .CreateInstancesUsing(customerFactory);
+                        .MapInstancesUsing(customerFactory);
                 }
             });
         }
@@ -73,26 +75,31 @@
                     Func<object, object, int?, Address, Address> addressFactory = (i, str, dt, ts) => new Address();
 
                     mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(addressFactory);
+                        .From<Address>()
+                        .To<Address>()
+                        .MapInstancesUsing(addressFactory);
                 }
             });
         }
 
         [Fact]
-        public void ShouldErrorIfConflictingCreationFactoriesConfigured()
+        public void ShouldErrorIfConflictingMappingFactoriesConfigured()
         {
             var factoryEx = Should.Throw<MappingConfigurationException>(() =>
             {
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
+                        .From<Customer>()
+                        .ToANew<Customer>()
+                        .MapInstancesOf<Address>()
+                        .Using(ctx => new Address { Line1 = "Hello!" });
 
                     mapper.WhenMapping
-                        .InstancesOf<Address>()
-                        .CreateUsing(ctx => new Address { Line1 = "Hello!" });
+                        .From<Customer>()
+                        .ToANew<Customer>()
+                        .MapInstancesOf<Address>()
+                        .Using(ctx => new Address { Line1 = "Hello!" });
                 }
             });
 
@@ -109,16 +116,16 @@
                 {
                     mapper.WhenMapping
                         .From<string>()
-                        .To<int>()
-                        .CreateInstancesUsing(ctx => 123);
+                        .To<long>()
+                        .MapInstancesUsing(ctx => 123L);
                 }
             });
 
-            factoryEx.Message.ShouldContain("primitive type 'int'");
+            factoryEx.Message.ShouldContain("primitive type 'long'");
         }
 
         [Fact]
-        public void ShouldErrorIfCreationFactoryConflictsWithMappingFactory()
+        public void ShouldErrorIfMappingFactoryConflictsWithCreationFactory()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -127,16 +134,16 @@
                     mapper.WhenMapping
                         .From<Address>()
                         .ToANew<Address>()
-                        .MapInstancesUsing(ctx => new Address { Line1 = "Mapping!" });
+                        .CreateInstancesUsing(ctx => new Address { Line1 = "Mapping!" });
 
                     mapper.WhenMapping
                         .From<Address>()
                         .ToANew<Address>()
-                        .CreateInstancesUsing(ctx => new Address { Line1 = "Mapping!" });
+                        .MapInstancesUsing(ctx => new Address { Line1 = "Mapping!" });
                 }
             });
 
-            configEx.Message.ShouldContain("A mapping factory");
+            configEx.Message.ShouldContain("An object factory");
             configEx.Message.ShouldContain("already been configured");
         }
     }

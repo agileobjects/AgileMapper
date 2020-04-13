@@ -72,10 +72,7 @@
                 ? mapperData
                 : mapperData.Parent;
 
-            var rawSourceValue = sourceMember
-                .RelativeTo(contextMapperData.SourceMember)
-                .GetQualifiedAccess(contextMapperData.SourceObject);
-
+            var rawSourceValue = sourceMember.GetRelativeQualifiedAccess(contextMapperData);
             var filterConditions = filters.GetFilterConditionsOrNull(rawSourceValue, contextMapperData);
 
             if (filterConditions == null)

@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Sou
             var elementKeyPrefix = Builder.MapperData.MapperContext
                 .UserConfigurations
                 .Dictionaries
-                .GetElementKeyPrefixOrNull(Builder.MapperData.GetElementMapperData());
+                .GetElementKeyPrefixOrNull(Builder.MapperData.GetElementMemberContext());
 
             var targetEnumerableElementKey = (elementKeyPrefix != null)
                 ? new List<Expression> { targetEnumerableKey, elementKeyPrefix }.GetStringConcatCall()
