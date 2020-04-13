@@ -141,10 +141,6 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetMemberDefault(this IQualifiedMemberContext context)
             => context.TargetMember.Type.ToDefaultExpression();
 
-        [DebuggerStepThrough]
-        public static Expression GetTargetTypeDefault(this ITypePair typePair)
-            => typePair.TargetType.ToDefaultExpression();
-
         public static Expression GetTargetFallbackValue(this IMemberMapperData mapperData)
             => mapperData.RuleSet.FallbackDataSourceFactory.Invoke(mapperData).Value;
 

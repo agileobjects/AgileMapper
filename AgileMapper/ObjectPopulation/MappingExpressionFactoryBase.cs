@@ -69,7 +69,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         protected virtual Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
-            => mapperData.GetTargetTypeDefault();
+            => mapperData.GetTargetMemberDefault();
 
         protected virtual bool ShortCircuitMapping(MappingCreationContext context) => false;
 
