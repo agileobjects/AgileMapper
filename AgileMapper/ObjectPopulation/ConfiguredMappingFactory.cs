@@ -15,9 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class ConfiguredMappingFactory
     {
-        public static Expression GetMappingOrNull(
-            IObjectMappingData mappingData,
-            out bool isConditional)
+        public static Expression GetMappingOrNull(IObjectMappingData mappingData, out bool isConditional)
         {
             var mapperData = mappingData.MapperData;
 

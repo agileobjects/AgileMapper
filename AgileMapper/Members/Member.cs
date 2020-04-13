@@ -210,7 +210,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public Expression GetAccess(Expression instance)
         {
-            if (!IsReadable)
+            if (!IsReadable || (_accessFactory == null))
             {
                 return Type.ToDefaultExpression();
             }

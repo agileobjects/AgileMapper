@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
             }
 
             var dictionaryVariables = new DictionaryEntryVariablePair(mapperData);
-            var fallbackValue = GetFallbackValue(mappingData);
+            var fallbackValue = mapperData.GetTargetFallbackValue();
 
             var noMatchingKeys = dictionaryVariables.GetNoKeysWithMatchingStartQuery();
             var returnFallback = mapperData.GetReturnExpression(fallbackValue);
@@ -96,14 +96,5 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
 
         private static Expression GetMapValueCall(Expression sourceValue, IMemberMapperData mapperData)
             => mapperData.Parent.GetRuntimeTypedMapping(sourceValue, mapperData.TargetMember, dataSourceIndex: 0);
-
-        private static Expression GetFallbackValue(IObjectMappingData mappingData)
-        {
-            return mappingData.MappingContext
-                .RuleSet
-                .FallbackDataSourceFactory
-                .Invoke(mappingData.MapperData)
-                .Value;
-        }
     }
 }
