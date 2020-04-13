@@ -298,6 +298,29 @@
         }
 
         [Fact]
+        public void ShouldUseAConfiguredNonEnumerableToEnumerableFactoryForARootListElementMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address>()
+                    .To<Address[]>()
+                    .MapInstancesUsing(ctx => new[]
+                    {
+                        new Address { Line1 = ctx.Source.Line1 },
+                        new Address { Line1 = ctx.Source.Line2 }
+                    });
+
+                var source = new[] { new Address { Line1 = "Line 1", Line2 = "Line 2" } };
+                var result = mapper.Map(source).ToANew<List<Address[]>>();
+
+                var resultAddresses = result.ShouldHaveSingleItem();
+                resultAddresses.First().Line1.ShouldBe("Line 1");
+                resultAddresses.Second().Line1.ShouldBe("Line 2");
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMemberInAConfiguredFactory()
         {
             using (var mapper = Mapper.CreateNew())
@@ -325,9 +348,9 @@
 
                 target.Value1.Value.ShouldBe("Target!");
                 target.Value2.Line1.ShouldBe("Line 1.1!");
-                
+
                 source.Value2 = new Address { Line1 = "Line 1.2!" };
-                
+
                 mapper.Map(source).OnTo(target);
 
                 target.Value2.Line1.ShouldBe("Line 1.2! YEAH!");

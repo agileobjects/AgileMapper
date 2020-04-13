@@ -290,12 +290,17 @@
                (factory, conflictingFactory) => string.Format(
                    CultureInfo.InvariantCulture,
                    "{0} factory for type {1} has already been configured",
-                   conflictingFactory.IsCreationFactory() ? "An object" : "A mapping",
+                   conflictingFactory.IsMappingFactory() ? "A mapping" : "An object",
                    factory.ObjectType.GetFriendlyName()));
 
             if (objectFactory.ObjectType.IsSimple())
             {
                 HasSimpleTypeValueFactories = true;
+            }
+
+            if (objectFactory.IsMappingFactory())
+            {
+                HasMappingFactories = true;
             }
 
             ObjectFactories.AddOrReplaceThenSort(objectFactory);
@@ -304,10 +309,16 @@
         public bool HasSimpleTypeValueFactories { get; private set; }
 
         public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IQualifiedMemberContext context)
-            => _objectFactories.FindMatches(context).Filter(of => of.IsCreationFactory());
+            => _objectFactories.FindMatches(context).Filter(of => !of.IsMappingFactory());
+
+        public bool HasMappingFactories { get; private set; }
 
         public IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
-            => _objectFactories.FindMatches(context).Filter(of => !of.IsCreationFactory());
+        {
+            return HasMappingFactories
+                ? _objectFactories.FindMatches(context).Filter(of => of.IsMappingFactory())
+                : Enumerable<ConfiguredObjectFactory>.Empty;
+        }
 
         #endregion
 
@@ -323,7 +334,7 @@
         public void Add(ConfiguredSourceValueFilter sourceValueFilter)
         {
             ThrowIfConflictingItemExists(
-                sourceValueFilter, 
+                sourceValueFilter,
                _sourceValueFilters,
                (svf, conflicting) => svf.GetConflictMessage());
 

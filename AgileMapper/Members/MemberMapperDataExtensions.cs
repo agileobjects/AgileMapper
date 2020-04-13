@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             return (ObjectMapperData)context;
         }
 
-        public static IQualifiedMemberContext GetElementMapperData(this IMemberMapperData mapperData)
+        public static IQualifiedMemberContext GetElementMemberContext(this IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsEnumerable)
             {

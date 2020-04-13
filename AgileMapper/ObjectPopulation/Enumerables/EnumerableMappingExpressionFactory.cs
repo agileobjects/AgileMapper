@@ -39,10 +39,34 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private static bool HasCompatibleSourceMember(IMemberMapperData mapperData)
         {
-            return mapperData.SourceMember.IsEnumerable &&
-                   mapperData.CanConvert(
-                       mapperData.SourceMember.GetElementMember().Type,
-                       mapperData.TargetMember.GetElementMember().Type);
+            if (!mapperData.SourceMember.IsEnumerable)
+            {
+                return false;
+            }
+
+            var sourceElementMember = mapperData.SourceMember.GetElementMember();
+            var targetElementMember = mapperData.TargetMember.GetElementMember();
+
+            if (mapperData.CanConvert(sourceElementMember.Type, targetElementMember.Type))
+            {
+                return true;
+            }
+
+            if (!mapperData.MapperContext.UserConfigurations.HasMappingFactories)
+            {
+                return false;
+            }
+
+            var queryContext = new QualifiedMemberContext(
+                mapperData.RuleSet,
+                sourceElementMember.Type,
+                targetElementMember.Type,
+                sourceElementMember,
+                targetElementMember,
+                mapperData,
+                mapperData.MapperContext);
+
+            return ConfiguredMappingFactory.QueryMappingFactories(queryContext).Any();
         }
 
         protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
@@ -69,10 +93,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 yield break;
             }
 
-            var elementMapperData = context.MapperData.GetElementMapperData();
+            var elementContext = context.MapperData.GetElementMemberContext();
 
-            if (elementMapperData.IsRepeatMapping() &&
-                context.RuleSet.RepeatMappingStrategy.WillNotMap(elementMapperData))
+            if (elementContext.IsRepeatMapping() &&
+                context.RuleSet.RepeatMappingStrategy.WillNotMap(elementContext))
             {
                 yield break;
             }

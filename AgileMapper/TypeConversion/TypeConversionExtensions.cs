@@ -64,7 +64,7 @@
                 return Enumerable<ConfiguredObjectFactory>.Empty;
             }
 
-            var queryMapperData = new QualifiedMemberContext(
+            var queryContext = new QualifiedMemberContext(
                 context.RuleSet,
                 sourceType,
                 targetType.GetNonNullableType(),
@@ -75,7 +75,7 @@
             return context
                 .MapperContext
                 .UserConfigurations
-                .QueryObjectFactories(queryMapperData);
+                .QueryObjectFactories(queryContext);
         }
 
         private static Expression GetConversionOrCreationExpression(

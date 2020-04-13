@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Project(mapperData, GetMappingFactoryDataSource)
                 .ToArray();
         }
-
+        
         public static IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
             => context.MapperContext.UserConfigurations.QueryMappingFactories(context);
 

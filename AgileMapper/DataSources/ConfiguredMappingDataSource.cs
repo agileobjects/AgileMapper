@@ -12,6 +12,11 @@
         {
             var childMapperData = childMappingData.MapperData;
 
+            if (!childMapperData.MapperContext.UserConfigurations.HasMappingFactories)
+            {
+                return new NullDataSource(Constants.EmptyExpression);
+            }
+
             var childObjectMappingData = ObjectMappingDataFactory.ForChild(
                 sourceMember,
                 childMapperData.TargetMember,
