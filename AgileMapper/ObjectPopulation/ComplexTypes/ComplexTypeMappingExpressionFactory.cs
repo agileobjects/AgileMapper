@@ -82,11 +82,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         protected override bool ShortCircuitMapping(MappingCreationContext context)
         {
             var mappingData = context.MappingData;
-            var mapping = default(Expression);
 
             foreach (var factory in _alternateMappingFactories)
             {
-                mapping = factory.Invoke(mappingData, out var isConditional);
+                var mapping = factory.Invoke(mappingData, out var isConditional);
 
                 if (mapping == null)
                 {
@@ -100,12 +99,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     continue;
                 }
 
-                return true;
-            }
-
-            if (mapping != null)
-            {
                 InsertShortCircuitReturns(context);
+                return true;
             }
 
             return false;
