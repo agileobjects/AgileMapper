@@ -330,7 +330,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 mapper.WhenMapping
-                    .Dictionaries
+                    .DictionariesWithValueType<string>()
                     .UseMemberNameSeparator("-")
                     .UseElementKeyPattern("i")
                     .AndWhenMapping
@@ -613,6 +613,34 @@
 
                 result.ShouldContainKey("Three");
                 result["Three"].Value.ShouldBe("Three");
+            }
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/173
+        [Fact]
+        public void ShouldMapDictionaryComplexTypeValuesToANestedToTargetList()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionariesWithValueType<PublicField<string>>()
+                    .ToANew<List<PublicField<string>>>()
+                    .Map((src, _) => src.Values.ToList()).ToTarget();
+
+                var source = new PublicProperty<Dictionary<string, PublicField<string>>>
+                {
+                    Value = new Dictionary<string, PublicField<string>>
+                    {
+                        ["test1"] = new PublicField<string> { Value = "value1" },
+                        ["test2"] = new PublicField<string> { Value = "value2" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicField<List<PublicField<string>>>>();
+
+                result.Value.Count.ShouldBe(2);
+                result.Value.First().Value.ShouldBe("value1");
+                result.Value.Second().Value.ShouldBe("value2");
             }
         }
 

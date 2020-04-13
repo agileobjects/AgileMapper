@@ -254,7 +254,7 @@
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
                 Mapper.WhenMapping
-                    .Dictionaries
+                    .DictionariesWithValueType<DateTime>()
                     .UseElementKeyPattern(string.Empty));
 
             configEx.Message.ShouldContain(
