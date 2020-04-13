@@ -13,7 +13,7 @@
                 yield break;
             }
 
-            if (context.DoNotUseSourceMemberDataSource())
+            if (!context.UseSourceMemberDataSource())
             {
                 if (context.DataSourceIndex == 0)
                 {
@@ -57,12 +57,6 @@
             {
                 yield return context.GetFallbackDataSource();
             }
-        }
-
-        private static bool DoNotUseSourceMemberDataSource(this DataSourceFindContext context)
-        {
-            return !context.BestSourceMemberMatch.IsUseable ||
-                    context.ConfiguredDataSources.Any(context.MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
         }
 
         private static bool UseFallbackComplexTypeDataSource(this DataSourceFindContext context)

@@ -251,5 +251,34 @@
                 nonMatchingResult.ShouldBe(4, 5, 6, 7);
             }
         }
+
+        [Fact]
+        public void ShouldUseAConfiguredNonEnumerableToEnumerableFactoryForANestedArrayMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address>()
+                    .ToANew<Address[]>()
+                    .MapInstancesUsing(ctx => new[]
+                    {
+                        new Address { Line1 = ctx.Source.Line1 },
+                        new Address { Line1 = ctx.Source.Line1 + " again" }
+                    });
+
+                var source = new PublicTwoFields<string, Address>
+                {
+                    Value1 = "Hello!",
+                    Value2 = new Address { Line1 = "Line 1" }
+                };
+
+                var result = mapper.Map(source).ToANew<PublicTwoFields<string, Address[]>>();
+
+                result.Value1.ShouldBe("Hello!");
+                result.Value2.ShouldNotBeNull().Length.ShouldBe(2);
+                result.Value2.First().Line1.ShouldBe("Line 1");
+                result.Value2.Second().Line1.ShouldBe("Line 1 again");
+            }
+        }
     }
 }

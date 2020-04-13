@@ -14,6 +14,7 @@
         private SourceMemberMatchContext _sourceMemberMatchContext;
         private SourceMemberMatch _bestSourceMemberMatch;
         private IDataSource _matchingSourceMemberDataSource;
+        private bool? _useSourceMemberDataSource;
 
         public DataSourceFindContext(IChildMemberMappingData memberMappingData)
         {
@@ -93,6 +94,13 @@
                 ? _sourceMemberMatchContext.With(MemberMappingData)
                 : _sourceMemberMatchContext = new SourceMemberMatchContext(MemberMappingData);
 
+        public bool UseSourceMemberDataSource()
+        {
+            return _useSourceMemberDataSource ??=
+                    BestSourceMemberMatch.IsUseable &&
+                   !ConfiguredDataSources.Any(MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
+        }
+
         public IDataSource GetFallbackDataSource()
             => MemberMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MemberMapperData);
 
@@ -149,6 +157,7 @@
             _sourceMemberMatchContext = null;
             _bestSourceMemberMatch = null;
             _matchingSourceMemberDataSource = null;
+            _useSourceMemberDataSource = null;
             DataSourceIndex = 0;
             StopFind = false;
             return this;

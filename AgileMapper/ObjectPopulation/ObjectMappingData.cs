@@ -124,7 +124,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperData MapperData
         {
-            get => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For(this));
+            get => _mapperData ??= _mapper?.MapperData ?? ObjectMapperData.For(this);
             set => _mapperData = value;
         }
 
@@ -145,7 +145,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingData DeclaredTypeMappingData { get; }
 
         private Dictionary<object, List<object>> MappedObjectsBySource
-            => _mappedObjectsBySource ?? (_mappedObjectsBySource = new Dictionary<object, List<object>>(13));
+            => _mappedObjectsBySource ??= new Dictionary<object, List<object>>(13);
 
         IChildMemberMappingData IObjectMappingData.GetChildMappingData(IMemberMapperData childMapperData)
             => new ChildMemberMappingData<TSource, TTarget>(this, childMapperData);
@@ -181,11 +181,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(childSourceMember, sm =>
             {
-                var sourceParameter = Parameters.Create<TSource>("source");
-                var relativeMember = sm.RelativeTo(MapperData.SourceMember);
-
-                var memberAccess = relativeMember
-                    .GetQualifiedAccess(MapperData)
+                var sourceParameter = typeof(TSource).GetOrCreateParameter("source");
+                
+                var memberAccess = sm
+                    .GetRelativeQualifiedAccess(MapperData)
                     .Replace(
                         MapperData.SourceObject,
                         sourceParameter,
@@ -342,7 +341,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return complexType != null;
             }
 
-            complexType = default(TComplex);
+            complexType = default;
             return false;
         }
 

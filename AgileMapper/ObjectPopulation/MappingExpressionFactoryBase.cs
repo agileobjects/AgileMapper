@@ -84,19 +84,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            var mapperData = context.MappingData.MapperData;
+            var returnLabel = context.MapperData
+                .GetFinalisedReturnLabel(mapping, out var returnsNull);
 
-            if (mapping.NodeType == Goto)
-            {
-                mapping = ((GotoExpression)mapping).Value;
-            }
-            else
+            if (returnsNull)
             {
                 context.MappingExpressions.Add(mapping);
-                mapping = mapperData.GetTargetTypeDefault();
             }
 
-            context.MappingExpressions.Add(mapperData.GetReturnLabel(mapping));
+            context.MappingExpressions.Add(returnLabel);
         }
 
         protected virtual void InsertShortCircuitReturns(MappingCreationContext context)

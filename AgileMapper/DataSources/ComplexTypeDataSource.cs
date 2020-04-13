@@ -47,8 +47,11 @@
         public static IDataSource Create(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
         {
             var complexTypeMapperData = complexTypeMappingData.MapperData;
-            var relativeMember = complexTypeMapperData.SourceMember.RelativeTo(complexTypeMapperData.SourceMember);
-            var sourceMemberAccess = relativeMember.GetQualifiedAccess(complexTypeMapperData);
+            var sourceMember = complexTypeMapperData.SourceMember;
+
+            var sourceMemberAccess = sourceMember.GetRelativeQualifiedAccess(
+                complexTypeMapperData,
+                out var relativeMember);
 
             var mapping = MappingFactory.GetChildMapping(
                 relativeMember,
@@ -56,7 +59,7 @@
                 dataSourceIndex,
                 complexTypeMappingData);
 
-            return new ComplexTypeDataSource(complexTypeMapperData.SourceMember, mapping);
+            return new ComplexTypeDataSource(sourceMember, mapping);
         }
 
         #endregion

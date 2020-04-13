@@ -212,7 +212,7 @@
                 createMappingDataCall);
         }
 
-        private static Expression GetDirectAccessMapping(
+        public static Expression GetDirectAccessMapping(
             Expression mapping,
             IMemberMapperData mapperData,
             MappingValues mappingValues,
