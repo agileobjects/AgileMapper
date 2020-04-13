@@ -85,9 +85,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             var returnLabel = context.MapperData
-                .GetFinalisedReturnLabel(mapping, out var returnsNull);
+                .GetFinalisedReturnLabel(mapping, out var returnsDefault);
 
-            if (returnsNull)
+            if (returnsDefault)
             {
                 context.MappingExpressions.Add(mapping);
             }

@@ -157,5 +157,46 @@
                 result.Value2.Second().Line1.ShouldBe("Line 1 again");
             }
         }
+
+        [Fact]
+        public void ShouldUseAConfiguredNonEnumerableToEnumerableFactoryForANestedEnumerableMappingConditionallyInline()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                Expression<Action<IFullMappingInlineConfigurator<
+                    PublicField<PublicProperty<Address>>,
+                    PublicField<PublicField<IEnumerable<Address>>>>>> config = cfg => cfg
+                        .WhenMapping
+                        .From<Address>()
+                        .ToANew<IEnumerable<Address>>()
+                        .If((srcAddr, tgtAddr) => string.IsNullOrEmpty(srcAddr.Line2))
+                        .MapInstancesUsing(ctx => new[]
+                        {
+                            new Address { Line1 = ctx.Source.Line1, Line2 = ctx.Source.Line1 }
+                        });
+
+                var matchingSource = new PublicField<PublicProperty<Address>>
+                {
+                    Value = new PublicProperty<Address> { Value = new Address { Line1 = "1 Street" } }
+                };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew(config);
+                var matchingResultHolder = matchingResult.Value.ShouldNotBeNull();
+                var matchingResultAddress = matchingResultHolder.Value.ShouldHaveSingleItem();
+                matchingResultAddress.Line1.ShouldBe("1 Street");
+                matchingResultAddress.Line2.ShouldBe("1 Street");
+
+                var nonMatchingSource = new PublicField<PublicProperty<Address>>
+                {
+                    Value = new PublicProperty<Address>
+                    {
+                        Value = new Address { Line1 = "2 Street", Line2 = "2 City" }
+                    }
+                };
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew(config);
+                nonMatchingResult.Value.ShouldNotBeNull().Value.ShouldBeEmpty();
+            }
+        }
     }
 }

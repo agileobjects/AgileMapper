@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper
 
         public string Name { get; }
 
-        public Expression NameConstant => _nameConstant ?? (_nameConstant = Name.ToConstantExpression());
+        public Expression NameConstant => _nameConstant ??= Name.ToConstantExpression();
 
         public MappingRuleSetSettings Settings { get; }
 

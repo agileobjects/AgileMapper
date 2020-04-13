@@ -145,6 +145,9 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetTypeDefault(this ITypePair typePair)
             => typePair.TargetType.ToDefaultExpression();
 
+        public static Expression GetTargetFallbackValue(this IMemberMapperData mapperData)
+            => mapperData.RuleSet.FallbackDataSourceFactory.Invoke(mapperData).Value;
+
         public static Expression GetNestedAccessChecksFor(this IMemberMapperData mapperData, Expression value)
             => GetNestedAccessChecksFor(value, mapperData.RuleSet, mapperData);
 
@@ -653,12 +656,12 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetFinalisedReturnLabel(
             this ObjectMapperData mapperData,
             Expression value,
-            out bool returnsNull)
+            out bool returnsDefault)
         {
-            returnsNull = value.NodeType != ExpressionType.Goto;
+            returnsDefault = value.NodeType != ExpressionType.Goto;
 
-            value = returnsNull
-                ? mapperData.GetTargetTypeDefault()
+            value = returnsDefault
+                ? mapperData.GetTargetFallbackValue()
                 : ((GotoExpression)value).Value;
 
             return mapperData.GetReturnLabel(value);

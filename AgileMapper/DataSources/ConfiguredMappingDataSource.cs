@@ -1,5 +1,10 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Members;
     using ObjectPopulation;
 
@@ -47,10 +52,15 @@
                 mappingValues,
                 MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childObjectMapperData));
 
-            var returnLabel = childObjectMapperData
-                .GetFinalisedReturnLabel(directAccessMapping, out _);
+            var returnValue = childObjectMapperData
+                .GetFinalisedReturnLabel(directAccessMapping, out var returnsDefault);
 
-            return new AdHocDataSource(sourceMember, returnLabel, childMapperData);
+            if (returnsDefault)
+            {
+                returnValue = Expression.Block(directAccessMapping, returnValue);
+            }
+
+            return new AdHocDataSource(sourceMember, returnValue, childMapperData);
         }
     }
 }
