@@ -4,19 +4,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.ExpressionType;
 #endif
     using DataSources;
     using Extensions;
     using Members;
+#if NET35
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using static System.Linq.Expressions.ExpressionType;
+#endif
     using static CallbackPosition;
 
     internal class MappingCreationContext
     {
-        private bool _mapperDataHasRootEnumerableVariables;
         private IList<Expression> _memberMappingExpressions;
 
         public MappingCreationContext(IObjectMappingData mappingData)
@@ -31,10 +33,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            var basicMapperData = MapperData.WithNoTargetMember();
+            var callbackQueryMapperData = MapperData.WithNoTargetMember();
 
-            PreMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, MapperData);
-            PostMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, MapperData);
+            PreMappingCallback = callbackQueryMapperData.GetMappingCallbackOrNull(Before, MapperData);
+            PostMappingCallback = callbackQueryMapperData.GetMappingCallbackOrNull(After, MapperData);
         }
 
         private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
@@ -101,7 +103,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MappingCreationContext WithDataSource(IDataSource newDataSource)
         {
-            var newSourceMappingData = MappingData.WithSource(newDataSource.SourceMember);
+            var newSourceMappingData = MappingData.WithToTargetSource(newDataSource.SourceMember);
 
             var newContext = new MappingCreationContext(newSourceMappingData)
             {
@@ -115,32 +117,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 newContext.MapperData.TargetInstance = MapperData.TargetInstance;
             }
-            else if (_mapperDataHasRootEnumerableVariables)
+            else if (TargetMember.IsEnumerable)
             {
-                UpdateEnumerableVariables(MapperData, newContext.MapperData);
+                UpdateEnumerableVariablesIfAppropriate(MapperData, newContext.MapperData);
             }
 
             return newContext;
         }
 
-        public void UpdateFrom(MappingCreationContext childSourceContext)
+        public void UpdateFrom(MappingCreationContext toTargetContext)
         {
-            MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(childSourceContext.MappingData);
+            MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(toTargetContext.MappingData);
 
-            if (TargetMember.IsComplex || _mapperDataHasRootEnumerableVariables)
+            if (TargetMember.IsComplex)
             {
                 return;
             }
 
-            _mapperDataHasRootEnumerableVariables = true;
-
-            UpdateEnumerableVariables(childSourceContext.MapperData, MapperData);
+            UpdateEnumerableVariablesIfAppropriate(toTargetContext.MapperData, MapperData);
         }
 
-        private static void UpdateEnumerableVariables(ObjectMapperData sourceMapperData, ObjectMapperData targetMapperData)
+        private static void UpdateEnumerableVariablesIfAppropriate(
+            ObjectMapperData fromMapperData,
+            ObjectMapperData toMapperData)
         {
-            targetMapperData.LocalVariable = sourceMapperData.LocalVariable;
-            targetMapperData.EnumerablePopulationBuilder.TargetVariable = sourceMapperData.EnumerablePopulationBuilder.TargetVariable;
+            if (fromMapperData.EnumerablePopulationBuilder.TargetVariable == null)
+            {
+                return;
+            }
+
+            toMapperData.LocalVariable = fromMapperData.LocalVariable;
+            toMapperData.EnumerablePopulationBuilder.TargetVariable = fromMapperData.EnumerablePopulationBuilder.TargetVariable;
         }
     }
 }

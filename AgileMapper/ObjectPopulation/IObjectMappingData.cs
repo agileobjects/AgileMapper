@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         object MapStart();
 
-        IObjectMappingData WithSource(IQualifiedMember newSourceMember);
+        IObjectMappingData WithToTargetSource(IQualifiedMember newSourceMember);
 
         IObjectMappingData WithTypes(Type newSourceType, Type newTargetType, bool isForDerivedTypeMapping = true);
     }

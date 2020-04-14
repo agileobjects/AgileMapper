@@ -7,7 +7,6 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
-    using AgileMapper.Configuration.Dictionaries;
     using AgileMapper.Configuration.MemberIgnores;
     using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using Dictionaries;
@@ -570,15 +569,12 @@
             });
         }
 #endif
-        private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>()
-            => CreateDictionaryConfigurator<TValue>(cfg => cfg.Set(DictionaryType.Dictionary));
-
         private DictionaryMappingConfigurator<TValue> CreateDictionaryConfigurator<TValue>(
-            Action<MappingConfigInfo> configSetup)
+            Action<MappingConfigInfo> configSetup = null)
         {
             var configInfo = _configInfo.ForAllSourceTypes().ForSourceValueType(typeof(TValue));
 
-            configSetup.Invoke(configInfo);
+            configSetup?.Invoke(configInfo);
 
             return new DictionaryMappingConfigurator<TValue>(configInfo);
         }

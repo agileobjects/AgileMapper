@@ -44,7 +44,7 @@
 
             foreach (var dataSource in toTargetDataSources)
             {
-                mappingData = mappingData.WithSource(dataSource.SourceMember);
+                mappingData = mappingData.WithToTargetSource(dataSource.SourceMember);
 
                 if (mappingData.IsTargetConstructable())
                 {
