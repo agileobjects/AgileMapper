@@ -15,18 +15,18 @@
         [DebuggerStepThrough]
         public static Expression ForToTarget(
             ObjectMapperData parentMapperData,
-            Expression toTargetDataSource)
+            Expression toTargetSourceValue)
         {
             var withSourceMethod = parentMapperData
                 .MappingDataObject
                 .Type
                 .GetPublicInstanceMethod("WithSource")
-                .MakeGenericMethod(toTargetDataSource.Type);
+                .MakeGenericMethod(toTargetSourceValue.Type);
 
             var withSourceCall = Expression.Call(
                 parentMapperData.MappingDataObject,
                 withSourceMethod,
-                toTargetDataSource);
+                toTargetSourceValue);
 
             return withSourceCall;
         }
@@ -35,7 +35,6 @@
         public static Expression ForDerivedType(ObjectMapperData childMapperData)
         {
             UseAsConversion(childMapperData, out var asConversion);
-
             return asConversion;
         }
 

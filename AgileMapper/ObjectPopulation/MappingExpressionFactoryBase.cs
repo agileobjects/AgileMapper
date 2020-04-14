@@ -111,36 +111,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(MappingCreationContext context)
         {
-            if (!HasConfiguredToTargetDataSources(context.MapperData, out var configuredToTargetDataSources))
+            if (!HasConfiguredToTargetDataSources(context.MapperData, out var toTargetDataSources))
             {
                 yield break;
             }
 
-            for (var i = 0; i < configuredToTargetDataSources.Count; ++i)
+            for (var i = 0; i < toTargetDataSources.Count; ++i)
             {
-                var configuredToTargetDataSource = configuredToTargetDataSources[i];
-                var newSourceContext = context.WithDataSource(configuredToTargetDataSource);
+                var toTargetDataSource = toTargetDataSources[i];
+                var toTargetContext = context.WithDataSource(toTargetDataSource);
 
-                AddPopulationsAndCallbacks(newSourceContext);
+                AddPopulationsAndCallbacks(toTargetContext);
 
-                if (newSourceContext.MappingExpressions.None())
+                if (toTargetContext.MappingExpressions.None())
                 {
                     continue;
                 }
 
-                context.UpdateFrom(newSourceContext);
+                context.UpdateFrom(toTargetContext);
 
-                var mapping = newSourceContext.MappingExpressions.HasOne()
-                    ? newSourceContext.MappingExpressions.First()
-                    : Expression.Block(newSourceContext.MappingExpressions);
+                var mapping = toTargetContext.MappingExpressions.HasOne()
+                    ? toTargetContext.MappingExpressions.First()
+                    : Expression.Block(toTargetContext.MappingExpressions);
 
                 mapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
                     context.MapperData,
-                    newSourceContext.MapperData,
-                    configuredToTargetDataSource.Value,
+                    toTargetContext.MapperData,
+                    toTargetDataSource.Value,
                     mapping);
 
-                if (!configuredToTargetDataSource.IsConditional)
+                if (!toTargetDataSource.IsConditional)
                 {
                     yield return mapping;
                     continue;
@@ -148,7 +148,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 if (context.MapperData.TargetMember.IsComplex || (i > 0))
                 {
-                    yield return Expression.IfThen(configuredToTargetDataSource.Condition, mapping);
+                    yield return Expression.IfThen(toTargetDataSource.Condition, mapping);
                     continue;
                 }
 
@@ -158,7 +158,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var assignFallback = context.MapperData.LocalVariable.AssignTo(fallback);
 
-                yield return Expression.IfThenElse(configuredToTargetDataSource.Condition, mapping, assignFallback);
+                yield return Expression.IfThenElse(toTargetDataSource.Condition, mapping, assignFallback);
             }
         }
 

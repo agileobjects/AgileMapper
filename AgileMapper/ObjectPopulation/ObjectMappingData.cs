@@ -377,7 +377,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return With(default(TNewSource), Target as TNewTarget, isForDerivedTypeMapping);
         }
 
-        public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
+        public IObjectMappingData WithToTargetSource(IQualifiedMember newSourceMember)
         {
             var newSourceMappingData = WithTypes(
                 GetSourceMemberRuntimeType(newSourceMember),
