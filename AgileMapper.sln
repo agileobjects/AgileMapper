@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests", "AgileMapper.UnitTests\AgileMapper.UnitTests.csproj", "{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore3.1", "AgileMapper.UnitTests.NetCore3.1\AgileMapper.UnitTests.NetCore3.1.csproj", "{A4D51412-D8C0-4462-B7C9-1ABDA4AE13B2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -149,6 +151,10 @@ Global
 		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4D51412-D8C0-4462-B7C9-1ABDA4AE13B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4D51412-D8C0-4462-B7C9-1ABDA4AE13B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4D51412-D8C0-4462-B7C9-1ABDA4AE13B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4D51412-D8C0-4462-B7C9-1ABDA4AE13B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -176,6 +182,7 @@ Global
 		{86B68C08-267A-47BD-BCBC-427710D2654F} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{A6A0E6FF-E114-4F26-99E9-CAD1C03BD743} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{A4D51412-D8C0-4462-B7C9-1ABDA4AE13B2} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C39E9BDB-0077-445C-8F09-801CAE1AF8AB}

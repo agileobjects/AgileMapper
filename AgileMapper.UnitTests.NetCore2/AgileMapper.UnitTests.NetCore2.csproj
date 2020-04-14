@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <RuntimeFrameworkVersion>2.0.7</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>2.0.9</RuntimeFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore2</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.NetCore2</RootNamespace>
