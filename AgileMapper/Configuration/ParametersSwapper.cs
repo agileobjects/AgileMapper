@@ -312,7 +312,7 @@ namespace AgileObjects.AgileMapper.Configuration
             LambdaExpression lambda,
             Type[] contextTypes,
             IMemberMapperData mapperData,
-            Func<IMemberMapperData, Expression, Type, Expression> targetValueFactory)
+            ValueFactory targetValueFactory)
         {
             var swapArgs = new SwapArgs(lambda, contextTypes, mapperData, targetValueFactory);
 
@@ -355,15 +355,14 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public Type[] ContextTypes => _swapArgs.ContextTypes;
 
-            public Expression CreatedObject
-                => _createdObject ?? (_createdObject = GetCreatedObject(_swapArgs));
+            public Expression CreatedObject => _createdObject ??= GetCreatedObject();
 
-            private static Expression GetCreatedObject(SwapArgs swapArgs)
+            private Expression GetCreatedObject()
             {
-                var neededCreatedObjectType = swapArgs.ContextTypes.Last();
-                var createdObject = swapArgs.MapperData.CreatedObject;
+                var neededCreatedObjectType = _swapArgs.ContextTypes.Last();
+                var createdObject = _swapArgs.MapperData.CreatedObject;
 
-                if ((swapArgs.ContextTypes.Length == 3) && (neededCreatedObjectType == typeof(int?)))
+                if ((_swapArgs.ContextTypes.Length == 3) && (neededCreatedObjectType == typeof(int?)))
                 {
                     return createdObject;
                 }
@@ -391,13 +390,13 @@ namespace AgileObjects.AgileMapper.Configuration
 
         public class SwapArgs
         {
-            private readonly Func<IMemberMapperData, Expression, Type, Expression> _targetValueFactory;
+            private readonly ValueFactory _targetValueFactory;
 
             public SwapArgs(
                 LambdaExpression lambda,
                 Type[] contextTypes,
                 IMemberMapperData mapperData,
-                Func<IMemberMapperData, Expression, Type, Expression> targetValueFactory)
+                ValueFactory targetValueFactory)
             {
                 Lambda = lambda;
                 ContextTypes = (contextTypes.Length > 1) ? contextTypes : contextTypes.Append(typeof(object));
@@ -432,4 +431,9 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
     }
+
+    internal delegate Expression ValueFactory(
+        IMemberMapperData mapperData,
+        Expression contextAccess,
+        Type targetType);
 }

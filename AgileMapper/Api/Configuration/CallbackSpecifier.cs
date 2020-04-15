@@ -61,8 +61,9 @@
         {
             ThrowIfStructMemberCallback();
 
-            var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget));
-            callbackLambda.InvocationPosition = _configInfo.InvocationPosition;
+            var callbackLambda = ConfiguredLambdaInfo
+                .ForAction(callback, typeof(TSource), typeof(TTarget))
+                .SetInvocationPosition(_configInfo);
 
             var creationCallbackFactory = new MappingCallbackFactory(
                 _configInfo,
