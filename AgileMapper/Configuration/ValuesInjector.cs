@@ -12,9 +12,14 @@ namespace AgileObjects.AgileMapper.Configuration
     using static Members.Member;
     using static ParametersSwapper;
 
+    internal interface IValueReplacer
+    {
+        Expression Replace(LambdaExpression lambda, SwapArgs swapArgs);
+    }
+
     internal class ValuesInjector
     {
-        public static ValuesInjector For(LambdaExpression lambda)
+        public static IValueReplacer For(LambdaExpression lambda)
         {
             // Lambda has parameters - either ctx, (s, t), (s, t, i), etc
             // ctx members or multi-param lambda parameters may or may not be used
@@ -34,15 +39,7 @@ namespace AgileObjects.AgileMapper.Configuration
                     return null;
             }
 
-            var requiredValuesCount = requiredValues.GetRequiredValuesCount();
-
-            switch (requiredValuesCount)
-            {
-                case 0:
-                case 1:
-
-                    break;
-            }
+            return requiredValues.GetValueReplacer();
         }
 
         [Flags]
@@ -266,11 +263,6 @@ namespace AgileObjects.AgileMapper.Configuration
 
                 return base.VisitMember(memberAccess);
             }
-        }
-
-        private interface IValueReplacer
-        {
-            Expression Replace(LambdaExpression lambda, SwapArgs swapArgs);
         }
 
         private delegate Expression ValueFactory(SwapArgs swapArgs);

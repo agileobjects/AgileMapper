@@ -167,10 +167,10 @@
 
 #if NET35
             var customValueLambda = _customValueLambda.ToDlrExpression();
-            const Dlr.ExpressionType CONSTANT = Dlr.ExpressionType.Constant;
+            const ExprType CONSTANT = ExprType.Constant;
 #else
             var customValueLambda = _customValueLambda;
-            const ExpressionType CONSTANT = Constant;
+            const ExprType CONSTANT = Constant;
 #endif
             if ((customValueLambda.Body.NodeType != CONSTANT) ||
                 (targetValueType == typeof(object)) ||
