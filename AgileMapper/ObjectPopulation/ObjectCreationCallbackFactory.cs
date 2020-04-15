@@ -18,24 +18,23 @@
         public ObjectCreationCallbackFactory(
             MappingConfigInfo configInfo,
             Type creationTargetType,
-            CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo, callbackPosition, callbackLambda, QualifiedMember.All)
+            : base(configInfo, callbackLambda, QualifiedMember.All)
         {
             _creationTargetType = creationTargetType;
         }
 
-        public override bool AppliesTo(CallbackPosition callbackPosition, IQualifiedMemberContext context)
-            => context.TargetMember.Type.IsAssignableTo(_creationTargetType) && base.AppliesTo(callbackPosition, context);
+        public override bool AppliesTo(InvocationPosition invocationPosition, IQualifiedMemberContext context)
+            => context.TargetMember.Type.IsAssignableTo(_creationTargetType) && base.AppliesTo(invocationPosition, context);
 
         protected override bool TypesMatch(IQualifiedMemberContext context)
              => SourceAndTargetTypesMatch(context);
 
-        protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
+        public override Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
-            var condition = base.GetConditionOrNull(mapperData, position);
+            var condition = base.GetConditionOrNull(mapperData);
 
-            if ((CallbackPosition != CallbackPosition.After) || mapperData.TargetMemberIsUserStruct())
+            if ((InvocationPosition != InvocationPosition.After) || mapperData.TargetMemberIsUserStruct())
             {
                 return condition;
             }

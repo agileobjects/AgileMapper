@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    internal enum CallbackPosition
+    internal enum InvocationPosition
     {
         Before,
         After

@@ -14,7 +14,7 @@
     public class PostEventMappingConfigStartingPoint<TSource, TTarget> : EventConfigStartingPointBase<TSource, TTarget>
     {
         internal PostEventMappingConfigStartingPoint(MappingConfigInfo configInfo)
-            : base(configInfo, CallbackPosition.After)
+            : base(configInfo.WithInvocationPosition(InvocationPosition.After))
         {
         }
 

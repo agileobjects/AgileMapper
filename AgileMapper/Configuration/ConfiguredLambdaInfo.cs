@@ -137,6 +137,8 @@
 
         #endregion
 
+        public InvocationPosition InvocationPosition { get; set; }
+
         public bool UsesMappingDataObjectParameter => _parametersSwapper.HasMappingContextParameter;
 
         public Type ReturnType { get; }
@@ -231,10 +233,7 @@
             return _description = _lambda.Body.ToReadableString();
         }
 
-        public Expression GetBody(
-            IMemberMapperData mapperData,
-            CallbackPosition position = CallbackPosition.Before,
-            QualifiedMember targetMember = null)
+        public Expression GetBody(IMemberMapperData mapperData)
         {
             var contextTypes = _contextTypes;
 
@@ -246,7 +245,7 @@
                 contextTypes[1] = mapperData.TargetType;
             }
 
-            return position.IsPriorToObjectCreation(targetMember)
+            return InvocationPosition == InvocationPosition.Before
                 ? _parametersSwapper.Swap(_lambda, contextTypes, mapperData, ParametersSwapper.UseTargetMember)
                 : _parametersSwapper.Swap(_lambda, contextTypes, mapperData, ParametersSwapper.UseTargetInstance);
         }

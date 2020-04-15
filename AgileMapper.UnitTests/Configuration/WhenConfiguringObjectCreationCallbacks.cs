@@ -64,7 +64,7 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.After
+                    mapper.Before
                         .CreatingInstancesOf<Address>()
                         .Call(ctx => throw new InvalidOperationException("OH NO"));
 

@@ -35,6 +35,7 @@
         public MappingConfigInfo(MapperContext mapperContext)
         {
             MapperContext = mapperContext;
+            InvocationPosition = InvocationPosition.After;
         }
 
         #region Factory Methods
@@ -165,6 +166,7 @@
             FixEnumComparisonsIfNecessary(ref conditionLambda);
 
             _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
+            _conditionLambda.InvocationPosition = InvocationPosition;
         }
 
         private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
@@ -199,17 +201,14 @@
         public string GetConditionDescription(MappingConfigInfo configInfo)
             => _conditionLambda.GetDescription(configInfo);
 
-        public Expression GetConditionOrNull(
-            IMemberMapperData mapperData,
-            CallbackPosition position,
-            QualifiedMember targetMember)
+        public Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
             if (!HasCondition)
             {
                 return null;
             }
 
-            var condition = _conditionLambda.GetBody(mapperData, position, targetMember);
+            var condition = _conditionLambda.GetBody(mapperData);
 
             if (_negateCondition)
             {
@@ -227,6 +226,14 @@
         }
 
         #endregion
+
+        public InvocationPosition InvocationPosition { get; private set; }
+
+        public MappingConfigInfo WithInvocationPosition(InvocationPosition position)
+        {
+            InvocationPosition = position;
+            return this;
+        }
 
         public T Get<T>()
         {
@@ -289,7 +296,8 @@
                 SourceType = SourceType,
                 TargetType = TargetType,
                 SourceValueType = SourceValueType,
-                RuleSet = RuleSet
+                RuleSet = RuleSet,
+                InvocationPosition = InvocationPosition
             };
 
             if (_data == null)

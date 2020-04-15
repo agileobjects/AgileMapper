@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Members;
     using Members.Population;
     using NetStandardPolyfills;
-    using static CallbackPosition;
+    using static InvocationPosition;
 
     internal abstract class PopulationExpressionFactoryBase
     {
@@ -95,8 +95,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             postCreationCallback = GetCreationCallbackOrNull(After, context.MapperData);
         }
 
-        private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(callbackPosition, mapperData);
+        private static Expression GetCreationCallbackOrNull(InvocationPosition invocationPosition, IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(invocationPosition, mapperData);
 
         private IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
         {

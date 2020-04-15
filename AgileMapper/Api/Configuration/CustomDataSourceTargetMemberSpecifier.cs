@@ -164,7 +164,6 @@
             {
                 return _customValueLambdaInfo;
             }
-
 #if NET35
             var customValueLambda = _customValueLambda.ToDlrExpression();
             const ExprType CONSTANT = ExprType.Constant;
