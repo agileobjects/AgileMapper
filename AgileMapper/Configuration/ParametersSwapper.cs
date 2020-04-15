@@ -433,6 +433,4 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
     }
-
-    internal delegate Expression TargetValueFactory(IMemberMapperData mapperData, Expression contextAccess, Type targetType);
 }

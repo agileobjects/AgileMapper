@@ -1,6 +1,8 @@
 namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Collections.Generic;
+    using Extensions.Internal;
     using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -8,6 +10,7 @@ namespace AgileObjects.AgileMapper.Configuration
     using System.Linq.Expressions;
 #endif
     using static Members.Member;
+    using static ParametersSwapper;
 
     internal class ValuesInjector
     {
@@ -37,6 +40,7 @@ namespace AgileObjects.AgileMapper.Configuration
             {
                 case 0:
                 case 1:
+
                     break;
             }
         }
@@ -136,7 +140,22 @@ namespace AgileObjects.AgileMapper.Configuration
                 }
             }
 
-            public int GetRequiredValuesCount()
+            public IValueReplacer GetValueReplacer()
+            {
+                switch (GetRequiredValuesCount())
+                {
+                    case 0:
+                        return null;
+                    
+                    case 1:
+                        return new SingleValueReplacer();
+
+                    default:
+                        return null;
+                }
+            }
+
+            private int GetRequiredValuesCount()
             {
                 if (_requiredValues == RequiredValue.Undefined)
                 {
@@ -150,7 +169,7 @@ namespace AgileObjects.AgileMapper.Configuration
 
                 // See https://stackoverflow.com/questions/677204/counting-the-number-of-flags-set-on-an-enumeration
                 var count = 0;
-                var value = (int) _requiredValues;
+                var value = (int)_requiredValues;
 
                 while (value != 0)
                 {
@@ -160,6 +179,14 @@ namespace AgileObjects.AgileMapper.Configuration
 
                 _requiredValuesCount = count;
                 return count;
+            }
+
+            private KeyValuePair<Expression, ValueFactory> GetSingleValueAndFactory()
+            {
+                if (Has(RequiredValue.MappingContext))
+                {
+                    return new KeyValuePair<Expression, ValueFactory>(MappingContext, );
+                }
             }
 
             private bool AssignIfMissing(RequiredValue requiredValue)
@@ -238,6 +265,32 @@ namespace AgileObjects.AgileMapper.Configuration
                 }
 
                 return base.VisitMember(memberAccess);
+            }
+        }
+
+        private interface IValueReplacer
+        {
+            Expression Replace(LambdaExpression lambda, SwapArgs swapArgs);
+        }
+
+        private delegate Expression ValueFactory(SwapArgs swapArgs);
+
+        private class SingleValueReplacer
+        {
+            private readonly Expression _target;
+            private readonly ValueFactory _valueFactory;
+
+            public SingleValueReplacer(Expression target, ValueFactory valueFactory)
+            {
+                _target = target;
+                _valueFactory = valueFactory;
+            }
+
+            public Expression Replace(LambdaExpression lambda, SwapArgs swapArgs)
+            {
+                var value = _valueFactory.Invoke(swapArgs);
+
+                return lambda.Body.Replace(_target, value);
             }
         }
     }
