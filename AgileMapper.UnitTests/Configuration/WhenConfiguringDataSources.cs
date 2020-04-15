@@ -1305,6 +1305,27 @@
             }
         }
 
+        [Fact]
+        public void ShouldApplySimpleToComplexTypeArrayToNestedMember()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<string[]>>()
+                    .To<PublicProperty<Address[]>>()
+                    .Map((pf, pp) => pf.Value.Select(str => new Address { Line1 = str }).ToArray())
+                    .To(pp => pp.Value);
+
+                var source = new PublicField<string[]> { Value = new[] { "Address 1", "Address 2" } };
+                var result = mapper.Map(source).ToANew<PublicProperty<Address[]>>();
+
+                var addresses = result.ShouldNotBeNull().Value.ShouldNotBeNull();
+                addresses.Length.ShouldBe(2);
+                addresses.First().Line1.ShouldBe("Address 1");
+                addresses.Second().Line1.ShouldBe("Address 2");
+            }
+        }
+
         #region Helper Classes
 
         internal class IdTester

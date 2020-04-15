@@ -290,13 +290,23 @@ namespace AgileObjects.AgileMapper.Configuration
                 .GetAppropriateMappingContext(contextAccess.Type.GetGenericTypeArguments())
                 .TargetInstance;
 
-            return ConvertTargetType(targetType, targetInstanceAccess)
-                ? targetInstanceAccess.GetConversionTo(targetType)
-                : targetInstanceAccess;
+            if (HasCompatibleTypes(targetType, targetInstanceAccess))
+            {
+                return targetInstanceAccess;
+            }
+
+            if (mapperData.TargetMember.IsEnumerable)
+            {
+                return ((ObjectMapperData)mapperData)
+                    .EnumerablePopulationBuilder
+                    .GetEnumerableConversion(targetInstanceAccess);
+            }
+
+            return targetInstanceAccess.GetConversionTo(targetType);
         }
 
-        private static bool ConvertTargetType(Type targetType, Expression targetInstanceAccess)
-            => targetInstanceAccess.Type.IsValueType() || !targetInstanceAccess.Type.IsAssignableTo(targetType);
+        private static bool HasCompatibleTypes(Type targetType, Expression targetInstanceAccess)
+            => !targetInstanceAccess.Type.IsValueType() && targetInstanceAccess.Type.IsAssignableTo(targetType);
 
         public Expression Swap(
             LambdaExpression lambda,
