@@ -87,11 +87,8 @@
         protected virtual bool MembersConflict(UserConfiguredItemBase otherItem)
             => TargetMember.Matches(otherItem.TargetMember);
 
-        public Expression GetConditionOrNull(IMemberMapperData mapperData)
-            => GetConditionOrNull(mapperData, CallbackPosition.After);
-
-        protected virtual Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
-            => ConfigInfo.GetConditionOrNull(mapperData, position, TargetMember);
+        public virtual Expression GetConditionOrNull(IMemberMapperData mapperData)
+            => ConfigInfo.GetConditionOrNull(mapperData);
 
         public bool CouldApplyTo(IQualifiedMemberContext context)
             => RuleSetMatches(context) && TypesMatch(context);

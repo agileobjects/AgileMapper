@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #else
     using static System.Linq.Expressions.ExpressionType;
 #endif
-    using static CallbackPosition;
+    using static InvocationPosition;
 
     internal class MappingCreationContext
     {

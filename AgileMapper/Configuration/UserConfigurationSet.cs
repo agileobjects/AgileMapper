@@ -469,7 +469,7 @@
         public void Add(MappingCallbackFactory callbackFactory) => MappingCallbackFactories.Add(callbackFactory);
 
         public Expression GetCallbackOrNull(
-            CallbackPosition position,
+            InvocationPosition position,
             IQualifiedMemberContext context,
             IMemberMapperData mapperData)
         {
@@ -481,7 +481,7 @@
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => CreationCallbackFactories.Add(callbackFactory);
 
-        public Expression GetCreationCallbackOrNull(CallbackPosition position, IMemberMapperData mapperData)
+        public Expression GetCreationCallbackOrNull(InvocationPosition position, IMemberMapperData mapperData)
             => _creationCallbackFactories?.FirstOrDefault(f => f.AppliesTo(position, mapperData))?.Create(mapperData);
 
         #endregion

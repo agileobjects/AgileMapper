@@ -401,13 +401,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetMappingCallbackOrNull(
             this IQualifiedMemberContext context,
-            CallbackPosition callbackPosition,
+            InvocationPosition invocationPosition,
             IMemberMapperData mapperData)
         {
             return mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetCallbackOrNull(callbackPosition, context, mapperData);
+                .GetCallbackOrNull(invocationPosition, context, mapperData);
         }
 
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)

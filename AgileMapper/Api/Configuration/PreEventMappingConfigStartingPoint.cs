@@ -14,7 +14,7 @@
     public class PreEventMappingConfigStartingPoint<TSource, TTarget> : EventConfigStartingPointBase<TSource, TTarget>
     {
         internal PreEventMappingConfigStartingPoint(MappingConfigInfo configInfo)
-            : base(configInfo, CallbackPosition.Before)
+            : base(configInfo.WithInvocationPosition(InvocationPosition.Before))
         {
         }
 

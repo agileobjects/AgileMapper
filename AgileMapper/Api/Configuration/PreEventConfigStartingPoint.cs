@@ -20,7 +20,7 @@
         /// Configure a callback to be executed before any object mapping begins.
         /// </summary>
         public IConditionalCallbackSpecifier<object, object> MappingBegins
-            => new CallbackSpecifier<object, object>(_mapperContext, CallbackPosition.Before, QualifiedMember.None);
+            => new CallbackSpecifier<object, object>(_mapperContext, InvocationPosition.Before, QualifiedMember.None);
 
         /// <summary>
         /// Configure a callback to be executed before instances of any object are created during any object 
@@ -38,6 +38,6 @@
         /// </typeparam>
         public IConditionalPreInstanceCreationCallbackSpecifier<object, object> CreatingInstancesOf<TObject>()
             where TObject : class
-            => new InstanceCreationCallbackSpecifier<object, object, TObject>(CallbackPosition.Before, _mapperContext);
+            => new InstanceCreationCallbackSpecifier<object, object, TObject>(_mapperContext, InvocationPosition.Before);
     }
 }

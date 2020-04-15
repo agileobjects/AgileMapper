@@ -3,7 +3,6 @@
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Members;
-    using ObjectPopulation;
 
     /// <summary>
     /// Provides options for configuring an element of how this mapper performs a mapping.
@@ -13,12 +12,10 @@
     public abstract class EventConfigStartingPointBase<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
-        private readonly CallbackPosition _callbackPosition;
 
-        internal EventConfigStartingPointBase(MappingConfigInfo configInfo, CallbackPosition callbackPosition)
+        internal EventConfigStartingPointBase(MappingConfigInfo configInfo)
         {
             _configInfo = configInfo;
-            _callbackPosition = callbackPosition;
         }
 
         internal CallbackSpecifier<TSource, TTarget> CreateCallbackSpecifier(LambdaExpression targetMemberLambda = null)
@@ -27,10 +24,10 @@
                 targetMemberLambda?.ToTargetMember(_configInfo.MapperContext)
                 ?? QualifiedMember.None;
 
-            return new CallbackSpecifier<TSource, TTarget>(_configInfo, _callbackPosition, targetMember);
+            return new CallbackSpecifier<TSource, TTarget>(_configInfo, _configInfo.InvocationPosition, targetMember);
         }
 
         internal InstanceCreationCallbackSpecifier<TSource, TTarget, TObject> CreateCallbackSpecifier<TObject>()
-            => new InstanceCreationCallbackSpecifier<TSource, TTarget, TObject>(_callbackPosition, _configInfo);
+            => new InstanceCreationCallbackSpecifier<TSource, TTarget, TObject>(_configInfo, _configInfo.InvocationPosition);
     }
 }
