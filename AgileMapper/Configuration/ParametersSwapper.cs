@@ -355,15 +355,26 @@ namespace AgileObjects.AgileMapper.Configuration
 
             public Type[] ContextTypes => _swapArgs.ContextTypes;
 
-            public Expression CreatedObject
-                => _createdObject ?? (_createdObject = GetCreatedObject(_swapArgs));
+            public Expression MappingDataAccess { get; }
 
-            private static Expression GetCreatedObject(SwapArgs swapArgs)
+            public Expression Parent => _swapArgs.MapperData.ParentObject;
+
+            public Expression SourceAccess { get; }
+
+            public Expression TargetAccess { get; }
+
+            public Expression CreatedObject => _createdObject ??= GetCreatedObject();
+
+            public Expression Index => _swapArgs.MapperData.ElementIndex;
+
+            public Expression Key => _swapArgs.MapperData.ElementKey;
+
+            private Expression GetCreatedObject()
             {
-                var neededCreatedObjectType = swapArgs.ContextTypes.Last();
-                var createdObject = swapArgs.MapperData.CreatedObject;
+                var neededCreatedObjectType = _swapArgs.ContextTypes.Last();
+                var createdObject = _swapArgs.MapperData.CreatedObject;
 
-                if ((swapArgs.ContextTypes.Length == 3) && (neededCreatedObjectType == typeof(int?)))
+                if ((_swapArgs.ContextTypes.Length == 3) && (neededCreatedObjectType == typeof(int?)))
                 {
                     return createdObject;
                 }
@@ -377,16 +388,6 @@ namespace AgileObjects.AgileMapper.Configuration
                     ? valueAccess.GetConversionTo(neededAccessType)
                     : valueAccess;
             }
-
-            public Expression MappingDataAccess { get; }
-
-            public Expression SourceAccess { get; }
-
-            public Expression TargetAccess { get; }
-
-            public Expression Index => _swapArgs.MapperData.ElementIndex;
-
-            public Expression Parent => _swapArgs.MapperData.ParentObject;
         }
 
         public class SwapArgs
@@ -432,4 +433,6 @@ namespace AgileObjects.AgileMapper.Configuration
 
         #endregion
     }
+
+    internal delegate Expression TargetValueFactory(IMemberMapperData mapperData, Expression contextAccess, Type targetType);
 }
