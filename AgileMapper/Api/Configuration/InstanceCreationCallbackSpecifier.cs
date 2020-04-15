@@ -108,8 +108,9 @@
 
         private MappingConfigContinuation<TSource, TTarget> CreateCallbackFactory<TAction>(TAction callback)
         {
-            var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TObject));
-            callbackLambda.InvocationPosition = _configInfo.InvocationPosition;
+            var callbackLambda = ConfiguredLambdaInfo
+                .ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TObject))
+                .SetInvocationPosition(_configInfo);
 
             var creationCallbackFactory = new ObjectCreationCallbackFactory(
                 _configInfo,

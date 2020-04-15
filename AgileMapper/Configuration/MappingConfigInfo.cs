@@ -165,8 +165,9 @@
             ErrorIfConditionHasTypeTest(conditionLambda);
             FixEnumComparisonsIfNecessary(ref conditionLambda);
 
-            _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
-            _conditionLambda.InvocationPosition = InvocationPosition;
+            _conditionLambda = ConfiguredLambdaInfo
+                .For(conditionLambda)
+                .SetInvocationPosition(this);
         }
 
         private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)

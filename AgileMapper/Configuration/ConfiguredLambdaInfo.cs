@@ -21,6 +21,7 @@
         private readonly Type[] _contextTypes;
         private readonly bool _isForTargetDictionary;
         private readonly ParametersSwapper _parametersSwapper;
+        private ValueFactory _targetValueFactory;
         private LambdaExpression _sourceMemberLambda;
         private string _description;
 
@@ -36,6 +37,8 @@
             ReturnType = returnType;
 
             _isForTargetDictionary = (contextTypes.Length > 1) && contextTypes[1].IsDictionary();
+
+            SetInvocationPosition(default(InvocationPosition));
         }
 
         #region Factory Methods
@@ -137,7 +140,23 @@
 
         #endregion
 
-        public InvocationPosition InvocationPosition { get; set; }
+        public ConfiguredLambdaInfo SetInvocationPosition(MappingConfigInfo configInfo)
+        {
+            SetInvocationPosition(configInfo.InvocationPosition);
+            return this;
+        }
+
+        public void SetInvocationPosition(InvocationPosition position)
+        {
+            if (position == InvocationPosition.Before)
+            {
+                _targetValueFactory = ParametersSwapper.UseTargetMember;
+            }
+            else
+            {
+                _targetValueFactory = ParametersSwapper.UseTargetInstance;
+            }
+        }
 
         public bool UsesMappingDataObjectParameter => _parametersSwapper.HasMappingContextParameter;
 
@@ -245,9 +264,7 @@
                 contextTypes[1] = mapperData.TargetType;
             }
 
-            return InvocationPosition == InvocationPosition.Before
-                ? _parametersSwapper.Swap(_lambda, contextTypes, mapperData, ParametersSwapper.UseTargetMember)
-                : _parametersSwapper.Swap(_lambda, contextTypes, mapperData, ParametersSwapper.UseTargetInstance);
+            return _parametersSwapper.Swap(_lambda, contextTypes, mapperData, _targetValueFactory);
         }
     }
 }
