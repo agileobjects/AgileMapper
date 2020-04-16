@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 #else
     using System.Linq.Expressions;
 #endif
-    using Caching;
     using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
@@ -42,7 +41,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             InvocationPosition? invocationPosition,
             RequiredValuesSet requiredValues)
         {
-            switch (requiredValues.Values.Count())
+            switch (requiredValues.ValuesCount)
             {
                 case 0:
                     return new NullValueInjector(lambda);
@@ -79,33 +78,44 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             {
                 _lambdaBody = lambda.Body;
 
-                var requiredLambdaValues = requiredValues.Values;
-
-                if (requiredLambdaValues.Has(Source))
+                if (requiredValues.Includes(Source))
                 {
                     _value = requiredValues.Source;
                     _replacementFactory = ctx => ctx.SourceAccess;
                     return;
                 }
 
-                if (requiredLambdaValues.Has(Target))
+                if (requiredValues.Includes(Target))
                 {
                     _value = requiredValues.Target;
                     _replacementFactory = ctx => ctx.TargetAccess;
                     return;
                 }
 
-                if (requiredLambdaValues.Has(CreatedObject))
+                if (requiredValues.Includes(ElementIndex))
+                {
+                    _value = requiredValues.ElementIndex;
+                    _replacementFactory = ctx => ctx.ElementIndex;
+                }
+
+                if (requiredValues.Includes(CreatedObject))
                 {
                     _value = requiredValues.CreatedObject;
                     _replacementFactory = ctx => ctx.CreatedObject;
                     return;
                 }
 
-                if (requiredLambdaValues.Has(ElementIndex))
+                if (requiredValues.Includes(ElementKey))
                 {
-                    _value = requiredValues.ElementIndex;
-                    _replacementFactory = ctx => ctx.ElementIndex;
+                    _value = requiredValues.ElementKey;
+                    _replacementFactory = ctx => ctx.ElementKey;
+                    return;
+                }
+
+                if (requiredValues.Includes(Parent))
+                {
+                    _value = requiredValues.Parent;
+                    _replacementFactory = ctx => ctx.ParentAccess;
                 }
             }
 
@@ -114,14 +124,15 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 var context = CreateContext(contextTypes, mapperData);
                 var replacement = _replacementFactory.Invoke(context);
 
-                return _lambdaBody.Replace(_value, replacement);
+                return _lambdaBody.Replace(_value, replacement, ExpressionEvaluation.Equivalator);
             }
         }
 
         private class MultipleContextValuesValueInjector : ContextValuesValueInjector
         {
             private readonly Expression _lambdaBody;
-            private readonly ISimpleDictionary<Expression, ContextValueFactory> _replacements;
+            private readonly bool _isInvocation;
+            private readonly RequiredValuesSet _requiredValues;
 
             public MultipleContextValuesValueInjector(
                 LambdaExpression lambda,
@@ -130,57 +141,48 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 : base(lambda, invocationPosition)
             {
                 _lambdaBody = lambda.Body;
-
-                var requiredLambdaValues = requiredValues.Values;
-
-                _replacements = new FixedSizeSimpleDictionary<Expression, ContextValueFactory>(
-                    requiredLambdaValues.Count(),
-                    ReferenceEqualsComparer<Expression>.Default);
-
-                if (requiredLambdaValues.Has(MappingContext))
-                {
-                    _replacements.Add(requiredValues.MappingContext, ctx => ctx.MappingDataAccess);
-                }
-
-                if (requiredLambdaValues.Has(Source))
-                {
-                    _replacements.Add(requiredValues.Source, ctx => ctx.SourceAccess);
-                }
-
-                if (requiredLambdaValues.Has(Target))
-                {
-                    _replacements.Add(requiredValues.Target, ctx => ctx.TargetAccess);
-                }
-
-                if (requiredLambdaValues.Has(CreatedObject))
-                {
-                    _replacements.Add(requiredValues.CreatedObject, ctx => ctx.CreatedObject);
-                }
-
-                if (requiredLambdaValues.Has(ElementIndex))
-                {
-                    _replacements.Add(requiredValues.ElementIndex, ctx => ctx.ElementIndex);
-                }
-
-                if (requiredLambdaValues.Has(ElementKey))
-                {
-                    _replacements.Add(requiredValues.ElementKey, ctx => ctx.ElementKey);
-                }
+                _isInvocation = lambda.IsInvocation();
+                _requiredValues = requiredValues;
             }
+
+            private int RequiredValuesCount => _requiredValues.ValuesCount;
 
             public override Expression Inject(Type[] contextTypes, IMemberMapperData mapperData)
             {
+                var replacements = _isInvocation
+                    ? FixedSizeExpressionReplacementDictionary.WithEqualKeys(RequiredValuesCount)
+                    : FixedSizeExpressionReplacementDictionary.WithEquivalentKeys(RequiredValuesCount);
+
                 var context = CreateContext(contextTypes, mapperData);
 
-                var replacements = FixedSizeExpressionReplacementDictionary
-                    .WithEqualKeys(_replacements.Count);
-
-                foreach (var valueFactoryByValue in _replacements)
+                if (_requiredValues.Includes(MappingContext))
                 {
-                    var value = valueFactoryByValue.Key;
-                    var replacement = valueFactoryByValue.Value.Invoke(context);
+                    replacements.Add(_requiredValues.MappingContext, context.MappingDataAccess);
+                }
 
-                    replacements.Add(value, replacement);
+                if (_requiredValues.Includes(Source))
+                {
+                    replacements.Add(_requiredValues.Source, context.SourceAccess);
+                }
+
+                if (_requiredValues.Includes(Target))
+                {
+                    replacements.Add(_requiredValues.Target, context.TargetAccess);
+                }
+
+                if (_requiredValues.Includes(CreatedObject))
+                {
+                    replacements.Add(_requiredValues.CreatedObject, context.CreatedObject);
+                }
+
+                if (_requiredValues.Includes(ElementIndex))
+                {
+                    replacements.Add(_requiredValues.ElementIndex, context.ElementIndex);
+                }
+
+                if (_requiredValues.Includes(ElementKey))
+                {
+                    replacements.Add(_requiredValues.ElementKey, context.ElementKey);
                 }
 
                 return _lambdaBody.Replace(replacements);

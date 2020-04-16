@@ -57,24 +57,21 @@
             switch (memberAccess.Member.Name)
             {
                 case nameof(IMappingData.Parent):
+                    _requiredValues.MappingContext = memberAccess.Expression;
                     _requiredValues.Parent = memberAccess;
-                    break;
+                    return memberAccess;
 
                 case RootSourceMemberName:
-                    _requiredValues.Source = memberAccess;
-                    break;
+                    return _requiredValues.Source = memberAccess;
 
                 case RootTargetMemberName:
-                    _requiredValues.Target = memberAccess;
-                    break;
+                    return _requiredValues.Target = memberAccess;
 
                 case nameof(IMappingData<int, int>.ElementIndex):
-                    _requiredValues.ElementIndex = memberAccess;
-                    break;
+                    return _requiredValues.ElementIndex = memberAccess;
 
                 case nameof(IMappingData<int, int>.ElementKey):
-                    _requiredValues.ElementKey = memberAccess;
-                    break;
+                    return _requiredValues.ElementKey = memberAccess;
             }
 
             return base.VisitMember(memberAccess);

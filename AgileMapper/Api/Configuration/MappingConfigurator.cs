@@ -16,6 +16,7 @@
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using Projection;
     using ReadableExpressions.Extensions;
     using Validation;
@@ -228,6 +229,10 @@
                 throw new MappingConfigurationException(
                     $"Unable to configure the creation of primitive type '{typeof(TObject).GetFriendlyName()}'");
             }
+
+            ConfigInfo.WithInvocationPosition(typeof(TObject) != typeof(TTarget)
+                ? InvocationPosition.After
+                : InvocationPosition.Before);
 
             return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo.Set(type));
         }

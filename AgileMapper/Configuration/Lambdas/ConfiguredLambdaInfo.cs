@@ -281,9 +281,9 @@
                 contextTypes[1] = mapperData.TargetType;
             }
 
-            _valueInjector.Inject(contextTypes, mapperData);
+            return _valueInjector.Inject(contextTypes, mapperData);
 
-            return _parametersSwapper.Swap(_lambda, contextTypes, mapperData, _targetValueFactory);
+            // return _parametersSwapper.Swap(_lambda, contextTypes, mapperData, _targetValueFactory);
         }
     }
 }

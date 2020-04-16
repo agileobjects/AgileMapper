@@ -113,7 +113,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         public Expression GetInvocationContextArgument(ValueInjectionContext context)
         {
-            if (context.IsCallback)
+            if (context.IsCallback())
             {
                 return Lambda.ReplaceParameterWith(context.MappingDataAccess);
             }

@@ -15,6 +15,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         private Expression _createdObject;
         private Expression _elementIndex;
         private Expression _elementKey;
+        private LambdaValue _values;
 
         public Expression MappingContext
         {
@@ -100,17 +101,20 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             }
         }
 
-        public LambdaValue Values { get; private set; }
+        public int ValuesCount { get; private set; }
 
         private bool AppendIfMissing(LambdaValue requiredValue)
         {
-            if (Values.Has(requiredValue))
+            if (Includes(requiredValue))
             {
                 return false;
             }
 
-            Values |= requiredValue;
+            _values |= requiredValue;
+            ++ValuesCount;
             return true;
         }
+
+        public bool Includes(LambdaValue value) => _values.Has(value);
     }
 }

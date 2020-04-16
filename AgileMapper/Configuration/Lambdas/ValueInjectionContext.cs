@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.Configuration.Lambdas
 {
     using System;
+    using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -58,18 +59,19 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             var targetType = _args.ContextTargetType;
 
-            var targetInstanceAccess = MapperData
-                .GetAppropriateMappingContext(_contextAccess.Type.GetGenericTypeArguments())
-                .TargetInstance;
+            var mapperData = MapperData
+                .GetAppropriateMappingContext(_contextAccess.Type.GetGenericTypeArguments());
+
+            var targetInstanceAccess = mapperData.TargetInstance;
 
             if (HasCompatibleTypes(targetType, targetInstanceAccess))
             {
                 return targetInstanceAccess;
             }
 
-            if (MapperData.TargetMember.IsEnumerable)
+            if (mapperData.TargetMember.IsEnumerable)
             {
-                return ((ObjectMapperData)MapperData)
+                return ((ObjectMapperData)mapperData)
                     .EnumerablePopulationBuilder
                     .GetEnumerableConversion(targetInstanceAccess);
             }
@@ -82,7 +84,9 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #endregion
 
-        public bool IsCallback => Types.Length == 2;
+        public bool IsCallback() => IsCallback(Types);
+
+        public bool IsCallback(ICollection<Type> contextTypes) => contextTypes.Count == 2;
 
         public Type[] Types => _args.ContextTypes;
 
@@ -93,6 +97,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         private Expression GetMappingDataAccess()
             => _args.GetTypedContextAccess(_contextAccess);
+
+        public Expression ParentAccess => MapperData.ParentObject;
 
         public Expression SourceAccess => _sourceAccess ??= _sourceAccess = GetSourceAccess();
 

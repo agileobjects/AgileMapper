@@ -121,7 +121,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 return Is(Source | Target | CreatedObject, contextTypes, funcArguments);
             }
 
-            return true;
+            return false;
         }
 
         private static bool Is(Type contextType, Type contextTypeArgument, ref Type[] funcArguments)
