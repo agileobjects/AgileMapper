@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using System.Globalization;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -15,6 +16,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 #else
     using LambdaExpr = System.Linq.Expressions.LambdaExpression;
 #endif
+    using static ObjectPopulation.InvocationPosition;
 
     internal class FactorySpecifier<TSource, TTarget, TObject> :
         IMappingFactorySpecifier<TSource, TTarget, TObject>,
@@ -49,7 +51,8 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         public IMappingConfigContinuation<TSource, TTarget> Using<TFactory>(TFactory factory)
             where TFactory : class
         {
-            var factoryInfo = ConfiguredLambdaInfo.ForFunc(factory, typeof(TSource), typeof(TTarget));
+            var factoryInfo = ConfiguredLambdaInfo
+                .ForFunc(factory, _configInfo, typeof(TSource), typeof(TTarget));
 
             if (factoryInfo?.ReturnType.IsAssignableTo(typeof(TObject)) == true)
             {
@@ -83,7 +86,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         {
             ThrowIfRedundantFactoryConfiguration(factoryLambda);
 
-            return RegisterObjectFactory(ConfiguredLambdaInfo.For(factoryLambda));
+            return RegisterObjectFactory(ConfiguredLambdaInfo.For(factoryLambda, _configInfo));
         }
 
         private void ThrowIfRedundantFactoryConfiguration(LambdaExpr factoryLambda)

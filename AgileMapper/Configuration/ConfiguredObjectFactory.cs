@@ -6,9 +6,9 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using Lambdas;
     using Members;
     using NetStandardPolyfills;
-    using ObjectPopulation;
 
     internal class ConfiguredObjectFactory :
         UserConfiguredItemBase,

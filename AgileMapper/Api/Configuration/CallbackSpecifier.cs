@@ -1,11 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System;
+    using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using System;
-    using System.Linq.Expressions;
 
     internal class CallbackSpecifier<TSource, TTarget> : IConditionalCallbackSpecifier<TSource, TTarget>
     {
@@ -62,8 +63,7 @@
             ThrowIfStructMemberCallback();
 
             var callbackLambda = ConfiguredLambdaInfo
-                .ForAction(callback, typeof(TSource), typeof(TTarget))
-                .SetInvocationPosition(_configInfo);
+                .ForAction(callback, _configInfo, typeof(TSource), typeof(TTarget));
 
             var creationCallbackFactory = new MappingCallbackFactory(
                 _configInfo,

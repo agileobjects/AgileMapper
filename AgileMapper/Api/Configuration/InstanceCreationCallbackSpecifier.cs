@@ -3,6 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using Members;
     using ObjectPopulation;
 
@@ -109,8 +110,7 @@
         private MappingConfigContinuation<TSource, TTarget> CreateCallbackFactory<TAction>(TAction callback)
         {
             var callbackLambda = ConfiguredLambdaInfo
-                .ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TObject))
-                .SetInvocationPosition(_configInfo);
+                .ForAction(callback, _configInfo, typeof(TSource), typeof(TTarget), typeof(TObject));
 
             var creationCallbackFactory = new ObjectCreationCallbackFactory(
                 _configInfo,

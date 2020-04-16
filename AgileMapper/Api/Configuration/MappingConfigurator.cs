@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using AgileMapper.Configuration.MemberIgnores;
     using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using AgileMapper.Configuration.Projection;
@@ -502,7 +503,8 @@
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
         {
-            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
+            var valueLambdaInfo = ConfiguredLambdaInfo
+                .ForFunc(value, ConfigInfo, typeof(TSource), typeof(TTarget));
 
             if (valueLambdaInfo != null)
             {

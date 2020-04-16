@@ -8,6 +8,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.Dictionaries;
+    using AgileMapper.Configuration.Lambdas;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -17,7 +18,6 @@
     using ReadableExpressions.Extensions;
     using TypeConversion;
 #if NET35
-    using Dlr = Microsoft.Scripting.Ast;
     using Expr = Microsoft.Scripting.Ast.Expression;
     using ExprType = Microsoft.Scripting.Ast.ExpressionType;
 #else
@@ -25,6 +25,7 @@
     using ExprType = System.Linq.Expressions.ExpressionType;
 #endif
     using static System.Linq.Expressions.ExpressionType;
+    using static ObjectPopulation.InvocationPosition;
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
         ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>,
@@ -175,7 +176,7 @@
                 (targetValueType == typeof(object)) ||
                  customValueLambda.ReturnType.IsAssignableTo(targetValueType))
             {
-                return _customValueLambdaInfo = ConfiguredLambdaInfo.For(customValueLambda);
+                return _customValueLambdaInfo = ConfiguredLambdaInfo.For(customValueLambda, _configInfo);
             }
 
             var convertedConstantValue = MapperContext
@@ -186,7 +187,7 @@
             var valueFunc = valueLambda.Compile();
             var value = valueFunc.DynamicInvoke().ToConstantExpression(targetValueType);
             var constantValueLambda = Expr.Lambda(funcType, value);
-            var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda);
+            var valueLambdaInfo = ConfiguredLambdaInfo.For(constantValueLambda, _configInfo);
 
             return _customValueLambdaInfo = valueLambdaInfo;
         }

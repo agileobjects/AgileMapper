@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Configuration
+namespace AgileObjects.AgileMapper.Configuration.Lambdas
 {
     using System;
     using System.Collections.Generic;
