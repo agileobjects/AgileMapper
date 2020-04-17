@@ -2,30 +2,40 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
 {
     using System;
     using System.Collections.Generic;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
+#endif
+    using NetStandardPolyfills;
+#if NET35
+    using static Microsoft.Scripting.Ast.ExpressionType;
+    using LinqExp = System.Linq.Expressions;
+#else
     using static System.Linq.Expressions.ExpressionType;
 #endif
 
     internal static class ExpressionEvaluation
     {
-        private static readonly IEqualityComparer<Expression> _equator = new ExpressionEquator(MemberAccessesAreEqual);
+        public static readonly IEqualityComparer<Expression> Equator =
+            new ExpressionEquator(MemberAccessesAreEqual);
 
-        public static readonly IEqualityComparer<Expression> Equivalator = ExpressionEquator.Equivalator;
+        public static readonly IEqualityComparer<Expression> Equivalator =
+            new ExpressionEquator((x, y, e) => MemberAccessesAreEquivalent(x, y));
 
-        public static bool AreEqual(Expression x, Expression y) => _equator.Equals(x, y);
+        public static bool AreEqual(Expression x, Expression y) => Equator.Equals(x, y);
 
         public static bool AreEquivalent(Expression x, Expression y) => Equivalator.Equals(x, y);
 
         #region Member Access Evaluation
 
-        private static bool MemberAccessesAreEqual(ExpressionEquator equator, MemberExpression x, MemberExpression y)
-            => MemberAccessesAreEquivalent(x, y) && equator.Equals(x.Expression, y.Expression);
+        private static bool MemberAccessesAreEqual(
+            MemberExpression x,
+            MemberExpression y,
+            ExpressionEquator equator)
+        {
+            return MemberAccessesAreEquivalent(x, y) && equator.Equals(x.Expression, y.Expression);
+        }
 
         public static bool MemberAccessesAreEquivalent(MemberExpression x, MemberExpression y)
         {
@@ -41,15 +51,16 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
 
         #endregion
 
+        private delegate bool MemberAccessComparer(
+            MemberExpression x,
+            MemberExpression y,
+            ExpressionEquator e);
+
         private class ExpressionEquator : IEqualityComparer<Expression>
         {
-            public static readonly ExpressionEquator Equivalator =
-                new ExpressionEquator((e, x, y) => MemberAccessesAreEquivalent(x, y));
+            private readonly MemberAccessComparer _memberAccessComparer;
 
-            private readonly Func<ExpressionEquator, MemberExpression, MemberExpression, bool> _memberAccessComparer;
-
-            public ExpressionEquator(
-                Func<ExpressionEquator, MemberExpression, MemberExpression, bool> memberAccessComparer)
+            public ExpressionEquator(MemberAccessComparer memberAccessComparer)
             {
                 _memberAccessComparer = memberAccessComparer;
             }
@@ -101,6 +112,9 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
                         case Index:
                             return AreEqual((IndexExpression)x, (IndexExpression)y);
 
+                        case Invoke:
+                            return AreEqual((InvocationExpression)x, (InvocationExpression)y);
+
                         case Lambda:
                             x = ((LambdaExpression)x).Body;
                             y = ((LambdaExpression)y).Body;
@@ -110,7 +124,7 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
                             return AreEqual((ListInitExpression)x, (ListInitExpression)y);
 
                         case MemberAccess:
-                            return _memberAccessComparer.Invoke(this, (MemberExpression)x, (MemberExpression)y);
+                            return _memberAccessComparer.Invoke((MemberExpression)x, (MemberExpression)y, this);
 
                         case Add:
                         case AddChecked:
@@ -217,6 +231,12 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
             private bool AreEqual(IndexExpression x, IndexExpression y)
             {
                 return ReferenceEquals(x.Indexer, y.Indexer) &&
+                       AllEqual(x.Arguments, y.Arguments);
+            }
+
+            private bool AreEqual(InvocationExpression x, InvocationExpression y)
+            {
+                return ReferenceEquals(x.Expression, y.Expression) &&
                        AllEqual(x.Arguments, y.Arguments);
             }
 

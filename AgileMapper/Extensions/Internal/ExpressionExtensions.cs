@@ -44,6 +44,8 @@
                    (memberAccess.Expression.Type.IsNullableType());
         }
 
+        public static bool IsInvocation(this LambdaExpression lambda) => lambda.Body.NodeType == Invoke;
+
         public static Expression Negate(this Expression expression)
             => (expression.NodeType != Not) ? Expression.Not(expression) : ((UnaryExpression)expression).Operand;
 

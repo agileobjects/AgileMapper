@@ -329,7 +329,7 @@
                 mapper.WhenMapping
                     .From<Person>()
                     .To<PublicProperty<string>>()
-                    .If((p, t) => p.Title == default(Title) || !Enum.IsDefined(p.Title.GetType(), p.Title))
+                    .If((p, t) => p.Title == default || !Enum.IsDefined(p.Title.GetType(), p.Title))
                     .Map((p, t) => p.Name)
                     .To(x => x.Value);
 
@@ -489,7 +489,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAParentSourceMemberToADerivedSourceType()
+        public void ShouldApplyABaseSourceMemberToADerivedSourceType()
         {
             using (var mapper = Mapper.CreateNew())
             {

@@ -4,18 +4,21 @@
     using System.Collections.Generic;
     using System.Globalization;
 #if NET35
-    using LinqExp = System.Linq.Expressions;
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
+    using Lambdas;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
     using static MappingRuleSet;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
 
     internal delegate bool SourceTypeComparer(ITypePair typePair, ITypePair otherTypePair);
 
@@ -165,9 +168,7 @@
             ErrorIfConditionHasTypeTest(conditionLambda);
             FixEnumComparisonsIfNecessary(ref conditionLambda);
 
-            _conditionLambda = ConfiguredLambdaInfo
-                .For(conditionLambda)
-                .SetInvocationPosition(this);
+            _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda, this);
         }
 
         private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)

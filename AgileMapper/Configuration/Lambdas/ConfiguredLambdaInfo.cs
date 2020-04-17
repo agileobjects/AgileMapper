@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration.Lambdas
 {
     using System;
     using System.Linq;
@@ -11,7 +11,6 @@
     using Members;
     using Members.Dictionaries;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
@@ -20,8 +19,7 @@
         private readonly LambdaExpression _lambda;
         private readonly Type[] _contextTypes;
         private readonly bool _isForTargetDictionary;
-        private readonly ParametersSwapper _parametersSwapper;
-        private ValueFactory _targetValueFactory;
+        private readonly IValueInjector _valueInjector;
         private LambdaExpression _sourceMemberLambda;
         private string _description;
 
@@ -29,27 +27,31 @@
             LambdaExpression lambda,
             Type[] contextTypes,
             Type returnType,
-            ParametersSwapper parametersSwapper)
+            ValueInjectorFactory valueInjectorFactory,
+            MappingConfigInfo configInfo)
         {
             _lambda = lambda;
             _contextTypes = contextTypes;
-            _parametersSwapper = parametersSwapper;
+            _valueInjector = valueInjectorFactory.CreateFor(lambda, configInfo);
             ReturnType = returnType;
 
             _isForTargetDictionary = (contextTypes.Length > 1) && contextTypes[1].IsDictionary();
-
-            SetInvocationPosition(default(InvocationPosition));
         }
 
         #region Factory Methods
 
-        public static ConfiguredLambdaInfo For(LambdaExpression lambda)
+        public static ConfiguredLambdaInfo For(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
             var funcArguments = lambda.Parameters.ProjectToArray(p => p.Type);
             var contextTypes = GetContextTypes(funcArguments);
-            var parameterSwapper = ParametersSwapper.For(contextTypes, funcArguments);
+            var valueInjectorFactory = ValueInjectorFactory.For(contextTypes, funcArguments);
 
-            return new ConfiguredLambdaInfo(lambda, contextTypes, lambda.ReturnType, parameterSwapper);
+            return new ConfiguredLambdaInfo(
+                lambda,
+                contextTypes,
+                lambda.ReturnType,
+                valueInjectorFactory,
+                configInfo);
         }
 
         private static Type[] GetContextTypes(Type[] funcArguments)
@@ -70,10 +72,14 @@
             return new[] { firstArgument };
         }
 
-        public static ConfiguredLambdaInfo ForFunc<TFunc>(TFunc func, params Type[] argumentTypes)
+        public static ConfiguredLambdaInfo ForFunc<TFunc>(
+            TFunc func,
+            MappingConfigInfo configInfo,
+            params Type[] argumentTypes)
         {
             return For(
                 func,
+                configInfo,
                 argumentTypes,
                 funcTypes => funcTypes.Take(funcTypes.Length - 1).ToArray(),
                 funcTypes => funcTypes.Last(),
@@ -83,10 +89,14 @@
                 typeof(Func<,,,>));
         }
 
-        public static ConfiguredLambdaInfo ForAction<TAction>(TAction action, params Type[] argumentTypes)
+        public static ConfiguredLambdaInfo ForAction<TAction>(
+            TAction action,
+            MappingConfigInfo configInfo,
+            params Type[] argumentTypes)
         {
             return For(
                 action,
+                configInfo,
                 argumentTypes,
                 funcTypes => funcTypes,
                 funcTypes => typeof(void),
@@ -98,6 +108,7 @@
 
         private static ConfiguredLambdaInfo For<T>(
             T func,
+            MappingConfigInfo configInfo,
             Type[] contextTypes,
             Func<Type[], Type[]> funcArgumentsFactory,
             Func<Type[], Type> returnTypeFactory,
@@ -119,9 +130,9 @@
 
             var funcTypes = funcType.GetGenericTypeArguments();
             var funcArguments = funcArgumentsFactory.Invoke(funcTypes);
-            var parameterSwapper = ParametersSwapper.For(contextTypes, funcArguments);
+            var valueInjectorFactory = ValueInjectorFactory.For(contextTypes, funcArguments);
 
-            if (parameterSwapper == null)
+            if (valueInjectorFactory == null)
             {
                 return null;
             }
@@ -135,30 +146,13 @@
                 valueFactoryLambda,
                 contextTypes,
                 returnTypeFactory.Invoke(funcTypes),
-                parameterSwapper);
+                valueInjectorFactory,
+                configInfo);
         }
 
         #endregion
 
-        public ConfiguredLambdaInfo SetInvocationPosition(MappingConfigInfo configInfo)
-        {
-            SetInvocationPosition(configInfo.InvocationPosition);
-            return this;
-        }
-
-        public void SetInvocationPosition(InvocationPosition position)
-        {
-            if (position == InvocationPosition.Before)
-            {
-                _targetValueFactory = ParametersSwapper.UseTargetMember;
-            }
-            else
-            {
-                _targetValueFactory = ParametersSwapper.UseTargetInstance;
-            }
-        }
-
-        public bool UsesMappingDataObjectParameter => _parametersSwapper.HasMappingContextParameter;
+        public bool UsesMappingDataObjectParameter => _valueInjector.HasMappingContextParameter;
 
         public Type ReturnType { get; }
 
@@ -264,7 +258,7 @@
                 contextTypes[1] = mapperData.TargetType;
             }
 
-            return _parametersSwapper.Swap(_lambda, contextTypes, mapperData, _targetValueFactory);
+            return _valueInjector.Inject(contextTypes, mapperData);
         }
     }
 }

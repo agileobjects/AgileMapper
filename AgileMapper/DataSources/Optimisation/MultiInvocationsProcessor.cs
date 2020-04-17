@@ -64,7 +64,7 @@
                     goto SetPopulationExpressions;
             }
 
-            populationExpressions = ProcessMultiInvocationsPopulation(
+            populationExpressions = CacheMultiInvocationResults(
                 multiInvocations,
                 variables,
                 populationExpressions);
@@ -97,7 +97,7 @@
             return false;
         }
 
-        private static Expression ProcessMultiInvocationsPopulation(
+        private static Expression CacheMultiInvocationResults(
             IList<Expression> multiInvocations,
             IList<ParameterExpression> variables,
             Expression populationExpressions)

@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using AgileMapper.Configuration.MemberIgnores;
     using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using AgileMapper.Configuration.Projection;
@@ -15,6 +16,7 @@
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using Projection;
     using ReadableExpressions.Extensions;
     using Validation;
@@ -227,6 +229,10 @@
                 throw new MappingConfigurationException(
                     $"Unable to configure the creation of primitive type '{typeof(TObject).GetFriendlyName()}'");
             }
+
+            ConfigInfo.WithInvocationPosition(typeof(TObject) != typeof(TTarget)
+                ? InvocationPosition.After
+                : InvocationPosition.Before);
 
             return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo.Set(type));
         }
@@ -502,7 +508,8 @@
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
         {
-            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
+            var valueLambdaInfo = ConfiguredLambdaInfo
+                .ForFunc(value, ConfigInfo, typeof(TSource), typeof(TTarget));
 
             if (valueLambdaInfo != null)
             {

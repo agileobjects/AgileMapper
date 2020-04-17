@@ -80,14 +80,20 @@
             {
                 Visit(expression);
 
-                if (_multiInvocations?.Any() != true)
+                switch (_multiInvocations?.Count)
                 {
-                    return Enumerable<Expression>.EmptyArray;
-                }
+                    case null:
+                    case 0:
+                        return Enumerable<Expression>.EmptyArray;
 
-                return _multiInvocations
-                    .OrderBy(inv => inv.ToString())
-                    .ToArray();
+                    case 1:
+                        return _multiInvocations;
+
+                    default:
+                        return _multiInvocations
+                            .OrderBy(inv => inv.ToString())
+                            .ToArray();
+                }
             }
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)

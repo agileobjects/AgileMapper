@@ -1,34 +1,31 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
+    using System;
+    using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using System;
-    using System.Linq.Expressions;
 
     internal class CallbackSpecifier<TSource, TTarget> : IConditionalCallbackSpecifier<TSource, TTarget>
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly QualifiedMember _targetMember;
 
-        public CallbackSpecifier(
-            MapperContext mapperContext,
-            InvocationPosition invocationPosition,
-            QualifiedMember targetMember)
+        public CallbackSpecifier(MapperContext mapperContext, InvocationPosition invocationPosition)
             : this(
-                  MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext).ForTargetType<TTarget>(),
-                  invocationPosition,
-                  targetMember)
+                  MappingConfigInfo
+                      .AllRuleSetsAndSourceTypes(mapperContext)
+                      .ForTargetType<TTarget>()
+                      .WithInvocationPosition(invocationPosition),
+                  QualifiedMember.None)
         {
         }
 
-        public CallbackSpecifier(
-            MappingConfigInfo configInfo,
-            InvocationPosition invocationPosition,
-            QualifiedMember targetMember)
+        public CallbackSpecifier(MappingConfigInfo configInfo, QualifiedMember targetMember)
         {
-            _configInfo = configInfo.WithInvocationPosition(invocationPosition);
+            _configInfo = configInfo.Set(targetMember);
             _targetMember = targetMember;
         }
 
@@ -62,8 +59,7 @@
             ThrowIfStructMemberCallback();
 
             var callbackLambda = ConfiguredLambdaInfo
-                .ForAction(callback, typeof(TSource), typeof(TTarget))
-                .SetInvocationPosition(_configInfo);
+                .ForAction(callback, _configInfo, typeof(TSource), typeof(TTarget));
 
             var creationCallbackFactory = new MappingCallbackFactory(
                 _configInfo,

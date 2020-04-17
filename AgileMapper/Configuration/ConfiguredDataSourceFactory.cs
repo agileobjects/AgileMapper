@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
 #endif
     using DataSources;
+    using Lambdas;
     using Members;
 
     internal class ConfiguredDataSourceFactory :
@@ -108,7 +109,7 @@
                 sourceMemberAccess,
                 sourceParameter);
 
-            var sourceMemberLambdaInfo = ConfiguredLambdaInfo.For(sourceMemberAccessLambda);
+            var sourceMemberLambdaInfo = ConfiguredLambdaInfo.For(sourceMemberAccessLambda, reverseConfigInfo);
 
             return new ConfiguredDataSourceFactory(reverseConfigInfo, sourceMemberLambdaInfo, targetMember)
             {

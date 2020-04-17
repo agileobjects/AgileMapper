@@ -367,6 +367,7 @@
 
             switch (method.Name)
             {
+                case nameof(GetType) when method.DeclaringType == typeof(object):
                 case nameof(string.ToString) when method.DeclaringType == typeof(object):
                 case nameof(string.Split) when method.DeclaringType == typeof(string):
                 case nameof(IEnumerable<int>.GetEnumerator) when method.DeclaringType.IsClosedTypeOf(typeof(IEnumerable<>)):
