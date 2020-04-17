@@ -13,21 +13,35 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
     internal class ValueInjectionArgs
     {
+        private readonly LambdaExpression _lambda;
+
         public ValueInjectionArgs(
             LambdaExpression lambda,
-            InvocationPosition invocationPosition,
+            MappingConfigInfo configInfo,
             Type[] contextTypes,
             IMemberMapperData mapperData)
         {
-            Lambda = lambda;
-            InvocationPosition = invocationPosition;
+            _lambda = lambda;
+            UseTargetObject = IsBeforeObjectCreation(configInfo);
             ContextTypes = (contextTypes.Length > 1) ? contextTypes : contextTypes.Append(typeof(object));
             MapperData = mapperData;
         }
 
-        public LambdaExpression Lambda { get; }
+        private static bool IsBeforeObjectCreation(MappingConfigInfo configInfo)
+        {
+            if (configInfo.InvocationPosition == InvocationPosition.After)
+            {
+                return false;
+            }
 
-        public InvocationPosition InvocationPosition { get; }
+            var targetMember = configInfo.Get<QualifiedMember>();
+
+            return targetMember == null ||
+                   targetMember == QualifiedMember.None ||
+                   targetMember == QualifiedMember.All;
+        }
+        
+        public bool UseTargetObject { get; }
 
         public Type[] ContextTypes { get; }
 
@@ -37,13 +51,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         public IMemberMapperData MapperData { get; }
 
-        public bool ContextTypesMatch() => MapperData.TypesMatch(ContextTypes);
+        private bool ContextTypesMatch() => MapperData.TypesMatch(ContextTypes);
 
-        public Expression GetAppropriateMappingContextAccess()
+        private Expression GetAppropriateMappingContextAccess()
             => MapperData.GetAppropriateMappingContextAccess(ContextTypes);
-
-        public Expression GetTypedContextAccess(Expression contextAccess)
-            => MapperData.GetTypedContextAccess(contextAccess, ContextTypes);
 
         public ValueInjectionContext GetAppropriateMappingContext()
         {
@@ -115,15 +126,15 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         {
             if (context.IsCallback())
             {
-                return Lambda.ReplaceParameterWith(context.MappingDataAccess);
+                return _lambda.ReplaceParameterWith(context.GetMappingDataAccess());
             }
 
             var createObjectCreationContextCall = Expression.Call(
                 ObjectCreationMappingData.CreateMethod.MakeGenericMethod(context.Types),
-                context.MappingDataAccess,
-                context.CreatedObject);
+                context.GetMappingDataAccess(),
+                context.GetCreatedObject());
 
-            return Lambda.ReplaceParameterWith(createObjectCreationContextCall);
+            return _lambda.ReplaceParameterWith(createObjectCreationContextCall);
         }
     }
 }

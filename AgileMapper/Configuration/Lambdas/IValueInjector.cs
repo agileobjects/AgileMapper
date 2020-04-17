@@ -10,6 +10,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
     internal interface IValueInjector
     {
+        bool HasMappingContextParameter { get; }
+        
         Expression Inject(Type[] contextTypes, IMemberMapperData mapperData);
     }
 }

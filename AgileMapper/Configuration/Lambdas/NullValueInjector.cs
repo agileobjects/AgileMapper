@@ -17,6 +17,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             _lambdaBody = lambda.Body;
         }
 
+        public bool HasMappingContextParameter => false;
+
         public Expression Inject(Type[] contextTypes, IMemberMapperData mapperData) => _lambdaBody;
     }
 }

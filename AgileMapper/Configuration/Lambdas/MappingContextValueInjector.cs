@@ -10,14 +10,13 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using static LambdaValue;
     using static Members.Member;
 
     internal class MappingContextValueInjector : IValueInjector
     {
         private readonly LambdaExpression _lambda;
-        private readonly InvocationPosition _invocationPosition;
+        private readonly MappingConfigInfo _configInfo;
         private readonly ParameterExpression _contextParameter;
         private readonly Type _contextType;
         private readonly bool _isMappingContextInvokeLambda;
@@ -25,35 +24,33 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         private MappingContextValueInjector(
             LambdaExpression lambda,
-            InvocationPosition? invocationPosition,
+            MappingConfigInfo configInfo,
             bool isMappingContextInvokeLambda)
-            : this(lambda, invocationPosition, null, isMappingContextInvokeLambda)
+            : this(lambda, configInfo, null, isMappingContextInvokeLambda)
         {
         }
 
         private MappingContextValueInjector(
             LambdaExpression lambda,
-            InvocationPosition? invocationPosition,
+            MappingConfigInfo configInfo,
             RequiredValuesSet requiredValues,
             bool isMappingContextInvokeLambda)
         {
             _lambda = lambda;
             _isMappingContextInvokeLambda = isMappingContextInvokeLambda;
             _requiredValues = requiredValues;
-            _invocationPosition = invocationPosition.GetValueOrDefault();
+            _configInfo = configInfo;
             _contextParameter = lambda.Parameters[0];
             _contextType = _contextParameter.Type;
         }
 
         #region Factory Method
 
-        public static IValueInjector CreateFor(
-            LambdaExpression lambda,
-            InvocationPosition? invocationPosition)
+        public static IValueInjector CreateFor(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
             if (IsMappingContextInvoke(lambda))
             {
-                return new MappingContextValueInjector(lambda, invocationPosition, true);
+                return new MappingContextValueInjector(lambda, configInfo, true);
             }
 
             var requiredValues = GetRequiredValues(lambda);
@@ -65,10 +62,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             if (requiredValues.Includes(MappingContext))
             {
-                return new MappingContextValueInjector(lambda, invocationPosition, requiredValues, false);
+                return new MappingContextValueInjector(lambda, configInfo, requiredValues, false);
             }
 
-            return ContextValuesValueInjector.Create(lambda, invocationPosition, requiredValues);
+            return ContextValuesValueInjector.Create(lambda, configInfo, requiredValues);
         }
 
         private static RequiredValuesSet GetRequiredValues(LambdaExpression lambda)
@@ -78,6 +75,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             => lambda.Parameters.HasOne() && lambda.IsInvocation();
 
         #endregion
+
+        public bool HasMappingContextParameter => GetRequiredValues().Includes(MappingContext);
 
         private RequiredValuesSet GetRequiredValues()
             => _requiredValues ??= GetRequiredValues(_lambda);
@@ -89,7 +88,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 return _lambda.ReplaceParameterWith(mapperData.MappingDataObject);
             }
 
-            var args = new ValueInjectionArgs(_lambda, _invocationPosition, contextTypes, mapperData);
+            var args = new ValueInjectionArgs(_lambda, _configInfo, contextTypes, mapperData);
             var context = args.GetAppropriateMappingContext();
 
             if (_isMappingContextInvokeLambda)
@@ -107,32 +106,32 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             if (requiredValues.Includes(Parent))
             {
-                replacements.Add(PropertyAccess(nameof(Parent), contextType), context.ParentAccess);
+                replacements.Add(PropertyAccess(nameof(Parent), contextType), context.GetParentAccess());
             }
 
             if (requiredValues.Includes(Source))
             {
-                replacements.Add(PropertyAccess(RootSourceMemberName, contextType), context.SourceAccess);
+                replacements.Add(PropertyAccess(RootSourceMemberName, contextType), context.GetSourceAccess());
             }
 
             if (requiredValues.Includes(Target))
             {
-                replacements.Add(PropertyAccess(RootTargetMemberName, contextType), context.TargetAccess);
+                replacements.Add(PropertyAccess(RootTargetMemberName, contextType), context.GetTargetAccess());
             }
 
             if (requiredValues.Includes(CreatedObject))
             {
-                replacements.Add(PropertyAccess(nameof(CreatedObject), contextType), context.CreatedObject);
+                replacements.Add(PropertyAccess(nameof(CreatedObject), contextType), context.GetCreatedObject());
             }
 
             if (requiredValues.Includes(ElementIndex))
             {
-                replacements.Add(PropertyAccess(nameof(ElementIndex), contextType), context.ElementIndex);
+                replacements.Add(PropertyAccess(nameof(ElementIndex), contextType), context.GetElementIndex());
             }
 
             if (requiredValues.Includes(ElementKey))
             {
-                replacements.Add(PropertyAccess(nameof(ElementKey), contextType), context.ElementKey);
+                replacements.Add(PropertyAccess(nameof(ElementKey), contextType), context.GetElementKey());
             }
 
             return _lambda.Body.Replace(replacements);

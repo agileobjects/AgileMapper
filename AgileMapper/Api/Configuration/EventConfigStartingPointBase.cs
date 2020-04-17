@@ -20,11 +20,11 @@
 
         internal CallbackSpecifier<TSource, TTarget> CreateCallbackSpecifier(LambdaExpression targetMemberLambda = null)
         {
-            var targetMember =
-                targetMemberLambda?.ToTargetMember(_configInfo.MapperContext)
-                ?? QualifiedMember.None;
+            var targetMember = (targetMemberLambda != null)
+                ? targetMemberLambda.ToTargetMember(_configInfo.MapperContext)
+                : QualifiedMember.None;
 
-            return new CallbackSpecifier<TSource, TTarget>(_configInfo, _configInfo.InvocationPosition, targetMember);
+            return new CallbackSpecifier<TSource, TTarget>(_configInfo, targetMember);
         }
 
         internal InstanceCreationCallbackSpecifier<TSource, TTarget, TObject> CreateCallbackSpecifier<TObject>()

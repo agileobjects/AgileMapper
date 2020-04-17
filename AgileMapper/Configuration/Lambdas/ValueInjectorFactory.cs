@@ -12,7 +12,6 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     using NetStandardPolyfills;
     using ObjectPopulation;
     using static LambdaValue;
-    using static ObjectPopulation.InvocationPosition;
 
     internal class ValueInjectorFactory
     {
@@ -20,34 +19,26 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         private static readonly ValueInjectorFactory _empty = new ValueInjectorFactory();
 
-        private static readonly ValueInjectorFactory[] _instances =
+        private static readonly ValueInjectorFactory[] _factories =
         {
-            new ValueInjectorFactory(MappingContext, Before, IsContext),
-            new ValueInjectorFactory(MappingContext, After, IsContext),
-            new ValueInjectorFactory(Source),
-            new ValueInjectorFactory(Source | Target, Before),
-            new ValueInjectorFactory(Source | Target, After),
-            new ValueInjectorFactory(Source | Target | ElementIndex, Before),
-            new ValueInjectorFactory(Source | Target | ElementIndex, After),
-            new ValueInjectorFactory(Source | Target | CreatedObject, Before),
-            new ValueInjectorFactory(Source | Target | CreatedObject, After),
-            new ValueInjectorFactory(Source | Target | CreatedObject | ElementIndex, Before),
-            new ValueInjectorFactory(Source | Target | CreatedObject | ElementIndex, After)
+            new ValueInjectorFactory(MappingContext, IsContext),
+            new ValueInjectorFactory(Source, IsSourceOnly),
+            new ValueInjectorFactory(Source | Target),
+            new ValueInjectorFactory(Source | Target | ElementIndex),
+            new ValueInjectorFactory(Source | Target | CreatedObject),
+            new ValueInjectorFactory(Source | Target | CreatedObject | ElementIndex)
         };
 
         private readonly LambdaValue _lambdaValue;
-        private readonly InvocationPosition? _invocationPosition;
         private readonly ApplicabilityPredicate _applicabilityPredicate;
         private readonly int _numberOfParameters;
 
         private ValueInjectorFactory(
             LambdaValue lambdaValue,
-            InvocationPosition? invocationPosition = null,
             ApplicabilityPredicate applicabilityPredicate = null)
             : this(applicabilityPredicate)
         {
             _lambdaValue = lambdaValue;
-            _invocationPosition = invocationPosition;
             _numberOfParameters = lambdaValue.Count();
         }
 
@@ -58,10 +49,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #region Factory Method
 
-        public static ValueInjectorFactory For(
-            Type[] contextTypes,
-            Type[] funcArguments,
-            MappingConfigInfo configInfo)
+        public static ValueInjectorFactory For(Type[] contextTypes, Type[] funcArguments)
         {
             var funcArgumentCount = funcArguments.Length;
 
@@ -70,18 +58,16 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 return _empty;
             }
 
-            var invocationPosition = configInfo.InvocationPosition;
-
-            foreach (var injector in _instances)
+            foreach (var injectorFactory in _factories)
             {
-                if (injector.AppliesTo(contextTypes, funcArguments, invocationPosition))
-                {
-                    return injector;
-                }
-
-                if (injector._numberOfParameters > funcArgumentCount)
+                if (injectorFactory._numberOfParameters > funcArgumentCount)
                 {
                     break;
+                }
+
+                if (injectorFactory.AppliesTo(contextTypes, funcArguments))
+                {
+                    return injectorFactory;
                 }
             }
 
@@ -92,14 +78,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #region Applicability
 
-        public bool AppliesTo(
-            Type[] contextTypes,
-            Type[] funcArguments,
-            InvocationPosition invocationPosition)
+        private bool AppliesTo(Type[] contextTypes, Type[] funcArguments)
         {
-            return (_invocationPosition.GetValueOrDefault(invocationPosition) == invocationPosition) &&
-                    (funcArguments.Length == _numberOfParameters) &&
-                    _applicabilityPredicate.Invoke(contextTypes, funcArguments);
+            return (funcArguments.Length == _numberOfParameters) &&
+                   _applicabilityPredicate.Invoke(contextTypes, funcArguments);
         }
 
         private static bool IsContext(Type[] contextTypes, Type[] funcArguments)
@@ -136,6 +118,9 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         }
 
+        private static bool IsSourceOnly(Type[] contextTypes, Type[] funcArguments)
+            => (contextTypes.Length == 1) && Is(Source, contextTypes, funcArguments);
+
         private bool MatchesLambdaValue(Type[] contextTypes, Type[] funcArguments)
             => Is(_lambdaValue, contextTypes, funcArguments);
 
@@ -166,7 +151,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #endregion
 
-        public IValueInjector CreateFor(LambdaExpression lambda)
+        public IValueInjector CreateFor(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
             switch (_lambdaValue)
             {
@@ -174,10 +159,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                     return new NullValueInjector(lambda);
 
                 case MappingContext:
-                    return MappingContextValueInjector.CreateFor(lambda, _invocationPosition);
+                    return MappingContextValueInjector.CreateFor(lambda, configInfo);
 
                 default:
-                    return ContextValuesValueInjector.Create(lambda, _invocationPosition);
+                    return ContextValuesValueInjector.Create(lambda, configInfo);
             }
         }
     }

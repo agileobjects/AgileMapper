@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using Members;
     using ObjectPopulation;
 
     /// <summary>
@@ -20,7 +19,7 @@
         /// Configure a callback to be executed after any object mapping ends.
         /// </summary>
         public IConditionalCallbackSpecifier<object, object> MappingEnds
-            => new CallbackSpecifier<object, object>(_mapperContext, InvocationPosition.After, QualifiedMember.None);
+            => new CallbackSpecifier<object, object>(_mapperContext, InvocationPosition.After);
 
         /// <summary>
         /// Configure a callback to be executed after instances of any object are created during any object 

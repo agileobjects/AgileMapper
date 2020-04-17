@@ -13,23 +13,19 @@
         private readonly MappingConfigInfo _configInfo;
         private readonly QualifiedMember _targetMember;
 
-        public CallbackSpecifier(
-            MapperContext mapperContext,
-            InvocationPosition invocationPosition,
-            QualifiedMember targetMember)
+        public CallbackSpecifier(MapperContext mapperContext, InvocationPosition invocationPosition)
             : this(
-                  MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext).ForTargetType<TTarget>(),
-                  invocationPosition,
-                  targetMember)
+                  MappingConfigInfo
+                      .AllRuleSetsAndSourceTypes(mapperContext)
+                      .ForTargetType<TTarget>()
+                      .WithInvocationPosition(invocationPosition),
+                  QualifiedMember.None)
         {
         }
 
-        public CallbackSpecifier(
-            MappingConfigInfo configInfo,
-            InvocationPosition invocationPosition,
-            QualifiedMember targetMember)
+        public CallbackSpecifier(MappingConfigInfo configInfo, QualifiedMember targetMember)
         {
-            _configInfo = configInfo.WithInvocationPosition(invocationPosition);
+            _configInfo = configInfo.Set(targetMember);
             _targetMember = targetMember;
         }
 

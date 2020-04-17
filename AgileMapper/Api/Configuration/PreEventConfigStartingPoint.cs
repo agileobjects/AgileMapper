@@ -1,6 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using Members;
     using ObjectPopulation;
 
     /// <summary>
@@ -20,7 +19,7 @@
         /// Configure a callback to be executed before any object mapping begins.
         /// </summary>
         public IConditionalCallbackSpecifier<object, object> MappingBegins
-            => new CallbackSpecifier<object, object>(_mapperContext, InvocationPosition.Before, QualifiedMember.None);
+            => new CallbackSpecifier<object, object>(_mapperContext, InvocationPosition.Before);
 
         /// <summary>
         /// Configure a callback to be executed before instances of any object are created during any object 

@@ -16,19 +16,15 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     {
         private readonly ValueInjectionArgs _args;
         private readonly Expression _contextAccess;
-        private Expression _mappingDataAccess;
-        private Expression _sourceAccess;
-        private Expression _targetAccess;
-        private Expression _createdObject;
+        private readonly Expression _sourceAccess;
+        private readonly Expression _targetAccess;
 
         public ValueInjectionContext(ValueInjectionArgs args)
             : this(args, args.MapperData.MappingDataObject)
         {
         }
 
-        public ValueInjectionContext(
-            ValueInjectionArgs args,
-            Expression contextAccess)
+        public ValueInjectionContext(ValueInjectionArgs args, Expression contextAccess)
         {
             _args = args;
             _contextAccess = contextAccess;
@@ -47,14 +43,14 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #region Target Value Factories
 
-        public Expression GetTargetMemberAccess()
+        private Expression GetTargetObjectAccess()
             => MapperData.GetTargetAccess(_contextAccess, _args.ContextTargetType);
 
-        public Expression GetTargetInstanceAccess()
+        private Expression GetTargetVariableAccess()
         {
             if (!_contextAccess.Type.IsGenericType())
             {
-                return GetTargetMemberAccess();
+                return GetTargetObjectAccess();
             }
 
             var targetType = _args.ContextTargetType;
@@ -90,38 +86,34 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         public Type[] Types => _args.ContextTypes;
 
-        public IMemberMapperData MapperData => _args.MapperData;
+        private IMemberMapperData MapperData => _args.MapperData;
 
-        public Expression MappingDataAccess
-            => _mappingDataAccess ??= _mappingDataAccess = GetMappingDataAccess();
+        public Expression GetMappingDataAccess()
+            => MapperData.GetTypedContextAccess(_contextAccess, Types);
 
-        private Expression GetMappingDataAccess()
-            => _args.GetTypedContextAccess(_contextAccess);
+        public Expression GetParentAccess() => MapperData.ParentObject;
 
-        public Expression ParentAccess => MapperData.ParentObject;
-
-        public Expression SourceAccess => _sourceAccess ??= _sourceAccess = GetSourceAccess();
-
-        private Expression GetSourceAccess()
+        public Expression GetSourceAccess()
         {
-            return GetValueAccess(
+            return _sourceAccess ?? GetValueAccess(
                 MapperData.GetSourceAccess(_contextAccess, _args.ContextSourceType),
                 _args.ContextSourceType);
         }
 
-        public Expression TargetAccess => _targetAccess ??= _targetAccess = GetTargetAccess();
-
-        private Expression GetTargetAccess()
+        public Expression GetTargetAccess()
         {
-            var targetAccess = (_args.InvocationPosition == InvocationPosition.Before)
-                ? GetTargetMemberAccess() : GetTargetInstanceAccess();
+            if (_targetAccess != null)
+            {
+                return _targetAccess;
+            }
+
+            var targetAccess = _args.UseTargetObject
+                ? GetTargetObjectAccess() : GetTargetVariableAccess();
 
             return GetValueAccess(targetAccess, _args.ContextTargetType);
         }
 
-        public Expression CreatedObject => _createdObject ??= GetCreatedObject();
-
-        private Expression GetCreatedObject()
+        public Expression GetCreatedObject()
         {
             var neededCreatedObjectType = Types.Last();
             var createdObject = MapperData.CreatedObject;
@@ -134,9 +126,9 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             return GetValueAccess(createdObject, neededCreatedObjectType);
         }
 
-        public Expression ElementIndex => MapperData.ElementIndex;
+        public Expression GetElementIndex() => MapperData.ElementIndex;
 
-        public Expression ElementKey => MapperData.ElementKey;
+        public Expression GetElementKey() => MapperData.ElementKey;
 
         private static Expression GetValueAccess(Expression valueAccess, Type neededAccessType)
         {
