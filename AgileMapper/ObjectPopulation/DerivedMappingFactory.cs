@@ -85,7 +85,7 @@
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(
                 derivedTypeMappingData,
                 mappingValues,
-                MappingDataCreationFactory.ForDerivedType(derivedTypeMappingData.MapperData));
+                MappingDataCreationFactory.ForDerivedType);
 
             return inlineMappingBlock;
         }
@@ -102,12 +102,12 @@
                 sourceValue,
                 targetValue,
                 derivedTypeMapperData.ElementIndex,
-                derivedTypeMapperData.ElementKey);
+                derivedTypeMapperData.ElementKey,
+                declaredTypeMapperData.DataSourceIndex);
 
             return MappingFactory.GetChildMapping(
                 derivedTypeMappingData,
                 mappingValues,
-                declaredTypeMapperData.DataSourceIndex,
                 declaredTypeMapperData);
         }
     }

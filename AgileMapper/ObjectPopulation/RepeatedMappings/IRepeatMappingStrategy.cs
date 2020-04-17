@@ -16,7 +16,6 @@
         Expression GetMapRepeatedCallFor(
             IObjectMappingData mappingData,
             MappingValues mappingValues,
-            int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData);
     }
 }

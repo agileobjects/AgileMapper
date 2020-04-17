@@ -10,6 +10,10 @@
     using Members;
     using NetStandardPolyfills;
 
+    internal delegate Expression CreateMappingDataCallFactory(
+        MappingValues mappingValues, 
+        ObjectMapperData memberMapperData);
+
     internal static class MappingDataCreationFactory
     {
         [DebuggerStepThrough]
@@ -32,7 +36,7 @@
         }
 
         [DebuggerStepThrough]
-        public static Expression ForDerivedType(ObjectMapperData childMapperData)
+        public static Expression ForDerivedType(MappingValues mappingValues, ObjectMapperData childMapperData)
         {
             UseAsConversion(childMapperData, out var asConversion);
             return asConversion;
@@ -55,10 +59,7 @@
         }
 
         [DebuggerStepThrough]
-        public static Expression ForChild(
-            MappingValues mappingValues,
-            int dataSourceIndex,
-            ObjectMapperData childMapperData)
+        public static Expression ForChild(MappingValues mappingValues, ObjectMapperData childMapperData)
         {
             if (UseAsConversion(childMapperData, out var asConversion))
             {
@@ -76,7 +77,7 @@
                 mappingValues.ElementIndex,
                 mappingValues.ElementKey,
                 childMapperData.TargetMember.RegistrationName.ToConstantExpression(),
-                dataSourceIndex.ToConstantExpression(),
+                mappingValues.DataSourceIndex.ToConstantExpression(),
                 childMapperData.Parent.MappingDataObject);
 
             return createCall;
@@ -85,10 +86,9 @@
         [DebuggerStepThrough]
         public static Expression ForElement(
             MappingValues mappingValues,
-            Expression enumerableMappingDataObject,
-            ObjectMapperData childMapperData)
+            ObjectMapperData elementMapperData)
         {
-            if (UseAsConversion(childMapperData, out var asConversion))
+            if (UseAsConversion(elementMapperData, out var asConversion))
             {
                 return asConversion;
             }
@@ -96,6 +96,10 @@
             var createMethod = MappingDataFactory
                 .ForElementMethod
                 .MakeGenericMethod(mappingValues.SourceValue.Type, mappingValues.TargetValue.Type);
+
+            var enumerableMappingDataObject = elementMapperData.Context.IsStandalone
+                ? typeof(IObjectMappingData).ToDefaultExpression()
+                : (Expression)elementMapperData.Parent.MappingDataObject;
 
             var createCall = Expression.Call(
                 createMethod,

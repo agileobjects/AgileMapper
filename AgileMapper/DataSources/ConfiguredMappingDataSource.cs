@@ -44,13 +44,14 @@
                 sourceMemberAccess,
                 targetMemberAccess,
                 childMapperData.ElementIndex,
-                childMapperData.ElementKey);
+                childMapperData.ElementKey,
+                dataSourceIndex);
 
             var directAccessMapping = MappingFactory.GetDirectAccessMapping(
                 mapping,
                 childObjectMapperData,
                 mappingValues,
-                MappingDataCreationFactory.ForChild(mappingValues, dataSourceIndex, childObjectMapperData));
+                MappingDataCreationFactory.ForChild(mappingValues, childObjectMapperData));
 
             var returnValue = childObjectMapperData
                 .GetFinalisedReturnLabel(directAccessMapping, out var returnsDefault);
