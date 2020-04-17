@@ -20,7 +20,7 @@
                     return builder;
                 }
 
-                builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType());
+                builder.AssignSourceVariableTo(s => s.SourceItemsProjectedToTargetType());
                 builder.AssignTargetVariable();
                 builder.RemoveAllTargetItems();
                 builder.AddNewItemsToTargetVariable(enumerableMappingData);
@@ -32,7 +32,7 @@
             {
                 builder.CreateCollectionData();
                 builder.MapIntersection(enumerableMappingData);
-                builder.AssignSourceVariableFrom(s => s.CollectionDataNewSourceItems());
+                builder.AssignSourceVariableTo(s => s.CollectionDataNewSourceItems());
                 builder.AssignTargetVariable();
                 builder.RemoveTargetItemsById();
                 builder.AddNewItemsToTargetVariable(enumerableMappingData);
@@ -40,7 +40,7 @@
                 return builder;
             }
 
-            builder.AssignSourceVariableFromSourceObject();
+            builder.AssignSourceVariableToSourceObject();
             builder.AssignTargetVariable();
             builder.RemoveAllTargetItems();
             builder.AddNewItemsToTargetVariable(enumerableMappingData);

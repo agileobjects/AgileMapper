@@ -17,6 +17,7 @@
     internal class ConfiguredLambdaInfo
     {
         private readonly LambdaExpression _lambda;
+        private readonly Expression _lambdaBody;
         private readonly Type[] _contextTypes;
         private readonly bool _isForTargetDictionary;
         private readonly IValueInjector _valueInjector;
@@ -31,6 +32,7 @@
             MappingConfigInfo configInfo)
         {
             _lambda = lambda;
+            _lambdaBody = lambda.Body;
             _contextTypes = contextTypes;
             _valueInjector = valueInjectorFactory.CreateFor(lambda, configInfo);
             ReturnType = returnType;
@@ -158,7 +160,7 @@
 
         public bool IsSourceMember(out LambdaExpression sourceMemberLambda)
         {
-            if (_lambda.Body.NodeType != ExpressionType.MemberAccess)
+            if (_lambdaBody.NodeType != ExpressionType.MemberAccess)
             {
                 sourceMemberLambda = null;
                 return false;
@@ -170,7 +172,7 @@
                 return true;
             }
 
-            var memberAccesses = _lambda.Body.GetMemberAccessChain(nt => { }, out var rootExpression);
+            var memberAccesses = _lambdaBody.GetMemberAccessChain(nt => { }, out var rootExpression);
 
             if (memberAccesses.None())
             {
@@ -220,13 +222,13 @@
                 return false;
             }
 
-            if ((_lambda.Body.NodeType == ExpressionType.Invoke) ||
-                (otherLambdaInfo._lambda.Body.NodeType == ExpressionType.Invoke))
+            if ((_lambdaBody.NodeType == ExpressionType.Invoke) ||
+                (otherLambdaInfo._lambdaBody.NodeType == ExpressionType.Invoke))
             {
                 return false;
             }
 
-            return ExpressionEvaluation.AreEquivalent(_lambda.Body, otherLambdaInfo._lambda.Body);
+            return ExpressionEvaluation.AreEquivalent(_lambdaBody, otherLambdaInfo._lambdaBody);
         }
 
         public string GetDescription(MappingConfigInfo configInfo)
@@ -243,7 +245,7 @@
                     .GetFriendlySourcePath(configInfo);
             }
 
-            return _description = _lambda.Body.ToReadableString();
+            return _description = _lambdaBody.ToReadableString();
         }
 
         public Expression GetBody(IMemberMapperData mapperData)

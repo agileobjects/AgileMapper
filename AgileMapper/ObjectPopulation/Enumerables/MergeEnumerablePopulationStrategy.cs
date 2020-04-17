@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         {
             if (builder.TargetElementsAreSimple)
             {
-                builder.AssignSourceVariableFrom(s => s.SourceItemsProjectedToTargetType().ExcludingTargetItems());
+                builder.AssignSourceVariableTo(s => s.SourceItemsProjectedToTargetType().ExcludingTargetItems());
                 builder.AssignTargetVariable();
                 builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
@@ -25,14 +25,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             {
                 builder.CreateCollectionData();
                 builder.MapIntersection(enumerableMappingData);
-                builder.AssignSourceVariableFrom(s => s.CollectionDataNewSourceItems());
+                builder.AssignSourceVariableTo(s => s.CollectionDataNewSourceItems());
                 builder.AssignTargetVariable();
                 builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
                 return builder;
             }
 
-            builder.AssignSourceVariableFromSourceObject();
+            builder.AssignSourceVariableToSourceObject();
             builder.AssignTargetVariable();
             builder.AddNewItemsToTargetVariable(enumerableMappingData);
 

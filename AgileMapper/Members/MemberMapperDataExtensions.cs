@@ -547,9 +547,9 @@ namespace AgileObjects.AgileMapper.Members
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
-            => GetAsCall(subject, true.ToConstantExpression(), contextTypes);
+            => GetAsCallIfRequired(subject, contextTypes);
 
-        public static Expression GetAsCall(this Expression subject, Expression isForDerivedTypeArgument, params Type[] contextTypes)
+        private static Expression GetAsCallIfRequired(this Expression subject, Type[] contextTypes)
         {
             if (subject.Type.IsGenericType() &&
                 subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
@@ -557,6 +557,14 @@ namespace AgileObjects.AgileMapper.Members
                 return subject;
             }
 
+            return GetAsCall(subject, true.ToConstantExpression(), contextTypes);
+        }
+
+        public static Expression GetAsCall(
+            this Expression subject,
+            Expression isForDerivedTypeArgument,
+            params Type[] contextTypes)
+        {
             if (subject.Type == typeof(IMappingData))
             {
                 return Expression.Call(
@@ -564,25 +572,27 @@ namespace AgileObjects.AgileMapper.Members
                     typeof(IMappingData).GetPublicInstanceMethod("As").MakeGenericMethod(contextTypes));
             }
 
-            MethodInfo conversionMethod;
-
-            if (contextTypes[0].IsValueType())
-            {
-                conversionMethod = subject.Type.GetPublicInstanceMethod("WithTargetType");
-            }
-            else if (contextTypes[1].IsValueType())
-            {
-                conversionMethod = subject.Type.GetPublicInstanceMethod("WithSourceType");
-            }
-            else
-            {
-                conversionMethod = typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
-            }
+            var conversionMethod = GetConversionMethod(subject, contextTypes);
 
             return Expression.Call(
                 subject,
                 conversionMethod.MakeGenericMethod(contextTypes),
                 isForDerivedTypeArgument);
+        }
+
+        private static MethodInfo GetConversionMethod(Expression subject, Type[] contextTypes)
+        {
+            if (contextTypes[0].IsValueType())
+            {
+                return subject.Type.GetPublicInstanceMethod("WithTargetType");
+            }
+
+            if (contextTypes[1].IsValueType())
+            {
+                return subject.Type.GetPublicInstanceMethod("WithSourceType");
+            }
+
+            return typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
         }
 
         public static Expression GetSourceAccess(

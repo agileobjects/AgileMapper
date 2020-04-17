@@ -98,7 +98,7 @@
 
             protected override Expression VisitMethodCall(MethodCallExpression methodCall)
             {
-                if (methodCall.IsMappingDataObjectCall(_rootMappingData))
+                if (Ignore(methodCall))
                 {
                     return base.VisitMethodCall(methodCall);
                 }
@@ -106,6 +106,22 @@
                 AddInvocation(methodCall);
 
                 return base.VisitMethodCall(methodCall);
+            }
+
+            private bool Ignore(MethodCallExpression methodCall)
+            {
+                if (methodCall.Type == typeof(void))
+                {
+                    return true;
+                }
+
+                if (methodCall.Method.IsStatic && 
+                   (methodCall.Method.DeclaringType == typeof(MappingException)))
+                {
+                    return true;
+                }
+
+                return methodCall.IsMappingDataObjectCall(_rootMappingData);
             }
 
             protected override Expression VisitInvocation(InvocationExpression invocation)

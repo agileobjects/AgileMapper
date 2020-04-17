@@ -273,27 +273,37 @@
             }
         }
 
-        public void AssignSourceVariableFromSourceObject()
+        public void AssignSourceVariableToSourceObject()
         {
             SourceValue = _sourceAdapter.GetSourceValues();
 
-            if ((SourceValue == MapperData.SourceObject) && MapperData.HasSameSourceAsParent())
+            if (SourceVariableAlreadyAssignedTo(SourceValue))
             {
                 CreateSourceTypeHelper(SourceValue);
                 return;
             }
 
-            AssignSourceVariableFrom(SourceValue);
+            AssignSourceVariableTo(SourceValue);
 
             var shortCircuit = _sourceAdapter.GetMappingShortCircuitOrNull();
 
             _populationExpressions.AddUnlessNullOrEmpty(shortCircuit);
         }
 
-        public void AssignSourceVariableFrom(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)
-            => AssignSourceVariableFrom(sourceItemsSelection.Invoke(_sourceItemsSelector).GetResult());
+        private bool SourceVariableAlreadyAssignedTo(Expression value)
+        {
+            if (MapperData.Context.IsForToTargetMapping)
+            {
+                return false;
+            }
 
-        private void AssignSourceVariableFrom(Expression sourceValue)
+            return (value == MapperData.SourceObject) && MapperData.HasSameSourceAsParent();
+        }
+
+        public void AssignSourceVariableTo(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)
+            => AssignSourceVariableTo(sourceItemsSelection.Invoke(_sourceItemsSelector).GetResult());
+
+        private void AssignSourceVariableTo(Expression sourceValue)
         {
             CreateSourceTypeHelper(sourceValue);
 

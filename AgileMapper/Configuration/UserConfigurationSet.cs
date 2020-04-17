@@ -449,7 +449,7 @@
             }
 
             var toTargetDataSources = QueryDataSourceFactories(mapperData)
-                .Filter(dsf => dsf.TargetMember.IsRoot)
+                .Filter(dsf => dsf.IsForToTargetDataSource)
                 .Project(mapperData, (md, dsf) => dsf.Create(md))
                 .ToArray();
 

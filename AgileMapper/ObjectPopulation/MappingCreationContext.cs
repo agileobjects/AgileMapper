@@ -101,16 +101,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     IsCallTo(nameof(IObjectMappingDataUntyped.MapRepeated), expression);
         }
 
-        public MappingCreationContext WithDataSource(IDataSource newDataSource)
+        public MappingCreationContext WithToTargetDataSource(IDataSource dataSource)
         {
-            var newSourceMappingData = MappingData.WithToTargetSource(newDataSource.SourceMember);
+            var newSourceMappingData = MappingData.WithToTargetSource(dataSource.SourceMember);
 
             var newContext = new MappingCreationContext(newSourceMappingData)
             {
                 InstantiateLocalVariable = false
             };
 
-            newContext.MapperData.SourceObject = newDataSource.Value;
+            newContext.MapperData.SourceObject = dataSource.Value;
             newContext.MapperData.TargetObject = MapperData.TargetObject;
 
             if (TargetMember.IsComplex)

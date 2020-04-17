@@ -2,15 +2,15 @@
 {
     using System;
     using System.Globalization;
-    using System.Reflection;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class Ef5QueryProviderSettings : LegacyEfQueryProviderSettings
     {

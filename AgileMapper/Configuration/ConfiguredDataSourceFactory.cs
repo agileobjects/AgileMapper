@@ -42,6 +42,8 @@
             _dataSourceLambda = dataSourceLambda;
         }
 
+        public bool IsForToTargetDataSource => TargetMember.IsRoot;
+
         public bool CannotBeReversed(out string reason) => CannotBeReversed(out _, out reason);
 
         private bool CannotBeReversed(out QualifiedMember targetMember, out string reason)

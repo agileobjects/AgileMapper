@@ -54,7 +54,7 @@
 
         public void AssignSourceVariableFromSourceObject()
         {
-            _wrappedBuilder.AssignSourceVariableFromSourceObject();
+            _wrappedBuilder.AssignSourceVariableToSourceObject();
         }
 
         public void AddItems(IObjectMappingData mappingData)

@@ -29,7 +29,7 @@
             Type targetType,
             out IObjectMappingData derivedTypeMappingData)
         {
-            derivedTypeMappingData = declaredTypeMappingData.WithTypes(sourceValue.Type, targetType);
+            derivedTypeMappingData = declaredTypeMappingData.WithDerivedTypes(sourceValue.Type, targetType);
 
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 

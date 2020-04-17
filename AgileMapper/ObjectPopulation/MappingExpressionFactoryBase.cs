@@ -111,6 +111,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(MappingCreationContext context)
         {
+            if (context.MapperData.Context.IsForToTargetMapping)
+            {
+                yield break;
+            }
+
             if (!HasConfiguredToTargetDataSources(context.MapperData, out var toTargetDataSources))
             {
                 yield break;
@@ -119,7 +124,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             for (var i = 0; i < toTargetDataSources.Count; ++i)
             {
                 var toTargetDataSource = toTargetDataSources[i];
-                var toTargetContext = context.WithDataSource(toTargetDataSource);
+                var toTargetContext = context.WithToTargetDataSource(toTargetDataSource);
 
                 AddPopulationsAndCallbacks(toTargetContext);
 

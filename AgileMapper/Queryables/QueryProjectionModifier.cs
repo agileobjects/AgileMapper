@@ -1,14 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
-    using Converters;
-    using Members;
-    using ObjectPopulation;
-    using Settings;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Converters;
+    using Members;
+    using ObjectPopulation;
+    using Settings;
 
     internal class QueryProjectionModifier : ExpressionVisitor, IQueryProjectionModifier
     {

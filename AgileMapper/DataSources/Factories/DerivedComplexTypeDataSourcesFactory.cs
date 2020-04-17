@@ -176,7 +176,7 @@
             }
 
             var implementationMappingData = declaredTypeMappingData
-                .WithTypes(derivedTypePair.DerivedSourceType, derivedTypePair.DerivedTargetType);
+                .WithDerivedTypes(derivedTypePair.DerivedSourceType, derivedTypePair.DerivedTargetType);
 
             if (implementationMappingData.IsTargetConstructable())
             {

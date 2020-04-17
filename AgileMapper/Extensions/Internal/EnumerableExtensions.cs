@@ -177,6 +177,15 @@
             }
         }
 
+        public static T[] EnlargeToArray<T>(this IList<T> items, int newCapacity)
+        {
+            var enlargedArray = new T[newCapacity];
+            
+            enlargedArray.CopyFrom(items);
+
+            return enlargedArray;
+        }
+
         public static T[] CopyToArray<T>(this IList<T> items)
         {
             if (items.Count == 0)
@@ -231,7 +240,10 @@
 
         public static void CopyFrom<T>(this IList<T> targetList, IList<T> sourceList, int startIndex = 0)
         {
-            for (var i = 0; i < sourceList.Count && i < targetList.Count; ++i)
+            var sourceItemCount = sourceList.Count;
+            var targetItemCount = targetList.Count;
+
+            for (var i = 0; i < sourceItemCount && i < targetItemCount; ++i)
             {
                 targetList[i + startIndex] = sourceList[i];
             }
@@ -268,40 +280,40 @@
 
                     goto case 0;
 
-                    default:
-                        var filteredItems = default(TItem[]);
-                        var filteredItemsCount = itemCount;
-                        var filteredItemsIndex = 0;
+                default:
+                    var filteredItems = default(TItem[]);
+                    var filteredItemsCount = itemCount;
+                    var filteredItemsIndex = 0;
 
-                        for (var i = 0; i < itemCount; i++)
+                    for (var i = 0; i < itemCount; i++)
+                    {
+                        var item = items[i];
+
+                        if (!predicate.Invoke(argument, item))
                         {
-                            var item = items[i];
-
-                            if (!predicate.Invoke(argument, item))
-                            {
-                                --filteredItemsCount;
-                                continue;
-                            }
-
-                            if (filteredItems == null)
-                            {
-                                filteredItems = new TItem[filteredItemsCount];
-                            }
-
-                            filteredItems[filteredItemsIndex++] = item;
+                            --filteredItemsCount;
+                            continue;
                         }
 
                         if (filteredItems == null)
                         {
-                            goto case 0;
+                            filteredItems = new TItem[filteredItemsCount];
                         }
 
-                        if (filteredItemsIndex == itemCount)
-                        {
-                            return items;
-                        }
+                        filteredItems[filteredItemsIndex++] = item;
+                    }
 
-                        return new FilteredArray<TItem>(filteredItems, filteredItemsIndex);
+                    if (filteredItems == null)
+                    {
+                        goto case 0;
+                    }
+
+                    if (filteredItemsIndex == itemCount)
+                    {
+                        return items;
+                    }
+
+                    return new FilteredArray<TItem>(filteredItems, filteredItemsIndex);
             }
         }
 

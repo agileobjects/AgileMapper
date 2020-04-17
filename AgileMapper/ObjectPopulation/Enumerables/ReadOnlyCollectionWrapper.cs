@@ -30,11 +30,12 @@
         {
             _numberOfNewItems = numberOfNewItems;
 
-            var hasExistingItems = existingItems != null;
+            var existingItemCount = (existingItems?.Count).GetValueOrDefault();
+            var hasExistingItems = existingItemCount > 0;
 
             if (hasExistingItems)
             {
-                _index = existingItems.Count;
+                _index = existingItemCount;
             }
             else if (numberOfNewItems == 0)
             {
@@ -42,7 +43,7 @@
                 return;
             }
 
-            _items = new T[_index + numberOfNewItems];
+            _items = new T[existingItemCount + numberOfNewItems];
 
             if (hasExistingItems)
             {
@@ -116,11 +117,6 @@
         /// <summary>
         /// Gets the number of elements contained in the collection.
         /// </summary>
-        #region ExcludeFromCodeCoverage
-#if DEBUG
-        [ExcludeFromCodeCoverage]
-#endif
-        #endregion
         public int Count => _items.Length;
 
         /// <summary>
@@ -139,8 +135,22 @@
         /// <param name="item">The object to add.</param>
         public void Add(T item)
         {
+            EnsureCapacity();
+
             _items[_index] = item;
             ++_index;
+        }
+
+        private void EnsureCapacity()
+        {
+            var existingCapacity = Count;
+
+            if (_index < existingCapacity)
+            {
+                return;
+            }
+
+            _items = _items.EnlargeToArray(existingCapacity + 5);
         }
 
         /// <summary>
@@ -226,7 +236,19 @@
         /// Returns an array containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.
         /// </summary>
         /// <returns>An array containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.</returns>
-        public T[] ToArray() => _items;
+        public T[] ToArray()
+        {
+            if (_index == Count)
+            {
+                return _items;
+            }
+
+            var items = new T[_index];
+
+            items.CopyFrom(_items);
+
+            return items;
+        }
 
         /// <summary>
         /// Returns a ReadOnlyCollection containing the contents of the <see cref="ReadOnlyCollectionWrapper{T}"/>.

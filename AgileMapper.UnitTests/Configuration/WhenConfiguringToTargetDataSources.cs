@@ -15,6 +15,8 @@
 #endif
     public class WhenConfiguringToTargetDataSources
     {
+        private int _addressCreationCount;
+
         // See https://github.com/agileobjects/AgileMapper/issues/64
         [Fact]
         public void ShouldApplyAToTargetDataSource()
@@ -465,6 +467,44 @@
         }
 
         [Fact]
+        public void ShouldMapAToTargetEnumerableProjectionResultToANestedEnumerable()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Address[]>()
+                    .ToANew<Address[]>()
+                    .Map(ctx => ctx.Source.Select(CreateAddress).ToArray())
+                    .ToTarget();
+
+                var source = new PublicField<Address[]>
+                {
+                    Value = new[]
+                    {
+                        new Address { Line1 = "My house" },
+                        new Address { Line1 = "Your house" }
+                    }
+                };
+
+                _addressCreationCount = 0;
+
+                var result = mapper.Map(source).ToANew<PublicProperty<Address[]>>();
+
+                result.Value.ShouldNotBeNull().Length.ShouldBe(4);
+                result.Value.First().Line1.ShouldBe("My house");
+                result.Value.First().Line2.ShouldBeNull();
+                result.Value.Second().Line1.ShouldBe("Your house");
+                result.Value.Second().Line2.ShouldBeNull();
+                result.Value.Third().Line1.ShouldBe("Address 1");
+                result.Value.Third().Line2.ShouldBe("My house");
+                result.Value.Fourth().Line1.ShouldBe("Address 2");
+                result.Value.Fourth().Line2.ShouldBe("Your house");
+
+                _addressCreationCount.ShouldBe(2);
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullToTargetValue()
         {
             using (var mapper = Mapper.CreateNew())
@@ -567,6 +607,13 @@
             }
         }
         // ReSharper restore InconsistentNaming
+
+        private Address CreateAddress(Address source, int index)
+        {
+            ++_addressCreationCount;
+
+            return new Address { Line1 = "Address " + (index + 1), Line2 = source.Line1 };
+        }
 
         #endregion
     }
