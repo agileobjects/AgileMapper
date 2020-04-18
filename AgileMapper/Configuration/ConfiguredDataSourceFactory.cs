@@ -138,7 +138,7 @@
 
             var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactory;
             var isOtherDataSource = otherDataSource != null;
-            var dataSourceLambdasAreTheSame = HasSameDataSourceLambdaAs(otherDataSource);
+            var dataSourceLambdasAreTheSame = HasSameDataSourceAs(otherDataSource);
 
             if (WasAutoCreated &&
                (otherConfiguredItem is IPotentialAutoCreatedItem otherItem) &&
@@ -162,7 +162,7 @@
 
         #region ConflictsWith Helpers
 
-        private bool HasSameDataSourceLambdaAs(ConfiguredDataSourceFactory otherDataSource)
+        private bool HasSameDataSourceAs(ConfiguredDataSourceFactory otherDataSource)
             => _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
 
         protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
@@ -211,7 +211,11 @@
             var configuredCondition = GetConditionOrNull(mapperData);
             var value = _dataSourceLambda.GetBody(mapperData);
 
-            return new ConfiguredDataSource(configuredCondition, value, mapperData);
+            return new ConfiguredDataSource(
+                configuredCondition,
+                value,
+                ConfigInfo.IsSequentialConfiguration,
+                mapperData);
         }
 
         #region IPotentialAutoCreatedItem Members

@@ -18,6 +18,8 @@
 
         bool IsConditional { get; }
 
+        bool IsSequential { get; }
+
         bool IsFallback { get; }
 
         IList<ParameterExpression> Variables { get; }
@@ -28,6 +30,9 @@
 
         Expression AddSourceCondition(Expression value);
 
-        Expression FinalisePopulationBranch(Expression alternatePopulation, IMemberMapperData mapperData);
+        Expression FinalisePopulationBranch(
+            Expression alternatePopulation, 
+            IDataSource nextDataSource,
+            IMemberMapperData mapperData);
     }
 }

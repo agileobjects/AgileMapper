@@ -17,6 +17,7 @@
     using Projection;
     using ReadableExpressions.Extensions;
     using TypeConversion;
+    using static System.Linq.Expressions.ExpressionType;
 #if NET35
     using Expr = Microsoft.Scripting.Ast.Expression;
     using ExprType = Microsoft.Scripting.Ast.ExpressionType;
@@ -24,8 +25,6 @@
     using Expr = System.Linq.Expressions.Expression;
     using ExprType = System.Linq.Expressions.ExpressionType;
 #endif
-    using static System.Linq.Expressions.ExpressionType;
-    using static ObjectPopulation.InvocationPosition;
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
         ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>,

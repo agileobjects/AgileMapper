@@ -16,11 +16,13 @@
         public ConfiguredDataSource(
             Expression configuredCondition,
             Expression value,
+            bool isSequential,
             IMemberMapperData mapperData)
             : this(
                   CreateSourceMember(value, mapperData),
                   configuredCondition,
                   GetConvertedValue(value, mapperData),
+                  isSequential,
                   mapperData)
         {
         }
@@ -54,10 +56,12 @@
             IQualifiedMember sourceMember,
             Expression configuredCondition,
             Expression convertedValue,
+            bool isSequential,
             IMemberMapperData mapperData)
             : base(sourceMember, convertedValue, mapperData)
         {
             _originalValue = convertedValue;
+            IsSequential = isSequential;
 
             if (configuredCondition == null)
             {

@@ -201,10 +201,10 @@
                 return false;
             }
 
-            var basicData = memberContextFactory.Invoke(dataItem);
+            var memberContext = memberContextFactory.Invoke(dataItem);
 
             return _dataSourceReversalSettings
-                .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?.Reverse == true;
+                .FirstOrDefault(memberContext, (mc, s) => s.AppliesTo(mc))?.Reverse == true;
         }
 
         #endregion
@@ -585,11 +585,22 @@
             ThrowIfConflictingItemExists(configuredItem, _ignoredMembers, messageFactory);
         }
 
+        private void ThrowIfConflictingDataSourceExists(
+            ConfiguredDataSourceFactory dataSourceFactory,
+            Func<ConfiguredDataSourceFactory, ConfiguredDataSourceFactory, string> messageFactory)
+        {
+            if (dataSourceFactory.ConfigInfo.ConfigurationType != ConfigurationType.Sequential)
+            {
+                ThrowIfConflictingItemExists(dataSourceFactory, _dataSourceFactories, messageFactory);
+            }
+        }
+
         internal void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
             Func<TConfiguredItem, ConfiguredDataSourceFactory, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
+            //otherDataSource.ConfigInfo.ConfigurationType == ConfigurationType.Default
             ThrowIfConflictingItemExists(configuredItem, _dataSourceFactories, messageFactory);
         }
 

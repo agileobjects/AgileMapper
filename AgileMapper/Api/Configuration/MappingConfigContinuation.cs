@@ -66,7 +66,18 @@
         IFullProjectionConfigurator<TSource, TTarget> IProjectionConfigContinuation<TSource, TTarget>.But
             => CreateNewConfigurator();
 
+        public IFullMappingConfigurator<TSource, TTarget> Then
+            => CreateNewConfigurator(CopyConfigInfo().ForSequentialConfiguration());
+
         private MappingConfigurator<TSource, TTarget> CreateNewConfigurator()
-            => new MappingConfigurator<TSource, TTarget>(_configInfo.Copy());
+            => CreateNewConfigurator(CopyConfigInfo());
+
+        private MappingConfigInfo CopyConfigInfo() => _configInfo.Copy();
+
+        private static MappingConfigurator<TSource, TTarget> CreateNewConfigurator(
+            MappingConfigInfo configInfo)
+        {
+            return new MappingConfigurator<TSource, TTarget>(configInfo);
+        }
     }
 }

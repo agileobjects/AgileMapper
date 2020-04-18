@@ -80,26 +80,41 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         private Expression GetPopulationExpression()
         {
-            if (_dataSources.Count == 1)
+            var dataSourcesCount = _dataSources.Count;
+
+            if (dataSourcesCount == 1)
             {
                 return GetPopulation(_dataSources[0]);
             }
 
             var population = default(Expression);
+            var previousDataSource = default(IDataSource);
 
             for (var i = _dataSources.Count; ;)
             {
-                population = GetPopulation(_dataSources[--i], population);
+                --i;
+                var dataSource = _dataSources[i];
+                population = GetPopulation(dataSource, population, previousDataSource);
 
                 if (i == 0)
                 {
                     return population;
                 }
+
+                previousDataSource = dataSource;
             }
         }
 
-        private Expression GetPopulation(IDataSource dataSource, Expression population = null) 
-            => dataSource.FinalisePopulationBranch(population, MapperData);
+        private Expression GetPopulation(
+            IDataSource dataSource,
+            Expression populationSoFar = null,
+            IDataSource previousDataSource = null)
+        {
+            return dataSource.FinalisePopulationBranch(
+                populationSoFar,
+                previousDataSource,
+                MapperData);
+        }
 
         private Expression GetPopulationWithVariables(Expression population)
         {
