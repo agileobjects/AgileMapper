@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
 
             var derivedTypeDataSourceSet = DataSourceSet.For(
                 derivedTypeDataSources,
-                mappingData.MapperData,
+                mappingData,
                 ValueExpressionBuilders.ValueSequence);
 
             isConditional =

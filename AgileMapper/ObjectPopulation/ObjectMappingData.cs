@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
 #endif
     using Caching;
+    using DataSources;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
@@ -121,6 +122,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             => _mapper = (ObjectMapper<TSource, TTarget>)mapper;
 
         public bool MapperDataPopulated => (_mapperData ?? _mapper?.MapperData) != null;
+
+        IMemberMapperData IDataSourceSetInfo.MapperData => MapperData;
 
         public ObjectMapperData MapperData
         {

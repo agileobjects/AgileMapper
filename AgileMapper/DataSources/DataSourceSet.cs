@@ -16,9 +16,18 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public static IDataSourceSet For(
             IDataSource dataSource,
-            IMemberMapperData mapperData,
+            IDataSourceSetInfo info,
             Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
         {
+            if (!dataSource.IsValid)
+            {
+                return info.MappingContext.IgnoreUnsuccessfulMemberPopulations
+                    ? EmptyDataSourceSet.Instance
+                    : new NullDataSourceSet(dataSource);
+            }
+
+            var mapperData = info.MapperData;
+
             if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
             {
                 dataSource = dataSource.WithFilter(mapperData);
@@ -29,7 +38,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public static IDataSourceSet For(
             IList<IDataSource> dataSources,
-            IMemberMapperData mapperData,
+            IDataSourceSetInfo info,
             Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
         {
             switch (dataSources.Count)
@@ -38,9 +47,11 @@ namespace AgileObjects.AgileMapper.DataSources
                     return EmptyDataSourceSet.Instance;
 
                 case 1:
-                    return For(dataSources.First(), mapperData, valueBuilder);
+                    return For(dataSources.First(), info, valueBuilder);
 
                 default:
+                    var mapperData = info.MapperData;
+                    
                     if (TryAdjustToSingleUseableDataSource(ref dataSources, mapperData))
                     {
                         goto case 1;
@@ -99,6 +110,32 @@ namespace AgileObjects.AgileMapper.DataSources
         }
 
         #endregion
+
+        private class NullDataSourceSet : IDataSourceSet
+        {
+            private readonly IDataSource _nullDataSource;
+
+            public NullDataSourceSet(IDataSource nullDataSource)
+            {
+                _nullDataSource = nullDataSource;
+            }
+
+            public bool None => false;
+
+            public bool HasValue => false;
+
+            public bool IsConditional => false;
+
+            public Expression SourceMemberTypeTest => null;
+
+            public IList<ParameterExpression> Variables => Enumerable<ParameterExpression>.EmptyArray;
+
+            public IDataSource this[int index] => _nullDataSource;
+
+            public int Count => 1;
+
+            public Expression BuildValue() => _nullDataSource.Value;
+        }
 
         private class SingleValueDataSourceSet : IDataSourceSet
         {

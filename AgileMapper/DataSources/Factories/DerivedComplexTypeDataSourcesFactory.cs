@@ -311,7 +311,7 @@
 
             var derivedTargetTypeDataSources = DataSourceSet.For(
                 typePairDataSources,
-                declaredTypeMapperData,
+                declaredTypeMappingData,
                 ValueExpressionBuilders.ValueSequence);
 
             derivedTypeMapping = GetReturnMappingResultExpression(

@@ -330,7 +330,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private abstract class ConstructionDataInfo<TInvokable> : ConstructionInfoBase
             where TInvokable : MethodBase
         {
-            private readonly IMemberMapperData[] _argumentMapperDatas;
+            private readonly QualifiedMember[] _argumentTargetMembers;
 
             protected ConstructionDataInfo(
                 TInvokable invokable,
@@ -341,24 +341,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                 Priority = priority;
                 ParameterCount = parameters.Length;
+                _argumentTargetMembers = new QualifiedMember[ParameterCount];
                 ArgumentDataSources = new IDataSourceSet[ParameterCount];
-                _argumentMapperDatas = new IMemberMapperData[ParameterCount];
 
                 CanBeInvoked = IsUnconditional = true;
                 var mappingData = key.MappingData;
+                var mapperData = mappingData.MapperData;
 
                 for (var i = 0; i < ParameterCount; ++i)
                 {
                     var argumentMember = Member.ConstructorParameter(parameters[i]);
 
-                    var argumentMapperData = _argumentMapperDatas[i] = new ChildMemberMapperData(
-                        mappingData.MapperData.TargetMember.Append(argumentMember),
-                        mappingData.MapperData);
+                    var targetMember = _argumentTargetMembers[i] =
+                        mapperData.TargetMember.Append(argumentMember);
 
-                    var memberMappingData = mappingData.GetChildMappingData(argumentMapperData);
+                    var argumentMapperData = new ChildMemberMapperData(targetMember, mapperData);
+                    var argumentMappingData = mappingData.GetChildMappingData(argumentMapperData);
 
                     var dataSources = ArgumentDataSources[i] = MemberDataSourceSetFactory
-                        .CreateFor(new DataSourceFindContext(memberMappingData));
+                        .CreateFor(new DataSourceFindContext(argumentMappingData));
 
                     if (CanBeInvoked && !dataSources.HasValue)
                     {
@@ -378,21 +379,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public void AddTo(IList<IConstructionInfo> constructionInfos, ConstructionKey key)
             {
-                if (ParameterCount == 0)
+                if (ParameterCount > 0)
                 {
-                    constructionInfos.AddThenSort(this);
-                    return;
-                }
+                    var mapperData = key.MappingData.MapperData;
 
-                var dataSources = key.MappingData.MapperData.DataSourcesByTargetMember;
-
-                for (var i = 0; i < ParameterCount; ++i)
-                {
-                    var targetMember = _argumentMapperDatas[i].TargetMember;
-
-                    if (!dataSources.ContainsKey(targetMember))
+                    for (var i = 0; i < ParameterCount; ++i)
                     {
-                        dataSources.Add(targetMember, ArgumentDataSources[i]);
+                        mapperData.MergeTargetMemberDataSources(
+                           _argumentTargetMembers[i],
+                            ArgumentDataSources[i]);
                     }
                 }
 

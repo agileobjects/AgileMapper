@@ -133,7 +133,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                context.UpdateFrom(toTargetContext);
+                context.UpdateFrom(toTargetContext, toTargetDataSource);
 
                 var mapping = toTargetContext.MappingExpressions.HasOne()
                     ? toTargetContext.MappingExpressions.First()

@@ -267,7 +267,8 @@
 
             var sourceMember = mappingData.MapperData.SourceMember;
             var mappingDataSource = new AdHocDataSource(sourceMember, elementMapping);
-            var mappingDataSources = DataSourceSet.For(mappingDataSource, elementMapperData);
+            var dataSourceSetInfo = new SimpleDataSourceSetInfo(mappingData.MappingContext, elementMapperData);
+            var mappingDataSources = DataSourceSet.For(mappingDataSource, dataSourceSetInfo);
             var populator = new MemberPopulator(mappingDataSources, elementMapperData);
             var populationExpression = populator.GetPopulation();
 

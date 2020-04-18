@@ -188,11 +188,28 @@ namespace AgileObjects.AgileMapper.Members
             return null;
         }
 
-        public static void RegisterTargetMemberDataSourcesIfRequired(
-            this IMemberMapperData mapperData,
+        public static void RegisterTargetMemberDataSources(
+            this IMemberMapperData memberMapperData,
             IDataSourceSet dataSources)
         {
-            mapperData.Parent.DataSourcesByTargetMember.Add(mapperData.TargetMember, dataSources);
+            memberMapperData.Parent
+                .MergeTargetMemberDataSources(memberMapperData.TargetMember, dataSources);
+        }
+
+        public static void MergeTargetMemberDataSources(
+            this ObjectMapperData mapperData,
+            QualifiedMember targetMember,
+            IDataSourceSet dataSources)
+        {
+            var dataSourcesByTargetMember = mapperData.DataSourcesByTargetMember;
+
+            if (dataSourcesByTargetMember.TryGetValue(targetMember, out var registeredDataSources) &&
+                registeredDataSources.HasValue)
+            {
+                return;
+            }
+
+            dataSourcesByTargetMember[targetMember] = dataSources;
         }
 
         public static bool TargetMemberIsUnmappable<TTMapperData>(

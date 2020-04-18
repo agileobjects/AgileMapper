@@ -1,10 +1,11 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
+    using DataSources;
     using MapperKeys;
     using Members;
 
-    internal interface IObjectMappingData : IObjectMappingDataUntyped, IMappingContextOwner
+    internal interface IObjectMappingData : IObjectMappingDataUntyped, IDataSourceSetInfo
     {
         bool IsRoot { get; }
 
@@ -22,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         bool MapperDataPopulated { get; }
 
-        ObjectMapperData MapperData { get; }
+        new ObjectMapperData MapperData { get; }
 
         IObjectMapper GetOrCreateMapper();
 

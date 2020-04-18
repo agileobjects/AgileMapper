@@ -380,6 +380,28 @@
             });
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/184
+        [Fact]
+        public void ShouldNotErrorIfMembersAreMatchedByAToTargetDataSource()
+        {
+            Should.NotThrow(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                    mapper.WhenMapping
+                        .From<PublicField<Address>>()
+                        .To<Address>()
+                        .Map((pf, _) => pf.Value)
+                        .ToTarget();
+
+                    mapper.GetPlanFor<PublicField<Address>>()
+                          .ToANew<PublicTwoFields<Address, Address>>();
+                }
+            });
+        }
+
         #region Helper Classes
 
         private class UnconstructableFactoryMethod

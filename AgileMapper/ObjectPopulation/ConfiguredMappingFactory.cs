@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mappingFactories = DataSourceSet.For(
                 mappingFactoryDataSources,
-                mapperData,
+                mappingData,
                 ValueExpressionBuilders.ValueSequence);
 
             isConditional = mappingFactoryDataSources.Last().IsConditional;

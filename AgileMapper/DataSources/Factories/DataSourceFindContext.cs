@@ -7,7 +7,7 @@
     using Extensions.Internal;
     using Members;
 
-    internal class DataSourceFindContext
+    internal class DataSourceFindContext : IDataSourceSetInfo
     {
         private IList<ConfiguredDataSourceFactory> _relevantConfiguredDataSourceFactories;
         private IList<IConfiguredDataSource> _configuredDataSources;
@@ -162,5 +162,13 @@
             StopFind = false;
             return this;
         }
+
+        #region IDataSourceSetInfo Members
+
+        IMappingContext IMappingContextOwner.MappingContext => MemberMappingData.Parent.MappingContext;
+
+        IMemberMapperData IDataSourceSetInfo.MapperData => MemberMapperData;
+
+        #endregion
     }
 }

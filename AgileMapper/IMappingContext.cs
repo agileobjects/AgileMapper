@@ -2,7 +2,7 @@
 {
     internal interface IMappingContext : IMapperContextOwner, IRuleSetOwner
     {
-        bool AddUnsuccessfulMemberPopulations { get; }
+        bool IgnoreUnsuccessfulMemberPopulations { get; }
 
         bool LazyLoadRepeatMappingFuncs { get; }
     }

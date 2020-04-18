@@ -21,6 +21,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>
+      - Including ToTarget data sources in mapping plan validation, re: #184
       - Fixing caching of custom method struct creation factory
       - Performance improvements
     </PackageReleaseNotes>

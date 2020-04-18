@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper.Members.Population
                 return NullMemberPopulator.NoDataSources(context);
             }
 
-            dataSourceFindContext.MemberMapperData.RegisterTargetMemberDataSourcesIfRequired(dataSources);
+            dataSourceFindContext.MemberMapperData.RegisterTargetMemberDataSources(dataSources);
 
             return new MemberPopulator(
                 dataSources,

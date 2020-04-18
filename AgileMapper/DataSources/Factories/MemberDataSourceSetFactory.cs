@@ -18,7 +18,7 @@
         {
             var validDataSources = EnumerateDataSources(findContext).ToArray();
 
-            return DataSourceSet.For(validDataSources, findContext.MemberMapperData);
+            return DataSourceSet.For(validDataSources, findContext);
         }
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)

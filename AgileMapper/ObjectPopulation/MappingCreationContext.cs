@@ -125,16 +125,60 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return newContext;
         }
 
-        public void UpdateFrom(MappingCreationContext toTargetContext)
+        public void UpdateFrom(MappingCreationContext toTargetContext, IDataSource toTargetDataSource)
         {
-            MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(toTargetContext.MappingData);
+            var toTargetMappingData = toTargetContext.MappingData;
+            MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(toTargetMappingData);
+
+            if (!MapperData.IsRoot)
+            {
+                var dataSourceSet = DataSourceSet.For(toTargetDataSource, toTargetMappingData);
+                MapperData.RegisterTargetMemberDataSources(dataSourceSet);
+            }
 
             if (TargetMember.IsComplex)
             {
+                UpdateChildMemberDataSources(toTargetContext.MapperData);
                 return;
             }
 
             UpdateEnumerableVariablesIfAppropriate(toTargetContext.MapperData, MapperData);
+        }
+
+        private void UpdateChildMemberDataSources(ObjectMapperData toTargetMapperData)
+        {
+            var targetMemberDataSources = MapperData.DataSourcesByTargetMember;
+            var targetMembers = targetMemberDataSources.Keys.ToArray();
+            var dataSources = targetMemberDataSources.Values.ToArray();
+
+            var toTargetTargetMemberDataSources = toTargetMapperData.DataSourcesByTargetMember;
+
+            var targetMembersCount = targetMembers.Length;
+            var targetMemberIndex = 0;
+
+            foreach (var toTargetMemberAndDataSource in toTargetTargetMemberDataSources)
+            {
+                var toTargetMember = toTargetMemberAndDataSource.Key.LeafMember;
+
+                for (var i = targetMemberIndex; i < targetMembersCount; ++i)
+                {
+                    ++targetMemberIndex;
+
+                    var targetMember = targetMembers[i];
+
+                    if (!targetMember.LeafMember.Equals(toTargetMember))
+                    {
+                        continue;
+                    }
+
+                    if (!dataSources[i].HasValue)
+                    {
+                        targetMemberDataSources[targetMember] = toTargetMemberAndDataSource.Value;
+                    }
+
+                    break;
+                }
+            }
         }
 
         private static void UpdateEnumerableVariablesIfAppropriate(
