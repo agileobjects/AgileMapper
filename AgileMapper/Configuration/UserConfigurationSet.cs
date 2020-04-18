@@ -585,16 +585,6 @@
             ThrowIfConflictingItemExists(configuredItem, _ignoredMembers, messageFactory);
         }
 
-        private void ThrowIfConflictingDataSourceExists(
-            ConfiguredDataSourceFactory dataSourceFactory,
-            Func<ConfiguredDataSourceFactory, ConfiguredDataSourceFactory, string> messageFactory)
-        {
-            if (dataSourceFactory.ConfigInfo.ConfigurationType != ConfigurationType.Sequential)
-            {
-                ThrowIfConflictingItemExists(dataSourceFactory, _dataSourceFactories, messageFactory);
-            }
-        }
-
         internal void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
             Func<TConfiguredItem, ConfiguredDataSourceFactory, string> messageFactory)

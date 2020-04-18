@@ -152,12 +152,17 @@
                 return true;
             }
 
-            if (ConfigInfo.HasSameTypesAs(otherDataSource))
+            if (!ConfigInfo.HasSameTypesAs(otherDataSource))
             {
-                return true;
+                return dataSourceLambdasAreTheSame;
             }
 
-            return dataSourceLambdasAreTheSame;
+            if (otherDataSource.ConfigInfo.IsSequentialConfiguration)
+            {
+                return dataSourceLambdasAreTheSame;
+            }
+
+            return true;
         }
 
         #region ConflictsWith Helpers

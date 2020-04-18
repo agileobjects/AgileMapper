@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using AgileMapper.Configuration;
     using Common;
 #if !NET35
     using Xunit;
@@ -37,6 +38,28 @@
                 result.PetNames.CatName.ShouldBe("Tiddles");
                 result.PetNames.DogName.ShouldBe("Rover");
             }
+        }
+
+        [Fact]
+        public void ShouldErrorIfDuplicateSequentialDataSourceConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Issue184.SourcePets>()
+                        .ToANew<Issue184.TargetPets>()
+                        .Map((src, _) => src.TheCat)
+                        .To(tp => tp.PetNames)
+                        .Then
+                        .Map((src, _) => src.TheCat)
+                        .To(tp => tp.PetNames);
+                }
+            });
+
+            configEx.Message.ShouldContain("already has configured data source");
+            configEx.Message.ShouldContain("TheCat");
         }
 
         #region Helper Members
