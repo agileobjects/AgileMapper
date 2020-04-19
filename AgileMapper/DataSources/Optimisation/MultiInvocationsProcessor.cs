@@ -25,7 +25,7 @@
 
             if (SkipProcessing(value, mapperData))
             {
-                variables = Enumerable<ParameterExpression>.EmptyArray;
+                variables = Constants.EmptyParameters;
                 return;
             }
 
