@@ -44,6 +44,8 @@
 
         public bool IsForToTargetDataSource => TargetMember.IsRoot;
 
+        public bool IsSequential => ConfigInfo.IsSequentialConfiguration;
+
         public bool CannotBeReversed(out string reason) => CannotBeReversed(out _, out reason);
 
         private bool CannotBeReversed(out QualifiedMember targetMember, out string reason)
@@ -157,7 +159,7 @@
                 return dataSourceLambdasAreTheSame;
             }
 
-            if (otherDataSource.ConfigInfo.IsSequentialConfiguration)
+            if (otherDataSource.IsSequential)
             {
                 return dataSourceLambdasAreTheSame;
             }

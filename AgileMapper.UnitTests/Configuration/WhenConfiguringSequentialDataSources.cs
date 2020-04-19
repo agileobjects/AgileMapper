@@ -9,9 +9,9 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    // See https://github.com/agileobjects/AgileMapper/issues/184
     public class WhenConfiguringSequentialDataSources
     {
-        // See https://github.com/agileobjects/AgileMapper/issues/184
         [Fact]
         public void ShouldApplySequentialDataSourcesToANestedTarget()
         {
@@ -53,6 +53,31 @@
                         .Map((src, _) => src.TheCat)
                         .To(tp => tp.PetNames)
                         .Then
+                        .Map((src, _) => src.TheCat)
+                        .To(tp => tp.PetNames);
+                }
+            });
+
+            configEx.Message.ShouldContain("already has configured data source");
+            configEx.Message.ShouldContain("TheCat");
+        }
+
+        [Fact]
+        public void ShouldErrorIfSequentialDataSourceMemberDuplicated()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<Issue184.SourcePets>()
+                        .ToANew<Issue184.TargetPets>()
+                        .Map((src, _) => src.TheCat)
+                        .To(tp => tp.PetNames)
+                        .Then
+                        .Map((src, _) => src.TheDog)
+                        .To(tp => tp.PetNames)
+                        .And
                         .Map((src, _) => src.TheCat)
                         .To(tp => tp.PetNames);
                 }
