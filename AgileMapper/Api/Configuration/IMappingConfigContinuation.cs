@@ -26,12 +26,5 @@
         /// interface.
         /// </summary>
         IFullMappingConfigurator<TSource, TTarget> But { get; }
-
-        /// <summary>
-        /// Perform another configuration of how this mapper maps to and from the source and target
-        /// types being configured. This property can be used to set up a series of configurations
-        /// to be applied in sequence.
-        /// </summary>
-        IFullMappingConfigurator<TSource, TTarget> Then { get; }
     }
 }

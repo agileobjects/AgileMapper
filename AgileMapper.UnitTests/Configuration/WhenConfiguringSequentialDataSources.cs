@@ -50,9 +50,7 @@
                     .From<PublicTwoFields<Address[], Address[]>>()
                     .ToANew<Address[]>()
                     .Map((src, _) => src.Value1)
-                    .ToTarget()
-                    .Then
-                    .Map((src, _) => src.Value2)
+                    .Then.Map((src, _) => src.Value2)
                     .ToTarget();
 
                 var source = new PublicTwoFields<Address[], Address[]>
@@ -83,9 +81,7 @@
                     .From<Issue184.SourcePets>()
                     .ToANew<Issue184.TargetPets>()
                     .Map((src, _) => src.TheCat)
-                    .To(tp => tp.PetNames)
-                    .Then
-                    .Map((src, _) => src.TheDog)
+                    .Then.Map((src, _) => src.TheDog)
                     .To(tp => tp.PetNames);
 
                 var source = new Issue184.SourcePets
@@ -112,9 +108,7 @@
                         .From<Issue184.SourcePets>()
                         .ToANew<Issue184.TargetPets>()
                         .Map((src, _) => src.TheCat)
-                        .To(tp => tp.PetNames)
-                        .Then
-                        .Map((src, _) => src.TheCat)
+                        .Then.Map((src, _) => src.TheCat)
                         .To(tp => tp.PetNames);
                 }
             });
@@ -134,9 +128,7 @@
                         .From<Issue184.SourcePets>()
                         .ToANew<Issue184.TargetPets>()
                         .Map((src, _) => src.TheCat)
-                        .To(tp => tp.PetNames)
-                        .Then
-                        .Map((src, _) => src.TheDog)
+                        .Then.Map((src, _) => src.TheDog)
                         .To(tp => tp.PetNames)
                         .And
                         .Map((src, _) => src.TheCat)
@@ -159,9 +151,7 @@
                         .From<PublicTwoFields<string, string>>()
                         .To<PublicProperty<DateTime>>()
                         .Map(ctx => ctx.Source.Value1)
-                        .To(pp => pp.Value)
-                        .Then
-                        .Map(ctx => ctx.Source.Value2)
+                        .Then.Map(ctx => ctx.Source.Value2)
                         .To(pp => pp.Value);
                 }
             });
@@ -185,9 +175,7 @@
                         .IgnoreSource(ptf => ptf.Value2)
                         .And
                         .Map((ptf, _) => ptf.Value1)
-                        .To(pp => pp.Value)
-                        .Then
-                        .Map((ptf, _) => ptf.Value2)
+                        .Then.Map((ptf, _) => ptf.Value2)
                         .To(pp => pp.Value);
                 }
             });
