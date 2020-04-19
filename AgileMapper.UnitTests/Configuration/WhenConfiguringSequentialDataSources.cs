@@ -2,6 +2,7 @@
 {
     using System;
     using AgileMapper.Configuration;
+    using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
 #if !NET35
@@ -15,7 +16,7 @@
     public class WhenConfiguringSequentialDataSources
     {
         [Fact]
-        public void ShouldApplySequentialDataSourcesToANestedTarget()
+        public void ShouldApplySequentialDataSourcesToANestedComplexTypeMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -39,6 +40,39 @@
                 result.PetNames.ShouldNotBeNull();
                 result.PetNames.CatName.ShouldBe("Tiddles");
                 result.PetNames.DogName.ShouldBe("Rover");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplySequentialDataSourcesToARootArray()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Address[], Address[]>>()
+                    .ToANew<Address[]>()
+                    .Map((src, _) => src.Value1)
+                    .ToTarget()
+                    .Then
+                    .Map((src, _) => src.Value2)
+                    .ToTarget();
+
+                var source = new PublicTwoFields<Address[], Address[]>
+                {
+                    Value1 = new[] { new Address { Line1 = "Address 1" } },
+                    Value2 = new[]
+                    {
+                        new Address { Line1 = "Address 2" },
+                        new Address { Line1 = "Address 3" }
+                    }
+                };
+
+                var result = mapper.Map(source).ToANew<Address[]>();
+
+                result.Length.ShouldBe(3);
+                result.First().Line1.ShouldBe("Address 1");
+                result.Second().Line1.ShouldBe("Address 2");
+                result.Third().Line1.ShouldBe("Address 3");
             }
         }
 

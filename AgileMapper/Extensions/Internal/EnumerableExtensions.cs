@@ -180,7 +180,7 @@
         public static T[] EnlargeToArray<T>(this IList<T> items, int newCapacity)
         {
             var enlargedArray = new T[newCapacity];
-            
+
             enlargedArray.CopyFrom(items);
 
             return enlargedArray;
@@ -188,16 +188,26 @@
 
         public static T[] CopyToArray<T>(this IList<T> items)
         {
-            if (items.Count == 0)
+            var itemCount = items.Count;
+
+            switch (itemCount)
             {
-                return Enumerable<T>.EmptyArray;
+                case 0:
+                    return Enumerable<T>.EmptyArray;
+
+                case 1:
+                    return new[] { items[0] };
+
+                case 2:
+                    return new[] { items[0], items[1] };
+
+                default:
+                    var clonedArray = new T[itemCount];
+
+                    clonedArray.CopyFrom(items);
+
+                    return clonedArray;
             }
-
-            var clonedArray = new T[items.Count];
-
-            clonedArray.CopyFrom(items);
-
-            return clonedArray;
         }
 
         public static Expression Chain<TItem>(
