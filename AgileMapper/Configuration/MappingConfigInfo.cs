@@ -306,13 +306,11 @@
         public MappingConfigInfo Copy()
         {
             var cloned = new MappingConfigInfo(MapperContext)
-            {
-                SourceType = SourceType,
-                TargetType = TargetType,
-                SourceValueType = SourceValueType,
-                RuleSet = RuleSet,
-                InvocationPosition = InvocationPosition
-            };
+                .ForRuleSet(RuleSet)
+                .ForSourceType(SourceType)
+                .ForTargetType(TargetType)
+                .ForSourceValueType(SourceValueType)
+                .WithInvocationPosition(InvocationPosition);
 
             if (_data == null)
             {

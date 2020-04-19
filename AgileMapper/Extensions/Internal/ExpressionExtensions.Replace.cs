@@ -17,25 +17,6 @@
 
     internal static partial class ExpressionExtensions
     {
-        public static Expression ReplaceParametersWith(this LambdaExpression lambda, params Expression[] replacements)
-        {
-            if (lambda.Parameters.HasOne())
-            {
-                return lambda.ReplaceParameterWith(replacements.First());
-            }
-
-            var parameterCount = lambda.Parameters.Count;
-
-            var replacementsByParameter = FixedSizeExpressionReplacementDictionary.WithEqualKeys(parameterCount);
-
-            for (var i = 0; i < parameterCount; ++i)
-            {
-                replacementsByParameter.Add(lambda.Parameters[i], replacements[i]);
-            }
-
-            return lambda.Body.Replace(replacementsByParameter);
-        }
-
         public static Expression ReplaceParameterWith(this LambdaExpression lambda, Expression replacement)
             => ReplaceParameter(lambda.Body, lambda.Parameters[0], replacement);
 
@@ -189,6 +170,7 @@
                     case Coalesce:
                     case Divide:
                     case Equal:
+                    case ExclusiveOr:
                     case GreaterThan:
                     case GreaterThanOrEqual:
                     case LessThan:
@@ -198,6 +180,7 @@
                     case NotEqual:
                     case Or:
                     case OrElse:
+                    case Power:
                     case Subtract:
                         return ReplaceIn((BinaryExpression)expression);
 
@@ -210,12 +193,17 @@
                     case Conditional:
                         return ReplaceIn((ConditionalExpression)expression);
 
+                    case ArrayLength:
                     case ExpressionType.Convert:
+                    case Decrement:
+                    case Increment:
                     case IsFalse:
                     case IsTrue:
+                    case ExpressionType.Negate:
                     case Not:
                     case Throw:
                     case TypeAs:
+                    case Unbox:
                         return ReplaceIn((UnaryExpression)expression);
 
                     case Goto:
@@ -259,6 +247,12 @@
 
                     case Try:
                         return ReplaceIn((TryExpression)expression);
+
+                    case ArrayIndex:
+                        break;
+
+                    case NewArrayBounds:
+                        break;
                 }
 
                 return expression;

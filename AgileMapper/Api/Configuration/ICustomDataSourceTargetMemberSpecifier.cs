@@ -15,7 +15,7 @@
         /// types being configured. This property can be used to set up a series of configurations
         /// to be applied in sequence.
         /// </summary>
-        IMapSourceConfigurator<TSource, TTarget> Then { get; }
+        IConditionalMapSourceConfigurator<TSource, TTarget> Then { get; }
 
         /// <summary>
         /// Apply the configuration to the given <paramref name="targetMember"/>.

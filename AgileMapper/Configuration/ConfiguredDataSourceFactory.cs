@@ -240,6 +240,9 @@
             return null;
         }
 
+        protected override int? GetSameTypesOrder(UserConfiguredItemBase other)
+            => ((ConfiguredDataSourceFactory)other).IsSequential ? -1 : base.GetSameTypesOrder(other);
+
         #region IPotentialAutoCreatedItem Members
 
         public bool WasAutoCreated { get; private set; }

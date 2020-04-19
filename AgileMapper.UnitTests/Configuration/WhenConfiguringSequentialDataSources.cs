@@ -73,6 +73,49 @@
         }
 
         [Fact]
+        public void ShouldApplyASequentialDataSourceToARootArrayConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<Address[], Address[]>>()
+                    .ToANew<Address[]>()
+                    .Map((src, _) => src.Value1)
+                    .Then
+                        .If(ctx => ctx.Source.Value2.Length > 1)
+                        .Map((src, _) => src.Value2)
+                    .ToTarget();
+
+                var nonMatchingSource = new PublicTwoFields<Address[], Address[]>
+                {
+                    Value1 = new[] { new Address { Line1 = "Address 1" } },
+                    Value2 = new[] { new Address { Line1 = "Address 2" } }
+                };
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Address[]>();
+
+                nonMatchingResult.ShouldHaveSingleItem().Line1.ShouldBe("Address 1");
+
+                var matchingSource = new PublicTwoFields<Address[], Address[]>
+                {
+                    Value1 = new[] { new Address { Line1 = "Address 1" } },
+                    Value2 = new[]
+                    {
+                        new Address { Line1 = "Address 2" },
+                        new Address { Line1 = "Address 3" }
+                    }
+                };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<Address[]>();
+
+                matchingResult.Length.ShouldBe(3);
+                matchingResult.First().Line1.ShouldBe("Address 1");
+                matchingResult.Second().Line1.ShouldBe("Address 2");
+                matchingResult.Third().Line1.ShouldBe("Address 3");
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullSequentialDataSource()
         {
             using (var mapper = Mapper.CreateNew())
