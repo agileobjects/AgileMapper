@@ -155,6 +155,60 @@
         }
 
         [Fact]
+        public void ShouldApplySequentialDataSourcesToANestedArrayConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var sourceType = new
+                {
+                    First = default(Address[]),
+                    Second = default(Address[]),
+                    Third = default(Address[])
+                };
+
+                mapper.WhenMapping
+                    .From(sourceType)
+                    .To<PublicField<Address[]>>()
+                    .If((src, tgt, i) => -i.GetValueOrDefault() == 0)
+                    .Map((src, _) => src.First)
+                    .Then
+                        .If((src, _) => src.Second[0].Line2 != null)
+                        .Map((src, _) => src.Second)
+                    .Then
+                        .Map((src, _) => src.Third)
+                    .To(pf => pf.Value);
+
+                var nonMatchingSource = new
+                {
+                    First = new[] { new Address { Line1 = "Addr 1" } },
+                    Second = new[] { new Address { Line1 = "Addr 2" } },
+                    Third = new[] { new Address { Line1 = "Addr 3" } }
+                };
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<Address[]>>();
+
+                nonMatchingResult.Value.ShouldNotBeNull().Length.ShouldBe(2);
+                nonMatchingResult.Value.First().Line1.ShouldBe("Addr 1");
+                nonMatchingResult.Value.Second().Line1.ShouldBe("Addr 3");
+
+                var matchingSource = new
+                {
+                    First = new[] { new Address { Line1 = "Addr 1" } },
+                    Second = new[] { new Address { Line1 = "Addr 2.1", Line2 = "Addr 2.2" } },
+                    Third = new[] { new Address { Line1 = "Addr 3" } }
+                };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<Address[]>>();
+
+                matchingResult.Value.ShouldNotBeNull().Length.ShouldBe(3);
+                matchingResult.Value.First().Line1.ShouldBe("Addr 1");
+                matchingResult.Value.Second().Line1.ShouldBe("Addr 2.1");
+                matchingResult.Value.Second().Line2.ShouldBe("Addr 2.2");
+                matchingResult.Value.Third().Line1.ShouldBe("Addr 3");
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullSequentialDataSource()
         {
             using (var mapper = Mapper.CreateNew())

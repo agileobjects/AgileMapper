@@ -166,6 +166,7 @@
                     case Add:
                     case And:
                     case AndAlso:
+                    case ArrayIndex:
                     case Assign:
                     case Coalesce:
                     case Divide:
@@ -195,8 +196,6 @@
 
                     case ArrayLength:
                     case ExpressionType.Convert:
-                    case Decrement:
-                    case Increment:
                     case IsFalse:
                     case IsTrue:
                     case ExpressionType.Negate:
@@ -236,6 +235,7 @@
                     case New:
                         return ReplaceIn((NewExpression)expression);
 
+                    case NewArrayBounds:
                     case NewArrayInit:
                         return ReplaceIn((NewArrayExpression)expression);
 
@@ -247,12 +247,6 @@
 
                     case Try:
                         return ReplaceIn((TryExpression)expression);
-
-                    case ArrayIndex:
-                        break;
-
-                    case NewArrayBounds:
-                        break;
                 }
 
                 return expression;
