@@ -16,7 +16,7 @@
     public class WhenConfiguringSequentialDataSources
     {
         [Fact]
-        public void ShouldApplySequentialDataSourcesToANestedComplexTypeMember()
+        public void ShouldApplyASequentialDataSourceToANestedComplexTypeMember()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -42,7 +42,46 @@
         }
 
         [Fact]
-        public void ShouldApplySequentialDataSourcesToARootArray()
+        public void ShouldApplyASequentialDataSourceToANestedComplexTypeMemberConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue184.SourcePets>()
+                    .ToANew<Issue184.TargetPets>()
+                    .If((src, _) => src.TheCat.CatName.Length > 5)
+                    .Map((src, _) => src.TheCat)
+                    .Then.Map((src, _) => src.TheDog)
+                    .To(tp => tp.PetNames);
+
+                var nonMatchingSource = new Issue184.SourcePets
+                {
+                    TheCat = new Issue184.Cat { CatName = "Meow" },
+                    TheDog = new Issue184.Dog { DogName = "Woof" }
+                };
+
+                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Issue184.TargetPets>();
+
+                nonMatchingResult.PetNames.ShouldNotBeNull();
+                nonMatchingResult.PetNames.CatName.ShouldBeNull();
+                nonMatchingResult.PetNames.DogName.ShouldBe("Woof");
+
+                var matchingSource = new Issue184.SourcePets
+                {
+                    TheCat = new Issue184.Cat { CatName = "Tiddles" },
+                    TheDog = new Issue184.Dog { DogName = "Rover" }
+                };
+
+                var matchingResult = mapper.Map(matchingSource).ToANew<Issue184.TargetPets>();
+
+                matchingResult.PetNames.ShouldNotBeNull();
+                matchingResult.PetNames.CatName.ShouldBe("Tiddles");
+                matchingResult.PetNames.DogName.ShouldBe("Rover");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyASequentialDataSourceToARootArray()
         {
             using (var mapper = Mapper.CreateNew())
             {
