@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using AgileMapper.Configuration;
     using Common;
+    using TestClasses;
 #if !NET35
     using Xunit;
 #else
@@ -37,6 +39,33 @@
                 result.PetNames.ShouldNotBeNull();
                 result.PetNames.CatName.ShouldBe("Tiddles");
                 result.PetNames.DogName.ShouldBe("Rover");
+            }
+        }
+
+        [Fact]
+        public void ShouldHandleANullSequentialDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue184.SourcePets>()
+                    .ToANew<Issue184.TargetPets>()
+                    .Map((src, _) => src.TheCat)
+                    .To(tp => tp.PetNames)
+                    .Then
+                    .Map((src, _) => src.TheDog)
+                    .To(tp => tp.PetNames);
+
+                var source = new Issue184.SourcePets
+                {
+                    TheDog = new Issue184.Dog { DogName = "Spot" }
+                };
+
+                var result = mapper.Map(source).ToANew<Issue184.TargetPets>();
+
+                result.PetNames.ShouldNotBeNull();
+                result.PetNames.CatName.ShouldBeNull();
+                result.PetNames.DogName.ShouldBe("Spot");
             }
         }
 
@@ -85,6 +114,30 @@
 
             configEx.Message.ShouldContain("already has configured data source");
             configEx.Message.ShouldContain("TheCat");
+        }
+
+        [Fact]
+        public void ShouldErrorIfSimpleTypeMemberSpecified()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicTwoFields<string, string>>()
+                        .To<PublicProperty<DateTime>>()
+                        .Map(ctx => ctx.Source.Value1)
+                        .To(pp => pp.Value)
+                        .Then
+                        .Map(ctx => ctx.Source.Value2)
+                        .To(pp => pp.Value);
+                }
+            });
+
+            configEx.Message.ShouldContain("PublicTwoFields<string, string>.Value2");
+            configEx.Message.ShouldContain("cannot be sequentially applied");
+            configEx.Message.ShouldContain("PublicProperty<DateTime>.Value");
+            configEx.Message.ShouldContain("cannot have sequential data sources");
         }
 
         #region Helper Members

@@ -15,6 +15,7 @@
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using Projection;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
     using TypeConversion;
     using static System.Linq.Expressions.ExpressionType;
@@ -59,6 +60,7 @@
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             ThrowIfTargetParameterSpecified(targetMember);
+            ThrowIfSequentialDataSourceForSimpleMember<TTargetValue>(targetMember);
             ThrowIfRedundantSourceMember<TTargetValue>(targetMember);
 
             return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
@@ -89,6 +91,38 @@
             }
         }
 
+        private void ThrowIfSequentialDataSourceForSimpleMember<TTargetValue>(
+            LambdaExpression targetMemberLambda)
+        {
+            if (_configInfo.IsSequentialConfiguration && typeof(TTargetValue).IsSimple())
+            {
+                ThrowSimpleMemberSequentialDataSourceError<TTargetValue>(targetMemberLambda);
+            }
+        }
+
+        private void ThrowSimpleMemberSequentialDataSourceError<TTargetValue>(
+            LambdaExpression targetMemberLambda)
+        {
+            var targetMember = GetTargetMemberOrNull(targetMemberLambda);
+
+            if (targetMember == null)
+            {
+                return;
+            }
+
+            var sourceValue = GetValueLambdaInfo<TTargetValue>();
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "Source {0} {1} cannot be sequentially applied to target {2} {3} {4} - " +
+                "simple type {2}s cannot have sequential data sources",
+                sourceValue.GetDescription(_configInfo),
+                GetTypeDescription(sourceValue.ReturnType),
+                GetTargetMemberType(targetMember),
+                targetMember.GetFriendlyTargetPath(_configInfo),
+                GetTypeDescription(typeof(TTargetValue))));
+        }
+
         private void ThrowIfRedundantSourceMember<TTargetValue>(LambdaExpression targetMemberLambda)
         {
             if (!_valueCouldBeSourceMember)
@@ -96,7 +130,7 @@
                 return;
             }
 
-            var targetMember = targetMemberLambda.ToTargetMember(MapperContext, nt => { });
+            var targetMember = GetTargetMemberOrNull(targetMemberLambda);
 
             if (targetMember == null)
             {
@@ -107,6 +141,9 @@
 
             ThrowIfRedundantSourceMember(valueLambdaInfo, targetMember);
         }
+
+        private QualifiedMember GetTargetMemberOrNull(LambdaExpression targetMemberLambda)
+            => targetMemberLambda.ToTargetMember(MapperContext, nt => { });
 
         private void ThrowIfRedundantSourceMember(ConfiguredLambdaInfo valueLambdaInfo, QualifiedMember targetMember)
         {
@@ -133,16 +170,17 @@
                 return;
             }
 
-            var targetMemberType = targetMember.IsConstructorParameter() ? "constructor parameter" : "member";
-
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "Source member {0} will automatically be mapped to target {1} {2}, " +
                 "and does not need to be configured",
                 GetSourceMemberDescription(configuredSourceMember),
-                targetMemberType,
+                GetTargetMemberType(targetMember),
                 targetMember.GetFriendlyTargetPath(_configInfo)));
         }
+
+        private static string GetTargetMemberType(QualifiedMember targetMember)
+            => targetMember.IsConstructorParameter() ? "constructor parameter" : "member";
 
         private ConfiguredDataSourceFactory CreateFromLambda<TTargetValue>(LambdaExpression targetMemberLambda)
         {
@@ -473,7 +511,7 @@
         {
             if (customValue.NodeType != MemberAccess)
             {
-                return $"Source type '{customValue.Type.GetFriendlyName()}'";
+                return $"Source value {customValue.ToReadableString()} {GetTypeDescription(customValue.Type)}";
             }
 
             var sourceMember = customValue.ToSourceMember(MapperContext);
