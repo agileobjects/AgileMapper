@@ -143,11 +143,11 @@
         }
 
         private QualifiedMember GetTargetMemberOrNull(LambdaExpression targetMemberLambda)
-            => targetMemberLambda.ToTargetMember(MapperContext, nt => { });
+            => targetMemberLambda.ToTargetMemberOrNull(MapperContext);
 
         private void ThrowIfRedundantSourceMember(ConfiguredLambdaInfo valueLambdaInfo, QualifiedMember targetMember)
         {
-            if (!valueLambdaInfo.IsSourceMember(out var sourceMemberLambda))
+            if (!valueLambdaInfo.TryGetSourceMember(out var sourceMemberLambda))
             {
                 return;
             }

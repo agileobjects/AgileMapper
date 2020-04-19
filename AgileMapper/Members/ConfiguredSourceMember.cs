@@ -39,7 +39,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private static Member[] GetConfiguredMemberChainOrNull(Expression value, IMapperContextOwner contextOwner)
-            => value.ToSourceMember(contextOwner.MapperContext, nt => { })?.MemberChain;
+            => value.ToSourceMemberOrNull(contextOwner.MapperContext)?.MemberChain;
 
         private ConfiguredSourceMember(ConfiguredSourceMember parent, Member childMember)
             : this(

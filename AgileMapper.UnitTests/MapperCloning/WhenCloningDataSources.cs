@@ -243,7 +243,9 @@
                 }
             });
 
-            dataSourceEx.Message.ShouldContain("conflicts with a configured data source");
+            dataSourceEx.Message.ShouldContain("Address.Line1 -> Address.Line2");
+            dataSourceEx.Message.ShouldContain("conflicts with member ignore");
+            dataSourceEx.Message.ShouldContain("'member.Name == \"Line2\"'");
         }
     }
 }

@@ -71,7 +71,7 @@
                 return true;
             }
 
-            if (!_dataSourceLambda.IsSourceMember(out var sourceMemberLambda))
+            if (!_dataSourceLambda.TryGetSourceMember(out var sourceMemberLambda))
             {
                 targetMember = null;
                 reason = $"configured value '{_dataSourceLambda.GetDescription(ConfigInfo)}' is not a source member";
@@ -184,7 +184,6 @@
             var reason = conflictingDataSource._isReversal
                 ? " from an automatically-configured reverse data source" : null;
 
-
             return $"{GetTargetMemberPath()} already has configured data source '{existingDataSource}'{reason}";
         }
 
@@ -196,7 +195,12 @@
             return sourceMemberPath + " -> " + targetMemberPath;
         }
 
-        private string GetDataSourceDescription() => _dataSourceLambda.GetDescription(ConfigInfo);
+        private string GetDataSourceDescription()
+        {
+            var description = _dataSourceLambda.GetDescription(ConfigInfo);
+
+            return _dataSourceLambda.IsSourceMember ? description : "'" + description + "'";
+        }
 
         private string GetTargetMemberPath() => TargetMember.GetFriendlyTargetPath(ConfigInfo);
 
@@ -223,6 +227,17 @@
                 value,
                 ConfigInfo.IsSequentialConfiguration,
                 mapperData);
+        }
+
+        public QualifiedMember ToSourceMemberOrNull()
+        {
+            if (_valueCouldBeSourceMember &&
+                _dataSourceLambda.TryGetSourceMember(out var sourceMemberLambda))
+            {
+                return sourceMemberLambda.ToSourceMemberOrNull(ConfigInfo.MapperContext);
+            }
+
+            return null;
         }
 
         #region IPotentialAutoCreatedItem Members

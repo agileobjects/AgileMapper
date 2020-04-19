@@ -29,7 +29,9 @@
                 }
             });
 
-            inlineConfigEx.Message.ShouldContain("Ignored member Target.Value has a configured data source");
+            inlineConfigEx.Message.ShouldContain("'ctx.Source.Value + \"?!\"'");
+            inlineConfigEx.Message.ShouldContain("PublicField<string>.Value");
+            inlineConfigEx.Message.ShouldContain("conflicts with an ignored member");
         }
 
         [Fact]

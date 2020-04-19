@@ -52,8 +52,7 @@
 
         public bool ValidateMappingPlans { get; set; }
 
-        public ICollection<Type> AppliedConfigurationTypes
-            => _appliedConfigurationTypes ??= new List<Type>();
+        public ICollection<Type> AppliedConfigurationTypes => _appliedConfigurationTypes ??= new List<Type>();
 
         #region MappedObjectCachingSettings
 
@@ -415,6 +414,7 @@
         {
             if (!dataSourceFactory.TargetMember.IsRoot)
             {
+                ThrowIfConflictingIgnoredSourceMemberExists(dataSourceFactory, (dsf, cIsm) => cIsm.GetConflictMessage(dsf));
                 ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
                 ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
             }
@@ -568,7 +568,10 @@
             Func<TConfiguredItem, ConfiguredSourceMemberIgnoreBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            ThrowIfConflictingItemExists(configuredItem, _ignoredSourceMembers, messageFactory);
+            ThrowIfConflictingItemExists(
+                configuredItem, 
+                _ignoredSourceMembers, 
+                messageFactory);
         }
 
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)
@@ -590,7 +593,6 @@
             Func<TConfiguredItem, ConfiguredDataSourceFactory, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            //otherDataSource.ConfigInfo.ConfigurationType == ConfigurationType.Default
             ThrowIfConflictingItemExists(configuredItem, _dataSourceFactories, messageFactory);
         }
 

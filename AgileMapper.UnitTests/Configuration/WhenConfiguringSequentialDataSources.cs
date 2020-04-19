@@ -174,6 +174,31 @@
             configEx.Message.ShouldContain("cannot have sequential data sources");
         }
 
+        [Fact]
+        public void ShouldErrorIfIgnoredSourceMemberSpecified()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicTwoFields<Address, Address>>()
+                        .ToANew<PublicProperty<Address>>()
+                        .IgnoreSource(ptf => ptf.Value2)
+                        .And
+                        .Map((ptf, _) => ptf.Value1)
+                        .To(pp => pp.Value)
+                        .Then
+                        .Map((ptf, _) => ptf.Value2)
+                        .To(pp => pp.Value);
+                }
+            });
+
+            configEx.Message.ShouldContain("PublicTwoFields<Address, Address>.Value2");
+            configEx.Message.ShouldContain("PublicProperty<Address>.Value");
+            configEx.Message.ShouldContain("conflicts with an ignored source member");
+        }
+
         #region Helper Members
 
         public static class Issue184

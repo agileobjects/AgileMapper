@@ -34,6 +34,15 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         QualifiedMember IMemberIgnore.Member => SourceMember;
 
+        protected override bool ConflictsWith(QualifiedMember sourceMember)
+            => SourceMember.Matches(sourceMember);
+
+        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            return $"Configured data source {conflictingDataSource.GetDescription()} " +
+                    "conflicts with an ignored source member";
+        }
+
         public override string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore)
             => ((IMemberIgnore)this).GetConflictMessage(conflictingSourceMemberIgnore);
 

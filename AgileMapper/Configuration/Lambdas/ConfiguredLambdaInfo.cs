@@ -22,6 +22,7 @@
         private readonly bool _isForTargetDictionary;
         private readonly IValueInjector _valueInjector;
         private LambdaExpression _sourceMemberLambda;
+        private bool? _isSourceMember;
         private string _description;
 
         private ConfiguredLambdaInfo(
@@ -158,26 +159,26 @@
 
         public Type ReturnType { get; }
 
-        public bool IsSourceMember(out LambdaExpression sourceMemberLambda)
-        {
-            if (_lambdaBody.NodeType != ExpressionType.MemberAccess)
-            {
-                sourceMemberLambda = null;
-                return false;
-            }
+        public bool IsSourceMember => _isSourceMember ??= TryGetSourceMember(out _);
 
+        public bool TryGetSourceMember(out LambdaExpression sourceMemberLambda)
+        {
             if (_sourceMemberLambda != null)
             {
                 sourceMemberLambda = _sourceMemberLambda;
                 return true;
             }
 
+            if (_lambdaBody.NodeType != ExpressionType.MemberAccess)
+            {
+                return IsNotSourceMember(out sourceMemberLambda);
+            }
+
             var memberAccesses = _lambdaBody.GetMemberAccessChain(nt => { }, out var rootExpression);
 
             if (memberAccesses.None())
             {
-                sourceMemberLambda = null;
-                return false;
+                return IsNotSourceMember(out sourceMemberLambda);
             }
 
             var sourceParameter = default(ParameterExpression);
@@ -187,8 +188,7 @@
             {
                 if (memberAccess.NodeType != ExpressionType.MemberAccess)
                 {
-                    sourceMemberLambda = null;
-                    return false;
+                    return IsNotSourceMember(out sourceMemberLambda);
                 }
 
                 if (sourceParameter == null)
@@ -209,7 +209,15 @@
                 sourceParameter);
             // ReSharper restore PossibleNullReferenceException
 
+            _isSourceMember = true;
             return true;
+        }
+
+        private bool IsNotSourceMember(out LambdaExpression sourceLambda)
+        {
+            sourceLambda = null;
+            _isSourceMember = false;
+            return false;
         }
 
         public bool Supports(MappingRuleSet ruleSet)
@@ -238,7 +246,7 @@
                 return _description;
             }
 
-            if (IsSourceMember(out var sourceMemberLambda))
+            if (TryGetSourceMember(out var sourceMemberLambda))
             {
                 return _description = sourceMemberLambda
                     .ToSourceMember(configInfo.MapperContext)

@@ -8,7 +8,6 @@
 #endif
     using Members;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
