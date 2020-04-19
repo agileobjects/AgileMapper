@@ -14,7 +14,7 @@
     internal abstract class DataSourceBase : IDataSource
     {
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
-            : this(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value)
+            : this(sourceMember, Constants.EmptyParameters, value)
         {
         }
 
@@ -46,7 +46,7 @@
             IMemberMapperData mapperData)
         {
             SourceMember = sourceMember;
-            Variables = Enumerable<ParameterExpression>.EmptyArray;
+            Variables = Constants.EmptyParameters;
             Condition = GetCondition(value, mapperData);
             Value = value;
         }

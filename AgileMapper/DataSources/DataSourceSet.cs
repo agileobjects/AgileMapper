@@ -128,7 +128,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
             public Expression SourceMemberTypeTest => null;
 
-            public IList<ParameterExpression> Variables => Enumerable<ParameterExpression>.EmptyArray;
+            public IList<ParameterExpression> Variables => Constants.EmptyParameters;
 
             public IDataSource this[int index] => _nullDataSource;
 
@@ -231,7 +231,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
                 Variables = (variables != null)
                     ? (IList<ParameterExpression>)variables
-                    : Enumerable<ParameterExpression>.EmptyArray;
+                    : Constants.EmptyParameters;
             }
 
             public bool None => false;
@@ -249,7 +249,7 @@ namespace AgileObjects.AgileMapper.DataSources
             public int Count => _dataSources.Count;
 
             public Expression BuildValue()
-                => _value ?? (_value = _valueBuilder.Invoke(_dataSources, _mapperData));
+                => _value ??= _valueBuilder.Invoke(_dataSources, _mapperData);
         }
     }
 }

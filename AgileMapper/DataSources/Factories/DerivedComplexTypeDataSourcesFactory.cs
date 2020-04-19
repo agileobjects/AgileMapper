@@ -553,7 +553,7 @@
                 IQualifiedMember sourceMember,
                 Expression condition,
                 Expression value)
-                : base(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value, condition)
+                : base(sourceMember, Constants.EmptyParameters, value, condition)
             {
             }
 

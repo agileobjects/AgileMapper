@@ -31,7 +31,7 @@
                 sourceMember,
                 value,
                 condition,
-                Enumerable<ParameterExpression>.EmptyArray)
+                Constants.EmptyParameters)
         {
         }
 
