@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests
 {
     using System;
+    using System.Collections.Generic;
     using Common;
     using TestClasses;
 #if !NET35
@@ -104,8 +105,17 @@
         {
             var source = new { Value1 = 123 };
             var result = Mapper.Map(source).ToANew<MultipleUnusedConstructors<int, int>>();
-            
+
             result.Value1.ShouldBe(123);
+        }
+
+        [Fact]
+        public void ShouldDefaultCollectionParametersToEmpty()
+        {
+            var source = new PublicField<IList<Address>>();
+            var result = Mapper.Map(source).ToANew<PublicCtor<ICollection<Address>>>();
+
+            result.Value.ShouldBeEmpty();
         }
 
         #region Helper Classes
