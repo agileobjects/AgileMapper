@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             if (MapperData.RuleSet.Settings.AllowGuardedBindings && (populationGuard != null))
             {
-                bindingValue = bindingValue.ToIfFalseDefaultCondition(populationGuard);
+                bindingValue = bindingValue.ToIfFalseDefaultCondition(populationGuard, MapperData);
             }
 
             return MapperData.GetTargetMemberPopulation(bindingValue);

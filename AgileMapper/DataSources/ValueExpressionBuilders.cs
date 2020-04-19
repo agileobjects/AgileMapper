@@ -13,8 +13,8 @@ namespace AgileObjects.AgileMapper.DataSources
     {
         public static Expression SingleDataSource(IDataSource dataSource, IMemberMapperData mapperData)
         {
-            var value = dataSource.IsConditional
-                ? dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition)
+            var value = dataSource.IsConditional 
+                ? dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition, mapperData) 
                 : dataSource.Value;
 
             return dataSource.AddSourceCondition(value);
@@ -26,7 +26,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
             for (var i = dataSources.Count - 2; i >= 0;)
             {
-                var dataSource = dataSources[i--];
+                var dataSource = dataSources[i];
+                --i;
 
                 var dataSourceValue = dataSource.IsConditional
                     ? Expression.Condition(

@@ -184,7 +184,7 @@
             var reason = conflictingDataSource._isReversal
                 ? " from an automatically-configured reverse data source" : null;
 
-            return $"{GetTargetMemberPath()} already has configured data source '{existingDataSource}'{reason}";
+            return $"{GetTargetMemberPath()} already has configured data source {existingDataSource}{reason}";
         }
 
         public string GetDescription()

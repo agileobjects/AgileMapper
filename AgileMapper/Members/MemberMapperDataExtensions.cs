@@ -141,6 +141,14 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetMemberDefault(this IQualifiedMemberContext context)
             => context.TargetMember.Type.ToDefaultExpression();
 
+        public static ConditionalExpression ToIfFalseDefaultCondition(
+            this Expression value,
+            Expression condition,
+            IMemberMapperData mapperData)
+        {
+            return value.ToIfFalseDefaultCondition(condition, mapperData.GetTargetFallbackValue());
+        }
+
         public static Expression GetTargetFallbackValue(this IMemberMapperData mapperData)
             => mapperData.RuleSet.FallbackDataSourceFactory.Invoke(mapperData).Value;
 

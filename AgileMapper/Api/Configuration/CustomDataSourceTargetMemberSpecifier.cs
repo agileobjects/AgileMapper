@@ -78,7 +78,7 @@
             ThrowIfSequentialDataSourceForSimpleMember<TTargetValue>(targetMember);
             ThrowIfRedundantSourceMember<TTargetValue>(targetMember);
 
-            SetSequenceTargetMember(targetMember);
+            SetTargetMemberForSequence(targetMember);
             return RegisterDataSource<TTargetValue>(cdsff => cdsff.CreateFromLambda<TTargetValue>());
         }
 
@@ -87,18 +87,18 @@
         {
             ThrowIfTargetParameterSpecified(resultMember);
 
-            SetSequenceTargetMember(resultMember);
+            SetTargetMemberForSequence(resultMember);
             return RegisterDataSource<TResultValue>(cdsff => cdsff.CreateFromLambda<TResultValue>());
         }
 
         public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
         {
-            SetSequenceTargetMember(targetSetMethod);
+            SetTargetMemberForSequence(targetSetMethod);
             return RegisterDataSource<TTargetValue>(cdsff => cdsff.CreateFromLambda<TTargetValue>());
         }
 
-        private void SetSequenceTargetMember(LambdaExpression targetMember)
+        private void SetTargetMemberForSequence(LambdaExpression targetMember)
         {
             SetTargetMember(targetMember);
 
@@ -338,13 +338,13 @@
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>()
         {
-            SetSequenceTargetCtorParameter(GetUniqueConstructorParameterOrThrow<TParam>());
+            SetTargetCtorParameterForSequence(GetUniqueConstructorParameterOrThrow<TParam>());
             return CreateForCtorParam();
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterNamedContructorParameterDataSource(string name)
         {
-            SetSequenceTargetCtorParameter(GetUniqueConstructorParameterOrThrow<AnyParameterType>(name));
+            SetTargetCtorParameterForSequence(GetUniqueConstructorParameterOrThrow<AnyParameterType>(name));
 
             return RegisterDataSource(_targetCtorParameter.ParameterType, cdsff => cdsff.CreateForCtorParam());
         }
@@ -409,7 +409,7 @@
                 typeof(TTarget).GetFriendlyName()));
         }
 
-        private void SetSequenceTargetCtorParameter(ParameterInfo parameter)
+        private void SetTargetCtorParameterForSequence(ParameterInfo parameter)
         {
             SetTargetCtorParameter(parameter);
 
