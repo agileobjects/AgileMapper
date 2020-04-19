@@ -25,7 +25,7 @@
             switch (multiInvocations.Count)
             {
                 case 0:
-                    variables = Enumerable<ParameterExpression>.EmptyArray;
+                    variables = Constants.EmptyParameters;
                     return;
 
                 case 1:
