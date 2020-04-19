@@ -24,9 +24,7 @@
                     .From<Issue184.SourcePets>()
                     .ToANew<Issue184.TargetPets>()
                     .Map((src, _) => src.TheCat)
-                    .To(tp => tp.PetNames)
-                    .Then
-                    .Map((src, _) => src.TheDog)
+                    .Then.Map((src, _) => src.TheDog)
                     .To(tp => tp.PetNames);
 
                 var source = new Issue184.SourcePets

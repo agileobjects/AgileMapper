@@ -346,7 +346,14 @@
 
         public static T[] Append<T>(this IList<T> array, T extraItem)
         {
-            switch (array.Count)
+            if (array == null)
+            {
+                return new[] { extraItem };
+            }
+
+            var itemsCount = array.Count;
+
+            switch (itemsCount)
             {
                 case 0:
                     return new[] { extraItem };
@@ -358,11 +365,11 @@
                     return new[] { array[0], array[1], extraItem };
 
                 default:
-                    var newArray = new T[array.Count + 1];
+                    var newArray = new T[itemsCount + 1];
 
                     newArray.CopyFrom(array);
 
-                    newArray[array.Count] = extraItem;
+                    newArray[itemsCount] = extraItem;
 
                     return newArray;
             }

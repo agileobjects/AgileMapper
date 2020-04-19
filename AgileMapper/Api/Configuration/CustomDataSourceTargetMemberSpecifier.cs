@@ -34,6 +34,7 @@
         private readonly MappingConfigInfo _configInfo;
         private readonly LambdaExpression _customValueLambda;
         private readonly bool _valueCouldBeSourceMember;
+        private readonly CustomDataSourceTargetMemberSpecifier<TSource, TTarget>[] _sequenceDataSources;
         private ConfiguredLambdaInfo _customValueLambdaInfo;
 
         public CustomDataSourceTargetMemberSpecifier(
@@ -50,11 +51,29 @@
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo customValueLambda)
         {
+            _sequenceDataSources = configInfo
+                .Get<CustomDataSourceTargetMemberSpecifier<TSource, TTarget>[]>();
+
+            if (_sequenceDataSources != null)
+            {
+                configInfo = configInfo.Copy().ForSequentialConfiguration();
+            }
+
             _configInfo = configInfo;
             _customValueLambdaInfo = customValueLambda;
         }
 
         private MapperContext MapperContext => _configInfo.MapperContext;
+
+        public IMapSourceConfigurator<TSource, TTarget> Then
+        {
+            get
+            {
+                SetSequenceDataSources(_sequenceDataSources.Append(this));
+
+                return new MappingConfigurator<TSource, TTarget>(_configInfo);
+            }
+        }
 
         public ICustomDataSourceMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
@@ -406,7 +425,6 @@
             return new MappingConfigurator<TSource, TTarget>(_configInfo).MapTo<TDerivedTarget>();
         }
 
-        // ReSharper disable once UnusedMember.Local
         private void SetDerivedToTargetSource<TDerivedTarget>(MappingConfigInfo derivedTypeConfigInfo)
         {
             new MappingConfigurator<TSource, TDerivedTarget>(derivedTypeConfigInfo)
@@ -428,11 +446,29 @@
         {
             ThrowIfInvalid(targetMemberType);
 
-            RegisterComplexTypeFactoryMethodIfAppropriate(targetMemberType);
-            MapperContext.UserConfigurations.Add(dataSourceFactoryFactory.Invoke());
+            if (_sequenceDataSources != null)
+            {
+                foreach (var dataSource in _sequenceDataSources)
+                {
+                    dataSource.Register(dataSourceFactoryFactory, targetMemberType);
+                }
+
+                SetSequenceDataSources(null);
+            }
+
+            Register(dataSourceFactoryFactory, targetMemberType);
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
+
+        private void Register(Func<ConfiguredDataSourceFactory> dataSourceFactoryFactory, Type targetMemberType)
+        {
+            RegisterComplexTypeFactoryMethodIfAppropriate(targetMemberType);
+            MapperContext.UserConfigurations.Add(dataSourceFactoryFactory.Invoke());
+        }
+
+        private void SetSequenceDataSources(CustomDataSourceTargetMemberSpecifier<TSource, TTarget>[] dataSources)
+            => _configInfo.Set(dataSources);
 
         private void ThrowIfInvalid(Type targetMemberType)
         {
