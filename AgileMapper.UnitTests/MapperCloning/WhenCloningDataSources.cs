@@ -218,7 +218,7 @@
                 }
             });
 
-            conflictEx.Message.ShouldContain("already has configured data source 'Address.Line1'");
+            conflictEx.Message.ShouldContain("already has configured data source Address.Line1");
         }
 
         [Fact]

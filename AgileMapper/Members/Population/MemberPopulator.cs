@@ -78,7 +78,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             return Expression.IfThen(targetMemberNotNull, _dataSources.BuildValue());
         }
 
-        private Expression GetPopulationExpression()
+        public Expression GetPopulationExpression()
         {
             var dataSourcesCount = _dataSources.Count;
 
@@ -88,31 +88,31 @@ namespace AgileObjects.AgileMapper.Members.Population
             }
 
             var population = default(Expression);
-            var previousDataSource = default(IDataSource);
+            var nextDataSource = default(IDataSource);
 
             for (var i = _dataSources.Count; ;)
             {
                 --i;
                 var dataSource = _dataSources[i];
-                population = GetPopulation(dataSource, population, previousDataSource);
+                population = GetPopulation(dataSource, population, nextDataSource);
 
                 if (i == 0)
                 {
                     return population;
                 }
 
-                previousDataSource = dataSource;
+                nextDataSource = dataSource;
             }
         }
 
         private Expression GetPopulation(
             IDataSource dataSource,
             Expression populationSoFar = null,
-            IDataSource previousDataSource = null)
+            IDataSource nextDataSource = null)
         {
             return dataSource.FinalisePopulationBranch(
                 populationSoFar,
-                previousDataSource,
+                nextDataSource,
                 MapperData);
         }
 

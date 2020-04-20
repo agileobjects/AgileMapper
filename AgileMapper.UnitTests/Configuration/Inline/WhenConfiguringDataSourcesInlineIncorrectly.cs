@@ -99,7 +99,7 @@
                 }
             });
 
-            inlineConfigEx.Message.ShouldContain("already has configured data source 'Person.Id'");
+            inlineConfigEx.Message.ShouldContain("already has configured data source Person.Id");
         }
 
         [Fact]
@@ -120,7 +120,7 @@
                 }
             });
 
-            conflictEx.Message.ShouldContain("already has configured data source 'Customer.Id'");
+            conflictEx.Message.ShouldContain("already has configured data source Customer.Id");
         }
 
         [Fact]

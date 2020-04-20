@@ -14,10 +14,13 @@ namespace AgileObjects.AgileMapper.DataSources
     {
         #region Factory Methods
 
-        public static IDataSourceSet For(
+        public static IDataSourceSet For(IDataSource dataSource, IDataSourceSetInfo info)
+            => For(dataSource, info, ValueExpressionBuilders.SingleDataSource);
+
+        private static IDataSourceSet For(
             IDataSource dataSource,
             IDataSourceSetInfo info,
-            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
+            Func<IDataSource, IMemberMapperData, Expression> valueBuilder)
         {
             if (!dataSource.IsValid)
             {
@@ -39,7 +42,7 @@ namespace AgileObjects.AgileMapper.DataSources
         public static IDataSourceSet For(
             IList<IDataSource> dataSources,
             IDataSourceSetInfo info,
-            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
         {
             switch (dataSources.Count)
             {
@@ -47,11 +50,11 @@ namespace AgileObjects.AgileMapper.DataSources
                     return EmptyDataSourceSet.Instance;
 
                 case 1:
-                    return For(dataSources.First(), info, valueBuilder);
+                    return For(dataSources.First(), info, (ds, md) => valueBuilder.Invoke(new[] { ds }, md));
 
                 default:
                     var mapperData = info.MapperData;
-                    
+
                     if (TryAdjustToSingleUseableDataSource(ref dataSources, mapperData))
                     {
                         goto case 1;
@@ -147,19 +150,11 @@ namespace AgileObjects.AgileMapper.DataSources
             public SingleValueDataSourceSet(
                 IDataSource dataSource,
                 IMemberMapperData mapperData,
-                Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
+                Func<IDataSource, IMemberMapperData, Expression> valueBuilder)
             {
                 _dataSource = dataSource;
                 _mapperData = mapperData;
-
-                if (valueBuilder == null)
-                {
-                    _valueBuilder = ValueExpressionBuilders.SingleDataSource;
-                }
-                else
-                {
-                    _valueBuilder = (ds, md) => valueBuilder.Invoke(new[] { ds }, md);
-                }
+                _valueBuilder = valueBuilder;
             }
 
             public bool None => false;
@@ -194,7 +189,7 @@ namespace AgileObjects.AgileMapper.DataSources
             {
                 _dataSources = dataSources;
                 _mapperData = mapperData;
-                _valueBuilder = valueBuilder ?? ValueExpressionBuilders.ConditionTree;
+                _valueBuilder = valueBuilder;
 
                 var dataSourcesCount = dataSources.Count;
                 var variables = default(List<ParameterExpression>);

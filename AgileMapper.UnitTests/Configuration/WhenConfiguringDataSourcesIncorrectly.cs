@@ -195,7 +195,7 @@
                 }
             });
 
-            conflictEx.Message.ShouldContain("already has configured data source 'Person.Id'");
+            conflictEx.Message.ShouldContain("already has configured data source Person.Id");
         }
 
         [Fact]
