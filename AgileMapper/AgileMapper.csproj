@@ -20,13 +20,14 @@
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>
-      - Support for configuring sequential data sources, re: #184
-      - Including ToTarget data sources in mapping plan validation, re: #184
-      - Fixing caching of custom method struct creation factory
-      - Erroring if configured data sources conflict with ignored source members
-      - Improving configuration error messages
-      - Performance improvements
+    <PackageReleaseNotes>- Support for configuring complete sub-mappings, re: #176
+- Support for configuring sequential data sources, re: #184
+- Including ToTarget data sources in mapping plan validation, re: #184
+- Fixing enumerable target ToTarget data sources, re: #173
+- Fixing caching of custom method struct creation factory
+- Erroring if configured data sources conflict with ignored source members
+- Improving configuration error messages
+- Performance improvements
     </PackageReleaseNotes>
   </PropertyGroup>
 
