@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
-    using System.Collections.Generic;
     using AgileMapper.Configuration;
     using AgileMapper.Extensions.Internal;
     using Common;
@@ -109,32 +108,6 @@
                 result.First().Line1.ShouldBe("Address 1");
                 result.Second().Line1.ShouldBe("Address 2");
                 result.Third().Line1.ShouldBe("Address 3");
-            }
-        }
-
-        [Fact]
-        public void ShouldApplyASequentialDataSourceToAListCtorParameter()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicTwoFields<IList<Address>, IList<Address>>>()
-                    .ToANew<PublicCtor<IList<Address>>>()
-                    .Map((src, _) => src.Value1)
-                    .Then.Map((src, _) => src.Value2)
-                    .ToCtor<IList<Address>>();
-
-                var source = new PublicTwoFields<IList<Address>, IList<Address>>
-                {
-                    Value1 = new[] { new Address { Line1 = "Address 1" } },
-                    Value2 = new[] { new Address { Line1 = "Address 2" } }
-                };
-
-                var result = mapper.Map(source).ToANew<PublicCtor<IList<Address>>>();
-
-                result.Value.ShouldNotBeNull().Count.ShouldBe(2);
-                result.Value.First().Line1.ShouldBe("Address 1");
-                result.Value.Second().Line1.ShouldBe("Address 2");
             }
         }
 
