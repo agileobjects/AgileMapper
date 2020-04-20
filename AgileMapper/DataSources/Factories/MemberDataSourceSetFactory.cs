@@ -18,7 +18,10 @@
         {
             var validDataSources = EnumerateDataSources(findContext).ToArray();
 
-            return DataSourceSet.For(validDataSources, findContext);
+            return DataSourceSet.For(
+                validDataSources,
+                findContext,
+                ValueExpressionBuilders.ValueTree);
         }
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)

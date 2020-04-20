@@ -8,7 +8,6 @@
 #endif
     using Members;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
@@ -183,7 +182,7 @@
             {
                 if (ConfigInfo.HasSameTargetTypeAs(other))
                 {
-                    return GetConditionOrder(other) ?? 0;
+                    return GetSameTypesOrder(other) ?? 0;
                 }
 
                 if (ConfigInfo.IsForTargetType(other.ConfigInfo))
@@ -204,6 +203,9 @@
             // Unrelated source and target types
             return GetConditionOrder(other) ?? OrderAlphabetically(other);
         }
+
+        protected virtual int? GetSameTypesOrder(UserConfiguredItemBase other)
+            => GetConditionOrder(other);
 
         private int? GetConditionOrder(UserConfiguredItemBase other)
         {

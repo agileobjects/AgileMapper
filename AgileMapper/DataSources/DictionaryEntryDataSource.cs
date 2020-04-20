@@ -53,7 +53,7 @@
 
         public override Expression AddSourceCondition(Expression value)
         {
-            var preCondition = _preCondition ?? (_preCondition = CreatePreCondition());
+            var preCondition = _preCondition ??= CreatePreCondition();
 
             return value.ToIfFalseDefaultCondition(preCondition);
         }
@@ -72,9 +72,15 @@
             return Expression.Block(keyAssignment, matchingKeyExists);
         }
 
-        public override Expression FinalisePopulationBranch(Expression alternatePopulation, IMemberMapperData mapperData)
+        public override Expression FinalisePopulationBranch(
+            Expression alternatePopulation,
+            IDataSource nextDataSource,
+            IMemberMapperData mapperData)
         {
-            var population = base.FinalisePopulationBranch(alternatePopulation, mapperData);
+            var population = base.FinalisePopulationBranch(
+                alternatePopulation,
+                nextDataSource,
+                mapperData);
 
             var matchingKeyExists = GetMatchingKeyExistsTest();
             var ifKeyExistsPopulate = Expression.IfThen(matchingKeyExists, population);

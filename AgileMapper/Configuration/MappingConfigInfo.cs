@@ -183,7 +183,8 @@
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
-                "Instead of type testing in condition '{0}', configure for a more specific source or target type.",
+                "Instead of type testing in condition '{0}', " +
+                "configure for a more derived source or target type.",
                 condition));
         }
 
@@ -234,6 +235,17 @@
         public MappingConfigInfo WithInvocationPosition(InvocationPosition position)
         {
             InvocationPosition = position;
+            return this;
+        }
+
+        public bool IsSequentialConfiguration { get; private set; }
+
+        public ConfigurationType ConfigurationType { get; private set; }
+
+        public MappingConfigInfo ForSequentialConfiguration()
+        {
+            ConfigurationType = ConfigurationType.Sequential;
+            IsSequentialConfiguration = true;
             return this;
         }
 
@@ -294,13 +306,11 @@
         public MappingConfigInfo Copy()
         {
             var cloned = new MappingConfigInfo(MapperContext)
-            {
-                SourceType = SourceType,
-                TargetType = TargetType,
-                SourceValueType = SourceValueType,
-                RuleSet = RuleSet,
-                InvocationPosition = InvocationPosition
-            };
+                .ForRuleSet(RuleSet)
+                .ForSourceType(SourceType)
+                .ForTargetType(TargetType)
+                .ForSourceValueType(SourceValueType)
+                .WithInvocationPosition(InvocationPosition);
 
             if (_data == null)
             {

@@ -67,6 +67,12 @@
             => CreateNewConfigurator();
 
         private MappingConfigurator<TSource, TTarget> CreateNewConfigurator()
-            => new MappingConfigurator<TSource, TTarget>(_configInfo.Copy());
+            => CreateNewConfigurator(_configInfo.Copy());
+
+        private static MappingConfigurator<TSource, TTarget> CreateNewConfigurator(
+            MappingConfigInfo configInfo)
+        {
+            return new MappingConfigurator<TSource, TTarget>(configInfo);
+        }
     }
 }

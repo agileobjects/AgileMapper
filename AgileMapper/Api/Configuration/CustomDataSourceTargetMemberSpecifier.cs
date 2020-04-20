@@ -15,8 +15,10 @@
     using Members.Dictionaries;
     using NetStandardPolyfills;
     using Projection;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
     using TypeConversion;
+    using static System.Linq.Expressions.ExpressionType;
 #if NET35
     using Expr = Microsoft.Scripting.Ast.Expression;
     using ExprType = Microsoft.Scripting.Ast.ExpressionType;
@@ -24,17 +26,20 @@
     using Expr = System.Linq.Expressions.Expression;
     using ExprType = System.Linq.Expressions.ExpressionType;
 #endif
-    using static System.Linq.Expressions.ExpressionType;
-    using static ObjectPopulation.InvocationPosition;
 
     internal class CustomDataSourceTargetMemberSpecifier<TSource, TTarget> :
         ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>,
-        ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>
+        ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>,
+        IConfiguredDataSourceFactoryFactory,
+        ISequencedDataSourceFactory
     {
         private readonly MappingConfigInfo _configInfo;
         private readonly LambdaExpression _customValueLambda;
         private readonly bool _valueCouldBeSourceMember;
+        private readonly ISequencedDataSourceFactory[] _sequenceDataSourceFactories;
         private ConfiguredLambdaInfo _customValueLambdaInfo;
+        private ParameterInfo _targetCtorParameter;
+        private LambdaExpression _targetMemberLambda;
 
         public CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
@@ -48,21 +53,33 @@
 
         public CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
-            ConfiguredLambdaInfo customValueLambda)
+            ConfiguredLambdaInfo customValueLambdaInfo)
+            : this(configInfo)
+        {
+            _customValueLambdaInfo = customValueLambdaInfo;
+        }
+
+        private CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo)
         {
             _configInfo = configInfo;
-            _customValueLambdaInfo = customValueLambda;
+            _sequenceDataSourceFactories = configInfo.GetSequenceDataSourceFactories();
         }
 
         private MapperContext MapperContext => _configInfo.MapperContext;
+
+        public IConditionalMapSourceConfigurator<TSource, TTarget> Then =>
+            new MappingConfigurator<TSource, TTarget>(_configInfo
+                .ForSequentialConfiguration(_sequenceDataSourceFactories.Append(this)));
 
         public ICustomDataSourceMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
             ThrowIfTargetParameterSpecified(targetMember);
+            ThrowIfSequentialDataSourceForSimpleMember<TTargetValue>(targetMember);
             ThrowIfRedundantSourceMember<TTargetValue>(targetMember);
 
-            return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetMember));
+            SetTargetMemberForSequence(targetMember);
+            return RegisterDataSource<TTargetValue>(cdsff => cdsff.CreateFromLambda<TTargetValue>());
         }
 
         IProjectionConfigContinuation<TSource, TTarget> ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>.To<TResultValue>(
@@ -70,14 +87,33 @@
         {
             ThrowIfTargetParameterSpecified(resultMember);
 
-            return RegisterDataSource<TResultValue>(() => CreateFromLambda<TResultValue>(resultMember));
+            SetTargetMemberForSequence(resultMember);
+            return RegisterDataSource<TResultValue>(cdsff => cdsff.CreateFromLambda<TResultValue>());
         }
 
         public IMappingConfigContinuation<TSource, TTarget> To<TTargetValue>(
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod)
         {
-            return RegisterDataSource<TTargetValue>(() => CreateFromLambda<TTargetValue>(targetSetMethod));
+            SetTargetMemberForSequence(targetSetMethod);
+            return RegisterDataSource<TTargetValue>(cdsff => cdsff.CreateFromLambda<TTargetValue>());
         }
+
+        private void SetTargetMemberForSequence(LambdaExpression targetMember)
+        {
+            SetTargetMember(targetMember);
+
+            if (_sequenceDataSourceFactories == null)
+            {
+                return;
+            }
+
+            foreach (var dataSourceFactory in _sequenceDataSourceFactories)
+            {
+                dataSourceFactory.SetTargetMember(targetMember);
+            }
+        }
+
+        private void SetTargetMember(LambdaExpression targetMember) => _targetMemberLambda = targetMember;
 
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void ThrowIfTargetParameterSpecified(LambdaExpression targetMember)
@@ -90,6 +126,38 @@
             }
         }
 
+        private void ThrowIfSequentialDataSourceForSimpleMember<TTargetValue>(
+            LambdaExpression targetMemberLambda)
+        {
+            if (_configInfo.IsSequentialConfiguration && typeof(TTargetValue).IsSimple())
+            {
+                ThrowSimpleMemberSequentialDataSourceError<TTargetValue>(targetMemberLambda);
+            }
+        }
+
+        private void ThrowSimpleMemberSequentialDataSourceError<TTargetValue>(
+            LambdaExpression targetMemberLambda)
+        {
+            var targetMember = GetTargetMemberOrNull(targetMemberLambda);
+
+            if (targetMember == null)
+            {
+                return;
+            }
+
+            var sourceValue = GetValueLambdaInfo<TTargetValue>();
+
+            throw new MappingConfigurationException(string.Format(
+                CultureInfo.InvariantCulture,
+                "Source {0} {1} cannot be sequentially applied to target {2} {3} {4} - " +
+                "simple type {2}s cannot have sequential data sources",
+                sourceValue.GetDescription(_configInfo),
+                GetTypeDescription(sourceValue.ReturnType),
+                GetTargetMemberType(targetMember),
+                targetMember.GetFriendlyTargetPath(_configInfo),
+                GetTypeDescription(typeof(TTargetValue))));
+        }
+
         private void ThrowIfRedundantSourceMember<TTargetValue>(LambdaExpression targetMemberLambda)
         {
             if (!_valueCouldBeSourceMember)
@@ -97,7 +165,7 @@
                 return;
             }
 
-            var targetMember = targetMemberLambda.ToTargetMember(MapperContext, nt => { });
+            var targetMember = GetTargetMemberOrNull(targetMemberLambda);
 
             if (targetMember == null)
             {
@@ -109,9 +177,12 @@
             ThrowIfRedundantSourceMember(valueLambdaInfo, targetMember);
         }
 
+        private QualifiedMember GetTargetMemberOrNull(LambdaExpression targetMemberLambda)
+            => targetMemberLambda.ToTargetMemberOrNull(MapperContext);
+
         private void ThrowIfRedundantSourceMember(ConfiguredLambdaInfo valueLambdaInfo, QualifiedMember targetMember)
         {
-            if (!valueLambdaInfo.IsSourceMember(out var sourceMemberLambda))
+            if (!valueLambdaInfo.TryGetSourceMember(out var sourceMemberLambda))
             {
                 return;
             }
@@ -134,27 +205,28 @@
                 return;
             }
 
-            var targetMemberType = targetMember.IsConstructorParameter() ? "constructor parameter" : "member";
-
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
                 "Source member {0} will automatically be mapped to target {1} {2}, " +
                 "and does not need to be configured",
                 GetSourceMemberDescription(configuredSourceMember),
-                targetMemberType,
+                GetTargetMemberType(targetMember),
                 targetMember.GetFriendlyTargetPath(_configInfo)));
         }
 
-        private ConfiguredDataSourceFactory CreateFromLambda<TTargetValue>(LambdaExpression targetMemberLambda)
+        private static string GetTargetMemberType(QualifiedMember targetMember)
+            => targetMember.IsConstructorParameter() ? "constructor parameter" : "member";
+
+        private ConfiguredDataSourceFactory CreateFromLambda<TTargetValue>()
         {
             var valueLambdaInfo = GetValueLambdaInfo<TTargetValue>();
 
-            if (IsDictionaryEntry(targetMemberLambda, out var dictionaryEntryMember))
+            if (IsDictionaryEntry(out var dictionaryEntryMember))
             {
                 return new ConfiguredDictionaryEntryDataSourceFactory(_configInfo, valueLambdaInfo, dictionaryEntryMember);
             }
 
-            return CreateDataSourceFactory(valueLambdaInfo, targetMemberLambda);
+            return CreateDataSourceFactory(valueLambdaInfo);
         }
 
         private ConfiguredLambdaInfo GetValueLambdaInfo<TTargetValue>() => GetValueLambdaInfo(typeof(TTargetValue));
@@ -192,15 +264,15 @@
             return _customValueLambdaInfo = valueLambdaInfo;
         }
 
-        private bool IsDictionaryEntry(LambdaExpression targetMemberLambda, out DictionaryTargetMember entryMember)
+        private bool IsDictionaryEntry(out DictionaryTargetMember entryMember)
         {
-            if (targetMemberLambda.Body.NodeType != Call)
+            if (_targetMemberLambda.Body.NodeType != Call)
             {
                 entryMember = null;
                 return false;
             }
 
-            var methodCall = (MethodCallExpression)targetMemberLambda.Body;
+            var methodCall = (MethodCallExpression)_targetMemberLambda.Body;
 
             if (!methodCall.Method.IsSpecialName ||
                 (methodCall.Method.Name != "get_Item") ||
@@ -234,26 +306,24 @@
                 : MapperContext.QualifiedMemberFactory.RootTarget<TSource, TTarget>();
         }
 
-        private ConfiguredDataSourceFactory CreateDataSourceFactory(
-            ConfiguredLambdaInfo valueLambdaInfo,
-            LambdaExpression targetMemberLambda)
+        private ConfiguredDataSourceFactory CreateDataSourceFactory(ConfiguredLambdaInfo valueLambdaInfo)
         {
             return new ConfiguredDataSourceFactory(
                 _configInfo,
                 valueLambdaInfo,
 #if NET35
-                targetMemberLambda.ToDlrExpression(),
+                _targetMemberLambda.ToDlrExpression(),
 #else
-                targetMemberLambda,
+                _targetMemberLambda,
 #endif
                 _valueCouldBeSourceMember);
         }
 
         public IMappingConfigContinuation<TSource, TTarget> ToCtor<TTargetParam>()
-            => RegisterDataSource<TTargetParam>(CreateForCtorParam<TTargetParam>);
+            => RegisterDataSource<TTargetParam>(cdsff => cdsff.CreateForCtorParam<TTargetParam>());
 
         IProjectionConfigContinuation<TSource, TTarget> ICustomProjectionDataSourceTargetMemberSpecifier<TSource, TTarget>.ToCtor<TTargetParam>()
-            => RegisterDataSource<TTargetParam>(CreateForCtorParam<TTargetParam>);
+            => RegisterDataSource<TTargetParam>(cdsff => cdsff.CreateForCtorParam<TTargetParam>());
 
         public IMappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName)
             => RegisterNamedContructorParameterDataSource(parameterName);
@@ -267,13 +337,16 @@
         #region Ctor Helpers
 
         private ConfiguredDataSourceFactory CreateForCtorParam<TParam>()
-            => CreateForCtorParam(GetUniqueConstructorParameterOrThrow<TParam>());
+        {
+            SetTargetCtorParameterForSequence(GetUniqueConstructorParameterOrThrow<TParam>());
+            return CreateForCtorParam();
+        }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterNamedContructorParameterDataSource(string name)
         {
-            var parameter = GetUniqueConstructorParameterOrThrow<AnyParameterType>(name);
+            SetTargetCtorParameterForSequence(GetUniqueConstructorParameterOrThrow<AnyParameterType>(name));
 
-            return RegisterDataSource(parameter.ParameterType, () => CreateForCtorParam(parameter));
+            return RegisterDataSource(_targetCtorParameter.ParameterType, cdsff => cdsff.CreateForCtorParam());
         }
 
         private static ParameterInfo GetUniqueConstructorParameterOrThrow<TParam>(string name = null)
@@ -336,24 +409,45 @@
                 typeof(TTarget).GetFriendlyName()));
         }
 
-        private ConfiguredDataSourceFactory CreateForCtorParam(ParameterInfo parameter)
+        private void SetTargetCtorParameterForSequence(ParameterInfo parameter)
         {
-            var valueLambda = GetValueLambdaInfo(parameter.ParameterType);
-            var constructorParameter = CreateRootTargetQualifiedMember().Append(Member.ConstructorParameter(parameter));
+            SetTargetCtorParameter(parameter);
 
-            ThrowIfRedundantSourceMember(valueLambda, constructorParameter);
+            if (_sequenceDataSourceFactories == null)
+            {
+                return;
+            }
 
-            return new ConfiguredDataSourceFactory(_configInfo, valueLambda, constructorParameter);
+            foreach (var dataSourceFactory in _sequenceDataSourceFactories)
+            {
+                dataSourceFactory.SetTargetCtorParameter(parameter);
+            }
+        }
+
+        private void SetTargetCtorParameter(ParameterInfo parameter) => _targetCtorParameter = parameter;
+
+        private ConfiguredDataSourceFactory CreateForCtorParam()
+        {
+            var valueLambda = GetValueLambdaInfo(_targetCtorParameter.ParameterType);
+            var ctorParameterMember = Member.ConstructorParameter(_targetCtorParameter);
+            var ctorParameter = CreateRootTargetQualifiedMember().Append(ctorParameterMember);
+
+            ThrowIfRedundantSourceMember(valueLambda, ctorParameter);
+
+            return new ConfiguredDataSourceFactory(_configInfo, valueLambda, ctorParameter);
         }
 
         #endregion
 
         public IMappingConfigContinuation<TSource, TTarget> ToTarget()
+            => RegisterDataSource<TTarget>(cdsff => cdsff.CreateForToTarget());
+
+        private ConfiguredDataSourceFactory CreateForToTarget()
         {
-            return RegisterDataSource<TTarget>(() => new ConfiguredDataSourceFactory(
+            return new ConfiguredDataSourceFactory(
                 _configInfo,
                 GetValueLambdaInfo<TTarget>(),
-                CreateRootTargetQualifiedMember()));
+                CreateRootTargetQualifiedMember());
         }
 
         public IMappingConfigContinuation<TSource, TTarget> ToTarget<TDerivedTarget>()
@@ -369,7 +463,6 @@
             return new MappingConfigurator<TSource, TTarget>(_configInfo).MapTo<TDerivedTarget>();
         }
 
-        // ReSharper disable once UnusedMember.Local
         private void SetDerivedToTargetSource<TDerivedTarget>(MappingConfigInfo derivedTypeConfigInfo)
         {
             new MappingConfigurator<TSource, TDerivedTarget>(derivedTypeConfigInfo)
@@ -380,21 +473,38 @@
         private static string GetTypeDescription(Type type) => $"of type '{type.GetFriendlyName()}'";
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource<TTargetValue>(
-            Func<ConfiguredDataSourceFactory> dataSourceFactoryFactory)
+            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactory> dataSourceFactoryFactory)
         {
             return RegisterDataSource(typeof(TTargetValue), dataSourceFactoryFactory);
         }
 
         private MappingConfigContinuation<TSource, TTarget> RegisterDataSource(
             Type targetMemberType,
-            Func<ConfiguredDataSourceFactory> dataSourceFactoryFactory)
+            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactory> dataSourceFactoryFactory)
         {
             ThrowIfInvalid(targetMemberType);
 
-            RegisterComplexTypeFactoryMethodIfAppropriate(targetMemberType);
-            MapperContext.UserConfigurations.Add(dataSourceFactoryFactory.Invoke());
+            if (_sequenceDataSourceFactories != null)
+            {
+                foreach (var dataSourceFactory in _sequenceDataSourceFactories)
+                {
+                    dataSourceFactory.Register(dataSourceFactoryFactory, targetMemberType);
+                }
+
+                _configInfo.SetSequenceDataSourceFactories(null);
+            }
+
+            Register(dataSourceFactoryFactory, targetMemberType);
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
+        }
+
+        private void Register(
+            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactory> dataSourceFactoryFactory,
+            Type targetMemberType)
+        {
+            RegisterComplexTypeFactoryMethodIfAppropriate(targetMemberType);
+            MapperContext.UserConfigurations.Add(dataSourceFactoryFactory.Invoke(this));
         }
 
         private void ThrowIfInvalid(Type targetMemberType)
@@ -474,7 +584,7 @@
         {
             if (customValue.NodeType != MemberAccess)
             {
-                return $"Source type '{customValue.Type.GetFriendlyName()}'";
+                return $"Source value {customValue.ToReadableString()} {GetTypeDescription(customValue.Type)}";
             }
 
             var sourceMember = customValue.ToSourceMember(MapperContext);
@@ -531,5 +641,38 @@
         }
 
         private struct AnyParameterType { }
+
+        #region IConfiguredDataSourceFactoryFactory Members
+
+        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateForCtorParam()
+            => CreateForCtorParam();
+
+        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateForCtorParam<TTargetValue>()
+            => CreateForCtorParam<TTargetValue>();
+
+        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateFromLambda<TTargetValue>()
+            => CreateFromLambda<TTargetValue>();
+
+        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateForToTarget()
+            => CreateForToTarget();
+
+        #endregion
+
+        #region ISequencedDataSourceFactory Members
+
+        void ISequencedDataSourceFactory.SetTargetCtorParameter(ParameterInfo parameter)
+            => SetTargetCtorParameter(parameter);
+
+        void ISequencedDataSourceFactory.SetTargetMember(LambdaExpression targetMember)
+            => SetTargetMember(targetMember);
+
+        void ISequencedDataSourceFactory.Register(
+            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactory> dataSourceFactoryFactory,
+            Type targetMemberType)
+        {
+            Register(dataSourceFactoryFactory, targetMemberType);
+        }
+
+        #endregion
     }
 }

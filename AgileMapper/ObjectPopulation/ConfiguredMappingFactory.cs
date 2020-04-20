@@ -60,6 +60,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mapperData.SourceMember,
                 condition,
                 returnValue,
+                factory.ConfigInfo.IsSequentialConfiguration,
                 mapperData);
         }
     }

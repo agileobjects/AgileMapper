@@ -52,8 +52,7 @@
 
         public bool ValidateMappingPlans { get; set; }
 
-        public ICollection<Type> AppliedConfigurationTypes
-            => _appliedConfigurationTypes ??= new List<Type>();
+        public ICollection<Type> AppliedConfigurationTypes => _appliedConfigurationTypes ??= new List<Type>();
 
         #region MappedObjectCachingSettings
 
@@ -201,10 +200,10 @@
                 return false;
             }
 
-            var basicData = memberContextFactory.Invoke(dataItem);
+            var memberContext = memberContextFactory.Invoke(dataItem);
 
             return _dataSourceReversalSettings
-                .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?.Reverse == true;
+                .FirstOrDefault(memberContext, (mc, s) => s.AppliesTo(mc))?.Reverse == true;
         }
 
         #endregion
@@ -415,6 +414,7 @@
         {
             if (!dataSourceFactory.TargetMember.IsRoot)
             {
+                ThrowIfConflictingIgnoredSourceMemberExists(dataSourceFactory, (dsf, cIsm) => cIsm.GetConflictMessage(dsf));
                 ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
                 ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
             }
@@ -568,7 +568,10 @@
             Func<TConfiguredItem, ConfiguredSourceMemberIgnoreBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            ThrowIfConflictingItemExists(configuredItem, _ignoredSourceMembers, messageFactory);
+            ThrowIfConflictingItemExists(
+                configuredItem, 
+                _ignoredSourceMembers, 
+                messageFactory);
         }
 
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)

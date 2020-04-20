@@ -61,8 +61,16 @@
         public static DefaultExpression ToDefaultExpression(this Type type) => Expression.Default(type);
 
         [DebuggerStepThrough]
-        public static ConditionalExpression ToIfFalseDefaultCondition(this Expression value, Expression condition)
-            => Expression.Condition(condition, value, value.Type.ToDefaultExpression());
+        public static ConditionalExpression ToIfFalseDefaultCondition(
+            this Expression value,
+            Expression condition,
+            Expression defaultValue = null)
+        {
+            return Expression.Condition(
+                condition,
+                value,
+                defaultValue ?? value.Type.ToDefaultExpression());
+        }
 
         public static Expression AndTogether(this IList<Expression> expressions)
         {

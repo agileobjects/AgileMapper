@@ -25,6 +25,7 @@
                   value,
                   wrappedDataSource.Condition)
         {
+            IsSequential = wrappedDataSource.IsSequential;
             SourceMemberTypeTest = wrappedDataSource.SourceMemberTypeTest;
         }
 
@@ -143,6 +144,8 @@
 
         public bool IsConditional => Condition != null;
 
+        public bool IsSequential { get; protected set; }
+
         public virtual bool IsFallback => false;
 
         public virtual Expression Condition { get; }
@@ -155,6 +158,7 @@
 
         public virtual Expression FinalisePopulationBranch(
             Expression alternatePopulation,
+            IDataSource nextDataSource,
             IMemberMapperData mapperData)
         {
             MultiInvocationsProcessor.Process(
@@ -168,9 +172,13 @@
 
             if (condition != null)
             {
-                population = (alternatePopulation != null)
-                    ? Expression.IfThenElse(condition, population, alternatePopulation)
-                    : Expression.IfThen(condition, population);
+                population = (alternatePopulation == null)
+                    ? Expression.IfThen(condition, population)
+                    : GetBranchedPopulation(
+                        condition,
+                        population,
+                        alternatePopulation,
+                        nextDataSource);
             }
 
             if (variables.Any())
@@ -179,6 +187,22 @@
             }
 
             return population;
+        }
+
+        private static Expression GetBranchedPopulation(
+            Expression condition,
+            Expression population,
+            Expression alternatePopulation,
+            IDataSource previousDataSource)
+        {
+            if (previousDataSource.IsSequential)
+            {
+                return Expression.Block(
+                    Expression.IfThen(condition, population),
+                    alternatePopulation);
+            }
+
+            return Expression.IfThenElse(condition, population, alternatePopulation);
         }
     }
 }

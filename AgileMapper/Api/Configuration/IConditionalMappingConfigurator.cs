@@ -5,8 +5,8 @@
     using Members;
 
     /// <summary>
-    /// Provides options for configuring a condition which must evaluate to true for the configuration to apply
-    /// to mappings from and to the source and target types being configured.
+    /// Provides options for configuring a condition which must evaluate to true for the configuration
+    /// to apply to mappings from and to the source and target types being configured.
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
     /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>

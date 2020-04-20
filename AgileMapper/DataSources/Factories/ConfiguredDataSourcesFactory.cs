@@ -12,11 +12,11 @@
                 yield break;
             }
 
-            foreach (var configuredDataSource in context.ConfiguredDataSources)
+            foreach (var dataSource in context.ConfiguredDataSources)
             {
-                yield return context.GetFinalDataSource(configuredDataSource);
+                yield return context.GetFinalDataSource(dataSource);
 
-                if (!configuredDataSource.IsConditional)
+                if (!dataSource.IsConditional)
                 {
                     yield break;
                 }

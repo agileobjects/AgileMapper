@@ -49,11 +49,14 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         public override string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore)
             => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
+        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            return $"Configured data source {conflictingDataSource.GetDescription()} " +
+                   $"conflicts with member ignore pattern '{TargetMemberFilter}'";
+        }
+
         public string GetConflictMessage(ConfiguredMemberIgnore conflictingMemberIgnore)
             => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
-
-        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
-            => $"Member ignore pattern '{TargetMemberFilter}' conflicts with a configured data source";
 
         public override string GetIgnoreMessage(IQualifiedMember targetMember)
             => $"{targetMember.Name} is ignored by filter:{Environment.NewLine}{TargetMemberFilter}";

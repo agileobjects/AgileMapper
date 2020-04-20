@@ -11,6 +11,13 @@
     public interface ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         /// <summary>
+        /// Perform another configuration of how this mapper maps to and from the source and target
+        /// types being configured. This property can be used to set up a series of configurations
+        /// to be applied in sequence.
+        /// </summary>
+        IConditionalMapSourceConfigurator<TSource, TTarget> Then { get; }
+
+        /// <summary>
         /// Apply the configuration to the given <paramref name="targetMember"/>.
         /// </summary>
         /// <typeparam name="TTargetValue">The target member's type.</typeparam>

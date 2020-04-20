@@ -218,7 +218,7 @@
                 }
             });
 
-            conflictEx.Message.ShouldContain("already has configured data source 'Address.Line1'");
+            conflictEx.Message.ShouldContain("already has configured data source Address.Line1");
         }
 
         [Fact]
@@ -243,7 +243,9 @@
                 }
             });
 
-            dataSourceEx.Message.ShouldContain("conflicts with a configured data source");
+            dataSourceEx.Message.ShouldContain("Address.Line1 -> Address.Line2");
+            dataSourceEx.Message.ShouldContain("conflicts with member ignore");
+            dataSourceEx.Message.ShouldContain("'member.Name == \"Line2\"'");
         }
     }
 }

@@ -44,6 +44,8 @@
 
         public bool IsForToTargetDataSource => TargetMember.IsRoot;
 
+        public bool IsSequential => ConfigInfo.IsSequentialConfiguration;
+
         public bool CannotBeReversed(out string reason) => CannotBeReversed(out _, out reason);
 
         private bool CannotBeReversed(out QualifiedMember targetMember, out string reason)
@@ -69,7 +71,7 @@
                 return true;
             }
 
-            if (!_dataSourceLambda.IsSourceMember(out var sourceMemberLambda))
+            if (!_dataSourceLambda.TryGetSourceMember(out var sourceMemberLambda))
             {
                 targetMember = null;
                 reason = $"configured value '{_dataSourceLambda.GetDescription(ConfigInfo)}' is not a source member";
@@ -138,7 +140,7 @@
 
             var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactory;
             var isOtherDataSource = otherDataSource != null;
-            var dataSourceLambdasAreTheSame = HasSameDataSourceLambdaAs(otherDataSource);
+            var dataSourceLambdasAreTheSame = HasSameDataSourceAs(otherDataSource);
 
             if (WasAutoCreated &&
                (otherConfiguredItem is IPotentialAutoCreatedItem otherItem) &&
@@ -152,17 +154,22 @@
                 return true;
             }
 
-            if (ConfigInfo.HasSameTypesAs(otherDataSource))
+            if (!ConfigInfo.HasSameTypesAs(otherDataSource))
             {
-                return true;
+                return dataSourceLambdasAreTheSame;
             }
 
-            return dataSourceLambdasAreTheSame;
+            if (otherDataSource.IsSequential)
+            {
+                return dataSourceLambdasAreTheSame;
+            }
+
+            return true;
         }
 
         #region ConflictsWith Helpers
 
-        private bool HasSameDataSourceLambdaAs(ConfiguredDataSourceFactory otherDataSource)
+        private bool HasSameDataSourceAs(ConfiguredDataSourceFactory otherDataSource)
             => _dataSourceLambda.IsSameAs(otherDataSource?._dataSourceLambda);
 
         protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
@@ -177,8 +184,7 @@
             var reason = conflictingDataSource._isReversal
                 ? " from an automatically-configured reverse data source" : null;
 
-
-            return $"{GetTargetMemberPath()} already has configured data source '{existingDataSource}'{reason}";
+            return $"{GetTargetMemberPath()} already has configured data source {existingDataSource}{reason}";
         }
 
         public string GetDescription()
@@ -189,7 +195,12 @@
             return sourceMemberPath + " -> " + targetMemberPath;
         }
 
-        private string GetDataSourceDescription() => _dataSourceLambda.GetDescription(ConfigInfo);
+        private string GetDataSourceDescription()
+        {
+            var description = _dataSourceLambda.GetDescription(ConfigInfo);
+
+            return _dataSourceLambda.IsSourceMember ? description : "'" + description + "'";
+        }
 
         private string GetTargetMemberPath() => TargetMember.GetFriendlyTargetPath(ConfigInfo);
 
@@ -211,8 +222,26 @@
             var configuredCondition = GetConditionOrNull(mapperData);
             var value = _dataSourceLambda.GetBody(mapperData);
 
-            return new ConfiguredDataSource(configuredCondition, value, mapperData);
+            return new ConfiguredDataSource(
+                configuredCondition,
+                value,
+                ConfigInfo.IsSequentialConfiguration,
+                mapperData);
         }
+
+        public QualifiedMember ToSourceMemberOrNull()
+        {
+            if (_valueCouldBeSourceMember &&
+                _dataSourceLambda.TryGetSourceMember(out var sourceMemberLambda))
+            {
+                return sourceMemberLambda.ToSourceMemberOrNull(ConfigInfo.MapperContext);
+            }
+
+            return null;
+        }
+
+        protected override int? GetSameTypesOrder(UserConfiguredItemBase other)
+            => ((ConfiguredDataSourceFactory)other).IsSequential ? -1 : base.GetSameTypesOrder(other);
 
         #region IPotentialAutoCreatedItem Members
 

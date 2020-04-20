@@ -29,11 +29,14 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         {
         }
 
+        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            return $"Configured data source {conflictingDataSource.GetDescription()} " +
+                    "conflicts with an ignored member";
+        }
+
         public override string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore)
             => ((IMemberIgnore)this).GetConflictMessage(conflictingMemberIgnore);
-
-        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
-            => $"Ignored member {TargetMember.GetPath()} has a configured data source";
 
         public override string GetIgnoreMessage(IQualifiedMember targetMember)
             => targetMember.Name + " is ignored";

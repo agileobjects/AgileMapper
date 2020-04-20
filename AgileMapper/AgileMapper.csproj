@@ -21,8 +21,11 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>
+      - Support for configuring sequential data sources, re: #184
       - Including ToTarget data sources in mapping plan validation, re: #184
       - Fixing caching of custom method struct creation factory
+      - Erroring if configured data sources conflict with ignored source members
+      - Improving configuration error messages
       - Performance improvements
     </PackageReleaseNotes>
   </PropertyGroup>
