@@ -7,6 +7,11 @@
     using Api;
     using Api.Configuration;
     using Queryables.Api;
+#if NET35
+    using Expr = Microsoft.Scripting.Ast.Expression;
+#else
+    using Expr = System.Linq.Expressions.Expression;
+#endif
 
     /// <summary>
     /// Provides mapping and mapping configuration services.
@@ -91,6 +96,12 @@
         /// </summary>
         /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
         string GetPlansInCache();
+
+        /// <summary>
+        /// Returns mapping plan Expressions for all mapping functions currently cached by the <see cref="IMapper"/>.
+        /// </summary>
+        /// <returns>An Expression containing the currently-cached functions to be executed during mappings.</returns>
+        Expr GetPlanExpressionsInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source

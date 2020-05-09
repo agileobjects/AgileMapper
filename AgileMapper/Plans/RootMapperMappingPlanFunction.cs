@@ -21,22 +21,38 @@
             _mapping = mapper.GetMappingLambda();
         }
 
-        public string GetDescription()
+        public Expression GetExpression()
         {
+            var description = GetMappingDescription();
             var mapping = GetFinalMappingExpression();
 
+            return Expression.Block(
+                ReadableExpression.Comment(description),
+                mapping);
+        }
+
+        public string GetDescription()
+        {
+            var description = GetMappingDescription(linePrefix: "// ");
+            var mapping = GetFinalMappingExpression();
+
+            return description + mapping.ToReadableString();
+        }
+
+        private string GetMappingDescription(string linePrefix = null)
+        {
             var sourceType = _mapperData.SourceType.GetFriendlyName();
             var targetType = _mapperData.TargetType.GetFriendlyName();
 
             return $@"
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// Map {sourceType} -> {targetType}
-// Rule Set: {_mapperData.RuleSet.Name}
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{linePrefix}Map {sourceType} -> {targetType}
+{linePrefix}Rule Set: {_mapperData.RuleSet.Name}
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-{mapping.ToReadableString()}".TrimStart();
+";
         }
 
         private Expression GetFinalMappingExpression()

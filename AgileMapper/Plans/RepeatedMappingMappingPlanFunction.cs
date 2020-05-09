@@ -23,17 +23,33 @@
             _mapping = mapperFunc.Mapping;
         }
 
+        public Expression GetExpression()
+        {
+            var description = GetMappingDescription();
+
+            return Expression.Block(
+                ReadableExpression.Comment(description),
+                _mapping);
+        }
+
         public string GetDescription()
         {
-            return $@"
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// Map {_sourceType.GetFriendlyName()} -> {_targetType.GetFriendlyName()}
-// Repeated Mapping Mapper
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+            var description = GetMappingDescription(linePrefix: "// ");
 
-{_mapping.ToReadableString()}".TrimStart();
+            return description + _mapping.ToReadableString();
+        }
+
+        private string GetMappingDescription(string linePrefix = null)
+        {
+            return $@"
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{linePrefix}Map {_sourceType.GetFriendlyName()} -> {_targetType.GetFriendlyName()}
+{linePrefix}Repeated Mapping Mapper
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+";
         }
     }
 }

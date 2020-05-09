@@ -9,6 +9,11 @@
     using Plans;
     using Queryables.Api;
     using Validation;
+#if NET35
+    using Expr = Microsoft.Scripting.Ast.Expression;
+#else
+    using Expr = System.Linq.Expressions.Expression;
+#endif
 
     /// <summary>
     /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
@@ -114,6 +119,12 @@
         /// </summary>
         /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
         public static string GetPlansInCache() => Default.GetPlansInCache();
+
+        /// <summary>
+        /// Returns mapping plan Expressions for all mapping functions currently cached by the default <see cref="IMapper"/>.
+        /// </summary>
+        /// <returns>An Expression containing the currently-cached functions to be executed during mappings.</returns>
+        public static Expr GetPlanExpressionsInCache() => Default.GetPlanExpressionsInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source
@@ -236,6 +247,8 @@
         IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
         string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
+        
+        Expr IMapper.GetPlanExpressionsInCache() => MappingPlanSet.For(Context);
 
         private PlanTargetSelector<TSource> GetPlan<TSource>()
             => new PlanTargetSelector<TSource>(Context);
