@@ -28,7 +28,7 @@
 - Erroring if configured data sources conflict with ignored source members
 - Improving configuration error messages
 - Surfacing mapping plan Expressions
-- Updating to ReadableExpressions v2.4
+- Updating to ReadableExpressions v2.5
 - Performance improvements
     </PackageReleaseNotes>
   </PropertyGroup>
@@ -42,8 +42,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.0" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.4.0" />
+    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.1" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
