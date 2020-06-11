@@ -40,10 +40,8 @@
                     context.TargetMember,
                     context.MemberMapperData.Parent);
 
-                var configuredToTargetDataSources = context
-                    .MapperContext
-                    .UserConfigurations
-                    .GetDataSourcesForToTarget(updatedMapperData);
+                var configuredToTargetDataSources =
+                    updatedMapperData.GetToTargetDataSources(sequential: true);
 
                 foreach (var configuredDataSource in configuredToTargetDataSources)
                 {

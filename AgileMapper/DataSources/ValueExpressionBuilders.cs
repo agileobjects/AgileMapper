@@ -11,9 +11,6 @@ namespace AgileObjects.AgileMapper.DataSources
 
     internal static class ValueExpressionBuilders
     {
-        public static Expression SingleDataSource(IList<IDataSource> dataSources, IMemberMapperData mapperData)
-            => SingleDataSource(dataSources.First(), mapperData);
-
         public static Expression SingleDataSource(IDataSource dataSource, IMemberMapperData mapperData)
         {
             var value = dataSource.IsConditional

@@ -401,12 +401,6 @@
 
         #region DataSources
 
-        public IEnumerable<TFactory> QueryDataSourceFactories<TFactory>()
-            where TFactory : ConfiguredDataSourceFactory
-        {
-            return _dataSourceFactories?.OfType<TFactory>() ?? Enumerable<TFactory>.Empty;
-        }
-
         private List<ConfiguredDataSourceFactory> DataSourceFactories
             => _dataSourceFactories ??= new List<ConfiguredDataSourceFactory>();
 
@@ -441,7 +435,7 @@
         public IList<ConfiguredDataSourceFactory> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
             => _dataSourceFactories.FindRelevantMatches(mapperData);
 
-        public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
+        public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData, bool sequential)
         {
             if (!HasToTargetDataSources)
             {
@@ -449,11 +443,17 @@
             }
 
             var toTargetDataSources = QueryDataSourceFactories(mapperData)
-                .Filter(dsf => dsf.IsForToTargetDataSource)
+                .Filter(dsf => dsf.IsForToTargetDataSource && dsf.IsSequential == sequential)
                 .Project(mapperData, (md, dsf) => dsf.Create(md))
                 .ToArray();
 
             return toTargetDataSources;
+        }
+
+        public IEnumerable<TFactory> QueryDataSourceFactories<TFactory>()
+            where TFactory : ConfiguredDataSourceFactory
+        {
+            return _dataSourceFactories?.OfType<TFactory>() ?? Enumerable<TFactory>.Empty;
         }
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IQualifiedMemberContext context)

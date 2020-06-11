@@ -69,10 +69,14 @@
                 return;
             }
 
+            HasConfiguredCondition = true;
+
             Condition = (base.Condition != null)
                 ? Expression.AndAlso(base.Condition, configuredCondition)
                 : configuredCondition;
         }
+
+        public bool HasConfiguredCondition { get; }
 
         public override Expression Condition { get; }
 

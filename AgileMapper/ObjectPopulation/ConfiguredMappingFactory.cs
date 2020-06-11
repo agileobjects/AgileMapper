@@ -15,11 +15,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class ConfiguredMappingFactory
     {
-        public static Expression GetMappingOrNull(IObjectMappingData mappingData, out bool isConditional)
+        public static Expression GetMappingOrNull(
+            IObjectMappingData mappingData,
+            out bool isConditional)
         {
-            var mapperData = mappingData.MapperData;
-
-            var mappingFactoryDataSources = GetMappingFactoryDataSources(mapperData);
+            var mappingFactoryDataSources = 
+                GetMappingFactoryDataSources(mappingData.MapperData);
 
             if (mappingFactoryDataSources.None())
             {
@@ -43,8 +44,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Project(mapperData, GetMappingFactoryDataSource)
                 .ToArray();
         }
-        
-        public static IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
+
+        public static bool HasMappingFactories(IQualifiedMemberContext context)
+            => QueryMappingFactories(context).Any();
+
+        private static IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
             => context.MapperContext.UserConfigurations.QueryMappingFactories(context);
 
         private static IDataSource GetMappingFactoryDataSource(

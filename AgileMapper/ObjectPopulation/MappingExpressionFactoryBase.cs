@@ -116,7 +116,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 yield break;
             }
 
-            if (!HasConfiguredToTargetDataSources(context.MapperData, out var toTargetDataSources))
+            if (!HasConfiguredToTargetDataSources(context.MappingData, out var toTargetDataSources))
             {
                 yield break;
             }
@@ -167,12 +167,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        protected static bool HasConfiguredToTargetDataSources(IMemberMapperData mapperData, out IList<IConfiguredDataSource> dataSources)
+        protected static bool HasConfiguredToTargetDataSources(
+            IObjectMappingData mappingData,
+            out IList<IConfiguredDataSource> dataSources)
         {
-            dataSources = mapperData
-                .MapperContext
-                .UserConfigurations
-                .GetDataSourcesForToTarget(mapperData);
+            dataSources = mappingData.GetToTargetDataSources(sequential: true);
 
             return dataSources.Any();
         }

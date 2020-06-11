@@ -28,6 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             _alternateMappingFactories = new AlternateMappingFactory[]
             {
+                ConfiguredAlternateDataSourceMappingFactory.GetMappingOrNull,
                 ConfiguredMappingFactory.GetMappingOrNull,
                 DerivedComplexTypeMappingFactory.GetMappingOrNull
             };

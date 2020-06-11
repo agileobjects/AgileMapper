@@ -22,12 +22,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            if (ConfiguredMappingFactory.QueryMappingFactories(mapperData).Any())
+            if (ConfiguredMappingFactory.HasMappingFactories(mapperData))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            if (HasConfiguredToTargetDataSources(mapperData, out var configuredToTargetDataSources) &&
+            if (HasConfiguredToTargetDataSources(mappingData, out var configuredToTargetDataSources) &&
                 configuredToTargetDataSources.Any(ds => ds.SourceMember.IsEnumerable))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
@@ -66,7 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 mapperData,
                 mapperData.MapperContext);
 
-            return ConfiguredMappingFactory.QueryMappingFactories(queryContext).Any();
+            return ConfiguredMappingFactory.HasMappingFactories(queryContext);
         }
 
         protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)

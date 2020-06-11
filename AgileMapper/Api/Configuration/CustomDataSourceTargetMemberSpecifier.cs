@@ -440,10 +440,18 @@
         #endregion
 
         public IMappingConfigContinuation<TSource, TTarget> ToTarget()
-            => RegisterDataSource<TTarget>(cdsff => cdsff.CreateForToTarget());
+            => RegisterDataSource<TTarget>(cdsff => cdsff.CreateForToTarget(isSequential: true));
 
-        private ConfiguredDataSourceFactory CreateForToTarget()
+        public IMappingConfigContinuation<TSource, TTarget> ToTargetInstead()
+            => RegisterDataSource<TTarget>(cdsff => cdsff.CreateForToTarget(isSequential: false));
+
+        private ConfiguredDataSourceFactory CreateForToTarget(bool isSequential)
         {
+            if (isSequential)
+            {
+                _configInfo.ForSequentialConfiguration();
+            }
+
             return new ConfiguredDataSourceFactory(
                 _configInfo,
                 GetValueLambdaInfo<TTarget>(),
@@ -653,8 +661,8 @@
         ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateFromLambda<TTargetValue>()
             => CreateFromLambda<TTargetValue>();
 
-        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateForToTarget()
-            => CreateForToTarget();
+        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateForToTarget(bool isSequential)
+            => CreateForToTarget(isSequential);
 
         #endregion
 
