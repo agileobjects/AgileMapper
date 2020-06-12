@@ -108,22 +108,30 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MappingCreationContext WithToTargetDataSource(IDataSource dataSource)
         {
             var newSourceMappingData = MappingData.WithToTargetSource(dataSource.SourceMember);
+            var isAlternate = !dataSource.IsSequential;
 
             var newContext = new MappingCreationContext(newSourceMappingData)
             {
-                InstantiateLocalVariable = false
+                InstantiateLocalVariable = isAlternate
             };
 
-            newContext.MapperData.SourceObject = dataSource.Value;
-            newContext.MapperData.TargetObject = MapperData.TargetObject;
+            var newMapperData = newContext.MapperData;
+
+            newMapperData.SourceObject = dataSource.Value;
+            newMapperData.TargetObject = MapperData.TargetObject;
 
             if (TargetMember.IsComplex)
             {
-                newContext.MapperData.TargetInstance = MapperData.TargetInstance;
+                if (isAlternate)
+                {
+                    newMapperData.LocalVariable = MapperData.LocalVariable;
+                }
+                
+                newMapperData.TargetInstance = MapperData.TargetInstance;
             }
             else if (TargetMember.IsEnumerable)
             {
-                UpdateEnumerableVariablesIfAppropriate(MapperData, newContext.MapperData);
+                UpdateEnumerableVariablesIfAppropriate(MapperData, newMapperData);
             }
 
             return newContext;

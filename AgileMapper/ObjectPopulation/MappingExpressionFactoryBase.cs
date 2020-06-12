@@ -105,12 +105,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static Expression GetConfiguredAlternateDataSourceMappingOrNull(
+        private Expression GetConfiguredAlternateDataSourceMappingOrNull(
             MappingCreationContext context,
             out bool isConditional)
         {
-            isConditional = true;
-            return null;
+            isConditional = false;
+            
+            return GetConfiguredToTargetDataSourceMappings(context, sequential: false)
+                .FirstOrDefault();
         }
 
         protected void AddAlternateMapping(
@@ -213,7 +215,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     toTargetDataSource.Value,
                     mapping);
 
-                if (!toTargetDataSource.IsConditional)
+                if ((sequential && !toTargetDataSource.IsConditional) ||
+                   (!sequential && !toTargetDataSource.HasConfiguredCondition))
                 {
                     yield return mapping;
                     break;

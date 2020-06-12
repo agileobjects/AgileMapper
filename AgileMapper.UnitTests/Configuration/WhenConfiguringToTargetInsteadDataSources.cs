@@ -1,8 +1,5 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
-    using System.Collections.Generic;
-    using System.Collections.ObjectModel;
-    using System.Linq;
     using AgileMapper.Extensions;
     using Common;
     using TestClasses;
@@ -16,7 +13,7 @@
     public class WhenConfiguringToTargetInsteadDataSources
     {
         [Fact]
-        public void ShouldSwitchRootSourceObject()
+        public void ShouldUseAnAlternateRootSourceObject()
         {
             using (var mapper = Mapper.CreateNew())
             {
