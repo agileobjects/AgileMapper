@@ -31,7 +31,7 @@
 
         public static IConfiguredDataSource GetToTargetDataSourceOrNullForTargetType(this IObjectMappingData mappingData)
         {
-            var toTargetDataSources = mappingData.GetToTargetDataSources(sequential: true);
+            var toTargetDataSources = mappingData.GetToTargetDataSources();
 
             if (toTargetDataSources.None())
             {
@@ -52,16 +52,12 @@
             return null;
         }
 
-        public static IList<IConfiguredDataSource> GetToTargetDataSources(
-            this IObjectMappingData mappingData,
-            bool sequential)
-        {
-            return mappingData.MapperData.GetToTargetDataSources(sequential);
-        }
+        public static IList<IConfiguredDataSource> GetToTargetDataSources(this IObjectMappingData mappingData) 
+            => mappingData.MapperData.GetToTargetDataSources(sequential: null);
 
         public static IList<IConfiguredDataSource> GetToTargetDataSources(
             this IMemberMapperData mapperData,
-            bool sequential)
+            bool? sequential)
         {
             return mapperData
                 .MapperContext

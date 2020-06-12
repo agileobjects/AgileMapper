@@ -20,6 +20,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class MappingCreationContext
     {
         private IList<Expression> _memberMappingExpressions;
+        private IList<IConfiguredDataSource> _toTargetDataSources;
 
         public MappingCreationContext(IObjectMappingData mappingData)
         {
@@ -61,6 +62,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public List<Expression> MappingExpressions { get; }
 
         public bool InstantiateLocalVariable { get; set; }
+
+        public IList<IConfiguredDataSource> ToTargetDataSources
+            => _toTargetDataSources ??= MappingData.GetToTargetDataSources();
 
         public IList<Expression> GetMemberMappingExpressions()
         {

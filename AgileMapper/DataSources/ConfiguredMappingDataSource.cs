@@ -28,8 +28,10 @@
                 dataSourceIndex,
                 childMappingData.Parent);
 
+            var childCreationContext = new MappingCreationContext(childObjectMappingData);
+
             var mapping = ConfiguredMappingFactory
-                .GetMappingOrNull(childObjectMappingData, out _);
+                .GetMappingOrNull(childCreationContext, out _);
 
             if (mapping == null)
             {

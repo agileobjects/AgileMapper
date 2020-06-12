@@ -435,7 +435,7 @@
         public IList<ConfiguredDataSourceFactory> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
             => _dataSourceFactories.FindRelevantMatches(mapperData);
 
-        public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData, bool sequential)
+        public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData, bool? sequential)
         {
             if (!HasToTargetDataSources)
             {
@@ -443,7 +443,9 @@
             }
 
             var toTargetDataSources = QueryDataSourceFactories(mapperData)
-                .Filter(dsf => dsf.IsForToTargetDataSource && dsf.IsSequential == sequential)
+                .Filter(dsf => 
+                    dsf.IsForToTargetDataSource && 
+                   (dsf.IsSequential == sequential || !sequential.HasValue))
                 .Project(mapperData, (md, dsf) => dsf.Create(md))
                 .ToArray();
 

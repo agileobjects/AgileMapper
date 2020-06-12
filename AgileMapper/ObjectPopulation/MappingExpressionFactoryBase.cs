@@ -2,12 +2,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;
+    using ComplexTypes.ShortCircuits;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
-    using DataSources;
     using Enumerables.EnumerableExtensions;
     using Extensions;
     using Extensions.Internal;
@@ -71,7 +71,47 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected virtual Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.GetTargetMemberDefault();
 
-        protected virtual bool ShortCircuitMapping(MappingCreationContext context) => false;
+        private bool ShortCircuitMapping(MappingCreationContext context)
+        {
+            foreach (var factory in AlternateMappingFactories)
+            {
+                var mapping = factory.Invoke(context, out var isConditional);
+
+                if (mapping == null)
+                {
+                    continue;
+                }
+
+                AddAlternateMapping(context, mapping, isConditional);
+
+                if (isConditional)
+                {
+                    continue;
+                }
+
+                InsertShortCircuitReturns(context);
+                return true;
+            }
+
+            return false;
+        }
+
+        protected virtual IEnumerable<AlternateMappingFactory> AlternateMappingFactories
+        {
+            get
+            {
+                yield return GetConfiguredAlternateDataSourceMappingOrNull;
+                yield return ConfiguredMappingFactory.GetMappingOrNull;
+            }
+        }
+
+        private static Expression GetConfiguredAlternateDataSourceMappingOrNull(
+            MappingCreationContext context,
+            out bool isConditional)
+        {
+            isConditional = true;
+            return null;
+        }
 
         protected void AddAlternateMapping(
             MappingCreationContext context,
@@ -95,28 +135,56 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             context.MappingExpressions.Add(returnLabel);
         }
 
-        protected virtual void InsertShortCircuitReturns(MappingCreationContext context)
+        private void InsertShortCircuitReturns(MappingCreationContext context)
         {
+            if (ShortCircuitFactories != Enumerable<ShortCircuitFactory>.EmptyArray)
+            {
+                context.MappingExpressions.InsertRange(0, EnumerateShortCircuitReturns(context));
+            }
         }
+
+        private IEnumerable<Expression> EnumerateShortCircuitReturns(MappingCreationContext context)
+        {
+            var mappingData = context.MappingData;
+
+            foreach (var shortCircuitFactory in ShortCircuitFactories)
+            {
+                var shortCircuit = shortCircuitFactory.Invoke(mappingData);
+
+                if (shortCircuit != null)
+                {
+                    yield return shortCircuit;
+                }
+            }
+        }
+
+        protected virtual IEnumerable<ShortCircuitFactory> ShortCircuitFactories
+            => Enumerable<ShortCircuitFactory>.EmptyArray;
 
         private void AddPopulationsAndCallbacks(MappingCreationContext context)
         {
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
             context.MappingExpressions.AddRange(GetObjectPopulation(context));
-            context.MappingExpressions.AddRange(GetConfiguredToTargetDataSourceMappings(context));
+            context.MappingExpressions.AddRange(GetConfiguredToTargetDataSourceMappings(context, sequential: true));
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
         }
 
         protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
 
-        private IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(MappingCreationContext context)
+        protected IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(
+            MappingCreationContext context,
+            bool sequential)
         {
             if (context.MapperData.Context.IsForToTargetMapping)
             {
                 yield break;
             }
 
-            if (!HasConfiguredToTargetDataSources(context.MappingData, out var toTargetDataSources))
+            var toTargetDataSources = context
+                .ToTargetDataSources
+                .FilterToArray(sequential, (seq, cds) => cds.IsSequential == seq);
+
+            if (toTargetDataSources.None())
             {
                 yield break;
             }
@@ -148,7 +216,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 if (!toTargetDataSource.IsConditional)
                 {
                     yield return mapping;
-                    continue;
+                    break;
                 }
 
                 if (context.MapperData.TargetMember.IsComplex || (i > 0))
@@ -165,15 +233,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 yield return Expression.IfThenElse(toTargetDataSource.Condition, mapping, assignFallback);
             }
-        }
-
-        protected static bool HasConfiguredToTargetDataSources(
-            IObjectMappingData mappingData,
-            out IList<IConfiguredDataSource> dataSources)
-        {
-            dataSources = mappingData.GetToTargetDataSources(sequential: true);
-
-            return dataSources.Any();
         }
 
         private static bool NothingIsBeingMapped(MappingCreationContext context)

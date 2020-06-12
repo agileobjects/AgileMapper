@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
     using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -27,8 +26,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            if (HasConfiguredToTargetDataSources(mappingData, out var configuredToTargetDataSources) &&
-                configuredToTargetDataSources.Any(ds => ds.SourceMember.IsEnumerable))
+            if (mappingData.GetToTargetDataSources().Any(ds => ds.SourceMember.IsEnumerable))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
@@ -71,20 +69,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.GetFallbackCollectionValue();
-
-        protected override bool ShortCircuitMapping(MappingCreationContext context)
-        {
-            var mapping = ConfiguredMappingFactory
-                .GetMappingOrNull(context.MappingData, out var isConditional);
-
-            if (mapping == null)
-            {
-                return false;
-            }
-
-            AddAlternateMapping(context, mapping, isConditional);
-            return !isConditional;
-        }
 
         protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
         {

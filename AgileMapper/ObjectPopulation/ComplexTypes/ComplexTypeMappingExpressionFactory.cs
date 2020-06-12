@@ -18,27 +18,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private readonly PopulationExpressionFactoryBase _memberInitPopulationFactory;
         private readonly PopulationExpressionFactoryBase _multiStatementPopulationFactory;
-        private readonly IList<AlternateMappingFactory> _alternateMappingFactories;
-        private readonly IList<ShortCircuitFactory> _shortCircuitFactories;
 
         private ComplexTypeMappingExpressionFactory()
         {
             _memberInitPopulationFactory = new MemberInitPopulationExpressionFactory();
             _multiStatementPopulationFactory = new MultiStatementPopulationExpressionFactory();
-
-            _alternateMappingFactories = new AlternateMappingFactory[]
-            {
-                ConfiguredAlternateDataSourceMappingFactory.GetMappingOrNull,
-                ConfiguredMappingFactory.GetMappingOrNull,
-                DerivedComplexTypeMappingFactory.GetMappingOrNull
-            };
-
-            _shortCircuitFactories = new ShortCircuitFactory[]
-            {
-                NullSourceShortCircuitFactory.GetShortCircuitOrNull,
-                AlreadyMappedObjectShortCircuitFactory.GetShortCircuitOrNull,
-                SourceDictionaryShortCircuitFactory.GetShortCircuitOrNull
-            };
         }
 
         protected override bool TargetCannotBeMapped(IObjectMappingData mappingData, out string reason)
@@ -80,48 +64,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Short-Circuits
 
-        protected override bool ShortCircuitMapping(MappingCreationContext context)
+        protected override IEnumerable<AlternateMappingFactory> AlternateMappingFactories
         {
-            var mappingData = context.MappingData;
-
-            foreach (var factory in _alternateMappingFactories)
+            get
             {
-                var mapping = factory.Invoke(mappingData, out var isConditional);
-
-                if (mapping == null)
+                foreach (var mappingFactory in base.AlternateMappingFactories)
                 {
-                    continue;
+                    yield return mappingFactory;
                 }
 
-                AddAlternateMapping(context, mapping, isConditional);
-
-                if (isConditional)
-                {
-                    continue;
-                }
-
-                InsertShortCircuitReturns(context);
-                return true;
+                yield return DerivedComplexTypeMappingFactory.GetMappingOrNull;
             }
-
-            return false;
         }
 
-        protected override void InsertShortCircuitReturns(MappingCreationContext context)
-            => context.MappingExpressions.InsertRange(0, EnumerateShortCircuitReturns(context));
-
-        private IEnumerable<Expression> EnumerateShortCircuitReturns(MappingCreationContext context)
+        protected override IEnumerable<ShortCircuitFactory> ShortCircuitFactories
         {
-            var mappingData = context.MappingData;
-
-            foreach (var shortCircuitFactory in _shortCircuitFactories)
+            get
             {
-                var shortCircuit = shortCircuitFactory.Invoke(mappingData);
-
-                if (shortCircuit != null)
-                {
-                    yield return shortCircuit;
-                }
+                yield return NullSourceShortCircuitFactory.GetShortCircuitOrNull;
+                yield return AlreadyMappedObjectShortCircuitFactory.GetShortCircuitOrNull;
+                yield return SourceDictionaryShortCircuitFactory.GetShortCircuitOrNull;
             }
         }
 
