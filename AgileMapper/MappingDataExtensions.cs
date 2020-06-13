@@ -53,11 +53,11 @@
         }
 
         public static IList<IConfiguredDataSource> GetToTargetDataSources(this IObjectMappingData mappingData) 
-            => mappingData.MapperData.GetToTargetDataSources(sequential: null);
+            => mappingData.MapperData.GetToTargetDataSources();
 
         public static IList<IConfiguredDataSource> GetToTargetDataSources(
             this IMemberMapperData mapperData,
-            bool? sequential)
+            bool? sequential = null)
         {
             return mapperData
                 .MapperContext

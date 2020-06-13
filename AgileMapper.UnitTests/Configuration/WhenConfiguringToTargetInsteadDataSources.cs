@@ -33,5 +33,59 @@
                 result.Value2.ShouldBe(456);
             }
         }
+
+        [Fact]
+        public void ShouldApplyANestedAlternateOverwriteDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<int>>>()
+                    .Over<PublicField<int>>()
+                    .Map((s, t) => s.Value)
+                    .ToTargetInstead();
+
+                var source = new PublicTwoFields<int, PublicField<PublicField<int>>>
+                {
+                    Value1 = 6372,
+                    Value2 = new PublicField<PublicField<int>>
+                    {
+                        Value = new PublicField<int>
+                        {
+                            Value = 8262
+                        }
+                    }
+                };
+
+                var target = new PublicTwoFields<int, PublicField<int>>
+                {
+                    Value1 = 637,
+                    Value2 = new PublicField<int> { Value = 728 }
+                };
+
+                mapper.Map(source).Over(target);
+
+                target.Value1.ShouldBe(6372);
+                target.Value2.ShouldNotBeNull().Value.ShouldBe(8262);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAnAlternateSimpleTypeExpressionResult()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<string>().ToANew<string>()
+                    .Map((s, t) => string.IsNullOrEmpty(s) ? null : s)
+                    .ToTargetInstead();
+
+                var source = new Address { Line1 = "Here", Line2 = string.Empty };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("Here");
+                result.Line2.ShouldBeNull();
+            }
+        }
     }
 }
