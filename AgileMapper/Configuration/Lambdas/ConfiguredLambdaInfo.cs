@@ -253,7 +253,11 @@
                     .GetFriendlySourcePath(configInfo);
             }
 
-            return _description = _lambdaBody.ToReadableString();
+            var lambdaBody = _lambdaBody.NodeType == ExpressionType.Invoke
+                ? ((InvocationExpression)_lambdaBody).Expression
+                : _lambdaBody;
+
+            return _description = lambdaBody.ToReadableString();
         }
 
         public Expression GetBody(IMemberMapperData mapperData)

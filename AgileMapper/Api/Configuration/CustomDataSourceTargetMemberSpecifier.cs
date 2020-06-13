@@ -533,7 +533,9 @@
                 return;
             }
 
-            var sourceValue = GetSourceValueDescription(_customValueLambda.Body);
+            var sourceValue = (_customValueLambda != null)
+                ? GetSourceValueDescription(_customValueLambda.Body)
+                : _customValueLambdaInfo.GetDescription(_configInfo);
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
@@ -548,7 +550,7 @@
         private bool ConversionOperatorExists(Type targetMemberType)
         {
             return default(OperatorConverter).CanConvert(
-                _customValueLambda.Body.Type.GetNonNullableType(),
+                ConfiguredSourceType.GetNonNullableType(),
                 targetMemberType.GetNonNullableType());
         }
 
