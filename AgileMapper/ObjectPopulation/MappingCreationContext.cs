@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using DataSources;
     using Extensions;
+    using Extensions.Internal;
     using Members;
 #if NET35
     using static Microsoft.Scripting.Ast.ExpressionType;
@@ -67,6 +68,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IList<IConfiguredDataSource> ToTargetDataSources
             => _toTargetDataSources ??= MappingData.GetToTargetDataSources();
+
+        public Expression GetMappingExpression() => MappingExpressions.ToExpression();
 
         public IList<Expression> GetMemberMappingExpressions()
         {
@@ -128,7 +131,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     newMapperData.LocalVariable = MapperData.LocalVariable;
                 }
-                
+
                 newMapperData.TargetInstance = MapperData.TargetInstance;
             }
             else if (TargetMember.IsEnumerable)

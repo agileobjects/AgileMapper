@@ -41,9 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 if (context.MappingComplete)
                 {
-                    return context.MappingExpressions.HasOne()
-                        ? context.MappingExpressions.First()
-                        : Expression.Block(context.MappingExpressions);
+                    return context.GetMappingExpression();
                 }
 
                 goto CompleteMappingBlock;
@@ -225,20 +223,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var mapperData = context.MapperData;
 
-                var mapping = toTargetContext.MappingExpressions.HasOne()
-                    ? toTargetContext.MappingExpressions.First()
-                    : Expression.Block(toTargetContext.MappingExpressions);
+                var toTargetMapping = toTargetContext.GetMappingExpression();
 
-                mapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
+                toTargetMapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
                     mapperData,
                     toTargetContext.MapperData,
                     toTargetDataSource.Value,
-                    mapping);
+                    toTargetMapping);
 
                 if ((sequential && !toTargetDataSource.IsConditional) ||
                    (!sequential && !toTargetDataSource.HasConfiguredCondition))
                 {
-                    yield return mapping;
+                    yield return toTargetMapping;
                     break;
                 }
 
@@ -248,7 +244,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 {
                     if (sequential || !mapperData.TargetMemberIsEnumerableElement())
                     {
-                        yield return Expression.IfThen(toTargetDataSource.Condition, mapping);
+                        yield return Expression.IfThen(toTargetDataSource.Condition, toTargetMapping);
                         continue;
                     }
 
@@ -263,7 +259,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var assignFallback = mapperData.LocalVariable.AssignTo(fallback);
 
-                yield return Expression.IfThenElse(toTargetDataSource.Condition, mapping, assignFallback);
+                yield return Expression.IfThenElse(toTargetDataSource.Condition, toTargetMapping, assignFallback);
             }
         }
 

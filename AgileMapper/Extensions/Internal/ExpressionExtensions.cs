@@ -318,6 +318,9 @@
             }
         }
 
+        public static Expression ToExpression(this IList<Expression> expressions)
+            => expressions.HasOne() ? expressions.First() : Expression.Block(expressions);
+
         public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
         {
             if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))

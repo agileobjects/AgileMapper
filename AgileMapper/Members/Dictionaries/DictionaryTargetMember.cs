@@ -314,9 +314,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
             mapping = mappingBlock.Variables.Any()
                 ? Expression.Block(mappingBlock.Variables, mappingExpressions)
-                : mappingExpressions.HasOne()
-                    ? mappingExpressions[0]
-                    : Expression.Block(mappingExpressions);
+                : mappingExpressions.ToExpression();
 
             return true;
         }
