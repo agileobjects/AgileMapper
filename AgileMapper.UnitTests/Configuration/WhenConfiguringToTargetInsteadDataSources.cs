@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using AgileMapper.Extensions;
     using Common;
     using TestClasses;
@@ -36,7 +38,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedAlternateOverwriteDataSource()
+        public void ShouldUseANestedAlternateOverwriteDataSource()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -72,7 +74,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAnAlternateSimpleTypeExpressionResult()
+        public void ShouldUseAnAlternateSimpleTypeExpressionResult()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -90,7 +92,7 @@
         }
 
         [Fact]
-        public void ShouldApplyANestedAlternateDataSourceConditionally()
+        public void ShouldUseANestedAlternateDataSourceConditionally()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -136,6 +138,46 @@
 
                 nonMatchingResult.Value1.ShouldBeDefault();
                 nonMatchingResult.Value2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
+        public void ShouldUseAnAlternateDataSourceForEnumerableElementsConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, PublicField<int>>>()
+                    .To<PublicProperty<string>>()
+                    .If((ptf, pp, i) => i > 0 && i % 2 == 0)
+                    .Map((ptf, pp, i) => new PublicField<int>
+                    {
+                        Value = ptf.Value2.Value * 2
+                    })
+                    .ToTargetInstead();
+
+                var source = new PublicProperty<IList<PublicTwoFields<int, PublicField<int>>>>
+                {
+                    Value = new[] { 0, 1, 2, 3, 4 }
+                        .Select(i => new PublicTwoFields<int, PublicField<int>>
+                        {
+                            Value1 = i,
+                            Value2 = new PublicField<int> { Value = i }
+                        })
+                        .ToArray()
+                };
+
+                var result = mapper
+                    .Map(source)
+                    .ToANew<PublicField<PublicProperty<string>[]>>();
+
+                var values = result.ShouldNotBeNull().Value.ShouldNotBeEmpty().ToArray();
+
+                values[0].ShouldBeNull();      // Because  i == 0
+                values[1].ShouldBeNull();      // Because (i == 1) % 2 == 1
+                values[2].Value.ShouldBe("4"); // Because (i == 2) % 2 == 0 and Value == 2
+                values[3].ShouldBeNull();      // Because (i == 3) % 2 == 1
+                values[4].Value.ShouldBe("8"); // Because (i == 4) % 2 == 0 and Value == 4
             }
         }
 

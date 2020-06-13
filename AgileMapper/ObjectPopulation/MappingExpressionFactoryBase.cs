@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
-        CompleteMappingBlock:
+            CompleteMappingBlock:
             InsertShortCircuitReturns(context);
 
             var mappingBlock = GetMappingBlock(context);
@@ -174,11 +174,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 context.MappingExpressions.AddRange(factory.GetObjectPopulation(context));
 
-                if (context.MapperData.Context.IsForToTargetMapping)
-                {
-                    return;
-                }
-
                 context.MappingExpressions.AddRange(
                     GetConfiguredToTargetDataSourceMappings(context, sequential: true));
             });
@@ -228,12 +223,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 context.UpdateFrom(toTargetContext, toTargetDataSource);
 
+                var mapperData = context.MapperData;
+
                 var mapping = toTargetContext.MappingExpressions.HasOne()
                     ? toTargetContext.MappingExpressions.First()
                     : Expression.Block(toTargetContext.MappingExpressions);
 
                 mapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
-                    context.MapperData,
+                    mapperData,
                     toTargetContext.MapperData,
                     toTargetDataSource.Value,
                     mapping);
@@ -245,17 +242,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     break;
                 }
 
-                if (context.MapperData.TargetMember.IsComplex || (i > 0))
+                Expression fallback;
+
+                if (mapperData.TargetMember.IsComplex || (i > 0))
                 {
-                    yield return Expression.IfThen(toTargetDataSource.Condition, mapping);
-                    continue;
+                    if (sequential || !mapperData.TargetMemberIsEnumerableElement())
+                    {
+                        yield return Expression.IfThen(toTargetDataSource.Condition, mapping);
+                        continue;
+                    }
+
+                    fallback = mapperData.GetTargetMemberDefault();
+                }
+                else
+                {
+                    fallback = mapperData.LocalVariable.Type.GetEmptyInstanceCreation(
+                        context.TargetMember.ElementType,
+                        mapperData.EnumerablePopulationBuilder.TargetTypeHelper);
                 }
 
-                var fallback = context.MapperData.LocalVariable.Type.GetEmptyInstanceCreation(
-                    context.TargetMember.ElementType,
-                    context.MapperData.EnumerablePopulationBuilder.TargetTypeHelper);
-
-                var assignFallback = context.MapperData.LocalVariable.AssignTo(fallback);
+                var assignFallback = mapperData.LocalVariable.AssignTo(fallback);
 
                 yield return Expression.IfThenElse(toTargetDataSource.Condition, mapping, assignFallback);
             }
