@@ -56,7 +56,7 @@
                 MappingDataCreationFactory.ForChild(mappingValues, childObjectMapperData));
 
             var returnValue = childObjectMapperData
-                .GetFinalisedReturnLabel(directAccessMapping, out var returnsDefault);
+                .GetFinalisedReturnValue(directAccessMapping, out var returnsDefault);
 
             if (returnsDefault)
             {

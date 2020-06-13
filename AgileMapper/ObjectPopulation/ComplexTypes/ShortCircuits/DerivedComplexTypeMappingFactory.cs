@@ -34,6 +34,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
                 derivedTypeDataSources.Last().IsConditional &&
                !mappingData.MapperData.TargetType.IsAbstract();
 
+            if (!isConditional)
+            {
+                context.MappingComplete = true;
+            }
+
             return derivedTypeDataSourceSet.BuildValue();
         }
     }

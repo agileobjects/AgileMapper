@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using ComplexTypes.ShortCircuits;
@@ -38,9 +39,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (ShortCircuitMapping(context))
             {
-                return context.MappingExpressions.HasOne()
-                    ? context.MappingExpressions.First()
-                    : Expression.Block(context.MappingExpressions);
+                if (context.MappingComplete)
+                {
+                    return context.MappingExpressions.HasOne()
+                        ? context.MappingExpressions.First()
+                        : Expression.Block(context.MappingExpressions);
+                }
+
+                goto CompleteMappingBlock;
             }
 
             AddPopulationsAndCallbacks(context);
@@ -50,6 +56,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
+        CompleteMappingBlock:
             InsertShortCircuitReturns(context);
 
             var mappingBlock = GetMappingBlock(context);
@@ -82,14 +89,34 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     continue;
                 }
 
-                AddAlternateMapping(context, mapping, isConditional);
-
-                if (isConditional)
+                if (context.MappingComplete)
                 {
-                    continue;
+                    InsertShortCircuitReturns(context);
+
+                    var returnLabel = context.MapperData
+                        .GetFinalisedReturnValue(mapping, out var returnsDefault);
+
+                    if (returnsDefault)
+                    {
+                        context.MappingExpressions.Add(mapping);
+                    }
+
+                    context.MappingExpressions.Add(returnLabel);
+                }
+                else
+                {
+                    if (isConditional)
+                    {
+                        context.MappingExpressions.Add(mapping);
+                        continue;
+                    }
+
+                    AddPopulationsAndCallbacks(
+                        mapping,
+                        context,
+                        (m, ctx) => ctx.MappingExpressions.Add(m));
                 }
 
-                InsertShortCircuitReturns(context);
                 return true;
             }
 
@@ -110,31 +137,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             out bool isConditional)
         {
             isConditional = false;
-            
+
             return GetConfiguredToTargetDataSourceMappings(context, sequential: false)
                 .FirstOrDefault();
-        }
-
-        protected void AddAlternateMapping(
-            MappingCreationContext context,
-            Expression mapping,
-            bool isConditional)
-        {
-            if (isConditional)
-            {
-                context.MappingExpressions.Add(mapping);
-                return;
-            }
-
-            var returnLabel = context.MapperData
-                .GetFinalisedReturnLabel(mapping, out var returnsDefault);
-
-            if (returnsDefault)
-            {
-                context.MappingExpressions.Add(mapping);
-            }
-
-            context.MappingExpressions.Add(returnLabel);
         }
 
         private void InsertShortCircuitReturns(MappingCreationContext context)
@@ -165,9 +170,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private void AddPopulationsAndCallbacks(MappingCreationContext context)
         {
+            AddPopulationsAndCallbacks(this, context, (factory, ctx) =>
+            {
+                context.MappingExpressions.AddRange(factory.GetObjectPopulation(context));
+
+                if (context.MapperData.Context.IsForToTargetMapping)
+                {
+                    return;
+                }
+
+                context.MappingExpressions.AddRange(
+                    GetConfiguredToTargetDataSourceMappings(context, sequential: true));
+            });
+        }
+
+        private static void AddPopulationsAndCallbacks<TArg>(
+            TArg argument,
+            MappingCreationContext context,
+            Action<TArg, MappingCreationContext> mappingBodyPopulator)
+        {
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PreMappingCallback);
-            context.MappingExpressions.AddRange(GetObjectPopulation(context));
-            context.MappingExpressions.AddRange(GetConfiguredToTargetDataSourceMappings(context, sequential: true));
+            mappingBodyPopulator.Invoke(argument, context);
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
         }
 
@@ -301,6 +324,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             AdjustForSingleExpressionBlockIfApplicable(context);
 
             var firstExpression = mappingExpressions.First();
+
+            if (firstExpression.NodeType == Goto)
+            {
+                return ((GotoExpression)firstExpression).Value;
+            }
 
             if (context.MapperData.UseSingleMappingExpression())
             {

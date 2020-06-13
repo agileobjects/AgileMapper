@@ -144,7 +144,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .GetTargetObjectCreation(mappingData);
         }
 
-        private bool LocalVariableCouldBeNull(Expression instantiation)
+        private static bool LocalVariableCouldBeNull(Expression instantiation)
         {
             if (instantiation.Type.CannotBeNull())
             {

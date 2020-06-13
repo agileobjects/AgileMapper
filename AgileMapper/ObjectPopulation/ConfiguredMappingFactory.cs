@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;
+    using ComplexTypes;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -19,7 +20,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingCreationContext context,
             out bool isConditional)
         {
-            return GetMappingOrNull(context.MappingData, out isConditional);
+            var mappingData = context.MappingData;
+            var mapping = GetMappingOrNull(mappingData, out isConditional);
+
+            if ((mapping?.NodeType != ExpressionType.Goto) ||
+                (context.PostMappingCallback == null))
+            {
+                return mapping;
+            }
+
+            mapping = ((GotoExpression)mapping).Value;
+            
+            mapping = TargetObjectResolutionFactory.GetObjectResolution(
+                mapping,
+                mappingData,
+                assignTargetObject: true);
+
+            mapping = mappingData.MapperData.LocalVariable.AssignTo(mapping);
+
+            return mapping;
         }
 
         public static Expression GetMappingOrNull(

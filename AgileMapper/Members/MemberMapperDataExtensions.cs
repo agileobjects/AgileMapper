@@ -684,18 +684,16 @@ namespace AgileObjects.AgileMapper.Members
         private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
             => Expression.Call(subject, method.MakeGenericMethod(typeArgument));
 
-        public static Expression GetFinalisedReturnLabel(
+        public static Expression GetFinalisedReturnValue(
             this ObjectMapperData mapperData,
             Expression value,
             out bool returnsDefault)
         {
             returnsDefault = value.NodeType != ExpressionType.Goto;
 
-            value = returnsDefault
-                ? mapperData.GetTargetFallbackValue()
+            return returnsDefault
+                ? mapperData.GetReturnLabel(mapperData.GetTargetFallbackValue())
                 : ((GotoExpression)value).Value;
-
-            return mapperData.GetReturnLabel(value);
         }
     }
 }

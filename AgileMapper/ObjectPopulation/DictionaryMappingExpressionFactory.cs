@@ -444,7 +444,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var valueResolution = TargetObjectResolutionFactory.GetObjectResolution(
                 value,
                 mappingData,
-                mapperData.HasRepeatedMapperFuncs);
+                assignTargetObject: mapperData.HasRepeatedMapperFuncs);
 
             if (valueResolution == mapperData.TargetInstance)
             {

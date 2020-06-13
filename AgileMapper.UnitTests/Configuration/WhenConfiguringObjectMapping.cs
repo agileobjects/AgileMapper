@@ -395,5 +395,66 @@
                 result.Value.Second().Line2.ShouldBe("[None]");
             }
         }
+
+        [Fact]
+        public void ShouldHandleAnExceptionInARootConfiguredTwoParameterFactory()
+        {
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    static Address MapAddress(Address srcAddr, Address tgtAddr) => 
+                        throw new NotSupportedException("BOOOOOM");
+
+                    mapper.WhenMapping
+                        .From<Address>()
+                        .To<Address>()
+                        .MapInstancesUsing((Func<Address, Address, Address>)MapAddress);
+
+                    var source = new Address { Line1 = "Over here" };
+                    mapper.Map(source).ToANew<Address>();
+                }
+            });
+
+            mappingEx.Message.ShouldContain("Address -> Address");
+            mappingEx.InnerException.ShouldNotBeNull().Message.ShouldBe("BOOOOOM");
+        }
+
+        [Fact]
+        public void ShouldExecuteRootMappingCallbacks()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var preCallbackCalled = false;
+                var postCallbackCalled = false;
+                var targetObject = default(Address);
+
+                mapper.WhenMapping
+                    .From<Address>()
+                    .To<Address>()
+                    .MapInstancesUsing(ctx => new Address
+                    {
+                        Line1 = ctx.Source.Line1 + "!"
+                    })
+                    .And.Before.MappingBegins.Call(ctx =>
+                    {
+                        preCallbackCalled = true;
+                    })
+                    .And.After.MappingEnds.Call(ctx =>
+                    {
+                        targetObject = ctx.Target;
+                        postCallbackCalled = true;
+                    });
+
+                var source = new Address { Line1 = "Over here" };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("Over here!");
+                
+                preCallbackCalled.ShouldBeTrue();
+                postCallbackCalled.ShouldBeTrue();
+                targetObject.ShouldBeSameAs(result);
+            }
+        }
     }
 }

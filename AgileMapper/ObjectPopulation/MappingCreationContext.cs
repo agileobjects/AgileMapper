@@ -63,6 +63,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool InstantiateLocalVariable { get; set; }
 
+        public bool MappingComplete { get; set; }
+
         public IList<IConfiguredDataSource> ToTargetDataSources
             => _toTargetDataSources ??= MappingData.GetToTargetDataSources();
 
