@@ -90,6 +90,56 @@
         }
 
         [Fact]
+        public void ShouldApplyANestedAlternateDataSourceConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<int>>>()
+                    .ToANew<PublicField<int>>()
+                    .If(ctx => ctx.Source.Value.Value > 100)
+                    .Map((s, t) => s.Value)
+                    .ToTargetInstead();
+
+                var matchingSource = new PublicTwoFields<int, PublicField<PublicField<int>>>
+                {
+                    Value2 = new PublicField<PublicField<int>>
+                    {
+                        Value = new PublicField<int>
+                        {
+                            Value = 200
+                        }
+                    }
+                };
+
+                var matchingResult = mapper
+                    .Map(matchingSource)
+                    .ToANew<PublicTwoFields<int, PublicField<int>>>();
+
+                matchingResult.Value1.ShouldBeDefault();
+                matchingResult.Value2.ShouldNotBeNull().Value.ShouldBe(200);
+
+                var nonMatchingSource = new PublicTwoFields<int, PublicField<PublicField<int>>>
+                {
+                    Value2 = new PublicField<PublicField<int>>
+                    {
+                        Value = new PublicField<int>
+                        {
+                            Value = 100
+                        }
+                    }
+                };
+
+                var nonMatchingResult = mapper
+                    .Map(nonMatchingSource)
+                    .ToANew<PublicTwoFields<int, PublicField<int>>>();
+
+                nonMatchingResult.Value1.ShouldBeDefault();
+                nonMatchingResult.Value2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMemberInAnAlternateDataSource()
         {
             using (var mapper = Mapper.CreateNew())

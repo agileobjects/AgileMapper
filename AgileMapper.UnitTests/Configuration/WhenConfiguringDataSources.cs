@@ -709,6 +709,28 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/174
+        [Fact]
+        public void ShouldApplyASimpleToNestedComplexTypeMemberDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                var source = new PublicField<object> { Value = 123 };
+
+                mapper.WhenMapping
+                    .From<int>()
+                    .To<PublicField<int>>()
+                    .Map(i => i, t => t.Value);
+
+                var result = source
+                    .MapUsing(mapper)
+                    .ToANew<PublicProperty<PublicField<int>>>();
+
+                result.Value.ShouldNotBeNull();
+                result.Value.Value.ShouldBe(123);
+            }
+        }
+
         [Fact]
         public void ShouldApplyASourceComplexTypeMember()
         {
