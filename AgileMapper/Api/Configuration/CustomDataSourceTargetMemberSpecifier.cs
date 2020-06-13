@@ -527,7 +527,7 @@
         {
             if ((targetMemberType == typeof(object)) ||
                  targetMemberType.IsSimple() ||
-               !_customValueLambda.Body.Type.IsSimple() ||
+                !ConfiguredSourceType.IsSimple() ||
                  ConversionOperatorExists(targetMemberType))
             {
                 return;
@@ -541,6 +541,9 @@
                 sourceValue,
                 targetMemberType.GetFriendlyName()));
         }
+
+        private Type ConfiguredSourceType
+            => _customValueLambdaInfo?.ReturnType ?? _customValueLambda.Body.Type;
 
         private bool ConversionOperatorExists(Type targetMemberType)
         {

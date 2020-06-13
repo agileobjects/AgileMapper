@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
 {
+    using System;
     using AgileMapper.Extensions;
     using Common;
     using TestClasses;
@@ -86,6 +87,32 @@
                 result.Line1.ShouldBe("Here");
                 result.Line2.ShouldBeNull();
             }
+        }
+
+        [Fact]
+        public void ShouldHandleAnExceptionInARootConfiguredAlternateDataSource()
+        {
+            var mappingEx = Should.Throw<MappingException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    Func<PublicField<PublicField<int>>, PublicField<long>, PublicField<long>> mapValue =
+                        (src, tgt) => throw new NotSupportedException("ASPLODE");
+
+                    mapper.WhenMapping
+                        .From<PublicField<PublicField<int>>>()
+                        .To<PublicField<long>>()
+                        .Map(mapValue)
+                        .ToTargetInstead();
+
+                    var source = new PublicField<PublicField<int>>();
+
+                    mapper.Map(source).ToANew<PublicField<long>>();
+                }
+            });
+
+            mappingEx.Message.ShouldContain("PublicField<PublicField<int>> -> PublicField<long>");
+            mappingEx.InnerException.ShouldNotBeNull().Message.ShouldBe("ASPLODE");
         }
     }
 }

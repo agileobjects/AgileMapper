@@ -14,6 +14,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members;
     using NetStandardPolyfills;
     using Validation;
+#if NET35
+    using static Microsoft.Scripting.Ast.Expression;
+#else
+    using static System.Linq.Expressions.Expression;
+#endif
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
@@ -193,12 +198,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         sourceParameter,
                         ExpressionEvaluation.Equivalator);
 
-                var getRuntimeTypeCall = Expression.Call(
+                if (memberAccess.NodeType == ExpressionType.Invoke)
+                {
+                    var runtimeTypeLambda =
+                        Lambda<Func<TSource, Type>>(Constant(sm.Type), sourceParameter);
+
+                    return runtimeTypeLambda.Compile();
+                }
+
+                var getRuntimeTypeCall = Call(
                     ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sm.Type),
                     memberAccess);
 
-                var getRuntimeTypeLambda = Expression
-                    .Lambda<Func<TSource, Type>>(getRuntimeTypeCall, sourceParameter);
+                var getRuntimeTypeLambda =
+                    Lambda<Func<TSource, Type>>(getRuntimeTypeCall, sourceParameter);
 
                 return getRuntimeTypeLambda.Compile();
             });
@@ -382,8 +395,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IObjectMappingData WithToTargetSource(IQualifiedMember sourceMember)
         {
+            var newSourceType = GetSourceMemberRuntimeType(sourceMember);
+
             var newSourceMappingData = UpdateTypes(
-                GetSourceMemberRuntimeType(sourceMember),
+                newSourceType,
                 MapperData.TargetType,
                 IsPartOfDerivedTypeMapping);
 
@@ -420,8 +435,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     k.SourceType,
                     k.TargetType);
 
-                var typesConversionLambda = Expression
-                    .Lambda<Func<IObjectMappingData<TSource, TTarget>, bool, IObjectMappingDataUntyped>>(
+                var typesConversionLambda = Lambda<Func<IObjectMappingData<TSource, TTarget>, bool, IObjectMappingDataUntyped>>(
                         typesConversionCall,
                         mappingDataParameter,
                         isForDerivedTypeParameter);
