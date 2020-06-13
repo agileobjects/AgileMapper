@@ -248,7 +248,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.GetFallbackCollectionValue();
 
-        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
+        protected override void AddObjectPopulation(MappingCreationContext context)
         {
             Expression population;
 
@@ -262,8 +262,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (useAssignmentOnly)
             {
-                yield return assignmentFactory.Invoke(context.MappingData);
-                yield break;
+                context.MappingExpressions.Add(assignmentFactory.Invoke(context.MappingData));
+                return;
             }
 
             population = GetDictionaryPopulation(context.MappingData);
@@ -271,14 +271,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (assignment != null)
             {
-                yield return assignment;
+                context.MappingExpressions.Add(assignment);
             }
 
-        ReturnPopulation:
-            if (population != null)
-            {
-                yield return population;
-            }
+            ReturnPopulation:
+            context.MappingExpressions.AddUnlessNullOrEmpty(population);
         }
 
         private static Func<IObjectMappingData, Expression> GetDictionaryAssignmentFactoryOrNull(

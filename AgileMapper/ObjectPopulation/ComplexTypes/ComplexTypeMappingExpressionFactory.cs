@@ -1,11 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 {
     using System.Collections.Generic;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -89,13 +84,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #endregion
 
-        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
+        protected override void AddObjectPopulation(MappingCreationContext context)
         {
             var expressionFactory = context.MapperData.UseMemberInitialisations()
                 ? _memberInitPopulationFactory
                 : _multiStatementPopulationFactory;
 
-            return expressionFactory.GetPopulation(context);
+            expressionFactory.AddPopulation(context);
         }
     }
 }

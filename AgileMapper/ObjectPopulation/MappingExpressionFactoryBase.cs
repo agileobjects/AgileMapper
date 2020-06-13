@@ -172,7 +172,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             AddPopulationsAndCallbacks(this, context, (factory, ctx) =>
             {
-                context.MappingExpressions.AddRange(factory.GetObjectPopulation(context));
+                factory.AddObjectPopulation(context);
 
                 context.MappingExpressions.AddRange(
                     GetConfiguredToTargetDataSourceMappings(context, sequential: true));
@@ -189,7 +189,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             context.MappingExpressions.AddUnlessNullOrEmpty(context.PostMappingCallback);
         }
 
-        protected abstract IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context);
+        protected abstract void AddObjectPopulation(MappingCreationContext context);
 
         protected IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(
             MappingCreationContext context,

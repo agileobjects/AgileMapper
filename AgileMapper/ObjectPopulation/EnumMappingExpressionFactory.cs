@@ -1,12 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using System.Collections.Generic;
     using System.Globalization;
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
     using Extensions.Internal;
     using ReadableExpressions.Extensions;
     using TypeConversion;
@@ -31,12 +25,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return true;
         }
 
-        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
+        protected override void AddObjectPopulation(MappingCreationContext context)
         {
             var mapperData = context.MapperData;
             var enumMapping = mapperData.GetValueConversion(mapperData.SourceObject, mapperData.TargetType);
 
-            yield return context.MapperData.LocalVariable.AssignTo(enumMapping);
+            var population = context.MapperData.LocalVariable.AssignTo(enumMapping);
+
+            context.MappingExpressions.Add(population);
         }
     }
 }
