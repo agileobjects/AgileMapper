@@ -90,6 +90,30 @@
         }
 
         [Fact]
+        public void ShouldHandleANullSourceMemberInAnAlternateDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<PublicField<int>>>()
+                    .To<PublicField<int>>()
+                    .Map((s, t) => s.Value)
+                    .ToTargetInstead();
+
+                var source = new PublicTwoFields<int, PublicField<PublicField<int>>>
+                {
+                    Value1 = 911,
+                    Value2 = null
+                };
+
+                var result = mapper.Map(source).ToANew<PublicTwoFields<int, PublicField<int>>>();
+
+                result.Value1.ShouldBe(911);
+                result.Value2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldHandleAnExceptionInARootConfiguredAlternateDataSource()
         {
             var mappingEx = Should.Throw<MappingException>(() =>
