@@ -440,10 +440,18 @@
         #endregion
 
         public IMappingConfigContinuation<TSource, TTarget> ToTarget()
-            => RegisterDataSource<TTarget>(cdsff => cdsff.CreateForToTarget());
+            => RegisterDataSource<TTarget>(cdsff => cdsff.CreateForToTarget(isSequential: true));
 
-        private ConfiguredDataSourceFactory CreateForToTarget()
+        public IMappingConfigContinuation<TSource, TTarget> ToTargetInstead()
+            => RegisterDataSource<TTarget>(cdsff => cdsff.CreateForToTarget(isSequential: false));
+
+        private ConfiguredDataSourceFactory CreateForToTarget(bool isSequential)
         {
+            if (isSequential)
+            {
+                _configInfo.ForSequentialConfiguration();
+            }
+
             return new ConfiguredDataSourceFactory(
                 _configInfo,
                 GetValueLambdaInfo<TTarget>(),
@@ -519,13 +527,15 @@
         {
             if ((targetMemberType == typeof(object)) ||
                  targetMemberType.IsSimple() ||
-               !_customValueLambda.Body.Type.IsSimple() ||
+                !ConfiguredSourceType.IsSimple() ||
                  ConversionOperatorExists(targetMemberType))
             {
                 return;
             }
 
-            var sourceValue = GetSourceValueDescription(_customValueLambda.Body);
+            var sourceValue = (_customValueLambda != null)
+                ? GetSourceValueDescription(_customValueLambda.Body)
+                : _customValueLambdaInfo.GetDescription(_configInfo);
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
@@ -534,10 +544,13 @@
                 targetMemberType.GetFriendlyName()));
         }
 
+        private Type ConfiguredSourceType
+            => _customValueLambdaInfo?.ReturnType ?? _customValueLambda.Body.Type;
+
         private bool ConversionOperatorExists(Type targetMemberType)
         {
             return default(OperatorConverter).CanConvert(
-                _customValueLambda.Body.Type.GetNonNullableType(),
+                ConfiguredSourceType.GetNonNullableType(),
                 targetMemberType.GetNonNullableType());
         }
 
@@ -653,8 +666,8 @@
         ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateFromLambda<TTargetValue>()
             => CreateFromLambda<TTargetValue>();
 
-        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateForToTarget()
-            => CreateForToTarget();
+        ConfiguredDataSourceFactory IConfiguredDataSourceFactoryFactory.CreateForToTarget(bool isSequential)
+            => CreateForToTarget(isSequential);
 
         #endregion
 

@@ -31,11 +31,7 @@
 
         public static IConfiguredDataSource GetToTargetDataSourceOrNullForTargetType(this IObjectMappingData mappingData)
         {
-            var toTargetDataSources = mappingData
-                .MapperData
-                .MapperContext
-                .UserConfigurations
-                .GetDataSourcesForToTarget(mappingData.MapperData);
+            var toTargetDataSources = mappingData.GetToTargetDataSources();
 
             if (toTargetDataSources.None())
             {
@@ -54,6 +50,19 @@
 
             // TODO: Cover: Unconstructable ToTarget data source
             return null;
+        }
+
+        public static IList<IConfiguredDataSource> GetToTargetDataSources(this IObjectMappingData mappingData) 
+            => mappingData.MapperData.GetToTargetDataSources();
+
+        public static IList<IConfiguredDataSource> GetToTargetDataSources(
+            this IMemberMapperData mapperData,
+            bool? sequential = null)
+        {
+            return mapperData
+                .MapperContext
+                .UserConfigurations
+                .GetDataSourcesForToTarget(mapperData, sequential);
         }
 
         public static bool HasSameTypedConfiguredDataSource(this IObjectMappingData mappingData)

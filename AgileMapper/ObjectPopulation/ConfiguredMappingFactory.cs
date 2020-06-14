@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;
+    using ComplexTypes;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -15,11 +16,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class ConfiguredMappingFactory
     {
-        public static Expression GetMappingOrNull(IObjectMappingData mappingData, out bool isConditional)
+        public static Expression GetMappingOrNull(
+            MappingCreationContext context,
+            out bool isConditional)
         {
-            var mapperData = mappingData.MapperData;
+            var mappingData = context.MappingData;
+            var mapping = GetMappingOrNull(mappingData, out isConditional);
 
-            var mappingFactoryDataSources = GetMappingFactoryDataSources(mapperData);
+            if ((mapping?.NodeType != ExpressionType.Goto) ||
+                (context.PostMappingCallback == null))
+            {
+                return mapping;
+            }
+
+            mapping = ((GotoExpression)mapping).Value;
+            
+            mapping = TargetObjectResolutionFactory.GetObjectResolution(
+                mapping,
+                mappingData,
+                assignTargetObject: true);
+
+            mapping = mappingData.MapperData.LocalVariable.AssignTo(mapping);
+
+            return mapping;
+        }
+
+        public static Expression GetMappingOrNull(
+            IObjectMappingData mappingData,
+            out bool isConditional)
+        {
+            var mappingFactoryDataSources =
+                GetMappingFactoryDataSources(mappingData.MapperData);
 
             if (mappingFactoryDataSources.None())
             {
@@ -43,8 +70,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .Project(mapperData, GetMappingFactoryDataSource)
                 .ToArray();
         }
-        
-        public static IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
+
+        public static bool HasMappingFactories(IQualifiedMemberContext context)
+            => QueryMappingFactories(context).Any();
+
+        private static IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
             => context.MapperContext.UserConfigurations.QueryMappingFactories(context);
 
         private static IDataSource GetMappingFactoryDataSource(

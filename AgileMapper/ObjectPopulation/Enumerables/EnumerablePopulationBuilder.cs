@@ -140,7 +140,7 @@
 
         public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
 
-        public ParameterExpression Counter => _counterVariable ?? (_counterVariable = GetCounterVariable());
+        public ParameterExpression Counter => _counterVariable ??= GetCounterVariable();
 
         private ParameterExpression GetCounterVariable()
         {

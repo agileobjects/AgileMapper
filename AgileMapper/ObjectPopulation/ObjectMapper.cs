@@ -27,16 +27,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Mapping = mapping;
             MapperData = mappingData.MapperData;
 
-            if (MapperData.Context.Compile)
+            var mapperDataContext = MapperData.Context;
+
+            if (mapperDataContext.Compile)
             {
                 _mapperFunc = GetMappingLambda().Compile();
             }
-            else if (MapperData.Context.NeedsRuntimeTypedMapping)
+            else if (mapperDataContext.NeedsRuntimeTypedMapping)
             {
                 MapperData.Mapper = this;
             }
 
-            if (MapperData.Context.NeedsRuntimeTypedMapping)
+            if (mapperDataContext.NeedsRuntimeTypedMapping)
             {
                 _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }

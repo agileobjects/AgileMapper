@@ -1,7 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
-    using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -22,13 +20,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            if (ConfiguredMappingFactory.QueryMappingFactories(mapperData).Any())
+            if (ConfiguredMappingFactory.HasMappingFactories(mapperData))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            if (HasConfiguredToTargetDataSources(mapperData, out var configuredToTargetDataSources) &&
-                configuredToTargetDataSources.Any(ds => ds.SourceMember.IsEnumerable))
+            if (mappingData.GetToTargetDataSources().Any(ds => ds.SourceMember.IsEnumerable))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
@@ -66,31 +63,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 mapperData,
                 mapperData.MapperContext);
 
-            return ConfiguredMappingFactory.QueryMappingFactories(queryContext).Any();
+            return ConfiguredMappingFactory.HasMappingFactories(queryContext);
         }
 
         protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.GetFallbackCollectionValue();
 
-        protected override bool ShortCircuitMapping(MappingCreationContext context)
-        {
-            var mapping = ConfiguredMappingFactory
-                .GetMappingOrNull(context.MappingData, out var isConditional);
-
-            if (mapping == null)
-            {
-                return false;
-            }
-
-            AddAlternateMapping(context, mapping, isConditional);
-            return !isConditional;
-        }
-
-        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
+        protected override void AddObjectPopulation(MappingCreationContext context)
         {
             if (!HasCompatibleSourceMember(context.MapperData))
             {
-                yield break;
+                return;
             }
 
             var elementContext = context.MapperData.GetElementMemberContext();
@@ -98,12 +81,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             if (elementContext.IsRepeatMapping() &&
                 context.RuleSet.RepeatMappingStrategy.WillNotMap(elementContext))
             {
-                yield break;
+                return;
             }
 
-            yield return context.RuleSet.EnumerablePopulationStrategy.Invoke(
+            var population = context.RuleSet.EnumerablePopulationStrategy.Invoke(
                 context.MapperData.EnumerablePopulationBuilder,
                 context.MappingData);
+
+            context.MappingExpressions.Add(population);
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)

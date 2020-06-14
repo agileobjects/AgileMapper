@@ -7,6 +7,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
 #endif
 
     internal delegate Expression AlternateMappingFactory(
-        IObjectMappingData mappingData,
+        MappingCreationContext context,
         out bool isConditional);
 }

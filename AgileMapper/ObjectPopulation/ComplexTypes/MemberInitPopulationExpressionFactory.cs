@@ -19,7 +19,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             yield return memberPopulator.GetPopulation();
         }
 
-        protected override Expression GetTargetObjectCreation(IObjectMappingData mappingData, IList<Expression> memberPopulations)
+        protected override Expression GetTargetObjectCreation(
+            IObjectMappingData mappingData, 
+            IList<Expression> memberPopulations)
         {
             var objectCreation = base.GetTargetObjectCreation(mappingData, memberPopulations);
 

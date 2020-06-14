@@ -28,8 +28,10 @@
                 dataSourceIndex,
                 childMappingData.Parent);
 
+            var childCreationContext = new MappingCreationContext(childObjectMappingData);
+
             var mapping = ConfiguredMappingFactory
-                .GetMappingOrNull(childObjectMappingData, out _);
+                .GetMappingOrNull(childCreationContext, out _);
 
             if (mapping == null)
             {
@@ -54,7 +56,7 @@
                 MappingDataCreationFactory.ForChild(mappingValues, childObjectMapperData));
 
             var returnValue = childObjectMapperData
-                .GetFinalisedReturnLabel(directAccessMapping, out var returnsDefault);
+                .GetFinalisedReturnValue(directAccessMapping, out var returnsDefault);
 
             if (returnsDefault)
             {

@@ -13,9 +13,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
     internal static class DerivedComplexTypeMappingFactory
     {
         public static Expression GetMappingOrNull(
-            IObjectMappingData mappingData,
+            MappingCreationContext context,
             out bool isConditional)
         {
+            var mappingData = context.MappingData;
             var derivedTypeDataSources = DerivedComplexTypeDataSourcesFactory.CreateFor(mappingData);
 
             if (derivedTypeDataSources.None())
@@ -32,6 +33,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
             isConditional =
                 derivedTypeDataSources.Last().IsConditional &&
                !mappingData.MapperData.TargetType.IsAbstract();
+
+            if (!isConditional)
+            {
+                context.MappingComplete = true;
+            }
 
             return derivedTypeDataSourceSet.BuildValue();
         }
