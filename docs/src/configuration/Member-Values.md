@@ -79,9 +79,9 @@ Mapper.WhenMapping
     .To(vm => vm.AllAddresses);      // vm is the CustomerViewModel
 ```
 
-### Making Data Sources Conditional:
+### Conditional Data Sources:
 
-Any of these methods can be configured to be conditional:
+Any of these methods can be made conditional:
 
 ```cs
 Mapper.WhenMapping
@@ -195,4 +195,29 @@ Mapper.WhenMapping
     .ToTarget();        // The VideoDto is the target
 ```
 
-In this example, the `ToTarget()` configuration causes `Video.Statistics.ViewCount` to be mapped to `VideoDto.ViewCount`.
+In this example, the `ToTarget()` configuration causes `Video.Statistics.ViewCount` to be mapped to 
+`VideoDto.ViewCount`. `Video.Title` is mapped to `VideoDto.Title` as expected.
+
+### Switching Data Sources
+
+To switch a mapping data source to a different value, use, _e.g_:
+
+```csharp
+class VideoLibrary
+{
+    public Dictionary<int, Video> VideosById { get; set; }
+}
+
+class VideoLibraryDto
+{
+    public IList<VideoDto> Videos { get; set; }
+}
+
+Mapper.WhenMapping
+    .FromDictionariesWithValueType<Video>()
+    .To<IList<VideoDto>>()
+    .Map((d, l) => d.Values)
+    .ToTargetInstead();
+```
+In this example, in any mapping where `Dictionary<string, Video>` is matched to an `IList<VideoDto>`, 
+the Dictionary's `Values` collection is used as the source _instead_ of the Dictionary.
