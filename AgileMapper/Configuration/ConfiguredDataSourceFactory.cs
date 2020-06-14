@@ -179,12 +179,16 @@
 
         public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
         {
+            var toTarget = TargetMember.IsRoot
+                ? conflictingDataSource.IsSequential ? "ToTarget() " : "ToTargetInstead() "
+                : null;
+
             var existingDataSource = conflictingDataSource.GetDataSourceDescription();
 
             var reason = conflictingDataSource._isReversal
                 ? " from an automatically-configured reverse data source" : null;
 
-            return $"{GetTargetMemberPath()} already has configured data source {existingDataSource}{reason}";
+            return $"{GetTargetMemberPath()} already has configured {toTarget}data source {existingDataSource}{reason}";
         }
 
         public string GetDescription()

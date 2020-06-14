@@ -410,8 +410,9 @@
             {
                 ThrowIfConflictingIgnoredSourceMemberExists(dataSourceFactory, (dsf, cIsm) => cIsm.GetConflictMessage(dsf));
                 ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
-                ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
             }
+                
+            ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
             DataSourceFactories.AddOrReplaceThenSort(dataSourceFactory);
 

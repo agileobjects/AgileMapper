@@ -147,5 +147,45 @@
             configurationException.Message.ShouldContain(
                 "Unable to convert configured 'PublicField<decimal>' to target type 'decimal'");
         }
+
+        [Fact]
+        public void ShouldErrorIfConflictingToTargetAndToTargetInstead()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicTwoFields<int, PublicField<int>>>()
+                        .ToANew<PublicField<int>>()
+                        .Map((ptf, pf) => ptf.Value2).ToTarget()
+                        .And
+                        .Map((ptf, pf) => ptf.Value2).ToTargetInstead();
+                }
+            });
+
+            configEx.Message.ShouldContain("already has configured ToTarget() data source");
+            configEx.Message.ShouldContain("PublicTwoFields<int, PublicField<int>>.Value2");
+        }
+
+        [Fact]
+        public void ShouldErrorIfConflictingToTargetInsteadAndToTarget()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<PublicTwoFields<int, PublicField<int>>>()
+                        .ToANew<PublicField<int>>()
+                        .Map((ptf, pf) => ptf.Value2).ToTargetInstead()
+                        .And
+                        .Map((ptf, pf) => ptf.Value2).ToTarget();
+                }
+            });
+
+            configEx.Message.ShouldContain("already has configured ToTargetInstead() data source");
+            configEx.Message.ShouldContain("PublicTwoFields<int, PublicField<int>>.Value2");
+        }
     }
 }
