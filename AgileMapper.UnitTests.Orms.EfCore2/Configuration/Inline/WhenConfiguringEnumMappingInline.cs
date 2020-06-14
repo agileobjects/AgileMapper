@@ -9,8 +9,8 @@
     using Orms.Infrastructure;
     using TestClasses;
     using Xunit;
-    using PaymentTypeUk = UnitTests.TestClasses.PaymentTypeUk;
-    using PaymentTypeUs = UnitTests.TestClasses.PaymentTypeUs;
+    using PaymentTypeUk = Common.TestClasses.PaymentTypeUk;
+    using PaymentTypeUs = Common.TestClasses.PaymentTypeUs;
 
     public class WhenConfiguringEnumMappingInline : OrmTestClassBase<EfCore2TestDbContext>
     {

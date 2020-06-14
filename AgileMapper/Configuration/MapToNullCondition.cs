@@ -36,12 +36,12 @@
         public override bool AppliesTo(IQualifiedMemberContext context)
             => !context.TargetMemberIsEnumerableElement() && base.AppliesTo(context);
 
-        protected override Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
+        public override Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
             mapperData.Context.UsesMappingDataObjectAsParameter =
                 ConfigInfo.ConditionUsesMappingDataObjectParameter;
 
-            return base.GetConditionOrNull(mapperData, position);
+            return base.GetConditionOrNull(mapperData);
         }
 
 #if NET35

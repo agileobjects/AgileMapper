@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Globalization;
-    using System.Linq;
     using AgileMapper.Configuration;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -159,12 +158,11 @@
                 confictingPairing.PairedEnumMemberName));
         }
 
-        private bool TryGetRelevantPairings<TPairing, TPaired>(out EnumMemberPair[] relevantPairings)
+        private bool TryGetRelevantPairings<TPairing, TPaired>(out IList<EnumMemberPair> relevantPairings)
         {
             relevantPairings = MapperContext
                 .UserConfigurations
-                .GetEnumPairingsFor(typeof(TPairing), typeof(TPaired))
-                .ToArray();
+                .GetEnumPairingsFor(typeof(TPairing), typeof(TPaired));
 
             return relevantPairings.Any();
         }

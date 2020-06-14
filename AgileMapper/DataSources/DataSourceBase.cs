@@ -1,7 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -15,7 +14,7 @@
     internal abstract class DataSourceBase : IDataSource
     {
         protected DataSourceBase(IQualifiedMember sourceMember, Expression value)
-            : this(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value)
+            : this(sourceMember, Constants.EmptyParameters, value)
         {
         }
 
@@ -26,6 +25,7 @@
                   value,
                   wrappedDataSource.Condition)
         {
+            IsSequential = wrappedDataSource.IsSequential;
             SourceMemberTypeTest = wrappedDataSource.SourceMemberTypeTest;
         }
 
@@ -47,7 +47,7 @@
             IMemberMapperData mapperData)
         {
             SourceMember = sourceMember;
-            Variables = Enumerable<ParameterExpression>.EmptyArray;
+            Variables = Constants.EmptyParameters;
             Condition = GetCondition(value, mapperData);
             Value = value;
         }
@@ -56,7 +56,7 @@
 
         private Expression GetCondition(Expression value, IMemberMapperData mapperData)
         {
-            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value, targetCanBeNull: false);
+            var nestedAccessChecks = mapperData.GetNestedAccessChecksFor(value);
 
             if (nestedAccessChecks == null)
             {
@@ -144,11 +144,13 @@
 
         public bool IsConditional => Condition != null;
 
+        public bool IsSequential { get; protected set; }
+
         public virtual bool IsFallback => false;
 
         public virtual Expression Condition { get; }
 
-        public IList<ParameterExpression> Variables { get; private set; }
+        public IList<ParameterExpression> Variables { get; }
 
         public Expression Value { get; }
 
@@ -156,6 +158,7 @@
 
         public virtual Expression FinalisePopulationBranch(
             Expression alternatePopulation,
+            IDataSource nextDataSource,
             IMemberMapperData mapperData)
         {
             MultiInvocationsProcessor.Process(
@@ -169,9 +172,13 @@
 
             if (condition != null)
             {
-                population = (alternatePopulation != null)
-                    ? Expression.IfThenElse(condition, population, alternatePopulation)
-                    : Expression.IfThen(condition, population);
+                population = (alternatePopulation == null)
+                    ? Expression.IfThen(condition, population)
+                    : GetBranchedPopulation(
+                        condition,
+                        population,
+                        alternatePopulation,
+                        nextDataSource);
             }
 
             if (variables.Any())
@@ -180,6 +187,22 @@
             }
 
             return population;
+        }
+
+        private static Expression GetBranchedPopulation(
+            Expression condition,
+            Expression population,
+            Expression alternatePopulation,
+            IDataSource previousDataSource)
+        {
+            if (previousDataSource.IsSequential)
+            {
+                return Expression.Block(
+                    Expression.IfThen(condition, population),
+                    alternatePopulation);
+            }
+
+            return Expression.IfThenElse(condition, population, alternatePopulation);
         }
     }
 }

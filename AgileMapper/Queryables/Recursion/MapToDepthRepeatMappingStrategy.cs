@@ -20,7 +20,6 @@
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData childMappingData,
             MappingValues mappingValues,
-            int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
             if (ShortCircuitRecursion(childMappingData.MapperData))
@@ -31,7 +30,7 @@
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(
                 childMappingData,
                 mappingValues,
-                MappingDataCreationFactory.ForChild(mappingValues, 0, childMappingData.MapperData));
+                MappingDataCreationFactory.ForChild);
 
             return inlineMappingBlock;
         }

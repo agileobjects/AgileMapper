@@ -3,22 +3,24 @@
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using Members;
     using ObjectPopulation;
 
     internal class InstanceCreationCallbackSpecifier<TSource, TTarget, TObject> :
-        CallbackSpecifierBase,
         IConditionalPreInstanceCreationCallbackSpecifier<TSource, TTarget>,
         IConditionalPostInstanceCreationCallbackSpecifier<TSource, TTarget, TObject>
     {
-        public InstanceCreationCallbackSpecifier(CallbackPosition callbackPosition, MapperContext mapperContext)
-            : this(callbackPosition, MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext).ForTargetType<TTarget>())
+        private readonly MappingConfigInfo _configInfo;
+
+        public InstanceCreationCallbackSpecifier(MapperContext mapperContext, InvocationPosition invocationPosition)
+            : this(MappingConfigInfo.AllRuleSetsAndSourceTypes(mapperContext).ForTargetType<TTarget>(), invocationPosition)
         {
         }
 
-        public InstanceCreationCallbackSpecifier(CallbackPosition callbackPosition, MappingConfigInfo configInfo)
-            : base(callbackPosition, configInfo)
+        public InstanceCreationCallbackSpecifier(MappingConfigInfo configInfo, InvocationPosition invocationPosition)
         {
+            _configInfo = configInfo.WithInvocationPosition(invocationPosition);
         }
 
         #region IConditionalPreInstanceCreationCallbackSpecifier
@@ -41,7 +43,7 @@
         private InstanceCreationCallbackSpecifier<TSource, TTarget, TObject> SetCondition(
             LambdaExpression conditionLambda)
         {
-            ConfigInfo.AddConditionOrThrow(conditionLambda);
+            _configInfo.AddConditionOrThrow(conditionLambda);
             return this;
         }
 
@@ -107,17 +109,17 @@
 
         private MappingConfigContinuation<TSource, TTarget> CreateCallbackFactory<TAction>(TAction callback)
         {
-            var callbackLambda = ConfiguredLambdaInfo.ForAction(callback, typeof(TSource), typeof(TTarget), typeof(TObject));
+            var callbackLambda = ConfiguredLambdaInfo
+                .ForAction(callback, _configInfo, typeof(TSource), typeof(TTarget), typeof(TObject));
 
             var creationCallbackFactory = new ObjectCreationCallbackFactory(
-                ConfigInfo,
+                _configInfo,
                 typeof(TObject),
-                CallbackPosition,
                 callbackLambda);
 
-            ConfigInfo.UserConfigurations.Add(creationCallbackFactory);
+            _configInfo.UserConfigurations.Add(creationCallbackFactory);
 
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+            return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
     }
 }

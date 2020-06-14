@@ -70,8 +70,7 @@
         {
             var planContext = new SimpleMappingContext(ruleSet, _mapperContext)
             {
-                AddUnsuccessfulMemberPopulations = true,
-                LazyLoadRepeatMappingFuncs = false
+                IgnoreUnsuccessfulMemberPopulations = false
             };
 
             return GetMappingPlan(

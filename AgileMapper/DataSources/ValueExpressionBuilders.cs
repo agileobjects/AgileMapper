@@ -14,19 +14,20 @@ namespace AgileObjects.AgileMapper.DataSources
         public static Expression SingleDataSource(IDataSource dataSource, IMemberMapperData mapperData)
         {
             var value = dataSource.IsConditional
-                ? dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition)
+                ? dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition, mapperData)
                 : dataSource.Value;
 
             return dataSource.AddSourceCondition(value);
         }
 
-        public static Expression ConditionTree(IList<IDataSource> dataSources, IMemberMapperData mapperData)
+        public static Expression ValueTree(IList<IDataSource> dataSources, IMemberMapperData mapperData)
         {
             var value = SingleDataSource(dataSources.Last(), mapperData);
 
             for (var i = dataSources.Count - 2; i >= 0;)
             {
-                var dataSource = dataSources[i--];
+                var dataSource = dataSources[i];
+                --i;
 
                 var dataSourceValue = dataSource.IsConditional
                     ? Expression.Condition(

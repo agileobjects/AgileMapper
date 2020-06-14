@@ -8,11 +8,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
 #endif
     using Caching;
+    using DataSources;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
     using NetStandardPolyfills;
     using Validation;
+#if NET35
+    using static Microsoft.Scripting.Ast.Expression;
+#else
+    using static System.Linq.Expressions.Expression;
+#endif
 
     internal class ObjectMappingData<TSource, TTarget> :
         MappingInstanceData<TSource, TTarget>,
@@ -122,9 +128,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool MapperDataPopulated => (_mapperData ?? _mapper?.MapperData) != null;
 
+        IMemberMapperData IDataSourceSetInfo.MapperData => MapperData;
+
         public ObjectMapperData MapperData
         {
-            get => _mapperData ?? (_mapperData = _mapper?.MapperData ?? ObjectMapperData.For(this));
+            get => _mapperData ??= _mapper?.MapperData ?? ObjectMapperData.For(this);
             set => _mapperData = value;
         }
 
@@ -145,7 +153,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IObjectMappingData DeclaredTypeMappingData { get; }
 
         private Dictionary<object, List<object>> MappedObjectsBySource
-            => _mappedObjectsBySource ?? (_mappedObjectsBySource = new Dictionary<object, List<object>>(13));
+            => _mappedObjectsBySource ??= new Dictionary<object, List<object>>(13);
 
         IChildMemberMappingData IObjectMappingData.GetChildMappingData(IMemberMapperData childMapperData)
             => new ChildMemberMappingData<TSource, TTarget>(this, childMapperData);
@@ -181,22 +189,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(childSourceMember, sm =>
             {
-                var sourceParameter = Parameters.Create<TSource>("source");
-                var relativeMember = sm.RelativeTo(MapperData.SourceMember);
+                var sourceParameter = typeof(TSource).GetOrCreateParameter("source");
 
-                var memberAccess = relativeMember
-                    .GetQualifiedAccess(MapperData)
+                var memberAccess = sm
+                    .GetRelativeQualifiedAccess(MapperData)
                     .Replace(
                         MapperData.SourceObject,
                         sourceParameter,
                         ExpressionEvaluation.Equivalator);
 
-                var getRuntimeTypeCall = Expression.Call(
+                if (memberAccess.NodeType == ExpressionType.Invoke)
+                {
+                    var runtimeTypeLambda =
+                        Lambda<Func<TSource, Type>>(Constant(sm.Type), sourceParameter);
+
+                    return runtimeTypeLambda.Compile();
+                }
+
+                var getRuntimeTypeCall = Call(
                     ObjectExtensions.GetRuntimeSourceTypeMethod.MakeGenericMethod(sm.Type),
                     memberAccess);
 
-                var getRuntimeTypeLambda = Expression
-                    .Lambda<Func<TSource, Type>>(getRuntimeTypeCall, sourceParameter);
+                var getRuntimeTypeLambda =
+                    Lambda<Func<TSource, Type>>(getRuntimeTypeCall, sourceParameter);
 
                 return getRuntimeTypeLambda.Compile();
             });
@@ -342,7 +357,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return complexType != null;
             }
 
-            complexType = default(TComplex);
+            complexType = default;
             return false;
         }
 
@@ -378,10 +393,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return With(default(TNewSource), Target as TNewTarget, isForDerivedTypeMapping);
         }
 
-        public IObjectMappingData WithSource(IQualifiedMember newSourceMember)
+        public IObjectMappingData WithToTargetSource(IQualifiedMember sourceMember)
         {
-            var newSourceMappingData = WithTypes(
-                GetSourceMemberRuntimeType(newSourceMember),
+            var newSourceType = GetSourceMemberRuntimeType(sourceMember);
+
+            var newSourceMappingData = UpdateTypes(
+                newSourceType,
                 MapperData.TargetType,
                 IsPartOfDerivedTypeMapping);
 
@@ -390,13 +407,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 .RootMapperKeyFactory
                 .Invoke(newSourceMappingData);
 
-            newSourceMappingData.MapperData.OriginalMapperData = MapperData;
-            newSourceMappingData.MapperData.Context.IsForToTargetMapping = true;
+            var newSourceMapperData = newSourceMappingData.MapperData;
+
+            newSourceMapperData.OriginalMapperData = MapperData;
+            newSourceMapperData.Context.IsForToTargetMapping = true;
 
             return newSourceMappingData;
         }
 
-        public IObjectMappingData WithTypes(Type newSourceType, Type newTargetType, bool isForDerivedTypeMapping)
+        IObjectMappingData IObjectMappingData.WithDerivedTypes(Type derivedSourceType, Type derivedTargetType)
+            => UpdateTypes(derivedSourceType, derivedTargetType, isForDerivedTypeMapping: true);
+
+        private IObjectMappingData UpdateTypes(
+            Type newSourceType,
+            Type newTargetType,
+            bool isForDerivedTypeMapping)
         {
             var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);
 
@@ -404,15 +429,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var mappingDataParameter = Parameters.Create<IObjectMappingData<TSource, TTarget>>("mappingData");
                 var isForDerivedTypeParameter = Parameters.Create<bool>("isForDerivedType");
-                var withTypesCall = mappingDataParameter.GetAsCall(isForDerivedTypeParameter, k.SourceType, k.TargetType);
 
-                var withTypesLambda = Expression
-                    .Lambda<Func<IObjectMappingData<TSource, TTarget>, bool, IObjectMappingDataUntyped>>(
-                        withTypesCall,
+                var typesConversionCall = mappingDataParameter.GetAsCall(
+                    isForDerivedTypeParameter,
+                    k.SourceType,
+                    k.TargetType);
+
+                var typesConversionLambda = Lambda<Func<IObjectMappingData<TSource, TTarget>, bool, IObjectMappingDataUntyped>>(
+                        typesConversionCall,
                         mappingDataParameter,
                         isForDerivedTypeParameter);
 
-                return withTypesLambda.Compile();
+                return typesConversionLambda.Compile();
             },
             default(HashCodeComparer<SourceAndTargetTypesKey>));
 

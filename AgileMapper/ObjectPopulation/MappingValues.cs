@@ -12,6 +12,17 @@
             Expression sourceValue, 
             Expression targetValue, 
             Expression elementIndex, 
+            Expression elementKey,
+            int dataSourceIndex)
+            : this(sourceValue, targetValue, elementIndex, elementKey)
+        {
+            DataSourceIndex = dataSourceIndex;
+        }
+
+        public MappingValues(
+            Expression sourceValue, 
+            Expression targetValue, 
+            Expression elementIndex, 
             Expression elementKey)
         {
             SourceValue = sourceValue;
@@ -27,5 +38,7 @@
         public Expression ElementIndex { get; }
 
         public Expression ElementKey { get; }
+
+        public int DataSourceIndex { get; }
     }
 }

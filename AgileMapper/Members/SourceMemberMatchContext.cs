@@ -48,8 +48,7 @@
         public bool HasSourceMemberIgnores => RelevantSourceMemberIgnores.Any();
 
         private IList<ConfiguredSourceMemberIgnoreBase> RelevantSourceMemberIgnores
-            => _relevantSourceMemberIgnores ??
-              (_relevantSourceMemberIgnores = UserConfigurations.GetRelevantSourceMemberIgnores(MemberMapperData));
+            => _relevantSourceMemberIgnores ??= UserConfigurations.GetRelevantSourceMemberIgnores(MemberMapperData);
 
         public ConfiguredSourceMemberIgnoreBase GetSourceMemberIgnoreOrNull(IQualifiedMember sourceMember)
             => RelevantSourceMemberIgnores.FindMatch(new QualifiedMemberContext(sourceMember, TargetMember, MemberMapperData));

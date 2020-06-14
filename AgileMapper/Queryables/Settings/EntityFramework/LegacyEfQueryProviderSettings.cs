@@ -3,15 +3,15 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using TypeConversion;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using TypeConversion;
 
     internal abstract class LegacyEfQueryProviderSettings : DefaultQueryProviderSettings
     {

@@ -246,7 +246,7 @@
                     .UseElementKeyPattern(null));
 
             configEx.Message.ShouldContain(
-                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+                "pattern must contain a single 'i' character as a placeholder for the element index");
         }
 
         [Fact]
@@ -254,11 +254,11 @@
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
                 Mapper.WhenMapping
-                    .Dictionaries
+                    .DictionariesWithValueType<DateTime>()
                     .UseElementKeyPattern(string.Empty));
 
             configEx.Message.ShouldContain(
-                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+                "pattern must contain a single 'i' character as a placeholder for the element index");
         }
 
         [Fact]
@@ -270,7 +270,7 @@
                     .UseElementKeyPattern("_x_"));
 
             configEx.Message.ShouldContain(
-                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+                "pattern must contain a single 'i' character as a placeholder for the element index");
         }
 
         [Fact]
@@ -282,7 +282,7 @@
                     .UseElementKeyPattern("ii"));
 
             configEx.Message.ShouldContain(
-                "pattern must contain a single 'i' character as a placeholder for the enumerable index");
+                "pattern must contain a single 'i' character as a placeholder for the element index");
         }
 
         [Fact]

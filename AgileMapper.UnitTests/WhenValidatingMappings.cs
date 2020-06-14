@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Validation;
 #if !NET35
@@ -221,7 +222,7 @@
 
                     mapper.WhenMapping
                         .From<Issue183.ThingBase>().ButNotDerivedTypes
-                        .To<Issue183.ThingDto>()     
+                        .To<Issue183.ThingDto>()
                         .Ignore(t => t.Value);
 
                     mapper.GetPlanFor<PublicField<Issue183.ThingBase>>()
@@ -375,6 +376,28 @@
                         .PairEnum(PaymentTypeUk.Cheque).With(PaymentTypeUs.Check);
 
                     mapper.Map(new PublicField<PaymentTypeUk>()).ToANew<PublicField<PaymentTypeUs>>();
+                }
+            });
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/184
+        [Fact]
+        public void ShouldNotErrorIfMembersAreMatchedByAToTargetDataSource()
+        {
+            Should.NotThrow(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping.ThrowIfAnyMappingPlanIsIncomplete();
+
+                    mapper.WhenMapping
+                        .From<PublicField<Address>>()
+                        .To<Address>()
+                        .Map((pf, _) => pf.Value)
+                        .ToTarget();
+
+                    mapper.GetPlanFor<PublicField<Address>>()
+                          .ToANew<PublicTwoFields<Address, Address>>();
                 }
             });
         }

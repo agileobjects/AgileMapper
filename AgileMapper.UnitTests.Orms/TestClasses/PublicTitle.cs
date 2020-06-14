@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.TestClasses
 {
     using System.ComponentModel.DataAnnotations;
-    using UnitTests.TestClasses;
+    using Common.TestClasses;
 
     public class PublicTitle
     {

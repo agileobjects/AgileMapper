@@ -1,13 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
     using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using ReadableExpressions.Extensions;
@@ -65,8 +63,7 @@
                 .Instance
                 .MemberCache
                 .GetSourceMembers(entityParentAccess.Type)
-                .Filter(m => m.IsSimple)
-                .ToArray();
+                .FilterToArray(m => m.IsSimple);
 
             var entityMemberName = entityMemberAccess.GetMemberName();
 

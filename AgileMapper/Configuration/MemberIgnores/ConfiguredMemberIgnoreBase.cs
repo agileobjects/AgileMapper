@@ -3,11 +3,9 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #if NET35
     using System;
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
-    using DataSources.Factories;
     using Members;
 
     internal abstract class ConfiguredMemberIgnoreBase :
@@ -36,22 +34,22 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         public string GetConflictMessage(UserConfiguredItemBase conflictingConfiguredItem)
         {
-            if (conflictingConfiguredItem is ConfiguredDataSourceFactory conflictingDataSource)
+            switch (conflictingConfiguredItem)
             {
-                return GetConflictMessage(conflictingDataSource);
+                case ConfiguredDataSourceFactory conflictingDataSource:
+                    return GetConflictMessage(conflictingDataSource);
+               
+                case ConfiguredMemberIgnoreBase conflictingMemberIgnore:
+                    return GetConflictMessage(conflictingMemberIgnore);
+                
+                default:
+                    return $"Member {TargetMember.GetPath()} has been ignored";
             }
-
-            if (conflictingConfiguredItem is ConfiguredMemberIgnoreBase conflictingMemberIgnore)
-            {
-                return GetConflictMessage(conflictingMemberIgnore);
-            }
-
-            return $"Member {TargetMember.GetPath()} has been ignored";
         }
 
-        public abstract string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore);
-
         public abstract string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource);
+
+        public abstract string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore);
 
         public abstract string GetIgnoreMessage(IQualifiedMember targetMember);
 

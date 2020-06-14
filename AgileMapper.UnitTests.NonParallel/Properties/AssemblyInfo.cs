@@ -1,10 +1,3 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
-using Xunit;
-
-[assembly: AssemblyTitle("AgileObjects.AgileMapper.UnitTests.NonParallel")]
-[assembly: AssemblyDescription("AgileObjects.AgileMapper.UnitTests.NonParallel")]
-
-[assembly: ComVisible(false)]
+﻿using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

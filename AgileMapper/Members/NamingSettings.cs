@@ -131,9 +131,9 @@
         {
             var matchingName = default(string);
 
-            for (var i = 0; i < _matchingNameFactories.Count;)
+            for (var i = 0; i < _matchingNameFactories.Count; ++i)
             {
-                var factory = _matchingNameFactories[i++];
+                var factory = _matchingNameFactories[i];
 
                 if (!factory.AppliesTo(context))
                 {

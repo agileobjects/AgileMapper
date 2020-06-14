@@ -173,7 +173,14 @@
                 return array;
             }
 
-            array = new T[items.Count];
+            var itemCount = items.Count;
+
+            if (itemCount == 0)
+            {
+                return Enumerable<T>.EmptyArray;
+            }
+
+            array = new T[itemCount];
 
             items.CopyTo(array, 0);
 

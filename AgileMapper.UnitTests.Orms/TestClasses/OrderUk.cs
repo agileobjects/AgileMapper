@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
-    using UnitTests.TestClasses;
+    using Common.TestClasses;
 
     public class OrderUk
     {

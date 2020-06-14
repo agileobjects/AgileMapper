@@ -9,6 +9,7 @@
     using System.Linq.Expressions;
 #endif
     using Caching.Dictionaries;
+    using Configuration;
     using Extensions;
     using Extensions.Internal;
     using Members;
@@ -63,7 +64,7 @@
                 return Enumerable<ConfiguredObjectFactory>.Empty;
             }
 
-            var queryMapperData = new QualifiedMemberContext(
+            var queryContext = new QualifiedMemberContext(
                 context.RuleSet,
                 sourceType,
                 targetType.GetNonNullableType(),
@@ -74,7 +75,7 @@
             return context
                 .MapperContext
                 .UserConfigurations
-                .QueryObjectFactories(queryMapperData);
+                .QueryObjectFactories(queryContext);
         }
 
         private static Expression GetConversionOrCreationExpression(

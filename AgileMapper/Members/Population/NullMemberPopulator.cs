@@ -29,21 +29,16 @@ namespace AgileObjects.AgileMapper.Members.Population
 
         public static IMemberPopulator NoDataSources(MemberPopulationContext context)
         {
-            var noDataSourcesMessage = CreateNullDataSourceDescription(
+            var noDataSourcesMessage = CreateNullPopulatorDescription(
                 GetNoDataSourcesMessage,
                 context.MemberMapperData);
 
             var noDataSource = new NullDataSource(noDataSourcesMessage);
-            var noDataSources = DataSourceSet.For(noDataSource, context.MemberMapperData);
+            var noDataSources = DataSourceSet.For(noDataSource, context);
 
-            context.MemberMapperData.RegisterTargetMemberDataSourcesIfRequired(noDataSources);
+            context.MemberMapperData.RegisterTargetMemberDataSources(noDataSources);
 
-            if (!context.MappingContext.AddUnsuccessfulMemberPopulations)
-            {
-                return null;
-            }
-
-            return new NullMemberPopulator(noDataSourcesMessage, context.MemberMapperData);
+            return CreateNullMemberPopulator(noDataSourcesMessage, context, (msg, md) => msg);
         }
 
         private static string GetNoDataSourcesMessage(QualifiedMember targetMember)
@@ -57,17 +52,29 @@ namespace AgileObjects.AgileMapper.Members.Population
             MemberPopulationContext context,
             Func<QualifiedMember, string> commentFactory)
         {
-            if (!context.MappingContext.AddUnsuccessfulMemberPopulations)
+            return CreateNullMemberPopulator(
+                commentFactory,
+                context,
+                CreateNullPopulatorDescription);
+        }
+
+        private static IMemberPopulator CreateNullMemberPopulator<TArg>(
+            TArg argument,
+            MemberPopulationContext context,
+            Func<TArg, IMemberMapperData, Expression> descriptionFactory)
+        {
+            if (context.MappingContext.IgnoreUnsuccessfulMemberPopulations)
             {
                 return null;
             }
 
-            return new NullMemberPopulator(
-                CreateNullDataSourceDescription(commentFactory, context.MemberMapperData),
-                context.MemberMapperData);
+            var mapperData = context.MemberMapperData;
+            var description = descriptionFactory.Invoke(argument, mapperData);
+
+            return new NullMemberPopulator(description, mapperData);
         }
 
-        private static Expression CreateNullDataSourceDescription(
+        private static Expression CreateNullPopulatorDescription(
             Func<QualifiedMember, string> commentFactory,
             IQualifiedMemberContext context)
         {

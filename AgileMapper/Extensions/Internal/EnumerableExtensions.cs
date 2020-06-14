@@ -63,7 +63,7 @@
 
         [DebuggerStepThrough]
         public static T FirstOrDefault<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
-            => TryFindMatch(items, argument, predicate, out var match) ? match : default(T);
+            => TryFindMatch(items, argument, predicate, out var match) ? match : default;
 
         [DebuggerStepThrough]
         public static IEnumerable<T> TakeUntil<T>(this IEnumerable<T> items, Func<T, bool> predicate)
@@ -86,9 +86,9 @@
         [DebuggerStepThrough]
         public static bool TryFindMatch<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate, out T match)
         {
-            for (int i = 0, n = items.Count; i < n;)
+            for (int i = 0, n = items.Count; i < n; ++i)
             {
-                match = items[i++];
+                match = items[i];
 
                 if (predicate.Invoke(argument, match))
                 {
@@ -96,7 +96,7 @@
                 }
             }
 
-            match = default(T);
+            match = default;
             return false;
         }
 
@@ -177,18 +177,37 @@
             }
         }
 
+        public static T[] EnlargeToArray<T>(this IList<T> items, int newCapacity)
+        {
+            var enlargedArray = new T[newCapacity];
+
+            enlargedArray.CopyFrom(items);
+
+            return enlargedArray;
+        }
+
         public static T[] CopyToArray<T>(this IList<T> items)
         {
-            if (items.Count == 0)
+            var itemCount = items.Count;
+
+            switch (itemCount)
             {
-                return Enumerable<T>.EmptyArray;
+                case 0:
+                    return Enumerable<T>.EmptyArray;
+
+                case 1:
+                    return new[] { items[0] };
+
+                case 2:
+                    return new[] { items[0], items[1] };
+
+                default:
+                    var clonedArray = new T[itemCount];
+
+                    clonedArray.CopyFrom(items);
+
+                    return clonedArray;
             }
-
-            var clonedArray = new T[items.Count];
-
-            clonedArray.CopyFrom(items);
-
-            return clonedArray;
         }
 
         public static Expression Chain<TItem>(
@@ -231,7 +250,10 @@
 
         public static void CopyFrom<T>(this IList<T> targetList, IList<T> sourceList, int startIndex = 0)
         {
-            for (var i = 0; i < sourceList.Count && i < targetList.Count; ++i)
+            var sourceItemCount = sourceList.Count;
+            var targetItemCount = targetList.Count;
+
+            for (var i = 0; i < sourceItemCount && i < targetItemCount; ++i)
             {
                 targetList[i + startIndex] = sourceList[i];
             }
@@ -239,6 +261,71 @@
 
         [DebuggerStepThrough]
         public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) => items.Filter(item => item != null);
+
+        public static IList<T> FilterToArray<T>(this IList<T> items, Func<T, bool> predicate)
+            => FilterToArray(items, predicate, (p, item) => p.Invoke(item));
+
+        public static IList<TItem> FilterToArray<TArg, TItem>(
+            this IList<TItem> items,
+            TArg argument,
+            Func<TArg, TItem, bool> predicate)
+        {
+            if (items == null)
+            {
+                return null;
+            }
+
+            var itemCount = items.Count;
+
+            switch (itemCount)
+            {
+                case 0:
+                    return Enumerable<TItem>.EmptyArray;
+
+                case 1:
+                    if (predicate.Invoke(argument, items[0]))
+                    {
+                        return items;
+                    }
+
+                    goto case 0;
+
+                default:
+                    var filteredItems = default(TItem[]);
+                    var filteredItemsCount = itemCount;
+                    var filteredItemsIndex = 0;
+
+                    for (var i = 0; i < itemCount; i++)
+                    {
+                        var item = items[i];
+
+                        if (!predicate.Invoke(argument, item))
+                        {
+                            --filteredItemsCount;
+                            continue;
+                        }
+
+                        if (filteredItems == null)
+                        {
+                            filteredItems = new TItem[filteredItemsCount];
+                        }
+
+                        filteredItems[filteredItemsIndex++] = item;
+                    }
+
+                    if (filteredItems == null)
+                    {
+                        goto case 0;
+                    }
+
+                    if (filteredItemsIndex == itemCount)
+                    {
+                        return items;
+                    }
+
+                    return new FilteredArray<TItem>(filteredItems, filteredItemsIndex);
+            }
+        }
 
         public static T[] Prepend<T>(this IList<T> items, T initialItem)
         {
@@ -259,7 +346,14 @@
 
         public static T[] Append<T>(this IList<T> array, T extraItem)
         {
-            switch (array.Count)
+            if (array == null)
+            {
+                return new[] { extraItem };
+            }
+
+            var itemsCount = array.Count;
+
+            switch (itemsCount)
             {
                 case 0:
                     return new[] { extraItem };
@@ -271,11 +365,11 @@
                     return new[] { array[0], array[1], extraItem };
 
                 default:
-                    var newArray = new T[array.Count + 1];
+                    var newArray = new T[itemsCount + 1];
 
                     newArray.CopyFrom(array);
 
-                    newArray[array.Count] = extraItem;
+                    newArray[itemsCount] = extraItem;
 
                     return newArray;
             }

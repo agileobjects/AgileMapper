@@ -43,7 +43,6 @@
         public Expression GetMapRepeatedCallFor(
             IObjectMappingData mappingData,
             MappingValues mappingValues,
-            int dataSourceIndex,
             ObjectMapperData declaredTypeMapperData)
         {
             var childMapperData = mappingData.MapperData;
@@ -60,7 +59,7 @@
             var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
                 childMapperData.TargetMember,
                 mappingValues,
-                dataSourceIndex);
+                mappingValues.DataSourceIndex);
 
             return mapRepeatedCall;
         }

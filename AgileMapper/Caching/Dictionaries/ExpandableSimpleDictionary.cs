@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Caching.Dictionaries
 {
     using System.Collections.Generic;
+    using Extensions.Internal;
 
     internal class ExpandableSimpleDictionary<TKey, TValue> : FixedSizeSimpleDictionary<TKey, TValue>
     {
@@ -27,20 +28,8 @@
             }
 
             _capacity += _initialCapacity;
-            Keys = ResizeToCapacity(Keys);
-            Values = ResizeToCapacity(Values);
-        }
-
-        private T[] ResizeToCapacity<T>(IList<T> existingArray)
-        {
-            var biggerArray = new T[_capacity];
-
-            for (var i = 0; i < Count; ++i)
-            {
-                biggerArray[i] = existingArray[i];
-            }
-
-            return biggerArray;
+            Keys = Keys.EnlargeToArray(_capacity);
+            Values = Values.EnlargeToArray(_capacity);
         }
     }
 }

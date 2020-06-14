@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.TestClasses
 {
-    using UnitTests.TestClasses;
+    using Common.TestClasses;
 
     public class PublicTitleDto
     {

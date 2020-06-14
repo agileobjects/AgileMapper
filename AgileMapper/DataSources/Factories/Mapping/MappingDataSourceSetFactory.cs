@@ -21,7 +21,7 @@
 
             var dataSource = dataSourceFactory.CreateFor(mappingData);
 
-            return DataSourceSet.For(dataSource, mappingData.MapperData);
+            return DataSourceSet.For(dataSource, mappingData);
         }
     }
 }

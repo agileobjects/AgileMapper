@@ -4,9 +4,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using System.Globalization;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using Extensions.Internal;
     using Members;
-    using ObjectPopulation;
+    using NetStandardPolyfills;
     using Projection;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -15,6 +16,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 #else
     using LambdaExpr = System.Linq.Expressions.LambdaExpression;
 #endif
+    using static ObjectPopulation.InvocationPosition;
 
     internal class FactorySpecifier<TSource, TTarget, TObject> :
         IMappingFactorySpecifier<TSource, TTarget, TObject>,
@@ -49,9 +51,10 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         public IMappingConfigContinuation<TSource, TTarget> Using<TFactory>(TFactory factory)
             where TFactory : class
         {
-            var factoryInfo = ConfiguredLambdaInfo.ForFunc(factory, typeof(TSource), typeof(TTarget));
+            var factoryInfo = ConfiguredLambdaInfo
+                .ForFunc(factory, _configInfo, typeof(TSource), typeof(TTarget));
 
-            if (factoryInfo != null)
+            if (factoryInfo?.ReturnType.IsAssignableTo(typeof(TObject)) == true)
             {
                 return RegisterObjectFactory(factoryInfo);
             }
@@ -71,7 +74,9 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
-                "Unable to create objects of type {0} using factory {1}: valid function signatures are {2}",
+                "Unable to create objects of type {0} when creating objects of type {1} using factory {2}: " +
+                "valid function signatures are {3}",
+                factoryInfo?.ReturnType.GetFriendlyName() ?? objectTypeName,
                 objectTypeName,
                 typeof(TFactory).GetFriendlyName(),
                 string.Join(", ", validSignatures)));
@@ -81,7 +86,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         {
             ThrowIfRedundantFactoryConfiguration(factoryLambda);
 
-            return RegisterObjectFactory(ConfiguredLambdaInfo.For(factoryLambda));
+            return RegisterObjectFactory(ConfiguredLambdaInfo.For(factoryLambda, _configInfo));
         }
 
         private void ThrowIfRedundantFactoryConfiguration(LambdaExpr factoryLambda)

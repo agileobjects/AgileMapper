@@ -2,6 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using Extensions;
     using Extensions.Internal;
     using ObjectPopulation;
@@ -41,9 +46,29 @@
         {
             return mappingPlan
                 ._mappingPlanFunctions
-                .Project(pd => pd.GetDescription())
+                .ProjectToArray(pd => pd.GetDescription())
                 .Join(Environment.NewLine + Environment.NewLine);
         }
+
+        /// <summary>
+        /// Converts the given <paramref name="mappingPlan"/> to an Expression.
+        /// </summary>
+        /// <param name="mappingPlan">The <see cref="MappingPlan"/> to convert.</param>
+        /// <returns>An Expression representation of the given <paramref name="mappingPlan"/>.</returns>
+        public static implicit operator Expression(MappingPlan mappingPlan)
+        {
+            return Expression.Block(mappingPlan
+                ._mappingPlanFunctions
+                .ProjectToArray(pd => pd.GetExpression()));
+        }
+
+        #region IMappingPlan Members
+
+        string IMappingPlan.GetDescription() => this;
+        
+        Expression IMappingPlan.GetExpression() => this;
+
+        #endregion
 
         /// <summary>
         /// Returns the string representation of the <see cref="MappingPlan"/>.

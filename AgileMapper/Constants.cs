@@ -19,6 +19,7 @@
         public const string EnumerableElementName = "[i]";
 
         public static readonly Type[] EmptyTypeArray = Enumerable<Type>.EmptyArray;
+        public static readonly ParameterExpression[] EmptyParameters = Enumerable<ParameterExpression>.EmptyArray;
         public static readonly Type AllTypes = typeof(object);
 
         public static readonly Expression EmptyExpression = Expression.Empty();

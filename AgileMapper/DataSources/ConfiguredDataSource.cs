@@ -16,24 +16,26 @@
         public ConfiguredDataSource(
             Expression configuredCondition,
             Expression value,
+            bool isSequential,
             IMemberMapperData mapperData)
             : this(
                   CreateSourceMember(value, mapperData),
                   configuredCondition,
                   GetConvertedValue(value, mapperData),
+                  isSequential,
                   mapperData)
         {
         }
 
         #region Setup
 
-        private static IQualifiedMember CreateSourceMember(Expression value, IMemberMapperData mapperData)
+        private static IQualifiedMember CreateSourceMember(Expression value, IQualifiedMemberContext context)
         {
-            var sourceMember = new ConfiguredSourceMember(value, mapperData);
+            var sourceMember = new ConfiguredSourceMember(value, context);
 
-            var finalSourceMember = mapperData.MapperContext
+            var finalSourceMember = context.MapperContext
                 .QualifiedMemberFactory
-                .GetFinalSourceMember(sourceMember, mapperData.TargetMember);
+                .GetFinalSourceMember(sourceMember, context.TargetMember);
 
             return finalSourceMember;
         }
@@ -50,14 +52,16 @@
 
         #endregion
 
-        private ConfiguredDataSource(
+        public ConfiguredDataSource(
             IQualifiedMember sourceMember,
             Expression configuredCondition,
             Expression convertedValue,
+            bool isSequential,
             IMemberMapperData mapperData)
             : base(sourceMember, convertedValue, mapperData)
         {
             _originalValue = convertedValue;
+            IsSequential = isSequential;
 
             if (configuredCondition == null)
             {
@@ -65,10 +69,14 @@
                 return;
             }
 
+            HasConfiguredCondition = true;
+
             Condition = (base.Condition != null)
                 ? Expression.AndAlso(base.Condition, configuredCondition)
                 : configuredCondition;
         }
+
+        public bool HasConfiguredCondition { get; }
 
         public override Expression Condition { get; }
 

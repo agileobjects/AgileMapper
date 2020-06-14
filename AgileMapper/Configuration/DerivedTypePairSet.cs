@@ -2,8 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
@@ -78,8 +76,7 @@
             if (_typePairsByTargetType.TryGetValue(context.TargetType, out var typePairs))
             {
                 return typePairs
-                    .Filter(context, (md, tp) => tp.IsImplementationPairing && tp.AppliesTo(md))
-                    .ToArray();
+                    .FilterToArray(context, (md, tp) => tp.IsImplementationPairing && tp.AppliesTo(md));
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;
@@ -96,7 +93,7 @@
 
             if (_typePairsByTargetType.TryGetValue(context.TargetType, out var typePairs))
             {
-                return typePairs.Filter(context, (ctx, tp) => tp.AppliesTo(ctx)).ToArray();
+                return typePairs.FilterToArray(context, (ctx, tp) => tp.AppliesTo(ctx));
             }
 
             return Enumerable<DerivedTypePair>.EmptyArray;

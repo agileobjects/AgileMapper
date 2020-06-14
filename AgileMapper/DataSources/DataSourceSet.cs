@@ -14,11 +14,23 @@ namespace AgileObjects.AgileMapper.DataSources
     {
         #region Factory Methods
 
-        public static IDataSourceSet For(
+        public static IDataSourceSet For(IDataSource dataSource, IDataSourceSetInfo info)
+            => For(dataSource, info, ValueExpressionBuilders.SingleDataSource);
+
+        private static IDataSourceSet For(
             IDataSource dataSource,
-            IMemberMapperData mapperData,
-            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
+            IDataSourceSetInfo info,
+            Func<IDataSource, IMemberMapperData, Expression> valueBuilder)
         {
+            if (!dataSource.IsValid)
+            {
+                return info.MappingContext.IgnoreUnsuccessfulMemberPopulations
+                    ? EmptyDataSourceSet.Instance
+                    : new NullDataSourceSet(dataSource);
+            }
+
+            var mapperData = info.MapperData;
+
             if (mapperData.MapperContext.UserConfigurations.HasSourceValueFilters)
             {
                 dataSource = dataSource.WithFilter(mapperData);
@@ -29,8 +41,8 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public static IDataSourceSet For(
             IList<IDataSource> dataSources,
-            IMemberMapperData mapperData,
-            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder = null)
+            IDataSourceSetInfo info,
+            Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
         {
             switch (dataSources.Count)
             {
@@ -38,9 +50,11 @@ namespace AgileObjects.AgileMapper.DataSources
                     return EmptyDataSourceSet.Instance;
 
                 case 1:
-                    return For(dataSources.First(), mapperData, valueBuilder);
+                    return For(dataSources.First(), info, (ds, md) => valueBuilder.Invoke(new[] { ds }, md));
 
                 default:
+                    var mapperData = info.MapperData;
+
                     if (TryAdjustToSingleUseableDataSource(ref dataSources, mapperData))
                     {
                         goto case 1;
@@ -100,6 +114,32 @@ namespace AgileObjects.AgileMapper.DataSources
 
         #endregion
 
+        private class NullDataSourceSet : IDataSourceSet
+        {
+            private readonly IDataSource _nullDataSource;
+
+            public NullDataSourceSet(IDataSource nullDataSource)
+            {
+                _nullDataSource = nullDataSource;
+            }
+
+            public bool None => false;
+
+            public bool HasValue => false;
+
+            public bool IsConditional => false;
+
+            public Expression SourceMemberTypeTest => null;
+
+            public IList<ParameterExpression> Variables => Constants.EmptyParameters;
+
+            public IDataSource this[int index] => _nullDataSource;
+
+            public int Count => 1;
+
+            public Expression BuildValue() => _nullDataSource.Value;
+        }
+
         private class SingleValueDataSourceSet : IDataSourceSet
         {
             private readonly IDataSource _dataSource;
@@ -110,19 +150,11 @@ namespace AgileObjects.AgileMapper.DataSources
             public SingleValueDataSourceSet(
                 IDataSource dataSource,
                 IMemberMapperData mapperData,
-                Func<IList<IDataSource>, IMemberMapperData, Expression> valueBuilder)
+                Func<IDataSource, IMemberMapperData, Expression> valueBuilder)
             {
                 _dataSource = dataSource;
                 _mapperData = mapperData;
-
-                if (valueBuilder == null)
-                {
-                    _valueBuilder = ValueExpressionBuilders.SingleDataSource;
-                }
-                else
-                {
-                    _valueBuilder = (ds, md) => valueBuilder.Invoke(new[] { ds }, md);
-                }
+                _valueBuilder = valueBuilder;
             }
 
             public bool None => false;
@@ -140,7 +172,7 @@ namespace AgileObjects.AgileMapper.DataSources
             public int Count => 1;
 
             public Expression BuildValue()
-                => _value ?? (_value = _valueBuilder.Invoke(_dataSource, _mapperData));
+                => _value ??= _valueBuilder.Invoke(_dataSource, _mapperData);
         }
 
         private class MultipleValueDataSourceSet : IDataSourceSet
@@ -157,14 +189,14 @@ namespace AgileObjects.AgileMapper.DataSources
             {
                 _dataSources = dataSources;
                 _mapperData = mapperData;
-                _valueBuilder = valueBuilder ?? ValueExpressionBuilders.ConditionTree;
+                _valueBuilder = valueBuilder;
 
                 var dataSourcesCount = dataSources.Count;
                 var variables = default(List<ParameterExpression>);
 
-                for (var i = 0; ;)
+                for (var i = 0; i < dataSourcesCount; ++i)
                 {
-                    var dataSource = dataSources[i++];
+                    var dataSource = dataSources[i];
 
                     if (dataSource.IsValid)
                     {
@@ -190,16 +222,11 @@ namespace AgileObjects.AgileMapper.DataSources
                     {
                         SourceMemberTypeTest = dataSource.SourceMemberTypeTest;
                     }
-
-                    if (i == dataSourcesCount)
-                    {
-                        break;
-                    }
                 }
 
                 Variables = (variables != null)
                     ? (IList<ParameterExpression>)variables
-                    : Enumerable<ParameterExpression>.EmptyArray;
+                    : Constants.EmptyParameters;
             }
 
             public bool None => false;
@@ -217,7 +244,7 @@ namespace AgileObjects.AgileMapper.DataSources
             public int Count => _dataSources.Count;
 
             public Expression BuildValue()
-                => _value ?? (_value = _valueBuilder.Invoke(_dataSources, _mapperData));
+                => _value ??= _valueBuilder.Invoke(_dataSources, _mapperData);
         }
     }
 }

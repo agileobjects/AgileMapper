@@ -24,7 +24,7 @@
 
                 Should.NotThrow(mapper.ThrowNowIfAnyMappingPlanIsIncomplete);
 
-                return Task.CompletedTask;
+                return Task.FromResult(1);
             });
         }
 
@@ -44,7 +44,7 @@
                 validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].StartTime");
                 validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].EndTime");
 
-                return Task.CompletedTask;
+                return Task.FromResult(1);
             });
         }
 
@@ -63,7 +63,7 @@
                 validationEx.Message.ShouldContain("Unmappable target Types");
                 validationEx.Message.ShouldContain("Address -> PublicStringCtorDto");
 
-                return Task.CompletedTask;
+                return Task.FromResult(1);
             });
         }
     }

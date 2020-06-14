@@ -195,7 +195,7 @@
                 }
             });
 
-            conflictEx.Message.ShouldContain("already has configured data source 'Person.Id'");
+            conflictEx.Message.ShouldContain("already has configured data source Person.Id");
         }
 
         [Fact]
@@ -415,119 +415,6 @@
 
             configurationException.Message.ShouldContain(
                 "Unable to convert configured 'PublicField<int>' to target type 'int'");
-        }
-
-        [Fact]
-        public void ShouldErrorIfTargetParameterConfiguredAsTarget()
-        {
-            var configurationException = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<Person>()
-                        .To<Address>()
-                        .Map((s, t) => s.Address)
-                        .To(t => t);
-                }
-            });
-
-            configurationException.Message.ShouldContain("not a valid configured target; use .ToTarget()");
-        }
-
-        [Fact]
-        public void ShouldErrorIfSimpleTypeConstantConfiguredForRootTarget()
-        {
-            var configurationException = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicProperty<int>>()
-                        .To<PublicField<Guid>>()
-                        .Map("No no no no no")
-                        .ToTarget();
-                }
-            });
-
-            configurationException.Message.ShouldContain(
-                "'string' cannot be mapped to target type 'PublicField<Guid>'");
-        }
-
-        [Fact]
-        public void ShouldErrorIfSimpleTypeMemberConfiguredForRootTarget()
-        {
-            var configurationException = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicProperty<int>>()
-                        .To<PublicField<long>>()
-                        .Map(ctx => ctx.Source.Value)
-                        .ToTarget();
-                }
-            });
-
-            configurationException.Message.ShouldContain("PublicProperty<int>.Value");
-            configurationException.Message.ShouldContain("'int' cannot be mapped to target type 'PublicField<long>'");
-        }
-
-        [Fact]
-        public void ShouldErrorIfNonEnumerableTypeMemberConfiguredForRootEnumerableTarget()
-        {
-            var configurationException = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicProperty<Address>>()
-                        .To<List<Address>>()
-                        .Map(ctx => ctx.Source.Value)
-                        .ToTarget();
-                }
-            });
-
-            configurationException.Message.ShouldContain("Non-enumerable PublicProperty<Address>.Value");
-            configurationException.Message.ShouldContain("cannot be mapped to enumerable target type 'List<Address>'");
-        }
-
-        [Fact]
-        public void ShouldErrorIfEnumerableTypeMemberConfiguredForRootNonEnumerableTarget()
-        {
-            var configurationException = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicField<List<Customer>>>()
-                        .To<PublicProperty<Customer>>()
-                        .Map(ctx => ctx.Source.Value)
-                        .ToTarget();
-                }
-            });
-
-            configurationException.Message.ShouldContain("Enumerable PublicField<List<Customer>>.Value");
-            configurationException.Message.ShouldContain("cannot be mapped to non-enumerable target type 'PublicProperty<Customer>'");
-        }
-
-        [Fact]
-        public void ShouldErrorIfUnconvertibleEnumerableElementTypeConfiguredForRootTarget()
-        {
-            var configurationException = Should.Throw<MappingConfigurationException>(() =>
-            {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.WhenMapping
-                        .From<PublicField<PublicField<decimal>[]>>()
-                        .To<decimal[]>()
-                        .Map(ctx => ctx.Source.Value)
-                        .ToTarget();
-                }
-            });
-
-            configurationException.Message.ShouldContain(
-                "Unable to convert configured 'PublicField<decimal>' to target type 'decimal'");
         }
 
         [Fact]

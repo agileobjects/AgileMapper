@@ -19,8 +19,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
         public Expression SourceMemberTypeTest => null;
 
-        public IList<ParameterExpression> Variables
-            => Enumerable<ParameterExpression>.EmptyArray;
+        public IList<ParameterExpression> Variables => Constants.EmptyParameters;
 
         public IDataSource this[int index] => null;
 

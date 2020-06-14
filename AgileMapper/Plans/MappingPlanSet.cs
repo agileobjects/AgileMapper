@@ -1,10 +1,15 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Extensions;
     using Extensions.Internal;
+    using static System.Environment;
+#if NET35
+    using Expr = Microsoft.Scripting.Ast.Expression;
+#else
+    using Expr = System.Linq.Expressions.Expression;
+#endif
 
     /// <summary>
     /// Contains sets of details of mapping plans for mappings between a particular source and target types,
@@ -40,8 +45,23 @@
         {
             return mappingPlans
                 ._mappingPlans
-                .Project(plan => plan.ToString())
-                .Join(Environment.NewLine + Environment.NewLine);
+                .Project(plan => plan.GetDescription())
+                .Join(NewLine + NewLine);
+        }
+
+        /// <summary>
+        /// Converts the given <paramref name="mappingPlans">MappingPlanSet</paramref> to its Expression
+        /// representation.
+        /// </summary>
+        /// <param name="mappingPlans">The <see cref="MappingPlanSet"/> to convert.</param>
+        /// <returns>
+        /// The Expression representation of the <paramref name="mappingPlans">MappingPlanSet</paramref>.
+        /// </returns>
+        public static implicit operator Expr(MappingPlanSet mappingPlans)
+        {
+            return Expr.Block(mappingPlans
+                ._mappingPlans
+                .Project(plan => plan.GetExpression()));
         }
 
         /// <summary>

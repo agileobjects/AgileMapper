@@ -134,7 +134,7 @@
                     derivedTypeMapping = derivedTypeMapping.ToIfFalseDefaultCondition(sourceValueCondition);
                 }
 
-                var returnMappingResult = GetReturnMappingResultExpression(declaredTypeMapperData, derivedTypeMapping);
+                var returnMappingResult = declaredTypeMapperData.GetReturnExpression(derivedTypeMapping);
 
                 var derivedTypeMappingDataSource = new DerivedComplexTypeDataSource(
                     derivedTypeMappingData.MapperData.SourceMember,
@@ -176,7 +176,7 @@
             }
 
             var implementationMappingData = declaredTypeMappingData
-                .WithTypes(derivedTypePair.DerivedSourceType, derivedTypePair.DerivedTargetType);
+                .WithDerivedTypes(derivedTypePair.DerivedSourceType, derivedTypePair.DerivedTargetType);
 
             if (implementationMappingData.IsTargetConstructable())
             {
@@ -311,7 +311,7 @@
 
             var derivedTargetTypeDataSources = DataSourceSet.For(
                 typePairDataSources,
-                declaredTypeMapperData,
+                declaredTypeMappingData,
                 ValueExpressionBuilders.ValueSequence);
 
             derivedTypeMapping = GetReturnMappingResultExpression(
@@ -348,11 +348,10 @@
 
         private static Expression GetTypePairsCondition(
             this IMemberMapperData mapperData,
-            IEnumerable<DerivedTypePair> derivedTypePairs)
+            IList<DerivedTypePair> derivedTypePairs)
         {
             var conditionalPairs = derivedTypePairs
-                .Filter(pair => pair.HasConfiguredCondition)
-                .ToArray();
+                .FilterToArray(pair => pair.HasConfiguredCondition);
 
             var pairConditions = conditionalPairs.Chain(
                 firstPair => firstPair.GetConditionOrNull(mapperData),
@@ -413,9 +412,9 @@
                     .Project(group => new TypePairGroup(group))
                     .OrderBy(tp => tp.DerivedTargetType, MostToLeastDerived)
                     .ToArray();
-            
+
                 unconditionalTypePairs = groupedTypePairs
-                    .Filter(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
+                    .FilterToArray(tpg => tpg.TypePairs.None(tp => tp.HasConfiguredCondition));
             }
 
             foreach (var unconditionalTypePair in unconditionalTypePairs)
@@ -519,12 +518,9 @@
                 out derivedTypeMappingData);
 
             return (mapping != EmptyExpression)
-                ? GetReturnMappingResultExpression(declaredTypeMappingData.MapperData, mapping)
+                ? declaredTypeMappingData.MapperData.GetReturnExpression(mapping)
                 : mapping;
         }
-
-        private static Expression GetReturnMappingResultExpression(ObjectMapperData mapperData, Expression mapping)
-            => Return(mapperData.ReturnLabelTarget, mapping, mapperData.TargetType);
 
         private static Expression GetTargetValidCheckOrNull(this IMemberMapperData mapperData, Type targetType)
         {
@@ -557,7 +553,7 @@
                 IQualifiedMember sourceMember,
                 Expression condition,
                 Expression value)
-                : base(sourceMember, Enumerable<ParameterExpression>.EmptyArray, value, condition)
+                : base(sourceMember, Constants.EmptyParameters, value, condition)
             {
             }
 

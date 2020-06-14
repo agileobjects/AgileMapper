@@ -1,4 +1,8 @@
-Configure a custom factory for a particular type using:
+Custom factories can be configured to create instances of a type. Once created, the mapper will 
+map its members as usual. To configure a factory to perform an entire mapping, use 
+[MapInstancesUsing](/configuration/Object-Mapping).
+
+Configure a custom factory for the creation of a particular type using:
 
 ```cs
 Mapper.WhenMapping
@@ -9,7 +13,8 @@ Mapper.WhenMapping
     });
 ```
 
-Configure a custom factory for a particular type when mapping between particular types using:
+Configure a custom factory for the creation of a particular type when mapping between particular
+types using:
 
 ```cs
 Mapper.WhenMapping

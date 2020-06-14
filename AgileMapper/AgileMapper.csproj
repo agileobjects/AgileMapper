@@ -1,41 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
 
   <PropertyGroup>
-    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
-    <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
-    <TargetFrameworks>netstandard1.0;netstandard1.3;net35;net40</TargetFrameworks>
+    <TargetFrameworks>net35;net40;netstandard1.0;netstandard1.3</TargetFrameworks>
     <LangVersion>8.0</LangVersion>
+    <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
+    <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
-    <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
 
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <Title>AgileMapper</Title>
+    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
     <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <Copyright>Copyright © AgileObjects Ltd 2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Support for interface type-pairing, re: #163
-- Support for accessing Dictionary keys in custom data sources, re: #162
-- Support for simple type creation with CreateInstancesUsing, re: #165
-- Static API support for type-specific naming rules, re: #175
-- Support for applying custom data sources to root types only, re: #183
-- Handling null return values from custom factory methods, re: #176
-- Support for TimeSpan mapping
-- Support for DateTimeOffset mapping
-- Improved detection of unmappable target types in mapping validation, re: #183
-- Fixing runtime-typed mappings affecting sibling mapping branches, re: #166
-- Fixing numeric to non-int-derived enum mapping
-- Fixing runtime-typed, simple-to-complex to-target data sources, re: #174
+    <PackageReleaseNotes>- Support for configuring complete sub-mappings, re: #176
+- Support for configuring sequential data sources, re: #184
+- Support for configuring alternate data sources, re: #133, #173
+- Including ToTarget data sources in mapping plan validation, re: #184
+- Fixing enumerable target ToTarget data sources, re: #173
+- Fixing caching of custom method struct creation factory
+- Erroring if configured data sources conflict with ignored source members
+- Improving configuration error messages
+- Surfacing mapping plan Expressions
+- Updating to ReadableExpressions v2.5
 - Performance improvements
-- Adding package icon</PackageReleaseNotes>
+    </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,19 +43,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.0" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.3.2" />
+    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.1" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
-    <PackageReference Include="DynamicLanguageRuntime">
-      <Version>1.1.2</Version>
-    </PackageReference>
+    <PackageReference Include="DynamicLanguageRuntime" Version="1.1.2" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
-    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
-    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;NET_35;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DRAWING</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -70,9 +67,7 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-    <PackageReference Include="System.Linq.Queryable">
-      <Version>4.3.0</Version>
-    </PackageReference>
+    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
@@ -81,9 +76,7 @@
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0" />
-    <PackageReference Include="System.Linq.Queryable">
-      <Version>4.3.0</Version>
-    </PackageReference>
+    <PackageReference Include="System.Linq.Queryable" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Formatters" Version="4.3.0" />
   </ItemGroup>
 

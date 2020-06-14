@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\common.props" />
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -17,7 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.PerformanceTesting\AgileMapper.PerformanceTesting.csproj" />
     <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
-    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj" />
   </ItemGroup>
 
 </Project>

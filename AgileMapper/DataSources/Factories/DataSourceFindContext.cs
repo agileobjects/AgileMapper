@@ -7,13 +7,14 @@
     using Extensions.Internal;
     using Members;
 
-    internal class DataSourceFindContext
+    internal class DataSourceFindContext : IDataSourceSetInfo
     {
         private IList<ConfiguredDataSourceFactory> _relevantConfiguredDataSourceFactories;
         private IList<IConfiguredDataSource> _configuredDataSources;
         private SourceMemberMatchContext _sourceMemberMatchContext;
         private SourceMemberMatch _bestSourceMemberMatch;
         private IDataSource _matchingSourceMemberDataSource;
+        private bool? _useSourceMemberDataSource;
 
         public DataSourceFindContext(IChildMemberMappingData memberMappingData)
         {
@@ -33,8 +34,7 @@
         public bool StopFind { get; set; }
 
         private IEnumerable<ConfiguredDataSourceFactory> RelevantConfiguredDataSourceFactories
-            => _relevantConfiguredDataSourceFactories ??
-              (_relevantConfiguredDataSourceFactories = GetRelevantConfiguredDataSourceFactories());
+            => _relevantConfiguredDataSourceFactories ??= GetRelevantConfiguredDataSourceFactories();
 
         private IList<ConfiguredDataSourceFactory> GetRelevantConfiguredDataSourceFactories()
         {
@@ -62,16 +62,15 @@
         {
             get
             {
-                return _configuredDataSources ?? (_configuredDataSources =
-                   RelevantConfiguredDataSourceFactories
-                       .FindMatches(MemberMapperData)
-                       .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
-                       .ToArray());
+                return _configuredDataSources ??= RelevantConfiguredDataSourceFactories
+                    .FindMatches(MemberMapperData)
+                    .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
+                    .ToArray();
             }
         }
 
         public IDataSource MatchingSourceMemberDataSource
-            => _matchingSourceMemberDataSource ?? (_matchingSourceMemberDataSource = GetSourceMemberDataSource());
+            => _matchingSourceMemberDataSource ??= GetSourceMemberDataSource();
 
         private IDataSource GetSourceMemberDataSource()
         {
@@ -88,13 +87,19 @@
         }
 
         public SourceMemberMatch BestSourceMemberMatch =>
-            _bestSourceMemberMatch ??
-           (_bestSourceMemberMatch = SourceMemberMatcher.GetMatchFor(SourceMemberMatchContext));
+            _bestSourceMemberMatch ??= SourceMemberMatcher.GetMatchFor(SourceMemberMatchContext);
 
         private SourceMemberMatchContext SourceMemberMatchContext =>
             (_sourceMemberMatchContext != null)
                 ? _sourceMemberMatchContext.With(MemberMappingData)
                 : _sourceMemberMatchContext = new SourceMemberMatchContext(MemberMappingData);
+
+        public bool UseSourceMemberDataSource()
+        {
+            return _useSourceMemberDataSource ??=
+                    BestSourceMemberMatch.IsUseable &&
+                   !ConfiguredDataSources.Any(MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
+        }
 
         public IDataSource GetFallbackDataSource()
             => MemberMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MemberMapperData);
@@ -152,9 +157,18 @@
             _sourceMemberMatchContext = null;
             _bestSourceMemberMatch = null;
             _matchingSourceMemberDataSource = null;
+            _useSourceMemberDataSource = null;
             DataSourceIndex = 0;
             StopFind = false;
             return this;
         }
+
+        #region IDataSourceSetInfo Members
+
+        IMappingContext IMappingContextOwner.MappingContext => MemberMappingData.Parent.MappingContext;
+
+        IMemberMapperData IDataSourceSetInfo.MapperData => MemberMapperData;
+
+        #endregion
     }
 }

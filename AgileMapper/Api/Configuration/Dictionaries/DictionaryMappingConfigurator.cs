@@ -127,24 +127,24 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         #region Dictionaries
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> To<TTarget>()
-            => CreateDictionaryConfigurator<TTarget>(ConfigInfo.ForAllRuleSets());
+            => CreateSourceDictionaryConfigurator<TTarget>(ConfigInfo.ForAllRuleSets());
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> ToANew<TTarget>()
-            => CreateDictionaryConfigurator<TTarget>(Constants.CreateNew);
+            => CreateSourceDictionaryConfigurator<TTarget>(Constants.CreateNew);
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> OnTo<TTarget>()
-            => CreateDictionaryConfigurator<TTarget>(Constants.Merge);
+            => CreateSourceDictionaryConfigurator<TTarget>(Constants.Merge);
 
         public ISourceDictionaryMappingConfigurator<TValue, TTarget> Over<TTarget>()
-            => CreateDictionaryConfigurator<TTarget>(Constants.Overwrite);
+            => CreateSourceDictionaryConfigurator<TTarget>(Constants.Overwrite);
 
-        private SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
+        private SourceDictionaryMappingConfigurator<TValue, TTarget> CreateSourceDictionaryConfigurator<TTarget>(
             string ruleSetName)
         {
-            return CreateDictionaryConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
+            return CreateSourceDictionaryConfigurator<TTarget>(ConfigInfo.ForRuleSet(ruleSetName));
         }
 
-        private static SourceDictionaryMappingConfigurator<TValue, TTarget> CreateDictionaryConfigurator<TTarget>(
+        private static SourceDictionaryMappingConfigurator<TValue, TTarget> CreateSourceDictionaryConfigurator<TTarget>(
             MappingConfigInfo configInfo)
         {
             return new SourceDictionaryMappingConfigurator<TValue, TTarget>(configInfo);

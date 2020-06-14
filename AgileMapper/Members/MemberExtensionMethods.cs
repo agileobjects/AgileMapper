@@ -131,6 +131,19 @@
         public static Expression GetAccess(this QualifiedMember member, IMemberMapperData mapperData)
             => member.GetAccess(mapperData.TargetInstance, mapperData);
 
+        public static Expression GetRelativeQualifiedAccess(this IQualifiedMember member, IMemberMapperData mapperData)
+            => GetRelativeQualifiedAccess(member, mapperData, out _);
+
+        public static Expression GetRelativeQualifiedAccess(
+            this IQualifiedMember member,
+            IMemberMapperData mapperData,
+            out IQualifiedMember relativeMember)
+        {
+            relativeMember = member.RelativeTo(mapperData.SourceMember);
+            var qualifiedAccess = relativeMember.GetQualifiedAccess(mapperData);
+            return qualifiedAccess;
+        }
+
         public static Expression GetQualifiedAccess(this IQualifiedMember sourceMember, IMemberMapperData mapperData)
             => sourceMember.GetQualifiedAccess(mapperData.SourceObject);
 
@@ -173,7 +186,7 @@
                     .Any(otherJoinedName, (ojn, joinedName) => (joinedName == RootMemberName) || ojn.StartsWithIgnoreCase(joinedName)));
         }
 
-        public static bool Match(this ICollection<string> memberNames, ICollection<string> otherMemberNames)
+        public static bool Match(this IList<string> memberNames, IList<string> otherMemberNames)
         {
             if (!memberNames.HasOne())
             {
@@ -186,7 +199,7 @@
 
             return otherMemberNames.HasOne()
                 ? memberName.EqualsIgnoreCase(otherMemberNames.First())
-                : otherMemberNames.Any(otherMemberName => otherMemberName.EqualsIgnoreCase(memberName));
+                : otherMemberNames.Any(memberName, (mn, omn) => omn.EqualsIgnoreCase(mn));
         }
 
         public static TMember GetElementMember<TMember>(this TMember enumerableMember)
@@ -263,21 +276,11 @@
             return population;
         }
 
-#if NET35
-        public static QualifiedMember ToSourceMember(this LinqExp.Expression memberAccess, MapperContext mapperContext)
-            => memberAccess.ToDlrExpression().ToSourceMember(mapperContext);
-#endif
-        public static QualifiedMember ToSourceMember(
+        public static QualifiedMember ToSourceMemberOrNull(
             this Expression memberAccess,
-            MapperContext mapperContext,
-            Action<ExpressionType> nonMemberAction = null)
+            MapperContext mapperContext)
         {
-            return CreateMember(
-                memberAccess,
-                RootSource,
-                GlobalContext.Instance.MemberCache.GetSourceMembers,
-                nonMemberAction ?? ThrowIfUnsupported,
-                mapperContext);
+            return memberAccess.ToSourceMember(mapperContext, nt => { });
         }
 
         public static QualifiedMember ToSourceMemberOrNull(
@@ -302,6 +305,34 @@
 
             failureReason = null;
             return sourceMember;
+        }
+
+#if NET35
+        public static QualifiedMember ToSourceMember(this LinqExp.Expression memberAccess, MapperContext mapperContext)
+            => memberAccess.ToDlrExpression().ToSourceMember(mapperContext);
+#endif
+        public static QualifiedMember ToSourceMember(
+            this Expression memberAccess,
+            MapperContext mapperContext,
+            Action<ExpressionType> nonMemberAction = null)
+        {
+            return CreateMember(
+                memberAccess,
+                RootSource,
+                GlobalContext.Instance.MemberCache.GetSourceMembers,
+                nonMemberAction ?? ThrowIfUnsupported,
+                mapperContext);
+        }
+        
+#if NET35
+        public static QualifiedMember ToTargetMemberOrNull(this LinqExp.LambdaExpression memberAccess, MapperContext mapperContext)
+            => memberAccess.ToDlrExpression().ToTargetMemberOrNull(mapperContext);
+#endif
+        public static QualifiedMember ToTargetMemberOrNull(
+            this LambdaExpression memberAccess,
+            MapperContext mapperContext)
+        {
+            return memberAccess.ToTargetMember(mapperContext, nt => { });
         }
 
         public static QualifiedMember ToTargetMemberOrNull(
@@ -391,7 +422,7 @@
 
             for (var i = 0; i < memberAccesses.Count;)
             {
-                var memberAccess = memberAccesses[i++];
+                var memberAccess = memberAccesses[i];
                 var memberName = GetMemberName(memberAccess);
                 var members = membersFactory.Invoke(parentMember.Type);
                 var member = members.FirstOrDefault(memberName, (mn, m) => m.Name == mn);
@@ -401,7 +432,7 @@
                     return null;
                 }
 
-                memberChain[i] = member;
+                memberChain[++i] = member;
                 parentMember = member;
             }
 

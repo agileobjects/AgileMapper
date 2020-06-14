@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 #endif
     using Members;
     using Members.Population;
-    using static CallbackPosition;
+    using static InvocationPosition;
 
     internal class MultiStatementPopulationExpressionFactory : PopulationExpressionFactoryBase
     {
@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         }
 
         private static Expression GetPopulationCallbackOrNull(
-            CallbackPosition position,
+            InvocationPosition position,
             IMemberPopulator memberPopulator,
             IObjectMappingData mappingData)
         {

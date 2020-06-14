@@ -9,7 +9,9 @@
     using System.Linq.Expressions;
 #endif
     using DataSources;
+    using Enumerables.Looping;
     using Extensions.Internal;
+    using Looping;
     using Members;
     using Members.Dictionaries;
     using Members.Population;
@@ -52,7 +54,7 @@
 
         public void AssignSourceVariableFromSourceObject()
         {
-            _wrappedBuilder.AssignSourceVariableFromSourceObject();
+            _wrappedBuilder.AssignSourceVariableToSourceObject();
         }
 
         public void AddItems(IObjectMappingData mappingData)
@@ -265,7 +267,8 @@
 
             var sourceMember = mappingData.MapperData.SourceMember;
             var mappingDataSource = new AdHocDataSource(sourceMember, elementMapping);
-            var mappingDataSources = DataSourceSet.For(mappingDataSource, elementMapperData);
+            var dataSourceSetInfo = new SimpleDataSourceSetInfo(mappingData.MappingContext, elementMapperData);
+            var mappingDataSources = DataSourceSet.For(mappingDataSource, dataSourceSetInfo);
             var populator = new MemberPopulator(mappingDataSources, elementMapperData);
             var populationExpression = populator.GetPopulation();
 

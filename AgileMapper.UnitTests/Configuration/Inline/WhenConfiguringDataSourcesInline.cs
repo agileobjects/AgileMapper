@@ -162,7 +162,6 @@
                         .Map(SubtractOne)
                         .To(pf => pf.Value));
 
-
                 var result2 = mapper
                     .Map(source2)
                     .ToANew<PublicField<int>>(c => c
@@ -172,7 +171,6 @@
                 result1.Value.ShouldBe(source1.Value - 1);
                 result2.Value.ShouldBe(source2.Value - 3);
             }
-
         }
 
         [Fact]

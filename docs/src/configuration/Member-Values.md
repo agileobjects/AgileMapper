@@ -64,9 +64,24 @@ Mapper.Map(productDto).ToANew<Product>(cfg => cfg
     .To(p => p.CompanyName)); // p is the Product
 ```
 
-### Making Data Sources Conditional:
+**A sequence of data sources**
 
-Any of these methods can be configured to be conditional:
+```cs
+// Map the Customer Home Address, Work Address
+// then Address History to the CustomerViewModel
+// AllAddresses property:
+Mapper.WhenMapping
+    .From<Customer>()                // Apply to Customer mappings
+    .ToANew<CustomerViewModel>()     // Apply to CustomerViewModel creation
+    .Map((c, vm) => new[] { c.HomeAddress })
+        .Then.Map((c, vm) => new[] { c.WorkAddress })
+        .Then.Map((c, vm) => c.AddressHistory)
+    .To(vm => vm.AllAddresses);      // vm is the CustomerViewModel
+```
+
+### Conditional Data Sources:
+
+Any of these methods can be made conditional:
 
 ```cs
 Mapper.WhenMapping
@@ -75,6 +90,18 @@ Mapper.WhenMapping
     .If((dto, p) => dto.CompanyId == 0) // Apply only if CompanyId is 0
     .Map("No-one")                      // Always the same value
     .To(p => p.CompanyName);            // p is the Product
+```
+
+```cs
+// Only include WorkAddress if it's different to HomeAddress:
+Mapper.WhenMapping
+    .From<Customer>()                // Apply to Customer mappings
+    .ToANew<CustomerViewModel>()     // Apply to CustomerViewModel creation
+    .Map((c, vm) => new[] { c.HomeAddress })
+        .Then.If((c, vm) => c.WorkAddress != c.HomeAddress )
+             .Map((c, vm) => new[] { c.WorkAddress })
+        .Then.Map((c, vm) => c.AddressHistory)
+    .To(vm => vm.AllAddresses);      // vm is the CustomerViewModel
 ```
 
 And in an [inline](/configuration/Inline) example:
@@ -162,10 +189,35 @@ class VideoDto
 }
 
 Mapper.WhenMapping
-    .From<Video>()
-    .To<VideoDto>()
+    .From<Video>()      // Apply to Video mappings
+    .To<VideoDto>()     // Apply to all VideoDto mappings
     .Map((v, dto) => v.Statistics)
-    .ToTarget();
+    .ToTarget();        // The VideoDto is the target
 ```
 
-In this example, the `ToTarget()` configuration causes `VideoDto.ViewCount` to be mapped from `Video.Statistics.ViewCount`.
+In this example, the `ToTarget()` configuration causes `Video.Statistics.ViewCount` to be mapped to 
+`VideoDto.ViewCount`. `Video.Title` is mapped to `VideoDto.Title` as expected.
+
+### Switching Data Sources
+
+To switch a mapping data source to a different value, use, _e.g_:
+
+```csharp
+class VideoLibrary
+{
+    public Dictionary<int, Video> VideosById { get; set; }
+}
+
+class VideoLibraryDto
+{
+    public IList<VideoDto> Videos { get; set; }
+}
+
+Mapper.WhenMapping
+    .FromDictionariesWithValueType<Video>()
+    .To<IList<VideoDto>>()
+    .Map((d, l) => d.Values)
+    .ToTargetInstead();
+```
+In this example, in any mapping where `Dictionary<string, Video>` is matched to an `IList<VideoDto>`, 
+the Dictionary's `Values` collection is used as the source _instead_ of the Dictionary.

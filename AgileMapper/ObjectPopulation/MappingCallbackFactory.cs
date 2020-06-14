@@ -1,12 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
-    using Configuration;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Configuration.Lambdas;
+    using Members;
 
     internal class MappingCallbackFactory : UserConfiguredItemBase
     {
@@ -14,37 +15,30 @@
 
         public MappingCallbackFactory(
             MappingConfigInfo configInfo,
-            CallbackPosition callbackPosition,
             ConfiguredLambdaInfo callbackLambda,
             QualifiedMember targetMember)
             : base(configInfo, targetMember)
         {
-            CallbackPosition = callbackPosition;
             _callbackLambda = callbackLambda;
         }
 
-        protected CallbackPosition CallbackPosition { get; }
+        protected InvocationPosition InvocationPosition => ConfigInfo.InvocationPosition;
 
-        public virtual bool AppliesTo(CallbackPosition callbackPosition, IQualifiedMemberContext context)
-            => (CallbackPosition == callbackPosition) && base.AppliesTo(context);
+        public virtual bool AppliesTo(InvocationPosition invocationPosition, IQualifiedMemberContext context)
+            => (InvocationPosition == invocationPosition) && base.AppliesTo(context);
 
         protected override bool TypesMatch(IQualifiedMemberContext context) => TypesAreCompatible(context);
 
         public Expression Create(IMemberMapperData mapperData)
         {
             mapperData.Context.UsesMappingDataObjectAsParameter =
-                _callbackLambda.UsesMappingDataObjectParameter ||
+               _callbackLambda.UsesMappingDataObjectParameter ||
                 ConfigInfo.ConditionUsesMappingDataObjectParameter;
 
-            var callback = _callbackLambda.GetBody(mapperData, CallbackPosition, TargetMember);
-            var condition = GetConditionOrNull(mapperData, CallbackPosition);
+            var condition = GetConditionOrNull(mapperData);
+            var callback = _callbackLambda.GetBody(mapperData);
 
-            if (condition != null)
-            {
-                return Expression.IfThen(condition, callback);
-            }
-
-            return callback;
+            return (condition != null) ? Expression.IfThen(condition, callback) : callback;
         }
     }
 }

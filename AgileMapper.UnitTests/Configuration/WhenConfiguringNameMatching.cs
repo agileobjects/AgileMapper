@@ -6,6 +6,7 @@
     using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
+    using static System.Environment;
 #if !NET35
     using Xunit;
 #else
@@ -291,10 +292,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .UseNamePatterns(@"
-^_
-(.+)
-_$");
+                        .UseNamePatterns($@"{NewLine}^_{NewLine}(.+){NewLine}_$");
                 }
             });
         }

@@ -47,11 +47,16 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         string IMemberFilterIgnore.MemberFilter => SourceMemberFilter;
 
+        protected override bool ConflictsWith(QualifiedMember sourceMember) => IsFiltered(sourceMember);
+
+        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        {
+            return $"Configured data source {conflictingDataSource.GetDescription()} " +
+                   $"conflicts with source member ignore pattern '{SourceMemberFilter}'";
+        }
+
         public override string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore)
             => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingSourceMemberIgnore);
-
-        public string GetConflictMessage(ConfiguredSourceMemberIgnore conflictingMemberIgnore)
-            => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
         public override bool AppliesTo(IQualifiedMemberContext context)
         {

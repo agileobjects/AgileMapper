@@ -8,7 +8,6 @@
 #endif
     using Members;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal abstract class UserConfiguredItemBase : IComparable<UserConfiguredItemBase>
@@ -87,11 +86,8 @@
         protected virtual bool MembersConflict(UserConfiguredItemBase otherItem)
             => TargetMember.Matches(otherItem.TargetMember);
 
-        public Expression GetConditionOrNull(IMemberMapperData mapperData)
-            => GetConditionOrNull(mapperData, CallbackPosition.After);
-
-        protected virtual Expression GetConditionOrNull(IMemberMapperData mapperData, CallbackPosition position)
-            => ConfigInfo.GetConditionOrNull(mapperData, position, TargetMember);
+        public virtual Expression GetConditionOrNull(IMemberMapperData mapperData)
+            => ConfigInfo.GetConditionOrNull(mapperData);
 
         public bool CouldApplyTo(IQualifiedMemberContext context)
             => RuleSetMatches(context) && TypesMatch(context);
@@ -186,7 +182,7 @@
             {
                 if (ConfigInfo.HasSameTargetTypeAs(other))
                 {
-                    return GetConditionOrder(other) ?? 0;
+                    return GetSameTypesOrder(other) ?? 0;
                 }
 
                 if (ConfigInfo.IsForTargetType(other.ConfigInfo))
@@ -207,6 +203,9 @@
             // Unrelated source and target types
             return GetConditionOrder(other) ?? OrderAlphabetically(other);
         }
+
+        protected virtual int? GetSameTypesOrder(UserConfiguredItemBase other)
+            => GetConditionOrder(other);
 
         private int? GetConditionOrder(UserConfiguredItemBase other)
         {

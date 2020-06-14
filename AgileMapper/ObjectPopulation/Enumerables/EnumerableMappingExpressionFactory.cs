@@ -1,6 +1,5 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 {
-    using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -21,8 +20,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
 
-            if (HasConfiguredToTargetDataSources(mapperData, out var configuredToTargetDataSources) &&
-                configuredToTargetDataSources.Any(ds => ds.SourceMember.IsEnumerable))
+            if (ConfiguredMappingFactory.HasMappingFactories(mapperData))
+            {
+                return base.TargetCannotBeMapped(mappingData, out reason);
+            }
+
+            if (mappingData.GetToTargetDataSources().Any(ds => ds.SourceMember.IsEnumerable))
             {
                 return base.TargetCannotBeMapped(mappingData, out reason);
             }
@@ -33,33 +36,59 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private static bool HasCompatibleSourceMember(IMemberMapperData mapperData)
         {
-            return mapperData.SourceMember.IsEnumerable &&
-                   mapperData.CanConvert(
-                       mapperData.SourceMember.GetElementMember().Type,
-                       mapperData.TargetMember.GetElementMember().Type);
+            if (!mapperData.SourceMember.IsEnumerable)
+            {
+                return false;
+            }
+
+            var sourceElementMember = mapperData.SourceMember.GetElementMember();
+            var targetElementMember = mapperData.TargetMember.GetElementMember();
+
+            if (mapperData.CanConvert(sourceElementMember.Type, targetElementMember.Type))
+            {
+                return true;
+            }
+
+            if (!mapperData.MapperContext.UserConfigurations.HasMappingFactories)
+            {
+                return false;
+            }
+
+            var queryContext = new QualifiedMemberContext(
+                mapperData.RuleSet,
+                sourceElementMember.Type,
+                targetElementMember.Type,
+                sourceElementMember,
+                targetElementMember,
+                mapperData,
+                mapperData.MapperContext);
+
+            return ConfiguredMappingFactory.HasMappingFactories(queryContext);
         }
 
         protected override Expression GetNullMappingFallbackValue(IMemberMapperData mapperData)
             => mapperData.GetFallbackCollectionValue();
 
-        protected override IEnumerable<Expression> GetObjectPopulation(MappingCreationContext context)
+        protected override void AddObjectPopulation(MappingCreationContext context)
         {
             if (!HasCompatibleSourceMember(context.MapperData))
             {
-                yield break;
+                return;
             }
 
-            var elementMapperData = context.MapperData.GetElementMapperData();
+            var elementContext = context.MapperData.GetElementMemberContext();
 
-            if (elementMapperData.IsRepeatMapping() &&
-                context.RuleSet.RepeatMappingStrategy.WillNotMap(elementMapperData))
+            if (elementContext.IsRepeatMapping() &&
+                context.RuleSet.RepeatMappingStrategy.WillNotMap(elementContext))
             {
-                yield break;
+                return;
             }
 
-            yield return context.RuleSet.EnumerablePopulationStrategy.Invoke(
+            var population = context.RuleSet.EnumerablePopulationStrategy.Invoke(
                 context.MapperData.EnumerablePopulationBuilder,
                 context.MappingData);
+
+            context.MappingExpressions.Add(population);
         }
 
         protected override Expression GetReturnValue(ObjectMapperData mapperData)

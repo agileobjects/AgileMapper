@@ -11,6 +11,13 @@
     public interface ICustomDataSourceTargetMemberSpecifier<TSource, TTarget>
     {
         /// <summary>
+        /// Perform another configuration of how this mapper maps to and from the source and target
+        /// types being configured. This property can be used to set up a series of configurations
+        /// to be applied in sequence.
+        /// </summary>
+        IConditionalMapSourceConfigurator<TSource, TTarget> Then { get; }
+
+        /// <summary>
         /// Apply the configuration to the given <paramref name="targetMember"/>.
         /// </summary>
         /// <typeparam name="TTargetValue">The target member's type.</typeparam>
@@ -55,13 +62,26 @@
         IMappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName);
 
         /// <summary>
-        /// Apply the configured source value to the target object being configured.
+        /// Map the configured source value to the target object being configured, after any matching
+        /// source member has been mapped. To mapapply the configured source value without mapping
+        /// any matching source member, use ToTargetInstead().
         /// </summary>
         /// <returns>
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
         /// source and target type being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> ToTarget();
+
+        /// <summary>
+        /// Map the configured source value to the target object being configured, instead of mapping
+        /// any matching source member. To map any matching source member as well as the configured
+        /// source value, use ToTarget().
+        /// </summary>
+        /// <returns>
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
+        /// </returns>
+        IMappingConfigContinuation<TSource, TTarget> ToTargetInstead();
 
         /// <summary>
         /// Apply the configured source value to the target object being configured, mapping to a

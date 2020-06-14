@@ -2,6 +2,7 @@
 {
     using System;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Validation;
 #if !NET35

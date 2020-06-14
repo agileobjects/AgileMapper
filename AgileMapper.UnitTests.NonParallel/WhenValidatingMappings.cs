@@ -14,7 +14,7 @@
             {
                 Mapper.GetPlanFor<PublicProperty<string>>().ToANew<PublicProperty<int>>();
 
-                Should.NotThrow(() => Mapper.ThrowNowIfAnyMappingIsIncomplete());
+                Should.NotThrow(Mapper.ThrowNowIfAnyMappingIsIncomplete);
             });
         }
 
@@ -25,8 +25,8 @@
             {
                 Mapper.GetPlanFor<Customer>().ToANew<PublicField<long>>();
 
-                var validationEx = Should.Throw<MappingValidationException>(() =>
-                    Mapper.ThrowNowIfAnyMappingIsIncomplete());
+                var validationEx = Should.Throw<MappingValidationException>(
+                    Mapper.ThrowNowIfAnyMappingIsIncomplete);
 
                 validationEx.Message.ShouldContain("Customer -> PublicField<long>");
                 validationEx.Message.ShouldContain("Rule set: CreateNew");

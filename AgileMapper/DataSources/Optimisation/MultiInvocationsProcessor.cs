@@ -25,7 +25,7 @@
 
             if (SkipProcessing(value, mapperData))
             {
-                variables = Enumerable<ParameterExpression>.EmptyArray;
+                variables = Constants.EmptyParameters;
                 return;
             }
 
@@ -64,7 +64,7 @@
                     goto SetPopulationExpressions;
             }
 
-            populationExpressions = ProcessMultiInvocationsPopulation(
+            populationExpressions = CacheMultiInvocationResults(
                 multiInvocations,
                 variables,
                 populationExpressions);
@@ -97,7 +97,7 @@
             return false;
         }
 
-        private static Expression ProcessMultiInvocationsPopulation(
+        private static Expression CacheMultiInvocationResults(
             IList<Expression> multiInvocations,
             IList<ParameterExpression> variables,
             Expression populationExpressions)
@@ -120,7 +120,7 @@
 
                 var valueVariableValue = invocation;
 
-                for (int j = 0; j < i; ++j)
+                for (var j = 0; j < i; ++j)
                 {
                     valueVariableValue = valueVariableValue.Replace(
                         valueVariablesByInvocation.Keys[j],

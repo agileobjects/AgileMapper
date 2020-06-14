@@ -13,7 +13,7 @@
                 yield break;
             }
 
-            if (context.DoNotUseSourceMemberDataSource())
+            if (!context.UseSourceMemberDataSource())
             {
                 if (context.DataSourceIndex == 0)
                 {
@@ -40,10 +40,8 @@
                     context.TargetMember,
                     context.MemberMapperData.Parent);
 
-                var configuredToTargetDataSources = context
-                    .MapperContext
-                    .UserConfigurations
-                    .GetDataSourcesForToTarget(updatedMapperData);
+                var configuredToTargetDataSources =
+                    updatedMapperData.GetToTargetDataSources();
 
                 foreach (var configuredDataSource in configuredToTargetDataSources)
                 {
@@ -57,12 +55,6 @@
             {
                 yield return context.GetFallbackDataSource();
             }
-        }
-
-        private static bool DoNotUseSourceMemberDataSource(this DataSourceFindContext context)
-        {
-            return !context.BestSourceMemberMatch.IsUseable ||
-                    context.ConfiguredDataSources.Any(context.MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
         }
 
         private static bool UseFallbackComplexTypeDataSource(this DataSourceFindContext context)

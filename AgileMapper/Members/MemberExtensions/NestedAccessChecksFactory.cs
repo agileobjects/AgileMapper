@@ -17,50 +17,40 @@
 #else
     using static System.Linq.Expressions.ExpressionType;
 #endif
-    using static AgileObjects.AgileMapper.Members.Member;
+    using static Member;
 
     internal class NestedAccessChecksFactory : ExpressionVisitor
     {
         private readonly Expression _rootMappingData;
-        private readonly bool _includeTargetNullChecking;
         private readonly bool _invertChecks;
         private ICollection<Expression> _stringMemberAccessSubjects;
         private ICollection<string> _nullCheckSubjects;
         private Dictionary<string, Expression> _nestedAccessesByPath;
 
-        private NestedAccessChecksFactory(
-            IMemberMapperData mapperData,
-            bool targetCanBeNull,
-            bool invertChecks)
+        private NestedAccessChecksFactory(IMemberMapperData mapperData, bool invertChecks)
         {
             _rootMappingData = mapperData?.RootMappingDataObject;
-            _includeTargetNullChecking = targetCanBeNull;
             _invertChecks = invertChecks;
         }
 
         public static Expression GetNestedAccessChecksFor(
             Expression expression,
             IMemberMapperData mapperData = null,
-            bool targetCanBeNull = false,
             bool invertChecks = false)
         {
-            var factory = new NestedAccessChecksFactory(
-                mapperData,
-                targetCanBeNull,
-                invertChecks);
-
+            var factory = new NestedAccessChecksFactory(mapperData, invertChecks);
             var checks = factory.CreateFor(expression);
             return checks;
         }
 
         private ICollection<Expression> StringMemberAccessSubjects
-            => _stringMemberAccessSubjects ?? (_stringMemberAccessSubjects = new List<Expression>());
+            => _stringMemberAccessSubjects ??= new List<Expression>();
 
         private ICollection<string> NullCheckSubjects
-            => _nullCheckSubjects ?? (_nullCheckSubjects = new List<string>());
+            => _nullCheckSubjects ??= new List<string>();
 
         private Dictionary<string, Expression> NestedAccessesByPath
-            => _nestedAccessesByPath ?? (_nestedAccessesByPath = new Dictionary<string, Expression>());
+            => _nestedAccessesByPath ??= new Dictionary<string, Expression>();
 
         public Expression CreateFor(Expression expression)
         {
@@ -227,10 +217,8 @@
             {
                 case nameof(IMappingData<int, int>.ElementIndex):
                 case RootSourceMemberName:
-                    return true;
-
                 case RootTargetMemberName:
-                    return _includeTargetNullChecking;
+                    return true;
 
                 default:
                     return false;
@@ -379,6 +367,7 @@
 
             switch (method.Name)
             {
+                case nameof(GetType) when method.DeclaringType == typeof(object):
                 case nameof(string.ToString) when method.DeclaringType == typeof(object):
                 case nameof(string.Split) when method.DeclaringType == typeof(string):
                 case nameof(IEnumerable<int>.GetEnumerator) when method.DeclaringType.IsClosedTypeOf(typeof(IEnumerable<>)):

@@ -36,5 +36,19 @@
                 plan.ShouldContain("Rule Set: Overwrite");
             });
         }
+
+        [Fact]
+        public void ShouldShowAllCachedMappingPlanExpressionsViaTheStaticApi()
+        {
+            TestThenReset(() =>
+            {
+                Mapper.GetPlanFor<MysteryCustomer>().ToANew<MysteryCustomerViewModel>();
+                Mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
+
+                var plan = Mapper.GetPlanExpressionsInCache();
+
+                plan.ShouldNotBeNull();
+            });
+        }
     }
 }

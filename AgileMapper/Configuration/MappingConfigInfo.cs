@@ -4,21 +4,24 @@
     using System.Collections.Generic;
     using System.Globalization;
 #if NET35
-    using LinqExp = System.Linq.Expressions;
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
+    using Lambdas;
     using Members;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
     using static MappingRuleSet;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
 
     internal delegate bool SourceTypeComparer(ITypePair typePair, ITypePair otherTypePair);
-    
+
     internal delegate bool TargetTypeComparer(ITypePair typePair, ITypePair otherTypePair);
 
     internal class MappingConfigInfo : ITypePair
@@ -35,6 +38,7 @@
         public MappingConfigInfo(MapperContext mapperContext)
         {
             MapperContext = mapperContext;
+            InvocationPosition = InvocationPosition.After;
         }
 
         #region Factory Methods
@@ -95,7 +99,7 @@
         private bool HasSameSourceTypeAs(ITypePair typePair) => typePair.SourceType == SourceType;
 
         public Type TargetType { get; private set; }
-        
+
         public bool IsForAllTargetTypes() => TargetType == typeof(object);
 
         public MappingConfigInfo ForAllTargetTypes() => ForTargetType<object>();
@@ -164,7 +168,7 @@
             ErrorIfConditionHasTypeTest(conditionLambda);
             FixEnumComparisonsIfNecessary(ref conditionLambda);
 
-            _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda);
+            _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda, this);
         }
 
         private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
@@ -179,7 +183,8 @@
 
             throw new MappingConfigurationException(string.Format(
                 CultureInfo.InvariantCulture,
-                "Instead of type testing in condition '{0}', configure for a more specific source or target type.",
+                "Instead of type testing in condition '{0}', " +
+                "configure for a more derived source or target type.",
                 condition));
         }
 
@@ -199,27 +204,21 @@
         public string GetConditionDescription(MappingConfigInfo configInfo)
             => _conditionLambda.GetDescription(configInfo);
 
-        public Expression GetConditionOrNull(
-            IMemberMapperData mapperData,
-            CallbackPosition position,
-            QualifiedMember targetMember)
+        public Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
             if (!HasCondition)
             {
                 return null;
             }
 
-            var condition = _conditionLambda.GetBody(mapperData, position, targetMember);
+            var condition = _conditionLambda.GetBody(mapperData);
 
             if (_negateCondition)
             {
                 condition = condition.Negate();
             }
 
-            var targetCanBeNull = position.IsPriorToObjectCreation(targetMember);
-
-            var conditionNestedAccessesChecks = mapperData
-                .GetNestedAccessChecksFor(condition, targetCanBeNull);
+            var conditionNestedAccessesChecks = mapperData.GetNestedAccessChecksFor(condition);
 
             if (conditionNestedAccessesChecks != null)
             {
@@ -230,6 +229,25 @@
         }
 
         #endregion
+
+        public InvocationPosition InvocationPosition { get; private set; }
+
+        public MappingConfigInfo WithInvocationPosition(InvocationPosition position)
+        {
+            InvocationPosition = position;
+            return this;
+        }
+
+        public bool IsSequentialConfiguration { get; private set; }
+
+        public ConfigurationType ConfigurationType { get; private set; }
+
+        public MappingConfigInfo ForSequentialConfiguration()
+        {
+            ConfigurationType = ConfigurationType.Sequential;
+            IsSequentialConfiguration = true;
+            return this;
+        }
 
         public T Get<T>()
         {
@@ -247,7 +265,7 @@
             return this;
         }
 
-        private Dictionary<Type, object> Data => (_data ?? (_data = new Dictionary<Type, object>()));
+        private Dictionary<Type, object> Data => (_data ??= new Dictionary<Type, object>());
 
         public IObjectMappingData ToMappingData<TSource, TTarget>()
         {
@@ -288,12 +306,11 @@
         public MappingConfigInfo Copy()
         {
             var cloned = new MappingConfigInfo(MapperContext)
-            {
-                SourceType = SourceType,
-                TargetType = TargetType,
-                SourceValueType = SourceValueType,
-                RuleSet = RuleSet
-            };
+                .ForRuleSet(RuleSet)
+                .ForSourceType(SourceType)
+                .ForTargetType(TargetType)
+                .ForSourceValueType(SourceValueType)
+                .WithInvocationPosition(InvocationPosition);
 
             if (_data == null)
             {

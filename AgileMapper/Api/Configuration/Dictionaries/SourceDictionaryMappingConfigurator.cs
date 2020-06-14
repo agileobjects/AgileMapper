@@ -8,7 +8,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
         ISourceDictionaryMappingConfigurator<TValue, TTarget>
     {
         public SourceDictionaryMappingConfigurator(MappingConfigInfo configInfo)
-            : base(configInfo)
+            : base(configInfo.ForSourceDictionary<TValue>())
         {
         }
 

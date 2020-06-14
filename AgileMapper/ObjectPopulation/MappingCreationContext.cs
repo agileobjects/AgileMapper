@@ -4,20 +4,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.ExpressionType;
 #endif
     using DataSources;
     using Extensions;
+    using Extensions.Internal;
     using Members;
-    using static CallbackPosition;
+#if NET35
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using static System.Linq.Expressions.ExpressionType;
+#endif
+    using static InvocationPosition;
 
     internal class MappingCreationContext
     {
-        private bool _mapperDataHasRootEnumerableVariables;
         private IList<Expression> _memberMappingExpressions;
+        private IList<IConfiguredDataSource> _toTargetDataSources;
 
         public MappingCreationContext(IObjectMappingData mappingData)
         {
@@ -31,10 +35,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            var basicMapperData = MapperData.WithNoTargetMember();
+            var callbackQueryMapperData = MapperData.WithNoTargetMember();
 
-            PreMappingCallback = basicMapperData.GetMappingCallbackOrNull(Before, MapperData);
-            PostMappingCallback = basicMapperData.GetMappingCallbackOrNull(After, MapperData);
+            PreMappingCallback = callbackQueryMapperData.GetMappingCallbackOrNull(Before, MapperData);
+            PostMappingCallback = callbackQueryMapperData.GetMappingCallbackOrNull(After, MapperData);
         }
 
         private static Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
@@ -59,6 +63,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public List<Expression> MappingExpressions { get; }
 
         public bool InstantiateLocalVariable { get; set; }
+
+        public bool MappingComplete { get; set; }
+
+        public IList<IConfiguredDataSource> ToTargetDataSources
+            => _toTargetDataSources ??= MappingData.GetToTargetDataSources();
+
+        public Expression GetMappingExpression() => MappingExpressions.ToExpression();
 
         public IList<Expression> GetMemberMappingExpressions()
         {
@@ -99,48 +110,105 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     IsCallTo(nameof(IObjectMappingDataUntyped.MapRepeated), expression);
         }
 
-        public MappingCreationContext WithDataSource(IDataSource newDataSource)
+        public MappingCreationContext WithToTargetDataSource(IDataSource dataSource)
         {
-            var newSourceMappingData = MappingData.WithSource(newDataSource.SourceMember);
+            var newSourceMappingData = MappingData.WithToTargetSource(dataSource.SourceMember);
+            var isAlternate = !dataSource.IsSequential;
 
             var newContext = new MappingCreationContext(newSourceMappingData)
             {
-                InstantiateLocalVariable = false
+                InstantiateLocalVariable = isAlternate
             };
 
-            newContext.MapperData.SourceObject = newDataSource.Value;
-            newContext.MapperData.TargetObject = MapperData.TargetObject;
+            var newMapperData = newContext.MapperData;
+
+            newMapperData.SourceObject = dataSource.Value;
+            newMapperData.TargetObject = MapperData.TargetObject;
 
             if (TargetMember.IsComplex)
             {
-                newContext.MapperData.TargetInstance = MapperData.TargetInstance;
+                if (isAlternate)
+                {
+                    newMapperData.LocalVariable = MapperData.LocalVariable;
+                }
+
+                newMapperData.TargetInstance = MapperData.TargetInstance;
             }
-            else if (_mapperDataHasRootEnumerableVariables)
+            else if (TargetMember.IsEnumerable)
             {
-                UpdateEnumerableVariables(MapperData, newContext.MapperData);
+                UpdateEnumerableVariablesIfAppropriate(MapperData, newMapperData);
             }
 
             return newContext;
         }
 
-        public void UpdateFrom(MappingCreationContext childSourceContext)
+        public void UpdateFrom(MappingCreationContext toTargetContext, IDataSource toTargetDataSource)
         {
-            MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(childSourceContext.MappingData);
+            var toTargetMappingData = toTargetContext.MappingData;
+            MappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(toTargetMappingData);
 
-            if (TargetMember.IsComplex || _mapperDataHasRootEnumerableVariables)
+            if (!MapperData.IsRoot)
+            {
+                var dataSourceSet = DataSourceSet.For(toTargetDataSource, toTargetMappingData);
+                MapperData.RegisterTargetMemberDataSources(dataSourceSet);
+            }
+
+            if (TargetMember.IsComplex)
+            {
+                UpdateChildMemberDataSources(toTargetContext.MapperData);
+                return;
+            }
+
+            UpdateEnumerableVariablesIfAppropriate(toTargetContext.MapperData, MapperData);
+        }
+
+        private void UpdateChildMemberDataSources(ObjectMapperData toTargetMapperData)
+        {
+            var targetMemberDataSources = MapperData.DataSourcesByTargetMember;
+            var targetMembers = targetMemberDataSources.Keys.ToArray();
+            var dataSources = targetMemberDataSources.Values.ToArray();
+
+            var toTargetTargetMemberDataSources = toTargetMapperData.DataSourcesByTargetMember;
+
+            var targetMembersCount = targetMembers.Length;
+            var targetMemberIndex = 0;
+
+            foreach (var toTargetMemberAndDataSource in toTargetTargetMemberDataSources)
+            {
+                var toTargetMember = toTargetMemberAndDataSource.Key.LeafMember;
+
+                for (var i = targetMemberIndex; i < targetMembersCount; ++i)
+                {
+                    ++targetMemberIndex;
+
+                    var targetMember = targetMembers[i];
+
+                    if (!targetMember.LeafMember.Equals(toTargetMember))
+                    {
+                        continue;
+                    }
+
+                    if (!dataSources[i].HasValue)
+                    {
+                        targetMemberDataSources[targetMember] = toTargetMemberAndDataSource.Value;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        private static void UpdateEnumerableVariablesIfAppropriate(
+            ObjectMapperData fromMapperData,
+            ObjectMapperData toMapperData)
+        {
+            if (fromMapperData.EnumerablePopulationBuilder.TargetVariable == null)
             {
                 return;
             }
 
-            _mapperDataHasRootEnumerableVariables = true;
-
-            UpdateEnumerableVariables(childSourceContext.MapperData, MapperData);
-        }
-
-        private static void UpdateEnumerableVariables(ObjectMapperData sourceMapperData, ObjectMapperData targetMapperData)
-        {
-            targetMapperData.LocalVariable = sourceMapperData.LocalVariable;
-            targetMapperData.EnumerablePopulationBuilder.TargetVariable = sourceMapperData.EnumerablePopulationBuilder.TargetVariable;
+            toMapperData.LocalVariable = fromMapperData.LocalVariable;
+            toMapperData.EnumerablePopulationBuilder.TargetVariable = fromMapperData.EnumerablePopulationBuilder.TargetVariable;
         }
     }
 }

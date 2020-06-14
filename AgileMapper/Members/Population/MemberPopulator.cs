@@ -64,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             if (MapperData.RuleSet.Settings.AllowGuardedBindings && (populationGuard != null))
             {
-                bindingValue = bindingValue.ToIfFalseDefaultCondition(populationGuard);
+                bindingValue = bindingValue.ToIfFalseDefaultCondition(populationGuard, MapperData);
             }
 
             return MapperData.GetTargetMemberPopulation(bindingValue);
@@ -78,28 +78,43 @@ namespace AgileObjects.AgileMapper.Members.Population
             return Expression.IfThen(targetMemberNotNull, _dataSources.BuildValue());
         }
 
-        private Expression GetPopulationExpression()
+        public Expression GetPopulationExpression()
         {
-            if (_dataSources.Count == 1)
+            var dataSourcesCount = _dataSources.Count;
+
+            if (dataSourcesCount == 1)
             {
                 return GetPopulation(_dataSources[0]);
             }
 
             var population = default(Expression);
+            var nextDataSource = default(IDataSource);
 
             for (var i = _dataSources.Count; ;)
             {
-                population = GetPopulation(_dataSources[--i], population);
+                --i;
+                var dataSource = _dataSources[i];
+                population = GetPopulation(dataSource, population, nextDataSource);
 
                 if (i == 0)
                 {
                     return population;
                 }
+
+                nextDataSource = dataSource;
             }
         }
 
-        private Expression GetPopulation(IDataSource dataSource, Expression population = null) 
-            => dataSource.FinalisePopulationBranch(population, MapperData);
+        private Expression GetPopulation(
+            IDataSource dataSource,
+            Expression populationSoFar = null,
+            IDataSource nextDataSource = null)
+        {
+            return dataSource.FinalisePopulationBranch(
+                populationSoFar,
+                nextDataSource,
+                MapperData);
+        }
 
         private Expression GetPopulationWithVariables(Expression population)
         {

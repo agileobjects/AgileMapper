@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
     {
         public static Expression Create(EnumerablePopulationBuilder builder, IObjectMappingData enumerableMappingData)
         {
-            builder.AssignSourceVariableFromSourceObject();
+            builder.AssignSourceVariableToSourceObject();
             builder.AssignTargetVariable();
             builder.AddNewItemsToTargetVariable(enumerableMappingData);
 

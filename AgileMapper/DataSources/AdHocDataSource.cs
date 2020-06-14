@@ -1,11 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
-    using System.Collections.Generic;
     using Members;
 
     internal class AdHocDataSource : DataSourceBase
@@ -31,7 +31,7 @@
                 sourceMember,
                 value,
                 condition,
-                Enumerable<ParameterExpression>.EmptyArray)
+                Constants.EmptyParameters)
         {
         }
 

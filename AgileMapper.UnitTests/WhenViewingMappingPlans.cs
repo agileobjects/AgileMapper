@@ -3,9 +3,13 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Text.RegularExpressions;
     using Common;
-    using MoreTestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -24,6 +28,16 @@
                 .ToANew<PublicProperty<string>>();
 
             plan.ShouldContain("publicProperty_String.Value = pfsToPpsData.Source.Value;");
+        }
+
+        [Fact]
+        public void ShouldSurfaceAMappingPlanExpression()
+        {
+            Expression plan = Mapper
+                .GetPlanFor<PublicField<string>>()
+                .ToANew<PublicProperty<string>>();
+
+            plan.ShouldNotBeNull();
         }
 
         [Fact]
@@ -240,7 +254,7 @@
                 string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
                 plan.ShouldContain("pToPData =>");
-                
+
                 plan.ShouldContain("pToPData.Register(sourceParent, parent)");
                 plan.ShouldContain("pToPData.Register(sourceParent.EldestChild, child)");
 
@@ -311,7 +325,7 @@
         [Fact]
         public void ShouldCacheComplexTypeGetMethodResults()
         {
-            string plan  = Mapper
+            string plan = Mapper
                 .GetPlanFor<PublicField<PublicGetMethod<Address>>>()
                 .ToANew<PublicProperty<PublicProperty<Address>>>();
 
@@ -433,9 +447,24 @@
             }
         }
 
+        [Fact]
+        public void ShouldShowAllCachedMappingPlanExpressions()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<PublicField<string>>().ToANew<PublicProperty<int>>();
+                mapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
+                mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
+
+                var plan = mapper.GetPlanExpressionsInCache();
+
+                plan.ShouldNotBeNull();
+            }
+        }
+
         #region Helper Members
 
-        private static string RemoveWhiteSpace(string plan) 
+        private static string RemoveWhiteSpace(string plan)
             => plan.Replace(Environment.NewLine, null).Replace(" ", null);
 
         internal static class Issue146

@@ -84,9 +84,9 @@
             var assignmentReplacements = FixedSizeExpressionReplacementDictionary
                 .WithEqualKeys(assignmentsCount);
 
-            for (var i = 0; i < assignmentsCount;)
+            for (var i = 0; i < assignmentsCount; ++i)
             {
-                var data = assignmentData[i++];
+                var data = assignmentData[i];
 
                 assignmentReplacements.Add(data.Assignment, data.AssignmentWithWarning);
             }

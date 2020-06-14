@@ -10,14 +10,18 @@
             ConfiguredDataSourcesFactory.Create,
             MaptimeDataSourcesFactory.Create,
             SourceMemberDataSourcesFactory.Create,
-            MetaMemberDataSourcesFactory.Create
+            MetaMemberDataSourcesFactory.Create,
+            ConfiguredMappingDataSourcesFactory.Create
         };
 
         public static IDataSourceSet CreateFor(DataSourceFindContext findContext)
         {
             var validDataSources = EnumerateDataSources(findContext).ToArray();
 
-            return DataSourceSet.For(validDataSources, findContext.MemberMapperData);
+            return DataSourceSet.For(
+                validDataSources,
+                findContext,
+                ValueExpressionBuilders.ValueTree);
         }
 
         private static IEnumerable<IDataSource> EnumerateDataSources(DataSourceFindContext context)

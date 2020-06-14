@@ -7,7 +7,6 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using ObjectPopulation;
@@ -100,10 +99,9 @@
             }
 
             var otherComplexTypeMembers = sourceElementMembers
-                .Filter(mapperData, (md, m) => m.IsComplex && (m.Type != md.SourceType))
-                .ToArray();
+                .FilterToArray(mapperData, (md, m) => m.IsComplex && (m.Type != md.SourceType));
 
-            if ((otherComplexTypeMembers.Length != 1) ||
+            if ((otherComplexTypeMembers.Count != 1) ||
                 (mapperData.GetIdentifierOrNull(otherComplexTypeMembers[0].Type) == null))
             {
                 forwardLink = null;

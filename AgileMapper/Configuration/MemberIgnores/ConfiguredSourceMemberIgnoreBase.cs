@@ -1,5 +1,7 @@
 namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 {
+    using Members;
+
 #if NET35
     using System;
 #endif
@@ -16,6 +18,30 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             : base(configInfo)
         {
         }
+
+        public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
+        {
+            if (base.ConflictsWith(otherConfiguredItem))
+            {
+                return true;
+            }
+
+            if (otherConfiguredItem is ConfiguredDataSourceFactory configuredDataSource)
+            {
+                var configuredSourceMember = configuredDataSource.ToSourceMemberOrNull();
+
+                if (configuredSourceMember != null)
+                {
+                    return ConflictsWith(configuredSourceMember);
+                }
+            }
+
+            return false;
+        }
+
+        protected abstract bool ConflictsWith(QualifiedMember sourceMember);
+
+        public abstract string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource);
 
         public abstract string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore);
 

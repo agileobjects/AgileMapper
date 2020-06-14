@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         public bool IsArray => EnumerableType.IsArray;
 
-        public bool IsDictionary
+        private bool IsDictionary
             => _isDictionary ?? (_isDictionary = EnumerableType.IsDictionary()).GetValueOrDefault();
 
         public bool IsList => EnumerableType.IsAssignableTo(ListType);

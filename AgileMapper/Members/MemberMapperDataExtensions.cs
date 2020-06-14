@@ -13,7 +13,6 @@ namespace AgileObjects.AgileMapper.Members
     using Configuration;
     using Configuration.MemberIgnores.SourceValueFilters;
     using DataSources;
-    using DataSources.Factories;
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
@@ -65,7 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             return (ObjectMapperData)context;
         }
 
-        public static IQualifiedMemberContext GetElementMapperData(this IMemberMapperData mapperData)
+        public static IQualifiedMemberContext GetElementMemberContext(this IMemberMapperData mapperData)
         {
             if (mapperData.TargetMember.IsEnumerable)
             {
@@ -142,43 +141,34 @@ namespace AgileObjects.AgileMapper.Members
         public static Expression GetTargetMemberDefault(this IQualifiedMemberContext context)
             => context.TargetMember.Type.ToDefaultExpression();
 
-        [DebuggerStepThrough]
-        public static Expression GetTargetTypeDefault(this ITypePair typePair)
-            => typePair.TargetType.ToDefaultExpression();
-
-        public static Expression GetNestedAccessChecksFor(
-            this IMemberMapperData mapperData,
-            Expression value,
-            bool targetCanBeNull)
+        public static ConditionalExpression ToIfFalseDefaultCondition(
+            this Expression value,
+            Expression condition,
+            IMemberMapperData mapperData)
         {
-            return GetNestedAccessChecksFor(
-                value,
-                mapperData.RuleSet,
-                mapperData,
-                targetCanBeNull);
+            return value.ToIfFalseDefaultCondition(condition, mapperData.GetTargetFallbackValue());
         }
 
-        public static Expression GetNestedAccessChecksFor(
-            this MappingRuleSet ruleSet,
-            Expression value,
-            bool targetCanBeNull = false)
-        {
-            return GetNestedAccessChecksFor(value, ruleSet, mapperData: null, targetCanBeNull);
-        }
+        public static Expression GetTargetFallbackValue(this IMemberMapperData mapperData)
+            => mapperData.RuleSet.FallbackDataSourceFactory.Invoke(mapperData).Value;
+
+        public static Expression GetNestedAccessChecksFor(this IMemberMapperData mapperData, Expression value)
+            => GetNestedAccessChecksFor(value, mapperData.RuleSet, mapperData);
+
+        public static Expression GetNestedAccessChecksFor(this MappingRuleSet ruleSet, Expression value)
+            => GetNestedAccessChecksFor(value, ruleSet, mapperData: null);
 
         private static Expression GetNestedAccessChecksFor(
             Expression value,
             MappingRuleSet ruleSet,
-            IMemberMapperData mapperData,
-            bool targetCanBeNull = false)
+            IMemberMapperData mapperData)
         {
-            if (ruleSet.Settings?.GuardAccessTo(value) != false)
+            if (ruleSet.Settings?.GuardAccessTo(value) == false)
             {
-                return NestedAccessChecksFactory
-                    .GetNestedAccessChecksFor(value, mapperData, targetCanBeNull);
+                return null;
             }
 
-            return null;
+            return NestedAccessChecksFactory.GetNestedAccessChecksFor(value, mapperData);
         }
 
         public static bool SourceMemberIsStringKeyedDictionary(
@@ -206,11 +196,28 @@ namespace AgileObjects.AgileMapper.Members
             return null;
         }
 
-        public static void RegisterTargetMemberDataSourcesIfRequired(
-            this IMemberMapperData mapperData,
+        public static void RegisterTargetMemberDataSources(
+            this IMemberMapperData memberMapperData,
             IDataSourceSet dataSources)
         {
-            mapperData.Parent.DataSourcesByTargetMember.Add(mapperData.TargetMember, dataSources);
+            memberMapperData.Parent
+                .MergeTargetMemberDataSources(memberMapperData.TargetMember, dataSources);
+        }
+
+        public static void MergeTargetMemberDataSources(
+            this ObjectMapperData mapperData,
+            QualifiedMember targetMember,
+            IDataSourceSet dataSources)
+        {
+            var dataSourcesByTargetMember = mapperData.DataSourcesByTargetMember;
+
+            if (dataSourcesByTargetMember.TryGetValue(targetMember, out var registeredDataSources) &&
+                registeredDataSources.HasValue)
+            {
+                return;
+            }
+
+            dataSourcesByTargetMember[targetMember] = dataSources;
         }
 
         public static bool TargetMemberIsUnmappable<TTMapperData>(
@@ -344,8 +351,7 @@ namespace AgileObjects.AgileMapper.Members
                 }
 
                 var sameTypedChildMembers = nonSimpleChildMembers
-                    .Filter(subjectMember, (sm, cm) => (cm.IsEnumerable ? cm.ElementType : cm.Type) == sm.Type)
-                    .ToArray();
+                    .FilterToArray(subjectMember, (sm, cm) => (cm.IsEnumerable ? cm.ElementType : cm.Type) == sm.Type);
 
                 if (sameTypedChildMembers
                         .Project(parentMember, GetNonEnumerableChildMember)
@@ -420,13 +426,13 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetMappingCallbackOrNull(
             this IQualifiedMemberContext context,
-            CallbackPosition callbackPosition,
+            InvocationPosition invocationPosition,
             IMemberMapperData mapperData)
         {
             return mapperData
                 .MapperContext
                 .UserConfigurations
-                .GetCallbackOrNull(callbackPosition, context, mapperData);
+                .GetCallbackOrNull(invocationPosition, context, mapperData);
         }
 
         public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
@@ -468,8 +474,7 @@ namespace AgileObjects.AgileMapper.Members
                 {
                     var dataAccessParentProperty =
                         dataAccess.Type.GetPublicInstanceProperty("Parent") ??
-                       (parentProperty ??
-                       (parentProperty = typeof(IMappingData).GetPublicInstanceProperty("Parent")));
+                       (parentProperty ??= typeof(IMappingData).GetPublicInstanceProperty("Parent"));
 
                     dataAccess = Expression.Property(dataAccess, dataAccessParentProperty);
                 }
@@ -542,13 +547,13 @@ namespace AgileObjects.AgileMapper.Members
             IList<Type> contextTypes,
             IList<Type> contextAccessTypes = null)
         {
-            if ((contextAccessTypes == null) && !contextAccess.Type.IsGenericType())
-            {
-                return contextAccess;
-            }
-
             if (contextAccessTypes == null)
             {
+                if (!contextAccess.Type.IsGenericType())
+                {
+                    return contextAccess;
+                }
+
                 contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
             }
 
@@ -567,9 +572,9 @@ namespace AgileObjects.AgileMapper.Members
             => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
 
         public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
-            => GetAsCall(subject, true.ToConstantExpression(), contextTypes);
+            => GetAsCallIfRequired(subject, contextTypes);
 
-        public static Expression GetAsCall(this Expression subject, Expression isForDerivedTypeArgument, params Type[] contextTypes)
+        private static Expression GetAsCallIfRequired(this Expression subject, Type[] contextTypes)
         {
             if (subject.Type.IsGenericType() &&
                 subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
@@ -577,6 +582,14 @@ namespace AgileObjects.AgileMapper.Members
                 return subject;
             }
 
+            return GetAsCall(subject, true.ToConstantExpression(), contextTypes);
+        }
+
+        public static Expression GetAsCall(
+            this Expression subject,
+            Expression isForDerivedTypeArgument,
+            params Type[] contextTypes)
+        {
             if (subject.Type == typeof(IMappingData))
             {
                 return Expression.Call(
@@ -584,25 +597,27 @@ namespace AgileObjects.AgileMapper.Members
                     typeof(IMappingData).GetPublicInstanceMethod("As").MakeGenericMethod(contextTypes));
             }
 
-            MethodInfo conversionMethod;
-
-            if (contextTypes[0].IsValueType())
-            {
-                conversionMethod = subject.Type.GetPublicInstanceMethod("WithTargetType");
-            }
-            else if (contextTypes[1].IsValueType())
-            {
-                conversionMethod = subject.Type.GetPublicInstanceMethod("WithSourceType");
-            }
-            else
-            {
-                conversionMethod = typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
-            }
+            var conversionMethod = GetConversionMethod(subject, contextTypes);
 
             return Expression.Call(
                 subject,
                 conversionMethod.MakeGenericMethod(contextTypes),
                 isForDerivedTypeArgument);
+        }
+
+        private static MethodInfo GetConversionMethod(Expression subject, Type[] contextTypes)
+        {
+            if (contextTypes[0].IsValueType())
+            {
+                return subject.Type.GetPublicInstanceMethod("WithTargetType");
+            }
+
+            if (contextTypes[1].IsValueType())
+            {
+                return subject.Type.GetPublicInstanceMethod("WithSourceType");
+            }
+
+            return typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
         }
 
         public static Expression GetSourceAccess(
@@ -653,7 +668,6 @@ namespace AgileObjects.AgileMapper.Members
                     .MakeGenericType(contextTypes[0], contextTypes[1])
                     .GetPublicInstanceProperty(propertyName);
 
-            // ReSharper disable once AssignNullToNotNullAttribute
             return Expression.Property(contextAccess, property);
         }
 
@@ -669,5 +683,17 @@ namespace AgileObjects.AgileMapper.Members
 
         private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
             => Expression.Call(subject, method.MakeGenericMethod(typeArgument));
+
+        public static Expression GetFinalisedReturnValue(
+            this ObjectMapperData mapperData,
+            Expression value,
+            out bool returnsDefault)
+        {
+            returnsDefault = value.NodeType != ExpressionType.Goto;
+
+            return returnsDefault
+                ? mapperData.GetReturnLabel(mapperData.GetTargetFallbackValue())
+                : ((GotoExpression)value).Value;
+        }
     }
 }

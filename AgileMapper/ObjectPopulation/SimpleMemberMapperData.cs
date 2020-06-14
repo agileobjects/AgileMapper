@@ -11,7 +11,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class SimpleMemberMapperData : MemberMapperDataBase, IMemberMapperData
     {
-        private SimpleMemberMapperData(IQualifiedMember sourceMember, IMemberMapperData memberMapperData)
+        public SimpleMemberMapperData(IQualifiedMember sourceMember, IMemberMapperData memberMapperData)
             : base(
                 memberMapperData.RuleSet,
                 sourceMember,

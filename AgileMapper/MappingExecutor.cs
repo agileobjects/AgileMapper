@@ -30,7 +30,7 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
-        public bool AddUnsuccessfulMemberPopulations => false;
+        public bool IgnoreUnsuccessfulMemberPopulations => true;
 
         public bool LazyLoadRepeatMappingFuncs => true;
 

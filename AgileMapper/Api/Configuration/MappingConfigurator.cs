@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.Lambdas;
     using AgileMapper.Configuration.MemberIgnores;
     using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using AgileMapper.Configuration.Projection;
@@ -15,6 +16,7 @@
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using Projection;
     using ReadableExpressions.Extensions;
     using Validation;
@@ -25,7 +27,8 @@
         IFullProjectionConfigurator<TSource, TTarget>,
         IFullProjectionInlineConfigurator<TSource, TTarget>,
         IConditionalRootMappingConfigurator<TSource, TTarget>,
-        IConditionalRootProjectionConfigurator<TSource, TTarget>
+        IConditionalRootProjectionConfigurator<TSource, TTarget>,
+        IConditionalMapSourceConfigurator<TSource, TTarget>
     {
         public MappingConfigurator(MappingConfigInfo configInfo)
         {
@@ -167,6 +170,24 @@
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
+        IMapSourceConfigurator<TSource, TTarget> IConditionalMapSourceConfigurator<TSource, TTarget>.If(
+            Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
+        {
+            return SetCondition(condition);
+        }
+
+        IMapSourceConfigurator<TSource, TTarget> IConditionalMapSourceConfigurator<TSource, TTarget>.If(
+            Expression<Func<TSource, TTarget, bool>> condition)
+        {
+            return SetCondition(condition);
+        }
+
+        IMapSourceConfigurator<TSource, TTarget> IConditionalMapSourceConfigurator<TSource, TTarget>.If(
+            Expression<Func<TSource, TTarget, int?, bool>> condition)
+        {
+            return SetCondition(condition);
+        }
+
         private MappingConfigurator<TSource, TTarget> SetCondition(LambdaExpression conditionLambda)
         {
             ConfigInfo.AddConditionOrThrow(conditionLambda);
@@ -180,18 +201,24 @@
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
         {
-            return RegisterFactory(factory);
+            return RegisterFactoryLambda(factory, FactoryType.Creation);
         }
 
         public IProjectionConfigContinuation<TSource, TTarget> CreateInstancesUsing(
             Expression<Func<TSource, TTarget>> factory)
         {
-            return RegisterFactory(factory);
+            return RegisterFactoryLambda(factory, FactoryType.Creation);
         }
 
-        private MappingConfigContinuation<TSource, TTarget> RegisterFactory(LambdaExpression factory)
+        private MappingConfigContinuation<TSource, TTarget> RegisterFactoryLambda(LambdaExpression factory, FactoryType type)
+            => RegisterFactory(factory, (fs, f) => fs.Using(f), type);
+
+        private MappingConfigContinuation<TSource, TTarget> RegisterFactory<TFactory>(
+            TFactory factory,
+            Action<FactorySpecifier<TSource, TTarget, TTarget>, TFactory> specifier,
+            FactoryType type)
         {
-            CreateFactorySpecifier<TTarget>().Using(factory);
+            specifier.Invoke(CreateFactorySpecifier<TTarget>(type), factory);
 
             return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
         }
@@ -199,18 +226,22 @@
         public IMappingConfigContinuation<TSource, TTarget> CreateInstancesUsing<TFactory>(TFactory factory)
             where TFactory : class
         {
-            CreateFactorySpecifier<TTarget>().Using(factory);
+            return RegisterFactory(factory, FactoryType.Creation);
+        }
 
-            return new MappingConfigContinuation<TSource, TTarget>(ConfigInfo);
+        private IMappingConfigContinuation<TSource, TTarget> RegisterFactory<TFactory>(TFactory factory, FactoryType type)
+            where TFactory : class
+        {
+            return RegisterFactory(factory, (fs, f) => fs.Using(f), type);
         }
 
         public IMappingFactorySpecifier<TSource, TTarget, TObject> CreateInstancesOf<TObject>()
-            => CreateFactorySpecifier<TObject>();
+            => CreateFactorySpecifier<TObject>(FactoryType.Creation);
 
         IProjectionFactorySpecifier<TSource, TTarget, TObject> IRootProjectionConfigurator<TSource, TTarget>.CreateInstancesOf<TObject>()
-            => CreateFactorySpecifier<TObject>();
+            => CreateFactorySpecifier<TObject>(FactoryType.Creation);
 
-        private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>()
+        private FactorySpecifier<TSource, TTarget, TObject> CreateFactorySpecifier<TObject>(FactoryType type)
         {
             if (typeof(TObject).IsPrimitive())
             {
@@ -218,8 +249,31 @@
                     $"Unable to configure the creation of primitive type '{typeof(TObject).GetFriendlyName()}'");
             }
 
-            return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo);
+            ConfigInfo.WithInvocationPosition(typeof(TObject) != typeof(TTarget)
+                ? InvocationPosition.After
+                : InvocationPosition.Before);
+
+            return new FactorySpecifier<TSource, TTarget, TObject>(ConfigInfo.Set(type));
         }
+
+        #endregion
+
+        #region Instance Mapping
+
+        public IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing(
+            Expression<Func<IMappingData<TSource, TTarget>, TTarget>> factory)
+        {
+            return RegisterFactoryLambda(factory, FactoryType.Mapping);
+        }
+
+        public IMappingConfigContinuation<TSource, TTarget> MapInstancesUsing<TFactory>(TFactory factory)
+            where TFactory : class
+        {
+            return RegisterFactory(factory, FactoryType.Mapping);
+        }
+
+        public IMappingFactorySpecifier<TSource, TTarget, TObject> MapInstancesOf<TObject>()
+            => CreateFactorySpecifier<TObject>(FactoryType.Mapping);
 
         #endregion
 
@@ -473,7 +527,8 @@
         private CustomDataSourceTargetMemberSpecifier<TSource, TTarget> GetConstantValueTargetMemberSpecifier<TSourceValue>(
             TSourceValue value)
         {
-            var valueLambdaInfo = ConfiguredLambdaInfo.ForFunc(value, typeof(TSource), typeof(TTarget));
+            var valueLambdaInfo = ConfiguredLambdaInfo
+                .ForFunc(value, ConfigInfo, typeof(TSource), typeof(TTarget));
 
             if (valueLambdaInfo != null)
             {

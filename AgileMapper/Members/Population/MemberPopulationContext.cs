@@ -8,10 +8,11 @@ namespace AgileObjects.AgileMapper.Members.Population
 #endif
     using Configuration;
     using Configuration.MemberIgnores;
+    using DataSources;
     using DataSources.Factories;
     using ObjectPopulation;
 
-    internal class MemberPopulationContext
+    internal class MemberPopulationContext : IDataSourceSetInfo
     {
         private IList<ConfiguredMemberIgnoreBase> _relevantMemberIgnores;
         private ConfiguredMemberIgnoreBase _memberIgnore;
@@ -32,6 +33,8 @@ namespace AgileObjects.AgileMapper.Members.Population
         public IMappingContext MappingContext => MappingData.MappingContext;
 
         public IObjectMappingData MappingData { get; }
+        
+        IMemberMapperData IDataSourceSetInfo.MapperData => MapperData;
 
         private ObjectMapperData MapperData => MappingData.MapperData;
 
@@ -40,8 +43,7 @@ namespace AgileObjects.AgileMapper.Members.Population
         public QualifiedMember TargetMember => MemberMapperData.TargetMember;
 
         private IList<ConfiguredMemberIgnoreBase> RelevantMemberIgnores
-            => _relevantMemberIgnores ??
-              (_relevantMemberIgnores = UserConfigurations.GetRelevantMemberIgnores(MemberMapperData));
+            => _relevantMemberIgnores ??= UserConfigurations.GetRelevantMemberIgnores(MemberMapperData);
 
         public ConfiguredMemberIgnoreBase MemberIgnore
         {

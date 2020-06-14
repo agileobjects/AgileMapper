@@ -11,11 +11,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Members;
     using Members.Population;
     using NetStandardPolyfills;
-    using static CallbackPosition;
+    using static InvocationPosition;
 
     internal abstract class PopulationExpressionFactoryBase
     {
-        public IEnumerable<Expression> GetPopulation(MappingCreationContext context)
+        public void AddPopulation(MappingCreationContext context)
         {
             var mappingData = context.MappingData;
             var mapperData = mappingData.MapperData;
@@ -27,10 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (context.InstantiateLocalVariable && mapperData.Context.UseLocalVariable)
             {
-                if (preCreationCallback != null)
-                {
-                    yield return preCreationCallback;
-                }
+                context.MappingExpressions.AddUnlessNullOrEmpty(preCreationCallback);
 
                 var hasPostCreationCallback = postCreationCallback != null;
                 var assignCreatedObject = hasPostCreationCallback;
@@ -40,19 +37,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     populationsAndCallbacks,
                     mappingData);
 
-                yield return localVariableInstantiation;
+                context.MappingExpressions.Add(localVariableInstantiation);
 
                 guardPopulations = LocalVariableCouldBeNull(localVariableInstantiation);
 
                 if (hasPostCreationCallback)
                 {
-                    yield return postCreationCallback;
+                    context.MappingExpressions.Add(postCreationCallback);
                 }
             }
 
             if (IncludeObjectRegistration(mapperData))
             {
-                yield return GetObjectRegistrationCall(mapperData);
+                context.MappingExpressions.Add(GetObjectRegistrationCall(mapperData));
             }
 
             if (populationsAndCallbacks.None())
@@ -62,19 +59,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             if (guardPopulations)
             {
-                yield return Expression.IfThen(
+                context.MappingExpressions.Add(Expression.IfThen(
                     mappingData.MapperData.LocalVariable.GetIsNotDefaultComparison(),
-                    Expression.Block(populationsAndCallbacks));
+                    Expression.Block(populationsAndCallbacks)));
 
                 goto AddTypeTester;
             }
 
-            foreach (var population in populationsAndCallbacks)
-            {
-                yield return population;
-            }
+            context.MappingExpressions.AddRange(populationsAndCallbacks);
 
-        AddTypeTester:
+            AddTypeTester:
             mappingData.MapperKey.AddSourceMemberTypeTesterIfRequired(mappingData);
         }
 
@@ -95,8 +89,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             postCreationCallback = GetCreationCallbackOrNull(After, context.MapperData);
         }
 
-        private static Expression GetCreationCallbackOrNull(CallbackPosition callbackPosition, IMemberMapperData mapperData)
-            => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(callbackPosition, mapperData);
+        private static Expression GetCreationCallbackOrNull(InvocationPosition invocationPosition, IMemberMapperData mapperData)
+            => mapperData.MapperContext.UserConfigurations.GetCreationCallbackOrNull(invocationPosition, mapperData);
 
         private IEnumerable<Expression> GetPopulationsAndCallbacks(IObjectMappingData mappingData)
         {
@@ -144,8 +138,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 .GetTargetObjectCreation(mappingData);
         }
 
-        private bool LocalVariableCouldBeNull(Expression instantiation)
+        private static bool LocalVariableCouldBeNull(Expression instantiation)
         {
+            if (instantiation.Type.CannotBeNull())
+            {
+                return false;
+            }
+
             while (true)
             {
                 switch (instantiation.NodeType)

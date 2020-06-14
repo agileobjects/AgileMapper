@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -9,7 +10,6 @@
     using System.Linq.Expressions;
 #endif
     using DataSources;
-    using DataSources.Factories;
     using Dictionaries;
     using Extensions;
     using Extensions.Internal;
@@ -52,20 +52,19 @@
 
         public bool ValidateMappingPlans { get; set; }
 
-        public ICollection<Type> AppliedConfigurationTypes
-            => _appliedConfigurationTypes ?? (_appliedConfigurationTypes = new List<Type>());
+        public ICollection<Type> AppliedConfigurationTypes => _appliedConfigurationTypes ??= new List<Type>();
 
         #region MappedObjectCachingSettings
 
         private List<MappedObjectCachingSetting> MappedObjectCachingSettings
-            => _mappedObjectCachingSettings ?? (_mappedObjectCachingSettings = new List<MappedObjectCachingSetting>());
+            => _mappedObjectCachingSettings ??= new List<MappedObjectCachingSetting>();
 
         public void Add(MappedObjectCachingSetting setting)
         {
             ThrowIfConflictingItemExists(
                 setting,
-                _mappedObjectCachingSettings,
-                (s, conflicting) => conflicting.GetConflictMessage(s));
+               _mappedObjectCachingSettings,
+               (stn, conflicting) => conflicting.GetConflictMessage(stn));
 
             MappedObjectCachingSettings.AddThenSort(setting);
         }
@@ -95,15 +94,16 @@
         #region MapToNullConditions
 
         private List<MapToNullCondition> MapToNullConditions
-            => _mapToNullConditions ?? (_mapToNullConditions = new List<MapToNullCondition>());
+            => _mapToNullConditions ??= new List<MapToNullCondition>();
 
         public void Add(MapToNullCondition condition)
         {
-            var conditions = MapToNullConditions;
+            ThrowIfConflictingItemExists(
+                condition,
+               _mapToNullConditions,
+               (cdn, conflicting) => cdn.GetConflictMessage());
 
-            ThrowIfConflictingItemExists(condition, conditions, (c, cC) => c.GetConflictMessage());
-
-            conditions.AddThenSort(condition);
+            MapToNullConditions.AddThenSort(condition);
         }
 
         public Expression GetMapToNullConditionOrNull(IMemberMapperData mapperData)
@@ -114,7 +114,7 @@
         #region NullCollectionSettings
 
         private List<NullCollectionsSetting> NullCollectionsSettings
-            => _nullCollectionsSettings ?? (_nullCollectionsSettings = new List<NullCollectionsSetting>());
+            => _nullCollectionsSettings ??= new List<NullCollectionsSetting>();
 
         public void Add(NullCollectionsSetting setting) => NullCollectionsSettings.Add(setting);
 
@@ -126,7 +126,7 @@
         #region EntityKeyMappingSettings
 
         private List<EntityKeyMappingSetting> EntityKeyMappingSettings
-            => _entityKeyMappingSettings ?? (_entityKeyMappingSettings = new List<EntityKeyMappingSetting>());
+            => _entityKeyMappingSettings ??= new List<EntityKeyMappingSetting>();
 
         public void Add(EntityKeyMappingSetting setting)
         {
@@ -150,7 +150,7 @@
         #region ConfiguredDataSourceReversalSettings
 
         private List<DataSourceReversalSetting> DataSourceReversalSettings
-            => _dataSourceReversalSettings ?? (_dataSourceReversalSettings = new List<DataSourceReversalSetting>());
+            => _dataSourceReversalSettings ??= new List<DataSourceReversalSetting>();
 
         public void Add(DataSourceReversalSetting setting)
         {
@@ -200,10 +200,10 @@
                 return false;
             }
 
-            var basicData = memberContextFactory.Invoke(dataItem);
+            var memberContext = memberContextFactory.Invoke(dataItem);
 
             return _dataSourceReversalSettings
-                .FirstOrDefault(basicData, (bd, s) => s.AppliesTo(bd))?.Reverse == true;
+                .FirstOrDefault(memberContext, (mc, s) => s.AppliesTo(mc))?.Reverse == true;
         }
 
         #endregion
@@ -279,18 +279,27 @@
         #region ObjectFactories
 
         private List<ConfiguredObjectFactory> ObjectFactories
-            => _objectFactories ?? (_objectFactories = new List<ConfiguredObjectFactory>());
+            => _objectFactories ??= new List<ConfiguredObjectFactory>();
 
         public void Add(ConfiguredObjectFactory objectFactory)
         {
             ThrowIfConflictingItemExists(
                 objectFactory,
                _objectFactories,
-               (of1, of2) => $"An object factory for type {of1.ObjectType.GetFriendlyName()} has already been configured");
+               (factory, conflictingFactory) => string.Format(
+                   CultureInfo.InvariantCulture,
+                   "{0} factory for type {1} has already been configured",
+                   conflictingFactory.IsMappingFactory() ? "A mapping" : "An object",
+                   factory.ObjectType.GetFriendlyName()));
 
             if (objectFactory.ObjectType.IsSimple())
             {
                 HasSimpleTypeValueFactories = true;
+            }
+
+            if (objectFactory.IsMappingFactory())
+            {
+                HasMappingFactories = true;
             }
 
             ObjectFactories.AddOrReplaceThenSort(objectFactory);
@@ -299,22 +308,34 @@
         public bool HasSimpleTypeValueFactories { get; private set; }
 
         public IEnumerable<ConfiguredObjectFactory> QueryObjectFactories(IQualifiedMemberContext context)
-            => _objectFactories.FindMatches(context);
+            => _objectFactories.FindMatches(context).Filter(of => !of.IsMappingFactory());
+
+        public bool HasMappingFactories { get; private set; }
+
+        public IEnumerable<ConfiguredObjectFactory> QueryMappingFactories(IQualifiedMemberContext context)
+        {
+            return HasMappingFactories
+                ? _objectFactories.FindMatches(context).Filter(of => of.IsMappingFactory())
+                : Enumerable<ConfiguredObjectFactory>.Empty;
+        }
 
         #endregion
 
-        public MemberIdentifierSet Identifiers => _identifiers ?? (_identifiers = new MemberIdentifierSet(_mapperContext));
+        public MemberIdentifierSet Identifiers => _identifiers ??= new MemberIdentifierSet(_mapperContext);
 
         #region SourceValueFilters
 
         public bool HasSourceValueFilters => _sourceValueFilters?.Any() == true;
 
         private List<ConfiguredSourceValueFilter> SourceValueFilters
-            => _sourceValueFilters ?? (_sourceValueFilters = new List<ConfiguredSourceValueFilter>());
+            => _sourceValueFilters ??= new List<ConfiguredSourceValueFilter>();
 
         public void Add(ConfiguredSourceValueFilter sourceValueFilter)
         {
-            ThrowIfConflictingItemExists(sourceValueFilter, _sourceValueFilters, (svf, cSvf) => svf.GetConflictMessage());
+            ThrowIfConflictingItemExists(
+                sourceValueFilter,
+               _sourceValueFilters,
+               (svf, conflicting) => svf.GetConflictMessage());
 
             SourceValueFilters.AddOrReplaceThenSort(sourceValueFilter);
         }
@@ -322,7 +343,7 @@
         public IList<ConfiguredSourceValueFilter> GetSourceValueFilters(IQualifiedMemberContext context, Type sourceValueType)
         {
             return HasSourceValueFilters
-                ? _sourceValueFilters.Filter(svf => svf.AppliesTo(sourceValueType, context)).ToArray()
+                ? _sourceValueFilters.FilterToArray(svf => svf.AppliesTo(sourceValueType, context))
                 : Enumerable<ConfiguredSourceValueFilter>.EmptyArray;
         }
 
@@ -333,7 +354,7 @@
         public bool HasSourceMemberIgnores => _ignoredSourceMembers?.Any() == true;
 
         private List<ConfiguredSourceMemberIgnoreBase> IgnoredSourceMembers
-            => _ignoredSourceMembers ?? (_ignoredSourceMembers = new List<ConfiguredSourceMemberIgnoreBase>());
+            => _ignoredSourceMembers ??= new List<ConfiguredSourceMemberIgnoreBase>();
 
         public void Add(ConfiguredSourceMemberIgnoreBase sourceMemberIgnore)
         {
@@ -349,7 +370,7 @@
             => _ignoredSourceMembers.FindMatch(context);
 
         private List<ConfiguredMemberIgnoreBase> IgnoredMembers
-            => _ignoredMembers ?? (_ignoredMembers = new List<ConfiguredMemberIgnoreBase>());
+            => _ignoredMembers ??= new List<ConfiguredMemberIgnoreBase>();
 
         public void Add(ConfiguredMemberIgnoreBase memberIgnore)
         {
@@ -367,37 +388,31 @@
 
         #region EnumPairing
 
-        private List<EnumMemberPair> EnumPairings
-            => _enumPairings ?? (_enumPairings = new List<EnumMemberPair>());
+        private List<EnumMemberPair> EnumPairings => _enumPairings ??= new List<EnumMemberPair>();
 
         public void Add(EnumMemberPair enumPairing) => EnumPairings.Add(enumPairing);
 
-        public IEnumerable<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
-            => _enumPairings?.Filter(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.Empty;
+        public IList<EnumMemberPair> GetEnumPairingsFor(Type sourceEnumType, Type targetEnumType)
+            => _enumPairings?.FilterToArray(ep => ep.IsFor(sourceEnumType, targetEnumType)) ?? Enumerable<EnumMemberPair>.EmptyArray;
 
         #endregion
 
-        public DictionarySettings Dictionaries =>
-            _dictionaries ?? (_dictionaries = new DictionarySettings(_mapperContext));
+        public DictionarySettings Dictionaries => _dictionaries ??= new DictionarySettings(_mapperContext);
 
         #region DataSources
 
-        public IEnumerable<TFactory> QueryDataSourceFactories<TFactory>()
-            where TFactory : ConfiguredDataSourceFactory
-        {
-            return _dataSourceFactories?.OfType<TFactory>() ?? Enumerable<TFactory>.Empty;
-        }
-
         private List<ConfiguredDataSourceFactory> DataSourceFactories
-            => _dataSourceFactories ?? (_dataSourceFactories = new List<ConfiguredDataSourceFactory>());
+            => _dataSourceFactories ??= new List<ConfiguredDataSourceFactory>();
 
         public void Add(ConfiguredDataSourceFactory dataSourceFactory)
         {
             if (!dataSourceFactory.TargetMember.IsRoot)
             {
+                ThrowIfConflictingIgnoredSourceMemberExists(dataSourceFactory, (dsf, cIsm) => cIsm.GetConflictMessage(dsf));
                 ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
-                ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
             }
+                
+            ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
             DataSourceFactories.AddOrReplaceThenSort(dataSourceFactory);
 
@@ -421,7 +436,7 @@
         public IList<ConfiguredDataSourceFactory> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
             => _dataSourceFactories.FindRelevantMatches(mapperData);
 
-        public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData)
+        public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData, bool? sequential)
         {
             if (!HasToTargetDataSources)
             {
@@ -429,11 +444,19 @@
             }
 
             var toTargetDataSources = QueryDataSourceFactories(mapperData)
-                .Filter(dsf => dsf.TargetMember.IsRoot)
+                .Filter(dsf => 
+                    dsf.IsForToTargetDataSource && 
+                   (dsf.IsSequential == sequential || !sequential.HasValue))
                 .Project(mapperData, (md, dsf) => dsf.Create(md))
                 .ToArray();
 
             return toTargetDataSources;
+        }
+
+        public IEnumerable<TFactory> QueryDataSourceFactories<TFactory>()
+            where TFactory : ConfiguredDataSourceFactory
+        {
+            return _dataSourceFactories?.OfType<TFactory>() ?? Enumerable<TFactory>.Empty;
         }
 
         public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IQualifiedMemberContext context)
@@ -444,12 +467,12 @@
         #region MappingCallbacks
 
         private List<MappingCallbackFactory> MappingCallbackFactories
-            => _mappingCallbackFactories ?? (_mappingCallbackFactories = new List<MappingCallbackFactory>());
+            => _mappingCallbackFactories ??= new List<MappingCallbackFactory>();
 
         public void Add(MappingCallbackFactory callbackFactory) => MappingCallbackFactories.Add(callbackFactory);
 
         public Expression GetCallbackOrNull(
-            CallbackPosition position,
+            InvocationPosition position,
             IQualifiedMemberContext context,
             IMemberMapperData mapperData)
         {
@@ -457,11 +480,11 @@
         }
 
         private List<ObjectCreationCallbackFactory> CreationCallbackFactories
-            => _creationCallbackFactories ?? (_creationCallbackFactories = new List<ObjectCreationCallbackFactory>());
+            => _creationCallbackFactories ??= new List<ObjectCreationCallbackFactory>();
 
         public void Add(ObjectCreationCallbackFactory callbackFactory) => CreationCallbackFactories.Add(callbackFactory);
 
-        public Expression GetCreationCallbackOrNull(CallbackPosition position, IMemberMapperData mapperData)
+        public Expression GetCreationCallbackOrNull(InvocationPosition position, IMemberMapperData mapperData)
             => _creationCallbackFactories?.FirstOrDefault(f => f.AppliesTo(position, mapperData))?.Create(mapperData);
 
         #endregion
@@ -469,7 +492,7 @@
         #region ExceptionCallbacks
 
         private List<ExceptionCallback> ExceptionCallbackFactories
-            => _exceptionCallbackFactories ?? (_exceptionCallbackFactories = new List<ExceptionCallback>());
+            => _exceptionCallbackFactories ??= new List<ExceptionCallback>();
 
         public void Add(ExceptionCallback callback) => ExceptionCallbackFactories.Add(callback);
 
@@ -478,12 +501,12 @@
 
         #endregion
 
-        public DerivedTypePairSet DerivedTypes => _derivedTypes ?? (_derivedTypes = new DerivedTypePairSet(_mapperContext));
+        public DerivedTypePairSet DerivedTypes => _derivedTypes ??= new DerivedTypePairSet(_mapperContext);
 
         #region RecursionDepthSettings
 
         private List<RecursionDepthSettings> RecursionDepthSettings
-            => _recursionDepthSettings ?? (_recursionDepthSettings = new List<RecursionDepthSettings>());
+            => _recursionDepthSettings ??= new List<RecursionDepthSettings>();
 
         public void Add(RecursionDepthSettings settings)
         {
@@ -513,8 +536,8 @@
 
             ThrowIfConflictingItemExists(
                 setting,
-                _entityKeyMappingSettings,
-                (s, conflicting) => conflicting.GetConflictMessage(s));
+               _entityKeyMappingSettings,
+               (stn, conflicting) => conflicting.GetConflictMessage(stn));
         }
 
         private void ThrowIfConflictingDataSourceReversalSettingExists(DataSourceReversalSetting setting)
@@ -526,8 +549,8 @@
 
             ThrowIfConflictingItemExists(
                 setting,
-                _dataSourceReversalSettings,
-                (s, conflicting) => conflicting.GetConflictMessage(s));
+               _dataSourceReversalSettings,
+               (stn, conflicting) => conflicting.GetConflictMessage(stn));
         }
 
         private void ThrowIfMemberIsUnmappable(ConfiguredMemberIgnoreBase memberIgnore)
@@ -548,7 +571,10 @@
             Func<TConfiguredItem, ConfiguredSourceMemberIgnoreBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
-            ThrowIfConflictingItemExists(configuredItem, _ignoredSourceMembers, messageFactory);
+            ThrowIfConflictingItemExists(
+                configuredItem, 
+                _ignoredSourceMembers, 
+                messageFactory);
         }
 
         internal void ThrowIfConflictingIgnoredMemberExists<TConfiguredItem>(TConfiguredItem configuredItem)

@@ -26,9 +26,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
         private readonly Expression _filterExpression;
         private readonly Expression _filterNestedAccessChecks;
 
-        private FilterCondition(
-            MethodCallExpression filterCreationCall,
-            Type filteredValueType)
+        private FilterCondition(MethodCallExpression filterCreationCall, Type filteredValueType)
         {
             Filter = filterCreationCall;
             _filteredValueType = filteredValueType;
