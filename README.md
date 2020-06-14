@@ -1,6 +1,7 @@
 # AgileMapper
 
 [![NuGet version](https://badge.fury.io/nu/AgileObjects.AgileMapper.svg)](https://badge.fury.io/nu/AgileObjects.AgileMapper)
+[![Build status](https://ci.appveyor.com/api/projects/status/c1jlvkfjej62p8da?svg=true)](https://ci.appveyor.com/project/SteveWilkes/agilemapper)
 
 AgileMapper is a zero-configuration, [highly-configurable](https://agilemapper.readthedocs.io/configuration) object-object
 mapper with [viewable execution plans](https://agilemapper.readthedocs.io/Using-Execution-Plans). 
