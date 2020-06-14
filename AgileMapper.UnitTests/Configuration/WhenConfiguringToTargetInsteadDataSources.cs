@@ -91,6 +91,37 @@
             }
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/173
+        [Fact]
+        public void ShouldUseANestedDictionaryAlternateDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .FromDictionariesWithValueType<Address>()
+                    .OnTo<List<Address>>()
+                    .Map(ctx => ctx.Source.Values)
+                    .ToTargetInstead();
+
+                var source = new PublicProperty<Dictionary<string, Address>>
+                {
+                    Value = new Dictionary<string, Address>
+                    {
+                        ["One"] = new Address { Line1 = "1 Street" },
+                        ["Two"] = new Address { Line1 = "2 Street" }
+                    }
+                };
+
+                var target = new PublicField<List<Address>>();
+
+                mapper.Map(source).OnTo(target);
+
+                target.Value.ShouldNotBeNull().Count.ShouldBe(2);
+                target.Value.First().Line1.ShouldBe("1 Street");
+                target.Value.Second().Line1.ShouldBe("2 Street");
+            }
+        }
+
         [Fact]
         public void ShouldUseANestedAlternateDataSourceConditionally()
         {

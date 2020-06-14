@@ -22,7 +22,7 @@
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>- Support for configuring complete sub-mappings, re: #176
 - Support for configuring sequential data sources, re: #184
-- Support for configuring alternate data sources
+- Support for configuring alternate data sources, re: #133, #173
 - Including ToTarget data sources in mapping plan validation, re: #184
 - Fixing enumerable target ToTarget data sources, re: #173
 - Fixing caching of custom method struct creation factory
