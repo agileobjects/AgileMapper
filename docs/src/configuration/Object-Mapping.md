@@ -9,10 +9,10 @@ Configure a custom factory for the mapping of a particular type using:
 Mapper.WhenMapping
     .From<CustomerViewModel>() // Apply to CustomerViewModel mappings
     .ToANew<Customer>()        // Apply to Customer creations
-    .MapInstancesUsing((cvm, c) => new Customer
+    .MapInstancesUsing(ctx => new Customer
     {
-        Name = cvm.Forename + " " + cvm.Surname,
-        Number = cvm.CustomerNo
+        Name = ctx.Source.Forename + " " + ctx.Source.Surname,
+        Number = ctx.Source.CustomerNo
     });
 ```
 
@@ -21,10 +21,10 @@ Configure a conditional custom factory using ([inline](/configuration/Inline) ex
 ```cs
 Mapper.Map(customerViewModel).ToANew<Customer>(cfg => cfg
     .If((cvm, c) => cvm.Discount > 0) // Apply if view model Discount > 0
-    .MapInstancesUsing((cvm, c, i) => new Customer
+    .MapInstancesUsing(ctx => new Customer
     {
-        Name = cvm.Forename + " " + cvm.Surname,
-        Number = i,
+        Name = ctx.Source.Forename + " " + ctx.Source.Surname,
+        Number = ctx.ElementIndex,
         HasDiscount = true
     }));
 ```
