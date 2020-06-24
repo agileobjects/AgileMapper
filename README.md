@@ -3,13 +3,13 @@
 [![NuGet version](https://badge.fury.io/nu/AgileObjects.AgileMapper.svg)](https://badge.fury.io/nu/AgileObjects.AgileMapper)
 [![Build status](https://ci.appveyor.com/api/projects/status/c1jlvkfjej62p8da?svg=true)](https://ci.appveyor.com/project/SteveWilkes/agilemapper)
 
-AgileMapper is a zero-configuration, [highly-configurable](https://agilemapper.readthedocs.io/configuration) object-object
+AgileMapper is a zero-configuration, [highly-configurable](https://agilemapper.readthedocs.io/configuration), unopinionated object
 mapper with [viewable execution plans](https://agilemapper.readthedocs.io/Using-Execution-Plans). 
-It [projects queries](https://agilemapper.readthedocs.io/query-projection/), transforms, deep clones, 
-[updates](https://agilemapper.readthedocs.io/Performing-Updates) and [merges](https://agilemapper.readthedocs.io/Performing-Merges) 
+It flattens, unflattens, deep clones, [merges](https://agilemapper.readthedocs.io/Performing-Merges), 
+[updates](https://agilemapper.readthedocs.io/Performing-Updates) and [projects queries](https://agilemapper.readthedocs.io/query-projection/)
 via [extension methods](https://agilemapper.readthedocs.io/Mapping-Extension-Methods), or a 
 [static or instance](https://agilemapper.readthedocs.io/Static-vs-Instance-Mappers) API. 
-It targets [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) and .NET 3.5+
+It targets .NET 3.5+ and [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library).
 
 You can use it to create new objects:
 
