@@ -93,8 +93,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public IQualifiedMember GetInstanceElementMember() => Append(Member.EnumerableElement(Type, Type));
 
-        public IQualifiedMember Append(Member childMember)
-            => new DictionaryEntrySourceMember(this, childMember);
+        public IQualifiedMember Append(Member childMember) => new DictionaryEntrySourceMember(this, childMember);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
@@ -137,17 +136,13 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public bool HasCompatibleType(Type type) => Parent.HasCompatibleType(type);
 
-        public bool CouldMatch(QualifiedMember otherMember)
-            => _matchedTargetMember.CouldMatch(otherMember);
+        public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
 
         public bool Matches(IQualifiedMember otherMember)
         {
-            if (otherMember == Parent)
-            {
-                return Type.IsDictionary();
-            }
-
-            return _matchedTargetMember.Matches(otherMember);
+            return (otherMember == Parent)
+                ? Type.IsDictionary()
+                : _matchedTargetMember.Matches(otherMember);
         }
 
         public Expression GetQualifiedAccess(Expression parentInstance)
