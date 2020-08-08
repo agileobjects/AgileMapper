@@ -290,7 +290,7 @@
         [Fact]
         public void ShouldFlattenAComplexTypeCollectionToANestedObjectDictionaryImplementation()
         {
-            var source = new PublicField<ICollection<Customer>>()
+            var source = new PublicField<ICollection<Customer>>
             {
                 Value = new[]
                 {
@@ -337,6 +337,24 @@
             result.Value.ShouldNotContainKey("[2].Address.Line1");
             result.Value.ShouldNotContainKey("[2].Address.Line2");
 
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/200
+        [Fact]
+        public void ShouldMapListDictionaries()
+        {
+            var source = new PublicField<Dictionary<string, List<string>>>
+            {
+                Value = new Dictionary<string, List<string>>
+                {
+                    ["a"] = new List<string> { "b" }
+                }
+            };
+
+            var result = Mapper.Map(source)
+                .ToANew<PublicProperty<Dictionary<string, List<string>>>>();
+
+            result.ShouldNotBeNull();
         }
 
         #region Helper Members
