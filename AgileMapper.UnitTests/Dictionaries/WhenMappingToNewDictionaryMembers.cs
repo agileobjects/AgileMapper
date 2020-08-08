@@ -290,7 +290,7 @@
         [Fact]
         public void ShouldFlattenAComplexTypeCollectionToANestedObjectDictionaryImplementation()
         {
-            var source = new PublicField<ICollection<Customer>>()
+            var source = new PublicField<ICollection<Customer>>
             {
                 Value = new[]
                 {
@@ -337,6 +337,64 @@
             result.Value.ShouldNotContainKey("[2].Address.Line1");
             result.Value.ShouldNotContainKey("[2].Address.Line2");
 
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/200
+        [Fact]
+        public void ShouldMapListDictionaries()
+        {
+            var source = new PublicField<Dictionary<string, List<string>>>
+            {
+                Value = new Dictionary<string, List<string>>
+                {
+                    ["a"] = new List<string> { "b" }
+                }
+            };
+
+            var result = Mapper.Map(source)
+                .ToANew<PublicProperty<Dictionary<string, List<string>>>>();
+
+            var resultDictionary = result
+                .ShouldNotBeNull()
+                .Value
+                .ShouldNotBeNull();
+
+            resultDictionary.ShouldHaveSingleItem();
+            resultDictionary["a"].ShouldHaveSingleItem().ShouldBe("b");
+        }
+
+        [Fact]
+        public void ShouldMapArrayDictionaries()
+        {
+            var source = new PublicField<Dictionary<string, int[]>>
+            {
+                Value = new Dictionary<string, int[]>
+                {
+                    ["1"] = new[] { 1 },
+                    ["2"] = new[] { 1, 2 },
+                    ["3"] = new[] { 1, 2, 3 },
+                }
+            };
+
+            var result = Mapper.Map(source)
+                .ToANew<PublicProperty<Dictionary<string, long[]>>>();
+
+            var resultDictionary = result
+                .ShouldNotBeNull()
+                .Value
+                .ShouldNotBeNull();
+
+            resultDictionary.Count.ShouldBe(3); ;
+            resultDictionary["1"].ShouldHaveSingleItem().ShouldBe(1L);
+
+            resultDictionary["2"].Length.ShouldBe(2);
+            resultDictionary["2"][0].ShouldBe(1L);
+            resultDictionary["2"][1].ShouldBe(2L);
+
+            resultDictionary["3"].Length.ShouldBe(3);
+            resultDictionary["3"][0].ShouldBe(1L);
+            resultDictionary["3"][1].ShouldBe(2L);
+            resultDictionary["3"][2].ShouldBe(3L);
         }
 
         #region Helper Members

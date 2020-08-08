@@ -170,10 +170,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             AddPopulationsAndCallbacks(this, context, (factory, ctx) =>
             {
-                factory.AddObjectPopulation(context);
+                factory.AddObjectPopulation(ctx);
 
-                context.MappingExpressions.AddRange(
-                    GetConfiguredToTargetDataSourceMappings(context, sequential: true));
+                ctx.MappingExpressions.AddRange(
+                    GetConfiguredToTargetDataSourceMappings(ctx, sequential: true));
             });
         }
 
