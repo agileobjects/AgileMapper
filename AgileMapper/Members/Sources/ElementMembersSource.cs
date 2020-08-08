@@ -34,6 +34,6 @@ namespace AgileObjects.AgileMapper.Members.Sources
             => GetTargetMember();
 
         public QualifiedMember GetTargetMember()
-            => _targetMember ?? (_targetMember = _enumerableMapperData.TargetMember.GetElementMember());
+            => _targetMember ??= _enumerableMapperData.TargetMember.GetElementMember();
     }
 }

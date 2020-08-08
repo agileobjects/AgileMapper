@@ -25,6 +25,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 matchedTargetMember,
                 parent)
         {
+            var entryMember = Member.RootSource(entryType);
+            _childMembers = new[] { entryMember };
+
+            IsEnumerable = entryMember.IsEnumerable;
+            IsSimple = !IsEnumerable && entryMember.IsSimple;
         }
 
         private DictionaryEntrySourceMember(DictionaryEntrySourceMember parent, Member childMember)
@@ -42,24 +47,26 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             Func<string> pathFactory,
             QualifiedMember matchedTargetMember,
             DictionarySourceMember parent,
-            Member[] childMembers = null)
+            Member[] childMembers)
+            : this(type, pathFactory, matchedTargetMember, parent)
+        {
+            _childMembers = childMembers;
+
+            var leafMember = childMembers.Last();
+            IsEnumerable = leafMember.IsEnumerable;
+            IsSimple = leafMember.IsSimple;
+        }
+
+        private DictionaryEntrySourceMember(
+            Type type,
+            Func<string> pathFactory,
+            QualifiedMember matchedTargetMember,
+            DictionarySourceMember parent)
         {
             Type = type;
             _pathFactory = pathFactory;
             _matchedTargetMember = matchedTargetMember;
             Parent = parent;
-            _childMembers = childMembers ?? new[] { Member.RootSource(type) };
-
-            if (childMembers == null)
-            {
-                IsEnumerable = _childMembers.First().IsEnumerable;
-                IsSimple = !IsEnumerable && _childMembers.First().IsSimple;
-                return;
-            }
-
-            var leafMember = childMembers.Last();
-            IsEnumerable = leafMember.IsEnumerable;
-            IsSimple = leafMember.IsSimple;
         }
 
         public DictionarySourceMember Parent { get; }
@@ -86,7 +93,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public IQualifiedMember GetInstanceElementMember() => Append(Member.EnumerableElement(Type, Type));
 
-        public IQualifiedMember Append(Member childMember) => new DictionaryEntrySourceMember(this, childMember);
+        public IQualifiedMember Append(Member childMember)
+            => new DictionaryEntrySourceMember(this, childMember);
 
         public IQualifiedMember RelativeTo(IQualifiedMember otherMember)
         {
@@ -129,13 +137,17 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public bool HasCompatibleType(Type type) => Parent.HasCompatibleType(type);
 
-        public bool CouldMatch(QualifiedMember otherMember) => _matchedTargetMember.CouldMatch(otherMember);
+        public bool CouldMatch(QualifiedMember otherMember)
+            => _matchedTargetMember.CouldMatch(otherMember);
 
         public bool Matches(IQualifiedMember otherMember)
         {
-            return (otherMember == Parent)
-                ? Type.IsDictionary()
-                : _matchedTargetMember.Matches(otherMember);
+            if (otherMember == Parent)
+            {
+                return Type.IsDictionary();
+            }
+
+            return _matchedTargetMember.Matches(otherMember);
         }
 
         public Expression GetQualifiedAccess(Expression parentInstance)

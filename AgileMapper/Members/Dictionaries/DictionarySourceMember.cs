@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     {
         private readonly IQualifiedMember _wrappedSourceMember;
         private readonly QualifiedMember _matchedTargetMember;
+        private IQualifiedMember _elementMember;
 
         public DictionarySourceMember(IQualifiedMemberContext context)
             : this(context.SourceMember, context.TargetMember)
@@ -94,8 +95,10 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public IQualifiedMember GetElementMember()
         {
-            return EntryMember.IsEnumerable
-                ? EntryMember.GetElementMember()
+            return _elementMember ??= EntryMember.IsEnumerable
+                ? IsEntireDictionaryMatch
+                    ? EntryMember
+                    : EntryMember.GetElementMember()
                 : EntryMember.GetInstanceElementMember();
         }
 
