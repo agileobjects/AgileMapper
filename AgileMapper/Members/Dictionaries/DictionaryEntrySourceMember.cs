@@ -25,6 +25,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 matchedTargetMember,
                 parent)
         {
+            var entryMember = Member.RootSource(entryType);
+            _childMembers = new[] { entryMember };
+
+            IsEnumerable = entryMember.IsEnumerable;
+            IsSimple = !IsEnumerable && entryMember.IsSimple;
         }
 
         private DictionaryEntrySourceMember(DictionaryEntrySourceMember parent, Member childMember)
@@ -42,24 +47,26 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             Func<string> pathFactory,
             QualifiedMember matchedTargetMember,
             DictionarySourceMember parent,
-            Member[] childMembers = null)
+            Member[] childMembers)
+            : this(type, pathFactory, matchedTargetMember, parent)
+        {
+            _childMembers = childMembers;
+
+            var leafMember = childMembers.Last();
+            IsEnumerable = leafMember.IsEnumerable;
+            IsSimple = leafMember.IsSimple;
+        }
+
+        private DictionaryEntrySourceMember(
+            Type type,
+            Func<string> pathFactory,
+            QualifiedMember matchedTargetMember,
+            DictionarySourceMember parent)
         {
             Type = type;
             _pathFactory = pathFactory;
             _matchedTargetMember = matchedTargetMember;
             Parent = parent;
-            _childMembers = childMembers ?? new[] { Member.RootSource(type) };
-
-            if (childMembers == null)
-            {
-                IsEnumerable = _childMembers.First().IsEnumerable;
-                IsSimple = !IsEnumerable && _childMembers.First().IsSimple;
-                return;
-            }
-
-            var leafMember = childMembers.Last();
-            IsEnumerable = leafMember.IsEnumerable;
-            IsSimple = leafMember.IsSimple;
         }
 
         public DictionarySourceMember Parent { get; }

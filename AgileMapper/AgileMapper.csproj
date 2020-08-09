@@ -13,24 +13,15 @@
 
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <Title>AgileMapper</Title>
-    <Description>A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+</Description>
+    <Description>A zero-configuration, highly-configurable, unopinionated object mapper with viewable execution plans. Flattens, unflattens, deep clones, merges, updates and projects queries. Targets .NET 3.5+ and .NET Standard 1.0+</Description>
     <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Support for configuring complete sub-mappings, re: #176
-- Support for configuring sequential data sources, re: #184
-- Support for configuring alternate data sources, re: #133, #173
-- Including ToTarget data sources in mapping plan validation, re: #184
-- Fixing enumerable target ToTarget data sources, re: #173
-- Fixing caching of custom method struct creation factory
-- Erroring if configured data sources conflict with ignored source members
-- Improving configuration error messages
-- Surfacing mapping plan Expressions
-- Updating to ReadableExpressions v2.5
-- Performance improvements
+    <PackageReleaseNotes>- Fixing Dictionary-of-collections mapping, re: #200
+- Updating to ReadableExpressions v2.5.1
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -44,7 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.1" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
