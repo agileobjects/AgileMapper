@@ -44,7 +44,7 @@
 
   <ItemGroup>
     <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.1" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
