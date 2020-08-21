@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper
                 CheckDerivedSourceTypes = true,
                 AllowGuardedBindings = allowGuardedBindings,
                 AllowCloneEntityKeyMapping = allowCloneEntityKeyMapping,
-                RemoveEmptyMappings = true,
+                RemoveEmptyElementMappings = true,
                 GuardAccessTo = value => true,
                 ExpressionIsSupported = value => true,
                 AllowObjectTracking = true,
@@ -53,7 +53,7 @@ namespace AgileObjects.AgileMapper
 
         public bool AllowCloneEntityKeyMapping { get; set; }
 
-        public bool RemoveEmptyMappings { get; set; }
+        public bool RemoveEmptyElementMappings { get; set; }
 
         public Func<Expression, bool> GuardAccessTo { get; set; }
 

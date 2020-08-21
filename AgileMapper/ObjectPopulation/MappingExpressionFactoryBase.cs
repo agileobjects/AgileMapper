@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             AddPopulationsAndCallbacks(context);
 
-            if (mapperData.Context.RemoveEmptyMappings && NothingIsBeingMapped(context))
+            if (RemoveEmptyMappings(context) && NothingIsBeingMapped(context))
             {
                 return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
@@ -317,6 +317,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var objectNewing = (NewExpression)valueCoalesce.Right;
 
             return objectNewing.Arguments.None() && (objectNewing.Type != typeof(object));
+        }
+
+        private static bool RemoveEmptyMappings(MappingCreationContext context)
+        {
+            if (context.MapperData.TargetMemberIsEnumerableElement())
+            {
+                return context.RuleSet.Settings.RemoveEmptyElementMappings;
+            }
+
+            return true;
         }
 
         private Expression GetMappingBlock(MappingCreationContext context)

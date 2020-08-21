@@ -95,8 +95,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool UseLocalVariable { get; }
 
-        public bool RemoveEmptyMappings
-            => _mapperData.RuleSet.Settings.RemoveEmptyMappings;
+        public bool RemoveEmptyEntryPointMappings
+            => _mapperData.RuleSet.Settings.RemoveEmptyElementMappings;
 
         public bool UseMappingTryCatch
             => _mapperData.RuleSet.Settings.UseTryCatch && (_mapperData.IsEntryPoint || !IsPartOfUserStructMapping());
