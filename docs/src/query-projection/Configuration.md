@@ -68,6 +68,8 @@ Because projections are performed by [IQueryProvider](https://docs.microsoft.com
 
 - Object [factories](/configuration/Object-Construction)
 
+- [Injected](/configuration/Dependency-Injection) values
+
 - Null [mapping results](/configuration/Null-Results)
 
 Most notably, [callbacks](/configuration/Mapping-Callbacks), [object tracking](/configuration/Mapped-Object-Tracking) and [derived type pairing](/configuration/Pairing-Derived-Types) are not supported - although you can [project to derived types](/query-projection/Derived-Types) conditionally.
