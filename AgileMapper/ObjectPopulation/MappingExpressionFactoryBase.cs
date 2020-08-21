@@ -49,12 +49,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             AddPopulationsAndCallbacks(context);
 
-            if (NothingIsBeingMapped(context))
+            if (mapperData.Context.RemoveEmptyMappings && NothingIsBeingMapped(context))
             {
                 return mapperData.IsEntryPoint ? mapperData.TargetObject : Constants.EmptyExpression;
             }
 
-            CompleteMappingBlock:
+        CompleteMappingBlock:
             InsertShortCircuitReturns(context);
 
             var mappingBlock = GetMappingBlock(context);

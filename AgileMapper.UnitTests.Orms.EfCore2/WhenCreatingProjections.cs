@@ -67,5 +67,30 @@
                 result.ShouldHaveSingleItem().Value.ShouldBeTrue();
             });
         }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/204
+        [Fact]
+        public void ShouldHandleUnmappableElements()
+        {
+            var source =
+                new[] { new PublicBool { Value = true } }
+                    .AsQueryable().Where(b => b.Value);
+
+            var result = source.Project().To<Issue204.Dto>().First();
+
+            result.ShouldNotBeNull().CanWrite.ShouldBeFalse();
+        }
+
+        #region Helper Classes
+
+        private static class Issue204
+        {
+            public class Dto
+            {
+                public bool CanWrite { get; set; }
+            }
+        }
+
+        #endregion
     }
 }
