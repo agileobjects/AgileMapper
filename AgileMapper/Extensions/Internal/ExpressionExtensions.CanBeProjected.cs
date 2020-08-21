@@ -62,6 +62,16 @@
                 return false;
             }
 
+            protected override Expression VisitMethodCall(MethodCallExpression methodCall)
+            {
+                if (methodCall.Method.DeclaringType == typeof(IServiceProviderAccessor))
+                {
+                    _isNotProjectable = true;
+                }
+
+                return base.VisitMethodCall(methodCall);
+            }
+
             protected override Expression VisitParameter(ParameterExpression parameter)
             {
                 if (_lambdaParameters.IndexOf(parameter) > 0)
