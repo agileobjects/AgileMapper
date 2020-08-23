@@ -6,10 +6,10 @@
     using System.Linq.Expressions;
 #endif
     using Caching.Dictionaries;
-    using Extensions;
     using Extensions.Internal;
     using Members;
     using Members.MemberExtensions;
+    using NetStandardPolyfills;
 
     internal static class MappingFactory
     {
@@ -88,7 +88,7 @@
         {
             var mapperData = mappingData.MapperData;
 
-            if (CreateElementMappingDataFor(mapperData))
+            if (CreateElementMappingDataFor(mapperData, sourceElementValue))
             {
                 mappingData = ObjectMappingDataFactory.ForElement(mappingData);
             }
@@ -103,16 +103,19 @@
             return GetElementMapping(mappingData, sourceElementValue, targetElementValue);
         }
 
-        private static bool CreateElementMappingDataFor(IQualifiedMemberContext context)
+        private static bool CreateElementMappingDataFor(
+            ObjectMapperData mapperData,
+            Expression sourceElementValue)
         {
-            if (!context.TargetMemberIsEnumerableElement())
+            if (!mapperData.TargetMemberIsEnumerableElement())
             {
                 return true;
             }
 
-            if (context.TargetMember.IsEnumerable)
+            if (mapperData.TargetMember.IsEnumerable)
             {
-                return !context.TargetMember.ElementType.IsSimple();
+                return !mapperData.EnumerablePopulationBuilder.TargetElementsAreSimple &&
+                        sourceElementValue.Type.IsAssignableTo(mapperData.SourceMember.ElementType);
             }
 
             return false;
