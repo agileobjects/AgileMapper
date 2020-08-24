@@ -341,7 +341,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/200
         [Fact]
-        public void ShouldMapListDictionaries()
+        public void ShouldMapBetweenListDictionaries()
         {
             var source = new PublicField<Dictionary<string, List<string>>>
             {
@@ -364,7 +364,7 @@
         }
 
         [Fact]
-        public void ShouldMapArrayDictionaries()
+        public void ShouldMapBetweenArrayDictionaries()
         {
             var source = new PublicField<Dictionary<string, int[]>>
             {
@@ -399,7 +399,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/203
         [Fact]
-        public void ShouldMapComplexTypeArrayDictionaries()
+        public void ShouldMapBetweenComplexTypeArrayDictionaries()
         {
             var source = new PublicField<Dictionary<string, Address[]>>
             {
@@ -431,7 +431,7 @@
             var address21 = resultDictionary["2"][0].ShouldNotBeNull();
             address21.Line1.ShouldBe("2.1.1");
             address21.Line2.ShouldBeNull();
-            
+
             var address22 = resultDictionary["2"][1].ShouldNotBeNull();
             address22.Line1.ShouldBe("2.2.1");
             address22.Line2.ShouldBe("2.2.2");
