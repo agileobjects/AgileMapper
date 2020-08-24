@@ -2,7 +2,9 @@
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+#if !NETCOREAPP1_0
     using System.ComponentModel;
+#endif
     using System.Linq;
     using Common;
     using TestClasses;

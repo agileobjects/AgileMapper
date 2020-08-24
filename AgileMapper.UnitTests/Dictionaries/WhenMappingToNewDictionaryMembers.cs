@@ -341,7 +341,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/200
         [Fact]
-        public void ShouldMapListDictionaries()
+        public void ShouldMapBetweenListDictionaries()
         {
             var source = new PublicField<Dictionary<string, List<string>>>
             {
@@ -364,7 +364,7 @@
         }
 
         [Fact]
-        public void ShouldMapArrayDictionaries()
+        public void ShouldMapBetweenArrayDictionaries()
         {
             var source = new PublicField<Dictionary<string, int[]>>
             {
@@ -384,7 +384,7 @@
                 .Value
                 .ShouldNotBeNull();
 
-            resultDictionary.Count.ShouldBe(3); ;
+            resultDictionary.Count.ShouldBe(3);
             resultDictionary["1"].ShouldHaveSingleItem().ShouldBe(1L);
 
             resultDictionary["2"].Length.ShouldBe(2);
@@ -395,6 +395,46 @@
             resultDictionary["3"][0].ShouldBe(1L);
             resultDictionary["3"][1].ShouldBe(2L);
             resultDictionary["3"][2].ShouldBe(3L);
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/203
+        [Fact]
+        public void ShouldMapBetweenComplexTypeArrayDictionaries()
+        {
+            var source = new PublicField<Dictionary<string, Address[]>>
+            {
+                Value = new Dictionary<string, Address[]>
+                {
+                    ["1"] = new[] { new Address { Line1 = "1.1.1" } },
+                    ["2"] = new[]
+                    {
+                        new Address { Line1 = "2.1.1" },
+                        new Address { Line1 = "2.2.1", Line2 = "2.2.2" }
+                    }
+                }
+            };
+
+            var result = Mapper.Map(source)
+                .ToANew<PublicProperty<Dictionary<string, Address[]>>>();
+
+            var resultDictionary = result
+                .ShouldNotBeNull()
+                .Value
+                .ShouldNotBeNull();
+
+            resultDictionary.Count.ShouldBe(2);
+            var address11 = resultDictionary["1"].ShouldHaveSingleItem().ShouldNotBeNull();
+            address11.Line1.ShouldBe("1.1.1");
+            address11.Line2.ShouldBeNull();
+
+            resultDictionary["2"].Length.ShouldBe(2);
+            var address21 = resultDictionary["2"][0].ShouldNotBeNull();
+            address21.Line1.ShouldBe("2.1.1");
+            address21.Line2.ShouldBeNull();
+
+            var address22 = resultDictionary["2"][1].ShouldNotBeNull();
+            address22.Line1.ShouldBe("2.2.1");
+            address22.Line2.ShouldBe("2.2.2");
         }
 
         #region Helper Members

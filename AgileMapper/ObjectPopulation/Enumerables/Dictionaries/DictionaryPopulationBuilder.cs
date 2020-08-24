@@ -124,7 +124,7 @@
                 return GetPopulation(loopData, dictionaryEntryMember, mappingData);
             }
 
-            mappingData = GetMappingData(mappingData);
+            mappingData = GetEntryMappingData(mappingData);
 
             if (dictionaryEntryMember.HasComplexEntries)
             {
@@ -275,14 +275,12 @@
             return populationExpression;
         }
 
-        private IObjectMappingData GetMappingData(IObjectMappingData mappingData)
+        private IObjectMappingData GetEntryMappingData(IObjectMappingData mappingData)
         {
             var sourceElementType = _wrappedBuilder.Context.SourceElementType;
             var targetElementType = _targetDictionaryMember.GetElementType(sourceElementType);
 
-            mappingData = ObjectMappingDataFactory.ForElement(sourceElementType, targetElementType, mappingData);
-
-            return mappingData;
+            return ObjectMappingDataFactory.ForElement(sourceElementType, targetElementType, mappingData);
         }
 
         private static Expression GetDerivedTypeMapping(

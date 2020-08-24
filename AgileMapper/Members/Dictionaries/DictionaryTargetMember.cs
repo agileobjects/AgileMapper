@@ -190,7 +190,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         private Expression GetDictionaryAccess(IMemberMapperData mapperData)
         {
-            var parentContextAccess = mapperData.GetAppropriateMappingContextAccess(typeof(object), _rootDictionaryMember.Type);
+            var parentContextAccess = mapperData
+                .GetAppropriateMappingContextAccess(typeof(object), _rootDictionaryMember.Type);
 
             if (parentContextAccess.NodeType != Parameter)
             {
@@ -207,7 +208,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             return dictionaryMapperData.TargetInstance;
         }
 
-        public override bool CheckExistingElementValue => !HasObjectEntries && !HasSimpleEntries;
+        public override bool CheckExistingElementValue
+            => !(HasObjectEntries || HasSimpleEntries || HasEnumerableEntries);
 
         public override Expression GetHasDefaultValueCheck(IMemberMapperData mapperData)
         {
@@ -346,7 +348,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public override void MapCreating(Type sourceType)
         {
-            if (CreateNonDictionaryChildMembers(sourceType))
+            if (DoNotFlattenSourceObjects(sourceType))
             {
                 _createDictionaryChildMembers = false;
             }
@@ -354,15 +356,14 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
             base.MapCreating(sourceType);
         }
 
-        private bool CreateNonDictionaryChildMembers(Type sourceType)
+        private bool DoNotFlattenSourceObjects(Type sourceType)
         {
-            // If this DictionaryTargetMember represents an object-typed dictionary 
-            // entry and we're mapping from a source of type object, we switch from
-            // mapping to flattened entries to mapping entire objects:
-            return HasObjectEntries &&
-                   this.IsEnumerableElement() &&
-                  (MemberChain[Depth - 2] == _rootDictionaryMember.LeafMember) &&
-                  (sourceType == typeof(object));
+            // If this target Dictionary member's type matches the type of source
+            // objects being mapped into it, we switch from flattening source
+            // objects into Dictionary entries to mapping entire objects:
+            return this.IsEnumerableElement() &&
+                  (ValueType == sourceType) &&
+                  (MemberChain[Depth - 2] == _rootDictionaryMember.LeafMember);
         }
 
         #region ExcludeFromCodeCoverage
