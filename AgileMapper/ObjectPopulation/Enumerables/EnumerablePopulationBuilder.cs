@@ -321,12 +321,15 @@
 
         #region Target Variable Population
 
-        public void PopulateTargetVariableFromSourceObjectOnly(IObjectMappingData mappingData = null)
-            => AssignTargetVariableTo(GetSourceOnlyReturnValue(mappingData));
+        public void PopulateTargetVariableFromSourceObjectOnly(IObjectMappingData enumerableMappingData = null)
+            => AssignTargetVariableTo(GetSourceOnlyReturnValue(enumerableMappingData));
 
-        private Expression GetSourceOnlyReturnValue(IObjectMappingData mappingData)
+        private Expression GetSourceOnlyReturnValue(IObjectMappingData enumerableMappingData)
         {
-            var convertedSourceItems = _sourceItemsSelector.SourceItemsProjectedToTargetType(mappingData).GetResult();
+            var convertedSourceItems = _sourceItemsSelector
+                .SourceItemsProjectedToTargetType(enumerableMappingData)
+                .GetResult();
+
             var returnValue = ConvertForReturnValue(convertedSourceItems);
 
             return returnValue;
@@ -510,7 +513,7 @@
             _populationExpressions.Add(GetTargetMethodCall("Clear"));
         }
 
-        public void AddNewItemsToTargetVariable(IObjectMappingData mappingData)
+        public void AddNewItemsToTargetVariable(IObjectMappingData enumerableMappingData)
         {
             if (TargetElementsAreSimple && Context.ElementTypesAreTheSame && TargetTypeHelper.IsList)
             {
@@ -518,7 +521,7 @@
                 return;
             }
 
-            BuildPopulationLoop(GetElementPopulation, mappingData);
+            BuildPopulationLoop(GetElementPopulation, enumerableMappingData);
         }
 
         public void BuildPopulationLoop(
@@ -535,9 +538,11 @@
             _populationExpressions.AddUnlessNullOrEmpty(populationLoop);
         }
 
-        private Expression GetElementPopulation(IPopulationLoopData loopData, IObjectMappingData mappingData)
+        private Expression GetElementPopulation(
+            IPopulationLoopData loopData,
+            IObjectMappingData enumerableMappingData)
         {
-            var elementMapping = loopData.GetElementMapping(mappingData);
+            var elementMapping = loopData.GetElementMapping(enumerableMappingData);
 
             if (elementMapping == Constants.EmptyExpression)
             {
@@ -568,24 +573,26 @@
             return sourceElement.Type == typeof(object);
         }
 
-        public Expression GetElementConversion(Expression sourceElement, IObjectMappingData mappingData)
+        public Expression GetElementConversion(
+            Expression sourceElement, 
+            IObjectMappingData enumerableMappingData)
         {
             if (TargetElementsAreSimple)
             {
                 return GetSimpleElementConversion(sourceElement);
             }
 
-            var targetMember = mappingData.MapperData.TargetMember;
+            var targetMember = enumerableMappingData.MapperData.TargetMember;
 
             Expression existingElementValue;
 
-            if (targetMember.CheckExistingElementValue && mappingData.MapperData.TargetCouldBePopulated())
+            if (targetMember.CheckExistingElementValue && enumerableMappingData.MapperData.TargetCouldBePopulated())
             {
-                var existingElementValueCheck = targetMember.GetAccessChecked(mappingData.MapperData);
+                var existingElementValueCheck = targetMember.GetAccessChecked(enumerableMappingData.MapperData);
 
                 if (existingElementValueCheck.Variables.Any())
                 {
-                    return GetValueCheckedElementMapping(sourceElement, existingElementValueCheck, mappingData);
+                    return GetValueCheckedElementMapping(sourceElement, existingElementValueCheck, enumerableMappingData);
                 }
 
                 existingElementValue = existingElementValueCheck;
@@ -595,7 +602,7 @@
                 existingElementValue = Context.TargetElementType.ToDefaultExpression();
             }
 
-            return GetElementMapping(sourceElement, existingElementValue, mappingData);
+            return GetElementMapping(sourceElement, existingElementValue, enumerableMappingData);
         }
 
         private static Expression GetValueCheckedElementMapping(
@@ -797,7 +804,8 @@
                 _builder = builder;
             }
 
-            public SourceItemsSelector SourceItemsProjectedToTargetType(IObjectMappingData mappingData = null)
+            public SourceItemsSelector SourceItemsProjectedToTargetType(
+                IObjectMappingData enumerableMappingData = null)
             {
                 var context = _builder.Context;
                 var sourceEnumerableValue = _builder._sourceAdapter.GetSourceValues();
@@ -811,7 +819,7 @@
 
                 _result = _builder.GetSourceItemsProjection(
                     sourceEnumerableValue,
-                    sourceElement => _builder.GetElementConversion(sourceElement, mappingData));
+                    sourceElement => _builder.GetElementConversion(sourceElement, enumerableMappingData));
 
                 return this;
             }

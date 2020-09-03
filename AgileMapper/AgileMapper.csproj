@@ -20,8 +20,8 @@
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Fixing Dictionary-of-collections mapping, re: #200
-- Updating to ReadableExpressions v2.5.1
+    <PackageReleaseNotes>- Fixing complex type collection Dictionary mapping, re: #203
+- Removing service injections from projections, re: #204
     </PackageReleaseNotes>
   </PropertyGroup>
 
