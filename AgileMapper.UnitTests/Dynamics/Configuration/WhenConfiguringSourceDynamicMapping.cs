@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dynamics.Configuration
     using System.Linq.Expressions;
     using Api.Configuration;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

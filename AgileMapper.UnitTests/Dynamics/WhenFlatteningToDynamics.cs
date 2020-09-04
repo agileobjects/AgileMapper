@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using Common;
+    using Common.TestClasses;
     using Microsoft.CSharp.RuntimeBinder;
     using TestClasses;
     using Xunit;

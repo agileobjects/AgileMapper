@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Linq.Expressions;
     using Api;
@@ -124,7 +125,7 @@
         /// Returns mapping plan Expressions for all mapping functions currently cached by the default <see cref="IMapper"/>.
         /// </summary>
         /// <returns>An Expression containing the currently-cached functions to be executed during mappings.</returns>
-        public static Expr GetPlanExpressionsInCache() => Default.GetPlanExpressionsInCache();
+        public static ReadOnlyCollection<Expr> GetPlanExpressionsInCache() => Default.GetPlanExpressionsInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source
@@ -248,7 +249,7 @@
 
         string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
         
-        Expr IMapper.GetPlanExpressionsInCache() => MappingPlanSet.For(Context);
+        ReadOnlyCollection<Expr> IMapper.GetPlanExpressionsInCache() => MappingPlanSet.For(Context);
 
         private PlanTargetSelector<TSource> GetPlan<TSource>()
             => new PlanTargetSelector<TSource>(Context);

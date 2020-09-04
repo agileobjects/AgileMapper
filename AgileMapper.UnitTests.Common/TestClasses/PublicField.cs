@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
+﻿namespace AgileObjects.AgileMapper.UnitTests.Common.TestClasses
 {
     public class PublicField<T>
     {

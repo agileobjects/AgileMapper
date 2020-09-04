@@ -6,6 +6,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;

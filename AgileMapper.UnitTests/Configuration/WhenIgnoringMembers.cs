@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration
     using AgileMapper.Configuration;
     using AgileMapper.Configuration.MemberIgnores;
     using Common;
+    using Common.TestClasses;
     using NetStandardPolyfills;
     using TestClasses;
 #if !NET35

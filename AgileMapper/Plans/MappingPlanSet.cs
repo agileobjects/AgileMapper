@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Extensions;
     using Extensions.Internal;
@@ -50,18 +51,19 @@
         }
 
         /// <summary>
-        /// Converts the given <paramref name="mappingPlans">MappingPlanSet</paramref> to its Expression
-        /// representation.
+        /// Converts the given <paramref name="mappingPlans">MappingPlanSet</paramref> to a collection
+        /// of Expressions.
         /// </summary>
         /// <param name="mappingPlans">The <see cref="MappingPlanSet"/> to convert.</param>
         /// <returns>
-        /// The Expression representation of the <paramref name="mappingPlans">MappingPlanSet</paramref>.
+        /// A collection of Expressions representing this <paramref name="mappingPlans">MappingPlanSet</paramref>.
         /// </returns>
-        public static implicit operator Expr(MappingPlanSet mappingPlans)
+        public static implicit operator ReadOnlyCollection<Expr>(MappingPlanSet mappingPlans)
         {
-            return Expr.Block(mappingPlans
+            return new ReadOnlyCollection<Expr>(mappingPlans
                 ._mappingPlans
-                .Project(plan => plan.GetExpression()));
+                .Project(plan => plan.GetExpression())
+                .ToList());
         }
 
         /// <summary>

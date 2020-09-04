@@ -10,6 +10,7 @@
 #endif
     using System.Text.RegularExpressions;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -456,9 +457,9 @@
                 mapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
                 mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
 
-                var plan = mapper.GetPlanExpressionsInCache();
+                var expressions = mapper.GetPlanExpressionsInCache();
 
-                plan.ShouldNotBeNull();
+                expressions.ShouldNotBeNull().Any().ShouldBeTrue();
             }
         }
 

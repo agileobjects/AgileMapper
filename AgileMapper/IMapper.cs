@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Linq.Expressions;
     using Api;
@@ -101,7 +102,7 @@
         /// Returns mapping plan Expressions for all mapping functions currently cached by the <see cref="IMapper"/>.
         /// </summary>
         /// <returns>An Expression containing the currently-cached functions to be executed during mappings.</returns>
-        Expr GetPlanExpressionsInCache();
+        ReadOnlyCollection<Expr> GetPlanExpressionsInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source

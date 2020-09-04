@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel
 {
+    using AgileMapper.Extensions.Internal;
     using Common;
     using TestClasses;
     using Xunit;
@@ -47,7 +48,7 @@
 
                 var plan = Mapper.GetPlanExpressionsInCache();
 
-                plan.ShouldNotBeNull();
+                plan.ShouldNotBeNull().Any().ShouldBeTrue();
             });
         }
     }

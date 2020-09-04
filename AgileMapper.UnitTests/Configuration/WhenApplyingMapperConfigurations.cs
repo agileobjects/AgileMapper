@@ -5,6 +5,7 @@
     using System.Linq;
     using AgileMapper.Configuration;
     using Common;
+    using Common.TestClasses;
     using MoreTestClasses;
     using NetStandardPolyfills;
     using TestClasses;
