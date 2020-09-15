@@ -1,15 +1,45 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
+    using System;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using ReadableExpressions;
 
-    internal interface IMappingPlanFunction
+    /// <summary>
+    /// Implementing classes will describe a mapping function used to map from one type to another
+    /// with a particular rule set.
+    /// </summary>
+    public interface IMappingPlanFunction
     {
-        Expression GetExpression();
+        /// <summary>
+        /// Gets the source type from which this <see cref="IMappingPlanFunction"/> will perform a
+        /// mapping.
+        /// </summary>
+        Type SourceType { get; }
 
-        string GetDescription();
+        /// <summary>
+        /// Gets the target type to which this <see cref="IMappingPlanFunction"/> will perform a
+        /// mapping.
+        /// </summary>
+        Type TargetType { get; }
+
+        /// <summary>
+        /// Gets an Expression summarising the <see cref="IMappingPlanFunction"/>.
+        /// </summary>
+        CommentExpression Summary { get; }
+
+        /// <summary>
+        /// Gets an Expression describing the <see cref="IMappingPlanFunction"/>'s mapping.
+        /// </summary>
+        Expression Mapping { get; }
+
+        /// <summary>
+        /// Gets a source-code string translation of this <see cref="IMappingPlanFunction"/>.
+        /// </summary>
+        /// <returns>A source-code string translation of this <see cref="IMappingPlanFunction"/>.</returns>
+        string ToSourceCode();
     }
 }

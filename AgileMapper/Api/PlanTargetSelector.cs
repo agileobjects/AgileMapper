@@ -70,6 +70,7 @@
         {
             var planContext = new SimpleMappingContext(ruleSet, _mapperContext)
             {
+                IncludeCodeComments = true,
                 IgnoreUnsuccessfulMemberPopulations = false
             };
 

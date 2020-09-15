@@ -21,11 +21,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public void RegisterCreationCallback(MapperCreationCallbackKey creationCallbackKey, Action<IObjectMapper> callback)
         {
-            if (_creationCallbacksByKey == null)
-            {
-                _creationCallbacksByKey =
-                    new ExpandableSimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(3, default(MapperCreationCallbackKey.Comparer));
-            }
+            _creationCallbacksByKey ??=
+                new ExpandableSimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(3,
+                    default(MapperCreationCallbackKey.Comparer));
 
             _creationCallbacksByKey.Add(creationCallbackKey, callback);
         }

@@ -116,10 +116,14 @@
         }
 
         /// <summary>
-        /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.
+        /// Returns a <see cref="MappingPlanSet"/> containing plans for all mapping functions currently
+        /// cached by the default <see cref="IMapper"/>.
         /// </summary>
-        /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
-        public static string GetPlansInCache() => Default.GetPlansInCache();
+        /// <returns>
+        /// A <see cref="MappingPlanSet"/> containing the currently-cached functions to be executed
+        /// during mappings.
+        /// </returns>
+        public static MappingPlanSet GetPlansInCache() => Default.GetPlansInCache();
 
         /// <summary>
         /// Returns mapping plan Expressions for all mapping functions currently cached by the default <see cref="IMapper"/>.
@@ -247,8 +251,8 @@
 
         IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
-        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
-        
+        MappingPlanSet IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
+
         ReadOnlyCollection<Expr> IMapper.GetPlanExpressionsInCache() => MappingPlanSet.For(Context);
 
         private PlanTargetSelector<TSource> GetPlan<TSource>()

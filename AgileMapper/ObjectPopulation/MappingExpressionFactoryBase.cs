@@ -14,13 +14,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions.Internal;
     using Members;
     using Members.MemberExtensions;
-    using ReadableExpressions;
     using ReadableExpressions.Extensions;
 #if NET35
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using static ReadableExpressions.ReadableExpression;
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -30,9 +30,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (TargetCannotBeMapped(mappingData, out var reason))
             {
-                return Expression.Block(
-                    ReadableExpression.Comment(reason),
-                    GetNullMappingFallbackValue(mapperData));
+                var fallbackValue = GetNullMappingFallbackValue(mapperData);
+
+                return mappingData.MappingContext.IncludeCodeComments
+                    ? Expression.Block(Comment(reason), fallbackValue)
+                    : fallbackValue;
             }
 
             var context = new MappingCreationContext(mappingData);

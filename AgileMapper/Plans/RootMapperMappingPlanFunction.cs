@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
+    using System;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -14,6 +15,8 @@
     {
         private readonly ObjectMapperData _mapperData;
         private readonly Expression _mapping;
+        private CommentExpression _summary;
+        private Expression _finalMapping;
 
         public RootMapperMappingPlanFunction(IObjectMapper mapper)
         {
@@ -21,38 +24,37 @@
             _mapping = mapper.GetMappingLambda();
         }
 
-        public Expression GetExpression()
-        {
-            var description = GetMappingDescription();
-            var mapping = GetFinalMappingExpression();
+        public Type SourceType => _mapperData.SourceType;
 
-            return Expression.Block(
-                ReadableExpression.Comment(description),
-                mapping);
-        }
+        public Type TargetType => _mapperData.TargetType;
 
-        public string GetDescription()
-        {
-            var description = GetMappingDescription(linePrefix: "// ");
-            var mapping = GetFinalMappingExpression();
-
-            return description + mapping.ToReadableString();
-        }
+        public CommentExpression Summary
+            => _summary ??= ReadableExpression.Comment(GetMappingDescription());
 
         private string GetMappingDescription(string linePrefix = null)
         {
-            var sourceType = _mapperData.SourceType.GetFriendlyName();
-            var targetType = _mapperData.TargetType.GetFriendlyName();
+            var sourceTypeName = SourceType.GetFriendlyName();
+            var targetTypeName = TargetType.GetFriendlyName();
 
             return $@"
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}Map {sourceType} -> {targetType}
+{linePrefix}Map {sourceTypeName} -> {targetTypeName}
 {linePrefix}Rule Set: {_mapperData.RuleSet.Name}
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 ";
+        }
+
+        public Expression Mapping
+            => _finalMapping ??= GetFinalMappingExpression();
+
+        public string ToSourceCode()
+        {
+            var description = GetMappingDescription(linePrefix: "// ");
+
+            return description + Mapping.ToReadableString();
         }
 
         private Expression GetFinalMappingExpression()

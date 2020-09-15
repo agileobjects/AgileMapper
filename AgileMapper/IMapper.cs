@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
+    using Plans;
     using Queryables.Api;
 #if NET35
     using Expr = Microsoft.Scripting.Ast.Expression;
@@ -93,10 +94,14 @@
         IPlanTargetSelector<TSource> GetPlansFor<TSource>();
 
         /// <summary>
-        /// Returns mapping plans for all mapping functions currently cached by the <see cref="IMapper"/>.
+        /// Returns a <see cref="MappingPlanSet"/> containing plans for all mapping functions currently
+        /// cached by the <see cref="IMapper"/>.
         /// </summary>
-        /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
-        string GetPlansInCache();
+        /// <returns>
+        /// A <see cref="MappingPlanSet"/> containing the currently-cached functions to be executed
+        /// during mappings.
+        /// </returns>
+        MappingPlanSet GetPlansInCache();
 
         /// <summary>
         /// Returns mapping plan Expressions for all mapping functions currently cached by the <see cref="IMapper"/>.

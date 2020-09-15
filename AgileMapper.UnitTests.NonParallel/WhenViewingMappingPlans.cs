@@ -28,7 +28,7 @@
                 Mapper.GetPlanFor<MysteryCustomer>().ToANew<MysteryCustomerViewModel>();
                 Mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
 
-                var plan = Mapper.GetPlansInCache();
+                string plan = Mapper.GetPlansInCache();
 
                 plan.ShouldContain("MysteryCustomer -> MysteryCustomerViewModel");
                 plan.ShouldContain("MegaProduct -> ProductDtoMega");

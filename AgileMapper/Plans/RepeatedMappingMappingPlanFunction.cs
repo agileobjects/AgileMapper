@@ -12,44 +12,42 @@
 
     internal class RepeatedMappingMappingPlanFunction : IMappingPlanFunction
     {
-        private readonly Type _sourceType;
-        private readonly Type _targetType;
-        private readonly Expression _mapping;
+        private CommentExpression _summary;
 
         public RepeatedMappingMappingPlanFunction(IRepeatedMapperFunc mapperFunc)
         {
-            _sourceType = mapperFunc.SourceType;
-            _targetType = mapperFunc.TargetType;
-            _mapping = mapperFunc.Mapping;
+            SourceType = mapperFunc.SourceType;
+            TargetType = mapperFunc.TargetType;
+            Mapping = mapperFunc.Mapping;
         }
 
-        public Expression GetExpression()
-        {
-            var description = GetMappingDescription();
+        public Type SourceType { get; }
 
-            return Expression.Block(
-                ReadableExpression.Comment(description),
-                _mapping);
-        }
+        public Type TargetType { get; }
 
-        public string GetDescription()
-        {
-            var description = GetMappingDescription(linePrefix: "// ");
-
-            return description + _mapping.ToReadableString();
-        }
+        public CommentExpression Summary
+            => _summary ??= ReadableExpression.Comment(GetMappingDescription());
 
         private string GetMappingDescription(string linePrefix = null)
         {
             return $@"
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}Map {_sourceType.GetFriendlyName()} -> {_targetType.GetFriendlyName()}
+{linePrefix}Map {SourceType.GetFriendlyName()} -> {TargetType.GetFriendlyName()}
 {linePrefix}Repeated Mapping Mapper
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 {linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 ";
+        }
+
+        public Expression Mapping { get; }
+
+        public string ToSourceCode()
+        {
+            var description = GetMappingDescription(linePrefix: "// ");
+
+            return description + Mapping.ToReadableString();
         }
     }
 }

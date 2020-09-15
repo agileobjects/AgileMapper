@@ -56,7 +56,7 @@
                     Mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
                     Mapper.GetPlanForProjecting(Context.Persons).To<PersonViewModel>();
 
-                    var allPlans = Mapper.GetPlansInCache();
+                    string allPlans = Mapper.GetPlansInCache();
 
                     allPlans.ShouldContain("IQueryable<Product> -> IQueryable<ProductDto>");
                     allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");

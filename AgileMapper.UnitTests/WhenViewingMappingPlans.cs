@@ -435,7 +435,7 @@
                 mapper.GetPlanFor<Customer>().ToANew<CustomerViewModel>();
                 mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
 
-                var plan = mapper.GetPlansInCache();
+                string plan = mapper.GetPlansInCache();
 
                 plan.ShouldContain("PublicField<string> -> PublicProperty<int>");
                 plan.ShouldContain("Customer -> CustomerViewModel");

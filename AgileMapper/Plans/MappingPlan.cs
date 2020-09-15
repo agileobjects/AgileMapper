@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -46,7 +48,7 @@
         {
             return mappingPlan
                 ._mappingPlanFunctions
-                .ProjectToArray(pd => pd.GetDescription())
+                .ProjectToArray(pf => pf.ToSourceCode())
                 .Join(Environment.NewLine + Environment.NewLine);
         }
 
@@ -59,16 +61,15 @@
         {
             return Expression.Block(mappingPlan
                 ._mappingPlanFunctions
-                .ProjectToArray(pd => pd.GetExpression()));
+                .SelectMany(mpf => new[] { mpf.Summary, mpf.Mapping }));
         }
 
-        #region IMappingPlan Members
+        string IMappingPlan.ToSourceCode() => this;
 
-        string IMappingPlan.GetDescription() => this;
-        
-        Expression IMappingPlan.GetExpression() => this;
+        IEnumerator IEnumerable.GetEnumerator() => _mappingPlanFunctions.GetEnumerator();
 
-        #endregion
+        IEnumerator<IMappingPlanFunction> IEnumerable<IMappingPlanFunction>.GetEnumerator()
+            => _mappingPlanFunctions.GetEnumerator();
 
         /// <summary>
         /// Returns the string representation of the <see cref="MappingPlan"/>.
