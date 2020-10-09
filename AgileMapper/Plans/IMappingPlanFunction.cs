@@ -34,7 +34,7 @@
         /// <summary>
         /// Gets an Expression describing the <see cref="IMappingPlanFunction"/>'s mapping.
         /// </summary>
-        Expression Mapping { get; }
+        LambdaExpression Mapping { get; }
 
         /// <summary>
         /// Gets a source-code string translation of this <see cref="IMappingPlanFunction"/>.

@@ -42,8 +42,6 @@
 
         public TTarget Target { get; set; }
 
-        int? IMappingData<TSource, TTarget>.EnumerableIndex => ElementIndex;
-
         public int? ElementIndex { get; }
 
         public object ElementKey { get; }
@@ -67,8 +65,6 @@
 
             return default(T);
         }
-
-        int? IMappingData.GetEnumerableIndex() => GetElementIndex();
 
         public int? GetElementIndex() => ElementIndex ?? _parent?.GetElementIndex();
 

@@ -14,9 +14,9 @@
     internal class RootMapperMappingPlanFunction : IMappingPlanFunction
     {
         private readonly ObjectMapperData _mapperData;
-        private readonly Expression _mapping;
+        private readonly LambdaExpression _mapping;
         private CommentExpression _summary;
-        private Expression _finalMapping;
+        private LambdaExpression _finalMapping;
 
         public RootMapperMappingPlanFunction(IObjectMapper mapper)
         {
@@ -37,17 +37,13 @@
             var targetTypeName = TargetType.GetFriendlyName();
 
             return $@"
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 {linePrefix}Map {sourceTypeName} -> {targetTypeName}
 {linePrefix}Rule Set: {_mapperData.RuleSet.Name}
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 ";
         }
 
-        public Expression Mapping
+        public LambdaExpression Mapping
             => _finalMapping ??= GetFinalMappingExpression();
 
         public string ToSourceCode()
@@ -57,7 +53,7 @@
             return description + Mapping.ToReadableString();
         }
 
-        private Expression GetFinalMappingExpression()
+        private LambdaExpression GetFinalMappingExpression()
         {
             var mappingWithEnumMismatches = EnumMappingMismatchFinder.Process(_mapping, _mapperData);
 

@@ -51,7 +51,7 @@
             return mismatchSets;
         }
 
-        public static Expression Process(Expression mapping, ObjectMapperData mapperData)
+        public static LambdaExpression Process(LambdaExpression mapping, ObjectMapperData mapperData)
         {
             var targetMemberDatas = GetAllTargetMemberDatas(mapperData);
 

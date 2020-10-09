@@ -12,18 +12,17 @@
 
     internal class RepeatedMappingMappingPlanFunction : IMappingPlanFunction
     {
+        private readonly IRepeatedMapperFunc _mapperFunc;
         private CommentExpression _summary;
 
         public RepeatedMappingMappingPlanFunction(IRepeatedMapperFunc mapperFunc)
         {
-            SourceType = mapperFunc.SourceType;
-            TargetType = mapperFunc.TargetType;
-            Mapping = mapperFunc.Mapping;
+            _mapperFunc = mapperFunc;
         }
 
-        public Type SourceType { get; }
+        public Type SourceType => _mapperFunc.SourceType;
 
-        public Type TargetType { get; }
+        public Type TargetType => _mapperFunc.TargetType;
 
         public CommentExpression Summary
             => _summary ??= ReadableExpression.Comment(GetMappingDescription());
@@ -31,17 +30,13 @@
         private string GetMappingDescription(string linePrefix = null)
         {
             return $@"
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 {linePrefix}Map {SourceType.GetFriendlyName()} -> {TargetType.GetFriendlyName()}
 {linePrefix}Repeated Mapping Mapper
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 ";
         }
 
-        public Expression Mapping { get; }
+        public LambdaExpression Mapping => _mapperFunc.Mapping;
 
         public string ToSourceCode()
         {

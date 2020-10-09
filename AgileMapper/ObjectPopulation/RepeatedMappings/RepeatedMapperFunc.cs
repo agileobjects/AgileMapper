@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             CreateMapperFunc(mappingData);
         }
 
-        public Expression Mapping { get; private set; }
+        public LambdaExpression Mapping { get; private set; }
 
         public Type SourceType => typeof(TChildSource);
 

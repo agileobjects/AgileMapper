@@ -23,10 +23,9 @@
 
         internal MappingPlan(IObjectMapper cachedMapper)
         {
-            _mappingPlanFunctions = new List<IMappingPlanFunction>
-            {
-                new RootMapperMappingPlanFunction(cachedMapper)
-            };
+            Root = new RootMapperMappingPlanFunction(cachedMapper);
+
+            _mappingPlanFunctions = new List<IMappingPlanFunction> { Root };
 
             if (cachedMapper.MapperData.HasRepeatedMapperFuncs)
             {
@@ -61,8 +60,11 @@
         {
             return Expression.Block(mappingPlan
                 ._mappingPlanFunctions
-                .SelectMany(mpf => new[] { mpf.Summary, mpf.Mapping }));
+                .SelectMany(mpf => new Expression[] { mpf.Summary, mpf.Mapping }));
         }
+
+        /// <inheritdoc />
+        public IMappingPlanFunction Root { get; }
 
         string IMappingPlan.ToSourceCode() => this;
 
