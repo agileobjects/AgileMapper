@@ -41,23 +41,24 @@
             return mappingPlans
                 .Select(mappingPlan =>
                 {
-                    return SourceCodeFactory.SourceCode(sc =>
-                    {
-                        foreach (var mappingFunction in mappingPlan)
-                        {
-                            var sourceTypeName = mappingFunction.SourceType.GetVariableNameInPascalCase();
-                            var targetTypeName = mappingFunction.TargetType.GetVariableNameInPascalCase();
-                            var className = $"{sourceTypeName}_To_{targetTypeName}_Mapper";
+                    var sourceCode = SourceCodeFactory.Default.CreateSourceCode();
 
-                            sc.WithClass(className, cls => cls
-                                .WithMethod(
-                                    "Map",
-                                    mappingFunction.Summary,
-                                    mappingFunction.Mapping));
-                        }
+                    var rootPlan = mappingPlan.Root;
 
-                        return sc;
-                    });
+                    var sourceTypeName = rootPlan.SourceType.GetVariableNameInPascalCase();
+                    var targetTypeName = rootPlan.TargetType.GetVariableNameInPascalCase();
+                    var className = $"{sourceTypeName}_To_{targetTypeName}_Mapper";
+
+                    var mapperClass = sourceCode.AddClass(cls => cls.Named(className));
+
+                    var coreMapMethod = mapperClass.AddMethod(rootPlan.Mapping, m => m
+                        .WithSummary(rootPlan.Summary)
+                        .WithVisibility(MemberVisibility.Private)
+                        .Named("Map"));
+
+                    var coreMapMethodCall = BuildableExpression.Call(coreMapMethod);
+
+                    return sourceCode;
                 })
                 .ToList();
         }
