@@ -12,10 +12,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static MethodInfo _forElementMethod;
 
         public static MethodInfo ForChildMethod =>
-            _forChildMethod ?? (_forChildMethod = typeof(MappingDataFactory).GetPublicStaticMethod(nameof(ForChild)));
+            _forChildMethod ??= typeof(MappingDataFactory).GetPublicStaticMethod(nameof(ForChild));
 
         public static MethodInfo ForElementMethod
-            => _forElementMethod ?? (_forElementMethod = typeof(MappingDataFactory).GetPublicStaticMethod(nameof(ForElement)));
+            => _forElementMethod ??= typeof(MappingDataFactory).GetPublicStaticMethod(nameof(ForElement));
 
         public static ObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
             TSource source,
