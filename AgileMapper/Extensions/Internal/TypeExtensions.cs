@@ -203,7 +203,7 @@
         public static IEnumerable<TAttribute> GetAttributes<TAttribute>(this Type type)
             where TAttribute : Attribute
         {
-#if NET_STANDARD
+#if NETSTANDARD1_0 || NETSTANDARD1_3
             return type.GetTypeInfo().GetCustomAttributes<TAttribute>();
 #else
             return type.GetCustomAttributes(typeof(TAttribute), inherit: false).Project(attr => (TAttribute)attr);

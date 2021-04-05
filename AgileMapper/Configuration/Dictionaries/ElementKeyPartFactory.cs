@@ -71,7 +71,7 @@
         }
 
         private static readonly Regex _patternMatcher = new Regex("^(?<Prefix>[^i]*)i{1}(?<Suffix>[^i]*)$"
-#if !NET_STANDARD
+#if !NETSTANDARD1_0
             , RegexOptions.Compiled
 #endif
             );
@@ -132,7 +132,7 @@
         {
             return new Regex(
                 _prefixString + "[0-9]+" + _suffixString
-#if !NET_STANDARD
+#if !NETSTANDARD1_0
                 , RegexOptions.Compiled
 #endif
                 );

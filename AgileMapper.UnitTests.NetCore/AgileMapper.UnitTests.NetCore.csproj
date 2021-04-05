@@ -14,15 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;NET_STANDARD;NET_STANDARD_1;TRACE;FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE;FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
