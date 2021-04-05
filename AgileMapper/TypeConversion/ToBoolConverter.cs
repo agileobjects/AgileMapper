@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
-    using ReadableExpressions.Extensions;
+    using NetStandardPolyfills;
 
     internal struct ToBoolConverter : IValueConverter
     {

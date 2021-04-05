@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.Members
     using Caching;
     using Extensions;
     using Extensions.Internal;
+    using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 

@@ -13,6 +13,7 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class ElementKeyPartFactory : DictionaryKeyPartFactoryBase
