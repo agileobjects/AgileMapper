@@ -1,15 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
+    using Caching.Dictionaries;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
-    using NetStandardPolyfills;
 
     internal static class Constants
     {
@@ -60,17 +58,48 @@
             typeof(ulong)
         };
 
-        public static readonly IList<Type> NumericTypes = WholeNumberNumericTypes
-            .Append(new[] { typeof(float), typeof(decimal), typeof(double) });
-
-        public static readonly IDictionary<Type, double> NumericTypeMaxValuesByType = GetValuesByType("MaxValue");
-        public static readonly IDictionary<Type, double> NumericTypeMinValuesByType = GetValuesByType("MinValue");
-
-        private static Dictionary<Type, double> GetValuesByType(string fieldName)
+        public static readonly Type[] NumericTypes =
         {
-            return NumericTypes
-                .ToDictionary(t => t, t => Convert.ToDouble(t.GetPublicStaticField(fieldName).GetValue(null)));
-        }
+            typeof(byte),
+            typeof(sbyte),
+            typeof(short),
+            typeof(ushort),
+            typeof(int),
+            typeof(uint),
+            typeof(long),
+            typeof(ulong),
+            typeof(float),
+            typeof(decimal),
+            typeof(double)
+        };
+
+        public static readonly ISimpleDictionary<Type, double> NumericTypeMaxValuesByType =
+            new FixedSizeSimpleDictionary<Type, double>(NumericTypes.Length)
+                .Add(typeof(byte), byte.MaxValue)
+                .Add(typeof(sbyte), sbyte.MaxValue)
+                .Add(typeof(short), short.MaxValue)
+                .Add(typeof(ushort), ushort.MaxValue)
+                .Add(typeof(int), int.MaxValue)
+                .Add(typeof(uint), uint.MaxValue)
+                .Add(typeof(long), long.MaxValue)
+                .Add(typeof(ulong), ulong.MaxValue)
+                .Add(typeof(float), float.MaxValue)
+                .Add(typeof(decimal), (double)decimal.MaxValue)
+                .Add(typeof(double), double.MaxValue);
+
+        public static readonly ISimpleDictionary<Type, double> NumericTypeMinValuesByType =
+            new FixedSizeSimpleDictionary<Type, double>(NumericTypes.Length)
+                .Add(typeof(byte), byte.MinValue)
+                .Add(typeof(sbyte), sbyte.MinValue)
+                .Add(typeof(short), short.MinValue)
+                .Add(typeof(ushort), ushort.MinValue)
+                .Add(typeof(int), int.MinValue)
+                .Add(typeof(uint), uint.MinValue)
+                .Add(typeof(long), long.MinValue)
+                .Add(typeof(ulong), ulong.MinValue)
+                .Add(typeof(float), float.MinValue)
+                .Add(typeof(decimal), (double)decimal.MinValue)
+                .Add(typeof(double), double.MinValue);
 
         #endregion
     }

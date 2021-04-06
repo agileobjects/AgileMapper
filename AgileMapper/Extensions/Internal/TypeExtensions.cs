@@ -8,6 +8,7 @@
 #endif
     using System.Linq;
     using System.Reflection;
+    using Caching.Dictionaries;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -165,7 +166,7 @@
 
         private static double GetValueFor(
             Type type,
-            IDictionary<Type, double> cache,
+            ISimpleDictionary<Type, double> cache,
             Func<IEnumerable<long>, long> enumValueFactory)
         {
             type = type.GetNonNullableType();
