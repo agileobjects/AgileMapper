@@ -30,7 +30,7 @@
 
         internal MappingConfigStartingPoint(MapperContext mapperContext)
         {
-            _configInfo = new MappingConfigInfo(mapperContext);
+            _configInfo = new MappingConfigInfo(mapperContext.ThrowIfDisposed());
         }
 
         private MapperContext MapperContext => _configInfo.MapperContext;

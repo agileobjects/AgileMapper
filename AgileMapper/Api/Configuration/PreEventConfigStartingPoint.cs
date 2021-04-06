@@ -12,7 +12,7 @@
 
         internal PreEventConfigStartingPoint(MapperContext mapperContext)
         {
-            _mapperContext = mapperContext;
+            _mapperContext = mapperContext.ThrowIfDisposed();
         }
 
         /// <summary>

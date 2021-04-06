@@ -23,7 +23,7 @@
         public MappingExecutor(TSource source, MapperContext mapperContext)
         {
             _source = source;
-            MapperContext = mapperContext;
+            MapperContext = mapperContext.ThrowIfDisposed();
         }
 
         public MapperContext MapperContext { get; private set; }
