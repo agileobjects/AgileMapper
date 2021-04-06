@@ -1,12 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using System;
-    using Caching.Dictionaries;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Caching.Dictionaries;
     using Extensions.Internal;
 
     internal static class Constants
