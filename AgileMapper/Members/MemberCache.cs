@@ -8,7 +8,6 @@
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
     using static System.StringComparer;
 
     internal class MemberCache
@@ -17,7 +16,7 @@
 
         public MemberCache(CacheSet cacheSet)
         {
-            _membersCache = cacheSet.CreateScoped<TypeKey, IList<Member>>(default(HashCodeComparer<TypeKey>));
+            _membersCache = cacheSet.CreateScopedWithHashCodes<TypeKey, IList<Member>>();
         }
 
         public IList<Member> GetSourceMembers(Type sourceType)

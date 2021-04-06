@@ -66,7 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     mapperKey.MapperData.SourceType,
                     mapperKey.MapperData.TargetType);
 
-                var mapperFuncCreator = GlobalContext.Instance.Cache.GetOrAdd(typesKey, key =>
+                var mapperFuncCreator = GlobalContext.Instance.Cache.GetOrAddWithHashCodes(typesKey, key =>
                 {
                     var mapperFuncType = typeof(RepeatedMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
                     var mapperDataParameter = Parameters.Create<IObjectMappingData>("mappingData");
@@ -83,8 +83,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         lazyLoadParameter);
 
                     return mapperCreationLambda.Compile();
-                },
-                default(HashCodeComparer<SourceAndTargetTypesKey>));
+                });
 
                 var mapperFunc = mapperFuncCreator.Invoke(
                     mapperKey.MappingData,
