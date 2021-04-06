@@ -23,6 +23,7 @@
     <PackageReleaseNotes>- Adding .NET Standard 2.0 target
 - Fixing potential cache threading issue, re: #212
 - Throwing ObjectDisposed on attempt to use disposed Mapper, re: #212
+- Improving target member selection, re: #209
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -35,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.6.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.6.0-preview1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
