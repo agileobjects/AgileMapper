@@ -38,7 +38,7 @@ dynamic flat = myInstanceMapper.Flatten(myObject).ToDynamic();
 // flat.Name = "Mrs Customer"
 // flat.Dob = * DateTime 1985/11/05 *
 // flat.Address_Line1 = "1 Street"
-// flat.Address.Postcode = "XY3 8HW"
+// flat.Address_Postcode = "XY3 8HW"
 ```
 
 ...or a query string-formatted string using:
