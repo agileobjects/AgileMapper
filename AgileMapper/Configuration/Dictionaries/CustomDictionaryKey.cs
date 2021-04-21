@@ -7,6 +7,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
     using Members;
     using ReadableExpressions.Extensions;
 

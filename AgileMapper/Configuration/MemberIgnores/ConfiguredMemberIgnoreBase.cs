@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
     using Members;
 
     internal abstract class ConfiguredMemberIgnoreBase :

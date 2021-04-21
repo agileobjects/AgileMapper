@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using AgileMapper.Configuration;
+    using AgileMapper.Configuration.DataSources;
 
     internal interface IConfiguredDataSourceFactoryFactory
     {

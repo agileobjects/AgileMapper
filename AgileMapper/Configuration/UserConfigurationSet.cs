@@ -9,6 +9,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.DataSources;
     using DataSources;
     using Dictionaries;
     using Extensions;

@@ -363,12 +363,6 @@
         public IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersWhere(
             Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
-            return IgnoreSourceMembersByFilter(memberFilter);
-        }
-
-        private MappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersByFilter(
-            Expression<Func<SourceMemberSelector, bool>> memberFilter)
-        {
             return IgnoreMembersByFilter(
                 new ConfiguredSourceMemberFilter(ConfigInfo, memberFilter),
                 UserConfigurations.Add);

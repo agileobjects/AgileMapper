@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #if NET35
     using Extensions.Internal;
 #endif
+    using DataSources;
     using Members;
 
     internal class ConfiguredMemberIgnore : ConfiguredMemberIgnoreBase, IMemberIgnore

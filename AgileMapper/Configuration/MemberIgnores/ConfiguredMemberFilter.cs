@@ -3,15 +3,18 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using System;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
 #if NET35
     using Extensions.Internal;
 #endif
     using Members;
     using ReadableExpressions;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
 
     internal class ConfiguredMemberFilter : ConfiguredMemberIgnoreBase, IMemberFilterIgnore
     {

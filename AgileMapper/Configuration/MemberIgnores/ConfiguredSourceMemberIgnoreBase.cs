@@ -1,10 +1,10 @@
 namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 {
-    using Members;
-
 #if NET35
     using System;
 #endif
+    using DataSources;
+    using Members;
 
     internal abstract class ConfiguredSourceMemberIgnoreBase :
         UserConfiguredItemBase,

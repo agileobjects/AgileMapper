@@ -5,7 +5,7 @@
     <RuntimeFrameworkVersion>1.1.13</RuntimeFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore</AssemblyName>
-    <RootNamespace>AgileObjects.AgileMapper.UnitTests.NetCore</RootNamespace>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors></WarningsAsErrors>
     <NoWarn>0649;1701;1702</NoWarn>

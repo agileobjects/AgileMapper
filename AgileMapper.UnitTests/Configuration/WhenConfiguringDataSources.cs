@@ -30,7 +30,7 @@
                     .From<PublicProperty<string>>()
                     .To<PublicProperty<string>>()
                     .Map("Hello there!")
-                    .To(x => x.Value);
+                    .To(pp => pp.Value);
 
                 var source = new PublicProperty<string> { Value = "Goodbye!" };
                 var result = mapper.Map(source).ToANew<PublicProperty<string>>();

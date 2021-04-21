@@ -201,8 +201,7 @@
             }
         }
 
-        public string GetConditionDescription(MappingConfigInfo configInfo)
-            => _conditionLambda.GetDescription(configInfo);
+        public string GetConditionDescription() => _conditionLambda.GetDescription(this);
 
         public Expression GetConditionOrNull(IMemberMapperData mapperData)
         {

@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System;
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.DataSources;
     using AgileMapper.Configuration.Dictionaries;
 #if FEATURE_DYNAMIC
     using Dynamics;

@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
+﻿namespace AgileObjects.AgileMapper.Configuration.DataSources
 {
 #if NET35
     using System;
@@ -6,7 +6,7 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using DataSources;
+    using AgileMapper.DataSources;
     using Lambdas;
     using Members;
 
@@ -60,7 +60,7 @@
             if (ConfigInfo.HasCondition)
             {
                 targetMember = null;
-                reason = $"configuration has condition '{ConfigInfo.GetConditionDescription(ConfigInfo)}'";
+                reason = $"configuration has condition '{ConfigInfo.GetConditionDescription()}'";
                 return true;
             }
 
