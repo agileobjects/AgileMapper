@@ -42,12 +42,13 @@
             Expression<Func<TTarget, Action<TTargetValue>>> targetSetMethod);
 
         /// <summary>
-        /// Apply the configuration to the constructor parameter with the type specified by the type argument.
+        /// Apply the configuration to the constructor parameter with the type specified by the type
+        /// argument.
         /// </summary>
         /// <typeparam name="TTargetParam">The target constructor parameter's type.</typeparam>
         /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source 
-        /// and target type being configured.
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> ToCtor<TTargetParam>();
 
@@ -56,15 +57,15 @@
         /// </summary>
         /// <param name="parameterName">The target constructor parameter's name.</param>
         /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target type being configured.
+        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
+        /// source and target type being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> ToCtor(string parameterName);
 
         /// <summary>
         /// Map the configured source value to the target object being configured, after any matching
-        /// source member has been mapped. To mapapply the configured source value without mapping
-        /// any matching source member, use ToTargetInstead().
+        /// source member has been mapped. To map the configured source value <em>without</em> mapping
+        /// any matching source member, use <strong>ToTargetInstead()</strong>.
         /// </summary>
         /// <returns>
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
@@ -73,9 +74,11 @@
         IMappingConfigContinuation<TSource, TTarget> ToTarget();
 
         /// <summary>
-        /// Map the configured source value to the target object being configured, instead of mapping
-        /// any matching source member. To map any matching source member as well as the configured
-        /// source value, use ToTarget().
+        /// Map the configured source value to the target object being configured, <em>instead of</em>
+        /// mapping any matching source member. If this mapping configuration has an If() clause which
+        /// evaluates to false during mapping, no mapping is performed.<br /><br />
+        /// To map any matching source member <em>as well as</em> the configured source value, use
+        /// <strong>ToTarget()</strong>.
         /// </summary>
         /// <returns>
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the

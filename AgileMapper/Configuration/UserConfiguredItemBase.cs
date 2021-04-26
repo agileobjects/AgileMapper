@@ -127,7 +127,7 @@
                     otherTargetMember.LeafMember.DeclaringType.IsAssignableTo(TargetMember.LeafMember.DeclaringType);
         }
 
-        protected virtual bool TargetMembersAreCompatible(IQualifiedMember otherTargetMember)
+        protected virtual bool TargetMembersAreCompatible(QualifiedMember otherTargetMember)
             => TargetMember == otherTargetMember;
 
         private bool HasCompatibleCondition(IRuleSetOwner ruleSetOwner)

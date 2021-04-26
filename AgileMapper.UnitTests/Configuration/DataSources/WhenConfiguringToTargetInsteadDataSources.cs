@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.DataSources
 {
     using System;
     using System.Collections.Generic;
@@ -138,10 +138,7 @@
                 {
                     Value2 = new PublicField<PublicField<int>>
                     {
-                        Value = new PublicField<int>
-                        {
-                            Value = 200
-                        }
+                        Value = new PublicField<int> { Value = 200 }
                     }
                 };
 
@@ -156,10 +153,7 @@
                 {
                     Value2 = new PublicField<PublicField<int>>
                     {
-                        Value = new PublicField<int>
-                        {
-                            Value = 100
-                        }
+                        Value = new PublicField<int> { Value = 100 }
                     }
                 };
 

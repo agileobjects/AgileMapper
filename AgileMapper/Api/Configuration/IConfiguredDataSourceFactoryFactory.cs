@@ -10,6 +10,6 @@
 
         ConfiguredDataSourceFactory CreateForCtorParam<TTargetParam>();
 
-        ConfiguredDataSourceFactory CreateForToTarget(bool isSequential);
+        ConfiguredDataSourceFactoryBase CreateForToTarget(bool isSequential);
     }
 }

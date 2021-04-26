@@ -42,7 +42,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         protected override bool ConflictsWith(QualifiedMember sourceMember)
             => SourceMember.Matches(sourceMember);
 
-        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        public override string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource)
         {
             return $"Configured data source {conflictingDataSource.GetDescription()} " +
                     "conflicts with an ignored source member";

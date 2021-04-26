@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         public override string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore)
             => ((IMemberFilterIgnore)this).GetConflictMessage(conflictingMemberIgnore);
 
-        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        public override string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource)
         {
             return $"Configured data source {conflictingDataSource.GetDescription()} " +
                    $"conflicts with member ignore pattern '{TargetMemberFilter}'";
@@ -77,7 +77,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             return IsFiltered(otherItem.TargetMember);
         }
 
-        public bool IsFiltered(QualifiedMember member)
+        private bool IsFiltered(QualifiedMember member)
             => _memberFilter.Invoke(new TargetMemberSelector(member));
 
         #region IPotentialAutoCreatedItem Members

@@ -264,7 +264,7 @@
             return this;
         }
 
-        private Dictionary<Type, object> Data => (_data ??= new Dictionary<Type, object>());
+        private Dictionary<Type, object> Data => _data ??= new Dictionary<Type, object>();
 
         public IObjectMappingData ToMappingData<TSource, TTarget>()
         {

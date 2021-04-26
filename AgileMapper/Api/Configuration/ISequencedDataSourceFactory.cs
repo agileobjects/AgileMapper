@@ -12,7 +12,7 @@
         void SetTargetMember(LambdaExpression targetMember);
 
         void Register(
-            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactory> dataSourceFactoryFactory,
+            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactoryBase> dataSourceFactoryFactory,
             Type targetMemberType);
     }
 }

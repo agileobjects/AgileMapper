@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         protected abstract bool ConflictsWith(QualifiedMember sourceMember);
 
-        public abstract string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource);
+        public abstract string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource);
 
         public abstract string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore);
 

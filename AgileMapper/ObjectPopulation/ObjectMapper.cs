@@ -89,7 +89,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     mapperKey.MappingData,
                     mapperKey.MappingData.MappingContext.LazyLoadRepeatMappingFuncs);
 
-                _repeatedMappingFuncsByKey.GetOrAdd(mapperKey, k => mapperFunc);
+                _repeatedMappingFuncsByKey.GetOrAdd(mapperKey, _ => mapperFunc);
             }
         }
 

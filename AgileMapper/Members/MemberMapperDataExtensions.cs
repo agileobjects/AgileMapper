@@ -224,7 +224,7 @@ namespace AgileObjects.AgileMapper.Members
         public static bool TargetMemberIsUnmappable<TTMapperData>(
             this TTMapperData mapperData,
             QualifiedMember targetMember,
-            Func<TTMapperData, IEnumerable<ConfiguredDataSourceFactory>> configuredDataSourcesFactory,
+            Func<TTMapperData, IEnumerable<ConfiguredDataSourceFactoryBase>> configuredDataSourcesFactory,
             UserConfigurationSet userConfigurations,
             out string reason)
             where TTMapperData : IQualifiedMemberContext

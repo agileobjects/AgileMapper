@@ -321,15 +321,15 @@
         public static Expression ToExpression(this IList<Expression> expressions)
             => expressions.HasOne() ? expressions.First() : Expression.Block(expressions);
 
-        public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
+        public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression assignment)
         {
-            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))
+            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignmentExpression))
             {
-                binaryExpression = (BinaryExpression)assignment;
+                assignment = (BinaryExpression)assignmentExpression;
                 return true;
             }
 
-            binaryExpression = null;
+            assignment = null;
             return false;
         }
 #if NET35

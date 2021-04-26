@@ -4,6 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Collections.Generic;
     using System.Linq;
     using ComplexTypes.ShortCircuits;
+    using DataSources;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -100,20 +101,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     }
 
                     context.MappingExpressions.Add(returnLabel);
+                    return true;
                 }
-                else
-                {
-                    if (isConditional)
-                    {
-                        context.MappingExpressions.Add(mapping);
-                        continue;
-                    }
 
-                    AddPopulationsAndCallbacks(
-                        mapping,
-                        context,
-                        (m, ctx) => ctx.MappingExpressions.Add(m));
+                if (isConditional)
+                {
+                    context.MappingExpressions.Add(mapping);
+                    continue;
                 }
+
+                AddPopulationsAndCallbacks(
+                    mapping,
+                    context,
+                    (m, ctx) => ctx.MappingExpressions.Add(m));
 
                 return true;
             }
@@ -134,10 +134,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingCreationContext context,
             out bool isConditional)
         {
-            isConditional = false;
+            var toTargetDataSource = context
+                .ToTargetDataSources
+                .FirstOrDefault(ds => ds.IsSequential == false);
 
-            return GetConfiguredToTargetDataSourceMappings(context, sequential: false)
-                .FirstOrDefault();
+            if (toTargetDataSource == null)
+            {
+                isConditional = false;
+                return null;
+            }
+
+            //isConditional = false;
+            isConditional = toTargetDataSource.HasConfiguredCondition;
+
+            return GetConfiguredToTargetDataSourceMappingOrNull(
+                context,
+                toTargetDataSource,
+                isFirstDataSource: true);
         }
 
         private void InsertShortCircuitReturns(MappingCreationContext context)
@@ -171,9 +184,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             AddPopulationsAndCallbacks(this, context, (factory, ctx) =>
             {
                 factory.AddObjectPopulation(ctx);
-
-                ctx.MappingExpressions.AddRange(
-                    GetConfiguredToTargetDataSourceMappings(ctx, sequential: true));
+                ctx.MappingExpressions.AddRange(GetConfiguredToTargetDataSourceMappings(ctx));
             });
         }
 
@@ -189,9 +200,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected abstract void AddObjectPopulation(MappingCreationContext context);
 
-        protected IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(
-            MappingCreationContext context,
-            bool sequential)
+        private IEnumerable<Expression> GetConfiguredToTargetDataSourceMappings(
+            MappingCreationContext context)
         {
             if (context.MapperData.Context.IsForToTargetMapping)
             {
@@ -200,67 +210,113 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var toTargetDataSources = context
                 .ToTargetDataSources
-                .FilterToArray(sequential, (seq, cds) => cds.IsSequential == seq);
+                .Filter(cds => cds.IsSequential);
 
-            if (toTargetDataSources.None())
+            var i = 0;
+
+            foreach (var toTargetDataSource in toTargetDataSources)
             {
-                yield break;
-            }
+                var toTargetMapping = GetConfiguredToTargetDataSourceMappingOrNull(
+                    context,
+                    toTargetDataSource,
+                    isFirstDataSource: i == 0);
 
-            for (var i = 0; i < toTargetDataSources.Count; ++i)
-            {
-                var toTargetDataSource = toTargetDataSources[i];
-                var toTargetContext = context.WithToTargetDataSource(toTargetDataSource);
+                ++i;
 
-                AddPopulationsAndCallbacks(toTargetContext);
-
-                if (toTargetContext.MappingExpressions.None())
-                {
-                    continue;
-                }
-
-                context.UpdateFrom(toTargetContext, toTargetDataSource);
-
-                var mapperData = context.MapperData;
-
-                var toTargetMapping = toTargetContext.GetMappingExpression();
-
-                toTargetMapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
-                    mapperData,
-                    toTargetContext.MapperData,
-                    toTargetDataSource.Value,
-                    toTargetMapping);
-
-                if ((sequential && !toTargetDataSource.IsConditional) ||
-                   (!sequential && !toTargetDataSource.HasConfiguredCondition))
+                if (toTargetMapping != null)
                 {
                     yield return toTargetMapping;
-                    break;
                 }
-
-                Expression fallback;
-
-                if (mapperData.TargetMember.IsComplex || (i > 0))
-                {
-                    if (sequential || !mapperData.TargetMemberIsEnumerableElement())
-                    {
-                        yield return Expression.IfThen(toTargetDataSource.Condition, toTargetMapping);
-                        continue;
-                    }
-
-                    fallback = mapperData.GetTargetMemberDefault();
-                }
-                else
-                {
-                    fallback = mapperData.LocalVariable.Type.GetEmptyInstanceCreation(
-                        context.TargetMember.ElementType,
-                        mapperData.EnumerablePopulationBuilder.TargetTypeHelper);
-                }
-
-                var assignFallback = mapperData.LocalVariable.AssignTo(fallback);
-
-                yield return Expression.IfThenElse(toTargetDataSource.Condition, toTargetMapping, assignFallback);
             }
+        }
+
+        private Expression GetConfiguredToTargetDataSourceMappingOrNull(
+            MappingCreationContext context,
+            IConfiguredDataSource toTargetDataSource,
+            bool isFirstDataSource)
+        {
+            if (context.MapperData.Context.IsForToTargetMapping)
+            {
+                return null;
+            }
+
+            var toTargetContext = context.WithToTargetDataSource(toTargetDataSource);
+
+            AddPopulationsAndCallbacks(toTargetContext);
+
+            if (toTargetContext.MappingExpressions.None())
+            {
+                return null;
+            }
+
+            context.UpdateFrom(toTargetContext, toTargetDataSource);
+
+            var originalMapperData = context.MapperData;
+
+            var toTargetMapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
+                originalMapperData,
+                toTargetContext.MapperData,
+                toTargetDataSource.Value,
+                toTargetContext.GetMappingExpression());
+
+            var isSequential = toTargetDataSource.IsSequential;
+
+            var isConditional = isSequential
+                ? toTargetDataSource.IsConditional
+                : toTargetDataSource.HasConfiguredCondition;
+
+            if (!isConditional)
+            {
+                return toTargetMapping;
+            }
+
+            Expression fallback;
+
+            if (!isFirstDataSource || originalMapperData.TargetMember.IsComplex)
+            {
+                if (isSequential)
+                {
+                    return Expression.IfThen(toTargetDataSource.Condition, toTargetMapping);
+                }
+
+                if (context.MapperData.TargetMemberIsEnumerableElement())
+                {
+                    fallback = originalMapperData.GetTargetMemberDefault();
+                    goto AssignFallback;
+                }
+
+                return Expression.IfThenElse(
+                    toTargetDataSource.Condition,
+                    toTargetMapping,
+                    GetDefaultMappingFallback(context));
+            }
+
+            fallback = originalMapperData.LocalVariable.Type.GetEmptyInstanceCreation(
+                context.TargetMember.ElementType,
+                originalMapperData.EnumerablePopulationBuilder.TargetTypeHelper);
+
+        AssignFallback:
+            var assignFallback = originalMapperData.LocalVariable.AssignTo(fallback);
+
+            return Expression.IfThenElse(toTargetDataSource.Condition, toTargetMapping, assignFallback);
+        }
+
+        private Expression GetDefaultMappingFallback(MappingCreationContext context)
+        {
+            //var mappingExpressionsCount = context.MappingExpressions.Count;
+
+            AddPopulationsAndCallbacks(context);
+
+            //var fallbackMappingStartIndex = mappingExpressionsCount - 1;
+            //var fallbackMappingEndIndex = context.MappingExpressions.Count - mappingExpressionsCount;
+
+            //var fallbackMappingExpressions = context.MappingExpressions
+            //    .GetRange(fallbackMappingStartIndex, fallbackMappingEndIndex);
+
+            //context.MappingExpressions
+            //    .RemoveRange(fallbackMappingStartIndex, fallbackMappingEndIndex);
+
+            return context.GetMappingExpression();
         }
 
         private static bool NothingIsBeingMapped(MappingCreationContext context)
@@ -403,7 +459,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             if ((localVariableAssignment.Left.NodeType != Parameter) ||
-                (localVariableAssignment != context.MappingExpressions.Last()))
+                (localVariableAssignment != context.MappingExpressions.Last()) ||
+                (context.PreMappingCallback == null))
             {
                 returnExpression = null;
                 return false;

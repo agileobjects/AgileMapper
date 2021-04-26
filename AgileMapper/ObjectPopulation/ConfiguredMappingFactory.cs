@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapping;
         }
 
-        public static Expression GetMappingOrNull(
+        private static Expression GetMappingOrNull(
             IObjectMappingData mappingData,
             out bool isConditional)
         {
