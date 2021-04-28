@@ -32,10 +32,10 @@
             return configInfo.Set(dataSourceFactorySequence);
         }
 
-        public static bool HasTargetMemberFilter(this MappingConfigInfo configInfo)
-            => configInfo.HasTargetMemberFilter(out _);
+        public static bool HasTargetMemberMatcher(this MappingConfigInfo configInfo)
+            => configInfo.HasTargetMemberMatcher(out _);
 
-        public static bool HasTargetMemberFilter(
+        public static bool HasTargetMemberMatcher(
             this MappingConfigInfo configInfo,
             out Expression<Func<TargetMemberSelector, bool>> targetMemberFilter)
         {
@@ -43,19 +43,19 @@
             return targetMemberFilter != null;
         }
 
-        public static MappingConfigInfo SetTargetMemberFilter(
+        public static MappingConfigInfo SetTargetMemberMatcher(
             this MappingConfigInfo configInfo,
             Expression<Func<TargetMemberSelector, bool>> memberMatcherLambda)
         {
             return configInfo.Set(memberMatcherLambda);
         }
 
-        public static void ThrowIfTargetMemberFilterSpecified<TTarget, TTargetValue>(
+        public static void ThrowIfTargetMemberMatcherSpecified<TTarget, TTargetValue>(
             this MappingConfigInfo configInfo,
             Func<MappingConfigInfo, string> configDescriptionFactory,
             params Expression<Func<TTarget, TTargetValue>>[] targetMembers)
         {
-            if (!configInfo.HasTargetMemberFilter(out var filter))
+            if (!configInfo.HasTargetMemberMatcher(out var filter))
             {
                 return;
             }

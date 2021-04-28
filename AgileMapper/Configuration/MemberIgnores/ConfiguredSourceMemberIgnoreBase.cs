@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
                 return true;
             }
 
-            if (otherConfiguredItem is ConfiguredDataSourceFactory configuredDataSource)
+            if (otherConfiguredItem is ConfiguredDataSourceFactoryBase configuredDataSource)
             {
                 var configuredSourceMember = configuredDataSource.ToSourceMemberOrNull();
 

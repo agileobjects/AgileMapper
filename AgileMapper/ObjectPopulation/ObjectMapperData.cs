@@ -657,9 +657,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapRepeatedCall;
         }
 
+        /// <summary>
+        /// Creates a GotoExpression passing the given <paramref name="value"/> to this
+        /// <see cref="ObjectMapperData" />'s LabelTarget.
+        /// </summary>
+        /// <param name="value">The vlaue to pass to this <see cref="ObjectMapperData" />'s LabelTarget.</param>
+        /// <returns>
+        /// Aa GotoExpression passing the given <paramref name="value"/> to this
+        /// <see cref="ObjectMapperData" />'s LabelTarget.
+        /// </returns>
         public Expression GetReturnExpression(Expression value)
             => Expression.Return(_returnLabelTarget, value, TargetType);
 
+        /// <summary>
+        /// Creates a LabelExpression for this <see cref="ObjectMapperData" />'s LabelTarget, with
+        /// the given <paramref name="defaultValue"/>. The created LabelExpression marks the point
+        /// in the compiled mapping Func to which execution will jump from GotoExpressions created
+        /// by calls to this <see cref="ObjectMapperData" />'s GetReturnExpression() method.
+        /// </summary>
+        /// <param name="defaultValue">The default value of the LabelExpression to create.</param>
+        /// <returns>
+        /// A LabelExpression for this <see cref="ObjectMapperData" />'s LabelTarget, with the given
+        /// <paramref name="defaultValue"/>.
+        /// </returns>
         public Expression GetReturnLabel(Expression defaultValue)
             => Expression.Label(_returnLabelTarget, defaultValue);
 

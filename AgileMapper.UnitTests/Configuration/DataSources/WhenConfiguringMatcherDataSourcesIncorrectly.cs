@@ -11,7 +11,7 @@
     [NUnit.Framework.TestFixture]
 #endif
     // See https://github.com/agileobjects/AgileMapper/issues/208
-    public class WhenConfiguringDataSourcesByFilterIncorrectly
+    public class WhenConfiguringMatcherDataSourcesIncorrectly
     {
         [Fact]
         public void ShouldErrorIfMemberIgnoreSpecified()
@@ -55,6 +55,30 @@
         }
 
         [Fact]
+        public void ShouldErrorIfConflictingMatcherDataSourceConfigured()
+        {
+            var configEx = Should.Throw<MappingConfigurationException>(() =>
+            {
+                using (var mapper = Mapper.CreateNew())
+                {
+                    mapper.WhenMapping
+                        .From<string>().To<bool>()
+                        .IfTargetMembersMatch(member => member.Name == "AlwaysTrue")
+                        .Map(true).ToTarget();
+
+                    mapper.WhenMapping
+                        .From<string>().To<bool>()
+                        .IfTargetMembersMatch(member => member.Name == "AlwaysTrue")
+                        .Map(false).ToTarget();
+                }
+            });
+            
+            configEx.Message.ShouldContain("already has");
+            configEx.Message.ShouldContain("'If mapping string -> bool and member.Name == \"AlwaysTrue\",");
+            configEx.Message.ShouldContain("map 'true' to target'");
+        }
+
+        [Fact]
         public void ShouldErrorIfConflictingMemberFilterConfigured()
         {
             var configEx = Should.Throw<MappingConfigurationException>(() =>
@@ -73,7 +97,9 @@
                 }
             });
 
-            configEx.Message.ShouldContain("target member filter");
+            configEx.Message.ShouldContain("'If mapping -> PublicTwoFields<string, string>");
+            configEx.Message.ShouldContain("and member.HasType<string>(), map '\"Yippee!\"' to target members'");
+            configEx.Message.ShouldContain("member ignore pattern 'member.HasType<string>()'");
         }
     }
 }

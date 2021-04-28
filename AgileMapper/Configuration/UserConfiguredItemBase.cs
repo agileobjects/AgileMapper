@@ -70,9 +70,7 @@
         }
 
         protected virtual bool HasReverseConflict(UserConfiguredItemBase otherItem)
-        {
-            return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
-        }
+            => otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
 
         private bool HasOverlappingRuleSets(UserConfiguredItemBase otherItem)
         {

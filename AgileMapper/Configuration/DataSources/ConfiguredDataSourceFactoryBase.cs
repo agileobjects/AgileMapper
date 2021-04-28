@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
 #endif
     using AgileMapper.DataSources;
+    using Api.Configuration;
     using Lambdas;
     using Members;
 
@@ -41,7 +42,7 @@
 
         public bool IsSequential => ConfigInfo.IsSequentialConfiguration;
 
-        protected ConfiguredLambdaInfo DataSourceLambda { get; }
+        internal ConfiguredLambdaInfo DataSourceLambda { get; }
 
         protected bool ValueCouldBeSourceMember { get; set; }
 
@@ -54,13 +55,13 @@
 
             var otherDataSource = otherConfiguredItem as ConfiguredDataSourceFactoryBase;
             var isOtherDataSource = otherDataSource != null;
-            var dataSourceLambdasAreTheSame = HasSameDataSourceAs(otherDataSource);
+            var criteriaAreTheSame = HasSameCriteriaAs(otherDataSource);
 
             if (WasAutoCreated &&
                (otherConfiguredItem is IPotentialAutoCreatedItem otherItem) &&
                !otherItem.WasAutoCreated)
             {
-                return isOtherDataSource && dataSourceLambdasAreTheSame;
+                return isOtherDataSource && criteriaAreTheSame;
             }
 
             if (isOtherDataSource == false)
@@ -68,14 +69,9 @@
                 return true;
             }
 
-            if (!ConfigInfo.HasSameTypesAs(otherDataSource))
+            if (otherDataSource.IsSequential || !ConfigInfo.HasSameTypesAs(otherDataSource))
             {
-                return dataSourceLambdasAreTheSame;
-            }
-
-            if (otherDataSource.IsSequential)
-            {
-                return dataSourceLambdasAreTheSame;
+                return criteriaAreTheSame;
             }
 
             return true;
@@ -83,42 +79,35 @@
 
         #region ConflictsWith Helpers
 
-        private bool HasSameDataSourceAs(ConfiguredDataSourceFactoryBase otherDataSource)
-            => DataSourceLambda.IsSameAs(otherDataSource?.DataSourceLambda);
+        protected abstract bool HasSameCriteriaAs(ConfiguredDataSourceFactoryBase otherDataSource);
 
         #endregion
 
         public string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource)
         {
-            var toTarget = TargetMember.IsRoot
-                ? conflictingDataSource.IsSequential ? "ToTarget() " : "ToTargetInstead() "
-                : null;
-
+            var toTarget = GetToTargetDescription(conflictingDataSource);
             var existingDataSource = conflictingDataSource.GetDataSourceDescription();
-
             var reason = GetConflictReasonOrNull(conflictingDataSource);
 
-            return $"{GetTargetMemberPath()} already has configured {toTarget}data source {existingDataSource}{reason}";
+            return $"{GetTargetDescription()} already has configured {toTarget}data source {existingDataSource}{reason}";
         }
+
+        protected abstract string GetToTargetDescription(ConfiguredDataSourceFactoryBase conflictingDataSource);
 
         protected abstract string GetConflictReasonOrNull(ConfiguredDataSourceFactoryBase conflictingDataSource);
 
-        public string GetDescription()
-        {
-            var sourceMemberPath = GetDataSourceDescription();
-            var targetMemberPath = GetTargetMemberPath();
+        public abstract string GetDescription();
 
-            return sourceMemberPath + " -> " + targetMemberPath;
-        }
+        protected abstract string GetDataSourceDescription();
 
-        protected string GetDataSourceDescription()
+        protected string GetDataSourceValueDescription()
         {
             var description = DataSourceLambda.GetDescription(ConfigInfo);
 
             return DataSourceLambda.IsSourceMember ? description : "'" + description + "'";
         }
 
-        protected string GetTargetMemberPath() => TargetMember.GetFriendlyTargetPath(ConfigInfo);
+        protected abstract string GetTargetDescription();
 
         public override bool AppliesTo(IQualifiedMemberContext context)
             => base.AppliesTo(context) && DataSourceLambda.Supports(context.RuleSet);
@@ -144,6 +133,7 @@
                 configuredCondition,
                 value,
                 ConfigInfo.IsSequentialConfiguration,
+                ConfigInfo.HasTargetMemberMatcher(),
                 mapperData);
         }
 

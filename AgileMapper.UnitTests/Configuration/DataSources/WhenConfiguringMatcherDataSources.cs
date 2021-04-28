@@ -11,7 +11,7 @@
     [NUnit.Framework.TestFixture]
 #endif
     // See https://github.com/agileobjects/AgileMapper/issues/208
-    public class WhenConfiguringDataSourcesByFilter
+    public class WhenConfiguringMatcherDataSources
     {
         [Fact]
         public void ShouldApplyAConstantByTargetMemberTypeAndMemberType()
@@ -44,6 +44,13 @@
                     .IfTargetMembersMatch(member => member.HasType<string>())
                     .Map("Hurrah!")
                     .ToTargetInstead();
+
+                mapper.WhenMapping
+                    .From<PublicTwoFields<int, Address>>()
+                    .To<PublicTwoFields<Address, int>>()
+                    .Map((s, t) => s.Value1).To(t => t.Value2)
+                    .And
+                    .Map((s, t) => s.Value2).To(t => t.Value1);
 
                 var source = new PublicTwoFields<int, Address>
                 {

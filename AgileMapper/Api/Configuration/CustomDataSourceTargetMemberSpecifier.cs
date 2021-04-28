@@ -110,7 +110,7 @@
         private void ThrowIfTargetMemberFilterSpecified<TTargetValue>(
             Expression<Func<TTarget, TTargetValue>> targetMember)
         {
-            _configInfo.ThrowIfTargetMemberFilterSpecified(
+            _configInfo.ThrowIfTargetMemberMatcherSpecified(
                 configDescriptionFactory: ci =>
                     $"data source mapping '{GetValueLambdaInfo<TTargetValue>().GetDescription(ci)}' -> ",
                 targetMember);
@@ -245,7 +245,7 @@
             if ((customValueLambda.Body.NodeType != CONSTANT) ||
                 (targetValueType == typeof(object)) ||
                  customValueLambda.ReturnType.IsAssignableTo(targetValueType) ||
-                _configInfo.HasTargetMemberFilter())
+                _configInfo.HasTargetMemberMatcher())
             {
                 return _customValueLambdaInfo = ConfiguredLambdaInfo.For(customValueLambda, _configInfo);
             }
@@ -441,9 +441,9 @@
             var dataSourceLambda = GetValueLambdaInfo<TTarget>();
             var toTargetMember = CreateToTargetQualifiedMember();
 
-            if (_configInfo.HasTargetMemberFilter(out var filter))
+            if (_configInfo.HasTargetMemberMatcher(out var filter))
             {
-                return new ConfiguredFilterDataSourceFactory(
+                return new ConfiguredMatcherDataSourceFactory(
                     _configInfo,
                     filter,
                     dataSourceLambda,
@@ -548,7 +548,7 @@
                  targetMemberType.IsSimple() ||
                 !ConfiguredSourceType.IsSimple() ||
                  ConversionOperatorExists(targetMemberType) ||
-                _configInfo.HasTargetMemberFilter())
+                _configInfo.HasTargetMemberMatcher())
             {
                 return;
             }

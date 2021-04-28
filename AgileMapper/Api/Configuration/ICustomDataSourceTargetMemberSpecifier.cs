@@ -75,10 +75,8 @@
 
         /// <summary>
         /// Map the configured source value to the target object being configured, <em>instead of</em>
-        /// mapping any matching source member. If this mapping configuration has an If() clause which
-        /// evaluates to false during mapping, no mapping is performed.<br /><br />
-        /// To map any matching source member <em>as well as</em> the configured source value, use
-        /// <strong>ToTarget()</strong>.
+        /// mapping any matching source member. To map any matching source member <em>as well as</em>
+        /// the configured source value, use <strong>ToTarget()</strong>.
         /// </summary>
         /// <returns>
         /// An IMappingConfigContinuation to enable further configuration of mappings from and to the

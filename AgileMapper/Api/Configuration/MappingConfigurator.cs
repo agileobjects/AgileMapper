@@ -174,7 +174,7 @@
         public IConditionalMappingConfigurator<TSource, TTarget> IfTargetMembersMatch(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            ConfigInfo.SetTargetMemberFilter(memberFilter);
+            ConfigInfo.SetTargetMemberMatcher(memberFilter);
             return this;
         }
 
@@ -388,7 +388,7 @@
         private MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembers(
             Expression<Func<TTarget, object>>[] targetMembers)
         {
-            ConfigInfo.ThrowIfTargetMemberFilterSpecified(
+            ConfigInfo.ThrowIfTargetMemberMatcherSpecified(
                 configDescriptionFactory: _ => "ignore(s)",
                 targetMembers);
 

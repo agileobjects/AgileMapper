@@ -53,7 +53,7 @@
             if (!TargetMember.IsReadable)
             {
                 targetMember = null;
-                reason = $"target member '{GetTargetMemberPath()}' is not readable, so cannot be used as a source member";
+                reason = $"target member '{GetTargetDescription()}' is not readable, so cannot be used as a source member";
                 return true;
             }
 
@@ -122,13 +122,30 @@
         protected override bool MembersConflict(UserConfiguredItemBase otherConfiguredItem)
             => TargetMember.LeafMember.Equals(otherConfiguredItem.TargetMember.LeafMember);
 
+        protected override bool HasSameCriteriaAs(ConfiguredDataSourceFactoryBase otherDataSource)
+            => DataSourceLambda.IsSameAs(otherDataSource?.DataSourceLambda);
+
         #endregion
+
+        protected override string GetToTargetDescription(ConfiguredDataSourceFactoryBase conflictingDataSource)
+        {
+            return TargetMember.IsRoot
+                ? conflictingDataSource.IsSequential ? "ToTarget() " : "ToTargetInstead() "
+                : null;
+        }
 
         protected override string GetConflictReasonOrNull(ConfiguredDataSourceFactoryBase conflictingDataSource)
         {
             return conflictingDataSource is ConfiguredDataSourceFactory dsf && dsf._isReversal
                 ? " from an automatically-configured reverse data source" : null;
         }
+
+        public override string GetDescription()
+            => GetDataSourceDescription() + " -> " + GetTargetDescription();
+
+        protected override string GetDataSourceDescription() => GetDataSourceValueDescription();
+
+        protected override string GetTargetDescription() => TargetMember.GetFriendlyTargetPath(ConfigInfo);
 
         protected override bool TargetMembersAreCompatibleForToTarget(QualifiedMember otherTargetMember)
             => TargetMember.HasCompatibleType(otherTargetMember.Type);
