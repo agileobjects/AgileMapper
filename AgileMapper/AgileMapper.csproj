@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.6.0-preview1" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.6.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
