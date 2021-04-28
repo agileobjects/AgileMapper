@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.DataSources;
     using AgileMapper.Configuration.MemberIgnores;
     using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
     using Dictionaries;
@@ -217,10 +218,11 @@
         #endregion
 
         /// <summary>
-        /// Ensure 1-to-1 relationships between source and mapped objects by tracking and reusing mapped objects if 
-        /// they appear more than once in a source object tree. Mapped objects are automatically tracked in object 
-        /// trees with circular relationships - unless <see cref="DisableObjectTracking"/> is called - so configuring 
-        /// this option is not necessary when mapping circular relationships.
+        /// Ensure 1-to-1 relationships between source and mapped objects by tracking and reusing
+        /// mapped objects if they appear more than once in a source object tree. Mapped objects
+        /// are automatically tracked in object trees with circular relationships - unless
+        /// DisableObjectTracking() is called - so configuring this option is not necessary when
+        /// mapping circular relationships.
         /// </summary>
         /// <returns>
         /// An <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping aspects.
@@ -236,7 +238,7 @@
         /// Mapped objects are tracked by default when mapping circular relationships to prevent stack overflows 
         /// if two objects in a source object tree hold references to each other, and to ensure 1-to-1 relationships 
         /// between source and mapped objects. If you are confident that each object in a source object tree appears 
-        /// only once, disabling object tracking will increase mapping performance.
+        /// only once, disabling object tracking will improve mapping performance.
         /// </summary>
         /// <returns>
         /// An <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping aspects.
@@ -260,7 +262,11 @@
         }
 
         /// <summary>
-        /// Map entity key values for all source and target types.
+        /// Map entity key values for all source and target types. Properties with [Key] attributes
+        /// are ignored by default, as ORMs commonly use them as unique identifiers, and throw
+        /// Exceptions if they are updated. This global option sets the default behaviour to
+        /// opt-<em>in</em> for all mappings; individual mapping-scoped configurations can subsequently
+        /// use <strong>IgnoreEntityKeys()</strong> to opt-<em>out</em>.
         /// </summary>
         /// <returns>
         /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping aspects.
@@ -274,8 +280,9 @@
         /// <summary>
         /// Apply configured data sources in both mapping directions, for all source and target types.
         /// For example, configuring ProductDto.ProdId -> Product.Id will also apply Product.Id -> ProductDto.ProdId.
-        /// This global option sets the default behaviour; individual mapping- and member-scoped configurations can
-        /// subsequently opt-out.
+        /// This global option sets the default behaviour to opt-<em>in</em> for all mappings; individual
+        /// mapping- and member-scoped configurations can subsequently use
+        /// <strong>DoNotAutoReverseConfiguredDataSources()</strong> to opt-<em>out</em>.
         /// </summary>
         /// <returns>
         /// This <see cref="IGlobalMappingSettings"/>, with which to globally configure other mapping aspects.

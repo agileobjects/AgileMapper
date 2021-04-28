@@ -178,7 +178,8 @@
                         condition,
                         population,
                         alternatePopulation,
-                        nextDataSource);
+                        nextDataSource,
+                        mapperData);
             }
 
             if (variables.Any())
@@ -193,9 +194,10 @@
             Expression condition,
             Expression population,
             Expression alternatePopulation,
-            IDataSource previousDataSource)
+            IDataSource alternateDataSource,
+            IQualifiedMemberContext memberContext)
         {
-            if (previousDataSource.IsSequential)
+            if (alternateDataSource.IsSequential && !memberContext.TargetMember.IsSimple)
             {
                 return Expression.Block(
                     Expression.IfThen(condition, population),

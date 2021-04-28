@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
-    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -11,11 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions;
     using Extensions.Internal;
     using Members;
-#if NET35
-    using static Microsoft.Scripting.Ast.ExpressionType;
-#else
-    using static System.Linq.Expressions.ExpressionType;
-#endif
     using static InvocationPosition;
 
     internal class MappingCreationContext
@@ -58,12 +52,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression PostMappingCallback { get; }
 
+        public bool HasMappingCallbacks 
+            => PreMappingCallback != null || PostMappingCallback != null;
+
         public Expression MapToNullCondition { get; }
 
         public List<Expression> MappingExpressions { get; }
 
         public bool InstantiateLocalVariable { get; set; }
 
+        public bool RemoveEmptyMappings
+            => !MapperData.TargetMemberIsEnumerableElement() || RuleSet.Settings.RemoveEmptyElementMappings;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the MappingExpressions collection contains a
+        /// complete mapping, and no further Expressions are required.
+        /// </summary>
         public bool MappingComplete { get; set; }
 
         public IList<IConfiguredDataSource> ToTargetDataSources
@@ -78,36 +82,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return _memberMappingExpressions ?? Enumerable<Expression>.EmptyArray;
             }
 
-            return _memberMappingExpressions = MappingExpressions.Filter(IsMemberMapping).ToList();
-        }
-
-        private static bool IsMemberMapping(Expression expression)
-        {
-            switch (expression.NodeType)
-            {
-                case Constant:
-                    return false;
-
-                case Call when (
-                    IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
-                    IsCallTo(nameof(IObjectMappingDataUntyped.TryGet), expression)):
-
-                    return false;
-
-                case Assign when IsMapRepeatedCall(((BinaryExpression)expression).Right):
-                    return false;
-            }
-
-            return true;
-        }
-
-        private static bool IsCallTo(string methodName, Expression call)
-            => ((MethodCallExpression)call).Method.Name == methodName;
-
-        private static bool IsMapRepeatedCall(Expression expression)
-        {
-            return (expression.NodeType == Call) &&
-                    IsCallTo(nameof(IObjectMappingDataUntyped.MapRepeated), expression);
+            return _memberMappingExpressions = MappingExpressions.GetMemberMappingExpressions();
         }
 
         public MappingCreationContext WithToTargetDataSource(IDataSource dataSource)

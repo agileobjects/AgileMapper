@@ -90,7 +90,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
 
         private static string GetConflictMessage(
             CustomDictionaryKey key,
-            ConfiguredDataSourceFactory conflictingDataSource)
+            ConfiguredDataSourceFactoryBase conflictingDataSource)
         {
             return key.GetConflictMessage(conflictingDataSource);
         }

@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using System.Reflection;
     using AgileMapper.Configuration;
+    using AgileMapper.Configuration.DataSources;
     using AgileMapper.Configuration.Lambdas;
     using AgileMapper.Configuration.MemberIgnores;
     using AgileMapper.Configuration.MemberIgnores.SourceValueFilters;
@@ -170,6 +171,13 @@
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
+        public IConditionalMappingConfigurator<TSource, TTarget> IfTargetMemberMatches(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter)
+        {
+            ConfigInfo.SetTargetMemberMatcher(memberFilter);
+            return this;
+        }
+
         IMapSourceConfigurator<TSource, TTarget> IConditionalMapSourceConfigurator<TSource, TTarget>.If(
             Expression<Func<IMappingData<TSource, TTarget>, bool>> condition)
         {
@@ -277,7 +285,7 @@
 
         #endregion
 
-        public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions() => PassExceptionsTo(ctx => { });
+        public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions() => PassExceptionsTo(_ => { });
 
         public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
@@ -344,7 +352,7 @@
         public IMappingConfigContinuation<TSource, TTarget> IgnoreSources(
             Expression<Func<SourceValueFilterSpecifier, bool>> valuesFilter)
         {
-            return IgnoreMembersByFilter(
+            return FilterMembers(
                 ConfiguredSourceValueFilter.Create(ConfigInfo, valuesFilter),
                 UserConfigurations.Add);
         }
@@ -363,7 +371,7 @@
         public IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersWhere(
             Expression<Func<SourceMemberSelector, bool>> memberFilter)
         {
-            return IgnoreMembersByFilter(
+            return FilterMembers(
                 new ConfiguredSourceMemberFilter(ConfigInfo, memberFilter),
                 UserConfigurations.Add);
         }
@@ -378,16 +386,20 @@
         }
 
         private MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembers(
-            IEnumerable<Expression<Func<TTarget, object>>> targetMembers)
+            Expression<Func<TTarget, object>>[] targetMembers)
         {
+            ConfigInfo.ThrowIfTargetMemberMatcherSpecified(
+                configDescriptionFactory: _ => "ignore(s)",
+                targetMembers);
+
             return IgnoreMembers(
                 targetMembers,
                 (ci, tm) => new ConfiguredMemberIgnore(ci, tm),
                 UserConfigurations.Add);
         }
 
-        private MappingConfigContinuation<TSource, TTarget> IgnoreMembers<TMember, TConfig>(
-            IEnumerable<Expression<Func<TMember, object>>> members,
+        private MappingConfigContinuation<TSource, TTarget> IgnoreMembers<TConfig>(
+            IEnumerable<LambdaExpression> members,
             Func<MappingConfigInfo, LambdaExpression, TConfig> configuredIgnoreFactory,
             Action<TConfig> configurationsAddMethod)
             where TConfig : UserConfiguredItemBase
@@ -407,29 +419,29 @@
             => IgnoreTargetMembersWhere(member => member.HasType<TMember>());
 
         IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.IgnoreTargetMembersOfType<TMember>()
-            => IgnoreTargetMembersByFilter(member => member.HasType<TMember>());
+            => FilterTargetMembers(member => member.HasType<TMember>());
 
         public IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            return IgnoreTargetMembersByFilter(memberFilter);
+            return FilterTargetMembers(memberFilter);
         }
 
         IProjectionConfigContinuation<TSource, TTarget> IRootProjectionConfigurator<TSource, TTarget>.IgnoreTargetMembersWhere(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            return IgnoreTargetMembersByFilter(memberFilter);
+            return FilterTargetMembers(memberFilter);
         }
 
-        private MappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersByFilter(
+        private MappingConfigContinuation<TSource, TTarget> FilterTargetMembers(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
-            return IgnoreMembersByFilter(
+            return FilterMembers(
                 new ConfiguredMemberFilter(ConfigInfo, memberFilter),
                 UserConfigurations.Add);
         }
 
-        private MappingConfigContinuation<TSource, TTarget> IgnoreMembersByFilter<TIgnore>(
+        private MappingConfigContinuation<TSource, TTarget> FilterMembers<TIgnore>(
             TIgnore memberIgnore,
             Action<TIgnore> configurationsAddMethod)
             where TIgnore : UserConfiguredItemBase

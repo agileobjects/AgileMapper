@@ -42,6 +42,26 @@
         /// <returns>An IConditionalRootMappingConfigurator with which to complete the configuration.</returns>
         IConditionalRootMappingConfigurator<TSource, TTarget> If(
             Expression<Func<TSource, TTarget, int?, bool>> condition);
+    }
+
+    /// <summary>
+    /// Provides options for configuring a filter which must evaluate to true for the configuration
+    /// to apply to mappings from and to the source and target types being configured.
+    /// </summary>
+    /// <typeparam name="TSource">The source type to which the configuration should apply.</typeparam>
+    /// <typeparam name="TTarget">The target type to which the configuration should apply.</typeparam>
+    public interface IFilteredMappingConfigurator<TSource, TTarget>
+    {
+        /// <summary>
+        /// Configure a <paramref name="memberFilter"/> which target members must match for the
+        /// configuration to apply.
+        /// </summary>
+        /// <param name="memberFilter">
+        /// The matching function with which to select target members to which to apply the configuration.
+        /// </param>
+        /// <returns>An IConditionalMappingConfigurator with which to complete the configuration.</returns>
+        IConditionalMappingConfigurator<TSource, TTarget> IfTargetMemberMatches(
+            Expression<Func<TargetMemberSelector, bool>> memberFilter);
 
         /// <summary>
         /// Ignore all source members of the given <typeparamref name="TMember">type</typeparamref>

@@ -73,7 +73,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
         }
 
         [Fact]
-        public void ShouldErrorIfNonPublicReadOnlySimpleTypeMemberSpecified()
+        public void ShouldErrorIfNonPublicReadOnlySimpleTypeMemberIgnored()
         {
             var configurationEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -89,7 +89,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
         }
 
         [Fact]
-        public void ShouldErrorIfReadOnlySimpleTypeMemberSpecified()
+        public void ShouldErrorIfReadOnlySimpleTypeMemberIgnored()
         {
             var configurationEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -97,7 +97,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
                 {
                     mapper.WhenMapping
                         .To<PublicReadOnlyField<int>>()
-                        .Ignore(psm => psm.Value);
+                        .Ignore(prof => prof.Value);
                 }
             });
 
@@ -105,7 +105,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
         }
 
         [Fact]
-        public void ShouldErrorIfFilteredMemberIsIgnored()
+        public void ShouldErrorIfGloballyFilteredMemberIsIgnored()
         {
             var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {
@@ -124,7 +124,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
         }
 
         [Fact]
-        public void ShouldErrorIfDuplicateFilterIsConfigured()
+        public void ShouldErrorIfDuplicateGlobalFilterIsConfigured()
         {
             var ignoreEx = Should.Throw<MappingConfigurationException>(() =>
             {

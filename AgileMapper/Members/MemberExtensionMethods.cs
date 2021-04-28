@@ -332,7 +332,7 @@
             this LambdaExpression memberAccess,
             MapperContext mapperContext)
         {
-            return memberAccess.ToTargetMember(mapperContext, nt => { });
+            return memberAccess.ToTargetMember(mapperContext, _ => { });
         }
 
         public static QualifiedMember ToTargetMemberOrNull(

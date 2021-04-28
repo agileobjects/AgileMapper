@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration
+﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.DataSources
 {
     using System;
     using System.Collections.Generic;
@@ -26,7 +26,7 @@
                         .From<PublicField<int>>()
                         .To<PublicField<DateTime>>()
                         .Map(new byte[] { 2, 4, 6, 8 })
-                        .To(x => x.Value);
+                        .To(pf => pf.Value);
                 }
             });
         }

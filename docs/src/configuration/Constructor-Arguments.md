@@ -1,6 +1,10 @@
-By default, types are created using the 'greediest' public constructor - the one with the most parameters that have [matching](/Member-Matching) source members. If there are no available constructors whose parameters can all be matched - and no parameterless constructor - the member for which the type would be created is ignored.
+By default, types are created using the 'greediest' public constructor - the one with the most parameters
+that have [matching](/Member-Matching) source members. If there are no available constructors whose 
+parameters can all be matched - and no parameterless constructor - the member for which the type would
+be created is ignored.
 
-Constructor arguments can be configured by type or name, and constant values or expressions can be specified. 
+Constructor arguments can be configured by type or name, and constant values or expressions can be 
+specified. 
 
 For example, to configure mapping these types:
 

@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Configuration
+namespace AgileObjects.AgileMapper.Configuration.DataSources
 {
 #if NET35
     using System;

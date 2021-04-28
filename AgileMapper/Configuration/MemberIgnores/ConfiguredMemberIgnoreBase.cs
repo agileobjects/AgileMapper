@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             }
         }
 
-        public abstract string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource);
+        public abstract string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource);
 
         public abstract string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore);
 

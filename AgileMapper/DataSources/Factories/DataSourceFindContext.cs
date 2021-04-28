@@ -10,7 +10,7 @@
 
     internal class DataSourceFindContext : IDataSourceSetInfo
     {
-        private IList<ConfiguredDataSourceFactory> _relevantConfiguredDataSourceFactories;
+        private IList<ConfiguredDataSourceFactoryBase> _relevantConfiguredDataSourceFactories;
         private IList<IConfiguredDataSource> _configuredDataSources;
         private SourceMemberMatchContext _sourceMemberMatchContext;
         private SourceMemberMatch _bestSourceMemberMatch;
@@ -34,10 +34,21 @@
 
         public bool StopFind { get; set; }
 
-        private IEnumerable<ConfiguredDataSourceFactory> RelevantConfiguredDataSourceFactories
+        public IList<IConfiguredDataSource> ConfiguredDataSources
+        {
+            get
+            {
+                return _configuredDataSources ??= RelevantConfiguredDataSourceFactories
+                    .FindMatches(MemberMapperData)
+                    .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
+                    .ToArray();
+            }
+        }
+
+        private IEnumerable<ConfiguredDataSourceFactoryBase> RelevantConfiguredDataSourceFactories
             => _relevantConfiguredDataSourceFactories ??= GetRelevantConfiguredDataSourceFactories();
 
-        private IList<ConfiguredDataSourceFactory> GetRelevantConfiguredDataSourceFactories()
+        private IList<ConfiguredDataSourceFactoryBase> GetRelevantConfiguredDataSourceFactories()
         {
             var relevantDataSourceFactories = GetRelevantConfiguredDataSourceFactories(MemberMapperData);
 
@@ -56,19 +67,8 @@
             return relevantDataSourceFactories;
         }
 
-        private IList<ConfiguredDataSourceFactory> GetRelevantConfiguredDataSourceFactories(IMemberMapperData mapperData)
+        private IList<ConfiguredDataSourceFactoryBase> GetRelevantConfiguredDataSourceFactories(IMemberMapperData mapperData)
             => MapperContext.UserConfigurations.GetRelevantDataSourceFactories(mapperData);
-
-        public IList<IConfiguredDataSource> ConfiguredDataSources
-        {
-            get
-            {
-                return _configuredDataSources ??= RelevantConfiguredDataSourceFactories
-                    .FindMatches(MemberMapperData)
-                    .Project(MemberMapperData, (md, dsf) => dsf.Create(md))
-                    .ToArray();
-            }
-        }
 
         public IDataSource MatchingSourceMemberDataSource
             => _matchingSourceMemberDataSource ??= GetSourceMemberDataSource();

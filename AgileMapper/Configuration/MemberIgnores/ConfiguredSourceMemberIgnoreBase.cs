@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
                 return true;
             }
 
-            if (otherConfiguredItem is ConfiguredDataSourceFactory configuredDataSource)
+            if (otherConfiguredItem is ConfiguredDataSourceFactoryBase configuredDataSource)
             {
                 var configuredSourceMember = configuredDataSource.ToSourceMemberOrNull();
 
@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         protected abstract bool ConflictsWith(QualifiedMember sourceMember);
 
-        public abstract string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource);
+        public abstract string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource);
 
         public abstract string GetConflictMessage(ConfiguredSourceMemberIgnoreBase conflictingSourceMemberIgnore);
 
