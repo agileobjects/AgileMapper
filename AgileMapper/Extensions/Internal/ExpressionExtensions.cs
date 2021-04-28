@@ -12,6 +12,7 @@
 #endif
     using System.Reflection;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 #if NET35
     using LinqExp = System.Linq.Expressions;
@@ -321,15 +322,47 @@
         public static Expression ToExpression(this IList<Expression> expressions)
             => expressions.HasOne() ? expressions.First() : Expression.Block(expressions);
 
-        public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression binaryExpression)
+        public static IList<Expression> GetMemberMappingExpressions(this IList<Expression> mappingExpressions)
+            => mappingExpressions.Filter(IsMemberMapping).ToList();
+
+        private static bool IsMemberMapping(Expression expression)
         {
-            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignment))
+            switch (expression.NodeType)
             {
-                binaryExpression = (BinaryExpression)assignment;
+                case Constant:
+                    return false;
+
+                case Call when (
+                    IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
+                    IsCallTo(nameof(IObjectMappingDataUntyped.TryGet), expression)):
+
+                    return false;
+
+                case Assign when IsMapRepeatedCall(((BinaryExpression)expression).Right):
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static bool IsMapRepeatedCall(Expression expression)
+        {
+            return (expression.NodeType == Call) &&
+                   IsCallTo(nameof(IObjectMappingDataUntyped.MapRepeated), expression);
+        }
+
+        private static bool IsCallTo(string methodName, Expression call)
+            => ((MethodCallExpression)call).Method.Name == methodName;
+
+        public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression assignment)
+        {
+            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignmentExpression))
+            {
+                assignment = (BinaryExpression)assignmentExpression;
                 return true;
             }
 
-            binaryExpression = null;
+            assignment = null;
             return false;
         }
 #if NET35

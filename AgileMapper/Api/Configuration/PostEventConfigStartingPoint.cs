@@ -12,7 +12,7 @@
 
         internal PostEventConfigStartingPoint(MapperContext mapperContext)
         {
-            _mapperContext = mapperContext;
+            _mapperContext = mapperContext.ThrowIfDisposed();
         }
 
         /// <summary>

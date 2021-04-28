@@ -84,7 +84,8 @@ namespace AgileObjects.AgileMapper.Members
 
             if (!IsSimple)
             {
-                _childMemberCache = mapperContext.Cache.CreateNew<Member, QualifiedMember>(default(HashCodeComparer<Member>));
+                _childMemberCache = mapperContext.Cache
+                    .CreateNewWithHashCodes<Member, QualifiedMember>();
             }
 
             RegistrationName = this.IsConstructorParameter() ? "ctor:" + Name : Name;
@@ -249,8 +250,8 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         private ICache<Type, QualifiedMember> RuntimeTypedMemberCache
-            => _runtimeTypedMemberCache ??= 
-               _mapperContext.Cache.CreateNew<Type, QualifiedMember>(default(HashCodeComparer<Type>));
+            => _runtimeTypedMemberCache ??=
+               _mapperContext.Cache.CreateNewWithHashCodes<Type, QualifiedMember>();
 
         protected virtual QualifiedMember CreateRuntimeTypedMember(Type runtimeType)
         {

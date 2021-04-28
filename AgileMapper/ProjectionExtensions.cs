@@ -18,7 +18,7 @@
         public static IProjectionResultSpecifier<TSourceElement> Project<TSourceElement>(
             this IQueryable<TSourceElement> sourceQueryable)
         {
-            return new ProjectionExecutor<TSourceElement>(Mapper.Default.Context, sourceQueryable);
+            return sourceQueryable.ProjectUsing(Mapper.Default);
         }
 
         /// <summary>
@@ -34,7 +34,14 @@
             this IQueryable<TSourceElement> sourceQueryable,
             IMapper mapper)
         {
-            return new ProjectionExecutor<TSourceElement>(((IMapperInternal)mapper).Context, sourceQueryable);
+            return sourceQueryable.ProjectUsing((IMapperInternal)mapper);
+        }
+
+        private static IProjectionResultSpecifier<TSourceElement> ProjectUsing<TSourceElement>(
+            this IQueryable<TSourceElement> sourceQueryable,
+            IMapperInternal mapper)
+        {
+            return new ProjectionExecutor<TSourceElement>(mapper.Context, sourceQueryable);
         }
     }
 }

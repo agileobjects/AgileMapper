@@ -35,13 +35,13 @@
                 cachedMapper.MapperData.TargetType.ShouldBe(typeof(IQueryable<ProductDto>));
 
                 // Trigger a mapping:
-                Context.Products.Project().To<ProductDto>().ShouldBeEmpty();
+                Context.Products.ProjectUsing(mapper).To<ProductDto>().ShouldBeEmpty();
 
                 var usedMapper = (IObjectMapper)mapper.RootMapperCountShouldBeOne();
 
                 usedMapper.ShouldBe(cachedMapper);
 
-                return Task.FromResult(1);
+                return Task.CompletedTask;
             });
         }
 
@@ -52,17 +52,17 @@
             {
                 try
                 {
-                    Mapper.GetPlanForProjecting(Context.Products).To<ProductDto>();
-                    Mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
-                    Mapper.GetPlanForProjecting(Context.Persons).To<PersonViewModel>();
+                    mapper.GetPlanForProjecting(Context.Products).To<ProductDto>();
+                    mapper.GetPlanForProjecting(Context.StringItems).To<PublicStringDto>();
+                    mapper.GetPlanForProjecting(Context.Persons).To<PersonViewModel>();
 
-                    var allPlans = Mapper.GetPlansInCache();
+                    var allPlans = mapper.GetPlansInCache();
 
                     allPlans.ShouldContain("IQueryable<Product> -> IQueryable<ProductDto>");
                     allPlans.ShouldContain("IQueryable<PublicString> -> IQueryable<PublicStringDto>");
                     allPlans.ShouldContain("IQueryable<Person> -> IQueryable<PersonViewModel>");
 
-                    return Task.FromResult(1);
+                    return Task.CompletedTask;
                 }
                 finally
                 {

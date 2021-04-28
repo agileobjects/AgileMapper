@@ -17,7 +17,7 @@
 
         public MemberCache(CacheSet cacheSet)
         {
-            _membersCache = cacheSet.CreateScoped<TypeKey, IList<Member>>(default(HashCodeComparer<TypeKey>));
+            _membersCache = cacheSet.CreateScopedWithHashCodes<TypeKey, IList<Member>>();
         }
 
         public IList<Member> GetSourceMembers(Type sourceType)
@@ -41,13 +41,13 @@
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
-                if (key.Type.IsEnumerable())
+                if (key.Type == typeof(object) || key.Type.IsEnum() || key.Type.IsEnumerable())
                 {
                     return Enumerable<Member>.EmptyArray;
                 }
 
-                var fields = GetFields(key.Type, All);
-                var properties = GetProperties(key.Type, All);
+                var fields = GetFields(key.Type, AllExceptBclComplexTypes);
+                var properties = GetProperties(key.Type, AllExceptBclComplexTypes);
                 var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
 
                 var constructorParameterNames = key.Type
@@ -81,6 +81,42 @@
 
         private static bool All(FieldInfo field) => true;
 
+        private static bool AllExceptBclComplexTypes(FieldInfo field)
+            => AllExceptBclComplexTypes(field.FieldType);
+
+        private static bool AllExceptBclComplexTypes(Type memberType)
+        {
+            while (true)
+            {
+                if ((memberType == typeof(object)) || memberType.IsSimple())
+                {
+                    return true;
+                }
+
+                if (!memberType.IsEnumerable())
+                {
+                    if (memberType.IsFromBcl())
+                    {
+                        return memberType.Name.StartsWith("Func", StringComparison.Ordinal) ||
+                               memberType.Name.StartsWith("Action", StringComparison.Ordinal);
+                    }
+
+                    return true;
+                }
+
+                if (!memberType.IsDictionary())
+                {
+                    memberType = memberType.GetEnumerableElementType();
+                    continue;
+                }
+
+                var dictionaryTypes = memberType.GetDictionaryTypes();
+
+                return AllExceptBclComplexTypes(dictionaryTypes.Key) &&
+                       AllExceptBclComplexTypes(dictionaryTypes.Value);
+            }
+        }
+
         #endregion
 
         #region Properties
@@ -93,7 +129,8 @@
                 .Project(Member.Property);
         }
 
-        private static bool All(PropertyInfo property) => true;
+        private static bool AllExceptBclComplexTypes(PropertyInfo property)
+            => AllExceptBclComplexTypes(property.PropertyType);
 
         private static bool OnlyGettable(PropertyInfo property) => property.IsReadable();
 
@@ -112,13 +149,11 @@
                 .Project(memberFactory);
         }
 
-        private static readonly string[] _methodsToIgnore = { "GetHashCode", "GetType" };
-
         private static bool OnlyRelevantCallable(MethodBase method)
         {
             return !method.IsSpecialName &&
                     method.Name.StartsWithIgnoreCase("Get") &&
-                   (Array.IndexOf(_methodsToIgnore, method.Name) == -1) &&
+                    method.Name != nameof(GetHashCode) && method.Name != nameof(GetType) &&
                     method.GetParameters().None();
         }
 

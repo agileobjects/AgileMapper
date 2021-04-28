@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;netstandard1.0;netstandard1.3</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
+    <TargetFrameworks>net35;net40;netstandard1.0;netstandard1.3;netstandard2.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
@@ -20,8 +20,11 @@
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Fixing complex type collection Dictionary mapping, re: #203
-- Removing service injections from projections, re: #204
+    <PackageReleaseNotes>- Adding .NET Standard 2.0 target
+- Support for configuring data sources by matcher, re: #208
+- Fixing potential cache threading issue, re: #212
+- Throwing ObjectDisposed on attempt to use disposed Mapper, re: #212
+- Improving target member selection, re: #209
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -34,8 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.NetStandardPolyfills" Version="1.4.1" />
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.5.1" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.6.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
@@ -43,7 +45,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
-    <DefineConstants>$(DefineConstants);FEATURE_DRAWING</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;FEATURE_APPDOMAIN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -52,7 +54,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_40;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
@@ -62,7 +64,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_DYNAMIC;FEATURE_ISET;NET_STANDARD_1;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -72,7 +74,11 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NET_STANDARD;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_STANDARD_2;</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
   </PropertyGroup>
 
 </Project>

@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 {
     using System;
     using System.Linq.Expressions;
-    using AgileMapper.Configuration;
     using Members;
 
     /// <summary>
@@ -180,31 +179,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             params Expression<Func<TSource, object>>[] sourceMembers);
 
         /// <summary>
-        /// Ignore all source members of the given <typeparamref name="TMember">type</typeparamref>
-        /// when mapping from and to the source and target types being configured. Source members of
-        /// this type will not be used to populate target members.
-        /// </summary>
-        /// <typeparam name="TMember">The type of source member to ignore.</typeparam>
-        /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
-        /// source and target types being configured.
-        /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersOfType<TMember>();
-
-        /// <summary>
-        /// Ignore all source members matching the given <paramref name="memberFilter"/> when mapping
-        /// from and to the source and target types being configured. Source members matching the filter
-        /// will not be used to populate target members.
-        /// </summary>
-        /// <param name="memberFilter">The matching function with which to select source members to ignore.</param>
-        /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the
-        /// source and target types being configured.
-        /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> IgnoreSourceMembersWhere(
-            Expression<Func<SourceMemberSelector, bool>> memberFilter);
-
-        /// <summary>
         /// Ignore the given <paramref name="targetMembers"/> when mapping from and to the source and
         /// target types being configured. The given member(s) will not be populated.
         /// </summary>
@@ -214,29 +188,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         /// source and target type being configured.
         /// </returns>
         IMappingConfigContinuation<TSource, TTarget> Ignore(params Expression<Func<TTarget, object>>[] targetMembers);
-
-        /// <summary>
-        /// Ignore all target members of the given <typeparamref name="TMember">type</typeparamref>
-        /// when mapping from and to the source and target types being configured.
-        /// </summary>
-        /// <typeparam name="TMember">The type of target member to ignore.</typeparam>
-        /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to
-        /// the source and target types being configured.
-        /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersOfType<TMember>();
-
-        /// <summary>
-        /// Ignore all target members matching the given <paramref name="memberFilter"/> when mapping
-        /// from and to the source and target types being configured.
-        /// </summary>
-        /// <param name="memberFilter">The matching function with which to select target members to ignore.</param>
-        /// <returns>
-        /// An IMappingConfigContinuation to enable further configuration of mappings from and to the source and 
-        /// target types being configured.
-        /// </returns>
-        IMappingConfigContinuation<TSource, TTarget> IgnoreTargetMembersWhere(
-            Expression<Func<TargetMemberSelector, bool>> memberFilter);
 
         /// <summary>
         /// Configure a custom data source for a particular target member when mapping from and to
@@ -337,6 +288,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
             TSourceValue value,
             Expression<Func<TTarget, TTargetValue>> targetMember);
 
-        
+
     }
 }

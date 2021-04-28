@@ -7,6 +7,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
     using Members;
     using ReadableExpressions.Extensions;
 
@@ -51,7 +52,7 @@
 
         public QualifiedMember SourceMember { get; }
 
-        public string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        public string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource)
             => $"Configured dictionary key member {TargetMember.GetPath()} has a configured data source";
 
         public bool AppliesTo(Member member, IQualifiedMemberContext context)

@@ -1,6 +1,6 @@
 ## Overview
 
-AgileMapper is a zero-configuration, [highly-configurable](/configuration) object-object mapper with [viewable execution plans](/Using-Execution-Plans), targetting [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) and .NET 3.5+. It performs [query projections](/query-projection), object creation, deep clones, id-aware [updates](/Performing-Updates) and [merges](/Performing-Merges), and can be used via [extension methods](/Mapping-Extension-Methods), or a [static or instance](/Static-vs-Instance-Mappers) API.
+AgileMapper is a zero-configuration, [highly-configurable](/configuration) object-object mapper with [viewable execution plans](/Using-Execution-Plans), targeting [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) and .NET 3.5+. It performs [query projections](/query-projection), object creation, deep clones, id-aware [updates](/Performing-Updates) and [merges](/Performing-Merges), and can be used via [extension methods](/Mapping-Extension-Methods), or a [static or instance](/Static-vs-Instance-Mappers) API.
 
 Mapping functions are created and cached the first time two types are mapped - no up-front configuration is necessary. You can [cache up-front](/Using-Execution-Plans) if you prefer, though.
 

@@ -16,7 +16,10 @@
     {
         public static void Validate(Mapper mapper)
         {
-            var rootMapperDatas = mapper.Context.ObjectMapperFactory.RootMappers.Project(m => m.MapperData);
+            var rootMapperDatas = mapper
+                .Context.ThrowIfDisposed()
+                .ObjectMapperFactory.RootMappers
+                .Project(m => m.MapperData);
 
             VerifyMappingPlanIsComplete(GetAllMapperDatas(rootMapperDatas));
         }

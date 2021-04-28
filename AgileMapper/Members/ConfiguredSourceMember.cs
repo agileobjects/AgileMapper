@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.Members
     using Caching;
     using Extensions;
     using Extensions.Internal;
+    using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
 
@@ -87,8 +88,8 @@ namespace AgileObjects.AgileMapper.Members
                     : type.GetEnumerableElementType();
             }
 
-            _childMemberCache = mapperContext.Cache.CreateNew<Member, ConfiguredSourceMember>(
-                default(HashCodeComparer<Member>));
+            _childMemberCache = mapperContext.Cache
+                .CreateNewWithHashCodes<Member, ConfiguredSourceMember>();
         }
 
         public bool IsRoot => false;
