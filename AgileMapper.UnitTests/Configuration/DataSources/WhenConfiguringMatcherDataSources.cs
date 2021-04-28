@@ -129,6 +129,41 @@
         }
 
         [Fact]
+        public void ShouldAllowMultipleDifferentMatcherDataSources()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<DateTime>().To<int>()
+                    .IfTargetMemberMatches(member => member.Name == "Value1")
+                    .Map((dt, _) => dt.Year).ToTarget()
+                    .But
+                    .IfTargetMemberMatches(member => member.Name == "Value2")
+                    .Map((dt, _) => dt.Month).ToTarget();
+
+                var source = new PublicField<PublicTwoFields<DateTime, DateTime>>
+                {
+                    Value = new PublicTwoFields<DateTime, DateTime>
+                    {
+                        Value1 = new DateTime(2001, 02, 03),
+                        Value2 = new DateTime(2004, 05, 06)
+                    }
+                };
+
+                var target = new PublicProperty<PublicTwoFields<int, int>>
+                {
+                    Value = new PublicTwoFields<int, int>()
+                };
+
+                mapper.Map(source).Over(target);
+
+                target.Value.ShouldNotBeNull();
+                target.Value.Value1.ShouldBe(2001);
+                target.Value.Value2.ShouldBe(05);
+            }
+        }
+
+        [Fact]
         public void ShouldAllowOverlappingConditionalMemberSpecificDataSource()
         {
             using (var mapper = Mapper.CreateNew())

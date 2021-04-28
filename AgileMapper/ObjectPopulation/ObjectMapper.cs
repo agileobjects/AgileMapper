@@ -40,12 +40,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mapperDataContext.NeedsRuntimeTypedMapping)
             {
-                _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
+                _subMappersByKey = Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
 
             if (MapperData.HasRepeatedMapperFuncs)
             {
-                _repeatedMappingFuncsByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRepeatedMapperFunc>();
+                _repeatedMappingFuncsByKey = Cache.CreateNew<ObjectMapperKeyBase, IRepeatedMapperFunc>();
                 MapperData.Mapper = this;
 
                 CacheRepeatedMappingFuncs();
@@ -107,6 +107,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public ObjectMapperData MapperData { get; }
+
+        private CacheSet Cache => MapperData.MapperContext.Cache;
 
         public IEnumerable<IRepeatedMapperFunc> RepeatedMappingFuncs => _repeatedMappingFuncsByKey.Values;
 
