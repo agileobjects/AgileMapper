@@ -22,7 +22,7 @@
                 {
                     mapper.WhenMapping
                         .ToANew<PublicTwoFields<string, string>>()
-                        .IfTargetMembersMatch(member => member.IsField)
+                        .IfTargetMemberMatches(member => member.IsField)
                         .Ignore(ptf => ptf.Value1, ptf => ptf.Value2);
                 }
             });
@@ -42,7 +42,7 @@
                 {
                     mapper.WhenMapping
                         .ToANew<PublicTwoFields<string, string>>()
-                        .IfTargetMembersMatch(member => member.IsProperty)
+                        .IfTargetMemberMatches(member => member.IsProperty)
                         .Map("Yippee!")
                         .To(ptf => ptf.Value1);
                 }
@@ -63,12 +63,12 @@
                 {
                     mapper.WhenMapping
                         .From<string>().To<bool>()
-                        .IfTargetMembersMatch(member => member.Name == "AlwaysTrue")
+                        .IfTargetMemberMatches(member => member.Name == "AlwaysTrue")
                         .Map(true).ToTarget();
 
                     mapper.WhenMapping
                         .From<string>().To<bool>()
-                        .IfTargetMembersMatch(member => member.Name == "AlwaysTrue")
+                        .IfTargetMemberMatches(member => member.Name == "AlwaysTrue")
                         .Map(false).ToTarget();
                 }
             });
@@ -87,7 +87,7 @@
                 {
                     mapper.WhenMapping
                         .ToANew<PublicTwoFields<string, string>>()
-                        .IfTargetMembersMatch(member => member.HasType<string>())
+                        .IfTargetMemberMatches(member => member.HasType<string>())
                         .Map("Yippee!")
                         .ToTarget();
 
@@ -111,7 +111,7 @@
                 {
                     mapper.WhenMapping
                         .From<PublicField<int>>().To<PublicField<string>>()
-                        .IfTargetMembersMatch(member => member.HasType<string>())
+                        .IfTargetMemberMatches(member => member.HasType<string>())
                         .Map((s, t) => s.Value * 3).ToTarget();
 
                     mapper.WhenMapping

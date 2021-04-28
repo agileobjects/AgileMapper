@@ -69,12 +69,17 @@
 
         protected override bool MembersConflict(UserConfiguredItemBase otherItem)
         {
-            if (otherItem is IHasMemberFilter memberFilterOwner)
+            switch (otherItem)
             {
-                return HasSameCriteriaAs(memberFilterOwner);
-            }
+                case IHasMemberFilter memberFilterOwner:
+                    return HasSameCriteriaAs(memberFilterOwner);
 
-            return MatcherMatches(otherItem.TargetMember);
+                case ConfiguredDataSourceFactoryBase:
+                    return MatcherMatches(otherItem.TargetMember);
+
+                default:
+                    return false;
+            }
         }
 
         protected override bool HasSameCriteriaAs(ConfiguredDataSourceFactoryBase otherDataSource)

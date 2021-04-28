@@ -60,7 +60,7 @@
         /// The matching function with which to select target members to which to apply the configuration.
         /// </param>
         /// <returns>An IConditionalMappingConfigurator with which to complete the configuration.</returns>
-        IConditionalMappingConfigurator<TSource, TTarget> IfTargetMembersMatch(
+        IConditionalMappingConfigurator<TSource, TTarget> IfTargetMemberMatches(
             Expression<Func<TargetMemberSelector, bool>> memberFilter);
 
         /// <summary>

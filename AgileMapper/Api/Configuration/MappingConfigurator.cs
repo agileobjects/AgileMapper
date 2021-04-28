@@ -171,7 +171,7 @@
         public IConditionalRootMappingConfigurator<TSource, TTarget> If(Expression<Func<TSource, TTarget, int?, bool>> condition)
             => SetCondition(condition);
 
-        public IConditionalMappingConfigurator<TSource, TTarget> IfTargetMembersMatch(
+        public IConditionalMappingConfigurator<TSource, TTarget> IfTargetMemberMatches(
             Expression<Func<TargetMemberSelector, bool>> memberFilter)
         {
             ConfigInfo.SetTargetMemberMatcher(memberFilter);

@@ -20,7 +20,7 @@
             {
                 mapper.WhenMapping
                     .To<int>()
-                    .IfTargetMembersMatch(member => member.IsField)
+                    .IfTargetMemberMatches(member => member.IsField)
                     .Map(123)
                     .ToTarget();
 
@@ -41,7 +41,7 @@
             {
                 mapper.WhenMapping
                     .To<PublicTwoFields<int, Address>>()
-                    .IfTargetMembersMatch(member => member.HasType<string>())
+                    .IfTargetMemberMatches(member => member.HasType<string>())
                     .Map("Hurrah!")
                     .ToTargetInstead();
 
@@ -78,7 +78,7 @@
                 mapper.WhenMapping
                     .From<bool>()
                     .To<string>()
-                    .IfTargetMembersMatch(member => member.HasAttribute<Issue208.YesNoBoolAttribute>())
+                    .IfTargetMemberMatches(member => member.HasAttribute<Issue208.YesNoBoolAttribute>())
                     .Map((b, s) => b ? "Y" : "N")
                     .ToTarget();
 
@@ -101,7 +101,7 @@
                     .Map(ctx => ctx.Source.Value1.Line1)
                     .To(addr => addr.Line1)
                     .And
-                    .IfTargetMembersMatch(member => member.Name.StartsWith(nameof(Address.Line2)))
+                    .IfTargetMemberMatches(member => member.Name.StartsWith(nameof(Address.Line2)))
                     .If(ctx => !string.IsNullOrEmpty(ctx.Source.Value2))
                     .Map(ctx => ctx.Source.Value2)
                     .ToTarget();
@@ -135,7 +135,7 @@
             {
                 mapper.WhenMapping
                     .From<PublicField<int>>().To<PublicProperty<string>>()
-                    .IfTargetMembersMatch(member => member.HasType<string>())
+                    .IfTargetMemberMatches(member => member.HasType<string>())
                     .Map((pf, pp) => pf.Value == 1 ? "Yes" : "No")
                     .ToTarget();
 
@@ -160,6 +160,41 @@
                 var dataSourceNoSource = new PublicField<int> { Value = 150 };
                 var dataSourceNoResult = mapper.Map(dataSourceNoSource).ToANew<PublicProperty<string>>();
                 dataSourceNoResult.Value.ShouldBe("NOPE");
+            }
+        }
+
+        [Fact]
+        public void ShouldAllowOverlappingMemberSpecificIgnore()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .Over<PublicTwoFields<string, string>>()
+                    .IfTargetMemberMatches(member => member
+                        .IsFieldMatching(f => f.FieldType == typeof(string)))
+                    .Map((s, _) => s.ToString())
+                    .ToTarget();
+
+                mapper.WhenMapping
+                    .To<PublicTwoFields<string, string>>()
+                    .Ignore(ptf => ptf.Value1);
+
+                var source = new PublicTwoFields<string, string>
+                {
+                    Value1 = "Tata",
+                    Value2 = "Goodbye"
+                };
+
+                var target = new PublicTwoFields<string, string>
+                {
+                    Value1 = "Cya",
+                    Value2 = "Laterz"
+                };
+
+                mapper.Map(source).Over(target);
+
+                target.Value1.ShouldBe("Cya");
+                target.Value2.ShouldBe(source.ToString());
             }
         }
 
