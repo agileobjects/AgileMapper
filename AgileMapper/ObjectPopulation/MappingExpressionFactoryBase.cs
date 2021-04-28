@@ -200,12 +200,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     return;
                 }
 
-                var addedMappingExpressions = mappingExpressions
-                    .GetRange(mappingExpressionCount, addedExpressionCount);
-
-                if (NothingIsBeingMapped(addedMappingExpressions, ctx))
+                if (mappingExpressionCount > 0)
                 {
-                    mappingExpressions.RemoveRange(mappingExpressionCount, addedExpressionCount);
+                    mappingExpressions = mappingExpressions
+                        .GetRange(mappingExpressionCount, addedExpressionCount);
+                }
+
+                if (NothingIsBeingMapped(mappingExpressions, ctx))
+                {
+                    ctx.MappingExpressions.RemoveRange(mappingExpressionCount, addedExpressionCount);
                 }
             });
         }
@@ -457,8 +460,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             if ((localVariableAssignment.Left.NodeType != Parameter) ||
-                (localVariableAssignment != mappingExpressions.Last()) ||
-               (!mappingExpressions.HasOne() && context.PreMappingCallback == null))
+                (localVariableAssignment != mappingExpressions.Last()))
             {
                 returnExpression = null;
                 return false;
