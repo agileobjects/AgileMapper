@@ -23,7 +23,7 @@
             {
                 var dataSource = dataSources[i];
 
-                var filteredDataSource = filteredDataSources[i] = ApplyFilter(
+                var filteredDataSource = filteredDataSources[i] = ApplyFilterIfAppropriate(
                     dataSource.IsFallback ? dataSources[i - 1].SourceMember : dataSource.SourceMember,
                     dataSource,
                     mapperData);
@@ -49,9 +49,9 @@
         }
 
         public static IDataSource WithFilter(this IDataSource dataSource, IMemberMapperData mapperData)
-            => ApplyFilter(dataSource.SourceMember, dataSource, mapperData);
+            => ApplyFilterIfAppropriate(dataSource.SourceMember, dataSource, mapperData);
 
-        private static IDataSource ApplyFilter(
+        private static IDataSource ApplyFilterIfAppropriate(
             IQualifiedMember sourceMember,
             IDataSource dataSource,
             IMemberMapperData mapperData)

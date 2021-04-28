@@ -448,15 +448,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return false;
             }
 
-            if (!context.MappingExpressions.TryGetVariableAssignment(out var localVariableAssignment))
+            var mappingExpressions = context.MappingExpressions;
+
+            if (!mappingExpressions.TryGetVariableAssignment(out var localVariableAssignment))
             {
                 returnExpression = null;
                 return false;
             }
 
             if ((localVariableAssignment.Left.NodeType != Parameter) ||
-                (localVariableAssignment != context.MappingExpressions.Last()) ||
-                (context.PreMappingCallback == null))
+                (localVariableAssignment != mappingExpressions.Last()) ||
+               (!mappingExpressions.HasOne() && context.PreMappingCallback == null))
             {
                 returnExpression = null;
                 return false;
@@ -470,13 +472,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     GetExpressionToReturn(localVariableAssignment, context))
                 : GetExpressionToReturn(assignedValue, context);
 
-            if (context.MappingExpressions.HasOne())
+            if (mappingExpressions.HasOne())
             {
                 return true;
             }
 
-            context.MappingExpressions[context.MappingExpressions.Count - 1] = context.MapperData.GetReturnLabel(returnExpression);
-            returnExpression = Expression.Block(context.MappingExpressions);
+            mappingExpressions[mappingExpressions.Count - 1] = context.MapperData.GetReturnLabel(returnExpression);
+            returnExpression = Expression.Block(mappingExpressions);
             return true;
         }
 

@@ -99,7 +99,7 @@
         protected override string GetDataSourceDescription()
         {
             var source = SourceType != typeof(object) ? SourceTypeName + " " : null;
-            var members = TargetType != DataSourceLambda.ReturnType ? " members" : null;
+            var members = TargetType != DataSourceLambda.ReturnType ? " member" : null;
 
             return
                 $"'If mapping {source}-> {GetTargetDescription()} and {TargetMemberMatcher}, " +

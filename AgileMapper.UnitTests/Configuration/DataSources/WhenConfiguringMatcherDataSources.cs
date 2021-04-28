@@ -128,6 +128,41 @@
             }
         }
 
+        [Fact]
+        public void ShouldAllowOverlappingConditionalMemberSpecificDataSource()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicField<int>>().To<PublicProperty<string>>()
+                    .IfTargetMembersMatch(member => member.HasType<string>())
+                    .Map((pf, pp) => pf.Value == 1 ? "Yes" : "No")
+                    .ToTarget();
+
+                mapper.WhenMapping
+                    .From<PublicField<int>>().To<PublicProperty<string>>()
+                    .If(ctx => ctx.Source.Value >= 100)
+                    .Map((pf, pp) => pf.Value >= 200 ? "JAH" : "NOPE")
+                    .To(pp => pp.Value);
+
+                var matcherYesSource = new PublicField<int> { Value = 1 };
+                var matcherYesResult = mapper.Map(matcherYesSource).ToANew<PublicProperty<string>>();
+                matcherYesResult.Value.ShouldBe("Yes");
+
+                var matcherNoSource = new PublicField<int> { Value = 0 };
+                var matcherNoResult = mapper.Map(matcherNoSource).ToANew<PublicProperty<string>>();
+                matcherNoResult.Value.ShouldBe("No");
+
+                var dataSourceYesSource = new PublicField<int> { Value = 1000 };
+                var dataSourceYesResult = mapper.Map(dataSourceYesSource).ToANew<PublicProperty<string>>();
+                dataSourceYesResult.Value.ShouldBe("JAH");
+
+                var dataSourceNoSource = new PublicField<int> { Value = 150 };
+                var dataSourceNoResult = mapper.Map(dataSourceNoSource).ToANew<PublicProperty<string>>();
+                dataSourceNoResult.Value.ShouldBe("NOPE");
+            }
+        }
+
         #region Helper Classes
 
         private static class Issue208
