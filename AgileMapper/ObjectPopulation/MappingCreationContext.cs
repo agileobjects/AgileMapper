@@ -52,9 +52,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression PostMappingCallback { get; }
 
-        public bool HasMappingCallbacks 
-            => PreMappingCallback != null || PostMappingCallback != null;
-
         public Expression MapToNullCondition { get; }
 
         public List<Expression> MappingExpressions { get; }

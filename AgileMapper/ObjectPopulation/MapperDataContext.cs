@@ -4,7 +4,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions.Internal;
     using Members;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class MapperDataContext
     {
@@ -21,8 +20,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
         }
 
+        #region Setup
+
         private static bool IsForStandaloneMapping(ITypePair mapperData)
             => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
+
+        #endregion
 
         public MapperDataContext(ObjectMapperData mapperData, bool isStandalone, bool isForDerivedType)
             : this(mapperData, isStandalone, isForDerivedType, mapperData)
@@ -40,6 +43,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IsForDerivedType = isForDerivedType;
             UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(context);
         }
+
+        #region Setup
 
         private static bool ShouldUseLocalVariable(IQualifiedMemberContext context)
         {
@@ -63,6 +68,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return true;
         }
+
+        #endregion
 
         public bool IsStandalone { get; }
 
@@ -94,9 +101,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public bool UseLocalVariable { get; }
-
-        public bool RemoveEmptyEntryPointMappings
-            => _mapperData.RuleSet.Settings.RemoveEmptyElementMappings;
 
         public bool UseMappingTryCatch
             => _mapperData.RuleSet.Settings.UseTryCatch && (_mapperData.IsEntryPoint || !IsPartOfUserStructMapping());
@@ -142,10 +146,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             get
             {
-                return (_isMappingDataObjectNeeded ??
-                       (_isMappingDataObjectNeeded =
-                           NeedsRuntimeTypedMapping || UsesMappingDataObjectAsParameter ||
-                          _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.UsesMappingDataObject))) == true;
+                return (_isMappingDataObjectNeeded ??=
+                        (NeedsRuntimeTypedMapping || UsesMappingDataObjectAsParameter ||
+                        _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.UsesMappingDataObject)));
             }
         }
 
