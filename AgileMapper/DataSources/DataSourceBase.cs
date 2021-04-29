@@ -8,8 +8,8 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using Optimisation;
-    using ReadableExpressions.Extensions;
 
     internal abstract class DataSourceBase : IDataSource
     {
@@ -178,7 +178,8 @@
                         condition,
                         population,
                         alternatePopulation,
-                        nextDataSource);
+                        nextDataSource,
+                        mapperData);
             }
 
             if (variables.Any())
@@ -193,9 +194,10 @@
             Expression condition,
             Expression population,
             Expression alternatePopulation,
-            IDataSource previousDataSource)
+            IDataSource alternateDataSource,
+            IQualifiedMemberContext memberContext)
         {
-            if (previousDataSource.IsSequential)
+            if (alternateDataSource.IsSequential && !memberContext.TargetMember.IsSimple)
             {
                 return Expression.Block(
                     Expression.IfThen(condition, population),

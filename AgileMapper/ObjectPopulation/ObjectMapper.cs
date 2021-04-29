@@ -40,12 +40,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mapperDataContext.NeedsRuntimeTypedMapping)
             {
-                _subMappersByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
+                _subMappersByKey = Cache.CreateNew<ObjectMapperKeyBase, IObjectMapper>();
             }
 
             if (MapperData.HasRepeatedMapperFuncs)
             {
-                _repeatedMappingFuncsByKey = MapperData.MapperContext.Cache.CreateNew<ObjectMapperKeyBase, IRepeatedMapperFunc>();
+                _repeatedMappingFuncsByKey = Cache.CreateNew<ObjectMapperKeyBase, IRepeatedMapperFunc>();
                 MapperData.Mapper = this;
 
                 CacheRepeatedMappingFuncs();
@@ -66,7 +66,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     mapperKey.MapperData.SourceType,
                     mapperKey.MapperData.TargetType);
 
-                var mapperFuncCreator = GlobalContext.Instance.Cache.GetOrAdd(typesKey, key =>
+                var mapperFuncCreator = GlobalContext.Instance.Cache.GetOrAddWithHashCodes(typesKey, key =>
                 {
                     var mapperFuncType = typeof(RepeatedMapperFunc<,>).MakeGenericType(key.SourceType, key.TargetType);
                     var mapperDataParameter = Parameters.Create<IObjectMappingData>("mappingData");
@@ -83,14 +83,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         lazyLoadParameter);
 
                     return mapperCreationLambda.Compile();
-                },
-                default(HashCodeComparer<SourceAndTargetTypesKey>));
+                });
 
                 var mapperFunc = mapperFuncCreator.Invoke(
                     mapperKey.MappingData,
                     mapperKey.MappingData.MappingContext.LazyLoadRepeatMappingFuncs);
 
-                _repeatedMappingFuncsByKey.GetOrAdd(mapperKey, k => mapperFunc);
+                _repeatedMappingFuncsByKey.GetOrAdd(mapperKey, _ => mapperFunc);
             }
         }
 
@@ -108,6 +107,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public ObjectMapperData MapperData { get; }
+
+        private CacheSet Cache => MapperData.MapperContext.Cache;
 
         public IEnumerable<IRepeatedMapperFunc> RepeatedMappingFuncs => _repeatedMappingFuncsByKey.Values;
 

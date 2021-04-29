@@ -3,14 +3,18 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using System;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
-    using Extensions.Internal;
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
+#if NET35
+    using Extensions.Internal;
+#endif
     using Members;
     using ReadableExpressions;
-
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
 
     internal class ConfiguredSourceMemberFilter : ConfiguredSourceMemberIgnoreBase, IMemberFilterIgnore
     {
@@ -49,7 +53,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 
         protected override bool ConflictsWith(QualifiedMember sourceMember) => IsFiltered(sourceMember);
 
-        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        public override string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource)
         {
             return $"Configured data source {conflictingDataSource.GetDescription()} " +
                    $"conflicts with source member ignore pattern '{SourceMemberFilter}'";
@@ -80,8 +84,8 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             return false;
         }
 
-        public bool IsFiltered(QualifiedMember member)
-            => _memberFilter.Invoke(new SourceMemberSelector(member));
+        private bool IsFiltered(QualifiedMember sourceMember)
+            => _memberFilter.Invoke(new SourceMemberSelector(sourceMember));
 
         #region IPotentialAutoCreatedItem Members
 

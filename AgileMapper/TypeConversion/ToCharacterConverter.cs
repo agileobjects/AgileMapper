@@ -8,7 +8,6 @@
 #endif
     using Extensions.Internal;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal struct ToCharacterConverter : IValueConverter
     {
@@ -16,10 +15,10 @@
         {
             return (nonNullableTargetType == typeof(char)) &&
                    (nonNullableSourceType.IsEnum() ||
-                    (nonNullableSourceType == typeof(char)) ||
-                    (nonNullableSourceType == typeof(string)) ||
-                    (nonNullableSourceType == typeof(object)) ||
-                    Constants.NumericTypes.Contains(nonNullableSourceType));
+                   (nonNullableSourceType == typeof(char)) ||
+                   (nonNullableSourceType == typeof(string)) ||
+                   (nonNullableSourceType == typeof(object)) ||
+                   (Array.IndexOf(Constants.NumericTypes, nonNullableSourceType) != -1));
         }
 
         public Expression GetConversion(Expression sourceValue, Type targetType)

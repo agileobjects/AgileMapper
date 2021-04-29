@@ -16,7 +16,7 @@ public class CustomerViewModel : PersonViewModel
 }
 ```
 
-...`Customer` and `CustomerViewModel are auto-discovered, and paired up based on the [Type] -> [TypeViewModel] naming convention.
+...`Customer` and `CustomerViewModel` are auto-discovered, and paired up based on the [Type] -> [TypeViewModel] naming convention.
 Mapping a `customer` variable of type `Person` to a `PersonViewModel` automatically maps to a `CustomerViewModel` instead:
 
 ```csharp
@@ -52,5 +52,7 @@ var resultAnimals = Mapper.Map(sourceAnimals).ToANew<AnimalDto[]>();
 ```
 
 In the second example above, the `Dog` -> `DogDto` and `Cat` -> `CatDto` types are paired by convention based on the names of the original 
-`Animal` -> `AnimalDto` pairing. You can configure [type pairs](/configuration/Pairing-Derived-Types) which don't have a consistent naming 
+`Animal` -> `AnimalDto` pairing.
+
+You can configure [type pairs](/configuration/Pairing-Derived-Types) which don't have a consistent naming 
 convention, and [in which assemblies](/configuration/Assembly-Scanning) to look for derived types.

@@ -14,7 +14,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapperFactory(CacheSet mapperScopedCacheSet)
         {
-            _rootMappersCache = mapperScopedCacheSet.CreateScoped<IRootMapperKey, IObjectMapper>(default(RootMapperKeyComparer));
+            _rootMappersCache = mapperScopedCacheSet
+                .CreateScoped<IRootMapperKey, IObjectMapper>(CompareRootMapperKeys);
+        }
+
+        private static bool CompareRootMapperKeys(IRootMapperKey x, IRootMapperKey y)
+        {
+            // ReSharper disable PossibleNullReferenceException
+            return ReferenceEquals(x.RuleSet, y.RuleSet) && x.Equals(y);
+            // ReSharper restore PossibleNullReferenceException
         }
 
         public IEnumerable<IObjectMapper> RootMappers => _rootMappersCache.Values;
@@ -22,7 +30,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public void RegisterCreationCallback(MapperCreationCallbackKey creationCallbackKey, Action<IObjectMapper> callback)
         {
             _creationCallbacksByKey ??=
-                new ExpandableSimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(3,
+                new ExpandableSimpleDictionary<MapperCreationCallbackKey, Action<IObjectMapper>>(
+                    3,
                     default(MapperCreationCallbackKey.Comparer));
 
             _creationCallbacksByKey.Add(creationCallbackKey, callback);

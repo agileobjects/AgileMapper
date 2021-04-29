@@ -14,6 +14,8 @@
 
         public ProjectionExecutor(MapperContext mapperContext, IQueryable<TSourceElement> sourceQueryable)
         {
+            mapperContext.ThrowIfDisposed();
+
             _mapperContext = mapperContext;
             _sourceQueryable = sourceQueryable;
         }

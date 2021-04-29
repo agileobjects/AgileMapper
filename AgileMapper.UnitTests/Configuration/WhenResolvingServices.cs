@@ -7,7 +7,7 @@
     using Common;
     using Common.TestClasses;
     using TestClasses;
-#if NET_STANDARD
+#if NETCOREAPP
     using Microsoft.Extensions.DependencyInjection;
 #endif
 #if !NET35
@@ -259,7 +259,7 @@
             logger.EntryCount.ShouldBe(1);
         }
 
-#if NET_STANDARD
+#if NETCOREAPP
         [Fact]
         public void ShouldUseAConfiguredServiceCollectionServiceProvider()
         {

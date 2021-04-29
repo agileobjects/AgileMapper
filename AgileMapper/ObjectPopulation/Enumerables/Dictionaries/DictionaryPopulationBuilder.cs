@@ -290,7 +290,8 @@
             var mappingTryCatch = DerivedMappingFactory.GetDerivedTypeMapping(
                 mappingData,
                 derivedSourceCheck.TypedVariable,
-                mappingData.MapperData.TargetType);
+                mappingData.MapperData.TargetType,
+                out _);
 
             return mappingTryCatch;
         }

@@ -14,7 +14,7 @@
         [Fact]
         public void ShouldRetrieveFromAnEvenNumberedLengthCache()
         {
-            ICache<TestKey, int> cache = new ArrayCache<TestKey, int>(default(HashCodeComparer<TestKey>));
+            ICache<TestKey, int> cache = new HashCodeArrayCache<TestKey, int>();
 
             cache.GetOrAdd(new TestKey(3), t => 3);
             cache.GetOrAdd(new TestKey(1), t => 1);
@@ -43,7 +43,7 @@
         [Fact]
         public void ShouldRetrieveFromAnOddNumberedLengthCache()
         {
-            ICache<TestKey, int> cache = new ArrayCache<TestKey, int>(default(HashCodeComparer<TestKey>));
+            ICache<TestKey, int> cache = new HashCodeArrayCache<TestKey, int>();
 
             cache.GetOrAdd(new TestKey(3), t => 3);
             cache.GetOrAdd(new TestKey(1), t => 1);

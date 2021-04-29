@@ -9,6 +9,7 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.DataSources;
     using DataSources;
     using Dictionaries;
     using Extensions;
@@ -38,7 +39,7 @@
         private List<ConfiguredMemberIgnoreBase> _ignoredMembers;
         private List<EnumMemberPair> _enumPairings;
         private DictionarySettings _dictionaries;
-        private List<ConfiguredDataSourceFactory> _dataSourceFactories;
+        private List<ConfiguredDataSourceFactoryBase> _dataSourceFactories;
         private List<MappingCallbackFactory> _mappingCallbackFactories;
         private List<ObjectCreationCallbackFactory> _creationCallbackFactories;
         private List<ExceptionCallback> _exceptionCallbackFactories;
@@ -101,7 +102,7 @@
             ThrowIfConflictingItemExists(
                 condition,
                _mapToNullConditions,
-               (cdn, conflicting) => cdn.GetConflictMessage());
+               (cdn, _) => cdn.GetConflictMessage());
 
             MapToNullConditions.AddThenSort(condition);
         }
@@ -162,7 +163,7 @@
         public void AddReverseDataSourceFor(ConfiguredDataSourceFactory dataSourceFactory)
             => AddReverse(dataSourceFactory, isAutoReversal: false);
 
-        private void AddReverse(ConfiguredDataSourceFactory dataSourceFactory, bool isAutoReversal)
+        private void AddReverse(IReversibleConfiguredDataSourceFactory dataSourceFactory, bool isAutoReversal)
         {
             var reverseDataSourceFactory = dataSourceFactory.CreateReverseIfAppropriate(isAutoReversal);
 
@@ -187,20 +188,17 @@
             }
         }
 
-        public bool AutoDataSourceReversalEnabled(ConfiguredDataSourceFactory dataSourceFactory)
-            => AutoDataSourceReversalEnabled(dataSourceFactory, dsf => dsf.ConfigInfo.ToMemberContext(dsf.TargetMember));
+        public bool AutoDataSourceReversalEnabled(IReversibleConfiguredDataSourceFactory dataSourceFactory)
+            => AutoDataSourceReversalEnabled(dataSourceFactory.ConfigInfo);
 
         public bool AutoDataSourceReversalEnabled(MappingConfigInfo configInfo)
-            => AutoDataSourceReversalEnabled(configInfo, ci => ci.ToMemberContext());
-
-        private bool AutoDataSourceReversalEnabled<T>(T dataItem, Func<T, IQualifiedMemberContext> memberContextFactory)
         {
             if (_dataSourceReversalSettings == null)
             {
                 return false;
             }
 
-            var memberContext = memberContextFactory.Invoke(dataItem);
+            var memberContext = configInfo.ToMemberContext();
 
             return _dataSourceReversalSettings
                 .FirstOrDefault(memberContext, (mc, s) => s.AppliesTo(mc))?.Reverse == true;
@@ -335,7 +333,7 @@
             ThrowIfConflictingItemExists(
                 sourceValueFilter,
                _sourceValueFilters,
-               (svf, conflicting) => svf.GetConflictMessage());
+               (svf, _) => svf.GetConflictMessage());
 
             SourceValueFilters.AddOrReplaceThenSort(sourceValueFilter);
         }
@@ -401,17 +399,17 @@
 
         #region DataSources
 
-        private List<ConfiguredDataSourceFactory> DataSourceFactories
-            => _dataSourceFactories ??= new List<ConfiguredDataSourceFactory>();
+        private List<ConfiguredDataSourceFactoryBase> DataSourceFactories
+            => _dataSourceFactories ??= new List<ConfiguredDataSourceFactoryBase>();
 
-        public void Add(ConfiguredDataSourceFactory dataSourceFactory)
+        public void Add(ConfiguredDataSourceFactoryBase dataSourceFactory)
         {
             if (!dataSourceFactory.TargetMember.IsRoot)
             {
                 ThrowIfConflictingIgnoredSourceMemberExists(dataSourceFactory, (dsf, cIsm) => cIsm.GetConflictMessage(dsf));
                 ThrowIfConflictingIgnoredMemberExists(dataSourceFactory);
             }
-                
+
             ThrowIfConflictingDataSourceExists(dataSourceFactory, (dsf, cDsf) => dsf.GetConflictMessage(cDsf));
 
             DataSourceFactories.AddOrReplaceThenSort(dataSourceFactory);
@@ -422,18 +420,19 @@
                 return;
             }
 
-            if (AutoDataSourceReversalEnabled(dataSourceFactory))
+            if (dataSourceFactory is IReversibleConfiguredDataSourceFactory reversibleDataSourceFactory &&
+                AutoDataSourceReversalEnabled(reversibleDataSourceFactory))
             {
-                AddReverse(dataSourceFactory, isAutoReversal: true);
+                AddReverse(reversibleDataSourceFactory, isAutoReversal: true);
             }
         }
 
         public ConfiguredDataSourceFactory GetDataSourceFactoryFor(MappingConfigInfo configInfo)
-            => _dataSourceFactories.First(configInfo, (ci, dsf) => dsf.ConfigInfo == ci);
+            => (ConfiguredDataSourceFactory)_dataSourceFactories.First(configInfo, (ci, dsf) => dsf.ConfigInfo == ci);
 
         public bool HasToTargetDataSources { get; private set; }
 
-        public IList<ConfiguredDataSourceFactory> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
+        public IList<ConfiguredDataSourceFactoryBase> GetRelevantDataSourceFactories(IMemberMapperData mapperData)
             => _dataSourceFactories.FindRelevantMatches(mapperData);
 
         public IList<IConfiguredDataSource> GetDataSourcesForToTarget(IMemberMapperData mapperData, bool? sequential)
@@ -444,8 +443,8 @@
             }
 
             var toTargetDataSources = QueryDataSourceFactories(mapperData)
-                .Filter(dsf => 
-                    dsf.IsForToTargetDataSource && 
+                .Filter(dsf =>
+                    dsf.IsForToTargetDataSource &&
                    (dsf.IsSequential == sequential || !sequential.HasValue))
                 .Project(mapperData, (md, dsf) => dsf.Create(md))
                 .ToArray();
@@ -459,7 +458,7 @@
             return _dataSourceFactories?.OfType<TFactory>() ?? Enumerable<TFactory>.Empty;
         }
 
-        public IEnumerable<ConfiguredDataSourceFactory> QueryDataSourceFactories(IQualifiedMemberContext context)
+        public IEnumerable<ConfiguredDataSourceFactoryBase> QueryDataSourceFactories(IQualifiedMemberContext context)
             => _dataSourceFactories.FindMatches(context);
 
         #endregion
@@ -572,8 +571,8 @@
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(
-                configuredItem, 
-                _ignoredSourceMembers, 
+                configuredItem,
+                _ignoredSourceMembers,
                 messageFactory);
         }
 
@@ -593,7 +592,7 @@
 
         internal void ThrowIfConflictingDataSourceExists<TConfiguredItem>(
             TConfiguredItem configuredItem,
-            Func<TConfiguredItem, ConfiguredDataSourceFactory, string> messageFactory)
+            Func<TConfiguredItem, ConfiguredDataSourceFactoryBase, string> messageFactory)
             where TConfiguredItem : UserConfiguredItemBase
         {
             ThrowIfConflictingItemExists(configuredItem, _dataSourceFactories, messageFactory);

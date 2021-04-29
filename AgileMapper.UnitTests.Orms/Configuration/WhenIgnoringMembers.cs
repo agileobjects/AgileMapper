@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Orms.Configuration
 {
     using System.Linq;
-#if NET_STANDARD
+#if NETSTANDARD
     using System.Reflection;
 #endif
     using System.Threading.Tasks;

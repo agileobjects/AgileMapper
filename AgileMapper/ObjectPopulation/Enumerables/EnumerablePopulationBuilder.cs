@@ -9,7 +9,6 @@
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
-    using Caching;
     using Extensions;
     using Extensions.Internal;
     using Looping;
@@ -193,7 +192,7 @@
                 return false;
             }
 
-            var typeIdsCache = MapperData.MapperContext.Cache.CreateScoped<TypeKey, Expression>(default(HashCodeComparer<TypeKey>));
+            var typeIdsCache = MapperData.MapperContext.Cache.CreateScopedWithHashCodes<TypeKey, Expression>();
             var sourceElementId = MapperData.MapperContext.GetIdentifierOrNull(_sourceElementParameter, typeIdsCache);
 
             if (sourceElementId == null)

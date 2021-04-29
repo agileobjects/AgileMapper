@@ -29,6 +29,7 @@
         internal static MappingPlanSet For(MapperContext mapperContext)
         {
             return new MappingPlanSet(mapperContext
+                .ThrowIfDisposed()
                 .ObjectMapperFactory
                 .RootMappers
                 .Project(mapper => new MappingPlan(mapper))

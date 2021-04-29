@@ -229,7 +229,11 @@
         /// Removes the default Mapper's cached data. Can be useful when testing code which uses
         /// the static Mapper API.
         /// </summary>
-        public static void ResetDefaultInstance() => Default.Dispose();
+        public static void ResetDefaultInstance()
+        {
+            Default.Dispose();
+            Default.Context.Reset();
+        }
 
         #endregion
 
@@ -255,8 +259,7 @@
 
         ReadOnlyCollection<Expr> IMapper.GetPlanExpressionsInCache() => MappingPlanSet.For(Context);
 
-        private PlanTargetSelector<TSource> GetPlan<TSource>()
-            => new PlanTargetSelector<TSource>(Context);
+        private PlanTargetSelector<TSource> GetPlan<TSource>() => new PlanTargetSelector<TSource>(Context);
 
         PreEventConfigStartingPoint IMapper.Before => new PreEventConfigStartingPoint(Context);
 
@@ -266,7 +269,7 @@
 
         void IMapper.ThrowNowIfAnyMappingPlanIsIncomplete() => MappingValidator.Validate(this);
 
-        IMapper IMapper.CloneSelf() => new Mapper(Context.Clone());
+        IMapper IMapper.CloneSelf() => new Mapper(Context.ThrowIfDisposed().Clone());
 
         TSource IMapper.DeepClone<TSource>(TSource source) => ((IMapper)this).Map(source).ToANew<TSource>();
 
@@ -294,7 +297,7 @@
         /// <summary>
         /// Removes the mapper's cached data.
         /// </summary>
-        public void Dispose() => Context.Reset();
+        public void Dispose() => Context.Dispose();
 
         #endregion
     }

@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Extensions.Internal
 {
-    using ReadableExpressions.Extensions;
+    using NetStandardPolyfills;
 
     internal static class TypeInfo<T>
     {

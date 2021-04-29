@@ -11,15 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);TRACE;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;NET_40;</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
