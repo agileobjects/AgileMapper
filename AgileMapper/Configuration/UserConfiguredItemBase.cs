@@ -70,9 +70,7 @@
         }
 
         protected virtual bool HasReverseConflict(UserConfiguredItemBase otherItem)
-        {
-            return otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
-        }
+            => otherItem is IReverseConflictable conflictable && conflictable.ConflictsWith(this);
 
         private bool HasOverlappingRuleSets(UserConfiguredItemBase otherItem)
         {
@@ -127,7 +125,7 @@
                     otherTargetMember.LeafMember.DeclaringType.IsAssignableTo(TargetMember.LeafMember.DeclaringType);
         }
 
-        protected virtual bool TargetMembersAreCompatible(IQualifiedMember otherTargetMember)
+        protected virtual bool TargetMembersAreCompatible(QualifiedMember otherTargetMember)
             => TargetMember == otherTargetMember;
 
         private bool HasCompatibleCondition(IRuleSetOwner ruleSetOwner)

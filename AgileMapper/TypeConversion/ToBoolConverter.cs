@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
-    using ReadableExpressions.Extensions;
+    using NetStandardPolyfills;
 
     internal struct ToBoolConverter : IValueConverter
     {
@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
         {
             return (nonNullableTargetType == typeof(bool)) &&
                   ((nonNullableSourceType == typeof(bool)) ||
-                   Constants.NumericTypes.Contains(nonNullableSourceType) ||
+                    Constants.NumericTypes.Contains(nonNullableSourceType) ||
                     ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType));
         }
 
@@ -92,7 +92,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
         {
             return values.ToArray().Chain(
                 firstValue => GetValueTest(sourceValue, firstValue),
-                (testsSoFar, testValue) => Expression.OrElse(testsSoFar, GetValueTest(sourceValue, testValue)));
+               (testsSoFar, testValue) => Expression.OrElse(testsSoFar, GetValueTest(sourceValue, testValue)));
         }
 
         private static Expression GetValueTest(Expression sourceValue, ConstantExpression testValue)

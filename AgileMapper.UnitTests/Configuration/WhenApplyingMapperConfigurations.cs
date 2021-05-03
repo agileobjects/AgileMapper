@@ -64,7 +64,7 @@
             });
         }
 
-#if !NET_STANDARD
+#if FEATURE_APPDOMAIN
         [Fact]
         public void ShouldApplyMapperConfigurationsFromGivenAssemblies()
         {

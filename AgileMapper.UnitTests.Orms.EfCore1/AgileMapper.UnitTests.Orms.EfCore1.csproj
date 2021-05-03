@@ -12,19 +12,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;NET_STANDARD;NET_STANDARD_1;TRACE;FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE;FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="1.1.6" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
       <PrivateAssets>all</PrivateAssets>

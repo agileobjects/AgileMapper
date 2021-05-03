@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using System;
     using Caching;
     using Configuration;
     using Configuration.Inline;
@@ -13,6 +14,7 @@
     {
         private InlineMapperContextSet _inlineContexts;
         private IMappingContext _queryProjectionMappingContext;
+        private bool _isDisposed;
 
         public MapperContext()
         {
@@ -40,7 +42,7 @@
         public ObjectMapperFactory ObjectMapperFactory { get; }
 
         public InlineMapperContextSet InlineContexts
-            => _inlineContexts ?? (_inlineContexts = new InlineMapperContextSet(this));
+            => _inlineContexts ??= new InlineMapperContextSet(this);
 
         public UserConfigurationSet UserConfigurations { get; }
 
@@ -51,8 +53,7 @@
         public MappingRuleSetCollection RuleSets { get; }
 
         public IMappingContext QueryProjectionMappingContext
-            => _queryProjectionMappingContext ??
-              (_queryProjectionMappingContext = new SimpleMappingContext(RuleSets.Project, this));
+            => _queryProjectionMappingContext ??= new SimpleMappingContext(RuleSets.Project, this);
 
         public MapperContext Clone()
         {
@@ -65,12 +66,25 @@
             return context;
         }
 
-        public void Reset()
+        public void Dispose()
         {
+            _isDisposed = true;
             Cache.Empty();
             UserConfigurations.Reset();
             ConstructionFactory.Reset();
             ObjectMapperFactory.Reset();
+        }
+
+        public void Reset() => _isDisposed = false;
+
+        public MapperContext ThrowIfDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(Mapper));
+            }
+
+            return this;
         }
     }
 }

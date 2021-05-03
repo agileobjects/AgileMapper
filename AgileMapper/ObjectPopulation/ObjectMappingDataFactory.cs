@@ -9,14 +9,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #else
     using System.Linq.Expressions;
 #endif
-    using Caching;
     using Enumerables;
     using Extensions.Internal;
     using MapperKeys;
     using Members;
     using Members.Sources;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class ObjectMappingDataFactory : IObjectMappingDataFactoryBridge
     {
@@ -123,7 +121,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var key = new SourceAndTargetTypesKey(sourceMember.Type, targetMember.Type);
 
-            var typedForChildCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
+            var typedForChildCaller = GlobalContext.Instance.Cache.GetOrAddWithHashCodes(key, k =>
             {
                 var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
                 var childMembersSourceParameter = Expression.Parameter(typeof(object), "childMembersSource");
@@ -146,8 +144,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     parentParameter);
 
                 return typedForChildLambda.Compile();
-            },
-            default(HashCodeComparer<SourceAndTargetTypesKey>));
+            });
 
             var membersSource = new FixedMembersMembersSource(sourceMember, targetMember, dataSourceIndex);
 

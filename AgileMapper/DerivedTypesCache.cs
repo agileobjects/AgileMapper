@@ -20,8 +20,8 @@
         public DerivedTypesCache(CacheSet cacheSet)
         {
             _assemblies = new List<Assembly>();
-            _typesByAssembly = cacheSet.CreateScoped<Assembly, IEnumerable<Type>>(default(HashCodeComparer<Assembly>));
-            _derivedTypesByType = cacheSet.CreateScoped<Type, IList<Type>>(default(HashCodeComparer<Type>));
+            _typesByAssembly = cacheSet.CreateScopedWithHashCodes<Assembly, IEnumerable<Type>>();
+            _derivedTypesByType = cacheSet.CreateScopedWithHashCodes<Type, IList<Type>>();
         }
 
         public void AddAssemblies(Assembly[] assemblies)

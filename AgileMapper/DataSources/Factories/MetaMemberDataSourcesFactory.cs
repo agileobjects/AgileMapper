@@ -14,7 +14,6 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
-    using ReadableExpressions.Extensions;
     using TypeConversion;
 
     internal static class MetaMemberDataSourcesFactory
@@ -140,7 +139,7 @@
             var currentMemberPart = metaMember = default(MetaMemberPartBase);
 
             Func<IQualifiedMember, QualifiedMember, IObjectMappingData, DataSourceFindContext, IObjectMappingData> currentMappingDataFactory =
-                (sm, tm, md, c) => c.MemberMappingData.Parent;
+                (_, _, _, c) => c.MemberMappingData.Parent;
 
             for (var i = memberNameParts.Count - 1; i >= 0; --i)
             {

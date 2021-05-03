@@ -17,7 +17,7 @@
     public class WhenIgnoringSourceMembersByValueFilterInline
     {
         [Fact]
-        public void ShouldIgnoreSourceValuesByMultiClauseTypedValueFiltersOnline()
+        public void ShouldIgnoreSourceValuesByMultiClauseTypedValueFiltersInline()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -25,11 +25,10 @@
                     .Map(new PublicField<int> { Value = 123 })
                     .ToANew<PublicProperty<int>>(cfg => cfg
                         .IgnoreSources(c =>
-                            c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
-                           (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
+                            c.If((string s) => s == "123") || c.If((int i) => i == 123) ||
+                           (c.If((string s) => s != "999") && !c.If((DateTime dt) => dt == DateTime.Today))));
 
-                matchingIntResult.ShouldNotBeNull();
-                matchingIntResult.Value.ShouldBeDefault();
+                matchingIntResult.ShouldNotBeNull().Value.ShouldBeDefault();
 
                 var matchingStringResult = mapper
                     .Map(new PublicField<string> { Value = "123" })
@@ -38,8 +37,7 @@
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                            (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
-                matchingStringResult.ShouldNotBeNull();
-                matchingStringResult.Value.ShouldBeNull();
+                matchingStringResult.ShouldNotBeNull().Value.ShouldBeNull();
 
                 var nonMatchingIntResult = mapper
                     .Map(new PublicField<int> { Value = 456 })
@@ -48,8 +46,7 @@
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                            (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
-                nonMatchingIntResult.ShouldNotBeNull();
-                nonMatchingIntResult.Value.ShouldBe(456);
+                nonMatchingIntResult.ShouldNotBeNull().Value.ShouldBe(456);
 
                 var nonMatchingStringResult = mapper
                     .Map(new PublicField<string> { Value = "999" })
@@ -58,8 +55,7 @@
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                             (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
-                nonMatchingStringResult.ShouldNotBeNull();
-                nonMatchingStringResult.Value.ShouldBe("999");
+                nonMatchingStringResult.ShouldNotBeNull().Value.ShouldBe("999");
 
                 var nonMatchingTypeResult = mapper
                     .Map(new PublicField<long> { Value = 123L })
@@ -68,8 +64,7 @@
                             c.If<string>(str => str == "123") || c.If<int>(i => i == 123) ||
                             (c.If<string>(str => str != "999") && !c.If<DateTime>(dt => dt == DateTime.Today))));
 
-                nonMatchingTypeResult.ShouldNotBeNull();
-                nonMatchingTypeResult.Value.ShouldBe("123");
+                nonMatchingTypeResult.ShouldNotBeNull().Value.ShouldBe("123");
             }
         }
 

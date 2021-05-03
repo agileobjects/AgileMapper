@@ -1,12 +1,12 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables.Converters
 {
-    using Extensions.Internal;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using NetStandardPolyfills;
 
     internal static class ComplexTypeConditionalConverter
     {

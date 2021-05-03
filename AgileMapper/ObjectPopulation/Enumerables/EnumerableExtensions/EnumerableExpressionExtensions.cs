@@ -11,7 +11,7 @@
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
-    using static AgileObjects.AgileMapper.Extensions.Internal.LinqExtensions;
+    using static Extensions.Internal.LinqExtensions;
 
     internal static class EnumerableExpressionExtensions
     {

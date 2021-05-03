@@ -425,7 +425,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var typesKey = new SourceAndTargetTypesKey(newSourceType, newTargetType);
 
-            var typedAsCaller = GlobalContext.Instance.Cache.GetOrAdd(typesKey, k =>
+            var typedAsCaller = GlobalContext.Instance.Cache.GetOrAddWithHashCodes(typesKey, k =>
             {
                 var mappingDataParameter = Parameters.Create<IObjectMappingData<TSource, TTarget>>("mappingData");
                 var isForDerivedTypeParameter = Parameters.Create<bool>("isForDerivedType");
@@ -441,8 +441,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                         isForDerivedTypeParameter);
 
                 return typesConversionLambda.Compile();
-            },
-            default(HashCodeComparer<SourceAndTargetTypesKey>));
+            });
 
             return (IObjectMappingData)typedAsCaller.Invoke(this, isForDerivedTypeMapping);
         }

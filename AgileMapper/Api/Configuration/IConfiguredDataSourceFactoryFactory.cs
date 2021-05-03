@@ -1,6 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.Api.Configuration
 {
-    using AgileMapper.Configuration;
+    using AgileMapper.Configuration.DataSources;
 
     internal interface IConfiguredDataSourceFactoryFactory
     {
@@ -10,6 +10,6 @@
 
         ConfiguredDataSourceFactory CreateForCtorParam<TTargetParam>();
 
-        ConfiguredDataSourceFactory CreateForToTarget(bool isSequential);
+        ConfiguredDataSourceFactoryBase CreateForToTarget(bool isSequential);
     }
 }

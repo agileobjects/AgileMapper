@@ -12,8 +12,8 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using NetStandardPolyfills;
     using ReadableExpressions;
-    using ReadableExpressions.Extensions;
 
     internal class EnumMappingMismatchSet
     {

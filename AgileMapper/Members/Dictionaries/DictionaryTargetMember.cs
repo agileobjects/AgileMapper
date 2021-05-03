@@ -11,7 +11,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System.Linq.Expressions;
     using static System.Linq.Expressions.ExpressionType;
 #endif
-    using Caching;
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
@@ -112,7 +111,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         private DictionaryTargetMember Append(DictionaryMemberKey memberKey)
         {
-            var targetEntryMember = GlobalContext.Instance.Cache.GetOrAdd(
+            var targetEntryMember = GlobalContext.Instance.Cache.GetOrAddWithHashCodes(
                 memberKey,
                 key =>
                 {
@@ -121,8 +120,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                     key.DictionaryMember = null;
 
                     return member;
-                },
-                default(HashCodeComparer<DictionaryMemberKey>));
+                });
 
             var childMember = Append(targetEntryMember);
 

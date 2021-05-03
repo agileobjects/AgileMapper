@@ -3,7 +3,7 @@
     using System;
     using System.Linq.Expressions;
     using System.Reflection;
-    using AgileMapper.Configuration;
+    using AgileMapper.Configuration.DataSources;
 
     internal interface ISequencedDataSourceFactory
     {
@@ -12,7 +12,7 @@
         void SetTargetMember(LambdaExpression targetMember);
 
         void Register(
-            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactory> dataSourceFactoryFactory,
+            Func<IConfiguredDataSourceFactoryFactory, ConfiguredDataSourceFactoryBase> dataSourceFactoryFactory,
             Type targetMemberType);
     }
 }

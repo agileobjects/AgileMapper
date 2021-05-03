@@ -6,7 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #else
     using System.Linq.Expressions;
 #endif
-    using Caching;
     using Members;
 
     internal static class CachingExtensions
@@ -18,9 +17,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return null;
             }
 
-            var cache = GlobalContext.Instance
-                .Cache
-                .CreateScoped<TypeKey, ParameterExpression>(default(HashCodeComparer<TypeKey>));
+            var cache = GlobalContext.Instance.Cache
+                .CreateScopedWithHashCodes<TypeKey, ParameterExpression>();
 
             var parameter = cache.GetOrAdd(
                 TypeKey.ForParameter(type, name),

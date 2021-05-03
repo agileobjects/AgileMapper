@@ -24,7 +24,7 @@
 
                 Should.NotThrow(mapper.ThrowNowIfAnyMappingPlanIsIncomplete);
 
-                return Task.FromResult(1);
+                return Task.CompletedTask;
             });
         }
 
@@ -35,8 +35,8 @@
             {
                 mapper.GetPlanForProjecting(context.RotaEntries).To<RotaEntryDto>();
 
-                var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+                var validationEx = Should.Throw<MappingValidationException>(
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete);
 
                 validationEx.Message.ShouldContain("IQueryable<RotaEntry> -> IQueryable<RotaEntryDto>");
                 validationEx.Message.ShouldContain("Rule set: Project");
@@ -44,7 +44,7 @@
                 validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].StartTime");
                 validationEx.Message.ShouldContain("IQueryable<RotaEntryDto>[i].EndTime");
 
-                return Task.FromResult(1);
+                return Task.CompletedTask;
             });
         }
 
@@ -55,15 +55,15 @@
             {
                 mapper.GetPlanForProjecting(context.Addresses).To<PublicStringCtorDto>();
 
-                var validationEx = Should.Throw<MappingValidationException>(() =>
-                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete());
+                var validationEx = Should.Throw<MappingValidationException>(
+                    mapper.ThrowNowIfAnyMappingPlanIsIncomplete);
 
                 validationEx.Message.ShouldContain("IQueryable<Address> -> IQueryable<PublicStringCtorDto>");
                 validationEx.Message.ShouldContain("Rule set: Project");
                 validationEx.Message.ShouldContain("Unmappable target Types");
                 validationEx.Message.ShouldContain("Address -> PublicStringCtorDto");
 
-                return Task.FromResult(1);
+                return Task.CompletedTask;
             });
         }
     }

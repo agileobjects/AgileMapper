@@ -20,7 +20,7 @@
 
         public NamingSettings(CacheSet mapperScopedCache)
         {
-            _idMemberCache = mapperScopedCache.CreateScoped<TypeKey, Member>(default(HashCodeComparer<TypeKey>));
+            _idMemberCache = mapperScopedCache.CreateScopedWithHashCodes<TypeKey, Member>();
 
             _matchingNameFactories = new List<ConfiguredNamingPattern>
             {

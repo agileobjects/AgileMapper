@@ -116,7 +116,13 @@
 
         private static Assembly GetAssemblyOrNull(string loadedAssemblyName)
         {
-#if NET_STANDARD
+#if FEATURE_APPDOMAIN
+            var assemblyName = loadedAssemblyName.Substring(0, loadedAssemblyName.IndexOf(','));
+
+            return AppDomain.CurrentDomain
+                .GetAssemblies()
+                .FirstOrDefault(assemblyName, (an, assembly) => assembly.GetName().Name == an);
+#else
             try
             {
                 return Assembly.Load(new AssemblyName(loadedAssemblyName));
@@ -125,12 +131,6 @@
             {
                 return null;
             }
-#else
-            var assemblyName = loadedAssemblyName.Substring(0, loadedAssemblyName.IndexOf(','));
-
-            return AppDomain.CurrentDomain
-                .GetAssemblies()
-                .FirstOrDefault(assemblyName, (an, assembly) => assembly.GetName().Name == an);
 #endif
         }
 

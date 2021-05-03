@@ -2,14 +2,15 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 {
 #if NET35
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
+    using Extensions.Internal;
 #else
     using System.Linq.Expressions;
 #endif
-#if NET35
-    using Extensions.Internal;
-#endif
+    using DataSources;
     using Members;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
 
     internal class ConfiguredMemberIgnore : ConfiguredMemberIgnoreBase, IMemberIgnore
     {
@@ -29,7 +30,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
         {
         }
 
-        public override string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource)
+        public override string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource)
         {
             return $"Configured data source {conflictingDataSource.GetDescription()} " +
                     "conflicts with an ignored member";

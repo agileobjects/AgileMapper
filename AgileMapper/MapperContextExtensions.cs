@@ -28,7 +28,7 @@
             Expression subject,
             ICache<TypeKey, Expression> cache = null)
         {
-            var typeIdsCache = cache ?? context.Cache.CreateScoped<TypeKey, Expression>(default(HashCodeComparer<TypeKey>));
+            var typeIdsCache = cache ?? context.Cache.CreateScopedWithHashCodes<TypeKey, Expression>();
 
             return typeIdsCache.GetOrAdd(TypeKey.ForTypeId(subject.Type), key =>
             {

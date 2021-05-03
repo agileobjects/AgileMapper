@@ -17,12 +17,14 @@
             Expression configuredCondition,
             Expression value,
             bool isSequential,
+            bool hasMatcher,
             IMemberMapperData mapperData)
             : this(
                   CreateSourceMember(value, mapperData),
                   configuredCondition,
                   GetConvertedValue(value, mapperData),
                   isSequential,
+                  hasMatcher,
                   mapperData)
         {
         }
@@ -57,11 +59,13 @@
             Expression configuredCondition,
             Expression convertedValue,
             bool isSequential,
+            bool hasMatcher,
             IMemberMapperData mapperData)
             : base(sourceMember, convertedValue, mapperData)
         {
             _originalValue = convertedValue;
             IsSequential = isSequential;
+            HasConfiguredMatcher = hasMatcher;
 
             if (configuredCondition == null)
             {
@@ -75,6 +79,8 @@
                 ? Expression.AndAlso(base.Condition, configuredCondition)
                 : configuredCondition;
         }
+
+        public bool HasConfiguredMatcher { get; }
 
         public bool HasConfiguredCondition { get; }
 

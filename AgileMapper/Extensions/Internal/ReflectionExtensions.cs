@@ -2,7 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
-#if NET_STANDARD
+#if NETSTANDARD1_0 || NETSTANDARD1_3
     using System.Linq;
 #endif
     using System.Reflection;
@@ -22,8 +22,8 @@
         {
             try
             {
-#if !NET_STANDARD && !NET35
-                if (typeof(ReflectionExtensions).Assembly.IsFullyTrusted)
+#if FEATURE_ASSEMBLY_TRUST
+                if (typeof(ReflectionExtensions).GetAssembly().IsFullyTrusted)
                 {
                     return;
                 }
@@ -40,15 +40,9 @@
 
         public static bool HasKeyAttribute(this MemberInfo memberInfo)
         {
-#if NET_STANDARD
-            return memberInfo
-                .CustomAttributes
-                .Any(a => a.AttributeType.Name == "KeyAttribute");
-#else
             return memberInfo
                 .GetCustomAttributes(inherit: false)
                 .Any(attribute => attribute.GetType().Name == "KeyAttribute");
-#endif
         }
 
         public static IEnumerable<Type> QueryTypes(this Assembly assembly)

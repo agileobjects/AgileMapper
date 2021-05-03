@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
     using System.Linq.Expressions;
 #endif
     using Extensions;
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal struct FallbackNonSimpleTypeValueConverter : IValueConverter

@@ -79,7 +79,7 @@ Mapper.WhenMapping
     .To(vm => vm.AllAddresses);      // vm is the CustomerViewModel
 ```
 
-### Conditional Data Sources:
+### Conditional Data Sources
 
 Any of these methods can be made conditional:
 
@@ -221,3 +221,93 @@ Mapper.WhenMapping
 ```
 In this example, in any mapping where `Dictionary<string, Video>` is matched to an `IList<VideoDto>`, 
 the Dictionary's `Values` collection is used as the source _instead_ of the Dictionary.
+
+If a [conditional](#conditional-data-sources) `ToTargetInstead()`'s `If()` clause evaluates to true,
+no further mapping is carried out for the member being mapped. If it evaluates to false, the default
+mapping is performed, if any.
+
+### Applying Data Sources with a Matcher
+
+To apply a mapping data source to all target members matching particular criteria, use:
+
+```csharp
+// When mapping from bool -> string, map 'Y' or 'N' to any 
+// members marked with a YesNoAttribute:
+Mapper.WhenMapping
+    .From<bool>() // Apply to bool mappings
+    .To<string>() // Apply to all string mappings
+    .IfTargetMemberMatches(m => m.HasAttribute<YesNoAttribute>())
+    .Map((b, str) => b ? "Y" : "N") // Map 'Y' or 'N'
+    .ToTarget();  // The bool is the target
+```
+
+`IfTargetMemberMatches()` data sources must be configured using `ToTarget()` or `ToTargetInstead()`;
+as target member selection is performed using the matcher, it is invalid to specify a particular
+target member, _e.g_ using `To(t => t.Name)`.
+
+[Source](/configuration/Ignoring-Source-Members#source-member-filtering) and 
+[target](/configuration/Ignoring-Target-Members#target-member-filtering) members can also be ignored
+using a matcher.
+
+#### Matching Options
+
+Target members can be matched by type:
+
+```csharp
+// Match all string members:
+Mapper.WhenMapping
+    .To<ProductDto>() // Apply to all ProductDto mappings
+    .IfTargetMemberMatches(m => m.HasType<string>())
+    .Map("MatchedByType")
+    .ToTarget();
+```
+
+...by member type:
+
+```csharp
+// Match fields and properties:
+Mapper.WhenMapping
+    .ToANew<ProductDto>() // Apply to ProductDto creations
+    .IfTargetMemberMatches(m => m.IsField || m.IsProperty)
+    .Map("MatchedByMatcher")
+    .ToTarget();
+```
+
+...by member name:
+
+```csharp
+// Match any Product members with names starting with 'Id':
+Mapper.WhenMapping
+    .To<Product>() // Apply to all Product mappings
+    .IfTargetMemberMatches(m => m.Name.StartsWith("Id"))
+    .Map("MatchedByName")
+    .ToTarget();
+```
+
+...by member path:
+
+```csharp
+Mapper.WhenMapping
+    .To<Customer>() // Apply to all Customer mappings
+    .IfTargetMemberMatches(m =>
+        m.Path.StartsWith("ContactDetails.") &&
+        m.Path.Contains("Address"))
+    .Map("MatchedByPath")
+    .ToTarget();
+```
+
+...or by `MemberInfo` matcher:
+
+```csharp
+Mapper.WhenMapping
+    .To<Customer>() // Apply to all Customer mappings
+    .IfTargetMemberMatches(m =>
+        m.IsFieldMatching(f => f.IsSpecialName))
+    .Map("MatchedByFieldMatcher")
+    .ToTarget();
+```
+
+
+
+
+

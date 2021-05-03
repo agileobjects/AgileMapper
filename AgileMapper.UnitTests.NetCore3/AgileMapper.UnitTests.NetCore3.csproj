@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <RuntimeFrameworkVersion>3.0.3</RuntimeFrameworkVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RuntimeFrameworkVersion>3.1.4</RuntimeFrameworkVersion>
     <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore3</AssemblyName>
-    <RootNamespace>AgileObjects.AgileMapper.UnitTests.NetCore3</RootNamespace>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors></WarningsAsErrors>
     <NoWarn>0649;1701;1702</NoWarn>
@@ -14,15 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);NET_STANDARD;NET_STANDARD_2;TRACE;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_STRINGSPLIT_OPTIONS</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_STRINGSPLIT_OPTIONS;FEATURE_APPDOMAIN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,8 +24,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.3" />
-    <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="xunit" Version="2.4.1" />

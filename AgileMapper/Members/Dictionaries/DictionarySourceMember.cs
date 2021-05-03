@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 #else
     using System.Linq.Expressions;
 #endif
+    using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class DictionarySourceMember : IQualifiedMember

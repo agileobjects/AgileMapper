@@ -92,7 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
 
         private bool IsReadOnlyCollectionInterface()
         {
-#if NET_STANDARD
+#if NETSTANDARD
             return EnumerableType.IsClosedTypeOf(typeof(IReadOnlyCollection<>));
 #else
             return EnumerableType.IsInterface() &&

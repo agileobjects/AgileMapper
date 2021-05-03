@@ -8,7 +8,9 @@
     /// </summary>
     /// <typeparam name="TSource">The source type to which the configured settings should apply.</typeparam>
     /// <typeparam name="TTarget">The target type to which the configured settings should apply.</typeparam>
-    public interface IFullMappingSettings<TSource, TTarget> : IConditionalMappingConfigurator<TSource, TTarget>
+    public interface IFullMappingSettings<TSource, TTarget> : 
+        IConditionalMappingConfigurator<TSource, TTarget>,
+        IFilteredMappingConfigurator<TSource, TTarget>
     {
         #region Exception Handling
 

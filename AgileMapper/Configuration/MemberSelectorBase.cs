@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.Configuration
         /// <summary>
         /// Select members by their nested path. Constructor parameters will not be selected.
         /// </summary>
-        public string Path => _path ?? (_path = GetPath());
+        public string Path => _path ??= GetPath();
 
         private string GetPath()
         {
@@ -81,14 +81,11 @@ namespace AgileObjects.AgileMapper.Configuration
         }
 
         /// <summary>
-        /// Select members with the given <typeparamref name="TMember">Type</typeparamref>. Constructor
-        /// parameters will not be selected.
+        /// Select members with type <typeparamref name="TMember" />. Constructor parameters will not
+        /// be selected if a target member ignore is configured.
         /// </summary>
         /// <typeparam name="TMember">The Type of the members to select.</typeparam>
-        /// <returns>
-        /// True if the member has the given <typeparamref name="TMember">Type</typeparamref>, otherwise
-        /// false.
-        /// </returns>
+        /// <returns>True if the member has type <typeparamref name="TMember"/>, otherwise false.</returns>
         public bool HasType<TMember>()
         {
             if (typeof(TMember) == typeof(object))
@@ -100,11 +97,11 @@ namespace AgileObjects.AgileMapper.Configuration
         }
 
         /// <summary>
-        /// Select members with attributes of the given <typeparamref name="TAttribute">Type</typeparamref>.
+        /// Select members with attributes of type <typeparamref name="TAttribute" />.
         /// </summary>
         /// <typeparam name="TAttribute">The Type of attribute of the members to select.</typeparam>
         /// <returns>
-        /// True if the member has an attribute of the given <typeparamref name="TAttribute">Type</typeparamref>, 
+        /// True if the member has an attribute of type <typeparamref name="TAttribute" />, 
         /// otherwise false.
         /// </returns>
         public bool HasAttribute<TAttribute>()

@@ -28,7 +28,7 @@
 
         internal PlanTargetSelector(MapperContext mapperContext)
         {
-            _mapperContext = mapperContext;
+            _mapperContext = mapperContext.ThrowIfDisposed();
         }
 
         public MappingPlanSet To<TTarget>() => To<TTarget>(configurations: null);

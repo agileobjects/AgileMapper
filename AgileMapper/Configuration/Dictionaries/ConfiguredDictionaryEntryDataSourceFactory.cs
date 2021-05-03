@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration.Dictionaries
 {
     using Configuration;
+    using DataSources;
     using Lambdas;
     using Members;
     using Members.Dictionaries;

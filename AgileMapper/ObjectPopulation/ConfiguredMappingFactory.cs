@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Api.Configuration;
     using ComplexTypes;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -41,7 +42,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapping;
         }
 
-        public static Expression GetMappingOrNull(
+        private static Expression GetMappingOrNull(
             IObjectMappingData mappingData,
             out bool isConditional)
         {
@@ -91,6 +92,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 condition,
                 returnValue,
                 factory.ConfigInfo.IsSequentialConfiguration,
+                factory.ConfigInfo.HasTargetMemberMatcher(),
                 mapperData);
         }
     }

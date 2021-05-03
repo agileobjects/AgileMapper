@@ -1,4 +1,5 @@
-AgileMapper matches nested members to source members with flattened names [as you'd expect](/Member-Matching), but it also has a dedicated `.Unflatten()` API which unflattens objects in various ways. It is accessible:
+AgileMapper matches source members with flattened names to nested members [as you'd expect](/Member-Matching),
+but it also has a dedicated `.Unflatten()` API which unflattens objects in various ways. It is accessible:
 
 - Via the [static API](/Static-vs-Instance-Mappers), using `Mapper.Unflatten(myObject)`
 - Via the instance API, using `myInstanceMapper.Unflatten(myObject)`
@@ -18,7 +19,7 @@ var dictionary = new Dictionary<string, object>
 };
 ```
 
-...and the `QueryString` object created from this string-formatted string:
+...and the `QueryString` object created from this query string-formatted string:
 
 ```cs
 var queryString = 
@@ -32,7 +33,6 @@ var queryString =
 ...can both be unflattened to this `Customer` object:
 
 ```cs
-
 var customer = new Customer
 {
     Name = "Mrs Customer",

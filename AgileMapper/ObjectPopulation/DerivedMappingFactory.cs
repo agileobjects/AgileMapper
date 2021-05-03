@@ -14,18 +14,6 @@
         public static Expression GetDerivedTypeMapping(
             IObjectMappingData declaredTypeMappingData,
             Expression sourceValue,
-            Type targetType)
-        {
-            return GetDerivedTypeMapping(
-                declaredTypeMappingData,
-                sourceValue,
-                targetType,
-                out _);
-        }
-
-        public static Expression GetDerivedTypeMapping(
-            IObjectMappingData declaredTypeMappingData,
-            Expression sourceValue,
             Type targetType,
             out IObjectMappingData derivedTypeMappingData)
         {

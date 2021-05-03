@@ -25,7 +25,7 @@
             _mapper = mapper;
         }
 
-#if !NET_STANDARD
+#if FEATURE_APPDOMAIN
         /// <summary>
         /// Apply all the <see cref="MapperConfiguration"/>s defined in the Assemblies loaded into the current
         /// AppDomain.

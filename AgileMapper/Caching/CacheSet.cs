@@ -8,28 +8,42 @@
 
         public CacheSet()
         {
-            _cachesByType = CreateNew<Type, ICache>(default(HashCodeComparer<Type>));
+            _cachesByType = CreateNewWithHashCodes<Type, ICache>();
         }
 
         public TValue GetOrAdd<TKey, TValue>(
             TKey key,
             Func<TKey, TValue> valueFactory,
-            IKeyComparer<TKey> keyComparer = null)
+            KeyComparer<TKey> keyComparer = null)
         {
             return CreateScoped<TKey, TValue>(keyComparer).GetOrAdd(key, valueFactory);
         }
 
-        public ICache<TKey, TValue> CreateScoped<TKey, TValue>(IKeyComparer<TKey> keyComparer = null)
+        public TValue GetOrAddWithHashCodes<TKey, TValue>(
+            TKey key,
+            Func<TKey, TValue> valueFactory)
         {
-            var cache = _cachesByType.GetOrAdd(
-                typeof(ICache<TKey, TValue>),
-                t => CreateNew<TKey, TValue>(keyComparer));
+            return CreateScopedWithHashCodes<TKey, TValue>().GetOrAdd(key, valueFactory);
+        }
 
+        public ICache<TKey, TValue> CreateScoped<TKey, TValue>(KeyComparer<TKey> keyComparer = null)
+            => CreateScoped<TKey, TValue>(_ => CreateNew<TKey, TValue>(keyComparer));
+
+        public ICache<TKey, TValue> CreateScopedWithHashCodes<TKey, TValue>()
+            => CreateScoped<TKey, TValue>(_ => CreateNewWithHashCodes<TKey, TValue>());
+
+        private ICache<TKey, TValue> CreateScoped<TKey, TValue>(
+            Func<Type, ICache> cacheFactory)
+        {
+            var cache = _cachesByType.GetOrAdd(typeof(ICache<TKey, TValue>), cacheFactory);
             return (ICache<TKey, TValue>)cache;
         }
 
-        public ICache<TKey, TValue> CreateNew<TKey, TValue>(IKeyComparer<TKey> keyComparer = null)
-            => new ArrayCache<TKey, TValue>(keyComparer);
+        public ICache<TKey, TValue> CreateNew<TKey, TValue>(KeyComparer<TKey> keyComparer = null)
+            => new DefaultArrayCache<TKey, TValue>(keyComparer);
+
+        public ICache<TKey, TValue> CreateNewWithHashCodes<TKey, TValue>()
+            => new HashCodeArrayCache<TKey, TValue>();
 
         public void Empty()
         {

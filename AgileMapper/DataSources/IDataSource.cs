@@ -18,8 +18,17 @@
 
         bool IsConditional { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="IDataSource"/> is to be applied to the
+        /// mapping target object sequentially, <em>i.e</em> before or after other data sources are
+        /// applied.
+        /// </summary>
         bool IsSequential { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="IDataSource"/> provides a fallback value
+        /// to be applied to a mapping target when other data sources cannot be found or do not apply.
+        /// </summary>
         bool IsFallback { get; }
 
         IList<ParameterExpression> Variables { get; }

@@ -8,6 +8,7 @@
 #endif
     using System.Linq;
     using System.Reflection;
+    using Caching.Dictionaries;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
@@ -165,7 +166,7 @@
 
         private static double GetValueFor(
             Type type,
-            IDictionary<Type, double> cache,
+            ISimpleDictionary<Type, double> cache,
             Func<IEnumerable<long>, long> enumValueFactory)
         {
             type = type.GetNonNullableType();
@@ -203,7 +204,7 @@
         public static IEnumerable<TAttribute> GetAttributes<TAttribute>(this Type type)
             where TAttribute : Attribute
         {
-#if NET_STANDARD
+#if NETSTANDARD1_0 || NETSTANDARD1_3
             return type.GetTypeInfo().GetCustomAttributes<TAttribute>();
 #else
             return type.GetCustomAttributes(typeof(TAttribute), inherit: false).Project(attr => (TAttribute)attr);

@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
 #else
     using System.Linq.Expressions;
 #endif
+    using DataSources;
     using Members;
 
     internal abstract class ConfiguredMemberIgnoreBase :
@@ -47,7 +48,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
             }
         }
 
-        public abstract string GetConflictMessage(ConfiguredDataSourceFactory conflictingDataSource);
+        public abstract string GetConflictMessage(ConfiguredDataSourceFactoryBase conflictingDataSource);
 
         public abstract string GetConflictMessage(ConfiguredMemberIgnoreBase conflictingMemberIgnore);
 

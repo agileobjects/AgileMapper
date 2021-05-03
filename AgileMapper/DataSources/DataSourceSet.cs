@@ -210,11 +210,7 @@ namespace AgileObjects.AgileMapper.DataSources
 
                     if (dataSource.Variables.Any())
                     {
-                        if (variables == null)
-                        {
-                            variables = new List<ParameterExpression>();
-                        }
-
+                        variables ??= new List<ParameterExpression>();
                         variables.AddRange(dataSource.Variables);
                     }
 
@@ -224,9 +220,7 @@ namespace AgileObjects.AgileMapper.DataSources
                     }
                 }
 
-                Variables = (variables != null)
-                    ? (IList<ParameterExpression>)variables
-                    : Constants.EmptyParameters;
+                Variables = variables ?? (IList<ParameterExpression>)Constants.EmptyParameters;
             }
 
             public bool None => false;

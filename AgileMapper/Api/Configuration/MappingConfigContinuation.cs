@@ -26,15 +26,16 @@
                     $"'{GetDataSourceDescription()}' cannot be reversed, because {reason}");
             }
 
-            if (UserConfigurations.AutoDataSourceReversalEnabled(dataSourceFactory) == false)
+            if (UserConfigurations.AutoDataSourceReversalEnabled(dataSourceFactory))
             {
-                UserConfigurations.AddReverseDataSourceFor(dataSourceFactory);
-                return this;
+                throw new MappingConfigurationException(
+                    $"'{GetDataSourceDescription()}' does not need to be explicitly reversed, " +
+                    "because configured data source reversal is enabled by default");
             }
 
-            throw new MappingConfigurationException(
-                $"'{GetDataSourceDescription()}' does not need to be explicitly reversed, " +
-                "because configured data source reversal is enabled by default");
+            UserConfigurations.AddReverseDataSourceFor(dataSourceFactory);
+            return this;
+
         }
 
         IMappingConfigContinuation<TSource, TTarget> ICustomDataSourceMappingConfigContinuation<TSource, TTarget>.ButNotViceVersa()
