@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             TSource source,
             TTarget target,
             IMappingContext mappingContext,
-            bool createMapper = true)
+            bool createMapper)
         {
             return ForRootFixedTypes(
                 source,

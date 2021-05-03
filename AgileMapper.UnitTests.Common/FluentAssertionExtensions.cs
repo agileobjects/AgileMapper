@@ -9,7 +9,7 @@
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
-    public static class ShouldExtensions
+    public static class FluentAssertionExtensions
     {
         public static void ShouldBeDefault<T>(this T value) => value.ShouldBe(default(T));
 
@@ -58,7 +58,7 @@
             }
         }
 
-        private static readonly MethodInfo _areEqualMethod = typeof(ShouldExtensions)
+        private static readonly MethodInfo _areEqualMethod = typeof(FluentAssertionExtensions)
             .GetNonPublicStaticMethod("AreEqual");
 
         private static bool AreEqual<TExpected, TActual>(TExpected expected, TActual actual)

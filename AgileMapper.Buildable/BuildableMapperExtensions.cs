@@ -1,11 +1,17 @@
 ﻿namespace AgileObjects.AgileMapper.Buildable
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
     using BuildableExpressions;
     using BuildableExpressions.SourceCode;
+    using Extensions;
+    using NetStandardPolyfills;
     using Plans;
     using ReadableExpressions.Extensions;
+    using static System.Linq.Expressions.Expression;
+    using static BuildableExpressions.SourceCode.MemberVisibility;
 
     /// <summary>
     /// Provides extension methods for building AgileMapper mapper source files.
@@ -25,42 +31,86 @@
         public static IEnumerable<SourceCodeExpression> BuildSourceCode(
             this IMapper mapper)
         {
-            return mapper
-                .GetPlansInCache()
-                .ToMapperSourceCodeExpressions();
+            yield return BuildableExpression
+                .SourceCode(sourceCode =>
+                {
+                    sourceCode.SetNamespace("AgileObjects.AgileMapper.Buildable");
+
+                    //var mapperClasses = new List<MapperClass>();
+
+                    var mapperGroups = mapper
+                        .GetPlansInCache()
+                        .GroupBy(plan => plan.Root.SourceType)
+                        .Project(grp => new
+                        {
+                            SourceType = grp.Key,
+                            MapperName = grp.Key.GetVariableNameInPascalCase() + "Mapper",
+                            Plans = grp.ToList()
+                        })
+                        .OrderBy(_ => _.MapperName);
+
+                    foreach (var mapperGroup in mapperGroups)
+                    {
+                        var instanceMapperClass = sourceCode.AddClass(mapperGroup.MapperName, mapperClass =>
+                        {
+                            var sourceType = mapperGroup.SourceType;
+                            var baseType = typeof(MappingExecutor<>).MakeGenericType(sourceType);
+                            mapperClass.SetBaseType(baseType);
+
+                            mapperClass.AddConstructor(ctor =>
+                            {
+                                var sourceParameter = ctor.AddParameter("source", sourceType);
+                                
+                                ctor.SetConstructorCall(
+                                    baseType.GetNonPublicInstanceConstructor(sourceType),
+                                    sourceParameter);
+
+                                ctor.SetBody(Empty());
+                            });
+
+                            foreach (var plan in mapperGroup.Plans)
+                            {
+                                mapperClass.AddMethod("Map", doMapping =>
+                                {
+                                    doMapping.SetVisibility(Private);
+                                    doMapping.SetStatic();
+                                    doMapping.SetBody(plan.Root.Mapping);
+                                });
+                            }
+
+                            var mapMethodInfosByTargetType = mapperClass.Type
+                                .GetNonPublicStaticMethods("Map")
+                                .ToDictionary(m => m.GetParameters()[0].ParameterType.GetGenericTypeArguments()[1]);
+
+                            foreach (var plan in mapperGroup.Plans)
+                            {
+                                mapperClass.AddMethod(GetMapMethodName(plan), mapCaller =>
+                                {
+                                    mapCaller.SetBody(Call(
+                                        mapMethodInfosByTargetType[plan.Root.TargetType]));
+                                });
+                            }
+                        });
+                    }
+                });
         }
 
-        /// <summary>
-        /// Converts these <paramref name="mappingPlans"/> into <see cref="SourceCodeExpression"/>s.
-        /// </summary>
-        /// <param name="mappingPlans">The <see cref="MappingPlanSet"/> containing the mapping plans to convert.</param>
-        /// <returns>A <see cref="SourceCodeExpression"/> for each of these <paramref name="mappingPlans"/>.</returns>
-        public static IEnumerable<SourceCodeExpression> ToMapperSourceCodeExpressions(
-            this IEnumerable<IMappingPlan> mappingPlans)
+        private static string GetMapMethodName(IMappingPlan plan)
         {
-            return mappingPlans
-                .Select(mappingPlan =>
-                {
-                    var sourceCode = SourceCodeFactory.Default.CreateSourceCode();
+            switch (plan.RuleSetName)
+            {
+                case "CreateNew":
+                    return "ToANew";
 
-                    var rootPlan = mappingPlan.Root;
+                case "Merge":
+                    return "OnTo";
 
-                    var sourceTypeName = rootPlan.SourceType.GetVariableNameInPascalCase();
-                    var targetTypeName = rootPlan.TargetType.GetVariableNameInPascalCase();
-                    var className = $"{sourceTypeName}_To_{targetTypeName}_Mapper";
+                case "Overwrite":
+                    return "Over";
 
-                    var mapperClass = sourceCode.AddClass(cls => cls.Named(className));
-
-                    var coreMapMethod = mapperClass.AddMethod(rootPlan.Mapping, m => m
-                        .WithSummary(rootPlan.Summary)
-                        .WithVisibility(MemberVisibility.Private)
-                        .Named("Map"));
-
-                    var coreMapMethodCall = BuildableExpression.Call(coreMapMethod);
-
-                    return sourceCode;
-                })
-                .ToList();
+                default:
+                    throw new NotSupportedException($"Unable to map rule set '{plan.RuleSetName}'");
+            }
         }
     }
 }

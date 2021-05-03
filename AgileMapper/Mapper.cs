@@ -281,16 +281,16 @@
         }
 
         IFlatteningSelector<TSource> IMapper.Flatten<TSource>(TSource source)
-            => new MappingExecutor<TSource>(source, Context);
+            => new MappingExecutor<TSource>(Context, source);
 
         IUnflatteningSelector<IDictionary<string, TValue>> IMapper.Unflatten<TValue>(IDictionary<string, TValue> source)
-            => new MappingExecutor<IDictionary<string, TValue>>(source, Context);
+            => new MappingExecutor<IDictionary<string, TValue>>(Context, source);
 
         IUnflatteningSelector<QueryString> IMapper.Unflatten(QueryString queryString)
-            => new MappingExecutor<QueryString>(queryString, Context);
+            => new MappingExecutor<QueryString>(Context, queryString);
 
         ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
-            => new MappingExecutor<TSource>(source, Context);
+            => new MappingExecutor<TSource>(Context, source);
 
         #region IDisposable Members
 

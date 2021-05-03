@@ -9,6 +9,12 @@
     public interface IMappingPlan : IEnumerable<IMappingPlanFunction>
     {
         /// <summary>
+        /// Gets the name of the rule set (CreateNew, Overwrite, etc) used to create the mapping
+        /// described by this <see cref="IMappingPlan"/>.
+        /// </summary>
+        string RuleSetName { get; }
+
+        /// <summary>
         /// Gets the root <see cref="IMappingPlan"/> describing the plan to map the root source
         /// and target objects.
         /// </summary>

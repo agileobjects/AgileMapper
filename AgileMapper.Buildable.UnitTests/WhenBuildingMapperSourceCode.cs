@@ -17,7 +17,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 
                 var sourceCode = sourceCodeExpressions
                     .ShouldHaveSingleItem()
-                    .ToSourceCode()
+                    .ToCSharpString()
                     .ShouldNotBeNull();
             }
         }

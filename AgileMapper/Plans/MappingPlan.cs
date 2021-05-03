@@ -23,6 +23,7 @@
 
         internal MappingPlan(IObjectMapper cachedMapper)
         {
+            RuleSetName = cachedMapper.MapperData.RuleSet.Name;
             Root = new RootMapperMappingPlanFunction(cachedMapper);
 
             _mappingPlanFunctions = new List<IMappingPlanFunction> { Root };
@@ -62,6 +63,9 @@
                 ._mappingPlanFunctions
                 .SelectMany(mpf => new Expression[] { mpf.Summary, mpf.Mapping }));
         }
+
+        /// <inheritdoc />
+        public string RuleSetName { get; }
 
         /// <inheritdoc />
         public IMappingPlanFunction Root { get; }

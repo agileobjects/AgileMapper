@@ -12,94 +12,137 @@
     using Extensions.Internal;
     using ObjectPopulation;
 
-    internal class MappingExecutor<TSource> :
+    /// <summary>
+    /// Provides options to execute a particular mapping from an object of the
+    /// <typeparamref name="TSource"/> type.
+    /// </summary>
+    /// <typeparam name="TSource">
+    /// The type of sources object from which this <see cref="MappingExecutor{TSource}"/> will
+    /// perform mappings.
+    /// </typeparam>
+    public class MappingExecutor<TSource> :
         ITargetSelector<TSource>,
         IFlatteningSelector<TSource>,
         IUnflatteningSelector<TSource>,
         IMappingContext
     {
+        private MapperContext _mapperContext;
         private readonly TSource _source;
+        private MappingRuleSet _ruleSet;
 
-        public MappingExecutor(TSource source, MapperContext mapperContext)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MappingExecutor{TSource}"/> class with the
+        /// given <paramref name="source"/>.
+        /// </summary>
+        /// <param name="source">The source object from which the mapping is to be performed.</param>
+        protected internal MappingExecutor(TSource source)
+            : this(Mapper.Default.Context, source)
         {
-            _source = source;
-            MapperContext = mapperContext.ThrowIfDisposed();
         }
 
-        public MapperContext MapperContext { get; private set; }
+        internal MappingExecutor(MapperContext mapperContext, TSource source)
+        {
+            _mapperContext = mapperContext.ThrowIfDisposed();
+            _source = source;
+        }
 
-        public MappingRuleSet RuleSet { get; private set; }
+        MapperContext IMapperContextOwner.MapperContext => _mapperContext;
 
-        public bool IncludeCodeComments => false;
+        MappingRuleSet IRuleSetOwner.RuleSet => _ruleSet;
 
-        public bool IgnoreUnsuccessfulMemberPopulations => true;
+        bool IMappingContext.IncludeCodeComments => false;
 
-        public bool LazyLoadRepeatMappingFuncs => true;
+        bool IMappingContext.IgnoreUnsuccessfulMemberPopulations => true;
+
+        bool IMappingContext.LazyLoadRepeatMappingFuncs => true;
 
         #region ToANew Overloads
 
-        public object ToANew(Type resultType) => MappingExecutorBridge<TSource>.CreateNew(resultType, this);
+        object ITargetSelector<TSource>.ToANew(Type resultType) => ToANew(resultType);
 
-        public TResult ToANew<TResult>() => PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
+        private object ToANew(Type resultType) => MappingExecutorBridge<TSource>.CreateNew(resultType, this);
 
-        public TResult ToANew<TResult>(Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>> configuration)
+        TResult ITargetSelector<TSource>.ToANew<TResult>() => ToANew<TResult>();
+
+        private TResult ToANew<TResult>() => PerformMapping(CreateNew, default(TResult));
+
+        TResult ITargetSelector<TSource>.ToANew<TResult>(
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>> configuration)
         {
             return (configuration != null)
-                ? PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), new[] { configuration })
-                : PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
+                ? PerformMapping(CreateNew, default(TResult), new[] { configuration })
+                : PerformMapping(CreateNew, default(TResult));
         }
 
-        public TResult ToANew<TResult>(
+        TResult ITargetSelector<TSource>.ToANew<TResult>(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
         {
-            return configurations.Any()
-                ? PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult), configurations)
-                : PerformMapping(MapperContext.RuleSets.CreateNew, default(TResult));
+            return ToANew(configurations);
         }
+
+        private TResult ToANew<TResult>(
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
+        {
+            return configurations.Any()
+                ? PerformMapping(CreateNew, default(TResult), configurations)
+                : PerformMapping(CreateNew, default(TResult));
+        }
+
+        private MappingRuleSet CreateNew => _mapperContext.RuleSets.CreateNew;
 
         #endregion
 
         #region OnTo Overloads
 
-        public TTarget OnTo<TTarget>(TTarget existing) => PerformMapping(MapperContext.RuleSets.Merge, existing);
+        TTarget ITargetSelector<TSource>.OnTo<TTarget>(TTarget existing)
+            => PerformMapping(Merge, existing);
 
-        public TTarget OnTo<TTarget>(TTarget existing, Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>> configuration)
+        TTarget ITargetSelector<TSource>.OnTo<TTarget>(
+            TTarget existing,
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>> configuration)
         {
             return (configuration != null)
-                ? PerformMapping(MapperContext.RuleSets.Merge, existing, new[] { configuration })
-                : PerformMapping(MapperContext.RuleSets.Merge, existing);
+                ? PerformMapping(Merge, existing, new[] { configuration })
+                : PerformMapping(Merge, existing);
         }
 
-        public TTarget OnTo<TTarget>(
+        TTarget ITargetSelector<TSource>.OnTo<TTarget>(
             TTarget existing,
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
             return configurations.Any()
-                ? PerformMapping(MapperContext.RuleSets.Merge, existing, configurations)
-                : PerformMapping(MapperContext.RuleSets.Merge, existing);
+                ? PerformMapping(Merge, existing, configurations)
+                : PerformMapping(Merge, existing);
         }
+
+        private MappingRuleSet Merge => _mapperContext.RuleSets.Merge;
 
         #endregion
 
         #region Over Overloads
 
-        public TTarget Over<TTarget>(TTarget existing) => PerformMapping(MapperContext.RuleSets.Overwrite, existing);
+        TTarget ITargetSelector<TSource>.Over<TTarget>(TTarget existing)
+            => PerformMapping(Overwrite, existing);
 
-        public TTarget Over<TTarget>(TTarget existing, Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>> configuration)
+        TTarget ITargetSelector<TSource>.Over<TTarget>(
+            TTarget existing,
+            Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>> configuration)
         {
             return (configuration != null)
-                ? PerformMapping(MapperContext.RuleSets.Overwrite, existing, new[] { configuration })
-                : PerformMapping(MapperContext.RuleSets.Overwrite, existing);
+                ? PerformMapping(Overwrite, existing, new[] { configuration })
+                : PerformMapping(Overwrite, existing);
         }
 
-        public TTarget Over<TTarget>(
+        TTarget ITargetSelector<TSource>.Over<TTarget>(
             TTarget existing,
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
             return configurations.Any()
-                ? PerformMapping(MapperContext.RuleSets.Overwrite, existing, configurations)
-                : PerformMapping(MapperContext.RuleSets.Overwrite, existing);
+                ? PerformMapping(Overwrite, existing, configurations)
+                : PerformMapping(Overwrite, existing);
         }
+
+        private MappingRuleSet Overwrite => _mapperContext.RuleSets.Overwrite;
 
         #endregion
 
@@ -110,8 +153,7 @@
                 return target;
             }
 
-            RuleSet = ruleSet;
-
+            _ruleSet = ruleSet;
             return PerformMapping(target);
         }
 
@@ -125,9 +167,8 @@
                 return target;
             }
 
-            RuleSet = ruleSet;
-            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
-
+            _ruleSet = ruleSet;
+            _mapperContext = _mapperContext.InlineContexts.GetContextFor(configurations, this);
             return PerformMapping(target);
         }
 
@@ -136,16 +177,32 @@
             if (MappingTypes<TSource, TTarget>.SkipTypesCheck)
             {
                 // Optimise for the most common scenario:
-                var typedRootMappingData = ObjectMappingDataFactory
-                    .ForRootFixedTypes(_source, target, this);
-
-                return typedRootMappingData.MapStart();
+                return PerformFixedTypesMapping(_source, target);
             }
 
             var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
             var result = rootMappingData.MapStart();
 
             return (TTarget)result;
+        }
+
+        /// <summary>
+        /// Maps the given <paramref name="source"/> object to the given <paramref name="target"/>,
+        /// without first checking the runtime Types of either object.
+        /// </summary>
+        /// <typeparam name="TTarget">The Type of object to which the mapping will be performed.</typeparam>
+        /// <param name="source">The object from which the mapping will be performed.</param>
+        /// <param name="target">The object to which the mapping will be performed, if applicable.</param>
+        /// <returns>
+        /// The given <paramref name="target"/> object, or a new, mapped <typeparamref name="TTarget"/>
+        /// instance, as applicable.
+        /// </returns>
+        protected virtual TTarget PerformFixedTypesMapping<TTarget>(TSource source, TTarget target)
+        {
+            var typedRootMappingData = ObjectMappingDataFactory
+                .ForRootFixedTypes(source, target, this, createMapper: true);
+
+            return typedRootMappingData.MapStart();
         }
 
         #region IFlatteningSelector Members
