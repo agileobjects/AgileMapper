@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     /// Provides bridge methods enabling creation of typed <see cref="IObjectMappingData{TSource, TTarget}"/>
     /// instances in partial trust scenarios. This interface is intended for internal use only.
     /// </summary>
-    public interface IObjectMappingDataFactoryBridge
+    public interface IUntypedObjectMappingDataFactory
     {
         /// <summary>
         /// Creates a child <see cref="IObjectMappingData{TSource, TTarget}"/> instance.

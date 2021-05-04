@@ -177,7 +177,10 @@
             if (MappingTypes<TSource, TTarget>.SkipTypesCheck)
             {
                 // Optimise for the most common scenario:
-                return PerformFixedTypesMapping(_source, target);
+                var typedRootMappingData = ObjectMappingDataFactory
+                    .ForRootFixedTypes(_source, target, this, createMapper: true);
+
+                return typedRootMappingData.MapStart();
             }
 
             var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
@@ -187,22 +190,23 @@
         }
 
         /// <summary>
-        /// Maps the given <paramref name="source"/> object to the given <paramref name="target"/>,
-        /// without first checking the runtime Types of either object.
+        /// Create an <see cref="IObjectMappingData{TSource, TTarget}"/> object for this
+        /// <see cref="MappingExecutor{TSource}"/>'s source object and the given
+        /// <paramref name="target"/> object, optionally building a Mapper for the types.
         /// </summary>
-        /// <typeparam name="TTarget">The Type of object to which the mapping will be performed.</typeparam>
-        /// <param name="source">The object from which the mapping will be performed.</param>
-        /// <param name="target">The object to which the mapping will be performed, if applicable.</param>
+        /// <typeparam name="TTarget">The type of target object to which the mapping is being performed.</typeparam>
+        /// <param name="target">The target object to which the mapping is being performed.</param>
+        /// <param name="createMapper">Whether a Mapper should be created for the types being mapped.</param>
         /// <returns>
-        /// The given <paramref name="target"/> object, or a new, mapped <typeparamref name="TTarget"/>
-        /// instance, as applicable.
+        /// An <see cref="IObjectMappingData{TSource, TTarget}"/> object for this
+        /// <see cref="MappingExecutor{TSource}"/>'s source object and the given
+        /// <paramref name="target"/> object.
         /// </returns>
-        protected virtual TTarget PerformFixedTypesMapping<TTarget>(TSource source, TTarget target)
+        protected IObjectMappingData<TSource, TTarget> CreateRootMappingData<TTarget>(
+            TTarget target,
+            bool createMapper)
         {
-            var typedRootMappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes(source, target, this, createMapper: true);
-
-            return typedRootMappingData.MapStart();
+            return ObjectMappingDataFactory.ForRootFixedTypes(_source, target, this, createMapper);
         }
 
         #region IFlatteningSelector Members

@@ -16,9 +16,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Sources;
     using NetStandardPolyfills;
 
-    internal class ObjectMappingDataFactory : IObjectMappingDataFactoryBridge
+    internal class ObjectMappingDataFactory : IUntypedObjectMappingDataFactory
     {
-        private static readonly IObjectMappingDataFactoryBridge _bridge = new ObjectMappingDataFactory();
+        private static readonly IUntypedObjectMappingDataFactory _bridge = new ObjectMappingDataFactory();
 
         public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
             IMappingContext mappingContext)
@@ -123,7 +123,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var typedForChildCaller = GlobalContext.Instance.Cache.GetOrAddWithHashCodes(key, k =>
             {
-                var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
+                var bridgeParameter = Expression.Parameter(typeof(IUntypedObjectMappingDataFactory), "bridge");
                 var childMembersSourceParameter = Expression.Parameter(typeof(object), "childMembersSource");
                 var parentParameter = Expression.Parameter(typeof(object), nameof(parent));
 
@@ -137,7 +137,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     childMembersSourceParameter,
                     parentParameter);
 
-                var typedForChildLambda = Expression.Lambda<Func<IObjectMappingDataFactoryBridge, object, object, object>>(
+                var typedForChildLambda = Expression.Lambda<Func<IUntypedObjectMappingDataFactory, object, object, object>>(
                     typedForChildCall,
                     bridgeParameter,
                     childMembersSourceParameter,
@@ -151,7 +151,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return (IObjectMappingData)typedForChildCaller.Invoke(_bridge, membersSource, parent);
         }
 
-        object IObjectMappingDataFactoryBridge.ForChild<TSource, TTarget>(object childMembersSource, object parent)
+        object IUntypedObjectMappingDataFactory.ForChild<TSource, TTarget>(object childMembersSource, object parent)
         {
             var mapperKey = new ChildObjectMapperKey(
                 MappingTypes.For(default(TSource), default(TTarget)),
@@ -208,7 +208,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var typedForElementCaller = GlobalContext.Instance.Cache.GetOrAdd(key, k =>
             {
-                var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
+                var bridgeParameter = Expression.Parameter(typeof(IUntypedObjectMappingDataFactory), "bridge");
                 var parentParameter = Expression.Parameter(typeof(object), "parent");
 
                 var typedForElementMethod = bridgeParameter.Type
@@ -220,7 +220,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     typedForElementMethod,
                     parentParameter);
 
-                var typedForElementLambda = Expression.Lambda<Func<IObjectMappingDataFactoryBridge, object, object>>(
+                var typedForElementLambda = Expression.Lambda<Func<IUntypedObjectMappingDataFactory, object, object>>(
                     typedForElementCall,
                     bridgeParameter,
                     parentParameter);
@@ -231,7 +231,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return (IObjectMappingData)typedForElementCaller.Invoke(_bridge, parent);
         }
 
-        object IObjectMappingDataFactoryBridge.ForElement<TSource, TTarget>(object parent)
+        object IUntypedObjectMappingDataFactory.ForElement<TSource, TTarget>(object parent)
         {
             var mappingData = (IObjectMappingData)parent;
             var source = mappingData.GetSource<TSource>();
@@ -330,14 +330,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent);
         }
 
-        private static Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object, object> GetPartialTrustMappingDataCreator<TSource, TTarget>(
+        private static Func<IUntypedObjectMappingDataFactory, TSource, TTarget, int?, object, object, object, object, object> GetPartialTrustMappingDataCreator<TSource, TTarget>(
             MappingTypes mappingTypes)
         {
             var createCallerKey = DeclaredAndRuntimeTypesKey.For<TSource, TTarget>(mappingTypes);
 
             var createCallerFunc = GlobalContext.Instance.Cache.GetOrAdd(createCallerKey, k =>
             {
-                var bridgeParameter = Expression.Parameter(typeof(IObjectMappingDataFactoryBridge), "bridge");
+                var bridgeParameter = Expression.Parameter(typeof(IUntypedObjectMappingDataFactory), "bridge");
                 var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
                 var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
                 var elementIndexParameter = Expression.Parameter(typeof(int?), "i");
@@ -366,7 +366,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     parentParameter);
 
                 var createLambda = Expression
-                    .Lambda<Func<IObjectMappingDataFactoryBridge, TSource, TTarget, int?, object, object, object, object, object>>(
+                    .Lambda<Func<IUntypedObjectMappingDataFactory, TSource, TTarget, int?, object, object, object, object, object>>(
                         createCall,
                         bridgeParameter,
                         sourceParameter,
@@ -383,7 +383,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return createCallerFunc;
         }
 
-        object IObjectMappingDataFactoryBridge.CreateMappingData<TDeclaredSource, TDeclaredTarget, TSource, TTarget>(
+        object IUntypedObjectMappingDataFactory.CreateMappingData<TDeclaredSource, TDeclaredTarget, TSource, TTarget>(
             TDeclaredSource source,
             TDeclaredTarget target,
             int? elementIndex,
