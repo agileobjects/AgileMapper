@@ -187,13 +187,15 @@
             }
         }
 
-        public static void ShouldBeSameAs<T>(this T actualItem, T expectedItem)
+        public static T ShouldBeSameAs<T>(this T actualItem, T expectedItem)
             where T : class
         {
             if (!ReferenceEquals(expectedItem, actualItem))
             {
                 Asplode(expectedItem.ToString(), actualItem.ToString());
             }
+
+            return expectedItem;
         }
 
         public static void ShouldBeTrue(this bool? value)

@@ -1,12 +1,9 @@
 namespace AgileObjects.AgileMapper.Buildable.UnitTests
 {
     using System;
-    using System.Collections.Generic;
     using System.Reflection;
     using AgileMapper.UnitTests.Common;
     using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
-    using BuildableExpressions.Compilation;
-    using NetStandardPolyfills;
     using Xunit;
 
     public class WhenBuildingMapperSourceCode
@@ -33,8 +30,8 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
                     .ShouldCreateMappingExecutor(source);
 
                 var result = executor
-                    .ShouldHaveAToANewMethod()
-                    .ShouldExecuteAToANewMapping<PublicField<int>>(executor);
+                    .ShouldHaveACreateNewMethod()
+                    .ShouldExecuteACreateNewMapping<PublicField<int>>(executor);
 
                 result.Value.ShouldBe(123);
             }
@@ -62,22 +59,22 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
                 var executor = staticMapMethod
                     .ShouldCreateMappingExecutor(source);
 
-                var createNewMethod = executor.ShouldHaveAToANewMethod();
+                var createNewMethod = executor.ShouldHaveACreateNewMethod();
 
                 var publicFieldResult = createNewMethod
-                    .ShouldExecuteAToANewMapping<PublicField<int>>(executor);
+                    .ShouldExecuteACreateNewMapping<PublicField<int>>(executor);
 
                 publicFieldResult.Value.ShouldBe(456);
 
                 var publicPropertyResult = createNewMethod
-                    .ShouldExecuteAToANewMapping<PublicProperty<string>>(executor);
+                    .ShouldExecuteACreateNewMapping<PublicProperty<string>>(executor);
 
                 publicPropertyResult.Value.ShouldBe("456");
 
                 var configEx = Should.Throw<TargetInvocationException>(() =>
                 {
                     createNewMethod
-                        .ShouldExecuteAToANewMapping<PublicField<DateTime>>(executor);
+                        .ShouldExecuteACreateNewMapping<PublicField<DateTime>>(executor);
                 });
 
                 var notSupportedMessage = configEx
@@ -89,6 +86,68 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
                 notSupportedMessage.ShouldContain("CreateNew");
                 notSupportedMessage.ShouldContain("source type 'PublicField<string>'");
                 notSupportedMessage.ShouldContain("target type 'PublicField<DateTime>'");
+            }
+        }
+
+        [Fact]
+        public void ShouldBuildASingleSourceSingleTargetMergeMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<Address>().OnTo<Address>();
+
+                var sourceCodeExpressions = mapper.BuildSourceCode();
+
+                var staticMapperClass = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass();
+
+                var staticMapMethod = staticMapperClass
+                    .GetMapMethods()
+                    .ShouldHaveSingleItem();
+
+                var source = new Address { Line1 = "Line 1!" };
+                var target = new Address { Line2 = "Line 2!" };
+
+                var executor = staticMapMethod
+                    .ShouldCreateMappingExecutor(source);
+
+                executor
+                    .ShouldHaveAMergeMethod()
+                    .ShouldExecuteAMergeMapping(executor, target);
+
+                target.Line1.ShouldBe("Line 1!");
+                target.Line2.ShouldBe("Line 2!");
+            }
+        }
+
+        [Fact]
+        public void ShouldBuildASingleSourceSingleTargetOverwriteMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<Address>().Over<Address>();
+
+                var sourceCodeExpressions = mapper.BuildSourceCode();
+
+                var staticMapperClass = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass();
+
+                var staticMapMethod = staticMapperClass
+                    .GetMapMethods()
+                    .ShouldHaveSingleItem();
+
+                var source = new Address { Line1 = "1.1", Line2 = "1.2" };
+                var target = new Address { Line1 = "2.1", Line2 = "2.2" };
+
+                var executor = staticMapMethod
+                    .ShouldCreateMappingExecutor(source);
+
+                executor
+                    .ShouldHaveAnOverwriteMethod()
+                    .ShouldExecuteAnOverwriteMapping(executor, target);
+
+                target.Line1.ShouldBe("1.1");
+                target.Line2.ShouldBe("1.2");
             }
         }
     }
