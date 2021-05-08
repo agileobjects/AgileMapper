@@ -2,6 +2,7 @@
 {
     using System.Dynamic;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

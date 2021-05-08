@@ -29,18 +29,18 @@
         public static IEnumerable<MethodInfo> GetMapMethods(this Type staticMapperClass)
             => staticMapperClass.GetPublicStaticMethods("Map");
 
-        public static MappingExecutor<TSource> ShouldCreateMappingExecutor<TSource>(
+        public static MappingExecutionContextBase<TSource> ShouldCreateMappingExecutor<TSource>(
             this MethodInfo staticMapMethod,
             TSource source)
         {
             return staticMapMethod
                 .Invoke(null, new object[] { source })
                 .ShouldNotBeNull()
-                .ShouldBeOfType<MappingExecutor<TSource>>();
+                .ShouldBeOfType<MappingExecutionContextBase<TSource>>();
         }
 
         public static MethodInfo ShouldHaveACreateNewMethod<TSource>(
-            this MappingExecutor<TSource> executor)
+            this MappingExecutionContextBase<TSource> executor)
         {
             return executor.GetType()
                 .GetPublicInstanceMethods("ToANew")
@@ -48,7 +48,7 @@
         }
 
         public static MethodInfo ShouldHaveAMergeMethod<TSource>(
-            this MappingExecutor<TSource> executor)
+            this MappingExecutionContextBase<TSource> executor)
         {
             return executor.GetType()
                 .GetPublicInstanceMethods("OnTo")
@@ -56,7 +56,7 @@
         }
 
         public static MethodInfo ShouldHaveAnOverwriteMethod<TSource>(
-            this MappingExecutor<TSource> executor)
+            this MappingExecutionContextBase<TSource> executor)
         {
             return executor.GetType()
                 .GetPublicInstanceMethods("Over")

@@ -5,12 +5,12 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Reflection;
-    using AgileObjects.ReadableExpressions;
     using BuildableExpressions;
     using BuildableExpressions.SourceCode;
     using BuildableExpressions.SourceCode.Api;
     using Extensions;
     using NetStandardPolyfills;
+    using ReadableExpressions;
     using ReadableExpressions.Extensions;
     using static System.Linq.Expressions.Expression;
     using static BuildableExpressions.SourceCode.MemberVisibility;
@@ -68,7 +68,7 @@
                             mapperGroup.MapperName,
                             mapperClass =>
                             {
-                                var baseType = typeof(MappingExecutor<>).MakeGenericType(sourceType);
+                                var baseType = typeof(MappingExecutionContextBase<>).MakeGenericType(sourceType);
                                 mapperClass.SetBaseType(baseType);
 
                                 mapperClass.AddConstructor(ctor =>
