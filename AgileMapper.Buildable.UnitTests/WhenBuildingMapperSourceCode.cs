@@ -150,5 +150,19 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
                 target.Line2.ShouldBe("1.2");
             }
         }
+
+        [Fact]
+        public void ShouldBuildACircularReferenceMapping()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<Child>().ToANew<Child>();
+
+                var sourceCodeExpressions = mapper.BuildSourceCode();
+
+                var staticMapperClass = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass();
+            }
+        }
     }
 }

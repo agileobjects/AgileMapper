@@ -15,6 +15,12 @@
     public interface IMappingPlanFunction
     {
         /// <summary>
+        /// Gets a value indicating whether this <see cref="IMappingPlanFunction"/> describes the
+        /// root mapping of its <see cref="IMappingPlan"/>.
+        /// </summary>
+        bool IsRoot { get; }
+
+        /// <summary>
         /// Gets the source type from which this <see cref="IMappingPlanFunction"/> will perform a
         /// mapping.
         /// </summary>

@@ -24,6 +24,8 @@
             _mapping = mapper.GetMappingLambda();
         }
 
+        public bool IsRoot => true;
+
         public Type SourceType => _mapperData.SourceType;
 
         public Type TargetType => _mapperData.TargetType;

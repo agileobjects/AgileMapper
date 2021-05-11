@@ -20,6 +20,8 @@
             _mapperFunc = mapperFunc;
         }
 
+        public bool IsRoot => false;
+
         public Type SourceType => _mapperFunc.SourceType;
 
         public Type TargetType => _mapperFunc.TargetType;

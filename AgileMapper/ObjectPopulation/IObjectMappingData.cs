@@ -101,7 +101,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// applicable.
         /// </param>
         /// <param name="elementKey">
-        /// The key of the current Dicionary KeyValuePair being mapped in the mapping context described
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context described
         /// by this <see cref="IObjectMappingData{TSource, TTarget}"/>, if applicable.
         /// </param>
         /// <returns>The element mapping result.</returns>

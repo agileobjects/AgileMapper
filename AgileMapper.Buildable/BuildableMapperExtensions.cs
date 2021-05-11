@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using BuildableExpressions;
     using BuildableExpressions.SourceCode;
     using BuildableExpressions.SourceCode.Api;
@@ -15,20 +14,13 @@
     using static System.Linq.Expressions.Expression;
     using static BuildableExpressions.SourceCode.MemberVisibility;
     using PublicTypeExtensions = ReadableExpressions.Extensions.PublicTypeExtensions;
+    using static BuildableMapperConstants;
 
     /// <summary>
     /// Provides extension methods for building AgileMapper mapper source files.
     /// </summary>
     public static class BuildableMapperExtensions
     {
-        private static readonly Expression _doNotCreateMapper = Constant(false, typeof(bool));
-
-        private static readonly MethodInfo _isAssignableToMethod = typeof(TypeExtensionsPolyfill)
-            .GetPublicStaticMethod(nameof(TypeExtensionsPolyfill.IsAssignableTo));
-
-        private static readonly ConstructorInfo _notSupportedCtor = typeof(NotSupportedException)
-            .GetPublicInstanceConstructor(typeof(string));
-
         /// <summary>
         /// Builds <see cref="SourceCodeExpression"/>s for the configured mappers in this
         /// <paramref name="mapper"/>.
@@ -50,58 +42,59 @@
                     var mapperClassGroups = mapper
                         .GetPlansInCache()
                         .GroupBy(plan => plan.Root.SourceType)
-                        .Project(grp => new
-                        {
-                            SourceType = grp.Key,
-                            MapperName = grp.Key.GetVariableNameInPascalCase() + "Mapper",
-                            Plans = grp.ToList()
-                        })
-                        .OrderBy(_ => _.MapperName);
-
-                    var mapperClassesBySourceType = new Dictionary<Type, ClassExpression>();
+                        .Project(grp => new BuildableMapperGroup(grp.Key, grp.AsEnumerable()))
+                        .OrderBy(grp => grp.MapperName)
+                        .ToList();
 
                     foreach (var mapperGroup in mapperClassGroups)
                     {
-                        var sourceType = mapperGroup.SourceType;
-
-                        mapperClassesBySourceType.Add(sourceType, sourceCode.AddClass(
+                        mapperGroup.MapperClass = sourceCode.AddClass(
                             mapperGroup.MapperName,
                             mapperClass =>
                             {
-                                var baseType = typeof(MappingExecutionContextBase<>).MakeGenericType(sourceType);
-                                mapperClass.SetBaseType(baseType);
+                                mapperGroup.MapperInstance = mapperClass.ThisInstanceExpression;
+
+                                mapperClass.SetBaseType(mapperGroup.MapperBaseType);
 
                                 mapperClass.AddConstructor(ctor =>
                                 {
-                                    var sourceParameter = ctor.AddParameter("source", sourceType);
-
                                     ctor.SetConstructorCall(
-                                        baseType.GetNonPublicInstanceConstructor(sourceType),
-                                        sourceParameter);
+                                        mapperGroup.MapperBaseTypeConstructor,
+                                        ctor.AddParameter("source", mapperGroup.SourceType));
 
                                     ctor.SetBody(Empty());
                                 });
 
-                                foreach (var plan in mapperGroup.Plans)
+                                foreach (var planAndMappingMethods in mapperGroup.MappingMethodsByPlan)
                                 {
-                                    mapperClass.AddMethod(plan.RuleSetName, doMapping =>
+                                    var plan = planAndMappingMethods.Key;
+                                    var mappingMethods = planAndMappingMethods.Value;
+
+                                    foreach (var repeatPlan in plan.Skip(1))
+                                    {
+                                        mappingMethods.Add(mapperClass.AddMethod(MapRepeated, doMapping =>
+                                        {
+                                            doMapping.SetVisibility(Private);
+                                            doMapping.SetStatic();
+                                            doMapping.SetBody(repeatPlan.Mapping);
+                                        }));
+                                    }
+
+                                    mappingMethods.Insert(0, mapperClass.AddMethod(plan.RuleSetName, doMapping =>
                                     {
                                         doMapping.SetVisibility(Private);
                                         doMapping.SetStatic();
                                         doMapping.SetBody(plan.Root.Mapping);
-                                    });
+                                    }));
                                 }
 
-                                var createMappingDataMethod = baseType
-                                    .GetNonPublicInstanceMethod("CreateRootMappingData");
+                                RepeatMappingCallReplacer.Replace(mapperGroup);
 
-                                var allRuleSetMapMethodInfos = mapperClass.Type
-                                    .GetNonPublicStaticMethods()
-                                    .Project(m => new MapMethodInfo(
-                                        sourceType,
-                                        mapperClass,
-                                        createMappingDataMethod,
-                                        m))
+                                var allRuleSetMapMethodInfos = mapperGroup
+                                    .MappingMethodsByPlan.Values
+                                    .SelectMany(methods => methods)
+                                    .Filter(method => method.Name != MapRepeated)
+                                    .Project(method => new MapMethodInfo(mapperGroup, method))
                                     .GroupBy(m => m.RuleSetName)
                                     .Select(methodGroup => methodGroup.ToList());
 
@@ -109,17 +102,17 @@
                                 {
                                     AddMapMethodsFor(mapperClass, ruleSetMapMethodInfos);
                                 }
-                            }));
+                            });
                     }
 
                     sourceCode.AddClass("Mapper", staticMapperClass =>
                     {
                         staticMapperClass.SetStatic();
 
-                        foreach (var sourceTypeAndMapper in mapperClassesBySourceType)
+                        foreach (var mapperClassGroup in mapperClassGroups)
                         {
-                            var sourceType = sourceTypeAndMapper.Key;
-                            var mapperClass = sourceTypeAndMapper.Value;
+                            var sourceType = mapperClassGroup.SourceType;
+                            var mapperClass = mapperClassGroup.MapperClass;
 
                             staticMapperClass.AddMethod("Map", mapMethod =>
                             {
@@ -195,7 +188,7 @@
                     var targetType = mapMethodInfo.TargetType;
 
                     var typeofTargetType = BuildableExpression.TypeOf(targetType);
-                    var typesAssignable = Call(_isAssignableToMethod, typeofTarget, typeofTargetType);
+                    var typesAssignable = Call(IsAssignableToMethod, typeofTarget, typeofTargetType);
 
                     var mapCall = mapMethodInfo.CreateMapCall(Default);
                     var mapCallResultAsObject = Convert(mapCall, typeof(object));
@@ -243,7 +236,7 @@
                     nullConfiguration),
                 Constant("'", typeof(string)));
 
-            return Throw(New(_notSupportedCtor, getErrorMessageCall));
+            return Throw(New(NotSupportedCtor, getErrorMessageCall));
         }
 
         private static void AddUpdateInstanceMapMethod(
@@ -265,42 +258,32 @@
 
         private class MapMethodInfo
         {
-            private readonly IClassExpressionConfigurator _mapperClass;
-            private readonly MethodInfo _createMappingDataMethod;
-            private readonly MethodInfo _mapMethod;
+            private readonly BuildableMapperGroup _mapperGroup;
+            private readonly MethodExpression _mapMethod;
 
             public MapMethodInfo(
-                Type sourceType,
-                IClassExpressionConfigurator mapperClass,
-                MethodInfo createMappingDataMethod,
-                MethodInfo mapMethod)
+                BuildableMapperGroup mapperGroup,
+                MethodExpression mapMethod)
             {
-                SourceType = sourceType;
-                _createMappingDataMethod = createMappingDataMethod;
-                _mapperClass = mapperClass;
+                _mapperGroup = mapperGroup;
                 _mapMethod = mapMethod;
-
-                TargetType = mapMethod
-                    .GetParameters()[0]
-                    .ParameterType
-                    .GetGenericTypeArguments()[1];
+                TargetType = mapMethod.GetTargetType();
             }
 
             public string RuleSetName => _mapMethod.Name;
 
-            public Type SourceType { get; }
+            public Type SourceType => _mapperGroup.SourceType;
 
             public Type TargetType { get; }
 
             public Expression CreateMapCall(Func<Type, Expression> targetFactory)
             {
                 var createMappingDataCall = Call(
-                    _mapperClass.ThisInstanceExpression,
-                    _createMappingDataMethod.MakeGenericMethod(TargetType),
-                    targetFactory.Invoke(TargetType),
-                    _doNotCreateMapper);
+                    _mapperGroup.MapperInstance,
+                    _mapperGroup.CreateRootMappingDataMethod.MakeGenericMethod(TargetType),
+                    targetFactory.Invoke(TargetType));
 
-                return Call(_mapMethod, createMappingDataCall);
+                return Call(_mapMethod.MethodInfo, createMappingDataCall);
             }
         }
 

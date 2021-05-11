@@ -1,6 +1,6 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
+﻿namespace AgileObjects.AgileMapper.UnitTests.Common.TestClasses
 {
-    internal class Parent
+    public class Parent
     {
         public string Name { get; set; }
 

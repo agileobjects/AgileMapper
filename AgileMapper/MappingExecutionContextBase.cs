@@ -37,23 +37,50 @@
         bool IMappingContext.LazyLoadRepeatMappingFuncs => true;
 
         /// <summary>
-        /// Create an <see cref="IObjectMappingData{TSource, TTarget}"/> object for this
+        /// Creates a root <see cref="IObjectMappingData{TSource, TTarget}"/> object for this
         /// <see cref="MappingExecutionContextBase{TSource}"/>'s source object and the given
-        /// <paramref name="target"/> object, optionally building a Mapper for the types.
+        /// <paramref name="target"/> object.
         /// </summary>
         /// <typeparam name="TTarget">The type of target object to which the mapping is being performed.</typeparam>
         /// <param name="target">The target object to which the mapping is being performed.</param>
-        /// <param name="createMapper">Whether a Mapper should be created for the types being mapped.</param>
         /// <returns>
-        /// An <see cref="IObjectMappingData{TSource, TTarget}"/> object for this
+        /// A root <see cref="IObjectMappingData{TSource, TTarget}"/> object for this
         /// <see cref="MappingExecutionContextBase{TSource}"/>'s source object and the given
         /// <paramref name="target"/> object.
         /// </returns>
-        protected IObjectMappingData<TSource, TTarget> CreateRootMappingData<TTarget>(
-            TTarget target,
-            bool createMapper)
+        protected IObjectMappingData<TSource, TTarget> CreateRootMappingData<TTarget>(TTarget target)
+            => ObjectMappingDataFactory.ForRootFixedTypes(_source, target, this, createMapper: false);
+
+        /// <summary>
+        /// Creates an <see cref="IObjectMappingData{TSource, TTarget}"/> object for the given
+        /// <paramref name="source"/> and <paramref name="target"/> child objects.
+        /// </summary>
+        /// <typeparam name="TChildSource">The type of source object from which the child mapping is being performed.</typeparam>
+        /// <typeparam name="TChildTarget">The type of target object to which the child mapping is being performed.</typeparam>
+        /// <param name="source">The child source object from which the mapping is being performed.</param>
+        /// <param name="target">The child target object to which the mapping is being performed.</param>
+        /// <param name="parent">The mapping data parent object of the child object to create.</param>
+        /// <returns>
+        /// A child <see cref="IObjectMappingData{TSource, TTarget}"/> object for the given
+        /// <paramref name="source"/> and <paramref name="target"/> objects.
+        /// </returns>
+        protected IObjectMappingData<TChildSource, TChildTarget> CreateChildMappingData<TChildSource, TChildTarget>(
+            TChildSource source,
+            TChildTarget target,
+            IObjectMappingDataUntyped parent)
         {
-            return ObjectMappingDataFactory.ForRootFixedTypes(_source, target, this, createMapper);
+            var parentMappingData = (IObjectMappingData)parent;
+
+            var childMappingData = ObjectMappingDataFactory.ForChild(
+                source,
+                target,
+                parentMappingData.GetElementIndex(),
+                parentMappingData.GetElementKey(),
+                targetMemberRegistrationName: string.Empty,
+                dataSourceIndex: 0,
+                parentMappingData);
+
+            return (IObjectMappingData<TChildSource, TChildTarget>)childMappingData;
         }
     }
 }
