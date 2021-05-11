@@ -113,7 +113,6 @@
                     .MakeGenericMethod(typePair.SourceType, typePair.TargetType);
 
                 var createMappingDataCall = Call(
-                    _mapperGroup.MapperInstance,
                     createChildMappingDataMethod,
                     sourceObject,
                     targetObject,

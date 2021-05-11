@@ -36,7 +36,7 @@
 
         public MethodInfo CreateChildMappingDataMethod
             => _createChildMappingDataMethod ??= MapperBaseType
-                .GetNonPublicInstanceMethod("CreateChildMappingData");
+                .GetNonPublicStaticMethod("CreateChildMappingData");
 
         public string MapperName { get; }
 

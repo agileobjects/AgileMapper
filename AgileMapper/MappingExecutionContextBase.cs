@@ -64,7 +64,7 @@
         /// A child <see cref="IObjectMappingData{TSource, TTarget}"/> object for the given
         /// <paramref name="source"/> and <paramref name="target"/> objects.
         /// </returns>
-        protected IObjectMappingData<TChildSource, TChildTarget> CreateChildMappingData<TChildSource, TChildTarget>(
+        protected static IObjectMappingData<TChildSource, TChildTarget> CreateChildMappingData<TChildSource, TChildTarget>(
             TChildSource source,
             TChildTarget target,
             IObjectMappingDataUntyped parent)
