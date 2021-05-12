@@ -72,11 +72,11 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_ARRAY_EMPTY</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST;FEATURE_ARRAY_EMPTY</DefineConstants>
   </PropertyGroup>
 
 </Project>
