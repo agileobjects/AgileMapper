@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
             {
                 mapper.GetPlanFor<Address>().OnTo<Address>();
 
-                var sourceCodeExpressions = mapper.BuildSourceCode();
+                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
                 var staticMapperClass = sourceCodeExpressions
                     .ShouldCompileAStaticMapperClass();

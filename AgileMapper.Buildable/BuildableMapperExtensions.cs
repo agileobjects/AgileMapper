@@ -29,7 +29,7 @@
         /// <returns>
         /// A <see cref="SourceCodeExpression"/> for each mapper configured in this <paramref name="mapper"/>.
         /// </returns>
-        public static IEnumerable<SourceCodeExpression> BuildSourceCode(
+        public static IEnumerable<SourceCodeExpression> GetPlanSourceCodeInCache(
             this IMapper mapper)
         {
             yield return BuildableExpression
@@ -82,7 +82,8 @@
                                     {
                                         doMapping.SetVisibility(Private);
                                         doMapping.SetStatic();
-                                        doMapping.SetBody(plan.Root.Mapping);
+                                        
+                                        doMapping.SetBody(plan.Root.Mapping, typeof(object));
                                     }));
                                 }
 
@@ -159,17 +160,19 @@
         {
             mapperClass.AddMethod("ToANew", mapNewMethod =>
             {
-                var hasSingleTarget = mapMethodInfos.Count == 1;
+                var useTypeConstraint = 
+                    mapMethodInfos.Count == 1 &&
+                   !mapMethodInfos[0].TargetType.IsArray;
 
                 var targetGenericParameter = mapNewMethod.AddGenericParameter("TTarget", param =>
                 {
-                    if (hasSingleTarget)
+                    if (useTypeConstraint)
                     {
                         param.AddTypeConstraints(mapMethodInfos[0].TargetType);
                     }
                 });
 
-                if (hasSingleTarget)
+                if (useTypeConstraint)
                 {
                     mapNewMethod.SetBody(mapMethodInfos[0].CreateMapCall(Default));
                     return;
@@ -186,7 +189,10 @@
                     var targetType = mapMethodInfo.TargetType;
 
                     var typeofTargetType = BuildableExpression.TypeOf(targetType);
-                    var typesAssignable = Call(IsAssignableToMethod, typeofTarget, typeofTargetType);
+                    
+                    var typesAssignable = targetType.IsSealed()
+                        ? (Expression)Equal(typeofTarget, typeofTargetType)
+                        : Call(IsAssignableToMethod, typeofTarget, typeofTargetType);
 
                     var mapCall = mapMethodInfo.CreateMapCall(Default);
                     var mapCallResultAsObject = Convert(mapCall, typeof(object));

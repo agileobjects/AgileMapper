@@ -24,7 +24,7 @@
         /// <summary>
         /// Gets or sets a value indicating whether the mapping plan should lazy-compile its
         /// generated Expression tree into the Func with which mapping is performed. If true, the
-        /// mapping Func will be compiled from the mapping Expression tree when it is first needed,.
+        /// mapping Func will be compiled from the mapping Expression tree when it is first needed,
         /// instead of when the plan is created. Defaults to false for an upfront-cached mapping
         /// plan.
         /// </summary>

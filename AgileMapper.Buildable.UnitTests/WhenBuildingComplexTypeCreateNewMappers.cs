@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
             {
                 mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<int>>();
 
-                var sourceCodeExpressions = mapper.BuildSourceCode();
+                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
                 var staticMapperClass = sourceCodeExpressions
                     .ShouldCompileAStaticMapperClass();
@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
                 mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<int>>();
                 mapper.GetPlanFor<PublicField<string>>().ToANew<PublicProperty<string>>();
 
-                var sourceCodeExpressions = mapper.BuildSourceCode();
+                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
                 var staticMapperClass = sourceCodeExpressions
                     .ShouldCompileAStaticMapperClass();

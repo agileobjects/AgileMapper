@@ -16,7 +16,7 @@
                     new MappingPlanSettings { LazyCompile = true },
                     cfg => cfg.Map<MegaProduct>().To<ProductDtoMega>());
 
-                var sourceCodeExpressions = mapper.BuildSourceCode();
+                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
                 var staticMapperClass = sourceCodeExpressions
                     .ShouldCompileAStaticMapperClass();
