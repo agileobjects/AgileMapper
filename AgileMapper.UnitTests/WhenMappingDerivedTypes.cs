@@ -18,7 +18,7 @@
     public class WhenMappingDerivedTypes
     {
         [Fact]
-        public void ShouldMapARootComplexTypeFromItsAssignedType()
+        public void ShouldMapARootComplexTypeFromItsRuntimeType()
         {
             object source = new Product { Price = 100.00 };
             var result = Mapper.Map(source).ToANew<Product>();
@@ -27,7 +27,7 @@
         }
 
         [Fact]
-        public void ShouldMapARootComplexTypeEnumerableFromItsAssignedType()
+        public void ShouldMapARootComplexTypeEnumerableFromItsRuntimeType()
         {
             object source = new[] { new Product { Price = 10.01 } };
             var result = Mapper.Map(source).ToANew<IEnumerable<Product>>();
@@ -36,7 +36,7 @@
         }
 
         [Fact]
-        public void ShouldMapARootComplexTypeEnumerableElementFromItsAssignedType()
+        public void ShouldMapARootComplexTypeEnumerableElementFromItsRuntimeType()
         {
             var source = new object[] { new Product { Price = 9.99 } };
             var result = Mapper.Map(source).ToANew<IEnumerable<Product>>();
@@ -45,7 +45,7 @@
         }
 
         [Fact]
-        public void ShouldMapAComplexTypeMemberFromItsAssignedType()
+        public void ShouldMapAComplexTypeMemberFromItsRuntimeType()
         {
             var source = new PublicProperty<object>
             {
@@ -60,7 +60,7 @@
         }
 
         [Fact]
-        public void ShouldMapAComplexTypeMemberInACollectionFromItsAssignedType()
+        public void ShouldMapAComplexTypeMemberInACollectionFromItsRuntimeType()
         {
             var sourceObjectId = Guid.NewGuid();
 
@@ -113,14 +113,13 @@
                     .Map<MegaProduct>()
                     .To<ProductDtoMega>();
 
-                var personSource = new PublicField<Product>
+                var productSource = new PublicField<Product>
                 {
                     Value = new MegaProduct { HowMega = 1.10m }
                 };
-                var result = mapper.Map(personSource).ToANew<PublicSetMethod<ProductDto>>();
+                var result = mapper.Map(productSource).ToANew<PublicSetMethod<ProductDto>>();
 
-                result.Value.ShouldBeOfType<ProductDtoMega>();
-                ((ProductDtoMega)result.Value).HowMega.ShouldBe("1.10");
+                result.Value.ShouldBeOfType<ProductDtoMega>().HowMega.ShouldBe("1.10");
             }
         }
 
@@ -144,8 +143,7 @@
                 };
                 var result = mapper.Map(mysteryCustomerSource).ToANew<PublicProperty<PersonViewModel>>();
 
-                result.Value.ShouldBeOfType<MysteryCustomerViewModel>();
-                ((MysteryCustomerViewModel)result.Value).Discount.ShouldBe(0.5);
+                result.Value.ShouldBeOfType<MysteryCustomerViewModel>().Discount.ShouldBe(0.5);
 
                 var customerSource = new PublicField<PersonViewModel>
                 {

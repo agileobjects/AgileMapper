@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
 {
+    using Common.TestClasses;
+
     internal class OrderItemDto : DtoBase
     {
         public int OrderId { get; set; }

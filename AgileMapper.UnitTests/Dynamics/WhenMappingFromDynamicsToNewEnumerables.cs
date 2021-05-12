@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dynamics
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Dynamic;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

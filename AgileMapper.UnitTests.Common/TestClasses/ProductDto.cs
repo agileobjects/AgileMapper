@@ -1,6 +1,6 @@
-﻿namespace AgileObjects.AgileMapper.UnitTests.TestClasses
+﻿namespace AgileObjects.AgileMapper.UnitTests.Common.TestClasses
 {
-    internal class ProductDto
+    public class ProductDto
     {
         public string ProductId { get; set; }
 
