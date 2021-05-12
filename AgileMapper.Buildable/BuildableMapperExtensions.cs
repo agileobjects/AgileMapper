@@ -9,11 +9,9 @@
     using BuildableExpressions.SourceCode.Api;
     using Extensions;
     using NetStandardPolyfills;
-    using ReadableExpressions;
     using ReadableExpressions.Extensions;
     using static System.Linq.Expressions.Expression;
     using static BuildableExpressions.SourceCode.MemberVisibility;
-    using PublicTypeExtensions = ReadableExpressions.Extensions.PublicTypeExtensions;
     using static BuildableMapperConstants;
 
     /// <summary>
@@ -210,30 +208,17 @@
             MapMethodInfo mapMethodInfo,
             TypeExpression targetGenericParameter)
         {
-            var stringConcatMethod = typeof(string).GetPublicStaticMethod(
-                nameof(string.Concat),
-                typeof(string),
-                typeof(string),
-                typeof(string));
-
-            var nullConfiguration = Default(typeof(Func<ITranslationSettings, ITranslationSettings>));
-
-            var getFriendlyNameMethod = typeof(PublicTypeExtensions).GetPublicStaticMethod(
-                nameof(PublicTypeExtensions.GetFriendlyName),
-                typeof(Type),
-                nullConfiguration.Type);
-
             var getErrorMessageCall = Call(
-                stringConcatMethod,
+                StringConcatMethod,
                 Constant(
                     $"Unable to perform a '{mapMethodInfo.RuleSetName}' mapping " +
                     $"from source type '{mapMethodInfo.SourceType.GetFriendlyName()}' " +
                      "to target type '",
                     typeof(string)),
                 Call(
-                    getFriendlyNameMethod,
+                    GetFriendlyNameMethod,
                     BuildableExpression.TypeOf(targetGenericParameter),
-                    nullConfiguration),
+                    NullConfiguration),
                 Constant("'", typeof(string)));
 
             return Throw(New(NotSupportedCtor, getErrorMessageCall));
