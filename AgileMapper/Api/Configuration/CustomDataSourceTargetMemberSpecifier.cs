@@ -14,6 +14,7 @@
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using Projection;
     using ReadableExpressions;

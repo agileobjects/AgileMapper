@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using ObjectPopulation;
+    using Plans;
 
     /// <summary>
     /// Base type providing <see cref="IObjectMappingData{TSource, TTarget}"/> creation for objects
@@ -17,7 +18,7 @@
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MappingExecutionContextBase{TSource}"/>
-        /// class with a default MapperContext and the given <paramref name="source"/>.
+        /// class with the given <paramref name="source"/> object.
         /// </summary>
         /// <param name="source">The source object from which the mapping is to be performed.</param>
         protected MappingExecutionContextBase(TSource source)
@@ -30,11 +31,7 @@
 
         MappingRuleSet IRuleSetOwner.RuleSet => null;
 
-        bool IMappingContext.IncludeCodeComments => false;
-
-        bool IMappingContext.IgnoreUnsuccessfulMemberPopulations => true;
-
-        bool IMappingContext.LazyLoadRepeatMappingFuncs => true;
+        MappingPlanSettings IMappingContext.PlanSettings => null;
 
         /// <summary>
         /// Creates a root <see cref="IObjectMappingData{TSource, TTarget}"/> object for this

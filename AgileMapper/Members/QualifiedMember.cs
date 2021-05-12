@@ -9,16 +9,17 @@ namespace AgileObjects.AgileMapper.Members
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.Extensions.Internal;
     using Caching;
     using Dictionaries;
-    using Extensions.Internal;
+    using Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
     internal class QualifiedMember : IQualifiedMember
     {
-        public static readonly QualifiedMember All = new QualifiedMember(default(Member), null);
-        public static readonly QualifiedMember None = new QualifiedMember(default(Member), null);
+        public static readonly QualifiedMember All = new(default(Member), null);
+        public static readonly QualifiedMember None = new(default(Member), null);
 
         private readonly MapperContext _mapperContext;
         private readonly QualifiedMember _parent;
@@ -38,7 +39,7 @@ namespace AgileObjects.AgileMapper.Members
 
             foreach (var childMember in adaptedMember._childMemberCache.Values)
             {
-                _childMemberCache.GetOrAdd(childMember.LeafMember, m => childMember);
+                _childMemberCache.GetOrAdd(childMember.LeafMember, _ => childMember);
             }
         }
 
@@ -154,8 +155,6 @@ namespace AgileObjects.AgileMapper.Members
         public Type Type => LeafMember?.Type;
 
         public Type RootType => MemberChain[0].Type;
-
-        public string GetFriendlyTypeName() => Type.GetFriendlyName();
 
         public Type ElementType => LeafMember?.ElementType;
 

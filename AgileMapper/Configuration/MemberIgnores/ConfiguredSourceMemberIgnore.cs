@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores
     using Extensions.Internal;
 #endif
     using Members;
+    using Members.Extensions;
 #if NET35
     using LinqExp = System.Linq.Expressions;
 #endif

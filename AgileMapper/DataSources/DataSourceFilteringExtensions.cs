@@ -9,6 +9,7 @@
     using Configuration.MemberIgnores.SourceValueFilters;
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
 
     internal static class DataSourceFilteringExtensions
     {

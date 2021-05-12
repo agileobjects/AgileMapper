@@ -1,4 +1,4 @@
-namespace AgileObjects.AgileMapper.Members.MemberExtensions
+namespace AgileObjects.AgileMapper.Members.Extensions
 {
     using System;
 #if NET35

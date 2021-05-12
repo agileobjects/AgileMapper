@@ -5,14 +5,15 @@
 #if FEATURE_SERIALIZATION
     using System.Runtime.Serialization;
 #endif
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
+    using Members;
+    using Members.Extensions;
+    using NetStandardPolyfills;
 
     /// <summary>
     /// Represents an error that occurred during a mapping.

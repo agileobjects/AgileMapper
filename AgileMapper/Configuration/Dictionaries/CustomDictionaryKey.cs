@@ -9,6 +9,7 @@
 #endif
     using DataSources;
     using Members;
+    using Members.Extensions;
     using ReadableExpressions.Extensions;
 
     internal class CustomDictionaryKey : UserConfiguredItemBase
@@ -105,8 +106,8 @@
         {
             while (context != null)
             {
-                if ((context.SourceMember.GetFriendlyTypeName() == nameof(ExpandoObject)) ||
-                    (context.TargetMember.GetFriendlyTypeName() == nameof(ExpandoObject)))
+                if ((context.SourceMember.GetTypeName() == nameof(ExpandoObject)) ||
+                    (context.TargetMember.GetTypeName() == nameof(ExpandoObject)))
                 {
                     return true;
                 }

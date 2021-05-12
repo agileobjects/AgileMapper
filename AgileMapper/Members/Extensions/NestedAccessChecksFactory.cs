@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Members.MemberExtensions
+﻿namespace AgileObjects.AgileMapper.Members.Extensions
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,8 @@
 #else
     using System.Linq.Expressions;
 #endif
-    using Extensions;
-    using Extensions.Internal;
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 #if NET35

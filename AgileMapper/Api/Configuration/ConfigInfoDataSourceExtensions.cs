@@ -5,7 +5,7 @@
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Extensions.Internal;
-    using Members;
+    using Members.Extensions;
     using ReadableExpressions;
 
     internal static class ConfigInfoDataSourceExtensions

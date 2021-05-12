@@ -1,5 +1,6 @@
 namespace AgileObjects.AgileMapper.Members.Sources
 {
+    using Extensions;
     using ObjectPopulation;
 
     internal class ElementMembersSource : IMembersSource

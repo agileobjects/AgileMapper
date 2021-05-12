@@ -3,20 +3,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ComplexTypes.ShortCircuits;
-    using DataSources;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using ComplexTypes.ShortCircuits;
+    using DataSources;
     using Enumerables.EnumerableExtensions;
     using Extensions;
     using Extensions.Internal;
     using Members;
-    using Members.MemberExtensions;
+    using Members.Extensions;
     using NetStandardPolyfills;
-    using ReadableExpressions;
 #if NET35
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
@@ -34,7 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 var fallbackValue = GetNullMappingFallbackValue(mapperData);
 
-                return mappingData.MappingContext.IncludeCodeComments
+                return mappingData.MappingContext.PlanSettings.CommentUnmappableMembers
                     ? Expression.Block(Comment(reason), fallbackValue)
                     : fallbackValue;
             }

@@ -6,10 +6,11 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 
-    internal class DictionarySourceMember : IQualifiedMember
+    internal class DictionarySourceMember : IQualifiedMemberWrapper
     {
         private readonly IQualifiedMember _wrappedSourceMember;
         private readonly QualifiedMember _matchedTargetMember;
@@ -72,8 +73,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 
         public Type ElementType => ValueType;
 
-        public string GetFriendlyTypeName() => _wrappedSourceMember.GetFriendlyTypeName();
-
         public Type KeyType { get; }
 
         public Type ValueType { get; }
@@ -91,6 +90,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         public bool IsEntireDictionaryMatch { get; }
 
         public string Name => _wrappedSourceMember.Name;
+
+        IQualifiedMember IQualifiedMemberWrapper.WrappedMember => _wrappedSourceMember;
 
         public string GetPath() => _wrappedSourceMember.GetPath();
 
@@ -132,10 +133,7 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 : EntryMember.GetQualifiedAccess(parentInstance);
         }
 
-        public IQualifiedMember SetContext(IQualifiedMemberContext context)
-        {
-            return this;
-        }
+        public IQualifiedMember SetContext(IQualifiedMemberContext context) => this;
 
         #region ExcludeFromCodeCoverage
 #if DEBUG

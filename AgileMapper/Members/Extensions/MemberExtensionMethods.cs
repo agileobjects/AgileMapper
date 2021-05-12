@@ -1,4 +1,4 @@
-﻿namespace AgileObjects.AgileMapper.Members
+﻿namespace AgileObjects.AgileMapper.Members.Extensions
 {
     using System;
     using System.Collections.Generic;
@@ -7,15 +7,14 @@
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using LinqExp = System.Linq.Expressions;
 #else
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Caching.Dictionaries;
     using Configuration;
-    using Extensions;
-    using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
@@ -23,11 +22,23 @@
     using static System.StringComparison;
     using static Constants;
     using static Member;
+#if NET35
+    using LinqExp = System.Linq.Expressions;
+#endif
 
     internal static class MemberExtensionMethods
     {
         public static string GetFullName(this IEnumerable<Member> members)
             => members.Project(m => m.JoiningName).Join(string.Empty);
+
+        public static string GetTypeName(this IQualifiedMember member)
+            => member.GetNamingType().Name;
+
+        public static string GetFriendlyTypeName(this IQualifiedMember member)
+            => member.GetNamingType().GetFriendlyName();
+
+        private static Type GetNamingType(this IQualifiedMember member)
+            => (member is IQualifiedMemberWrapper wrapper ? wrapper.WrappedMember : member).Type;
 
         public static string GetFriendlySourcePath(this IQualifiedMember sourceMember, IMemberMapperData rootMapperData)
             => GetFriendlyMemberPath(sourceMember, rootMapperData.SourceMember);
@@ -280,7 +291,7 @@
             this Expression memberAccess,
             MapperContext mapperContext)
         {
-            return memberAccess.ToSourceMember(mapperContext, nt => { });
+            return memberAccess.ToSourceMember(mapperContext, _ => { });
         }
 
         public static QualifiedMember ToSourceMemberOrNull(
@@ -289,7 +300,7 @@
             out string failureReason)
         {
             var hasUnsupportedNodeType = false;
-            var sourceMember = memberAccess.ToSourceMember(mapperContext, nt => hasUnsupportedNodeType = true);
+            var sourceMember = memberAccess.ToSourceMember(mapperContext, _ => hasUnsupportedNodeType = true);
 
             if (hasUnsupportedNodeType)
             {
@@ -323,7 +334,7 @@
                 nonMemberAction ?? ThrowIfUnsupported,
                 mapperContext);
         }
-        
+
 #if NET35
         public static QualifiedMember ToTargetMemberOrNull(this LinqExp.LambdaExpression memberAccess, MapperContext mapperContext)
             => memberAccess.ToDlrExpression().ToTargetMemberOrNull(mapperContext);
@@ -342,7 +353,7 @@
             out string failureReason)
         {
             var hasUnsupportedNodeType = false;
-            var targetMember = memberAccess.ToTargetMember(mapperContext, nt => hasUnsupportedNodeType = true);
+            var targetMember = memberAccess.ToTargetMember(mapperContext, _ => hasUnsupportedNodeType = true);
 
             if (hasUnsupportedNodeType)
             {

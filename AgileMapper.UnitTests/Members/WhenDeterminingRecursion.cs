@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Members
 {
     using AgileMapper.Members;
+    using AgileMapper.Members.Extensions;
     using Common;
     using Common.TestClasses;
     using TestClasses;

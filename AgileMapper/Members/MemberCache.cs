@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Caching;
-    using Extensions;
-    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
     using static System.StringComparer;

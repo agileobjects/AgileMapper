@@ -6,7 +6,8 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
 #else
     using System.Linq.Expressions;
 #endif
-    using Extensions.Internal;
+    using AgileMapper.Extensions.Internal;
+    using Extensions;
     using ReadableExpressions.Extensions;
 
     internal class DictionaryEntrySourceMember : IQualifiedMember
@@ -76,8 +77,6 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
         public Type Type { get; }
 
         public Type RootType => Parent.Type;
-
-        public string GetFriendlyTypeName() => Type.GetFriendlyName();
 
         public Type ElementType => _childMembers.Last().ElementType;
 

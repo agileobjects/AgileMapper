@@ -3,6 +3,7 @@
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Members;
+    using Members.Extensions;
 
     /// <summary>
     /// Provides options for configuring an element of how this mapper performs a mapping.

@@ -8,7 +8,7 @@
     using Caching.Dictionaries;
     using Extensions.Internal;
     using Members;
-    using Members.MemberExtensions;
+    using Members.Extensions;
     using NetStandardPolyfills;
 
     internal static class MappingFactory

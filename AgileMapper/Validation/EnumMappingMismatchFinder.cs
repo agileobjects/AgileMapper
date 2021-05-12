@@ -13,9 +13,9 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 
     internal class EnumMappingMismatchFinder : ExpressionVisitor
     {

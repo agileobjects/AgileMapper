@@ -13,6 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Extensions.Internal;
     using MapperKeys;
     using Members;
+    using Members.Extensions;
     using Members.Sources;
     using NetStandardPolyfills;
 

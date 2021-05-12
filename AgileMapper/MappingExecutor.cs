@@ -11,6 +11,7 @@
     using Extensions;
     using Extensions.Internal;
     using ObjectPopulation;
+    using Plans;
 
     internal class MappingExecutor<TSource> :
         ITargetSelector<TSource>,
@@ -30,11 +31,7 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
-        bool IMappingContext.IncludeCodeComments => false;
-
-        public bool IgnoreUnsuccessfulMemberPopulations => true;
-
-        public bool LazyLoadRepeatMappingFuncs => true;
+        MappingPlanSettings IMappingContext.PlanSettings => MappingPlanSettings.LazyPlanned;
 
         #region ToANew Overloads
 

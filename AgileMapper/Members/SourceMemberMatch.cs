@@ -5,12 +5,13 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.Extensions.Internal;
     using DataSources;
-    using Extensions.Internal;
+    using Extensions;
 
     internal class SourceMemberMatch
     {
-        public static readonly SourceMemberMatch Null = new SourceMemberMatch();
+        public static readonly SourceMemberMatch Null = new();
 
         private SourceMemberMatch()
         {

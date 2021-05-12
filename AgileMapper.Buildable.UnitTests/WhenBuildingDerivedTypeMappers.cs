@@ -2,6 +2,7 @@
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Plans;
     using Xunit;
 
     public class WhenBuildingDerivedTypeMappers
@@ -11,13 +12,9 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.WhenMapping
-                    .From<Product>()
-                    .To<ProductDto>()
-                    .Map<MegaProduct>()
-                    .To<ProductDtoMega>();
-
-                mapper.GetPlanFor<Product>().ToANew<ProductDto>();
+                mapper.GetPlanFor<Product>().ToANew<ProductDto>(
+                    new MappingPlanSettings { LazyCompile = true },
+                    cfg => cfg.Map<MegaProduct>().To<ProductDtoMega>());
 
                 var sourceCodeExpressions = mapper.BuildSourceCode();
 

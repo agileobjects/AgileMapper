@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.Members.Population
 
             context.MemberMapperData.RegisterTargetMemberDataSources(noDataSources);
 
-            return CreateNullMemberPopulator(noDataSourcesMessage, context, (msg, md) => msg);
+            return CreateNullMemberPopulator(noDataSourcesMessage, context, (msg, _) => msg);
         }
 
         private static string GetNoDataSourcesMessage(QualifiedMember targetMember)
@@ -63,7 +63,7 @@ namespace AgileObjects.AgileMapper.Members.Population
             MemberPopulationContext context,
             Func<TArg, IMemberMapperData, Expression> descriptionFactory)
         {
-            if (context.MappingContext.IgnoreUnsuccessfulMemberPopulations)
+            if (!context.MappingContext.PlanSettings.CommentUnmappedMembers)
             {
                 return null;
             }
