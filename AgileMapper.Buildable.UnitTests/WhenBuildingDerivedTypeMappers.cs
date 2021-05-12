@@ -17,7 +17,7 @@
                     .Map<MegaProduct>()
                     .To<ProductDtoMega>();
 
-                string plan = mapper.GetPlanFor<Product>().ToANew<ProductDto>();
+                mapper.GetPlanFor<Product>().ToANew<ProductDto>();
 
                 var sourceCodeExpressions = mapper.BuildSourceCode();
 
@@ -50,14 +50,22 @@
                 var derivedTypeExecutor = staticMapMethod
                     .ShouldCreateMappingExecutor<Product>(derivedTypeSource);
 
-                var derivedTypeResult = derivedTypeExecutor
+                var derivedTypeBaseTypeResult = derivedTypeExecutor
                     .ShouldHaveACreateNewMethod()
                     .ShouldExecuteACreateNewMapping<ProductDto>(derivedTypeExecutor)
                     .ShouldBeOfType<ProductDtoMega>();
 
-                derivedTypeResult.ProductId.ShouldBe("222");
-                derivedTypeResult.Price.ShouldBe(119.99m);
-                derivedTypeResult.HowMega.ShouldBe("1.0");
+                derivedTypeBaseTypeResult.ProductId.ShouldBe("222");
+                derivedTypeBaseTypeResult.Price.ShouldBe(119.99m);
+                derivedTypeBaseTypeResult.HowMega.ShouldBe("1.0");
+
+                var derivedTypeDerivedTypeResult = derivedTypeExecutor
+                    .ShouldHaveACreateNewMethod()
+                    .ShouldExecuteACreateNewMapping<ProductDtoMega>(derivedTypeExecutor);
+
+                derivedTypeDerivedTypeResult.ProductId.ShouldBe("222");
+                derivedTypeDerivedTypeResult.Price.ShouldBe(119.99m);
+                derivedTypeDerivedTypeResult.HowMega.ShouldBe("1.0");
             }
         }
     }
