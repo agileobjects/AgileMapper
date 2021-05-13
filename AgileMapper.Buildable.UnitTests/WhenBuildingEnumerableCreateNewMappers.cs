@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Linq;
     using AgileMapper.UnitTests.Common;
+    using AgileMapper.UnitTests.Common.TestClasses;
     using Plans;
     using Xunit;
 
@@ -108,6 +110,47 @@
                     .ShouldExecuteACreateNewMapping<DateTime[]>(executor);
 
                 result.ShouldNotBeNull().ShouldBe(yesterday, today, tomorrow);
+            }
+        }
+
+        [Fact]
+        public void ShouldBuildAComplexTypeListToIListMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<List<ProductDto>>().ToANew<IList<ProductDto>>(new MappingPlanSettings
+                {
+                    LazyCompile = true
+                });
+
+                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+
+                var staticMapperClass = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass();
+
+                var staticMapMethod = staticMapperClass
+                    .GetMapMethods()
+                    .ShouldHaveSingleItem();
+
+                var source = new List<ProductDto>
+                {
+                    new ProductDto { ProductId = "Surprise" },
+                    null,
+                    new ProductDto { ProductId = "Boomstick" }
+                };
+
+                var executor = staticMapMethod
+                    .ShouldCreateMappingExecutor(source);
+
+                var result = executor
+                    .ShouldHaveACreateNewMethod()
+                    .ShouldExecuteACreateNewMapping<List<ProductDto>>(executor);
+
+                result.ShouldNotBeNull();
+                result.ShouldNotBeSameAs(source);
+                result.First().ShouldNotBeNull().ProductId.ShouldBe("Surprise");
+                result.Second().ShouldBeNull();
+                result.Third().ShouldNotBeNull().ProductId.ShouldBe("Boomstick");
             }
         }
     }

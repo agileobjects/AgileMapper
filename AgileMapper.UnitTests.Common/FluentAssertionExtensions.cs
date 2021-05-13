@@ -178,13 +178,15 @@
             }
         }
 
-        public static void ShouldNotBeSameAs<T>(this T actualItem, T nonExpectedItem)
+        public static T ShouldNotBeSameAs<T>(this T actualItem, T nonExpectedItem)
             where T : class
         {
             if (ReferenceEquals(nonExpectedItem, actualItem))
             {
                 Asplode("Not " + nonExpectedItem, nonExpectedItem.ToString());
             }
+
+            return actualItem;
         }
 
         public static T ShouldBeSameAs<T>(this T actualItem, T expectedItem)

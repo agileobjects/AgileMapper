@@ -95,8 +95,8 @@
         IPlanTargetSelector<TSource> GetPlansFor<TSource>();
 
         /// <summary>
-        /// Returns a <see cref="MappingPlanSet"/> containing plans for all mapping functions currently
-        /// cached by the <see cref="IMapper"/>.
+        /// Returns a <see cref="MappingPlanSet"/> containing plans for all mapping functions
+        /// currently cached by the <see cref="IMapper"/>.
         /// </summary>
         /// <returns>
         /// A <see cref="MappingPlanSet"/> containing the currently-cached functions to be executed
@@ -105,7 +105,8 @@
         MappingPlanSet GetPlansInCache();
 
         /// <summary>
-        /// Returns mapping plan Expressions for all mapping functions currently cached by the <see cref="IMapper"/>.
+        /// Returns mapping plan Expressions for all mapping functions currently cached by the
+        /// <see cref="IMapper"/>.
         /// </summary>
         /// <returns>An Expression containing the currently-cached functions to be executed during mappings.</returns>
         ReadOnlyCollection<Expr> GetPlanExpressionsInCache();

@@ -82,8 +82,7 @@
                                     {
                                         doMapping.SetVisibility(Private);
                                         doMapping.SetStatic();
-                                        
-                                        doMapping.SetBody(plan.Root.Mapping, typeof(object));
+                                        doMapping.SetBody(plan.Root.Mapping);
                                     }));
                                 }
 
