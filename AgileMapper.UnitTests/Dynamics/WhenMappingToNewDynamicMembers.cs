@@ -2,7 +2,6 @@
 {
     using System.Dynamic;
     using Common.TestClasses;
-    using TestClasses;
     using Xunit;
 
     public class WhenMappingToNewDynamicMembers

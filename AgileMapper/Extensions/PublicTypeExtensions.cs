@@ -4,7 +4,6 @@
     using System.Reflection;
     using Internal;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     /// <summary>
     /// Provides mapping-related extension methods for Types. These methods support mapping, and are

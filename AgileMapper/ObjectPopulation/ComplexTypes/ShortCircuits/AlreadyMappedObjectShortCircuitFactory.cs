@@ -5,7 +5,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
 #else
     using System.Linq.Expressions;
 #endif
-    using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
 

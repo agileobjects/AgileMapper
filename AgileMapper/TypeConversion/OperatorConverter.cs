@@ -9,7 +9,6 @@ namespace AgileObjects.AgileMapper.TypeConversion
 #endif
     using System.Reflection;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal struct OperatorConverter : IValueConverter
     {
