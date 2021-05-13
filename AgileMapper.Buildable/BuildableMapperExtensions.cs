@@ -159,9 +159,7 @@
         {
             mapperClass.AddMethod("ToANew", mapNewMethod =>
             {
-                var useTypeConstraint = 
-                    mapMethodInfos.Count == 1 &&
-                   !mapMethodInfos[0].TargetType.IsArray;
+                var useTypeConstraint = UseTypeConstraint(mapMethodInfos);
 
                 var targetGenericParameter = mapNewMethod.AddGenericParameter("TTarget", param =>
                 {
@@ -186,9 +184,8 @@
                 foreach (var mapMethodInfo in mapMethodInfos)
                 {
                     var targetType = mapMethodInfo.TargetType;
-
                     var typeofTargetType = BuildableExpression.TypeOf(targetType);
-                    
+
                     var typesAssignable = targetType.IsSealed()
                         ? (Expression)Equal(typeofTarget, typeofTargetType)
                         : Call(IsAssignableToMethod, typeofTarget, typeofTargetType);
@@ -207,6 +204,18 @@
 
                 mapNewMethod.SetBody(Block(mappingExpressions));
             });
+        }
+
+        private static bool UseTypeConstraint(IList<MapMethodInfo> mapMethodInfos)
+        {
+            if (mapMethodInfos.Count != 1)
+            {
+                return false;
+            }
+
+            var targetType = mapMethodInfos[0].TargetType;
+
+            return !(targetType.IsArray || targetType.IsEnum());
         }
 
         private static Expression GetThrowTargetNotSupportedException(
