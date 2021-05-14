@@ -96,7 +96,6 @@
                 return _mappingMethod
                     .Invoke(_executor, new object[] { target })
                     .ShouldNotBeNull()
-                    .ShouldBeSameAs(target)
                     .ShouldBeOfType<TTarget>();
             }
 
@@ -105,7 +104,6 @@
                 return _mappingMethod
                     .Invoke(_executor, new object[] { target })
                     .ShouldNotBeNull()
-                    .ShouldBeSameAs(target)
                     .ShouldBeOfType<TTarget>();
             }
         }

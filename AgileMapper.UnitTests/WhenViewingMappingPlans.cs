@@ -158,7 +158,7 @@
                 .GetPlanFor<IEnumerable<Person>>()
                 .OnTo<IEnumerable<PersonViewModel>>();
 
-            plan.ShouldContain("collectionData.Intersection.ForEach((person, personViewModel, i) =>");
+            plan.ShouldContain("collectionData.Intersection.ForEach((existingPerson, existingPersonViewModel, idx) =>");
             plan.ShouldContain("persons = collectionData.NewSourceItems");
         }
 
@@ -170,12 +170,12 @@
                 .Over<IEnumerable<Person>>();
 
             plan.ShouldContain("personViewModels = collectionData.NewSourceItems");
-            plan.ShouldContain("collectionData.Intersection.ForEach((personViewModel, person, i) =>");
-            plan.ShouldContain("collectionData.AbsentTargetItems.ForEach(persons.Remove)");
+            plan.ShouldContain("collectionData.Intersection.ForEach((existingPersonViewModel, existingPerson, idx) =>");
+            plan.ShouldContain("collectionData.AbsentTargetItems.ForEach(p => persons.Remove(p)");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
-            plan.ShouldNotContain("PersonViewModel -> Person");  // <- because the mapping is inlined
-            plan.ShouldNotContain("PersonViewModel -> Address"); // <- because the mapping is inlined
+            plan.ShouldNotContain("PersonViewModel -> Person");
+            plan.ShouldNotContain("PersonViewModel -> Address");
         }
 
         [Fact]

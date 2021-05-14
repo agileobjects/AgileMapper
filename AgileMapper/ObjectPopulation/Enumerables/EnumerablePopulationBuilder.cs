@@ -263,13 +263,7 @@
         public ParameterExpression TargetVariable
         {
             get => _targetVariable;
-            set
-            {
-                if (_targetVariable == null)
-                {
-                    _targetVariable = value;
-                }
-            }
+            set => _targetVariable ??= value;
         }
 
         public void AssignSourceVariableToSourceObject()
@@ -711,8 +705,11 @@
 
         public void MapIntersection(IObjectMappingData enumerableMappingData)
         {
-            var sourceElementParameter = Context.GetSourceParameterFor(Context.SourceElementType);
-            var targetElementParameter = Context.GetTargetParameterFor(Context.TargetElementType);
+            var sourceElementParameter = Context.GetSourceParameterFor(Context.SourceElementType, prefix: "existing");
+            var targetElementParameter = Context.GetTargetParameterFor(Context.TargetElementType, prefix: "existing");
+            
+            var defaultLoopCounter = _counterVariable;
+            _counterVariable = Parameters.Create<int>("idx");
 
             var forEachActionType = Expression.GetActionType(Context.SourceElementType, Context.TargetElementType, typeof(int));
             var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter, enumerableMappingData);
@@ -722,7 +719,9 @@
                 forEachAction,
                 sourceElementParameter,
                 targetElementParameter,
-                Counter);
+                _counterVariable);
+
+            _counterVariable = defaultLoopCounter;
 
             var forEachCall = Expression.Call(
                 _forEachTupleMethod.MakeGenericMethod(Context.ElementTypes),

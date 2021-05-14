@@ -40,19 +40,34 @@
 
         public bool TargetElementsAreSimple { get; }
 
-        public ParameterExpression GetSourceParameterFor(Type type) => GetParameterFor(type, "source");
+        public ParameterExpression GetSourceParameterFor(Type type, string prefix = null)
+            => GetParameterFor(type, prefix, "source");
 
-        public ParameterExpression GetTargetParameterFor(Type type) => GetParameterFor(type, "target");
+        public ParameterExpression GetTargetParameterFor(Type type, string prefix = null)
+            => GetParameterFor(type, prefix, "target");
 
-        private ParameterExpression GetParameterFor(Type type, string sameTypesPrefix)
+        private ParameterExpression GetParameterFor(
+            Type type,
+            string prefix,
+            string sameTypesPrefix)
         {
-            var parameterName = ElementTypesAreTheSame
-                ? sameTypesPrefix + type.GetVariableNameInPascalCase()
-                : type.GetVariableNameInCamelCase();
+            string parameterName;
 
-            var parameter = Expression.Parameter(type, parameterName);
+            if (ElementTypesAreTheSame)
+            {
+                parameterName =
+                    prefix +
+                    sameTypesPrefix +
+                    type.GetVariableNameInPascalCase();
+            }
+            else
+            {
+                parameterName = prefix != null
+                    ? prefix + type.GetVariableNameInPascalCase()
+                    : type.GetVariableNameInCamelCase();
+            }
 
-            return parameter;
+            return Parameters.Create(type, parameterName);
         }
     }
 }
