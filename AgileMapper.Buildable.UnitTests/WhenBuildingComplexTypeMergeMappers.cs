@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 
                 executor
                     .ShouldHaveAMergeMethod()
-                    .ShouldExecuteAMergeMapping(executor, target);
+                    .ShouldExecuteAMergeMapping(target);
 
                 target.Line1.ShouldBe("Line 1!");
                 target.Line2.ShouldBe("Line 2!");

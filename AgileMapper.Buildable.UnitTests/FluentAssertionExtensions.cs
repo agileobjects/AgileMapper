@@ -39,63 +39,75 @@
                 .ShouldBeOfType<MappingExecutionContextBase<TSource>>();
         }
 
-        public static MethodInfo ShouldHaveACreateNewMethod<TSource>(
+        public static ExecutorTester<TSource> ShouldHaveACreateNewMethod<TSource>(
             this MappingExecutionContextBase<TSource> executor)
         {
-            return executor.GetType()
-                .GetPublicInstanceMethods("ToANew")
-                .ShouldHaveSingleItem();
+            return new ExecutorTester<TSource>(
+                executor,
+                executor.GetType()
+                    .GetPublicInstanceMethods("ToANew")
+                    .ShouldHaveSingleItem());
         }
 
-        public static MethodInfo ShouldHaveAMergeMethod<TSource>(
+        public static ExecutorTester<TSource> ShouldHaveAMergeMethod<TSource>(
             this MappingExecutionContextBase<TSource> executor)
         {
-            return executor.GetType()
-                .GetPublicInstanceMethods("OnTo")
-                .ShouldHaveSingleItem();
+            return new ExecutorTester<TSource>(
+                executor,
+                executor.GetType()
+                    .GetPublicInstanceMethods("OnTo")
+                    .ShouldHaveSingleItem());
         }
 
-        public static MethodInfo ShouldHaveAnOverwriteMethod<TSource>(
+        public static ExecutorTester<TSource> ShouldHaveAnOverwriteMethod<TSource>(
             this MappingExecutionContextBase<TSource> executor)
         {
-            return executor.GetType()
-                .GetPublicInstanceMethods("Over")
-                .ShouldHaveSingleItem();
+            return new ExecutorTester<TSource>(
+                executor,
+                executor.GetType()
+                    .GetPublicInstanceMethods("Over")
+                    .ShouldHaveSingleItem());
         }
 
-        public static TResult ShouldExecuteACreateNewMapping<TResult>(
-            this MethodInfo createNewMethod,
-            object executor)
+        public class ExecutorTester<TSource>
         {
-            return createNewMethod
-                .MakeGenericMethod(typeof(TResult))
-                .Invoke(executor, Array.Empty<object>())
-                .ShouldNotBeNull()
-                .ShouldBeOfType<TResult>();
-        }
+            private readonly MappingExecutionContextBase<TSource> _executor;
+            private readonly MethodInfo _mappingMethod;
 
-        public static TTarget ShouldExecuteAMergeMapping<TTarget>(
-            this MethodInfo mergeMethod,
-            object executor,
-            TTarget target)
-        {
-            return mergeMethod
-                .Invoke(executor, new object[] { target })
-                .ShouldNotBeNull()
-                .ShouldBeSameAs(target)
-                .ShouldBeOfType<TTarget>();
-        }
+            public ExecutorTester(
+                MappingExecutionContextBase<TSource> executor,
+                MethodInfo mappingMethod)
+            {
+                _executor = executor;
+                _mappingMethod = mappingMethod;
+            }
 
-        public static TTarget ShouldExecuteAnOverwriteMapping<TTarget>(
-            this MethodInfo overwriteMethod,
-            object executor,
-            TTarget target)
-        {
-            return overwriteMethod
-                .Invoke(executor, new object[] { target })
-                .ShouldNotBeNull()
-                .ShouldBeSameAs(target)
-                .ShouldBeOfType<TTarget>();
+            public TResult ShouldExecuteACreateNewMapping<TResult>()
+            {
+                return _mappingMethod
+                    .MakeGenericMethod(typeof(TResult))
+                    .Invoke(_executor, Array.Empty<object>())
+                    .ShouldNotBeNull()
+                    .ShouldBeOfType<TResult>();
+            }
+
+            public TTarget ShouldExecuteAMergeMapping<TTarget>(TTarget target)
+            {
+                return _mappingMethod
+                    .Invoke(_executor, new object[] { target })
+                    .ShouldNotBeNull()
+                    .ShouldBeSameAs(target)
+                    .ShouldBeOfType<TTarget>();
+            }
+
+            public TTarget ShouldExecuteAnOverwriteMapping<TTarget>(TTarget target)
+            {
+                return _mappingMethod
+                    .Invoke(_executor, new object[] { target })
+                    .ShouldNotBeNull()
+                    .ShouldBeSameAs(target)
+                    .ShouldBeOfType<TTarget>();
+            }
         }
     }
 }

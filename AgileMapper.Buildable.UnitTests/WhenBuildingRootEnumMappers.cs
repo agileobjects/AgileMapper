@@ -29,7 +29,7 @@
 
                 var enumIdResult = enumIdExecutor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<Title>(enumIdExecutor);
+                    .ShouldExecuteACreateNewMapping<Title>();
 
                 enumIdResult.ShouldBe(Title.Mrs);
 
@@ -40,7 +40,7 @@
 
                 var enumLabelResult = enumLabelIdExecutor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<Title>(enumLabelIdExecutor);
+                    .ShouldExecuteACreateNewMapping<Title>();
 
                 enumLabelResult.ShouldBe(Title.Master);
             }

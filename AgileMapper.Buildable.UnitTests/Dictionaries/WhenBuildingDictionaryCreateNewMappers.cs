@@ -34,7 +34,7 @@
 
                 var result = executor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<Dictionary<string, string>>(executor);
+                    .ShouldExecuteACreateNewMapping<Dictionary<string, string>>();
 
                 result.ShouldNotBeNull();
                 result.ShouldContainKeyAndValue("Value1", "12345");

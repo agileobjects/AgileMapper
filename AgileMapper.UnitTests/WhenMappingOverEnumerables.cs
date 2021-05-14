@@ -17,29 +17,28 @@
     public class WhenMappingOverEnumerables
     {
         [Fact]
-        public void ShouldOverwriteARootSimpleTypeArray()
+        public void ShouldOverwriteASimpleTypeArray()
         {
             var source = new[] { '5', '4', '3', '2' };
             var target = new[] { 9, 8, 7, 1 };
             var result = Mapper.Map(source).Over(target);
 
-            result.ShouldNotBeNull();
+            result.ShouldNotBeNull().ShouldNotBeSameAs(target);
             result.ShouldBe(5, 4, 3, 2);
         }
 
         [Fact]
-        public void ShouldOverwriteARootSimpleTypeReadOnlyCollection()
+        public void ShouldOverwriteASimpleTypeReadOnlyCollection()
         {
             var source = new[] { '2', '3' };
             var target = new ReadOnlyCollection<char>(new List<char> { '5', '4' });
             var result = Mapper.Map(source).Over(target);
 
-            result.ShouldNotBeNull();
-            result.ShouldBe('2', '3');
+            result.ShouldNotBeNull().ShouldBe('2', '3');
         }
 
         [Fact]
-        public void ShouldOverwriteARootSimpleTypeList()
+        public void ShouldOverwriteASimpleTypeList()
         {
             var source = new List<string> { "I", "Will" };
             var target = new List<string> { "You", "Might" };
@@ -50,7 +49,7 @@
         }
 
         [Fact]
-        public void ShouldOverwriteARootSimpleTypeEnumerable()
+        public void ShouldOverwriteASimpleTypeEnumerable()
         {
             var source = new List<long> { 234, 567 };
             IEnumerable<long> target = new List<long> { 654, 321 };
@@ -61,7 +60,7 @@
         }
 
         [Fact]
-        public void ShouldOverwriteARootComplexTypeList()
+        public void ShouldOverwriteAComplexTypeList()
         {
             var source = new[]
             {
@@ -82,7 +81,7 @@
         }
 
         [Fact]
-        public void ShouldOverwriteARootComplexTypeCollectionElementByRuntimeType()
+        public void ShouldOverwriteAComplexTypeCollectionElementByRuntimeType()
         {
             var id = Guid.NewGuid();
 

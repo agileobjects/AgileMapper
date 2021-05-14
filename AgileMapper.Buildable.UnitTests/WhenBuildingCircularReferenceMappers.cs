@@ -46,7 +46,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 
                 var result = executor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<Child>(executor);
+                    .ShouldExecuteACreateNewMapping<Child>();
 
                 result.ShouldNotBeNull().ShouldNotBeSameAs(source);
 

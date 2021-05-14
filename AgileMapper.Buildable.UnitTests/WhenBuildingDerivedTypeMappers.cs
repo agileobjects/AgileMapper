@@ -32,7 +32,7 @@
 
                 var baseTypeResult = baseTypeExecutor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<ProductDto>(baseTypeExecutor);
+                    .ShouldExecuteACreateNewMapping<ProductDto>();
 
                 baseTypeResult.ProductId.ShouldBe("111");
                 baseTypeResult.Price.ShouldBe(19.99m);
@@ -49,7 +49,7 @@
 
                 var derivedTypeBaseTypeResult = derivedTypeExecutor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<ProductDto>(derivedTypeExecutor)
+                    .ShouldExecuteACreateNewMapping<ProductDto>()
                     .ShouldBeOfType<ProductDtoMega>();
 
                 derivedTypeBaseTypeResult.ProductId.ShouldBe("222");
@@ -58,7 +58,7 @@
 
                 var derivedTypeDerivedTypeResult = derivedTypeExecutor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<ProductDtoMega>(derivedTypeExecutor);
+                    .ShouldExecuteACreateNewMapping<ProductDtoMega>();
 
                 derivedTypeDerivedTypeResult.ProductId.ShouldBe("222");
                 derivedTypeDerivedTypeResult.Price.ShouldBe(119.99m);

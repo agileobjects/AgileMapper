@@ -37,7 +37,7 @@
 
                 var result = executor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<Collection<byte?>>(executor);
+                    .ShouldExecuteACreateNewMapping<Collection<byte?>>();
 
                 result.ShouldNotBeNull();
                 result.ShouldBe<byte?>(3, 2, 1, null);
@@ -70,7 +70,7 @@
 
                 var result = executor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<ReadOnlyCollection<int>>(executor);
+                    .ShouldExecuteACreateNewMapping<ReadOnlyCollection<int>>();
 
                 result.ShouldNotBeNull();
                 result.ShouldBe(1, 2, 3);
@@ -107,7 +107,7 @@
 
                 var result = executor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<DateTime[]>(executor);
+                    .ShouldExecuteACreateNewMapping<DateTime[]>();
 
                 result.ShouldNotBeNull().ShouldBe(yesterday, today, tomorrow);
             }
@@ -144,7 +144,7 @@
 
                 var result = executor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<List<ProductDto>>(executor);
+                    .ShouldExecuteACreateNewMapping<List<ProductDto>>();
 
                 result.ShouldNotBeNull();
                 result.ShouldNotBeSameAs(source);

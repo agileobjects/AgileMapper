@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 
                 executor
                     .ShouldHaveAnOverwriteMethod()
-                    .ShouldExecuteAnOverwriteMapping(executor, target);
+                    .ShouldExecuteAnOverwriteMapping(target);
 
                 target.Line1.ShouldBe("1.1");
                 target.Line2.ShouldBe("1.2");

@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 
                 var result = executor
                     .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<PublicField<int>>(executor);
+                    .ShouldExecuteACreateNewMapping<PublicField<int>>();
 
                 result.Value.ShouldBe(123);
             }
@@ -62,19 +62,19 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
                 var createNewMethod = executor.ShouldHaveACreateNewMethod();
 
                 var publicFieldResult = createNewMethod
-                    .ShouldExecuteACreateNewMapping<PublicField<int>>(executor);
+                    .ShouldExecuteACreateNewMapping<PublicField<int>>();
 
                 publicFieldResult.Value.ShouldBe(456);
 
                 var publicPropertyResult = createNewMethod
-                    .ShouldExecuteACreateNewMapping<PublicProperty<string>>(executor);
+                    .ShouldExecuteACreateNewMapping<PublicProperty<string>>();
 
                 publicPropertyResult.Value.ShouldBe("456");
 
                 var configEx = Should.Throw<TargetInvocationException>(() =>
                 {
                     createNewMethod
-                        .ShouldExecuteACreateNewMapping<PublicField<DateTime>>(executor);
+                        .ShouldExecuteACreateNewMapping<PublicField<DateTime>>();
                 });
 
                 var notSupportedMessage = configEx
