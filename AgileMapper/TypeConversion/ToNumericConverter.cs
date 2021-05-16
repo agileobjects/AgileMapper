@@ -14,7 +14,7 @@
     {
         #region Cached Items
 
-        public new static readonly ToNumericConverter<TNumeric> Instance = new ToNumericConverter<TNumeric>();
+        public new static readonly ToNumericConverter<TNumeric> Instance = new();
 
         private static readonly Type[] _coercibleNumericTypes = typeof(TNumeric).GetCoercibleNumericTypes();
 
@@ -44,7 +44,10 @@
                    Constants.NumericTypes.Contains(nonNullableSourceType);
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType)
+        public override Expression GetConversion(
+            Expression sourceValue,
+            Type targetType,
+            bool useSingleStatement)
         {
             var sourceType = GetNonEnumSourceType(sourceValue);
             var nonNullableSourceType = sourceType.GetNonNullableType();
@@ -66,7 +69,7 @@
 
             return IsNumericType(nonNullableSourceType)
                 ? GetCheckedNumericConversion(sourceValue, targetType)
-                : base.GetConversion(sourceValue, targetType);
+                : base.GetConversion(sourceValue, targetType, useSingleStatement);
         }
 
         private static Type GetNonEnumSourceType(Expression sourceValue)

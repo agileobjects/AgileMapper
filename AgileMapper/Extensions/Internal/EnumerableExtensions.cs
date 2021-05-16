@@ -59,7 +59,7 @@
 
         [DebuggerStepThrough]
         public static T FirstOrDefault<T>(this IList<T> items, Func<T, bool> predicate)
-            => FirstOrDefault(items, predicate, (p, item) => predicate.Invoke(item));
+            => FirstOrDefault(items, predicate, (_, item) => predicate.Invoke(item));
 
         [DebuggerStepThrough]
         public static T FirstOrDefault<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)

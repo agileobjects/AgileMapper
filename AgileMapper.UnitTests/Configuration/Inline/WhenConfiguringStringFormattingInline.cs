@@ -82,7 +82,7 @@
                 }
             });
 
-            noFormatEx.Message.ShouldContain("No ToString method");
+            noFormatEx.Message.ShouldContain("No ToString() method");
         }
     }
 }

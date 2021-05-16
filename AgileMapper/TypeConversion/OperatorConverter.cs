@@ -44,7 +44,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
         private static MethodInfo GetOperatorOrNull(Type subjectType, Func<MethodInfo, bool> matcher)
             => subjectType.GetOperators().FirstOrDefault(matcher.Invoke);
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType, bool useSingleStatement)
         {
             var nonNullableSourceType = sourceValue.Type.GetNonNullableType();
             var nonNullableTargetType = targetType.GetNonNullableType();

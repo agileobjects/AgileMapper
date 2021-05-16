@@ -35,7 +35,7 @@
             return operatorMethod != null;
         }
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType, bool useSingleStatement)
         {
             // Target type is always 'string':
             return GetConversion(sourceValue);

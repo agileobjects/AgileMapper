@@ -251,7 +251,7 @@
                 return _customValueLambdaInfo = ConfiguredLambdaInfo.For(customValueLambda, _configInfo);
             }
 
-            var convertedConstantValue = MapperContext
+            var convertedConstantValue = _configInfo
                 .GetValueConversion(customValueLambda.Body, targetValueType);
 
             var funcType = Expr.GetFuncType(targetValueType);
