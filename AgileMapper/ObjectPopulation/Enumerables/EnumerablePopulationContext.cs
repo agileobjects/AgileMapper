@@ -76,10 +76,11 @@
 
             if (_mappingSourceElementType == TargetElementType)
             {
-                parameterName =
-                    prefix +
-                    sameTypesPrefix +
-                    type.GetVariableNameInPascalCase();
+                parameterName = prefix != null
+                    ? prefix + sameTypesPrefix.ToPascalCase()
+                    : sameTypesPrefix;
+
+                parameterName += type.GetVariableNameInPascalCase();
             }
             else
             {

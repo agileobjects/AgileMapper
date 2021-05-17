@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Buildable.UnitTests
 {
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using AgileMapper.UnitTests.Common;
+    using AgileMapper.UnitTests.Common.TestClasses;
     using Xunit;
 
     public class WhenBuildingEnumerableMergeMappers
@@ -52,6 +54,37 @@
                     .ShouldExecuteAMergeMapping(target);
 
                 result.ShouldNotBeNull().ShouldBe(2.0, 3.0, 4.0, 1.0);
+            }
+        }
+
+        [Fact]
+        public void ShouldBuildAComplexTypeArrayToIEnumerableMapper()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.GetPlanFor<Product[]>().OnTo<IEnumerable<Product>>();
+
+                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+
+                var source = new[]
+                {
+                    new Product { ProductId = "Steve" }
+                };
+
+                IEnumerable<Product> target = new ReadOnlyCollection<Product>(new[]
+                {
+                    new Product { ProductId = "Kate" }
+                });
+
+                var result = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass()
+                    .GetMapMethods()
+                    .ShouldHaveSingleItem()
+                    .ShouldCreateMappingExecutor(source)
+                    .ShouldHaveAMergeMethod()
+                    .ShouldExecuteAMergeMapping(target);
+
+                result.ShouldNotBeNull().ShouldBe(p => p.ProductId, "Kate", "Steve");
             }
         }
     }

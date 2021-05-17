@@ -77,7 +77,7 @@
         }
 
         [Fact]
-        public void ShouldMergeARootComplexTypeList()
+        public void ShouldMergeAComplexTypeList()
         {
             var source = new[]
             {
@@ -95,7 +95,7 @@
         }
 
         [Fact]
-        public void ShouldMergeARootSimpleTypeHashSet()
+        public void ShouldMergeASimpleTypeHashSet()
         {
             var source = new[] { 1.0m, 2.0m, 3.0m };
             var target = new HashSet<double> { 2.0, 3.0, 4.0 };
@@ -106,7 +106,7 @@
         }
 
         [Fact]
-        public void ShouldMergeARootComplexTypeReadOnlyCollection()
+        public void ShouldMergeAComplexTypeReadOnlyCollection()
         {
             var source = new[]
             {
