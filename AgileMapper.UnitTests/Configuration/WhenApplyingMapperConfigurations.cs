@@ -8,7 +8,6 @@
     using Common.TestClasses;
     using MoreTestClasses;
     using NetStandardPolyfills;
-    using Plans;
     using Testing;
 #if !NET35
     using Xunit;
@@ -215,10 +214,7 @@
                     .Map(ctx => ctx.Source.Value * 2)
                     .To(t => t.Value);
 
-                GetPlanFor<PublicField<int>>().ToANew<PublicField<string>>(new MappingPlanSettings
-                {
-                    LazyCompile = true
-                });
+                GetPlanFor<PublicField<int>>().ToANew<PublicField<string>>();
             }
 
             public static void VerifyConfigured(IMapper mapper)

@@ -11,7 +11,7 @@
     using ObjectPopulation;
     using Plans;
     using Queryables.Api;
-    using static Plans.MappingPlanSettings;
+    using static Plans.MappingPlanSettings.Default;
     
     internal class PlanTargetSelector<TSource> :
         IPlanTargetSelector<TSource>,
@@ -49,16 +49,9 @@
         public MappingPlan ToANew<TResult>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
         {
-            return ToANew(EagerPlanned, configurations);
-        }
-
-        public MappingPlan ToANew<TResult>(
-            MappingPlanSettings settings,
-            Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
-        {
             return GetMappingPlan(
                 _mapperContext.RuleSets.CreateNew,
-                settings,
+                EagerPlanned,
                 configurations);
         }
 

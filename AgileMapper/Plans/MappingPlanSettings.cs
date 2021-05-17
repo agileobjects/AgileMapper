@@ -5,21 +5,32 @@
     /// </summary>
     public class MappingPlanSettings
     {
-        internal static readonly MappingPlanSettings EagerPlanned = new()
+        /// <summary>
+        /// Wrapper class for the default <see cref="MappingPlanSettings"/> instances used when
+        /// creating mapping plans.
+        /// </summary>
+        public static class Default
         {
-            LazyCompile = false,
-            CommentUnmappableMembers = true,
-            CommentUnmappedMembers = true,
-            LazyLoadRepeatMappingFuncs = false
-        };
+            /// <summary>
+            /// Gets or sets the default <see cref="MappingPlanSettings"/> to use when creating a
+            /// mapping plan upfront with Mapper.GetPlanFor&lt;TSource&gt;().To&lt;TTarget&gt;().
+            /// </summary>
+            public static readonly MappingPlanSettings EagerPlanned = new()
+            {
+                LazyCompile = false,
+                CommentUnmappableMembers = true,
+                CommentUnmappedMembers = true,
+                LazyLoadRepeatMappingFuncs = false
+            };
 
-        internal static readonly MappingPlanSettings LazyPlanned = new()
-        {
-            LazyCompile = false,
-            CommentUnmappableMembers = false,
-            CommentUnmappedMembers = false,
-            LazyLoadRepeatMappingFuncs = true
-        };
+            internal static readonly MappingPlanSettings LazyPlanned = new()
+            {
+                LazyCompile = false,
+                CommentUnmappableMembers = false,
+                CommentUnmappedMembers = false,
+                LazyLoadRepeatMappingFuncs = true
+            };
+        }
 
         /// <summary>
         /// Gets or sets a value indicating whether the mapping plan should lazy-compile its

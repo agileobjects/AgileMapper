@@ -5,7 +5,7 @@
     internal class SimpleMappingContext : IMappingContext
     {
         public SimpleMappingContext(MappingRuleSet ruleSet, MapperContext mapperContext)
-            : this(ruleSet, MappingPlanSettings.LazyPlanned, mapperContext)
+            : this(ruleSet, MappingPlanSettings.Default.LazyPlanned, mapperContext)
         {
         }
 

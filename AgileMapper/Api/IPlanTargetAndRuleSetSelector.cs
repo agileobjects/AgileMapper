@@ -32,28 +32,6 @@
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations);
 
         /// <summary>
-        /// Create and compile mapping functions for a create new mapping from the source type being 
-        /// configured to the type specified by the type argument.
-        /// </summary>
-        /// <typeparam name="TResult">The type of object for which to create the mapping plan.</typeparam>
-        /// <param name="settings">
-        /// <see cref="MappingPlanSettings"/> to control how the mapping plan should be produced.
-        /// </param>
-        /// <param name="configurations">
-        /// Zero or more mapping configurations. If supplied, the mapping functions will be configured by 
-        /// combining these inline <paramref name="configurations"/> with any configuration already set up 
-        /// via the Mapper.WhenMapping API.
-        /// </param>
-        /// <returns>
-        /// A <see cref="MappingPlan"/> object detailing the function to be executed during a mapping.
-        /// To see a string representation of the function assign the result to a string variable,
-        /// or call .ToString().
-        /// </returns>
-        MappingPlan ToANew<TResult>(
-            MappingPlanSettings settings,
-            params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations);
-
-        /// <summary>
         /// Create and compile mapping functions for an OnTo (merge) mapping from the source type
         /// being configured to the type specified by the type argument.
         /// </summary>

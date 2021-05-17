@@ -31,7 +31,7 @@
 
         public MappingRuleSet RuleSet { get; private set; }
 
-        MappingPlanSettings IMappingContext.PlanSettings => MappingPlanSettings.LazyPlanned;
+        MappingPlanSettings IMappingContext.PlanSettings => MappingPlanSettings.Default.LazyPlanned;
 
         #region ToANew Overloads
 

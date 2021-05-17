@@ -6,7 +6,6 @@
     using System.Linq;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Plans;
     using Xunit;
 
     public class WhenBuildingEnumerableCreateNewMappers
@@ -16,10 +15,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.GetPlanFor<List<string>>().ToANew<Collection<byte?>>(new MappingPlanSettings
-                {
-                    LazyCompile = true
-                });
+                mapper.GetPlanFor<List<string>>().ToANew<Collection<byte?>>();
 
                 var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
@@ -49,10 +45,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.GetPlanFor<int[]>().ToANew<ReadOnlyCollection<int>>(new MappingPlanSettings
-                {
-                    LazyCompile = true
-                });
+                mapper.GetPlanFor<int[]>().ToANew<ReadOnlyCollection<int>>();
 
                 var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
@@ -82,10 +75,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.GetPlanFor<HashSet<DateTime>>().ToANew<DateTime[]>(new MappingPlanSettings
-                {
-                    LazyCompile = true
-                });
+                mapper.GetPlanFor<HashSet<DateTime>>().ToANew<DateTime[]>();
 
                 var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
@@ -118,10 +108,7 @@
         {
             using (var mapper = Mapper.CreateNew())
             {
-                mapper.GetPlanFor<List<ProductDto>>().ToANew<IList<ProductDto>>(new MappingPlanSettings
-                {
-                    LazyCompile = true
-                });
+                mapper.GetPlanFor<List<ProductDto>>().ToANew<IList<ProductDto>>();
 
                 var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
