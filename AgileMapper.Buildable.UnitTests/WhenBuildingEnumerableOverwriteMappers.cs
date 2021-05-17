@@ -18,20 +18,14 @@
 
                 var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
-                var staticMapperClass = sourceCodeExpressions
-                    .ShouldCompileAStaticMapperClass();
-
-                var staticMapMethod = staticMapperClass
-                    .GetMapMethods()
-                    .ShouldHaveSingleItem();
-
                 var source = new[] { '5', '5', '5' };
                 var target = new[] { 3, 3, 3, 3 };
 
-                var executor = staticMapMethod
-                    .ShouldCreateMappingExecutor(source);
-
-                var result = executor
+                var result = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass()
+                    .GetMapMethods()
+                    .ShouldHaveSingleItem()
+                    .ShouldCreateMappingExecutor(source)
                     .ShouldHaveAnOverwriteMethod()
                     .ShouldExecuteAnOverwriteMapping(target);
 
@@ -49,20 +43,14 @@
 
                 var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
-                var staticMapperClass = sourceCodeExpressions
-                    .ShouldCompileAStaticMapperClass();
-
-                var staticMapMethod = staticMapperClass
-                    .GetMapMethods()
-                    .ShouldHaveSingleItem();
-
                 var source = new Collection<string> { "I", "Will" };
                 var target = new List<string> { "You", "Might" };
 
-                var executor = staticMapMethod
-                    .ShouldCreateMappingExecutor(source);
-
-                var result = executor
+                var result = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass()
+                    .GetMapMethods()
+                    .ShouldHaveSingleItem()
+                    .ShouldCreateMappingExecutor(source)
                     .ShouldHaveAnOverwriteMethod()
                     .ShouldExecuteAnOverwriteMapping(target);
 
@@ -80,13 +68,6 @@
 
                 var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
-                var staticMapperClass = sourceCodeExpressions
-                    .ShouldCompileAStaticMapperClass();
-
-                var staticMapMethod = staticMapperClass
-                    .GetMapMethods()
-                    .ShouldHaveSingleItem();
-
                 var source = new[]
                 {
                     new ProductDto { ProductId = "1", Price = 1.99m },
@@ -98,10 +79,11 @@
                     new Product { ProductId = "2", Price = 4.99 }
                 });
 
-                var executor = staticMapMethod
-                    .ShouldCreateMappingExecutor(source);
-
-                var result = executor
+                var result = sourceCodeExpressions
+                    .ShouldCompileAStaticMapperClass()
+                    .GetMapMethods()
+                    .ShouldHaveSingleItem()
+                    .ShouldCreateMappingExecutor(source)
                     .ShouldHaveAnOverwriteMethod()
                     .ShouldExecuteAnOverwriteMapping(target);
 

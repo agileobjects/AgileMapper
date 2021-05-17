@@ -23,8 +23,7 @@
             var target = new[] { 1, 2, 3 };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldNotBeNull();
-            result.ShouldBe(1, 2, 3, 4, 5, 6);
+            result.ShouldNotBeNull().ShouldBe(1, 2, 3, 4, 5, 6);
         }
 
         [Fact]
@@ -34,8 +33,7 @@
             var target = new ReadOnlyCollection<string>(new[] { "1", "2" });
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldNotBeNull();
-            result.ShouldBe("1", "2", "3", "4");
+            result.ShouldNotBeNull().ShouldBe("1", "2", "3", "4");
         }
 
         [Fact]
@@ -45,8 +43,7 @@
             var target = new List<string> { "Oh", "Heck", "Yes" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("Oh", "Heck", "Yes", "I", "Will");
+            result.ShouldBeSameAs(target).ShouldBe("Oh", "Heck", "Yes", "I", "Will");
         }
 
         [Fact]
@@ -56,8 +53,7 @@
             ICollection<string> target = new List<string> { "Four", "Three" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("Four", "Three", "Two", "One");
+            result.ShouldBeSameAs(target).ShouldBe("Four", "Three", "Two", "One");
         }
 
         [Fact]
@@ -67,8 +63,7 @@
             var target = new List<string> { "One", "Two" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("One", "Two", "Three");
+            result.ShouldBeSameAs(target).ShouldBe("One", "Two", "Three");
         }
 
         [Fact]
@@ -78,8 +73,7 @@
             var target = new List<string> { "One", "Two" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("One", "Two", "Two", "Three");
+            result.ShouldBeSameAs(target).ShouldBe("One", "Two", "Two", "Three");
         }
 
         [Fact]
@@ -97,8 +91,7 @@
 
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe(p => p.Name, "Kate", "Pete");
+            result.ShouldBeSameAs(target).ShouldBe(p => p.Name, "Kate", "Pete");
         }
 
         [Fact]
@@ -145,8 +138,7 @@
 
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.First().Name.ShouldBe(source.First().Name);
+            result.ShouldBeSameAs(target).ShouldHaveSingleItem().Name.ShouldBe("Pete");
         }
 
         [Fact]
@@ -167,8 +159,7 @@
             var originalObject = target.First();
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldContain(originalObject);
+            result.ShouldBeSameAs(target).ShouldContain(originalObject);
             result.First().Name.ShouldBe(source.First().Name);
         }
 
