@@ -58,7 +58,7 @@
                                 {
                                     ctor.SetConstructorCall(
                                         mapperGroup.MapperBaseTypeConstructor,
-                                        ctor.AddParameter("source", mapperGroup.SourceType));
+                                        ctor.AddParameter(mapperGroup.SourceType, "source"));
 
                                     ctor.SetBody(Empty());
                                 });
