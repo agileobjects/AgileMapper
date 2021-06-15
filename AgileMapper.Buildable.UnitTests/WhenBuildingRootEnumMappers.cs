@@ -2,48 +2,34 @@
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Configuration;
     using Xunit;
+    using GeneratedMapper = Mappers.Mapper;
 
     public class WhenBuildingRootEnumMappers
     {
         [Fact]
         public void ShouldBuildARootEnumMapper()
         {
-            using (var mapper = Mapper.CreateNew())
+            var enumIdSource = ((int)Title.Mrs).ToString();
+            var enumIdResult = GeneratedMapper.Map(enumIdSource).ToANew<Title>();
+            enumIdResult.ShouldBe(Title.Mrs);
+
+            var enumLabelSource = Title.Master.ToString();
+            var enumLabelResult = GeneratedMapper.Map(enumLabelSource).ToANew<Title>();
+            enumLabelResult.ShouldBe(Title.Master);
+        }
+
+        #region Configuration
+
+        public class RootEnumMapperConfiguration : BuildableMapperConfiguration
+        {
+            protected override void Configure()
             {
-                mapper.GetPlanFor<string>().ToANew<Title>();
-
-                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
-
-                var staticMapperClass = sourceCodeExpressions
-                    .ShouldCompileAStaticMapperClass();
-
-                var staticMapMethod = staticMapperClass
-                    .GetMapMethods()
-                    .ShouldHaveSingleItem();
-
-                var enumIdSource = ((int)Title.Mrs).ToString();
-
-                var enumIdExecutor = staticMapMethod
-                    .ShouldCreateMappingExecutor(enumIdSource);
-
-                var enumIdResult = enumIdExecutor
-                    .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<Title>();
-
-                enumIdResult.ShouldBe(Title.Mrs);
-
-                var enumLabelSource = Title.Master.ToString();
-
-                var enumLabelIdExecutor = staticMapMethod
-                    .ShouldCreateMappingExecutor(enumLabelSource);
-
-                var enumLabelResult = enumLabelIdExecutor
-                    .ShouldHaveACreateNewMethod()
-                    .ShouldExecuteACreateNewMapping<Title>();
-
-                enumLabelResult.ShouldBe(Title.Master);
+                GetPlanFor<string>().ToANew<Title>();
             }
         }
+
+        #endregion
     }
 }

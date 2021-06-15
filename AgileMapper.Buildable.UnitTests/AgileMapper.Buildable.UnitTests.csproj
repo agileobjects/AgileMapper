@@ -12,8 +12,12 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <XprGeneratorDebug>true</XprGeneratorDebug>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="AgileObjects.BuildableExpressions" Version="0.1.0-preview1" />
+    <PackageReference Include="AgileObjects.AgileMapper.Buildable" Version="0.1.0-preview1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -23,7 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AgileMapper.Buildable\AgileMapper.Buildable.csproj" />
     <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
   </ItemGroup>
 

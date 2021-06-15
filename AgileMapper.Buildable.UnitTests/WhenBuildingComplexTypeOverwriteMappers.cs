@@ -6,35 +6,35 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 
     public class WhenBuildingComplexTypeOverwriteMappers
     {
-        [Fact]
-        public void ShouldBuildASingleSourceSingleTargetMapper()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.GetPlanFor<Address>().Over<Address>();
+        //[Fact]
+        //public void ShouldBuildASingleSourceSingleTargetMapper()
+        //{
+        //    using (var mapper = Mapper.CreateNew())
+        //    {
+        //        mapper.GetPlanFor<Address>().Over<Address>();
 
-                var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
 
-                var staticMapperClass = sourceCodeExpressions
-                    .ShouldCompileAStaticMapperClass();
+        //        var staticMapperClass = sourceCodeExpressions
+        //            .ShouldCompileAStaticMapperClass();
 
-                var staticMapMethod = staticMapperClass
-                    .GetMapMethods()
-                    .ShouldHaveSingleItem();
+        //        var staticMapMethod = staticMapperClass
+        //            .GetMapMethods()
+        //            .ShouldHaveSingleItem();
 
-                var source = new Address { Line1 = "1.1", Line2 = "1.2" };
-                var target = new Address { Line1 = "2.1", Line2 = "2.2" };
+        //        var source = new Address { Line1 = "1.1", Line2 = "1.2" };
+        //        var target = new Address { Line1 = "2.1", Line2 = "2.2" };
 
-                var executor = staticMapMethod
-                    .ShouldCreateMappingExecutor(source);
+        //        var executor = staticMapMethod
+        //            .ShouldCreateMappingExecutor(source);
 
-                executor
-                    .ShouldHaveAnOverwriteMethod()
-                    .ShouldExecuteAnOverwriteMapping(target);
+        //        executor
+        //            .ShouldHaveAnOverwriteMethod()
+        //            .ShouldExecuteAnOverwriteMapping(target);
 
-                target.Line1.ShouldBe("1.1");
-                target.Line2.ShouldBe("1.2");
-            }
-        }
+        //        target.Line1.ShouldBe("1.1");
+        //        target.Line2.ShouldBe("1.2");
+        //    }
+        //}
     }
 }

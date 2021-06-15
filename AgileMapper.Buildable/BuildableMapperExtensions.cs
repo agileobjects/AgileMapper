@@ -14,118 +14,115 @@
     using static BuildableExpressions.SourceCode.MemberVisibility;
     using static BuildableMapperConstants;
 
-    /// <summary>
-    /// Provides extension methods for building AgileMapper mapper source files.
-    /// </summary>
-    public static class BuildableMapperExtensions
+    internal static class BuildableMapperExtensions
     {
-        /// <summary>
-        /// Builds <see cref="SourceCodeExpression"/>s for the configured mappers in this
-        /// <paramref name="mapper"/>.
-        /// </summary>
-        /// <param name="mapper">
-        /// The <see cref="IMapper"/> for which to build <see cref="SourceCodeExpression"/>s.
-        /// </param>
-        /// <returns>
-        /// A <see cref="SourceCodeExpression"/> for each mapper configured in this <paramref name="mapper"/>.
-        /// </returns>
         public static IEnumerable<SourceCodeExpression> GetPlanSourceCodeInCache(
-            this IMapper mapper)
+            this IMapper mapper,
+            string rootNamespace)
         {
-            yield return BuildableExpression
-                .SourceCode(sourceCode =>
+            var mappersNamespace = rootNamespace + ".Mappers";
+
+            var mapperClassGroups = mapper
+                .GetPlansInCache()
+                .GroupBy(plan => plan.Root.SourceType)
+                .Project(grp => new BuildableMapperGroup(grp.Key, grp.AsEnumerable()))
+                .OrderBy(grp => grp.MapperName)
+                .ToList();
+
+            if (mapperClassGroups.Count == 0)
+            {
+                yield break;
+            }
+
+            foreach (var mapperGroup in mapperClassGroups)
+            {
+                yield return BuildableExpression.SourceCode(sourceCode =>
                 {
-                    sourceCode.SetNamespace("AgileObjects.AgileMapper.Buildable");
+                    sourceCode.SetNamespace(mappersNamespace);
 
-                    var mapperClassGroups = mapper
-                        .GetPlansInCache()
-                        .GroupBy(plan => plan.Root.SourceType)
-                        .Project(grp => new BuildableMapperGroup(grp.Key, grp.AsEnumerable()))
-                        .OrderBy(grp => grp.MapperName)
-                        .ToList();
-
-                    foreach (var mapperGroup in mapperClassGroups)
+                    mapperGroup.MapperClass = sourceCode.AddClass(mapperGroup.MapperName, mapperClass =>
                     {
-                        mapperGroup.MapperClass = sourceCode.AddClass(
-                            mapperGroup.MapperName,
-                            mapperClass =>
-                            {
-                                mapperGroup.MapperInstance = mapperClass.ThisInstanceExpression;
+                        mapperGroup.MapperInstance = mapperClass.ThisInstanceExpression;
 
-                                mapperClass.SetBaseType(mapperGroup.MapperBaseType);
+                        mapperClass.SetBaseType(mapperGroup.MapperBaseType);
 
-                                mapperClass.AddConstructor(ctor =>
-                                {
-                                    ctor.SetConstructorCall(
-                                        mapperGroup.MapperBaseTypeConstructor,
-                                        ctor.AddParameter(mapperGroup.SourceType, "source"));
-
-                                    ctor.SetBody(Empty());
-                                });
-
-                                foreach (var planAndMappingMethods in mapperGroup.MappingMethodsByPlan)
-                                {
-                                    var plan = planAndMappingMethods.Key;
-                                    var mappingMethods = planAndMappingMethods.Value;
-
-                                    foreach (var repeatPlan in plan.Skip(1))
-                                    {
-                                        mappingMethods.Add(mapperClass.AddMethod(MapRepeated, doMapping =>
-                                        {
-                                            doMapping.SetVisibility(Private);
-                                            doMapping.SetStatic();
-                                            doMapping.SetBody(repeatPlan.Mapping);
-                                        }));
-                                    }
-
-                                    mappingMethods.Insert(0, mapperClass.AddMethod(plan.RuleSetName, doMapping =>
-                                    {
-                                        doMapping.SetVisibility(Private);
-                                        doMapping.SetStatic();
-                                        doMapping.SetBody(plan.Root.Mapping);
-                                    }));
-                                }
-
-                                RepeatMappingCallReplacer.Replace(mapperGroup);
-
-                                var allRuleSetMapMethodInfos = mapperGroup
-                                    .MappingMethodsByPlan.Values
-                                    .SelectMany(methods => methods)
-                                    .Filter(method => method.Name != MapRepeated)
-                                    .Project(method => new MapMethodInfo(mapperGroup, method))
-                                    .GroupBy(m => m.RuleSetName)
-                                    .Select(methodGroup => methodGroup.ToList());
-
-                                foreach (var ruleSetMapMethodInfos in allRuleSetMapMethodInfos)
-                                {
-                                    AddMapMethodsFor(mapperClass, ruleSetMapMethodInfos);
-                                }
-                            });
-                    }
-
-                    sourceCode.AddClass("Mapper", staticMapperClass =>
-                    {
-                        staticMapperClass.SetStatic();
-
-                        foreach (var mapperClassGroup in mapperClassGroups)
+                        mapperClass.AddConstructor(ctor =>
                         {
-                            var sourceType = mapperClassGroup.SourceType;
-                            var mapperClass = mapperClassGroup.MapperClass;
+                            ctor.SetConstructorCall(
+                                mapperGroup.MapperBaseTypeConstructor,
+                                ctor.AddParameter(mapperGroup.SourceType, "source"));
 
-                            staticMapperClass.AddMethod("Map", mapMethod =>
+                            ctor.SetBody(Empty());
+                        });
+
+                        foreach (var planAndMappingMethods in mapperGroup.MappingMethodsByPlan)
+                        {
+                            var plan = planAndMappingMethods.Key;
+                            var mappingMethods = planAndMappingMethods.Value;
+
+                            foreach (var repeatPlan in plan.Skip(1))
                             {
-                                var sourceParameter = mapMethod
-                                    .AddParameter(sourceType, "source");
+                                mappingMethods.Add(mapperClass.AddMethod(MapRepeated, doMapping =>
+                                {
+                                    doMapping.SetVisibility(Private);
+                                    doMapping.SetStatic();
+                                    doMapping.SetBody(repeatPlan.Mapping);
+                                }));
+                            }
 
-                                var newMapper = New(
-                                    mapperClass.Type.GetPublicInstanceConstructor(sourceType),
-                                    sourceParameter);
+                            mappingMethods.Insert(0, mapperClass.AddMethod(plan.RuleSetName, doMapping =>
+                            {
+                                doMapping.SetVisibility(Private);
+                                doMapping.SetStatic();
+                                doMapping.SetBody(plan.Root.Mapping);
+                            }));
+                        }
 
-                                mapMethod.SetBody(newMapper);
-                            });
+                        RepeatMappingCallReplacer.Replace(mapperGroup);
+
+                        var allRuleSetMapMethodInfos = mapperGroup
+                            .MappingMethodsByPlan.Values
+                            .SelectMany(methods => methods)
+                            .Filter(method => method.Name != MapRepeated)
+                            .Project(method => new MapMethodInfo(mapperGroup, method))
+                            .GroupBy(m => m.RuleSetName)
+                            .Select(methodGroup => methodGroup.ToList());
+
+                        foreach (var ruleSetMapMethodInfos in allRuleSetMapMethodInfos)
+                        {
+                            AddMapMethodsFor(mapperClass, ruleSetMapMethodInfos);
                         }
                     });
                 });
+            }
+
+            yield return BuildableExpression.SourceCode(sourceCode =>
+            {
+                sourceCode.SetNamespace(mappersNamespace);
+
+                sourceCode.AddClass("Mapper", staticMapperClass =>
+                {
+                    staticMapperClass.SetStatic();
+
+                    foreach (var mapperClassGroup in mapperClassGroups)
+                    {
+                        var sourceType = mapperClassGroup.SourceType;
+                        var mapperClass = mapperClassGroup.MapperClass;
+
+                        staticMapperClass.AddMethod("Map", mapMethod =>
+                        {
+                            var sourceParameter = mapMethod
+                                .AddParameter(sourceType, "source");
+
+                            var newMapper = New(
+                                mapperClass.Type.GetPublicInstanceConstructor(sourceType),
+                                sourceParameter);
+
+                            mapMethod.SetBody(newMapper);
+                        });
+                    }
+                });
+            });
         }
 
         private static void AddMapMethodsFor(

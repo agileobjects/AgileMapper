@@ -17,8 +17,8 @@
 #endif
 
     /// <summary>
-    /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
-    /// instance via the static Mapper access methods.
+    /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use
+    /// the default instance via the static Mapper access methods.
     /// </summary>
     public sealed class Mapper : IMapperInternal
     {
@@ -45,8 +45,9 @@
         #region Static Access Methods
 
         /// <summary>
-        /// Create and compile mapping functions for a particular type of mapping of the source type specified by 
-        /// the given <paramref name="exampleInstance"/>. Use this overload for anonymous types.
+        /// Create and compile mapping functions for a particular type of mapping of the
+        /// <typeparamref name="TSource"/> type, as specified by the given
+        /// <paramref name="exampleInstance"/>. Use this overload for anonymous types.
         /// </summary>
         /// <typeparam name="TSource">The type of the given <paramref name="exampleInstance"/>.</typeparam>
         /// <param name="exampleInstance">
@@ -59,8 +60,8 @@
         public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
 
         /// <summary>
-        /// Create and compile mapping functions for a particular type of mapping of the source type
-        /// specified by the type argument.
+        /// Create and compile mapping functions for a particular type of mapping of the
+        /// <typeparamref name="TSource"/> type.
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
@@ -70,9 +71,10 @@
         public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>() => Default.GetPlanFor<TSource>();
 
         /// <summary>
-        /// Create and compile mapping functions for mapping from the source type specified by the given 
-        /// <paramref name="exampleInstance"/>, for all mapping types (create new, merge, overwrite). Use this 
-        /// overload for anonymous types.
+        /// Create and compile mapping functions for mapping from the
+        /// <typeparamref name="TSource"/> type, as specified by the given
+        /// <paramref name="exampleInstance"/>, for all mapping types (create new, merge, overwrite).
+        /// Use this overload for anonymous types.
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <param name="exampleInstance">
@@ -85,8 +87,8 @@
         public static IPlanTargetSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
 
         /// <summary>
-        /// Create and compile mapping functions for the source type specified by the type argument, for all
-        /// mapping types (create new, merge, overwrite).
+        /// Create and compile mapping functions for the
+        /// <typeparamref name="TSource"/> type, for all mapping types (create new, merge, overwrite).
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
