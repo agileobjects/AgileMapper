@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using AgileObjects.AgileMapper;
 using AgileObjects.AgileMapper.ObjectPopulation;
 using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
@@ -7,6 +8,7 @@ using AgileObjects.ReadableExpressions.Extensions;
 
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
+    [GeneratedCode("AgileMapper.Buildable", "0.1.0.0")]
     public class StringMapper : MappingExecutionContextBase<string>
     {
         public StringMapper

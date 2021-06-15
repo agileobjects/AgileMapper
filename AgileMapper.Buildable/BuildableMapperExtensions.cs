@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Buildable
 {
     using System;
+    using System.CodeDom.Compiler;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
@@ -16,6 +17,12 @@
 
     internal static class BuildableMapperExtensions
     {
+        private static readonly string _version = typeof(BuildableMapperExtensions)
+            .Assembly
+            .GetName()
+            .Version
+            .ToString(fieldCount: 4);
+
         public static IEnumerable<SourceCodeExpression> GetPlanSourceCodeInCache(
             this IMapper mapper,
             string rootNamespace)
@@ -44,6 +51,7 @@
                     {
                         mapperGroup.MapperInstance = mapperClass.ThisInstanceExpression;
 
+                        mapperClass.AddGeneratedCodeAttribute();
                         mapperClass.SetBaseType(mapperGroup.MapperBaseType);
 
                         mapperClass.AddConstructor(ctor =>
@@ -102,6 +110,7 @@
 
                 sourceCode.AddClass("Mapper", staticMapperClass =>
                 {
+                    staticMapperClass.AddGeneratedCodeAttribute();
                     staticMapperClass.SetStatic();
 
                     foreach (var mapperClassGroup in mapperClassGroups)
@@ -248,6 +257,15 @@
                         .CreateMapCall(t => mapMethod.AddParameter(t, "target")));
                 });
             }
+        }
+
+        private static void AddGeneratedCodeAttribute(
+            this IAttributableExpressionConfigurator mapperClass)
+        {
+            mapperClass.AddAttribute(typeof(GeneratedCodeAttribute), cfg =>
+            {
+                cfg.SetConstructorArguments("AgileObjects.AgileMapper.Buildable", _version);
+            });
         }
 
         #region Helper Members
