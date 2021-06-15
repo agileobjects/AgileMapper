@@ -9,12 +9,21 @@
 // ------------------------------------------------------------------------------
 
 using System.CodeDom.Compiler;
+using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
 
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
     public static class Mapper
     {
+        public static PublicField_StringMapper Map
+        (
+            PublicField<string> source
+        )
+        {
+            return new PublicField_StringMapper(source);
+        }
+
         public static StringMapper Map
         (
             string source

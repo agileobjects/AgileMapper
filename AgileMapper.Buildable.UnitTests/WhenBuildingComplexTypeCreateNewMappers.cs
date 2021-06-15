@@ -4,89 +4,54 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
     using System.Reflection;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Configuration;
     using Xunit;
+    using GeneratedMapper = Mappers.Mapper;
 
     public class WhenBuildingComplexTypeCreateNewMappers
     {
-        //[Fact]
-        //public void ShouldBuildSingleSourceSingleTargetMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<int>>();
+        [Fact]
+        public void ShouldBuildSingleSourceSingleTargetMapper()
+        {
+            var source = new PublicField<string> { Value = "123" };
+            var result = GeneratedMapper.Map(source).ToANew<PublicField<int>>();
+            result.Value.ShouldBe(123);
+        }
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+        [Fact]
+        public void ShouldBuildSingleSourceMultipleTargetMapper()
+        {
+            var source = new PublicField<string> { Value = "456" };
+            var publicFieldResult = GeneratedMapper.Map(source).ToANew<PublicField<int>>();
+            publicFieldResult.Value.ShouldBe(456);
 
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
+            var publicPropertyResult = GeneratedMapper.Map(source).ToANew<PublicProperty<string>>();
+            publicPropertyResult.Value.ShouldBe("456");
 
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
+            var notSupportedEx = Should.Throw<NotSupportedException>(() =>
+            {
+                GeneratedMapper.Map(source).ToANew<PublicField<DateTime>>();
+            });
 
-        //        var source = new PublicField<string> { Value = "123" };
+            var notSupportedMessage = notSupportedEx.Message.ShouldNotBeNull();
 
-        //        var executor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(source);
+            notSupportedMessage.ShouldContain("Unable");
+            notSupportedMessage.ShouldContain("CreateNew");
+            notSupportedMessage.ShouldContain("source type 'PublicField<string>'");
+            notSupportedMessage.ShouldContain("target type 'PublicField<DateTime>'");
+        }
 
-        //        var result = executor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<PublicField<int>>();
+        #region Configuration
 
-        //        result.Value.ShouldBe(123);
-        //    }
-        //}
+        public class ComplexTypeCreateNewMapperConfiguration : BuildableMapperConfiguration
+        {
+            protected override void Configure()
+            {
+                GetPlanFor<PublicField<string>>().ToANew<PublicField<int>>();
+                GetPlanFor<PublicField<string>>().ToANew<PublicProperty<string>>();
+            }
+        }
 
-        //[Fact]
-        //public void ShouldBuildSingleSourceMultipleTargetMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<PublicField<string>>().ToANew<PublicField<int>>();
-        //        mapper.GetPlanFor<PublicField<string>>().ToANew<PublicProperty<string>>();
-
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
-
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
-
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
-
-        //        var source = new PublicField<string> { Value = "456" };
-
-        //        var executor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(source);
-
-        //        var createNewMethod = executor.ShouldHaveACreateNewMethod();
-
-        //        var publicFieldResult = createNewMethod
-        //            .ShouldExecuteACreateNewMapping<PublicField<int>>();
-
-        //        publicFieldResult.Value.ShouldBe(456);
-
-        //        var publicPropertyResult = createNewMethod
-        //            .ShouldExecuteACreateNewMapping<PublicProperty<string>>();
-
-        //        publicPropertyResult.Value.ShouldBe("456");
-
-        //        var configEx = Should.Throw<TargetInvocationException>(() =>
-        //        {
-        //            createNewMethod
-        //                .ShouldExecuteACreateNewMapping<PublicField<DateTime>>();
-        //        });
-
-        //        var notSupportedMessage = configEx
-        //            .InnerException
-        //            .ShouldBeOfType<NotSupportedException>()
-        //            .Message;
-
-        //        notSupportedMessage.ShouldContain("Unable");
-        //        notSupportedMessage.ShouldContain("CreateNew");
-        //        notSupportedMessage.ShouldContain("source type 'PublicField<string>'");
-        //        notSupportedMessage.ShouldContain("target type 'PublicField<DateTime>'");
-        //    }
-        //}
+        #endregion
     }
 }
