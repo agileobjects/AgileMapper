@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.Buildable.UnitTests
 {
     using System;
-    using System.Reflection;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
     using Configuration;
@@ -13,7 +12,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
         [Fact]
         public void ShouldBuildSingleSourceSingleTargetMapper()
         {
-            var source = new PublicField<string> { Value = "123" };
+            var source = new PublicProperty<string> { Value = "123" };
             var result = GeneratedMapper.Map(source).ToANew<PublicField<int>>();
             result.Value.ShouldBe(123);
         }
@@ -47,6 +46,8 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
         {
             protected override void Configure()
             {
+                GetPlanFor<PublicProperty<string>>().ToANew<PublicField<int>>();
+                
                 GetPlanFor<PublicField<string>>().ToANew<PublicField<int>>();
                 GetPlanFor<PublicField<string>>().ToANew<PublicProperty<string>>();
             }

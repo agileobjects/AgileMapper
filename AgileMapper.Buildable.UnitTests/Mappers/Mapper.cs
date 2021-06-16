@@ -24,6 +24,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new PublicField_StringMapper(source);
         }
 
+        public static PublicProperty_StringMapper Map
+        (
+            PublicProperty<string> source
+        )
+        {
+            return new PublicProperty_StringMapper(source);
+        }
+
         public static StringMapper Map
         (
             string source
