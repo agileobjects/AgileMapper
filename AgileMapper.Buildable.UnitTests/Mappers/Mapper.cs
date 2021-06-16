@@ -8,7 +8,9 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
+using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
 
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
@@ -22,6 +24,30 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         )
         {
             return new AddressMapper(source);
+        }
+
+        public static DateTimesMapper Map
+        (
+            HashSet<DateTime> source
+        )
+        {
+            return new DateTimesMapper(source);
+        }
+
+        public static IntArrayMapper Map
+        (
+            int[] source
+        )
+        {
+            return new IntArrayMapper(source);
+        }
+
+        public static ProductDtosMapper Map
+        (
+            List<ProductDto> source
+        )
+        {
+            return new ProductDtosMapper(source);
         }
 
         public static PublicField_StringMapper Map
@@ -46,6 +72,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         )
         {
             return new StringMapper(source);
+        }
+
+        public static StringsMapper Map
+        (
+            List<string> source
+        )
+        {
+            return new StringsMapper(source);
         }
     }
 }

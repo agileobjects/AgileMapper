@@ -6,139 +6,80 @@
     using System.Linq;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Configuration;
     using Xunit;
+    using GeneratedMapper = Mappers.Mapper;
 
     public class WhenBuildingEnumerableCreateNewMappers
     {
-        //[Fact]
-        //public void ShouldBuildASimpleTypeListToCollectionMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<List<string>>().ToANew<Collection<byte?>>();
+        [Fact]
+        public void ShouldBuildASimpleTypeListToCollectionMapper()
+        {
+            var source = new List<string> { "3", "2", "1", "12345" };
+            var result = GeneratedMapper.Map(source).ToANew<Collection<byte?>>();
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+            result.ShouldNotBeNull();
+            result.ShouldBe<byte?>(3, 2, 1, null);
+        }
 
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
+        [Fact]
+        public void ShouldBuildASimpleTypeArrayToReadOnlyCollectionMapper()
+        {
+            var source = new[] { 1, 2, 3 };
+            var result = GeneratedMapper.Map(source).ToANew<ReadOnlyCollection<int>>();
 
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
+            result.ShouldNotBeNull();
+            result.ShouldBe(1, 2, 3);
+        }
 
-        //        var source = new List<string> { "3", "2", "1", "12345" };
+        [Fact]
+        public void ShouldBuildASimpleTypeHashSetToArrayMapper()
+        {
+            var today = DateTime.Today;
+            var tomorrow = today.AddDays(+1);
+            var yesterday = today.AddDays(-1);
 
-        //        var executor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(source);
+            var source = new HashSet<DateTime> { yesterday, today, tomorrow };
+            var result = GeneratedMapper.Map(source).ToANew<DateTime[]>();
 
-        //        var result = executor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<Collection<byte?>>();
+            result.ShouldNotBeNull().ShouldBe(yesterday, today, tomorrow);
+        }
 
-        //        result.ShouldNotBeNull();
-        //        result.ShouldBe<byte?>(3, 2, 1, null);
-        //    }
-        //}
+        [Fact]
+        public void ShouldBuildAComplexTypeListToIListMapper()
+        {
+            var source = new List<ProductDto>
+            {
+                new ProductDto { ProductId = "Surprise" },
+                null,
+                new ProductDto { ProductId = "Boomstick" }
+            };
 
-        //[Fact]
-        //public void ShouldBuildASimpleTypeArrayToReadOnlyCollectionMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<int[]>().ToANew<ReadOnlyCollection<int>>();
+            var result = GeneratedMapper.Map(source).ToANew<List<ProductDto>>();
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+            result.ShouldNotBeNull();
+            result.ShouldNotBeSameAs(source);
+            result.First().ShouldNotBeNull().ProductId.ShouldBe("Surprise");
+            result.Second().ShouldBeNull();
+            result.Third().ShouldNotBeNull().ProductId.ShouldBe("Boomstick");
+        }
 
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
+        #region Configuration
 
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
+        public class EnumerableCreateNewMapperConfiguration : BuildableMapperConfiguration
+        {
+            protected override void Configure()
+            {
+                GetPlanFor<List<string>>().ToANew<Collection<byte?>>();
 
-        //        var source = new[] { 1, 2, 3 };
+                GetPlanFor<int[]>().ToANew<ReadOnlyCollection<int>>();
 
-        //        var executor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(source);
+                GetPlanFor<HashSet<DateTime>>().ToANew<DateTime[]>();
 
-        //        var result = executor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<ReadOnlyCollection<int>>();
+                GetPlanFor<List<ProductDto>>().ToANew<IList<ProductDto>>();
+            }
+        }
 
-        //        result.ShouldNotBeNull();
-        //        result.ShouldBe(1, 2, 3);
-        //    }
-        //}
-
-        //[Fact]
-        //public void ShouldBuildASimpleTypeHashSetToArrayMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<HashSet<DateTime>>().ToANew<DateTime[]>();
-
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
-
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
-
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
-
-        //        var today = DateTime.Today;
-        //        var tomorrow = today.AddDays(+1);
-        //        var yesterday = today.AddDays(-1);
-
-        //        var source = new HashSet<DateTime> { yesterday, today, tomorrow };
-
-        //        var executor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(source);
-
-        //        var result = executor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<DateTime[]>();
-
-        //        result.ShouldNotBeNull().ShouldBe(yesterday, today, tomorrow);
-        //    }
-        //}
-
-        //[Fact]
-        //public void ShouldBuildAComplexTypeListToIListMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<List<ProductDto>>().ToANew<IList<ProductDto>>();
-
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
-
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
-
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
-
-        //        var source = new List<ProductDto>
-        //        {
-        //            new ProductDto { ProductId = "Surprise" },
-        //            null,
-        //            new ProductDto { ProductId = "Boomstick" }
-        //        };
-
-        //        var executor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(source);
-
-        //        var result = executor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<List<ProductDto>>();
-
-        //        result.ShouldNotBeNull();
-        //        result.ShouldNotBeSameAs(source);
-        //        result.First().ShouldNotBeNull().ProductId.ShouldBe("Surprise");
-        //        result.Second().ShouldBeNull();
-        //        result.Third().ShouldNotBeNull().ProductId.ShouldBe("Boomstick");
-        //    }
-        //}
+        #endregion
     }
 }
