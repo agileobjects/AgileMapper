@@ -43,12 +43,36 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new DateTimeHashSetMapper(source);
         }
 
+        public static DecimalArrayMapper Map
+        (
+            decimal[] source
+        )
+        {
+            return new DecimalArrayMapper(source);
+        }
+
         public static IntArrayMapper Map
         (
             int[] source
         )
         {
             return new IntArrayMapper(source);
+        }
+
+        public static IntIEnumerableMapper Map
+        (
+            IEnumerable<int> source
+        )
+        {
+            return new IntIEnumerableMapper(source);
+        }
+
+        public static ProductArrayMapper Map
+        (
+            Product[] source
+        )
+        {
+            return new ProductArrayMapper(source);
         }
 
         public static ProductDtoArrayMapper Map

@@ -4,88 +4,67 @@
     using System.Collections.ObjectModel;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Configuration;
     using Xunit;
+    using GeneratedMapper = Mappers.Mapper;
 
     public class WhenBuildingEnumerableMergeMappers
     {
-        //[Fact]
-        //public void ShouldBuildASimpleTypeIEnumerableToICollectionMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<IEnumerable<int>>().OnTo<ICollection<int>>();
+        [Fact]
+        public void ShouldBuildASimpleTypeIEnumerableToICollectionMapper()
+        {
+            IEnumerable<int> source = new[] { 4, 5, 6 };
+            ICollection<int> target = new[] { 1, 2, 3 };
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+            var result = GeneratedMapper.Map(source).OnTo(target);
 
-        //        IEnumerable<int> source = new[] { 4, 5, 6 };
-        //        ICollection<int> target = new[] { 1, 2, 3 };
+            result.ShouldNotBeNull().ShouldNotBeSameAs(target);
+            result.ShouldBe(1, 2, 3, 4, 5, 6);
+        }
 
-        //        var result = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass()
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem()
-        //            .ShouldCreateMappingExecutor(source)
-        //            .ShouldHaveAMergeMethod()
-        //            .ShouldExecuteAMergeMapping(target);
+        [Fact]
+        public void ShouldBuildASimpleTypeArrayToHashSetMapper()
+        {
+            var source = new[] { 1.0m, 2.0m, 3.0m };
+            var target = new HashSet<double> { 2.0, 3.0, 4.0 };
 
-        //        result.ShouldNotBeNull().ShouldNotBeSameAs(target);
-        //        result.ShouldBe(1, 2, 3, 4, 5, 6);
-        //    }
-        //}
+            var result = GeneratedMapper.Map(source).OnTo(target);
 
-        //[Fact]
-        //public void ShouldBuildASimpleTypeArrayToHashSetMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<decimal[]>().OnTo<HashSet<double>>();
+            result.ShouldNotBeNull().ShouldBe(2.0, 3.0, 4.0, 1.0);
+        }
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+        [Fact]
+        public void ShouldBuildAComplexTypeArrayToIEnumerableMapper()
+        {
+            var source = new[]
+            {
+                new Product { ProductId = "Steve" }
+            };
 
-        //        var source = new[] { 1.0m, 2.0m, 3.0m };
-        //        var target = new HashSet<double> { 2.0, 3.0, 4.0 };
+            IEnumerable<Product> target = new ReadOnlyCollection<Product>(new[]
+            {
+                new Product { ProductId = "Kate" }
+            });
 
-        //        var result = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass()
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem()
-        //            .ShouldCreateMappingExecutor(source)
-        //            .ShouldHaveAMergeMethod()
-        //            .ShouldExecuteAMergeMapping(target);
+            var result = GeneratedMapper.Map(source).OnTo(target);
 
-        //        result.ShouldNotBeNull().ShouldBe(2.0, 3.0, 4.0, 1.0);
-        //    }
-        //}
+            result.ShouldNotBeNull().ShouldBe(p => p.ProductId, "Kate", "Steve");
+        }
 
-        //[Fact]
-        //public void ShouldBuildAComplexTypeArrayToIEnumerableMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<Product[]>().OnTo<IEnumerable<Product>>();
+        #region Configuration
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+        public class EnumerableMergeMapperConfiguration : BuildableMapperConfiguration
+        {
+            protected override void Configure()
+            {
+                GetPlanFor<IEnumerable<int>>().OnTo<ICollection<int>>();
 
-        //        var source = new[]
-        //        {
-        //            new Product { ProductId = "Steve" }
-        //        };
+                GetPlanFor<decimal[]>().OnTo<HashSet<double>>();
 
-        //        IEnumerable<Product> target = new ReadOnlyCollection<Product>(new[]
-        //        {
-        //            new Product { ProductId = "Kate" }
-        //        });
+                GetPlanFor<Product[]>().OnTo<IEnumerable<Product>>();
+            }
+        }
 
-        //        var result = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass()
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem()
-        //            .ShouldCreateMappingExecutor(source)
-        //            .ShouldHaveAMergeMethod()
-        //            .ShouldExecuteAMergeMapping(target);
-
-        //        result.ShouldNotBeNull().ShouldBe(p => p.ProductId, "Kate", "Steve");
-        //    }
-        //}
+        #endregion
     }
 }
