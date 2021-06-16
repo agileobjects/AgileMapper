@@ -91,6 +91,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new ProductDtoListMapper(source);
         }
 
+        public static ProductMapper Map
+        (
+            Product source
+        )
+        {
+            return new ProductMapper(source);
+        }
+
         public static StringCollectionMapper Map
         (
             Collection<string> source

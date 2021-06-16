@@ -2,66 +2,58 @@
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Configuration;
     using Xunit;
+    using GeneratedMapper = Mappers.Mapper;
 
     public class WhenBuildingDerivedTypeMappers
     {
-        //[Fact]
-        //public void ShouldBuildADerivedTypeCreateNewMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<Product>().ToANew<ProductDto>(cfg =>
-        //            cfg.Map<MegaProduct>().To<ProductDtoMega>());
+        [Fact]
+        public void ShouldBuildADerivedTypeCreateNewMapper()
+        {
+            var baseTypeSource = new Product { ProductId = "111", Price = 19.99 };
+            var baseTypeResult = GeneratedMapper.Map(baseTypeSource).ToANew<ProductDto>();
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+            baseTypeResult.ProductId.ShouldBe("111");
+            baseTypeResult.Price.ShouldBe(19.99m);
 
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
+            var derivedTypeSource = new MegaProduct
+            {
+                ProductId = "222",
+                Price = 119.99,
+                HowMega = 1.0m
+            };
 
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
+            var derivedTypeToBaseTypeResult = GeneratedMapper
+                .Map(derivedTypeSource)
+                .ToANew<ProductDto>()
+                .ShouldBeOfType<ProductDtoMega>();
 
-        //        var baseTypeSource = new Product { ProductId = "111", Price = 19.99 };
+            derivedTypeToBaseTypeResult.ProductId.ShouldBe("222");
+            derivedTypeToBaseTypeResult.Price.ShouldBe(119.99m);
+            derivedTypeToBaseTypeResult.HowMega.ShouldBe("1.0");
 
-        //        var baseTypeExecutor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(baseTypeSource);
+            var derivedTypeToDerivedTypeResult = GeneratedMapper
+                .Map(derivedTypeSource)
+                .ToANew<ProductDtoMega>()
+                .ShouldBeOfType<ProductDtoMega>();
 
-        //        var baseTypeResult = baseTypeExecutor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<ProductDto>();
+            derivedTypeToDerivedTypeResult.ProductId.ShouldBe("222");
+            derivedTypeToDerivedTypeResult.Price.ShouldBe(119.99m);
+            derivedTypeToDerivedTypeResult.HowMega.ShouldBe("1.0");
+        }
 
-        //        baseTypeResult.ProductId.ShouldBe("111");
-        //        baseTypeResult.Price.ShouldBe(19.99m);
+        #region Configuration
 
-        //        var derivedTypeSource = new MegaProduct
-        //        {
-        //            ProductId = "222",
-        //            Price = 119.99,
-        //            HowMega = 1.0m
-        //        };
+        public class EnumerableOverwriteMapperConfiguration : BuildableMapperConfiguration
+        {
+            protected override void Configure()
+            {
+                GetPlanFor<Product>().ToANew<ProductDto>(cfg => cfg
+                    .Map<MegaProduct>().To<ProductDtoMega>());
+            }
+        }
 
-        //        var derivedTypeExecutor = staticMapMethod
-        //            .ShouldCreateMappingExecutor<Product>(derivedTypeSource);
-
-        //        var derivedTypeBaseTypeResult = derivedTypeExecutor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<ProductDto>()
-        //            .ShouldBeOfType<ProductDtoMega>();
-
-        //        derivedTypeBaseTypeResult.ProductId.ShouldBe("222");
-        //        derivedTypeBaseTypeResult.Price.ShouldBe(119.99m);
-        //        derivedTypeBaseTypeResult.HowMega.ShouldBe("1.0");
-
-        //        var derivedTypeDerivedTypeResult = derivedTypeExecutor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<ProductDtoMega>();
-
-        //        derivedTypeDerivedTypeResult.ProductId.ShouldBe("222");
-        //        derivedTypeDerivedTypeResult.Price.ShouldBe(119.99m);
-        //        derivedTypeDerivedTypeResult.HowMega.ShouldBe("1.0");
-        //    }
-        //}
+        #endregion
     }
 }
