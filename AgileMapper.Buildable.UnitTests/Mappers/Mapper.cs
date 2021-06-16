@@ -11,6 +11,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
 
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
@@ -26,12 +27,20 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new AddressMapper(source);
         }
 
-        public static DateTimesMapper Map
+        public static CharArrayMapper Map
+        (
+            char[] source
+        )
+        {
+            return new CharArrayMapper(source);
+        }
+
+        public static DateTimeHashSetMapper Map
         (
             HashSet<DateTime> source
         )
         {
-            return new DateTimesMapper(source);
+            return new DateTimeHashSetMapper(source);
         }
 
         public static IntArrayMapper Map
@@ -42,28 +51,36 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new IntArrayMapper(source);
         }
 
-        public static ProductDtosMapper Map
+        public static ProductDtoArrayMapper Map
+        (
+            ProductDto[] source
+        )
+        {
+            return new ProductDtoArrayMapper(source);
+        }
+
+        public static ProductDtoListMapper Map
         (
             List<ProductDto> source
         )
         {
-            return new ProductDtosMapper(source);
+            return new ProductDtoListMapper(source);
         }
 
-        public static PublicField_StringMapper Map
+        public static StringCollectionMapper Map
         (
-            PublicField<string> source
+            Collection<string> source
         )
         {
-            return new PublicField_StringMapper(source);
+            return new StringCollectionMapper(source);
         }
 
-        public static PublicProperty_StringMapper Map
+        public static StringListMapper Map
         (
-            PublicProperty<string> source
+            List<string> source
         )
         {
-            return new PublicProperty_StringMapper(source);
+            return new StringListMapper(source);
         }
 
         public static StringMapper Map
@@ -74,12 +91,20 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new StringMapper(source);
         }
 
-        public static StringsMapper Map
+        public static StringPublicFieldMapper Map
         (
-            List<string> source
+            PublicField<string> source
         )
         {
-            return new StringsMapper(source);
+            return new StringPublicFieldMapper(source);
+        }
+
+        public static StringPublicPropertyMapper Map
+        (
+            PublicProperty<string> source
+        )
+        {
+            return new StringPublicPropertyMapper(source);
         }
     }
 }

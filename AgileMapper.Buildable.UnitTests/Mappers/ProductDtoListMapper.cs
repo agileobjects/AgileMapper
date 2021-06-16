@@ -18,9 +18,9 @@ using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
-    public class ProductDtosMapper : MappingExecutionContextBase<List<ProductDto>>
+    public class ProductDtoListMapper : MappingExecutionContextBase<List<ProductDto>>
     {
-        public ProductDtosMapper
+        public ProductDtoListMapper
         (
             List<ProductDto> source
         )
@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         public IList<ProductDto> ToANew<TTarget>()
             where TTarget : IList<ProductDto>
         {
-            return ProductDtosMapper.CreateNew(this.CreateRootMappingData(default(IList<ProductDto>)));
+            return ProductDtoListMapper.CreateNew(this.CreateRootMappingData(default(IList<ProductDto>)));
         }
 
         private static IList<ProductDto> CreateNew
@@ -52,7 +52,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                     }
 
                     var sourceProductDto = sourceProductDtos[i];
-                    targetProductDtos.Add(ProductDtosMapper.GetProductDto(sourceProductDto));
+                    targetProductDtos.Add(ProductDtoListMapper.GetProductDto(sourceProductDto));
                     ++i;
                 }
 
@@ -84,7 +84,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
                 if (sourceProductDtoMega != null)
                 {
-                    return ProductDtosMapper.GetProductDtoMega(sourceProductDtoMega);
+                    return ProductDtoListMapper.GetProductDtoMega(sourceProductDtoMega);
                 }
                 var productDto = new ProductDto();
                 productDto.ProductId = sourceProductDto.ProductId;

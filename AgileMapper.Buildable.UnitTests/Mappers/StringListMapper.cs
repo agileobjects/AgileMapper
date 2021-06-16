@@ -18,9 +18,9 @@ using AgileObjects.AgileMapper.ObjectPopulation;
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
-    public class StringsMapper : MappingExecutionContextBase<List<string>>
+    public class StringListMapper : MappingExecutionContextBase<List<string>>
     {
-        public StringsMapper
+        public StringListMapper
         (
             List<string> source
         )
@@ -31,7 +31,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         public Collection<byte?> ToANew<TTarget>()
             where TTarget : Collection<Nullable<byte>>
         {
-            return StringsMapper.CreateNew(this.CreateRootMappingData(default(Collection<byte?>)));
+            return StringListMapper.CreateNew(this.CreateRootMappingData(default(Collection<byte?>)));
         }
 
         private static Collection<byte?> CreateNew
@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                         break;
                     }
 
-                    nullableBytes.Add(StringsMapper.GetNullableByte(strings, i));
+                    nullableBytes.Add(StringListMapper.GetNullableByte(strings, i));
                     ++i;
                 }
 

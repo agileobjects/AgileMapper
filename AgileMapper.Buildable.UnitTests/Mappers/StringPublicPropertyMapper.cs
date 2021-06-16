@@ -17,9 +17,9 @@ using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
-    public class PublicProperty_StringMapper : MappingExecutionContextBase<PublicProperty<string>>
+    public class StringPublicPropertyMapper : MappingExecutionContextBase<PublicProperty<string>>
     {
-        public PublicProperty_StringMapper
+        public StringPublicPropertyMapper
         (
             PublicProperty<string> source
         )
@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         public PublicField<int> ToANew<TTarget>()
             where TTarget : PublicField<int>
         {
-            return PublicProperty_StringMapper.CreateNew(this.CreateRootMappingData(default(PublicField<int>)));
+            return StringPublicPropertyMapper.CreateNew(this.CreateRootMappingData(default(PublicField<int>)));
         }
 
         private static PublicField<int> CreateNew
@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             try
             {
                 var publicField_Int = new PublicField<int>();
-                publicField_Int.Value = PublicProperty_StringMapper.GetInt(ppsToPfiData);
+                publicField_Int.Value = StringPublicPropertyMapper.GetInt(ppsToPfiData);
 
                 return publicField_Int;
             }

@@ -20,9 +20,9 @@ using AgileObjects.ReadableExpressions.Extensions;
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
-    public class DateTimesMapper : MappingExecutionContextBase<HashSet<DateTime>>
+    public class DateTimeHashSetMapper : MappingExecutionContextBase<HashSet<DateTime>>
     {
-        public DateTimesMapper
+        public DateTimeHashSetMapper
         (
             HashSet<DateTime> source
         )
@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         {
             if (typeof(TTarget) == typeof(DateTime[]))
             {
-                return (TTarget)((object)DateTimesMapper.CreateNew(this.CreateRootMappingData(default(DateTime[]))));
+                return (TTarget)((object)DateTimeHashSetMapper.CreateNew(this.CreateRootMappingData(default(DateTime[]))));
             }
 
             throw new NotSupportedException(

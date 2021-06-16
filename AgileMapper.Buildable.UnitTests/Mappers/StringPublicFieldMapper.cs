@@ -20,9 +20,9 @@ using AgileObjects.ReadableExpressions.Extensions;
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
-    public class PublicField_StringMapper : MappingExecutionContextBase<PublicField<string>>
+    public class StringPublicFieldMapper : MappingExecutionContextBase<PublicField<string>>
     {
-        public PublicField_StringMapper
+        public StringPublicFieldMapper
         (
             PublicField<string> source
         )
@@ -34,12 +34,12 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         {
             if (typeof(TTarget).IsAssignableTo(typeof(PublicField<int>)))
             {
-                return (TTarget)((object)PublicField_StringMapper.CreateNew(this.CreateRootMappingData(default(PublicField<int>))));
+                return (TTarget)((object)StringPublicFieldMapper.CreateNew(this.CreateRootMappingData(default(PublicField<int>))));
             }
 
             if (typeof(TTarget).IsAssignableTo(typeof(PublicProperty<string>)))
             {
-                return (TTarget)((object)PublicField_StringMapper.CreateNew(this.CreateRootMappingData(default(PublicProperty<string>))));
+                return (TTarget)((object)StringPublicFieldMapper.CreateNew(this.CreateRootMappingData(default(PublicProperty<string>))));
             }
 
             throw new NotSupportedException(
@@ -54,7 +54,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             try
             {
                 var publicField_Int = new PublicField<int>();
-                publicField_Int.Value = PublicField_StringMapper.GetInt(pfsToPfiData);
+                publicField_Int.Value = StringPublicFieldMapper.GetInt(pfsToPfiData);
 
                 return publicField_Int;
             }

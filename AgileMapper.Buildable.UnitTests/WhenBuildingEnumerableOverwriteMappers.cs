@@ -5,95 +5,74 @@
     using System.Linq;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Configuration;
     using Xunit;
+    using GeneratedMapper = Mappers.Mapper;
 
     public class WhenBuildingEnumerableOverwriteMappers
     {
-        //[Fact]
-        //public void ShouldBuildASimpleTypeArrayToArrayMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<char[]>().Over<int[]>();
+        [Fact]
+        public void ShouldBuildASimpleTypeArrayToArrayMapper()
+        {
+            var source = new[] { '5', '5', '5' };
+            var target = new[] { 3, 3, 3, 3 };
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+            var result = GeneratedMapper.Map(source).Over(target);
 
-        //        var source = new[] { '5', '5', '5' };
-        //        var target = new[] { 3, 3, 3, 3 };
+            result.ShouldNotBeNull().ShouldNotBeSameAs(target);
+            result.ShouldBe(5, 5, 5);
+        }
 
-        //        var result = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass()
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem()
-        //            .ShouldCreateMappingExecutor(source)
-        //            .ShouldHaveAnOverwriteMethod()
-        //            .ShouldExecuteAnOverwriteMapping(target);
+        [Fact]
+        public void ShouldBuildASimpleTypeCollectionToListMapper()
+        {
+            var source = new Collection<string> { "I", "Will" };
+            var target = new List<string> { "You", "Might" };
 
-        //        result.ShouldNotBeNull().ShouldNotBeSameAs(target);
-        //        result.ShouldBe(5, 5, 5);
-        //    }
-        //}
+            var result = GeneratedMapper.Map(source).Over(target);
 
-        //[Fact]
-        //public void ShouldBuildASimpleTypeCollectionToListMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<Collection<string>>().Over<List<string>>();
+            result.ShouldNotBeNull().ShouldBeSameAs(target);
+            result.SequenceEqual(source).ShouldBeTrue();
+        }
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+        [Fact]
+        public void ShouldBuildAComplexTypeArrayToReadOnlyCollectionMapper()
+        {
+            var source = new[]
+            {
+                new ProductDto { ProductId = "1", Price = 1.99m },
+                new ProductDto { ProductId = "2", Price = 2.99m },
+            };
 
-        //        var source = new Collection<string> { "I", "Will" };
-        //        var target = new List<string> { "You", "Might" };
+            var target = new ReadOnlyCollection<Product>(new List<Product>
+            {
+                new Product { ProductId = "2", Price = 4.99 }
+            });
 
-        //        var result = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass()
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem()
-        //            .ShouldCreateMappingExecutor(source)
-        //            .ShouldHaveAnOverwriteMethod()
-        //            .ShouldExecuteAnOverwriteMapping(target);
+            var result = GeneratedMapper.Map(source).Over(target);
 
-        //        result.ShouldNotBeNull().ShouldBeSameAs(target);
-        //        result.SequenceEqual(source).ShouldBeTrue();
-        //    }
-        //}
+            result.ShouldNotBeNull();
+            result.Count.ShouldBe(2);
+            result.First().ProductId.ShouldBe("2");
+            result.First().Price.ShouldBe(2.99);
+            result.Second().ProductId.ShouldBe("1");
+            result.Second().Price.ShouldBe(1.99);
+        }
 
-        //[Fact]
-        //public void ShouldBuildAComplexTypeArrayToReadOnlyCollectionMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<ProductDto[]>().Over<ReadOnlyCollection<Product>>();
+        #region Configuration
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+        public class EnumerableOverwriteMapperConfiguration : BuildableMapperConfiguration
+        {
+            protected override void Configure()
+            {
+                GetPlanFor<char[]>().Over<int[]>();
 
-        //        var source = new[]
-        //        {
-        //            new ProductDto { ProductId = "1", Price = 1.99m },
-        //            new ProductDto { ProductId = "2", Price = 2.99m },
-        //        };
+                GetPlanFor<Collection<string>>().Over<List<string>>();
 
-        //        var target = new ReadOnlyCollection<Product>(new List<Product>
-        //        {
-        //            new Product { ProductId = "2", Price = 4.99 }
-        //        });
+                GetPlanFor<ProductDto[]>().Over<ReadOnlyCollection<Product>>();
+            }
+        }
 
-        //        var result = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass()
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem()
-        //            .ShouldCreateMappingExecutor(source)
-        //            .ShouldHaveAnOverwriteMethod()
-        //            .ShouldExecuteAnOverwriteMapping(target);
-
-        //        result.ShouldNotBeNull();
-        //        result.Count.ShouldBe(2);
-        //        result.First().ProductId.ShouldBe("2");
-        //        result.First().Price.ShouldBe(2.99);
-        //        result.Second().ProductId.ShouldBe("1");
-        //        result.Second().Price.ShouldBe(1.99);
-        //    }
-        //}
+        #endregion
     }
 }
