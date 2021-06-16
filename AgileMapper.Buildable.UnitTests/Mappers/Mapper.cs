@@ -35,6 +35,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new CharArrayMapper(source);
         }
 
+        public static ChildMapper Map
+        (
+            Child source
+        )
+        {
+            return new ChildMapper(source);
+        }
+
         public static DateTimeHashSetMapper Map
         (
             HashSet<DateTime> source

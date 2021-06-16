@@ -45,7 +45,7 @@
 
         #region Configuration
 
-        public class EnumerableOverwriteMapperConfiguration : BuildableMapperConfiguration
+        public class DerivedTypeMapperConfiguration : BuildableMapperConfiguration
         {
             protected override void Configure()
             {

@@ -2,66 +2,61 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Configuration;
     using Xunit;
+    using GeneratedMapper = Mappers.Mapper;
 
     public class WhenBuildingCircularReferenceMappers
     {
-        //[Fact]
-        //public void ShouldBuildACircularReferenceMapper()
-        //{
-        //    using (var mapper = Mapper.CreateNew())
-        //    {
-        //        mapper.GetPlanFor<Child>().ToANew<Child>();
+        [Fact]
+        public void ShouldBuildACircularReferenceMapper()
+        {
+            var source = new Child
+            {
+                Name = "Fred",
+                EldestParent = new Parent
+                {
+                    Name = "Bonnie",
+                    EldestChild = new Child
+                    {
+                        Name = "Samson",
+                        EldestParent = new Parent
+                        {
+                            Name = "Franklin"
+                        }
+                    }
+                }
+            };
 
-        //        var sourceCodeExpressions = mapper.GetPlanSourceCodeInCache();
+            source.EldestParent.EldestChild.EldestParent.EldestChild = source;
 
-        //        var staticMapperClass = sourceCodeExpressions
-        //            .ShouldCompileAStaticMapperClass();
+            var result = GeneratedMapper.Map(source).ToANew<Child>();
 
-        //        var staticMapMethod = staticMapperClass
-        //            .GetMapMethods()
-        //            .ShouldHaveSingleItem();
+            result.ShouldNotBeNull().ShouldNotBeSameAs(source);
 
-        //        var source = new Child
-        //        {
-        //            Name = "Fred",
-        //            EldestParent = new Parent
-        //            {
-        //                Name = "Bonnie",
-        //                EldestChild = new Child
-        //                {
-        //                    Name = "Samson",
-        //                    EldestParent = new Parent
-        //                    {
-        //                        Name = "Franklin"
-        //                    }
-        //                }
-        //            }
-        //        };
+            result.Name.ShouldBe("Fred");
+            result.EldestParent.ShouldNotBeNull();
 
-        //        source.EldestParent.EldestChild.EldestParent.EldestChild = source;
+            result.EldestParent.Name.ShouldBe("Bonnie");
+            result.EldestParent.EldestChild.ShouldNotBeNull();
 
-        //        var executor = staticMapMethod
-        //            .ShouldCreateMappingExecutor(source);
+            result.EldestParent.EldestChild.Name.ShouldBe("Samson");
+            result.EldestParent.EldestChild.EldestParent.ShouldNotBeNull();
 
-        //        var result = executor
-        //            .ShouldHaveACreateNewMethod()
-        //            .ShouldExecuteACreateNewMapping<Child>();
+            result.EldestParent.EldestChild.EldestParent.Name.ShouldBe("Franklin");
+            result.EldestParent.EldestChild.EldestParent.EldestChild.ShouldBeSameAs(result);
+        }
 
-        //        result.ShouldNotBeNull().ShouldNotBeSameAs(source);
+        #region Configuration
 
-        //        result.Name.ShouldBe("Fred");
-        //        result.EldestParent.ShouldNotBeNull();
+        public class CircularReferenceMapperConfiguration : BuildableMapperConfiguration
+        {
+            protected override void Configure()
+            {
+                GetPlanFor<Child>().ToANew<Child>();
+            }
+        }
 
-        //        result.EldestParent.Name.ShouldBe("Bonnie");
-        //        result.EldestParent.EldestChild.ShouldNotBeNull();
-
-        //        result.EldestParent.EldestChild.Name.ShouldBe("Samson");
-        //        result.EldestParent.EldestChild.EldestParent.ShouldNotBeNull();
-
-        //        result.EldestParent.EldestChild.EldestParent.Name.ShouldBe("Franklin");
-        //        result.EldestParent.EldestChild.EldestParent.EldestChild.ShouldBeSameAs(result);
-        //    }
-        //}
+        #endregion
     }
 }
