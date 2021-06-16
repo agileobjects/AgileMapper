@@ -27,12 +27,49 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         {
         }
 
+        public Address OnTo
+        (
+            Address target
+        )
+        {
+            return AddressMapper.Merge(this.CreateRootMappingData(target));
+        }
+
         public Address Over
         (
             Address target
         )
         {
             return AddressMapper.Overwrite(this.CreateRootMappingData(target));
+        }
+
+        private static Address Merge
+        (
+            IObjectMappingData<Address, Address> aToAData
+        )
+        {
+            try
+            {
+                if (aToAData.Target.Line1 == null)
+                {
+                    aToAData.Target.Line1 = aToAData.Source.Line1;
+                }
+
+                if (aToAData.Target.Line2 == null)
+                {
+                    aToAData.Target.Line2 = aToAData.Source.Line2;
+                }
+
+                return aToAData.Target;
+            }
+            catch (Exception ex)
+            {
+                throw MappingException.For(
+                    "Merge",
+                    "Address",
+                    "Address",
+                    ex);
+            }
         }
 
         private static Address Overwrite
