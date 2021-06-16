@@ -16,6 +16,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
     public static class Mapper
     {
+        public static AddressMapper Map
+        (
+            Address source
+        )
+        {
+            return new AddressMapper(source);
+        }
+
         public static PublicField_StringMapper Map
         (
             PublicField<string> source
