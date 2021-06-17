@@ -38,15 +38,15 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static HashSet<double> Merge
         (
-            IObjectMappingData<decimal[], HashSet<double>> daToDsData
+            IObjectMappingData<decimal[], HashSet<double>> daToDhsData
         )
         {
             try
             {
-                var sourceDoubles = daToDsData.Source.Project(d => (double)d).Exclude(daToDsData.Target);
-                var targetDoubles = daToDsData.Target;
+                var sourceDoubleIEnumerable = daToDhsData.Source.Project(d => (double)d).Exclude(daToDhsData.Target);
+                var targetDoubleHashSet = daToDhsData.Target;
                 var i = 0;
-                var enumerator = sourceDoubles.GetEnumerator();
+                var enumerator = sourceDoubleIEnumerable.GetEnumerator();
                 try
                 {
                     while (true)
@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                             break;
                         }
 
-                        targetDoubles.Add(enumerator.Current);
+                        targetDoubleHashSet.Add(enumerator.Current);
                         ++i;
                     }
                 }
@@ -65,7 +65,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                     enumerator.Dispose();
                 }
 
-                return targetDoubles;
+                return targetDoubleHashSet;
             }
             catch (Exception ex)
             {

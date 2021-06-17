@@ -38,17 +38,17 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static List<string> Overwrite
         (
-            IObjectMappingData<Collection<string>, List<string>> ssToSsData
+            IObjectMappingData<Collection<string>, List<string>> scToSlData
         )
         {
             try
             {
-                var sourceStrings = ssToSsData.Source;
-                var targetStrings = ssToSsData.Target;
-                targetStrings.Clear();
-                targetStrings.AddRange(sourceStrings);
+                var sourceStringCollection = scToSlData.Source;
+                var targetStringList = scToSlData.Target;
+                targetStringList.Clear();
+                targetStringList.AddRange(sourceStringCollection);
 
-                return targetStrings;
+                return targetStringList;
             }
             catch (Exception ex)
             {

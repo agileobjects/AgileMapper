@@ -35,15 +35,15 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static PublicField<int> CreateNew
         (
-            IObjectMappingData<PublicProperty<string>, PublicField<int>> ppsToPfiData
+            IObjectMappingData<PublicProperty<string>, PublicField<int>> sppToIpfData
         )
         {
             try
             {
-                var publicField_Int = new PublicField<int>();
-                publicField_Int.Value = StringPublicPropertyMapper.GetInt(ppsToPfiData);
+                var intPublicField = new PublicField<int>();
+                intPublicField.Value = StringPublicPropertyMapper.GetInt(sppToIpfData);
 
-                return publicField_Int;
+                return intPublicField;
             }
             catch (Exception ex)
             {
@@ -57,11 +57,11 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static int GetInt
         (
-            IObjectMappingData<PublicProperty<string>, PublicField<int>> ppsToPfiData
+            IObjectMappingData<PublicProperty<string>, PublicField<int>> sppToIpfData
         )
         {
             int intValue;
-            return int.TryParse(ppsToPfiData.Source.Value, out intValue) ? intValue : default(int);
+            return int.TryParse(sppToIpfData.Source.Value, out intValue) ? intValue : default(int);
         }
     }
 }

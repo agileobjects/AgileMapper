@@ -36,26 +36,26 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static Collection<byte?> CreateNew
         (
-            IObjectMappingData<List<string>, Collection<byte?>> ssToNbsData
+            IObjectMappingData<List<string>, Collection<byte?>> slToNbcData
         )
         {
             try
             {
-                var strings = ssToNbsData.Source;
-                var nullableBytes = new Collection<byte?>();
+                var stringList = slToNbcData.Source;
+                var nullableByteCollection = new Collection<byte?>();
                 var i = 0;
                 while (true)
                 {
-                    if (i == strings.Count)
+                    if (i == stringList.Count)
                     {
                         break;
                     }
 
-                    nullableBytes.Add(StringListMapper.GetNullableByte(strings, i));
+                    nullableByteCollection.Add(StringListMapper.GetNullableByte(stringList, i));
                     ++i;
                 }
 
-                return nullableBytes;
+                return nullableByteCollection;
             }
             catch (Exception ex)
             {
@@ -69,12 +69,12 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static byte? GetNullableByte
         (
-            List<string> strings,
+            List<string> stringList,
             int i
         )
         {
             byte byteValue;
-            return byte.TryParse(strings[i], out byteValue) ? (byte?)byteValue : null;
+            return byte.TryParse(stringList[i], out byteValue) ? (byte?)byteValue : null;
         }
     }
 }

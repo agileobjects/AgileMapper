@@ -59,6 +59,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
             return new DecimalArrayMapper(source);
         }
 
+        public static IntAddressPublicTwoFieldsMapper Map
+        (
+            PublicTwoFields<int, Address> source
+        )
+        {
+            return new IntAddressPublicTwoFieldsMapper(source);
+        }
+
         public static IntArrayMapper Map
         (
             int[] source

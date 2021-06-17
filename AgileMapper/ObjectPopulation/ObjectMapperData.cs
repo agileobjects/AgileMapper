@@ -28,7 +28,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static readonly MethodInfo _mapRepeatedElementMethod =
             typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 4);
 
-        private readonly LabelTarget _returnLabelTarget;
+        private LabelTarget _returnLabelTarget;
         private Expression _rootMappingDataObject;
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
@@ -75,8 +75,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ElementKey = GetElementKeyAccess();
                 ParentObject = GetParentObjectAccess();
             }
-
-            _returnLabelTarget = Expression.Label(TargetType, "Return");
+            
             _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
             if (targetMember.IsEnumerable)
@@ -668,7 +667,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// <see cref="ObjectMapperData" />'s LabelTarget.
         /// </returns>
         public Expression GetReturnExpression(Expression value)
-            => Expression.Return(_returnLabelTarget, value, TargetType);
+            => Expression.Return(ReturnLabelTarget, value, TargetType);
 
         /// <summary>
         /// Creates a LabelExpression for this <see cref="ObjectMapperData" />'s LabelTarget, with
@@ -682,7 +681,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         /// <paramref name="defaultValue"/>.
         /// </returns>
         public Expression GetReturnLabel(Expression defaultValue)
-            => Expression.Label(_returnLabelTarget, defaultValue);
+            => Expression.Label(ReturnLabelTarget, defaultValue);
+
+        private LabelTarget ReturnLabelTarget
+            => _returnLabelTarget ??= Expression.Label(TargetType, "Return");
+
+        public bool ReturnLabelUsed => _returnLabelTarget != null;
 
         public IQualifiedMemberContext WithNoTargetMember()
         {

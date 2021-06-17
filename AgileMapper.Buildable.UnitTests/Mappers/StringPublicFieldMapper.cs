@@ -48,15 +48,15 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static PublicField<int> CreateNew
         (
-            IObjectMappingData<PublicField<string>, PublicField<int>> pfsToPfiData
+            IObjectMappingData<PublicField<string>, PublicField<int>> spfToIpfData
         )
         {
             try
             {
-                var publicField_Int = new PublicField<int>();
-                publicField_Int.Value = StringPublicFieldMapper.GetInt(pfsToPfiData);
+                var intPublicField = new PublicField<int>();
+                intPublicField.Value = StringPublicFieldMapper.GetInt(spfToIpfData);
 
-                return publicField_Int;
+                return intPublicField;
             }
             catch (Exception ex)
             {
@@ -70,15 +70,15 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static PublicProperty<string> CreateNew
         (
-            IObjectMappingData<PublicField<string>, PublicProperty<string>> pfsToPpsData
+            IObjectMappingData<PublicField<string>, PublicProperty<string>> spfToSppData
         )
         {
             try
             {
-                var publicProperty_String = new PublicProperty<string>();
-                publicProperty_String.Value = pfsToPpsData.Source.Value;
+                var stringPublicProperty = new PublicProperty<string>();
+                stringPublicProperty.Value = spfToSppData.Source.Value;
 
-                return publicProperty_String;
+                return stringPublicProperty;
             }
             catch (Exception ex)
             {
@@ -92,11 +92,11 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static int GetInt
         (
-            IObjectMappingData<PublicField<string>, PublicField<int>> pfsToPfiData
+            IObjectMappingData<PublicField<string>, PublicField<int>> spfToIpfData
         )
         {
             int intValue;
-            return int.TryParse(pfsToPfiData.Source.Value, out intValue) ? intValue : default(int);
+            return int.TryParse(spfToIpfData.Source.Value, out intValue) ? intValue : default(int);
         }
     }
 }

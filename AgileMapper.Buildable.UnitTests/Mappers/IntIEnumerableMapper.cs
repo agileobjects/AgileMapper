@@ -38,15 +38,15 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static ICollection<int> Merge
         (
-            IObjectMappingData<IEnumerable<int>, ICollection<int>> isToIsData
+            IObjectMappingData<IEnumerable<int>, ICollection<int>> iieToIicData
         )
         {
             try
             {
-                var sourceInts = isToIsData.Source.Exclude(isToIsData.Target);
-                ICollection<int> targetInts = isToIsData.Target.IsReadOnly ? new List<int>(isToIsData.Target) : isToIsData.Target;
+                var sourceIntIEnumerable = iieToIicData.Source.Exclude(iieToIicData.Target);
+                ICollection<int> targetIntICollection = iieToIicData.Target.IsReadOnly ? new List<int>(iieToIicData.Target) : iieToIicData.Target;
                 var i = 0;
-                var enumerator = sourceInts.GetEnumerator();
+                var enumerator = sourceIntIEnumerable.GetEnumerator();
                 try
                 {
                     while (true)
@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                             break;
                         }
 
-                        targetInts.Add(enumerator.Current);
+                        targetIntICollection.Add(enumerator.Current);
                         ++i;
                     }
                 }
@@ -65,7 +65,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                     enumerator.Dispose();
                 }
 
-                return targetInts;
+                return targetIntICollection;
             }
             catch (Exception ex)
             {

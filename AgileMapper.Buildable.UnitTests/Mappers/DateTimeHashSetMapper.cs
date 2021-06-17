@@ -43,15 +43,15 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static DateTime[] CreateNew
         (
-            IObjectMappingData<HashSet<DateTime>, DateTime[]> dtsToDtaData
+            IObjectMappingData<HashSet<DateTime>, DateTime[]> dthsToDtaData
         )
         {
             try
             {
-                var sourceDateTimes = dtsToDtaData.Source;
-                var targetDateTimes = new List<DateTime>(sourceDateTimes.Count);
+                var sourceDateTimeHashSet = dthsToDtaData.Source;
+                var targetDateTimeList = new List<DateTime>(sourceDateTimeHashSet.Count);
                 var i = 0;
-                var enumerator = sourceDateTimes.GetEnumerator();
+                var enumerator = sourceDateTimeHashSet.GetEnumerator();
                 try
                 {
                     while (true)
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                             break;
                         }
 
-                        targetDateTimes.Add(enumerator.Current);
+                        targetDateTimeList.Add(enumerator.Current);
                         ++i;
                     }
                 }
@@ -70,7 +70,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                     enumerator.Dispose();
                 }
 
-                return targetDateTimes.ToArray();
+                return targetDateTimeList.ToArray();
             }
             catch (Exception ex)
             {

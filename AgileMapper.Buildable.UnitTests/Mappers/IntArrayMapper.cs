@@ -36,13 +36,13 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static ReadOnlyCollection<int> CreateNew
         (
-            IObjectMappingData<int[], ReadOnlyCollection<int>> iaToIsData
+            IObjectMappingData<int[], ReadOnlyCollection<int>> iaToIrocData
         )
         {
             try
             {
-                var sourceIntArray = iaToIsData.Source;
-                var targetInts = new List<int>(sourceIntArray.Length);
+                var sourceIntArray = iaToIrocData.Source;
+                var targetIntList = new List<int>(sourceIntArray.Length);
                 var i = 0;
                 while (true)
                 {
@@ -51,11 +51,11 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                         break;
                     }
 
-                    targetInts.Add(sourceIntArray[i]);
+                    targetIntList.Add(sourceIntArray[i]);
                     ++i;
                 }
 
-                return targetInts.AsReadOnly();
+                return targetIntList.AsReadOnly();
             }
             catch (Exception ex)
             {

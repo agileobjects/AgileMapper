@@ -40,23 +40,23 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static ReadOnlyCollection<Product> Overwrite
         (
-            IObjectMappingData<ProductDto[], ReadOnlyCollection<Product>> pdaToPsData
+            IObjectMappingData<ProductDto[], ReadOnlyCollection<Product>> pdaToProcData
         )
         {
             try
             {
                 var collectionData = CollectionData.Create(
-                    pdaToPsData.Source,
-                    pdaToPsData.Target,
+                    pdaToProcData.Source,
+                    pdaToProcData.Target,
                     pd => pd.ProductId,
                     p => p.ProductId);
                 collectionData.Intersection.ForEach(
                     (existingProductDto, existingProduct, idx) => ProductDtoArrayMapper.GetProduct1(existingProductDto, existingProduct));
-                var productDtos = collectionData.NewSourceItems;
-                var products = new List<Product>(pdaToPsData.Target);
-                collectionData.AbsentTargetItems.ForEach(p => products.Remove(p));
+                var productDtoIEnumerable = collectionData.NewSourceItems;
+                var productList = new List<Product>(pdaToProcData.Target);
+                collectionData.AbsentTargetItems.ForEach(p => productList.Remove(p));
                 var i = 0;
-                var enumerator = productDtos.GetEnumerator();
+                var enumerator = productDtoIEnumerable.GetEnumerator();
                 try
                 {
                     while (true)
@@ -66,7 +66,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                             break;
                         }
 
-                        products.Add(ProductDtoArrayMapper.GetProduct1(enumerator));
+                        productList.Add(ProductDtoArrayMapper.GetProduct1(enumerator));
                         ++i;
                     }
                 }
@@ -75,7 +75,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                     enumerator.Dispose();
                 }
 
-                return products.AsReadOnly();
+                return productList.AsReadOnly();
             }
             catch (Exception ex)
             {

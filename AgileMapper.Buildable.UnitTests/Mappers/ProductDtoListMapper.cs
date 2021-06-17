@@ -36,27 +36,27 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static IList<ProductDto> CreateNew
         (
-            IObjectMappingData<List<ProductDto>, IList<ProductDto>> pdsToPdsData
+            IObjectMappingData<List<ProductDto>, IList<ProductDto>> pdlToPdilData
         )
         {
             try
             {
-                var sourceProductDtos = pdsToPdsData.Source;
-                var targetProductDtos = new List<ProductDto>(sourceProductDtos.Count);
+                var sourceProductDtoList = pdlToPdilData.Source;
+                var targetProductDtoList = new List<ProductDto>(sourceProductDtoList.Count);
                 var i = 0;
                 while (true)
                 {
-                    if (i == sourceProductDtos.Count)
+                    if (i == sourceProductDtoList.Count)
                     {
                         break;
                     }
 
-                    var sourceProductDto = sourceProductDtos[i];
-                    targetProductDtos.Add(ProductDtoListMapper.GetProductDto(sourceProductDto));
+                    var sourceProductDto = sourceProductDtoList[i];
+                    targetProductDtoList.Add(ProductDtoListMapper.GetProductDto(sourceProductDto));
                     ++i;
                 }
 
-                return targetProductDtos;
+                return targetProductDtoList;
             }
             catch (Exception ex)
             {

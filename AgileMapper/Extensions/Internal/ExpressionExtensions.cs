@@ -322,15 +322,23 @@
         public static Expression ToExpression(this IList<Expression> expressions)
             => expressions.HasOne() ? expressions.First() : Expression.Block(expressions);
 
-        public static IList<Expression> GetMemberMappingExpressions(this IList<Expression> mappingExpressions)
-            => mappingExpressions.Filter(IsMemberMapping).ToList();
+        public static IEnumerable<Expression> EnumerateMappingExpressions(
+            this IList<Expression> mappingExpressions,
+            bool includeCallbacks)
+        {
+            return mappingExpressions
+                .Filter(includeCallbacks, (inc, exp) => IsMappingExpression(exp, inc));
+        }
 
-        private static bool IsMemberMapping(Expression expression)
+        private static bool IsMappingExpression(Expression expression, bool includeCallbacks)
         {
             switch (expression.NodeType)
             {
                 case Constant:
                     return false;
+
+                case Invoke:
+                    return includeCallbacks;
 
                 case Call when (
                     IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||

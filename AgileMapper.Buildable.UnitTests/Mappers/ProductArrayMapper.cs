@@ -39,18 +39,18 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static IEnumerable<Product> Merge
         (
-            IObjectMappingData<Product[], IEnumerable<Product>> paToPsData
+            IObjectMappingData<Product[], IEnumerable<Product>> paToPieData
         )
         {
             try
             {
-                var collectionData = CollectionData.Create(paToPsData.Source, paToPsData.Target, p => p.ProductId);
+                var collectionData = CollectionData.Create(paToPieData.Source, paToPieData.Target, p => p.ProductId);
                 collectionData.Intersection.ForEach(
                     (existingSourceProduct, existingTargetProduct, idx) => ProductArrayMapper.GetProduct1(existingSourceProduct, existingTargetProduct));
-                var sourceProducts = collectionData.NewSourceItems;
-                var targetProducts = ProductArrayMapper.GetProductICollection(paToPsData);
+                var sourceProductIEnumerable = collectionData.NewSourceItems;
+                var targetProductICollection = ProductArrayMapper.GetProductICollection(paToPieData);
                 var i = 0;
-                var enumerator = sourceProducts.GetEnumerator();
+                var enumerator = sourceProductIEnumerable.GetEnumerator();
                 try
                 {
                     while (true)
@@ -60,7 +60,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                             break;
                         }
 
-                        targetProducts.Add(ProductArrayMapper.GetProduct2(enumerator));
+                        targetProductICollection.Add(ProductArrayMapper.GetProduct2(enumerator));
                         ++i;
                     }
                 }
@@ -69,7 +69,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                     enumerator.Dispose();
                 }
 
-                return targetProducts;
+                return targetProductICollection;
             }
             catch (Exception ex)
             {
@@ -201,13 +201,13 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 
         private static ICollection<Product> GetProductICollection
         (
-            IObjectMappingData<Product[], IEnumerable<Product>> paToPsData
+            IObjectMappingData<Product[], IEnumerable<Product>> paToPieData
         )
         {
             ICollection<Product> collection;
-            return ((collection = paToPsData.Target as ICollection<Product>) != null)
-                ? collection.IsReadOnly ? new List<Product>(paToPsData.Target) : collection
-                : new List<Product>(paToPsData.Target);
+            return ((collection = paToPieData.Target as ICollection<Product>) != null)
+                ? collection.IsReadOnly ? new List<Product>(paToPieData.Target) : collection
+                : new List<Product>(paToPieData.Target);
         }
 
         private static Product GetProduct2
