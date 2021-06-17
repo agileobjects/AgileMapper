@@ -406,25 +406,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return firstExpression;
             }
 
-            Expression returnExpression;
-
-            if (firstExpression.NodeType != Block)
-            {
-                if (TryAdjustForUnusedLocalVariableIfApplicable(context, out returnExpression))
-                {
-                    return returnExpression;
-                }
-            }
-            else if (TryAdjustForUnusedLocalVariableIfApplicable(context, out returnExpression))
+            if (TryAdjustForUnusedLocalVariableIfApplicable(
+                context,
+                out var ignoreVariable,
+                out var returnExpression))
             {
                 return returnExpression;
             }
 
-            mappingExpressions.Add(context.MapperData.GetReturnLabel(GetExpressionToReturn(context)));
+            var localVariableUnused = ignoreVariable == true;
+            var mapperData = context.MapperData;
+            returnExpression = GetExpressionToReturn(context);
 
-            var mappingBlock = context.MapperData.Context.UseLocalVariable
-                ? Expression.Block(new[] { context.MapperData.LocalVariable }, mappingExpressions)
-                : mappingExpressions.ToExpression();
+            if (localVariableUnused && (returnExpression == mapperData.LocalVariable))
+            {
+                returnExpression = mapperData.LocalVariable.Type.ToDefaultExpression();
+            }
+
+            mappingExpressions.Add(mapperData.GetReturnLabel(returnExpression));
+
+            var mappingBlock = localVariableUnused || !mapperData.Context.UseLocalVariable
+                ? mappingExpressions.ToExpression()
+                : Expression.Block(new[] { mapperData.LocalVariable }, mappingExpressions);
 
             return mappingBlock;
         }
@@ -445,21 +448,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static bool TryAdjustForUnusedLocalVariableIfApplicable(MappingCreationContext context, out Expression returnExpression)
+        private static bool TryAdjustForUnusedLocalVariableIfApplicable(
+            MappingCreationContext context,
+            out bool? ignoreVariable,
+            out Expression returnExpression)
         {
-            if (!context.MapperData.Context.UseLocalVariable)
+            if (!context.MapperData.Context.UseLocalVariable ||
+                 context.ToTargetDataSources.Any())
             {
+                ignoreVariable = null;
                 returnExpression = null;
                 return false;
             }
 
             var mappingExpressions = context.MappingExpressions;
 
-            if (!mappingExpressions.TryGetVariableAssignment(out var localVariableAssignment))
+            if (!mappingExpressions.TryGetAssignment(
+                context.MapperData.LocalVariable,
+                out var localVariableAssignment))
             {
+                ignoreVariable = true;
                 returnExpression = null;
                 return false;
             }
+
+            ignoreVariable = false;
 
             if ((localVariableAssignment.Left.NodeType != Parameter) ||
                 (localVariableAssignment != mappingExpressions.Last()))

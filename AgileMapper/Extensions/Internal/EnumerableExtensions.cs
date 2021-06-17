@@ -80,11 +80,11 @@
         }
 
         [DebuggerStepThrough]
-        public static bool TryFindMatch<T>(this IList<T> items, Func<T, bool> predicate, out T match)
-            => TryFindMatch(items, predicate, (p, item) => p.Invoke(item), out match);
-
-        [DebuggerStepThrough]
-        public static bool TryFindMatch<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate, out T match)
+        public static bool TryFindMatch<TArg, T>(
+            this IList<T> items, 
+            TArg argument,
+            Func<TArg, T, bool> predicate, 
+            out T match)
         {
             for (int i = 0, n = items.Count; i < n; ++i)
             {
@@ -92,6 +92,26 @@
 
                 if (predicate.Invoke(argument, match))
                 {
+                    return true;
+                }
+            }
+
+            match = default;
+            return false;
+        }
+
+        [DebuggerStepThrough]
+        public static bool TryFindMatch<TArg, T>(
+            this IEnumerable<T> items, 
+            TArg argument,
+            Func<TArg, T, bool> predicate, 
+            out T match)
+        {
+            foreach (var item in items)
+            {
+                if (predicate.Invoke(argument, item))
+                {
+                    match = item;
                     return true;
                 }
             }

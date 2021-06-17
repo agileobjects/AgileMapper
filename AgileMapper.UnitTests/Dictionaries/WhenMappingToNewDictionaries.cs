@@ -46,6 +46,15 @@
         }
 
         [Fact]
+        public void ShouldMapAComplexTypeMemberToAnUntypedDictionary()
+        {
+            var source = new PublicField<Address> { Value = new Address { Line1 = "One!" } };
+            var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+            result.ShouldContainKeyAndValue("Value.Line1", "One!");
+        }
+
+        [Fact]
         public void ShouldMapASimpleTypeMemberToAConvertibleTypedDictionary()
         {
             var source = new PublicGetMethod<string>("6473");

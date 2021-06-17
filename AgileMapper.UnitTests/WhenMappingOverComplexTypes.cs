@@ -43,7 +43,19 @@
 
             Mapper.Map(source).Over(target);
 
-            target.Value.ShouldBe(source.Value);
+            target.Value.ShouldBe(123);
+        }
+
+        [Fact]
+        public void ShouldOverwriteExistingSimpleTypePropertyValues()
+        {
+            var source = new Address { Line1 = "Source 1", Line2 = "Source 2" };
+            var target = new Address { Line1 = "Target 1", Line2 = "Target 2" };
+
+            Mapper.Map(source).Over(target);
+
+            target.Line1.ShouldBe("Source 1");
+            target.Line2.ShouldBe("Source 2");
         }
 
         [Fact]

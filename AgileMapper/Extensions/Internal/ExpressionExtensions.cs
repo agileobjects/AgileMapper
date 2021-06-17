@@ -354,9 +354,18 @@
         private static bool IsCallTo(string methodName, Expression call)
             => ((MethodCallExpression)call).Method.Name == methodName;
 
-        public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression assignment)
+        public static bool TryGetAssignment(
+            this IList<Expression> mappingExpressions,
+            ParameterExpression variable,
+            out BinaryExpression assignment)
         {
-            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignmentExpression))
+            var assignmentExists =
+                EnumerateExpressions(mappingExpressions).TryFindMatch(
+                    variable,
+                    (var, exp) => exp.NodeType == Assign && ((BinaryExpression)exp).Left == var,
+                    out var assignmentExpression);
+
+            if (assignmentExists)
             {
                 assignment = (BinaryExpression)assignmentExpression;
                 return true;
@@ -364,6 +373,25 @@
 
             assignment = null;
             return false;
+        }
+
+        private static IEnumerable<Expression> EnumerateExpressions(IEnumerable<Expression> expressions)
+        {
+            foreach (var expression in expressions)
+            {
+                if (expression.NodeType != Block)
+                {
+                    yield return expression;
+                    continue;
+                }
+
+                var block = (BlockExpression)expression;
+
+                foreach (var blockExpression in EnumerateExpressions(block.Expressions))
+                {
+                    yield return blockExpression;
+                }
+            }
         }
 #if NET35
         public static LambdaExpression ToDlrExpression(this LinqExp.LambdaExpression linqLambda)

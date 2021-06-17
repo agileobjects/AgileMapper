@@ -231,9 +231,9 @@
                 plan);
 
             Assert.Contains("// Rule Set: Overwrite", plan);
-            Assert.Contains("ptfooaToPtfccData.Map(", plan);
+            Assert.Contains("ooaptfToCcieptfData.Map(", plan);
             Assert.Contains("\"Value1\"", plan);
-            Assert.Contains("customers.Add(oaToCsData.Map(objectArray[i]", RemoveWhiteSpace(plan));
+            Assert.Contains("customerICollection.Add(oaToCieData.Map(objectArray[i]", RemoveWhiteSpace(plan));
         }
 
         #region Helper Members

@@ -23,44 +23,9 @@
             MapperBaseType = typeof(MappingExecutionContextBase<>).MakeGenericType(sourceType);
             MapperBaseTypeConstructor = MapperBaseType.GetNonPublicInstanceConstructor(sourceType);
             CreateRootMappingDataMethod = MapperBaseType.GetNonPublicInstanceMethod("CreateRootMappingData");
-            MapperName = GetMapperNamePrefix(sourceType) + "Mapper";
+            MapperName = sourceType.GetVariableNameInPascalCase() + "Mapper";
             MappingMethodsByPlan = plans.ToDictionary(p => p, p => new List<MethodExpression>());
         }
-
-        #region Setup
-
-        private static string GetMapperNamePrefix(Type sourceType)
-        {
-            if (sourceType.IsArray)
-            {
-                return sourceType.GetVariableNameInPascalCase();
-            }
-
-            if (sourceType == typeof(string))
-            {
-                return nameof(String);
-            }
-
-            var elementType = sourceType.GetEnumerableElementType();
-
-            if (elementType == null)
-            {
-                return sourceType.GetVariableNameInPascalCase();
-            }
-
-            var elementTypeName = elementType.GetVariableNameInPascalCase();
-            var collectionTypeName = sourceType.Name;
-
-            if (sourceType.IsGenericType())
-            {
-                collectionTypeName = collectionTypeName
-                    .Substring(0, collectionTypeName.IndexOf('`'));
-            }
-
-            return elementTypeName + collectionTypeName;
-        }
-
-        #endregion
 
         public Type SourceType { get; }
 
