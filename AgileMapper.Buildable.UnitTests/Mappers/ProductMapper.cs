@@ -13,6 +13,9 @@ using System.CodeDom.Compiler;
 using AgileObjects.AgileMapper;
 using AgileObjects.AgileMapper.ObjectPopulation;
 using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
+using AgileObjects.NetStandardPolyfills;
+using AgileObjects.ReadableExpressions;
+using AgileObjects.ReadableExpressions.Extensions;
 
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
 {
@@ -27,10 +30,15 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         {
         }
 
-        public ProductDto ToANew<TTarget>()
-            where TTarget : ProductDto
+        public TTarget ToANew<TTarget>()
         {
-            return ProductMapper.CreateNew(this.CreateRootMappingData(default(ProductDto)));
+            if (typeof(TTarget).IsAssignableTo(typeof(ProductDto)))
+            {
+                return (TTarget)((object)ProductMapper.CreateNew(this.CreateRootMappingData(default(ProductDto))));
+            }
+
+            throw new NotSupportedException(
+                "Unable to perform a 'CreateNew' mapping from source type 'Product' to target type '" + typeof(TTarget).GetFriendlyName(null) + "'");
         }
 
         private static ProductDto CreateNew

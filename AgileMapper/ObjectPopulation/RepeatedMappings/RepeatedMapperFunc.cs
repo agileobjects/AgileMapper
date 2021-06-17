@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions.Internal;
     using Members;
 
     internal class RepeatedMapperFunc<TChildSource, TChildTarget> : IRepeatedMapperFunc
@@ -16,10 +17,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 
         public RepeatedMapperFunc(IObjectMappingData mappingData, bool lazyLoadFuncs)
         {
+            _mapperData = mappingData.MapperData;
+
             if (lazyLoadFuncs)
             {
                 _mappingFuncLock = new object();
-                _mapperData = mappingData.MapperData;
                 _mapperData.SetEntryPoint();
                 return;
             }
@@ -32,6 +34,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
         public Type SourceType => typeof(TChildSource);
 
         public Type TargetType => typeof(TChildTarget);
+
+        public bool HasDerivedTypes => _mapperData.DerivedMapperDatas.Any();
 
         public object Map(IObjectMappingData mappingData)
         {

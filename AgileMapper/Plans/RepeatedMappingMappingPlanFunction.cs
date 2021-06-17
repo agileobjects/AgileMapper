@@ -26,6 +26,8 @@
 
         public Type TargetType => _mapperFunc.TargetType;
 
+        public bool HasDerivedTypes => _mapperFunc.HasDerivedTypes;
+
         public CommentExpression Summary
             => _summary ??= ReadableExpression.Comment(GetMappingDescription());
 

@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
     using System;
+    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -29,6 +30,8 @@
         public Type SourceType => _mapperData.SourceType;
 
         public Type TargetType => _mapperData.TargetType;
+
+        public bool HasDerivedTypes => _mapperData.DerivedMapperDatas.Any();
 
         public CommentExpression Summary
             => _summary ??= ReadableExpression.Comment(GetMappingDescription());

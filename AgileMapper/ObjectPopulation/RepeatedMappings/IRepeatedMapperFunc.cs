@@ -13,7 +13,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 
         Type TargetType { get; }
 
-        LambdaExpression Mapping { get; }
+        bool HasDerivedTypes { get; }
 
+        LambdaExpression Mapping { get; }
     }
 }

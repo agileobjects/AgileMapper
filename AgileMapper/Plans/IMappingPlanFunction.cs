@@ -33,6 +33,12 @@
         Type TargetType { get; }
 
         /// <summary>
+        /// Gets a value indicating whether this <see cref="IMappingPlanFunction"/> includes mapping
+        /// of the <see cref="SourceType"/> and <see cref="TargetType"/>.
+        /// </summary>
+        bool HasDerivedTypes { get; }
+
+        /// <summary>
         /// Gets an Expression summarising the <see cref="IMappingPlanFunction"/>.
         /// </summary>
         CommentExpression Summary { get; }

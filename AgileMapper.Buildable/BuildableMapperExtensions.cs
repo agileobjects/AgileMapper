@@ -223,7 +223,14 @@
                 return false;
             }
 
-            var targetType = mapMethodInfos[0].TargetType;
+            var firstMapMethod = mapMethodInfos[0];
+
+            if (firstMapMethod.HasDerivedTypes)
+            {
+                return false;
+            }
+
+            var targetType = firstMapMethod.TargetType;
 
             return !(targetType.IsArray || targetType.IsEnum());
         }
@@ -308,6 +315,8 @@
             public Type SourceType => _mapperGroup.SourceType;
 
             public Type TargetType { get; }
+
+            public bool HasDerivedTypes => _mapperGroup.HasDerivedTypes;
 
             public Expression CreateMapCall(Func<Type, Expression> targetFactory)
             {

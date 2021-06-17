@@ -35,8 +35,7 @@
 
             var derivedTypeToDerivedTypeResult = GeneratedMapper
                 .Map(derivedTypeSource)
-                .ToANew<ProductDtoMega>()
-                .ShouldBeOfType<ProductDtoMega>();
+                .ToANew<ProductDtoMega>();
 
             derivedTypeToDerivedTypeResult.ProductId.ShouldBe("222");
             derivedTypeToDerivedTypeResult.Price.ShouldBe(119.99m);

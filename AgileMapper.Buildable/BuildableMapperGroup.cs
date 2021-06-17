@@ -12,6 +12,7 @@
 
     internal class BuildableMapperGroup
     {
+        private bool? _hasDerivedTypes;
         private MethodInfo _createChildMappingDataMethod;
 
         public BuildableMapperGroup(
@@ -63,6 +64,15 @@
 
         public Type SourceType { get; }
 
+        public bool HasDerivedTypes
+            => _hasDerivedTypes ??= DetermineIfHasDerivedTypes();
+
+        private bool DetermineIfHasDerivedTypes()
+        {
+            return MappingMethodsByPlan.Keys
+                .Any(plan => plan.Any(p => p.HasDerivedTypes));
+        }
+
         public Type MapperBaseType { get; }
 
         public ConstructorInfo MapperBaseTypeConstructor { get; }
@@ -71,15 +81,13 @@
 
         public MethodInfo CreateChildMappingDataMethod
             => _createChildMappingDataMethod ??= MapperBaseType
-                .GetNonPublicStaticMethod("CreateChildMappingData");
+               .GetNonPublicStaticMethod("CreateChildMappingData");
 
         public string MapperName { get; }
 
         public Expression MapperInstance { get; set; }
 
         public ClassExpression MapperClass { get; set; }
-
-        public ICollection<IMappingPlan> Plans => MappingMethodsByPlan.Keys;
 
         public IDictionary<IMappingPlan, List<MethodExpression>> MappingMethodsByPlan { get; }
     }
