@@ -408,18 +408,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (TryAdjustForUnusedLocalVariableIfApplicable(
                 context,
-                out var ignoreVariable,
+                out var localVariableUnused,
                 out var returnExpression))
             {
                 return returnExpression;
             }
 
-            var localVariableUnused = ignoreVariable == true;
             var mapperData = context.MapperData;
             returnExpression = GetExpressionToReturn(context);
 
-            if (localVariableUnused && !mapperData.ReturnLabelUsed &&
-               (returnExpression == mapperData.LocalVariable) &&
+            if (localVariableUnused && (returnExpression == mapperData.LocalVariable) &&
                 context.EnumerateMappingExpressions(includeCallbacks: false).Any())
             {
                 mappingExpressions.Add(Constants.EmptyExpression);
@@ -427,10 +425,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             else
             {
                 mappingExpressions.Add(mapperData.GetReturnLabel(returnExpression));
-                localVariableUnused = false;
+                localVariableUnused = !mapperData.Context.UseLocalVariable;
             }
 
-            var mappingBlock = localVariableUnused || !mapperData.Context.UseLocalVariable
+            var mappingBlock = localVariableUnused
                 ? mappingExpressions.ToExpression()
                 : Expression.Block(new[] { mapperData.LocalVariable }, mappingExpressions);
 
@@ -455,13 +453,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool TryAdjustForUnusedLocalVariableIfApplicable(
             MappingCreationContext context,
-            out bool? ignoreVariable,
+            out bool localVariableUnused,
             out Expression returnExpression)
         {
-            if (!context.MapperData.Context.UseLocalVariable ||
+            var mapperData = context.MapperData;
+
+            if (!mapperData.Context.UseLocalVariable ||
+                 mapperData.ReturnLabelUsed ||
                  context.ToTargetDataSources.Any())
             {
-                ignoreVariable = null;
+                localVariableUnused = false;
                 returnExpression = null;
                 return false;
             }
@@ -469,15 +470,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingExpressions = context.MappingExpressions;
 
             if (!mappingExpressions.TryGetAssignment(
-                context.MapperData.LocalVariable,
-                out var localVariableAssignment))
+                 mapperData.LocalVariable,
+                 out var localVariableAssignment))
             {
-                ignoreVariable = true;
+                localVariableUnused = true;
                 returnExpression = null;
                 return false;
             }
 
-            ignoreVariable = false;
+            localVariableUnused = false;
 
             if (localVariableAssignment != mappingExpressions.Last())
             {
@@ -489,7 +490,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             returnExpression = (assignedValue.NodeType == Invoke)
                 ? Expression.Block(
-                    new[] { (ParameterExpression)localVariableAssignment.Left },
+                    new[] { mapperData.LocalVariable },
                     GetExpressionToReturn(localVariableAssignment, context))
                 : GetExpressionToReturn(assignedValue, context);
 
@@ -498,7 +499,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            mappingExpressions[mappingExpressions.Count - 1] = context.MapperData.GetReturnLabel(returnExpression);
+            mappingExpressions[mappingExpressions.Count - 1] = mapperData.GetReturnLabel(returnExpression);
             returnExpression = Expression.Block(mappingExpressions);
             return true;
         }
