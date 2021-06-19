@@ -12,6 +12,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using AgileObjects.AgileMapper.Buildable.UnitTests.Configuration.DataSources;
 using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
 
 namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
@@ -81,6 +82,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         )
         {
             return new IntIEnumerableMapper(source);
+        }
+
+        public static IntStringIntToTargetValueSourceMapper Map
+        (
+            ToTargetValueSource<int, string, int> source
+        )
+        {
+            return new IntStringIntToTargetValueSourceMapper(source);
         }
 
         public static ProductArrayMapper Map

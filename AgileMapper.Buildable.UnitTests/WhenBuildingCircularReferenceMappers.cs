@@ -2,7 +2,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Configuration;
+    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
