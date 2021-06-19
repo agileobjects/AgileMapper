@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -46,17 +45,5 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
             result.EldestParent.EldestChild.EldestParent.Name.ShouldBe("Franklin");
             result.EldestParent.EldestChild.EldestParent.EldestChild.ShouldBeSameAs(result);
         }
-
-        #region Configuration
-
-        public class CircularReferenceMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<Child>().ToANew<Child>();
-            }
-        }
-
-        #endregion
     }
 }

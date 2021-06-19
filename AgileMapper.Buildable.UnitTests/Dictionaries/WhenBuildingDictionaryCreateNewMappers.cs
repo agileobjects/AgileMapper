@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -25,17 +24,5 @@
             result.ShouldContainKeyAndValue("Value2.Line1", "Line 1!");
             result.ShouldContainKeyAndValue("Value2.Line2", "Line 2!");
         }
-
-        #region Configuration
-
-        public class DictionaryCreateNewMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<PublicTwoFields<int, Address>>().ToANew<Dictionary<string, string>>();
-            }
-        }
-
-        #endregion
     }
 }

@@ -5,7 +5,6 @@
     using System.Linq;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -58,21 +57,5 @@
             result.Second().ProductId.ShouldBe("1");
             result.Second().Price.ShouldBe(1.99);
         }
-
-        #region Configuration
-
-        public class EnumerableOverwriteMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<char[]>().Over<int[]>();
-
-                GetPlanFor<Collection<string>>().Over<List<string>>();
-
-                GetPlanFor<ProductDto[]>().Over<ReadOnlyCollection<Product>>();
-            }
-        }
-
-        #endregion
     }
 }

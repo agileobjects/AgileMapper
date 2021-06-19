@@ -2,7 +2,6 @@
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -19,17 +18,5 @@
             var enumLabelResult = GeneratedMapper.Map(enumLabelSource).ToANew<Title>();
             enumLabelResult.ShouldBe(Title.Master);
         }
-
-        #region Configuration
-
-        public class RootEnumMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<string>().ToANew<Title>();
-            }
-        }
-
-        #endregion
     }
 }

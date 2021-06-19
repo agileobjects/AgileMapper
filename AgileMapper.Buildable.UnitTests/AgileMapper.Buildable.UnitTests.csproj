@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.Buildable.UnitTests</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.Buildable.UnitTests</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

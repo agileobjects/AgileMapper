@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>AgileObjects.AgileMapper.Buildable.UnitTests.NetStandard2.Mappers</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.Buildable.UnitTests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
+  </ItemGroup>
+
+</Project>

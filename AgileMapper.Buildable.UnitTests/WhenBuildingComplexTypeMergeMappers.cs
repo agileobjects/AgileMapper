@@ -2,7 +2,6 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
 {
     using AgileMapper.UnitTests.Common;
     using AgileObjects.AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -19,17 +18,5 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
             target.Line1.ShouldBe("Line 1!");
             target.Line2.ShouldBe("Line 2!");
         }
-
-        #region Configuration
-
-        public class ComplexTypeMergeMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<Address>().OnTo<Address>();
-            }
-        }
-
-        #endregion
     }
 }

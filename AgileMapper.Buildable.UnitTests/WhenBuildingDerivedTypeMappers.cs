@@ -2,7 +2,6 @@
 {
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -41,18 +40,5 @@
             derivedTypeToDerivedTypeResult.Price.ShouldBe(119.99m);
             derivedTypeToDerivedTypeResult.HowMega.ShouldBe("1.0");
         }
-
-        #region Configuration
-
-        public class DerivedTypeMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<Product>().ToANew<ProductDto>(cfg => cfg
-                    .Map<MegaProduct>().To<ProductDtoMega>());
-            }
-        }
-
-        #endregion
     }
 }

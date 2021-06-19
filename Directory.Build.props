@@ -1,6 +1,7 @@
 ﻿<Project>
 
   <PropertyGroup>
+    <LangVersion>latest</LangVersion>
     <Company>AgileObjects Ltd</Company>
     <Product>AgileObjects.AgileMapper</Product>
     <Authors>Steve Wilkes</Authors>

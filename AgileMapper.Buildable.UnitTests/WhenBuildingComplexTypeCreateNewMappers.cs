@@ -3,7 +3,6 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
     using System;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -39,20 +38,5 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
             notSupportedMessage.ShouldContain("source type 'PublicField<string>'");
             notSupportedMessage.ShouldContain("target type 'PublicField<DateTime>'");
         }
-
-        #region Configuration
-
-        public class ComplexTypeCreateNewMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<PublicProperty<string>>().ToANew<PublicField<int>>();
-                
-                GetPlanFor<PublicField<string>>().ToANew<PublicField<int>>();
-                GetPlanFor<PublicField<string>>().ToANew<PublicProperty<string>>();
-            }
-        }
-
-        #endregion
     }
 }

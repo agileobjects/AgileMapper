@@ -4,7 +4,6 @@
     using System.Collections.ObjectModel;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -50,21 +49,5 @@
 
             result.ShouldNotBeNull().ShouldBe(p => p.ProductId, "Kate", "Steve");
         }
-
-        #region Configuration
-
-        public class EnumerableMergeMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<IEnumerable<int>>().OnTo<ICollection<int>>();
-
-                GetPlanFor<decimal[]>().OnTo<HashSet<double>>();
-
-                GetPlanFor<Product[]>().OnTo<IEnumerable<Product>>();
-            }
-        }
-
-        #endregion
     }
 }

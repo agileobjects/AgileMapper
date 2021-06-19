@@ -6,7 +6,6 @@
     using System.Linq;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
-    using Buildable.Configuration;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -63,23 +62,5 @@
             result.Second().ShouldBeNull();
             result.Third().ShouldNotBeNull().ProductId.ShouldBe("Boomstick");
         }
-
-        #region Configuration
-
-        public class EnumerableCreateNewMapperConfiguration : BuildableMapperConfiguration
-        {
-            protected override void Configure()
-            {
-                GetPlanFor<List<string>>().ToANew<Collection<byte?>>();
-
-                GetPlanFor<int[]>().ToANew<ReadOnlyCollection<int>>();
-
-                GetPlanFor<HashSet<DateTime>>().ToANew<DateTime[]>();
-
-                GetPlanFor<List<ProductDto>>().ToANew<IList<ProductDto>>();
-            }
-        }
-
-        #endregion
     }
 }
