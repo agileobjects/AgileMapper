@@ -14,7 +14,7 @@
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <Title>AgileMapper</Title>
     <Description>A zero-configuration, highly-configurable, unopinionated object mapper with viewable execution plans. Flattens, unflattens, deep clones, merges, updates and projects queries. Targets .NET 3.5+ and .NET Standard 1.0+</Description>
-    <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
+    <PackageTags>Mapper, Mapping, ViewModel, DTO</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>

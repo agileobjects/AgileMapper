@@ -4,7 +4,11 @@
     <XprGenerator Condition="'$(MappersGenerator)' != ''">$(MappersGenerator)</XprGenerator>
     <XprGeneratorOutputProject Condition="'$(MappersOutputProject)' != ''">$(MappersOutputProject)</XprGeneratorOutputProject>
     <XprGeneratorLoggerPrefix>AgileMapper.Buildable:</XprGeneratorLoggerPrefix>
+
+    <!-- Copy this assembly into the output directory so 
+         it can be found by BuildableExpressions -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
-  <Import Project="$(NuGetPackageRoot)agileobjects.buildableexpressions.generator\*\build\AgileObjects.BuildableExpressions.Generator.targets" Condition="Exists('$(NuGetPackageRoot)agileobjects.buildableexpressions.generator\0.1.0-preview1\build\AgileObjects.BuildableExpressions.Generator.targets')" />
+  <Import Project="$(NuGetPackageRoot)AgileObjects.BuildableExpressions.Generator\*\build\AgileObjects.BuildableExpressions.Generator.targets" Condition="Exists('$(NuGetPackageRoot)agileobjects.buildableexpressions.generator\0.1.0-preview1\build\AgileObjects.BuildableExpressions.Generator.targets')" />
 </Project>

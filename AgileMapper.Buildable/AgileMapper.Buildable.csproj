@@ -15,10 +15,14 @@
     <PackageId>AgileObjects.AgileMapper.Buildable</PackageId>
     <Title>AgileMapper.Buildable</Title>
     <Description></Description>
-    <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
+    <PackageTags>Mapper, Mapping, "Code Generation"</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageOutputPath>../NuGet</PackageOutputPath>
+
+    <!-- Copy dependencies into build output to support build-time 
+         discovery of this project's ISourceCodeExpressionBuilder -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
     <Version>0.1.0-preview1</Version>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>

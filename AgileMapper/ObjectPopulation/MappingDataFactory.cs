@@ -6,18 +6,36 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using MapperKeys;
     using NetStandardPolyfills;
 
-    internal static class MappingDataFactory
+    /// <summary>
+    /// Factory class to create <see cref="IObjectMappingData{TSource,TTarget}"/> instances. This
+    /// class is used internally by mapping functions.
+    /// </summary>
+    public static class MappingDataFactory
     {
         private static MethodInfo _forChildMethod;
         private static MethodInfo _forElementMethod;
 
-        public static MethodInfo ForChildMethod =>
+        internal static MethodInfo ForChildMethod =>
             _forChildMethod ??= typeof(MappingDataFactory).GetPublicStaticMethod(nameof(ForChild));
 
-        public static MethodInfo ForElementMethod
+        internal static MethodInfo ForElementMethod
             => _forElementMethod ??= typeof(MappingDataFactory).GetPublicStaticMethod(nameof(ForElement));
 
-        public static ObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
+        /// <summary>
+        /// Creates an <see cref="IObjectMappingData{TSource,TTarget}"/> instance for the given data,
+        /// for the mapping of a runtime-typed child member.
+        /// </summary>
+        /// <typeparam name="TSource">The declared type of the source object.</typeparam>
+        /// <typeparam name="TTarget">The declared type of the target object.</typeparam>
+        /// <param name="source">The child source object.</param>
+        /// <param name="target">The child target object.</param>
+        /// <param name="elementIndex">The index of the current enumerable element being mapped, if applicable.</param>
+        /// <param name="elementKey">The current Dictionary KeyValuePair being mapped, if applicable.</param>
+        /// <param name="targetMemberRegistrationName">The name of the target member being mapped.</param>
+        /// <param name="dataSourceIndex">The index of the source value being used.</param>
+        /// <param name="parent">The <see cref="IObjectMappingDataUntyped"/> describing the parent mapping context.</param>
+        /// <returns>An <see cref="IObjectMappingData{TSource,TTarget}"/> instance for the given data.</returns>
+        public static IObjectMappingData<TSource, TTarget> ForChild<TSource, TTarget>(
             TSource source,
             TTarget target,
             int? elementIndex,
@@ -50,7 +68,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mappingData;
         }
 
-        public static ObjectMappingData<TSourceElement, TTargetElement> ForElement<TSourceElement, TTargetElement>(
+        /// <summary>
+        /// Creates an <see cref="IObjectMappingData{TSource,TTarget}"/> instance for the given data,
+        /// for the mapping of a runtime-typed collection element.
+        /// </summary>
+        /// <typeparam name="TSourceElement">The declared type of the source element.</typeparam>
+        /// <typeparam name="TTargetElement">The declared type of the target element.</typeparam>
+        /// <param name="sourceElement">The source element object.</param>
+        /// <param name="targetElement">The target element object.</param>
+        /// <param name="elementIndex">The index of the current enumerable element being mapped, if applicable.</param>
+        /// <param name="elementKey">The current Dictionary KeyValuePair being mapped, if applicable.</param>
+        /// <param name="parent">The <see cref="IObjectMappingDataUntyped"/> describing the parent mapping context.</param>
+        /// <returns>An <see cref="IObjectMappingData{TSource,TTarget}"/> instance for the given data.</returns>
+        public static IObjectMappingData<TSourceElement, TTargetElement> ForElement<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int elementIndex,
