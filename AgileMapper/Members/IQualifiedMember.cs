@@ -17,8 +17,6 @@ namespace AgileObjects.AgileMapper.Members
 
         Type ElementType { get; }
 
-        string GetFriendlyTypeName();
-
         bool IsEnumerable { get; }
 
         bool IsSimple { get; }

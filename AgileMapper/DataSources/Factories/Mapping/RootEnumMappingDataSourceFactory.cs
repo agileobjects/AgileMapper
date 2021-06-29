@@ -2,7 +2,6 @@
 {
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 
     internal class RootEnumMappingDataSourceFactory : MappingDataSourceFactoryBase
     {

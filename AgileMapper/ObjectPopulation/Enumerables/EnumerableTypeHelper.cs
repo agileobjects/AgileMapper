@@ -125,7 +125,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
         private Type SetInterfaceType => GetEnumerableType(ref _setInterfaceType, typeof(ISet<>));
 #endif
         private Type GetEnumerableType(ref Type typeField, Type openGenericEnumerableType)
-            => typeField ?? (typeField = openGenericEnumerableType.MakeGenericType(ElementType));
+            => typeField ??= openGenericEnumerableType.MakeGenericType(ElementType);
 
         public Type WrapperType => typeof(ReadOnlyCollectionWrapper<>).MakeGenericType(ElementType);
 
@@ -198,7 +198,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             => instance.Type != typeof(IEnumerable<>).MakeGenericType(instance.Type.GetEnumerableElementType());
 
         public Expression GetCountFor(Expression instance, Type countType = null)
-            => instance.GetCount(countType, exp => CollectionInterfaceType);
+            => instance.GetCount(countType, _ => CollectionInterfaceType);
 
         public Expression GetNonZeroCountCheck(Expression enumerableAccess)
         {

@@ -7,6 +7,7 @@
     using System.Linq;
     using AgileMapper.Members;
     using Common;
+    using Common.TestClasses;
     using ReadableExpressions.Extensions;
     using TestClasses;
 #if !NET35

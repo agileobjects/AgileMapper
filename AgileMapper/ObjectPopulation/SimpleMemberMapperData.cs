@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
     using Members.Sources;
 
     internal class SimpleMemberMapperData : MemberMapperDataBase, IMemberMapperData

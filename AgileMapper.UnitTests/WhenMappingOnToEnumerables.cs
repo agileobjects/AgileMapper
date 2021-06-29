@@ -5,6 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -22,8 +23,7 @@
             var target = new[] { 1, 2, 3 };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldNotBeNull();
-            result.ShouldBe(1, 2, 3, 4, 5, 6);
+            result.ShouldNotBeNull().ShouldBe(1, 2, 3, 4, 5, 6);
         }
 
         [Fact]
@@ -33,8 +33,7 @@
             var target = new ReadOnlyCollection<string>(new[] { "1", "2" });
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldNotBeNull();
-            result.ShouldBe("1", "2", "3", "4");
+            result.ShouldNotBeNull().ShouldBe("1", "2", "3", "4");
         }
 
         [Fact]
@@ -44,8 +43,7 @@
             var target = new List<string> { "Oh", "Heck", "Yes" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("Oh", "Heck", "Yes", "I", "Will");
+            result.ShouldBeSameAs(target).ShouldBe("Oh", "Heck", "Yes", "I", "Will");
         }
 
         [Fact]
@@ -55,8 +53,7 @@
             ICollection<string> target = new List<string> { "Four", "Three" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("Four", "Three", "Two", "One");
+            result.ShouldBeSameAs(target).ShouldBe("Four", "Three", "Two", "One");
         }
 
         [Fact]
@@ -66,8 +63,7 @@
             var target = new List<string> { "One", "Two" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("One", "Two", "Three");
+            result.ShouldBeSameAs(target).ShouldBe("One", "Two", "Three");
         }
 
         [Fact]
@@ -77,12 +73,11 @@
             var target = new List<string> { "One", "Two" };
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe("One", "Two", "Two", "Three");
+            result.ShouldBeSameAs(target).ShouldBe("One", "Two", "Two", "Three");
         }
 
         [Fact]
-        public void ShouldMergeARootComplexTypeList()
+        public void ShouldMergeAComplexTypeList()
         {
             var source = new[]
             {
@@ -96,12 +91,11 @@
 
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldBe(p => p.Name, "Kate", "Pete");
+            result.ShouldBeSameAs(target).ShouldBe(p => p.Name, "Kate", "Pete");
         }
 
         [Fact]
-        public void ShouldMergeARootSimpleTypeHashSet()
+        public void ShouldMergeASimpleTypeHashSet()
         {
             var source = new[] { 1.0m, 2.0m, 3.0m };
             var target = new HashSet<double> { 2.0, 3.0, 4.0 };
@@ -112,7 +106,7 @@
         }
 
         [Fact]
-        public void ShouldMergeARootComplexTypeReadOnlyCollection()
+        public void ShouldMergeAComplexTypeReadOnlyCollection()
         {
             var source = new[]
             {
@@ -144,8 +138,7 @@
 
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.First().Name.ShouldBe(source.First().Name);
+            result.ShouldBeSameAs(target).ShouldHaveSingleItem().Name.ShouldBe("Pete");
         }
 
         [Fact]
@@ -166,8 +159,7 @@
             var originalObject = target.First();
             var result = Mapper.Map(source).OnTo(target);
 
-            result.ShouldBeSameAs(target);
-            result.ShouldContain(originalObject);
+            result.ShouldBeSameAs(target).ShouldContain(originalObject);
             result.First().Name.ShouldBe(source.First().Name);
         }
 

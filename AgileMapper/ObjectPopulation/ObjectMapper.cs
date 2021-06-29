@@ -16,9 +16,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapper<TSource, TTarget> : IObjectMapper
     {
         private readonly ObjectMapperKeyBase _mapperKey;
-        private readonly MapperFunc<TSource, TTarget> _mapperFunc;
+        private MapperFunc<TSource, TTarget> _mapperFunc;
+        private readonly object _lazyMapperFuncSync;
         private readonly ICache<ObjectMapperKeyBase, IObjectMapper> _subMappersByKey;
         private readonly ICache<ObjectMapperKeyBase, IRepeatedMapperFunc> _repeatedMappingFuncsByKey;
+        private bool _mapperFuncCompiled;
         private Action _resetCallback;
 
         public ObjectMapper(Expression mapping, IObjectMappingData mappingData)
@@ -31,7 +33,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (mapperDataContext.Compile)
             {
-                _mapperFunc = GetMappingLambda().Compile();
+                if (mappingData.MappingContext.PlanSettings.LazyCompile)
+                {
+                    _mapperFunc = LazyCompileMapperFunc;
+                    _lazyMapperFuncSync = new object();
+                }
+                else
+                {
+                    _mapperFunc = CompileMapperFunc();
+                }
             }
             else if (mapperDataContext.NeedsRuntimeTypedMapping)
             {
@@ -53,6 +63,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         #region Setup
+
+        private TTarget LazyCompileMapperFunc(ObjectMappingData<TSource, TTarget> mappingData)
+        {
+            lock (_lazyMapperFuncSync)
+            {
+                if (_mapperFuncCompiled)
+                {
+                    return Map(mappingData);
+                }
+
+                _mapperFunc = CompileMapperFunc();
+                _mapperFuncCompiled = true;
+            }
+
+            return Map(mappingData);
+        }
+
+        private MapperFunc<TSource, TTarget> CompileMapperFunc()
+            => GetMappingLambda().Compile();
 
         public void CacheRepeatedMappingFuncs()
         {
@@ -87,7 +116,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 var mapperFunc = mapperFuncCreator.Invoke(
                     mapperKey.MappingData,
-                    mapperKey.MappingData.MappingContext.LazyLoadRepeatMappingFuncs);
+                    mapperKey.MappingData.MappingContext.PlanSettings.LazyLoadRepeatMappingFuncs);
 
                 _repeatedMappingFuncsByKey.GetOrAdd(mapperKey, _ => mapperFunc);
             }

@@ -5,8 +5,8 @@ namespace AgileObjects.AgileMapper.Members.Population
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.Extensions.Internal;
     using DataSources;
-    using Extensions.Internal;
 
     internal class MemberPopulator : IMemberPopulator
     {

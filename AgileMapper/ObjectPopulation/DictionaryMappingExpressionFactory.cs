@@ -475,9 +475,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return memberPopulations[0];
             }
 
-            var memberPopulationBlock = Expression.Block(memberPopulations);
-
-            return memberPopulationBlock;
+            return Expression.Block(memberPopulations);
         }
 
         private static Expression GetEnumerableToDictionaryMapping(IObjectMappingData mappingData)

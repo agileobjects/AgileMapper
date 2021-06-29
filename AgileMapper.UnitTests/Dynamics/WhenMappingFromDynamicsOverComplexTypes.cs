@@ -3,7 +3,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
     using Xunit;
 
     public class WhenMappingFromDynamicsOverComplexTypes

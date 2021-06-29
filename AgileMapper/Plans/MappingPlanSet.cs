@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using Extensions;
     using Extensions.Internal;
@@ -15,7 +17,7 @@
     /// Contains sets of details of mapping plans for mappings between a particular source and target types,
     /// for particular mapping types (create new, merge, overwrite).
     /// </summary>
-    public class MappingPlanSet
+    public class MappingPlanSet : IEnumerable<IMappingPlan>
     {
         private readonly IEnumerable<IMappingPlan> _mappingPlans;
 
@@ -45,25 +47,38 @@
         public static implicit operator string(MappingPlanSet mappingPlans)
         {
             return mappingPlans
-                ._mappingPlans
-                .Project(plan => plan.GetDescription())
+                .Project(plan => plan.ToSourceCode())
                 .Join(NewLine + NewLine);
         }
 
         /// <summary>
-        /// Converts the given <paramref name="mappingPlans">MappingPlanSet</paramref> to its Expression
-        /// representation.
+        /// Converts the given <paramref name="mappingPlans">MappingPlanSet</paramref> to a collection
+        /// of Expressions.
         /// </summary>
         /// <param name="mappingPlans">The <see cref="MappingPlanSet"/> to convert.</param>
         /// <returns>
-        /// The Expression representation of the <paramref name="mappingPlans">MappingPlanSet</paramref>.
+        /// A collection of Expressions representing this <paramref name="mappingPlans">MappingPlanSet</paramref>.
         /// </returns>
-        public static implicit operator Expr(MappingPlanSet mappingPlans)
+        public static implicit operator ReadOnlyCollection<Expr>(MappingPlanSet mappingPlans)
         {
-            return Expr.Block(mappingPlans
-                ._mappingPlans
-                .Project(plan => plan.GetExpression()));
+            return new ReadOnlyCollection<Expr>(mappingPlans
+                .Select(mp =>
+                {
+                    var functionBlocks = mp
+                        .Select(mpf => (Expr)Expr.Block(mpf.Summary, mpf.Mapping))
+                        .ToList();
+
+                    return functionBlocks.HasOne()
+                        ? functionBlocks.First()
+                        : Expr.Block(functionBlocks);
+                })
+                .ToList());
         }
+
+        IEnumerator IEnumerable.GetEnumerator() => _mappingPlans.GetEnumerator();
+
+        IEnumerator<IMappingPlan> IEnumerable<IMappingPlan>.GetEnumerator()
+            => _mappingPlans.GetEnumerator();
 
         /// <summary>
         /// Returns the string representation of the <see cref="MappingPlanSet"/>.

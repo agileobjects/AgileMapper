@@ -24,7 +24,7 @@ namespace AgileObjects.AgileMapper.DataSources
         {
             if (!dataSource.IsValid)
             {
-                return info.MappingContext.IgnoreUnsuccessfulMemberPopulations
+                return info.MappingContext.PlanSettings.CommentUnmappedMembers
                     ? EmptyDataSourceSet.Instance
                     : new NullDataSourceSet(dataSource);
             }

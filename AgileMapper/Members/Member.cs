@@ -7,9 +7,10 @@ namespace AgileObjects.AgileMapper.Members
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Dictionaries;
     using Extensions;
-    using Extensions.Internal;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;

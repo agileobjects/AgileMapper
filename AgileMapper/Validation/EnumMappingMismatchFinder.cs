@@ -13,9 +13,9 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 
     internal class EnumMappingMismatchFinder : ExpressionVisitor
     {
@@ -51,7 +51,7 @@
             return mismatchSets;
         }
 
-        public static Expression Process(Expression mapping, ObjectMapperData mapperData)
+        public static LambdaExpression Process(LambdaExpression mapping, ObjectMapperData mapperData)
         {
             var targetMemberDatas = GetAllTargetMemberDatas(mapperData);
 

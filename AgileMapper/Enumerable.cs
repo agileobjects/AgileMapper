@@ -1,5 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+#if FEATURE_ARRAY_EMPTY
+    using System;
+#endif
     using System.Collections.Generic;
 
     /// <summary>
@@ -11,7 +14,12 @@
         /// <summary>
         /// Gets a singleton empty <typeparamref name="TElement"/> array instance.
         /// </summary>
-        public static readonly TElement[] EmptyArray = { };
+        public static readonly TElement[] EmptyArray = 
+#if FEATURE_ARRAY_EMPTY
+            Array.Empty<TElement>();
+#else
+            { };
+#endif
 
         /// <summary>
         /// Gets a singleton empty <typeparamref name="TElement"/> array instance.

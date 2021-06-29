@@ -12,44 +12,41 @@
 
     internal class RepeatedMappingMappingPlanFunction : IMappingPlanFunction
     {
-        private readonly Type _sourceType;
-        private readonly Type _targetType;
-        private readonly Expression _mapping;
+        private readonly IRepeatedMapperFunc _mapperFunc;
+        private CommentExpression _summary;
 
         public RepeatedMappingMappingPlanFunction(IRepeatedMapperFunc mapperFunc)
         {
-            _sourceType = mapperFunc.SourceType;
-            _targetType = mapperFunc.TargetType;
-            _mapping = mapperFunc.Mapping;
+            _mapperFunc = mapperFunc;
         }
 
-        public Expression GetExpression()
-        {
-            var description = GetMappingDescription();
+        public bool IsRoot => false;
 
-            return Expression.Block(
-                ReadableExpression.Comment(description),
-                _mapping);
-        }
+        public Type SourceType => _mapperFunc.SourceType;
 
-        public string GetDescription()
-        {
-            var description = GetMappingDescription(linePrefix: "// ");
+        public Type TargetType => _mapperFunc.TargetType;
 
-            return description + _mapping.ToReadableString();
-        }
+        public bool HasDerivedTypes => _mapperFunc.HasDerivedTypes;
+
+        public CommentExpression Summary
+            => _summary ??= ReadableExpression.Comment(GetMappingDescription());
 
         private string GetMappingDescription(string linePrefix = null)
         {
             return $@"
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}Map {_sourceType.GetFriendlyName()} -> {_targetType.GetFriendlyName()}
+{linePrefix}Map {SourceType.GetFriendlyName()} -> {TargetType.GetFriendlyName()}
 {linePrefix}Repeated Mapping Mapper
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 ";
+        }
+
+        public LambdaExpression Mapping => _mapperFunc.Mapping;
+
+        public string ToSourceCode()
+        {
+            var description = GetMappingDescription(linePrefix: "// ");
+
+            return description + Mapping.ToReadableString();
         }
     }
 }

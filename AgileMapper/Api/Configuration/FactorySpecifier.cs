@@ -16,7 +16,6 @@ namespace AgileObjects.AgileMapper.Api.Configuration
 #else
     using LambdaExpr = System.Linq.Expressions.LambdaExpression;
 #endif
-    using static ObjectPopulation.InvocationPosition;
 
     internal class FactorySpecifier<TSource, TTarget, TObject> :
         IMappingFactorySpecifier<TSource, TTarget, TObject>,

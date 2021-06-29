@@ -4,6 +4,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using AgileMapper.Members;
+    using AgileMapper.Members.Extensions;
     using NetStandardPolyfills;
 
     public abstract class MemberTestsBase

@@ -5,6 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -42,8 +43,7 @@
             var source = new List<string> { "1", "2", "3" };
             var result = Mapper.Map(source).ToANew<Collection<byte?>>();
 
-            result.ShouldNotBeNull();
-            result.ShouldBe<byte?>(1, 2, 3);
+            result.ShouldNotBeNull().ShouldBe<byte?>(1, 2, 3);
         }
 
         [Fact]
@@ -102,8 +102,7 @@
             var source = new[] { 1, 2, 3 };
             var result = Mapper.Map(source).ToANew<ReadOnlyCollection<int>>();
 
-            result.ShouldNotBeNull();
-            result.ShouldBe(1, 2, 3);
+            result.ShouldNotBeNull().ShouldBe(1, 2, 3);
         }
 
         [Fact]
@@ -112,8 +111,7 @@
             var source = new ReadOnlyCollection<long>(new[] { 1, 2, 3L });
             var result = Mapper.Map(source).ToANew<int[]>();
 
-            result.ShouldNotBeNull();
-            result.ShouldBe(1, 2, 3);
+            result.ShouldNotBeNull().ShouldBe(1, 2, 3);
         }
 
 #if !NET35
@@ -123,8 +121,7 @@
             var source = new[] { 1, 2, 3 };
             var result = Mapper.Map(source).ToANew<IReadOnlyCollection<short>>();
 
-            result.ShouldNotBeNull();
-            result.ShouldBe((short)1, (short)2, (short)3);
+            result.ShouldNotBeNull().ShouldBe<short>(1, 2, 3);
         }
 #endif
         [Fact]
@@ -137,8 +134,7 @@
             var source = new HashSet<DateTime> { yesterday, today, tomorrow };
             var result = Mapper.Map(source).ToANew<DateTime[]>();
 
-            result.ShouldNotBeNull();
-            result.ShouldBe(yesterday, today, tomorrow);
+            result.ShouldNotBeNull().ShouldBe(yesterday, today, tomorrow);
         }
 
 #if !NET35
@@ -148,8 +144,7 @@
             var source = new[] { "1", "2", "3" };
             var result = Mapper.Map(source).ToANew<ISet<long>>();
 
-            result.ShouldNotBeNull();
-            result.ShouldBe(1L, 2L, 3L);
+            result.ShouldNotBeNull().ShouldBe(1L, 2L, 3L);
         }
 #endif
         [Fact]

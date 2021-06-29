@@ -330,7 +330,7 @@
         private static MappingConfigurationException NullAssemblySupplied(string message)
         {
             // ReSharper disable once NotResolvedInText
-            return new MappingConfigurationException(message, new ArgumentNullException("assemblies"));
+            return new(message, new ArgumentNullException("assemblies"));
         }
 
         private static bool AllAssemblies(Assembly assembly) => true;

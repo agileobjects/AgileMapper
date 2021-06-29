@@ -32,6 +32,12 @@ namespace AgileObjects.AgileMapper.TypeConversion
             return true;
         }
 
-        public Expression GetConversion(Expression sourceValue, Type targetType) => sourceValue;
+        public Expression GetConversion(
+            Expression sourceValue,
+            Type targetType,
+            bool useSingleStatement)
+        {
+            return sourceValue;
+        }
     }
 }

@@ -10,6 +10,7 @@
     using Api.Configuration;
     using Lambdas;
     using Members;
+    using Members.Extensions;
 
     internal abstract class ConfiguredDataSourceFactoryBase :
         UserConfiguredItemBase,

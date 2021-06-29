@@ -1,6 +1,7 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -79,8 +80,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return _memberMappingExpressions ?? Enumerable<Expression>.EmptyArray;
             }
 
-            return _memberMappingExpressions = MappingExpressions.GetMemberMappingExpressions();
+            return _memberMappingExpressions =
+                EnumerateMappingExpressions(includeCallbacks: true).ToList();
         }
+
+        public IEnumerable<Expression> EnumerateMappingExpressions(bool includeCallbacks)
+            => MappingExpressions.EnumerateMappingExpressions(includeCallbacks);
 
         public MappingCreationContext WithToTargetDataSource(IDataSource dataSource)
         {

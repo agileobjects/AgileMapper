@@ -8,6 +8,7 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
     using ReadableExpressions.Extensions;
 
     internal static class ComplexTypeToNullComparisonConverter

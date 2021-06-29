@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
                  ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType));
         }
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType, bool useSingleStatement)
         {
             if (sourceValue.Type == typeof(Guid?))
             {

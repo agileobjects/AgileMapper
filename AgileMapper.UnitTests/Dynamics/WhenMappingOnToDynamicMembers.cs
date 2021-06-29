@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Dynamic;
     using Common;
+    using Common.TestClasses;
     using Microsoft.CSharp.RuntimeBinder;
-    using TestClasses;
     using Xunit;
 
     public class WhenMappingOnToDynamicMembers

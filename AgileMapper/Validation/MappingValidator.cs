@@ -8,6 +8,7 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
@@ -24,10 +25,8 @@
             VerifyMappingPlanIsComplete(GetAllMapperDatas(rootMapperDatas));
         }
 
-        public static void Validate(ObjectMapperData mapperData)
-        {
-            VerifyMappingPlanIsComplete(GetAllMapperDatas(new[] { mapperData }));
-        }
+        public static void Validate(ObjectMapperData mapperData) 
+            => VerifyMappingPlanIsComplete(GetAllMapperDatas(new[] { mapperData }));
 
         public static void Validate(MappingConfigInfo configInfo)
         {

@@ -48,7 +48,6 @@
             Context = new EnumerablePopulationContext(mapperData);
             _sourceItemsSelector = new SourceItemsSelector(this);
             _sourceElementParameter = Context.SourceElementType.GetOrCreateParameter();
-            TargetTypeHelper = new EnumerableTypeHelper(mapperData.TargetMember);
 
             _sourceAdapter = SourceEnumerableAdapterFactory.GetAdapterFor(this);
             _populationExpressions = new List<Expression>();
@@ -250,7 +249,7 @@
 
         public bool TargetElementsAreSimple => Context.TargetElementsAreSimple;
 
-        public EnumerableTypeHelper SourceTypeHelper { get; private set; }
+        public EnumerableTypeHelper SourceTypeHelper => Context.SourceTypeHelper;
 
         public Expression SourceValue { get; private set; }
 
@@ -258,18 +257,12 @@
 
         public Expression GetSourceIndexAccess() => SourceValue.GetIndexAccess(Counter);
 
-        public EnumerableTypeHelper TargetTypeHelper { get; }
+        public EnumerableTypeHelper TargetTypeHelper => Context.TargetTypeHelper;
 
         public ParameterExpression TargetVariable
         {
             get => _targetVariable;
-            set
-            {
-                if (_targetVariable == null)
-                {
-                    _targetVariable = value;
-                }
-            }
+            set => _targetVariable ??= value;
         }
 
         public void AssignSourceVariableToSourceObject()
@@ -278,7 +271,7 @@
 
             if (SourceVariableAlreadyAssignedTo(SourceValue))
             {
-                CreateSourceTypeHelper(SourceValue);
+                Context.CreateSourceTypeHelper(SourceValue);
                 return;
             }
 
@@ -300,22 +293,15 @@
         }
 
         public void AssignSourceVariableTo(Func<SourceItemsSelector, SourceItemsSelector> sourceItemsSelection)
-            => AssignSourceVariableTo(sourceItemsSelection.Invoke(_sourceItemsSelector).GetResult());
+            => AssignSourceVariableTo(sourceItemsSelection.Invoke(_sourceItemsSelector));
 
         private void AssignSourceVariableTo(Expression sourceValue)
         {
-            CreateSourceTypeHelper(sourceValue);
+            Context.CreateSourceTypeHelper(sourceValue);
 
             SourceValue = _sourceVariable = Context.GetSourceParameterFor(sourceValue.Type);
 
             _populationExpressions.Add(_sourceVariable.AssignTo(sourceValue));
-        }
-
-        private void CreateSourceTypeHelper(Expression sourceValue)
-        {
-            SourceTypeHelper = new EnumerableTypeHelper(
-                sourceValue.Type,
-                Context.ElementTypesAreTheSame ? Context.TargetElementType : sourceValue.Type.GetEnumerableElementType());
         }
 
         #region Target Variable Population
@@ -327,7 +313,7 @@
         {
             var convertedSourceItems = _sourceItemsSelector
                 .SourceItemsProjectedToTargetType(enumerableMappingData)
-                .GetResult();
+                .ToTargetType();
 
             var returnValue = ConvertForReturnValue(convertedSourceItems);
 
@@ -573,7 +559,7 @@
         }
 
         public Expression GetElementConversion(
-            Expression sourceElement, 
+            Expression sourceElement,
             IObjectMappingData enumerableMappingData)
         {
             if (TargetElementsAreSimple)
@@ -711,8 +697,11 @@
 
         public void MapIntersection(IObjectMappingData enumerableMappingData)
         {
-            var sourceElementParameter = Context.GetSourceParameterFor(Context.SourceElementType);
-            var targetElementParameter = Context.GetTargetParameterFor(Context.TargetElementType);
+            var sourceElementParameter = Context.GetSourceParameterFor(Context.SourceElementType, prefix: "existing");
+            var targetElementParameter = Context.GetTargetParameterFor(Context.TargetElementType, prefix: "existing");
+
+            var defaultLoopCounter = _counterVariable;
+            _counterVariable = Parameters.Create<int>("idx");
 
             var forEachActionType = Expression.GetActionType(Context.SourceElementType, Context.TargetElementType, typeof(int));
             var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter, enumerableMappingData);
@@ -722,7 +711,9 @@
                 forEachAction,
                 sourceElementParameter,
                 targetElementParameter,
-                Counter);
+                _counterVariable);
+
+            _counterVariable = defaultLoopCounter;
 
             var forEachCall = Expression.Call(
                 _forEachTupleMethod.MakeGenericMethod(Context.ElementTypes),
@@ -803,6 +794,9 @@
                 _builder = builder;
             }
 
+            public static implicit operator Expression(SourceItemsSelector selector)
+                => selector._result;
+
             public SourceItemsSelector SourceItemsProjectedToTargetType(
                 IObjectMappingData enumerableMappingData = null)
             {
@@ -843,7 +837,7 @@
                 return this;
             }
 
-            public Expression GetResult()
+            public Expression ToTargetType()
             {
                 if (_result.NodeType == ExpressionType.MemberAccess)
                 {

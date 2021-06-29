@@ -23,7 +23,7 @@
             int length,
             out TValue value)
         {
-            for (var i = startIndex; i < length; i++)
+            for (var i = startIndex; i < length; ++i)
             {
                 var thisKey = _keys[i];
 

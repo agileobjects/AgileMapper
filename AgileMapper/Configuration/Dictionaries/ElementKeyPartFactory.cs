@@ -15,6 +15,7 @@
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class ElementKeyPartFactory : DictionaryKeyPartFactoryBase
     {
@@ -163,7 +164,7 @@
                 yield return _prefix;
             }
 
-            yield return ConfigInfo.MapperContext.GetValueConversion(index, typeof(string));
+            yield return ConfigInfo.GetValueConversion(index, typeof(string));
 
             if (_suffix != null)
             {

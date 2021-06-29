@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel
 {
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Validation;
     using Xunit;

@@ -14,6 +14,7 @@
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using Projection;
     using ReadableExpressions;
@@ -250,7 +251,7 @@
                 return _customValueLambdaInfo = ConfiguredLambdaInfo.For(customValueLambda, _configInfo);
             }
 
-            var convertedConstantValue = MapperContext
+            var convertedConstantValue = _configInfo
                 .GetValueConversion(customValueLambda.Body, targetValueType);
 
             var funcType = Expr.GetFuncType(targetValueType);

@@ -10,6 +10,7 @@
     using Extensions.Internal;
     using Members;
     using Members.Dictionaries;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -102,7 +103,7 @@
                 configInfo,
                 argumentTypes,
                 funcTypes => funcTypes,
-                funcTypes => typeof(void),
+                _ => typeof(void),
                 typeof(Action<>),
                 typeof(Action<,>),
                 typeof(Action<,,>),
@@ -174,7 +175,7 @@
                 return IsNotSourceMember(out sourceMemberLambda);
             }
 
-            var memberAccesses = _lambdaBody.GetMemberAccessChain(nt => { }, out var rootExpression);
+            var memberAccesses = _lambdaBody.GetMemberAccessChain(_ => { }, out var rootExpression);
 
             if (memberAccesses.None())
             {

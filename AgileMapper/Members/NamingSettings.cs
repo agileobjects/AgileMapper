@@ -3,10 +3,10 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Caching;
     using Configuration;
-    using Extensions;
-    using Extensions.Internal;
 
     internal class NamingSettings
     {

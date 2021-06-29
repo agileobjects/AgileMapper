@@ -1,15 +1,29 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
-#if NET35
-    using Microsoft.Scripting.Ast;
-#else
-    using System.Linq.Expressions;
-#endif
+    using System.Collections.Generic;
 
-    internal interface IMappingPlan
+    /// <summary>
+    /// Implementing classes will describe a plan for mapping from one type to another with a
+    /// particular rule set.
+    /// </summary>
+    public interface IMappingPlan : IEnumerable<IMappingPlanFunction>
     {
-        string GetDescription();
-        
-        Expression GetExpression();
+        /// <summary>
+        /// Gets the name of the rule set (CreateNew, Overwrite, etc) used to create the mapping
+        /// described by this <see cref="IMappingPlan"/>.
+        /// </summary>
+        string RuleSetName { get; }
+
+        /// <summary>
+        /// Gets the root <see cref="IMappingPlan"/> describing the plan to map the root source
+        /// and target objects.
+        /// </summary>
+        IMappingPlanFunction Root { get; }
+
+        /// <summary>
+        /// Gets a source-code string translation of this <see cref="IMappingPlan"/>.
+        /// </summary>
+        /// <returns>A source-code string translation of this <see cref="IMappingPlan"/>.</returns>
+        string ToSourceCode();
     }
 }

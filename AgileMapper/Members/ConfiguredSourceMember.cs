@@ -8,9 +8,10 @@ namespace AgileObjects.AgileMapper.Members
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Caching;
     using Extensions;
-    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
@@ -99,8 +100,6 @@ namespace AgileObjects.AgileMapper.Members
         public Type RootType => _childMembers[0].Type;
 
         public Type ElementType { get; }
-
-        public string GetFriendlyTypeName() => Type.GetFriendlyName();
 
         public bool IsEnumerable { get; }
 

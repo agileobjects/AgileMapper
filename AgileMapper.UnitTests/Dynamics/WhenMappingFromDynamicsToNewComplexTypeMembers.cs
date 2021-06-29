@@ -2,6 +2,7 @@
 namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

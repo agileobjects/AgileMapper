@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Linq.Expressions;
     using Api;
@@ -16,8 +17,8 @@
 #endif
 
     /// <summary>
-    /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use the default
-    /// instance via the static Mapper access methods.
+    /// Provides a configurable mapping service. Create new instances with Mapper.CreateNew or use
+    /// the default instance via the static Mapper access methods.
     /// </summary>
     public sealed class Mapper : IMapperInternal
     {
@@ -44,8 +45,9 @@
         #region Static Access Methods
 
         /// <summary>
-        /// Create and compile mapping functions for a particular type of mapping of the source type specified by 
-        /// the given <paramref name="exampleInstance"/>. Use this overload for anonymous types.
+        /// Create and compile mapping functions for a particular type of mapping of the
+        /// <typeparamref name="TSource"/> type, as specified by the given
+        /// <paramref name="exampleInstance"/>. Use this overload for anonymous types.
         /// </summary>
         /// <typeparam name="TSource">The type of the given <paramref name="exampleInstance"/>.</typeparam>
         /// <param name="exampleInstance">
@@ -58,8 +60,8 @@
         public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>(TSource exampleInstance) => GetPlanFor<TSource>();
 
         /// <summary>
-        /// Create and compile mapping functions for a particular type of mapping of the source type
-        /// specified by the type argument.
+        /// Create and compile mapping functions for a particular type of mapping of the
+        /// <typeparamref name="TSource"/> type.
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
@@ -69,9 +71,10 @@
         public static IPlanTargetAndRuleSetSelector<TSource> GetPlanFor<TSource>() => Default.GetPlanFor<TSource>();
 
         /// <summary>
-        /// Create and compile mapping functions for mapping from the source type specified by the given 
-        /// <paramref name="exampleInstance"/>, for all mapping types (create new, merge, overwrite). Use this 
-        /// overload for anonymous types.
+        /// Create and compile mapping functions for mapping from the
+        /// <typeparamref name="TSource"/> type, as specified by the given
+        /// <paramref name="exampleInstance"/>, for all mapping types (create new, merge, overwrite).
+        /// Use this overload for anonymous types.
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <param name="exampleInstance">
@@ -84,8 +87,8 @@
         public static IPlanTargetSelector<TSource> GetPlansFor<TSource>(TSource exampleInstance) => GetPlansFor<TSource>();
 
         /// <summary>
-        /// Create and compile mapping functions for the source type specified by the type argument, for all
-        /// mapping types (create new, merge, overwrite).
+        /// Create and compile mapping functions for the
+        /// <typeparamref name="TSource"/> type, for all mapping types (create new, merge, overwrite).
         /// </summary>
         /// <typeparam name="TSource">The source type for which to create the mapping functions.</typeparam>
         /// <returns>
@@ -115,16 +118,20 @@
         }
 
         /// <summary>
-        /// Returns mapping plans for all mapping functions currently cached by the default <see cref="IMapper"/>.
+        /// Returns a <see cref="MappingPlanSet"/> containing plans for all mapping functions currently
+        /// cached by the default <see cref="IMapper"/>.
         /// </summary>
-        /// <returns>A string containing the currently-cached functions to be executed during mappings.</returns>
-        public static string GetPlansInCache() => Default.GetPlansInCache();
+        /// <returns>
+        /// A <see cref="MappingPlanSet"/> containing the currently-cached functions to be executed
+        /// during mappings.
+        /// </returns>
+        public static MappingPlanSet GetPlansInCache() => Default.GetPlansInCache();
 
         /// <summary>
         /// Returns mapping plan Expressions for all mapping functions currently cached by the default <see cref="IMapper"/>.
         /// </summary>
         /// <returns>An Expression containing the currently-cached functions to be executed during mappings.</returns>
-        public static Expr GetPlanExpressionsInCache() => Default.GetPlanExpressionsInCache();
+        public static ReadOnlyCollection<Expr> GetPlanExpressionsInCache() => Default.GetPlanExpressionsInCache();
 
         /// <summary>
         /// Configure callbacks to be executed before a particular type of event occurs for all source
@@ -250,9 +257,9 @@
 
         IPlanTargetSelector<TSource> IMapper.GetPlansFor<TSource>() => GetPlan<TSource>();
 
-        string IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
+        MappingPlanSet IMapper.GetPlansInCache() => MappingPlanSet.For(Context);
 
-        Expr IMapper.GetPlanExpressionsInCache() => MappingPlanSet.For(Context);
+        ReadOnlyCollection<Expr> IMapper.GetPlanExpressionsInCache() => MappingPlanSet.For(Context);
 
         private PlanTargetSelector<TSource> GetPlan<TSource>() => new PlanTargetSelector<TSource>(Context);
 
@@ -276,16 +283,16 @@
         }
 
         IFlatteningSelector<TSource> IMapper.Flatten<TSource>(TSource source)
-            => new MappingExecutor<TSource>(source, Context);
+            => new MappingExecutor<TSource>(Context, source);
 
         IUnflatteningSelector<IDictionary<string, TValue>> IMapper.Unflatten<TValue>(IDictionary<string, TValue> source)
-            => new MappingExecutor<IDictionary<string, TValue>>(source, Context);
+            => new MappingExecutor<IDictionary<string, TValue>>(Context, source);
 
         IUnflatteningSelector<QueryString> IMapper.Unflatten(QueryString queryString)
-            => new MappingExecutor<QueryString>(queryString, Context);
+            => new MappingExecutor<QueryString>(Context, queryString);
 
         ITargetSelector<TSource> IMapper.Map<TSource>(TSource source)
-            => new MappingExecutor<TSource>(source, Context);
+            => new MappingExecutor<TSource>(Context, source);
 
         #region IDisposable Members
 

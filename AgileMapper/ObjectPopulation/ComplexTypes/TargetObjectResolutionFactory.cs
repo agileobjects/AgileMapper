@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             bool assignTargetObject = false)
         {
             return GetObjectResolution(
-                (md, mps) => construction,
+                (_, _) => construction,
                 mappingData,
                 null,
                 false,
@@ -75,8 +75,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 }
             }
 
-            objectValue = AddExistingTargetCheckIfAppropriate(objectValue, mappingData);
-
+            objectValue = AddExistingTargetCheckIfAppropriate(objectValue, mapperData);
             return objectValue;
         }
 
@@ -118,17 +117,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private static bool MemberPopulationsExist(IList<Expression> populationsAndCallbacks)
             => populationsAndCallbacks.Any(population => population.NodeType != ExpressionType.Constant);
 
-        private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IObjectMappingData mappingData)
+        private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IMemberMapperData mapperData)
         {
             if ((value.NodeType == ExpressionType.Default) ||
-                 mappingData.MapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
-                 mappingData.MapperData.TargetMemberIsUserStruct() ||
-                 mappingData.MapperData.TargetIsDefinitelyUnpopulated())
+                 mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
+                !mapperData.TargetMember.IsReadable ||
+                 mapperData.TargetMemberIsUserStruct() ||
+                 mapperData.TargetIsDefinitelyUnpopulated())
             {
                 return value;
             }
 
-            return Expression.Coalesce(mappingData.MapperData.TargetObject, value);
+            return Expression.Coalesce(mapperData.TargetObject, value);
         }
     }
 }

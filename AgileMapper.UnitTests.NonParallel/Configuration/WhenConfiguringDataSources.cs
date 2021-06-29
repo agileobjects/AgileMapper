@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel.Configuration
 {
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
     using Xunit;
 
     public class WhenConfiguringDataSources : NonParallelTestsBase

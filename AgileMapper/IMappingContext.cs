@@ -1,9 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using Plans;
+
     internal interface IMappingContext : IMapperContextOwner, IRuleSetOwner
     {
-        bool IgnoreUnsuccessfulMemberPopulations { get; }
-
-        bool LazyLoadRepeatMappingFuncs { get; }
+        MappingPlanSettings PlanSettings { get; }
     }
 }

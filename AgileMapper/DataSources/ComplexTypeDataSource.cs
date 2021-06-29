@@ -6,6 +6,7 @@
     using System.Linq.Expressions;
 #endif
     using Members;
+    using Members.Extensions;
     using ObjectPopulation;
     using ObjectPopulation.ComplexTypes;
 

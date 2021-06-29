@@ -6,9 +6,9 @@
 #else
     using System.Linq.Expressions;
 #endif
+    using AgileMapper.Extensions.Internal;
     using Configuration;
     using Configuration.MemberIgnores;
-    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal class SourceMemberMatchContext

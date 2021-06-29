@@ -5,6 +5,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dictionaries
     using System.Linq.Expressions;
     using AgileMapper.Configuration;
     using Members;
+    using Members.Extensions;
     using ReadableExpressions;
 
     internal class TargetDictionaryMappingConfigurator<TSource, TValue> :

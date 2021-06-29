@@ -7,6 +7,7 @@
 #endif
     using Lambdas;
     using Members;
+    using Members.Extensions;
 
     internal class ConfiguredDataSourceFactory :
         ConfiguredDataSourceFactoryBase,

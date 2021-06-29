@@ -79,7 +79,10 @@
             return _converters.FirstOrDefault(c => c.CanConvert(sourceType, targetType));
         }
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(
+            Expression sourceValue,
+            Type targetType,
+            MappingRuleSet ruleSet)
         {
             if (sourceValue.Type == targetType)
             {
@@ -94,7 +97,20 @@
             }
 
             var converter = GetConverterOrNull(sourceValue.Type, targetType);
-            var conversion = converter?.GetConversion(sourceValue, targetType);
+
+            if (converter == null)
+            {
+                return null;
+            }
+
+            var useSingleStatement =
+                ruleSet == MappingRuleSet.All ||
+                ruleSet.Settings.UseSingleRootMappingExpression;
+
+            var conversion = converter.GetConversion(
+                sourceValue,
+                targetType,
+                useSingleStatement);
 
             return conversion;
         }

@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dynamics
     using System.Linq;
     using AgileMapper.Extensions.Internal;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <XprGenerator Condition="'$(MappersGenerator)' != ''">$(MappersGenerator)</XprGenerator>
+    <XprGeneratorOutputProject Condition="'$(MappersOutputProject)' != ''">$(MappersOutputProject)</XprGeneratorOutputProject>
+    <XprGeneratorLoggerPrefix>AgileMapper.Buildable:</XprGeneratorLoggerPrefix>
+
+    <!-- Copy this assembly into the output directory so 
+         it can be found by BuildableExpressions -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <Import Project="$(NuGetPackageRoot)AgileObjects.BuildableExpressions.Generator\*\build\AgileObjects.BuildableExpressions.Generator.targets" Condition="Exists('$(NuGetPackageRoot)agileobjects.buildableexpressions.generator\0.1.0-preview1\build\AgileObjects.BuildableExpressions.Generator.targets')" />
+</Project>

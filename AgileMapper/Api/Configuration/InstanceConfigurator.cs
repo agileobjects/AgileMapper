@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
     using System.Linq.Expressions;
     using ReadableExpressions;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 #if NET35
     using static Microsoft.Scripting.Ast.Expression;
     using Expression = Microsoft.Scripting.Ast.Expression;
@@ -140,7 +141,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration
         {
             if (idPart.Type != typeof(string))
             {
-                idPart = _configInfo.MapperContext.GetValueConversion(idPart, typeof(string));
+                idPart = _configInfo.GetValueConversion(idPart, typeof(string));
             }
 
             var idPartNestedAccessesChecks = _configInfo

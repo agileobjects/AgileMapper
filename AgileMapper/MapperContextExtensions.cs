@@ -48,8 +48,5 @@
 
         public static Member GetIdentifierOrNull(this MapperContext context, Type type)
             => context.Naming.GetIdentifierOrNull(type);
-
-        public static Expression GetValueConversion(this MapperContext context, Expression value, Type targetType)
-            => context.ValueConverters.GetConversion(value, targetType);
     }
 }

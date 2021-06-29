@@ -10,14 +10,14 @@ namespace AgileObjects.AgileMapper.Members
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Configuration;
     using Configuration.DataSources;
     using Configuration.MemberIgnores.SourceValueFilters;
     using DataSources;
     using Dictionaries;
     using Extensions;
-    using Extensions.Internal;
-    using MemberExtensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables.EnumerableExtensions;

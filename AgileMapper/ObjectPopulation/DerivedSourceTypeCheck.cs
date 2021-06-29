@@ -8,6 +8,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using Extensions.Internal;
     using Members;
+    using ReadableExpressions.Extensions;
 
     internal class DerivedSourceTypeCheck
     {

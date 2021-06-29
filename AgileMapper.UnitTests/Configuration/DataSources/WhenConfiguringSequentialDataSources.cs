@@ -2,7 +2,7 @@
 {
     using AgileMapper.Extensions.Internal;
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
 #if !NET35
     using Xunit;
 #else

@@ -8,6 +8,7 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using Optimisation;
 

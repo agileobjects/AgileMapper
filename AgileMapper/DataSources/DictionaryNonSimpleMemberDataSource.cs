@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
     using Members;
+    using Members.Extensions;
 
     internal class DictionaryNonSimpleMemberDataSource : DataSourceBase
     {
