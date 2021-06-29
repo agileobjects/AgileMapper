@@ -18,11 +18,11 @@
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Adding .NET Standard 2.0 target
-- Support for configuring data sources by matcher, re: #208
-- Fixing potential cache threading issue, re: #212
-- Throwing ObjectDisposed on attempt to use disposed Mapper, re: #212
-- Improving target member selection, re: #209
+    <PackageReleaseNotes>- Improving surfaced mapping plans
+- Improving enum mapping
+- Improving non-readable member derived target type mapping
+- Improving simple-type enumerable merge and overwrite mapping
+- Improving performance and memory use
     </PackageReleaseNotes>
     <Version>2.0.0-preview1</Version>
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
