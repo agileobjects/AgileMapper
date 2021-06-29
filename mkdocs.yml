@@ -11,7 +11,8 @@ extra_css:
     - https://agileobjects.co.uk/assets/css/docs-styles.min.css
 
 extra_javascript:
-    - scripts/docs.min.js
+    - assets/scripts/dox-cls.js
+    - https://agileobjects.co.uk/assets/js/ao-docs.min.js
 
 nav:
     - General Use:

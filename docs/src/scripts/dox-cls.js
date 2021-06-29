@@ -1,0 +1,1 @@
+window['dox-cls'] = 'Mapper';
