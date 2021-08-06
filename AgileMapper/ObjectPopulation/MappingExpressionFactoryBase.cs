@@ -458,9 +458,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var mapperData = context.MapperData;
 
-            if (!mapperData.Context.UseLocalVariable ||
+            if (!mapperData.RuleSet.Settings.UseSingleRootMappingExpression && (
+                !mapperData.Context.UseLocalVariable ||
                  mapperData.ReturnLabelUsed ||
-                 context.ToTargetDataSources.Any())
+                 context.ToTargetDataSources.Any()))
             {
                 localVariableUnused = false;
                 returnExpression = null;
