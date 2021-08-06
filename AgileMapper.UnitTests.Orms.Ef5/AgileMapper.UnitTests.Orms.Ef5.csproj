@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <LangVersion>8.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.Orms.Ef5</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.Orms.Ef5</RootNamespace>

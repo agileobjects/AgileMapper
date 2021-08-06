@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net35;net40;netstandard1.0;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
@@ -39,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="3.0.0-preview1" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="3.0.0-preview2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">

@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
     <AssemblyTitle>AgileObjects.AgileMapper.Buildable</AssemblyTitle>
     <AssemblyName>AgileObjects.AgileMapper.Buildable</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.Buildable</RootNamespace>

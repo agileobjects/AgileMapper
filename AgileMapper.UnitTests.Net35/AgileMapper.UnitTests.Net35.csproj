@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net35</TargetFramework>
-    <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.Net35</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.Net35</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
