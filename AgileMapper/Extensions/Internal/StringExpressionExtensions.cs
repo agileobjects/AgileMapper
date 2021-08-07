@@ -3,7 +3,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Text.RegularExpressions;
     using NetStandardPolyfills;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -152,7 +151,7 @@
                 return GetMatchesKeyWithSeparatorCall(stringAccess, keyValue, separator);
             }
 
-            var matcherPattern = ((Regex)((ConstantExpression)elementKeyPartMatcher).Value).ToString();
+            var matcherPattern = (string)((ConstantExpression)elementKeyPartMatcher).Value;
 
             if (matcherPattern == "[0-9]+")
             {

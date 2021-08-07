@@ -12,7 +12,6 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using AgileObjects.AgileMapper;
 using AgileObjects.AgileMapper.Extensions;
 using AgileObjects.AgileMapper.Extensions.Internal;
@@ -94,13 +93,13 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
                 var address = new Address();
                 var line1Key = "[" + i + "].Line1";
 
-                if ((line1Key = sourceStringStringDictionary.Keys.FirstOrDefault(key => key.MatchesKey(line1Key, ".", new Regex("\\[[0-9]+\\]")))) != null)
+                if ((line1Key = sourceStringStringDictionary.Keys.FirstOrDefault(key => key.MatchesKey(line1Key, ".", "\\[[0-9]+\\]"))) != null)
                 {
                     address.Line1 = sourceStringStringDictionary[line1Key];
                 }
                 var line2Key = "[" + i + "].Line2";
 
-                if ((line2Key = sourceStringStringDictionary.Keys.FirstOrDefault(key => key.MatchesKey(line2Key, ".", new Regex("\\[[0-9]+\\]")))) != null)
+                if ((line2Key = sourceStringStringDictionary.Keys.FirstOrDefault(key => key.MatchesKey(line2Key, ".", "\\[[0-9]+\\]"))) != null)
                 {
                     address.Line2 = sourceStringStringDictionary[line2Key];
                 }

@@ -13,8 +13,8 @@
         /// </summary>
         /// <param name="value">The value from which to get the first character.</param>
         /// <returns>
-        /// The first character of the value if it has a length of greater than one, otherwise returns
-        /// <paramref name="value"/>.
+        /// The first character of the value if it has a length of greater than one, otherwise
+        /// returns <paramref name="value"/>.
         /// </returns>
         public static string FirstOrDefault(this string value)
         {
@@ -27,23 +27,25 @@
         }
 
         /// <summary>
-        /// Determines if the <paramref name="subjectKey"/> matches the given <paramref name="queryKey"/>,
-        /// given the given <paramref name="separator"/> and <paramref name="elementKeyPartMatcher"/>.
+        /// Determines if the <paramref name="subjectKey"/> matches the given
+        /// <paramref name="queryKey"/>, given the given <paramref name="separator"/> and Regex
+        /// <paramref name="elementKeyPartMatcherPattern"/>.
         /// </summary>
         /// <param name="subjectKey">The subject key for which to make the determination.</param>
         /// <param name="queryKey">The query key for which to make the determination.</param>
         /// <param name="separator">The separator to use to separate key parts while making the determination.</param>
-        /// <param name="elementKeyPartMatcher">
-        /// A Regex with which to match element key parts while making the determination.
+        /// <param name="elementKeyPartMatcherPattern">
+        /// A Regex pattern with which to match element key parts while making the determination.
         /// </param>
         /// <returns>
-        /// True if the <paramref name="subjectKey"/> matches the given <paramref name="queryKey"/>, otherwise false.
+        /// True if the <paramref name="subjectKey"/> matches the given <paramref name="queryKey"/>,
+        /// otherwise false.
         /// </returns>
         public static bool MatchesKey(
             this string subjectKey,
             string queryKey,
             string separator,
-            Regex elementKeyPartMatcher)
+            string elementKeyPartMatcherPattern)
         {
             if (queryKey == null)
             {
@@ -64,7 +66,7 @@
                 return false;
             }
 
-            var elementKeyParts = elementKeyPartMatcher.Matches(queryKey);
+            var elementKeyParts = Regex.Matches(queryKey, elementKeyPartMatcherPattern);
 
             var searchEndIndex = queryKey.Length;
 

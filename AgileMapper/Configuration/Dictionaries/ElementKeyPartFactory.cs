@@ -127,17 +127,10 @@
         private string Pattern => _prefixString + "i" + _suffixString;
 
         public Expression GetElementKeyPartMatcher()
-            => _keyPartMatcher ??= CreateKeyPartRegex().ToConstantExpression();
+            => _keyPartMatcher ??= CreateKeyPartRegexPattern().ToConstantExpression();
 
-        private Regex CreateKeyPartRegex()
-        {
-            return new Regex(
-                GetTokenForRegex(_prefixString) + "[0-9]+" + GetTokenForRegex(_suffixString)
-#if !NETSTANDARD1_0
-                , RegexOptions.Compiled
-#endif
-                );
-        }
+        private string CreateKeyPartRegexPattern()
+            => GetTokenForRegex(_prefixString) + "[0-9]+" + GetTokenForRegex(_suffixString);
 
         private static string GetTokenForRegex(string value)
         {

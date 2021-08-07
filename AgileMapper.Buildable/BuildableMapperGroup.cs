@@ -24,7 +24,7 @@
             MapperBaseTypeConstructor = MapperBaseType.GetNonPublicInstanceConstructor(sourceType);
             CreateRootMappingDataMethod = MapperBaseType.GetNonPublicInstanceMethod("CreateRootMappingData");
             MapperName = sourceType.GetVariableNameInPascalCase() + "Mapper";
-            MappingMethodsByPlan = plans.ToDictionary(p => p, p => new List<MethodExpression>());
+            MappingMethodsByPlan = plans.ToDictionary(p => p, _ => new List<MethodExpression>());
         }
 
         public Type SourceType { get; }
