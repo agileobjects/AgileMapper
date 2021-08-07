@@ -132,11 +132,26 @@
         private Regex CreateKeyPartRegex()
         {
             return new Regex(
-                _prefixString + "[0-9]+" + _suffixString
+                GetTokenForRegex(_prefixString) + "[0-9]+" + GetTokenForRegex(_suffixString)
 #if !NETSTANDARD1_0
                 , RegexOptions.Compiled
 #endif
                 );
+        }
+
+        private static string GetTokenForRegex(string value)
+        {
+            switch (value)
+            {
+                case "[":
+                case "]":
+                case "(":
+                case ")":
+                    return '\\' + value;
+
+                default:
+                    return value;
+            }
         }
 
         public Expression GetElementKeyPrefixOrNull() => _prefix;

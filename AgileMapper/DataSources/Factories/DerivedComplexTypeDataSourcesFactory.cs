@@ -5,10 +5,8 @@
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.Expression;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.Expression;
 #endif
     using Configuration;
     using Extensions;
@@ -17,6 +15,11 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
+#if NET35
+    using static Microsoft.Scripting.Ast.Expression;
+#else
+    using static System.Linq.Expressions.Expression;
+#endif
     using static Constants;
     using static TypeComparer;
 

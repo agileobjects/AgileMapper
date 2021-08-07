@@ -96,6 +96,11 @@
             ParameterExpression variable,
             Expression value)
         {
+            if (variable == value)
+            {
+                return loop;
+            }
+
             var loopBody = (BlockExpression)loop.Body;
             var loopBodyExpressions = new Expression[loopBody.Expressions.Count + 1];
             var expressionOffset = 0;

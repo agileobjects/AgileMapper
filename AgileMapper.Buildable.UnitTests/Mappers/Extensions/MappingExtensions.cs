@@ -163,5 +163,13 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers.Extensions
         {
             return new StringPublicPropertyMapper(source);
         }
+
+        public static StringStringDictionaryMapper Map
+        (
+            this Dictionary<string, string> source
+        )
+        {
+            return new StringStringDictionaryMapper(source);
+        }
     }
 }

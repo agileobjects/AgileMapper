@@ -9,6 +9,7 @@
         protected override void Configure()
         {
             GetPlanFor<PublicTwoFields<int, Address>>().ToANew<Dictionary<string, string>>();
+            GetPlanFor<Dictionary<string, string>>().ToANew<Address[]>();
         }
     }
 }
