@@ -170,11 +170,11 @@
             actualValues.Project(converter).SequenceEqual(expectedValues).ShouldBeTrue();
         }
 
-        public static void ShouldNotBe<TActual, TExpected>(this TActual value, TExpected expectedValue)
+        public static void ShouldNotBe<TActual, TExpected>(this TActual value, TExpected unexpectedValue)
         {
-            if (AreEqual(expectedValue, value))
+            if (AreEqual(unexpectedValue, value))
             {
-                Asplode("Not " + expectedValue, value.ToString());
+                Asplode("Not " + unexpectedValue, value.ToString());
             }
         }
 

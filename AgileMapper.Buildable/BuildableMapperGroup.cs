@@ -13,6 +13,7 @@
     internal class BuildableMapperGroup
     {
         private bool? _hasDerivedTypes;
+        private bool? _includeDeepClone;
         private MethodInfo _createChildMappingDataMethod;
 
         public BuildableMapperGroup(
@@ -36,6 +37,16 @@
         {
             return MappingMethodsByPlan.Keys
                 .Any(plan => plan.Any(p => p.HasDerivedTypes));
+        }
+
+        public bool IncludeDeepClone
+            => _includeDeepClone ??= DetermineIfIncludeDeepClone();
+
+        private bool DetermineIfIncludeDeepClone()
+        {
+            return MappingMethodsByPlan.Keys.Any(plan =>
+                plan.RuleSetName == "CreateNew" &&
+                plan.Root.TargetType == SourceType);
         }
 
         public Type MapperBaseType { get; }

@@ -39,5 +39,23 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
             notSupportedMessage.ShouldContain("source type 'PublicField<string>'");
             notSupportedMessage.ShouldContain("target type 'PublicField<DateTime>'");
         }
+
+        [Fact]
+        public void ShouldBuildADeepCloneMapper()
+        {
+            var source = new PublicTwoFields<Address, Address>
+            {
+                Value1 = new Address { Line1 = "Line 1.1" },
+                Value2 = new Address { Line2 = "Line 2.2" }
+            };
+
+            var result = source.DeepClone();
+
+            result.ShouldNotBeSameAs(source);
+            result.Value1.Line1.ShouldBe("Line 1.1");
+            result.Value1.Line2.ShouldBeNull();
+            result.Value2.Line1.ShouldBeNull();
+            result.Value2.Line2.ShouldBe("Line 2.2");
+        }
     }
 }

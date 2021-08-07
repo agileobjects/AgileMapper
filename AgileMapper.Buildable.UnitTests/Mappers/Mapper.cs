@@ -19,6 +19,22 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
     [GeneratedCode("AgileObjects.AgileMapper.Buildable", "0.1.0.0")]
     public static class Mapper
     {
+        public static AddressAddressPublicTwoFieldsMapper Map
+        (
+            PublicTwoFields<Address, Address> source
+        )
+        {
+            return new AddressAddressPublicTwoFieldsMapper(source);
+        }
+
+        public static PublicTwoFields<Address, Address> DeepClone
+        (
+            PublicTwoFields<Address, Address> source
+        )
+        {
+            return new AddressAddressPublicTwoFieldsMapper(source).ToANew<PublicTwoFields<Address, Address>>();
+        }
+
         public static AddressMapper Map
         (
             Address source
@@ -41,6 +57,14 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests.Mappers
         )
         {
             return new ChildMapper(source);
+        }
+
+        public static Child DeepClone
+        (
+            Child source
+        )
+        {
+            return new ChildMapper(source).ToANew<Child>();
         }
 
         public static DateTimeHashSetMapper Map

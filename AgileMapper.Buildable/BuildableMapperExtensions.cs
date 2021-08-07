@@ -267,14 +267,7 @@
                 {
                     staticMapperClass.AddGeneratedCodeAttribute();
                     staticMapperClass.SetStatic();
-
-                    foreach (var mapperClassGroup in mapperClassGroups)
-                    {
-                        staticMapperClass.AddMethod("Map", mapMethod =>
-                        {
-                            mapperClassGroup.Configure(mapMethod);
-                        });
-                    }
+                    staticMapperClass.AddStaticMappingMethods(mapperClassGroups);
                 });
             });
         }
@@ -293,21 +286,62 @@
                     mappingExtensionsClass.AddGeneratedCodeAttribute();
                     mappingExtensionsClass.SetStatic();
 
-                    foreach (var mapperClassGroup in mapperClassGroups)
-                    {
-                        mappingExtensionsClass.AddMethod("Map", mapMethod =>
-                        {
-                            mapMethod.SetExtensionMethod();
-                            mapperClassGroup.Configure(mapMethod);
-                        });
-                    }
+                    mappingExtensionsClass.AddStaticMappingMethods(
+                        mapperClassGroups,
+                        method => method.SetExtensionMethod());
                 });
             });
+        }
+
+        private static void AddStaticMappingMethods(
+            this IClassMemberConfigurator mappingClass,
+            IEnumerable<BuildableMapperGroup> mapperClassGroups,
+            Action<IClassMethodExpressionConfigurator> methodConfig = null)
+        {
+            foreach (var mapperClassGroup in mapperClassGroups)
+            {
+                mappingClass.AddMethod("Map", mapMethod =>
+                {
+                    methodConfig?.Invoke(mapMethod);
+                    mapperClassGroup.Configure(mapMethod);
+                });
+
+                if (mapperClassGroup.IncludeDeepClone)
+                {
+                    mappingClass.AddMethod("DeepClone", mapMethod =>
+                    {
+                        methodConfig?.Invoke(mapMethod);
+                        mapperClassGroup.ConfigureDeepClone(mapMethod);
+                    });
+                }
+            }
         }
 
         private static void Configure(
             this BuildableMapperGroup mapperClassGroup,
             IConcreteTypeMethodExpressionConfigurator mapMethod)
+        {
+            mapMethod.SetBody(GetMapperInstantiation(mapperClassGroup, mapMethod));
+        }
+
+        private static void ConfigureDeepClone(
+            this BuildableMapperGroup mapperClassGroup,
+            IConcreteTypeMethodExpressionConfigurator mapMethod)
+        {
+            var newMapper = GetMapperInstantiation(mapperClassGroup, mapMethod);
+
+            var createNewCall = Call(
+                newMapper,
+                newMapper.Type
+                    .GetMethod("ToANew")!
+                    .MakeGenericMethod(mapperClassGroup.SourceType));
+
+            mapMethod.SetBody(createNewCall);
+        }
+
+        private static NewExpression GetMapperInstantiation(
+            BuildableMapperGroup mapperClassGroup,
+            IMethodExpressionBaseConfigurator mapMethod)
         {
             var sourceType = mapperClassGroup.SourceType;
             var mapperClass = mapperClassGroup.MapperClass;
@@ -318,8 +352,8 @@
             var newMapper = New(
                 mapperClass.Type.GetPublicInstanceConstructor(sourceType),
                 sourceParameter);
-
-            mapMethod.SetBody(newMapper);
+            
+            return newMapper;
         }
 
         private static void AddGeneratedCodeHeader(
