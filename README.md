@@ -2,8 +2,9 @@
 
 [![NuGet version](https://badge.fury.io/nu/AgileObjects.AgileMapper.svg)](https://badge.fury.io/nu/AgileObjects.AgileMapper)
 
-AgileMapper is a zero-configuration, [highly-configurable](https://agilemapper.readthedocs.io/configuration), unopinionated object
-mapper with [viewable execution plans](https://agilemapper.readthedocs.io/Using-Execution-Plans). 
+AgileMapper is a zero-configuration, [highly-configurable](https://agilemapper.readthedocs.io/configuration), 
+unopinionated object mapper with execution plans you can [view](https://agilemapper.readthedocs.io/Using-Execution-Plans),
+or [generate and build](https://agilemapper.readthedocs.io/mapper-generation) into your source code. 
 It flattens, unflattens, deep clones, [merges](https://agilemapper.readthedocs.io/Performing-Merges), 
 [updates](https://agilemapper.readthedocs.io/Performing-Updates) and [projects queries](https://agilemapper.readthedocs.io/query-projection)
 via [extension methods](https://agilemapper.readthedocs.io/Mapping-Extension-Methods), or a 
@@ -37,6 +38,7 @@ Mapper.Map(customerViewModel).Over(customer);
 Mapper.Map(customerOne).OnTo(customerTwo);
 ```
 
-It's [available via NuGet](https://www.nuget.org/packages/AgileObjects.AgileMapper) and licensed with the 
-[MIT licence](https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md). Check out 
-[the documentation](https://agilemapper.readthedocs.io) for more!
+It's [available via NuGet](https://www.nuget.org/packages/AgileObjects.AgileMapper), with code 
+generation performed by [this extension](https://www.nuget.org/packages/AgileObjects.AgileMapper.Buildable),
+both licensed with the [MIT licence](https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md).
+Check out [the documentation](https://agilemapper.readthedocs.io) for more!
