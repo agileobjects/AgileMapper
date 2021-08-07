@@ -136,6 +136,38 @@
                     }
                 });
             });
+
+            yield return BuildableExpression.SourceCode(sourceCode =>
+            {
+                sourceCode.AddGeneratedCodeHeader();
+                sourceCode.SetNamespace(mappersNamespace+ ".Extensions");
+
+                sourceCode.AddClass("MappingExtensions", mappingExtensionsClass =>
+                {
+                    mappingExtensionsClass.AddGeneratedCodeAttribute();
+                    mappingExtensionsClass.SetStatic();
+
+                    foreach (var mapperClassGroup in mapperClassGroups)
+                    {
+                        var sourceType = mapperClassGroup.SourceType;
+                        var mapperClass = mapperClassGroup.MapperClass;
+
+                        mappingExtensionsClass.AddMethod("Map", mapMethod =>
+                        {
+                            mapMethod.SetExtensionMethod();
+
+                            var sourceParameter = mapMethod
+                                .AddParameter(sourceType, "source");
+
+                            var newMapper = New(
+                                mapperClass.Type.GetPublicInstanceConstructor(sourceType),
+                                sourceParameter);
+
+                            mapMethod.SetBody(newMapper);
+                        });
+                    }
+                });
+            });
         }
 
         private static void AddMapMethodsFor(

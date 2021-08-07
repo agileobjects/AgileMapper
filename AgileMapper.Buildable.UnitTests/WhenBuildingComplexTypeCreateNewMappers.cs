@@ -3,6 +3,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
     using System;
     using AgileMapper.UnitTests.Common;
     using AgileMapper.UnitTests.Common.TestClasses;
+    using Mappers.Extensions;
     using Xunit;
     using GeneratedMapper = Mappers.Mapper;
 
@@ -23,7 +24,7 @@ namespace AgileObjects.AgileMapper.Buildable.UnitTests
             var publicFieldResult = GeneratedMapper.Map(source).ToANew<PublicField<int>>();
             publicFieldResult.Value.ShouldBe(456);
 
-            var publicPropertyResult = GeneratedMapper.Map(source).ToANew<PublicProperty<string>>();
+            var publicPropertyResult = source.Map().ToANew<PublicProperty<string>>();
             publicPropertyResult.Value.ShouldBe("456");
 
             var notSupportedEx = Should.Throw<NotSupportedException>(() =>
