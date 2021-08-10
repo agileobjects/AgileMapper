@@ -16,59 +16,59 @@ extra_javascript:
 
 nav:
     - General Use:
-        - Member matching: member-matching.md
-        - Object construction: object-construction.md
-        - Type conversion: type-tonversion.md
-        - Collections: collections.md
-        - Entity mapping: entity-mapping.md
-        - Dictionary mapping: dictionary-mapping.md
-        - Dynamic mapping: dynamic-mapping.md
-        - Meta members: meta-members.md
-        - Enum mapping: enum-mapping.md
-        - Object updating: performing-updates.md
-        - Object merging: performing-merges.md
-        - Object flattening: object-flattening.md
-        - Object unflattening: object-unflattening.md
-        - Using execution plans: using-execution-plans.md
-        - Derived types: derived-types.md
-        - Object tracking: mapped-object-tracking.md
-        - Static vs Instance API: static-vs-instance-mappers.md
-        - Mapping extension methods: mapping-extension-methods.md
-        - Mapping validation: validating-mappings.md
+        - Member matching: Member-Matching.md
+        - Object construction: Object-Construction.md
+        - Type conversion: Type-Conversion.md
+        - Collections: Collections.md
+        - Entity mapping: Entity-Mapping.md
+        - Dictionary mapping: Dictionary-Mapping.md
+        - Dynamic mapping: Dynamic-Mapping.md
+        - Meta members: Meta-Members.md
+        - Enum mapping: Enum-Mapping.md
+        - Object updating: Performing-Updates.md
+        - Object merging: Performing-Merges.md
+        - Object flattening: Object-Flattening.md
+        - Object unflattening: Object-Unflattening.md
+        - Using execution plans: Using-Execution-Plans.md
+        - Derived types: Derived-Types.md
+        - Object tracking: Mapped-Object-Tracking.md
+        - Static vs Instance API: Static-vs-Instance-Mappers.md
+        - Mapping extension methods: Mapping-Extension-Methods.md
+        - Mapping validation: Validating-Mappings.md
     - Query Projection:
         - Overview: query-projection/index.md
-        - Configuration: query-projection/configuration.md
-        - Derived Types: query-projection/derived-types.md
-        - Recursion: query-projection/recursive-relationships.md
-        - Join entities: query-projection/join-entities.md
-        - Entity Framework: query-projection/entity-framework.md
+        - Configuration: query-projection/Configuration.md
+        - Derived Types: query-projection/Derived-Types.md
+        - Recursion: query-projection/Recursive-Relationships.md
+        - Join entities: query-projection/Join-Entities.md
+        - Entity Framework: query-projection/Entity-Framework.md
     - Source Code Generation:
         - Overview: mapper-generation/index.md
-        - Quickstart: mapper-generation/quickstart.md
-        - Configuration: mapper-generation/configuration.md
+        - Quickstart: mapper-generation/Quickstart.md
+        - Configuration: mapper-generation/Configuration.md
     - Configuration:
         - Overview: configuration/index.md
-        - Configuring inline: configuration/inline.md
-        - Configuration classes: configuration/classes.md
-        - Dependency injection: configuration/dependency-injection.md
-        - Member values: configuration/member-values.md
-        - Constructor arguments: configuration/constructor-arguments.md
-        - Entity mapping: configuration/entity-mapping.md
-        - Member name patterns: configuration/member-name-patterns.md
-        - To-string formatting: configuration/to-string-formatting.md
+        - Configuring inline: configuration/Inline.md
+        - Configuration classes: configuration/Classes.md
+        - Dependency injection: configuration/Dependency-Injection.md
+        - Member values: configuration/Member-Values.md
+        - Constructor arguments: configuration/Constructor-Arguments.md
+        - Entity mapping: configuration/Entity-Mapping.md
+        - Member name patterns: configuration/Member-Name-Patterns.md
+        - To-string formatting: configuration/To-String-Formatting.md
         - Enum pairing: Enum-Mapping/#configuring-enum-pairs
-        - Dictionaries: configuration/dictionary-mapping.md
-        - Dynamics: configuration/dynamic-mapping.md
-        - Ignoring source values: configuration/ignoring-source-Values.md
-        - Ignoring source members: configuration/ignoring-source-Members.md
-        - Ignoring target members: configuration/ignoring-target-Members.md
-        - Object mapping: configuration/object-mapping.md
-        - Object identifiers: configuration/object-identifiers.md
-        - Object construction: configuration/object-construction.md
-        - Null results: configuration/null-results.md
-        - Derived type pairing: configuration/pairing-derived-types.md
-        - Cloning Mappers: configuration/cloning-mappers.md
-        - Assembly scanning: configuration/assembly-scanning.md
-        - Exception handling: configuration/exception-handling.md
-        - Mapping callbacks: configuration/mapping-callbacks.md
+        - Dictionaries: configuration/Dictionary-Mapping.md
+        - Dynamics: configuration/Dynamic-Mapping.md
+        - Ignoring source values: configuration/Ignoring-Source-Values.md
+        - Ignoring source members: configuration/Ignoring-Source-Members.md
+        - Ignoring target members: configuration/Ignoring-Target-Members.md
+        - Object mapping: configuration/Object-Mapping.md
+        - Object identifiers: configuration/Object-Identifiers.md
+        - Object construction: configuration/Object-Construction.md
+        - Null results: configuration/Null-Results.md
+        - Derived type pairing: configuration/Pairing-Derived-Types.md
+        - Cloning Mappers: configuration/Cloning-Mappers.md
+        - Assembly scanning: configuration/Assembly-Scanning.md
+        - Exception handling: configuration/Exception-Handling.md
+        - Mapping callbacks: configuration/Mapping-Callbacks.md
 theme: readthedocs
