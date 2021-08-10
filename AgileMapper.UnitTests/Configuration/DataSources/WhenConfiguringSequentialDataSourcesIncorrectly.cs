@@ -3,7 +3,7 @@
     using System;
     using AgileMapper.Configuration;
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
 #if !NET35
     using Xunit;
     using static WhenConfiguringSequentialDataSources;

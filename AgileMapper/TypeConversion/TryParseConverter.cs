@@ -1,19 +1,19 @@
 namespace AgileObjects.AgileMapper.TypeConversion
 {
     using System;
-    using System.Reflection;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class TryParseConverter : IValueConverter
     {
-        public static readonly TryParseConverter Instance = new TryParseConverter();
+        public static readonly TryParseConverter Instance = new();
 
         public virtual bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
         {
@@ -21,7 +21,10 @@ namespace AgileObjects.AgileMapper.TypeConversion
                     ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
         }
 
-        public virtual Expression GetConversion(Expression sourceValue, Type targetType)
+        public virtual Expression GetConversion(
+            Expression sourceValue,
+            Type targetType,
+            bool useSingleStatement)
         {
             var nonNullableTargetType = targetType.GetNonNullableType();
             var tryParseMethod = GetTryParseMethod(nonNullableTargetType);
@@ -68,7 +71,7 @@ namespace AgileObjects.AgileMapper.TypeConversion
 
     internal class TryParseConverter<T> : TryParseConverter
     {
-        public new static readonly TryParseConverter<T> Instance = new TryParseConverter<T>();
+        public new static readonly TryParseConverter<T> Instance = new();
 
         private readonly Type _nonNullableTargetType;
         private readonly Type _nullableTargetType;
@@ -93,7 +96,10 @@ namespace AgileObjects.AgileMapper.TypeConversion
                     ToStringConverter.HasNativeStringRepresentation(nonNullableSourceType);
         }
 
-        public override Expression GetConversion(Expression sourceValue, Type targetType)
+        public override Expression GetConversion(
+            Expression sourceValue,
+            Type targetType,
+            bool useSingleStatement)
         {
             if (sourceValue.Type == _nullableTargetType)
             {

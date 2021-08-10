@@ -3,16 +3,15 @@
     using System;
     using System.Globalization;
     using System.Linq;
-    using System.Reflection;
-    using Extensions;
-    using Extensions.Internal;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
+    using Extensions;
+    using Extensions.Internal;
+    using NetStandardPolyfills;
 
     internal struct ToStringConverter : IValueConverter
     {
@@ -36,7 +35,7 @@
             return operatorMethod != null;
         }
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(Expression sourceValue, Type targetType, bool useSingleStatement)
         {
             // Target type is always 'string':
             return GetConversion(sourceValue);

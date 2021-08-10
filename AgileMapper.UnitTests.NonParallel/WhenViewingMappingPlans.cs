@@ -1,6 +1,8 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.NonParallel
 {
+    using AgileMapper.Extensions.Internal;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 
@@ -27,7 +29,7 @@
                 Mapper.GetPlanFor<MysteryCustomer>().ToANew<MysteryCustomerViewModel>();
                 Mapper.GetPlansFor(new MegaProduct()).To<ProductDtoMega>();
 
-                var plan = Mapper.GetPlansInCache();
+                string plan = Mapper.GetPlansInCache();
 
                 plan.ShouldContain("MysteryCustomer -> MysteryCustomerViewModel");
                 plan.ShouldContain("MegaProduct -> ProductDtoMega");
@@ -47,7 +49,7 @@
 
                 var plan = Mapper.GetPlanExpressionsInCache();
 
-                plan.ShouldNotBeNull();
+                plan.ShouldNotBeNull().Any().ShouldBeTrue();
             });
         }
     }

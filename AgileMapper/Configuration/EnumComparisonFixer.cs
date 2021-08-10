@@ -9,7 +9,6 @@
     using Caching.Dictionaries;
     using Extensions.Internal;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class EnumComparisonFixer : ExpressionVisitor
     {

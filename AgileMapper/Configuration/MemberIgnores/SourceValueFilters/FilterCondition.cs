@@ -9,9 +9,8 @@ namespace AgileObjects.AgileMapper.Configuration.MemberIgnores.SourceValueFilter
 #endif
     using Api.Configuration;
     using Extensions.Internal;
-    using Members.MemberExtensions;
+    using Members.Extensions;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using LinqExp = System.Linq.Expressions;
 #endif

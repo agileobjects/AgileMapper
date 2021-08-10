@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
+    using static Constants;
 
     internal class SourceElementsDictionaryPopulationLoopData : IPopulationLoopData
     {
@@ -186,8 +187,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
         public Expression Adapt(LoopExpression loop)
         {
             loop = loop
-                .InsertAssignment(Constants.BeforeLoopExitCheck, _dictionaryVariables.Key, _targetElementKey)
-                .InsertAssignment(Constants.BeforeLoopExitCheck, _targetElementKey, _targetMemberKey);
+                .InsertAssignment(BeforeLoopExitCheck, _dictionaryVariables.Key, _targetElementKey)
+                .InsertAssignment(BeforeLoopExitCheck, _targetElementKey, _targetMemberKey);
 
             var loopBody = (BlockExpression)loop.Body;
 

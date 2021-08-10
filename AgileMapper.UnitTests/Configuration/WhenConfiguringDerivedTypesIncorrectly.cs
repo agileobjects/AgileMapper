@@ -4,6 +4,7 @@
     using System.Reflection;
     using AgileMapper.Configuration;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using static WhenConfiguringDerivedTypes;
 #if !NET35

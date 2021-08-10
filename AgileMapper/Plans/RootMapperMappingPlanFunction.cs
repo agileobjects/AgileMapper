@@ -1,5 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
+    using System;
+    using Extensions.Internal;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -13,7 +15,9 @@
     internal class RootMapperMappingPlanFunction : IMappingPlanFunction
     {
         private readonly ObjectMapperData _mapperData;
-        private readonly Expression _mapping;
+        private readonly LambdaExpression _mapping;
+        private CommentExpression _summary;
+        private LambdaExpression _finalMapping;
 
         public RootMapperMappingPlanFunction(IObjectMapper mapper)
         {
@@ -21,41 +25,40 @@
             _mapping = mapper.GetMappingLambda();
         }
 
-        public Expression GetExpression()
-        {
-            var description = GetMappingDescription();
-            var mapping = GetFinalMappingExpression();
+        public bool IsRoot => true;
 
-            return Expression.Block(
-                ReadableExpression.Comment(description),
-                mapping);
-        }
+        public Type SourceType => _mapperData.SourceType;
 
-        public string GetDescription()
-        {
-            var description = GetMappingDescription(linePrefix: "// ");
-            var mapping = GetFinalMappingExpression();
+        public Type TargetType => _mapperData.TargetType;
 
-            return description + mapping.ToReadableString();
-        }
+        public bool HasDerivedTypes => _mapperData.DerivedMapperDatas.Any();
+
+        public CommentExpression Summary
+            => _summary ??= ReadableExpression.Comment(GetMappingDescription());
 
         private string GetMappingDescription(string linePrefix = null)
         {
-            var sourceType = _mapperData.SourceType.GetFriendlyName();
-            var targetType = _mapperData.TargetType.GetFriendlyName();
+            var sourceTypeName = SourceType.GetFriendlyName();
+            var targetTypeName = TargetType.GetFriendlyName();
 
             return $@"
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}Map {sourceType} -> {targetType}
+{linePrefix}Map {sourceTypeName} -> {targetTypeName}
 {linePrefix}Rule Set: {_mapperData.RuleSet.Name}
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-{linePrefix}- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 ";
         }
 
-        private Expression GetFinalMappingExpression()
+        public LambdaExpression Mapping
+            => _finalMapping ??= GetFinalMappingExpression();
+
+        public string ToSourceCode()
+        {
+            var description = GetMappingDescription(linePrefix: "// ");
+
+            return description + Mapping.ToReadableString();
+        }
+
+        private LambdaExpression GetFinalMappingExpression()
         {
             var mappingWithEnumMismatches = EnumMappingMismatchFinder.Process(_mapping, _mapperData);
 

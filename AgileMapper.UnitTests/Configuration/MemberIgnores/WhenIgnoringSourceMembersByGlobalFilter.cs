@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
 {
     using Common;
+    using Common.TestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;

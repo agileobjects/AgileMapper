@@ -13,7 +13,7 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
-    using Members.MemberExtensions;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using ObjectPopulation;
 
@@ -48,8 +48,14 @@
             return mapperData.GetConversionOrCreationExpression(value, targetType, valueFactories);
         }
 
-        public static Expression GetValueConversion(this IMemberMapperData mapperData, Expression value, Type targetType)
-            => mapperData.MapperContext.GetValueConversion(value, targetType);
+        public static Expression GetValueConversion<TContext>(
+            this TContext context, 
+            Expression value, 
+            Type targetType)
+            where TContext : IMapperContextOwner, IRuleSetOwner
+        {
+            return context.MapperContext.ValueConverters.GetConversion(value, targetType, context.RuleSet);
+        }
 
         private static bool HasConfiguredSimpleTypeValueFactories(this IMapperContextOwner mapperContextOwner)
             => mapperContextOwner.MapperContext.UserConfigurations.HasSimpleTypeValueFactories;

@@ -5,6 +5,7 @@
     using System.Linq.Expressions;
     using AgileMapper.Extensions.Internal;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;

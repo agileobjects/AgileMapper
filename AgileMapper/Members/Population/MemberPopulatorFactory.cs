@@ -2,15 +2,15 @@ namespace AgileObjects.AgileMapper.Members.Population
 {
     using System;
     using System.Collections.Generic;
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using DataSources.Factories;
-    using Extensions;
-    using Extensions.Internal;
     using Members;
     using ObjectPopulation;
 
     internal class MemberPopulatorFactory
     {
-        public static readonly MemberPopulatorFactory Default = new MemberPopulatorFactory(mapperData =>
+        public static readonly MemberPopulatorFactory Default = new(mapperData =>
             GlobalContext.Instance
                 .MemberCache
                 .GetTargetMembers(mapperData.TargetType)

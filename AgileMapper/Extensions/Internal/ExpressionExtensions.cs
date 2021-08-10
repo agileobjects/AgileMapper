@@ -96,6 +96,11 @@
             ParameterExpression variable,
             Expression value)
         {
+            if (variable == value)
+            {
+                return loop;
+            }
+
             var loopBody = (BlockExpression)loop.Body;
             var loopBodyExpressions = new Expression[loopBody.Expressions.Count + 1];
             var expressionOffset = 0;
@@ -322,15 +327,23 @@
         public static Expression ToExpression(this IList<Expression> expressions)
             => expressions.HasOne() ? expressions.First() : Expression.Block(expressions);
 
-        public static IList<Expression> GetMemberMappingExpressions(this IList<Expression> mappingExpressions)
-            => mappingExpressions.Filter(IsMemberMapping).ToList();
+        public static IEnumerable<Expression> EnumerateMappingExpressions(
+            this IList<Expression> mappingExpressions,
+            bool includeCallbacks)
+        {
+            return mappingExpressions
+                .Filter(includeCallbacks, (inc, exp) => IsMappingExpression(exp, inc));
+        }
 
-        private static bool IsMemberMapping(Expression expression)
+        private static bool IsMappingExpression(Expression expression, bool includeCallbacks)
         {
             switch (expression.NodeType)
             {
                 case Constant:
                     return false;
+
+                case Invoke:
+                    return includeCallbacks;
 
                 case Call when (
                     IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
@@ -354,9 +367,18 @@
         private static bool IsCallTo(string methodName, Expression call)
             => ((MethodCallExpression)call).Method.Name == methodName;
 
-        public static bool TryGetVariableAssignment(this IList<Expression> mappingExpressions, out BinaryExpression assignment)
+        public static bool TryGetAssignment(
+            this IList<Expression> mappingExpressions,
+            ParameterExpression variable,
+            out BinaryExpression assignment)
         {
-            if (mappingExpressions.TryFindMatch(exp => exp.NodeType == Assign, out var assignmentExpression))
+            var assignmentExists =
+                EnumerateExpressions(mappingExpressions).TryFindMatch(
+                    variable,
+                    (var, exp) => exp.NodeType == Assign && ((BinaryExpression)exp).Left == var,
+                    out var assignmentExpression);
+
+            if (assignmentExists)
             {
                 assignment = (BinaryExpression)assignmentExpression;
                 return true;
@@ -364,6 +386,25 @@
 
             assignment = null;
             return false;
+        }
+
+        private static IEnumerable<Expression> EnumerateExpressions(IEnumerable<Expression> expressions)
+        {
+            foreach (var expression in expressions)
+            {
+                if (expression.NodeType != Block)
+                {
+                    yield return expression;
+                    continue;
+                }
+
+                var block = (BlockExpression)expression;
+
+                foreach (var blockExpression in EnumerateExpressions(block.Expressions))
+                {
+                    yield return blockExpression;
+                }
+            }
         }
 #if NET35
         public static LambdaExpression ToDlrExpression(this LinqExp.LambdaExpression linqLambda)

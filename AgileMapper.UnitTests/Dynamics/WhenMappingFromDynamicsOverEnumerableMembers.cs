@@ -6,7 +6,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Dynamics
     using System.Dynamic;
     using System.Linq;
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
     using Xunit;
 
     public class WhenMappingFromDynamicsOverEnumerableMembers

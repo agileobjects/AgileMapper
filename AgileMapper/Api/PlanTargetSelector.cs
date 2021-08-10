@@ -11,7 +11,8 @@
     using ObjectPopulation;
     using Plans;
     using Queryables.Api;
-
+    using static Plans.MappingPlanSettings.Default;
+    
     internal class PlanTargetSelector<TSource> :
         IPlanTargetSelector<TSource>,
         IPlanTargetAndRuleSetSelector<TSource>,
@@ -31,50 +32,62 @@
             _mapperContext = mapperContext.ThrowIfDisposed();
         }
 
-        public MappingPlanSet To<TTarget>() => To<TTarget>(configurations: null);
+        public MappingPlanSet To<TTarget>() 
+            => To(configurations: Enumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>>.EmptyArray);
 
         public MappingPlanSet To<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
-            return new MappingPlanSet(
-                _mapperContext
-                    .RuleSets
-                    .All
-                    .Filter(_mapperContext, (mc, ruleSet) => ruleSet != mc.RuleSets.Project)
-                    .Project(configurations, (cs, rs) => GetMappingPlan(rs, cs))
-                    .ToArray());
+            return new(_mapperContext
+                .RuleSets
+                .All
+                .Filter(_mapperContext, (mc, ruleSet) => ruleSet != mc.RuleSets.Project)
+                .Project(configurations, (cs, rs) => GetMappingPlan(rs, EagerPlanned, cs))
+                .ToArray());
         }
 
         public MappingPlan ToANew<TResult>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
-            => GetMappingPlan(_mapperContext.RuleSets.CreateNew, configurations);
+        {
+            return GetMappingPlan(
+                _mapperContext.RuleSets.CreateNew,
+                EagerPlanned,
+                configurations);
+        }
 
         public MappingPlan OnTo<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
-            => GetMappingPlan(_mapperContext.RuleSets.Merge, configurations);
+        {
+            return GetMappingPlan(
+                _mapperContext.RuleSets.Merge,
+                EagerPlanned,
+                configurations);
+        }
 
         public MappingPlan Over<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
-            => GetMappingPlan(_mapperContext.RuleSets.Overwrite, configurations);
+        {
+            return GetMappingPlan(
+                _mapperContext.RuleSets.Overwrite,
+                EagerPlanned,
+                configurations);
+        }
 
         MappingPlan IProjectionPlanTargetSelector<TSource>.To<TResult>()
         {
-            return GetMappingPlan<TResult>(
+            return GetMappingPlan(
                 _mapperContext.QueryProjectionMappingContext,
-                planContext => ObjectMappingDataFactory.ForProjection<TSource, TResult>(_exampleQueryable, planContext));
+                planContext => ObjectMappingDataFactory.ForProjection<TSource, TResult>(_exampleQueryable, planContext),
+                Enumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>>.EmptyArray);
         }
 
         private MappingPlan GetMappingPlan<TTarget>(
             MappingRuleSet ruleSet,
+            MappingPlanSettings settings,
             ICollection<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations)
         {
-            var planContext = new SimpleMappingContext(ruleSet, _mapperContext)
-            {
-                IgnoreUnsuccessfulMemberPopulations = false
-            };
-
             return GetMappingPlan(
-                planContext,
+                new SimpleMappingContext(ruleSet, settings, _mapperContext),
                 ObjectMappingDataFactory.ForRootFixedTypes<TSource, TTarget>,
                 configurations);
         }
@@ -82,9 +95,9 @@
         private static MappingPlan GetMappingPlan<TTarget>(
             IMappingContext planContext,
             Func<IMappingContext, IObjectMappingData> mappingDataFactory,
-            ICollection<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations = null)
+            ICollection<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations)
         {
-            if (configurations?.Any() == true)
+            if (configurations.Any())
             {
                 InlineMappingConfigurator<TSource, TTarget>
 #if NET35

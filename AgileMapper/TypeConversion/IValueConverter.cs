@@ -30,10 +30,15 @@ namespace AgileObjects.AgileMapper.TypeConversion
         /// </summary>
         /// <param name="sourceValue">The source value to convert.</param>
         /// <param name="targetType">The target type to which to convert to <paramref name="sourceValue"/>.</param>
+        /// <param name="useSingleStatement">
+        /// Whether the conversion Expression to create should convert the values using a single
+        /// statement, or if the context supports multiple statements, <i>e.g</i>. query projection
+        /// vs in-memory mapping.
+        /// </param>
         /// <returns>
         /// An Expression converting the given <paramref name="sourceValue"/> to the given 
         /// <paramref name="targetType"/>.
         /// </returns>
-        Expression GetConversion(Expression sourceValue, Type targetType);
+        Expression GetConversion(Expression sourceValue, Type targetType, bool useSingleStatement);
     }
 }

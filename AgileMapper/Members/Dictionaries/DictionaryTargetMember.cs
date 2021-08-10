@@ -6,16 +6,20 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.ExpressionType;
 #endif
+    using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using Extensions;
-    using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
     using TypeConversion;
+#if NET35
+    using static Microsoft.Scripting.Ast.ExpressionType;
+#else
+    using static System.Linq.Expressions.ExpressionType;
+#endif
 
     internal class DictionaryTargetMember : QualifiedMember
     {
@@ -300,35 +304,55 @@ namespace AgileObjects.AgileMapper.Members.Dictionaries
                 return false;
             }
 
-            var mappingExpressions = GetMappingExpressions(mappingBlock);
+            var mappingExpressions = GetMappingExpressions(mappingBlock, out var variables);
 
             if (mappingExpressions.HasOne() &&
                (mappingExpressions[0].NodeType == Block))
             {
-                IList<ParameterExpression> mappingVariables = mappingBlock.Variables;
-                mappingBlock = (BlockExpression)mappingExpressions[0];
-                mappingVariables = mappingVariables.Append(mappingBlock.Variables);
-                mapping = mappingBlock.Update(mappingVariables, mappingBlock.Expressions);
+                mapping = mappingBlock.Update(variables, mappingBlock.Expressions);
                 return true;
             }
 
-            mapping = mappingBlock.Variables.Any()
-                ? Expression.Block(mappingBlock.Variables, mappingExpressions)
+            mapping = variables.Any()
+                ? Expression.Block(variables, mappingExpressions)
                 : mappingExpressions.ToExpression();
 
             return true;
         }
 
-        private static IList<Expression> GetMappingExpressions(Expression mapping)
+        private static IList<Expression> GetMappingExpressions(
+            Expression mapping,
+            out List<ParameterExpression> variables)
         {
-            var expressions = new List<Expression>();
+            var expressions = default(List<Expression>);
+            variables = new List<ParameterExpression>();
 
             while (mapping.NodeType == Block)
             {
                 var mappingBlock = (BlockExpression)mapping;
 
-                expressions.AddRange(mappingBlock.Expressions.Take(mappingBlock.Expressions.Count - 1));
-                mapping = mappingBlock.Result;
+                if (mappingBlock.Variables.Any())
+                {
+                    variables.AddRange(mappingBlock.Variables);
+                }
+
+                var blockExpressions = mappingBlock.Expressions;
+
+                if (mappingBlock.Result.NodeType is Block)
+                {
+                    expressions ??= new List<Expression>();
+                    expressions.AddRange(blockExpressions.Take(blockExpressions.Count - 1));
+                    mapping = mappingBlock.Result;
+                    continue;
+                }
+
+                if (expressions == null)
+                {
+                    return blockExpressions;
+                }
+                
+                expressions.AddRange(blockExpressions);
+                return expressions;
             }
 
             return expressions;

@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.Api.Configuration.Dynamics
     using AgileMapper.Configuration;
     using Dictionaries;
     using Members;
+    using Members.Extensions;
     using ReadableExpressions;
 
     internal class TargetDynamicMappingConfigurator<TSource> :

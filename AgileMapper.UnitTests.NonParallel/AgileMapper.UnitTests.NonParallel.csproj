@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
-    <LangVersion>8.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NonParallel</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.NonParallel</RootNamespace>

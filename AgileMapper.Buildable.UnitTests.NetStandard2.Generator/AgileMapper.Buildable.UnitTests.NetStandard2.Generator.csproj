@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>AgileObjects.AgileMapper.Buildable.UnitTests.NetStandard2.Generator</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.Buildable.UnitTests.Generator</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <XprGeneratorDebug>false</XprGeneratorDebug>
+    <MappersOutputProject>..\AgileMapper.Buildable.UnitTests.NetStandard2.Mappers\AgileMapper.Buildable.UnitTests.NetStandard2.Mappers.csproj</MappersOutputProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\AgileMapper.Buildable.UnitTests\MapperConfiguration\*.cs">
+      <Link>MapperConfiguration\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <Compile Include="..\AgileMapper.Buildable.UnitTests\MapperConfiguration\*\**\*.cs">
+      <Link>MapperConfiguration\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AgileObjects.AgileMapper.Buildable" Version="0.1.0-preview1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
+  </ItemGroup>
+
+</Project>

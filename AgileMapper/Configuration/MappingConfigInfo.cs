@@ -24,7 +24,7 @@
 
     internal delegate bool TargetTypeComparer(ITypePair typePair, ITypePair otherTypePair);
 
-    internal class MappingConfigInfo : ITypePair
+    internal class MappingConfigInfo : IMapperContextOwner, IRuleSetOwner, ITypePair
     {
         public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
             AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();

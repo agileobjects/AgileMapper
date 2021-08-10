@@ -9,7 +9,7 @@
 #endif
     using Extensions.Internal;
     using Members;
-    using Members.MemberExtensions;
+    using Members.Extensions;
 
     internal static class MultiInvocationsFinder
     {

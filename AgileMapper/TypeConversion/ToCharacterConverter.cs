@@ -21,7 +21,10 @@
                    (Array.IndexOf(Constants.NumericTypes, nonNullableSourceType) != -1));
         }
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(
+            Expression sourceValue, 
+            Type targetType, 
+            bool useSingleStatement)
         {
             if (sourceValue.Type == typeof(char?))
             {

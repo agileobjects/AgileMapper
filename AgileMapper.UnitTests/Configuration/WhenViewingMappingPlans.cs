@@ -101,13 +101,12 @@
                     .Map((pp, ptf) => pp.Value)
                     .To(ptf => ptf.Value1);
 
-
                 string plan = mapper
                     .GetPlanFor<PublicProperty<string>>()
                     .ToANew<PublicTwoFields<string, object>>();
 
                 plan.ShouldContain("// Map PublicProperty<string> -> PublicTwoFields<string, object>");
-                plan.ShouldContain(".Value1 = ppsToPtfsoData.Source.Value");
+                plan.ShouldContain(".Value1 = sppToSoptfData.Source.Value");
                 plan.ShouldContain("// No data sources for Value2");
             }
         }

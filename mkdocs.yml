@@ -1,5 +1,5 @@
 site_name: AgileMapper
-site_description: 'AgileMapper: A zero-configuration, highly-configurable object-object mapper with viewable execution plans. Projects queries, transforms, deep clones, updates and merges via extension methods, or a static or instance API. Targets .NET Standard 1.0+ and .NET 3.5+'
+site_description: 'AgileMapper: A zero-configuration, highly-configurable, unopinionated object-object mapper with viewable execution plans. Flattens, unflattens, deep clones, merges, updates and projects queries via extension methods, or a static or instance API. Targets .NET 3.5+ and .NET Standard 1.0+.'
 site_author: Steve Wilkes
 repo_url: https://github.com/agileobjects/AgileMapper
 
@@ -8,10 +8,11 @@ site_dir: 'docs/site'
 
 extra_css:
     - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.13.1/styles/vs2015.min.css
-    - css/styles.min.css
+    - https://agileobjects.co.uk/assets/css/docs-styles.min.css
 
 extra_javascript:
-    - scripts/docs.min.js
+    - assets/scripts/dox-cls.js
+    - https://agileobjects.co.uk/assets/js/ao-docs.min.js
 
 nav:
     - General Use:
@@ -41,6 +42,10 @@ nav:
         - Recursion: query-projection/Recursive-Relationships.md
         - Join entities: query-projection/Join-Entities.md
         - Entity Framework: query-projection/Entity-Framework.md
+    - Source Code Generation:
+        - Overview: mapper-generation/index.md
+        - Quickstart: mapper-generation/Quickstart.md
+        - Configuration: mapper-generation/Configuration.md
     - Configuration:
         - Overview: configuration/index.md
         - Configuring inline: configuration/Inline.md

@@ -3,14 +3,15 @@ namespace AgileObjects.AgileMapper.Members
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using Configuration;
-    using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Configuration;
+    using Extensions;
+    using NetStandardPolyfills;
+    using ReadableExpressions.Extensions;
 
     internal class MemberIdentifierSet
     {

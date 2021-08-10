@@ -12,6 +12,7 @@
     using Extensions;
     using Extensions.Internal;
     using Members;
+    using Members.Extensions;
     using NetStandardPolyfills;
     using ReadableExpressions;
 
@@ -20,7 +21,7 @@
         public static readonly IEqualityComparer<EnumMappingMismatchSet> Comparer = default(MismatchSetComparer);
 
         private static readonly EnumMappingMismatchSet _emptySet =
-            new EnumMappingMismatchSet(Enumerable<EnumMappingMismatch>.EmptyArray);
+            new (Enumerable<EnumMappingMismatch>.EmptyArray);
 
         private readonly IList<EnumMappingMismatch> _mappingMismatches;
         private Expression _warning;

@@ -5,7 +5,7 @@
     using AgileMapper.Configuration;
     using AgileMapper.Extensions;
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
 #if NETCOREAPP
     using Microsoft.Extensions.DependencyInjection;
 #endif

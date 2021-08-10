@@ -1,7 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Plans
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -21,10 +23,10 @@
 
         internal MappingPlan(IObjectMapper cachedMapper)
         {
-            _mappingPlanFunctions = new List<IMappingPlanFunction>
-            {
-                new RootMapperMappingPlanFunction(cachedMapper)
-            };
+            RuleSetName = cachedMapper.MapperData.RuleSet.Name;
+            Root = new RootMapperMappingPlanFunction(cachedMapper);
+
+            _mappingPlanFunctions = new List<IMappingPlanFunction> { Root };
 
             if (cachedMapper.MapperData.HasRepeatedMapperFuncs)
             {
@@ -46,7 +48,7 @@
         {
             return mappingPlan
                 ._mappingPlanFunctions
-                .ProjectToArray(pd => pd.GetDescription())
+                .ProjectToArray(pf => pf.ToSourceCode())
                 .Join(Environment.NewLine + Environment.NewLine);
         }
 
@@ -59,16 +61,21 @@
         {
             return Expression.Block(mappingPlan
                 ._mappingPlanFunctions
-                .ProjectToArray(pd => pd.GetExpression()));
+                .SelectMany(mpf => new Expression[] { mpf.Summary, mpf.Mapping }));
         }
 
-        #region IMappingPlan Members
+        /// <inheritdoc />
+        public string RuleSetName { get; }
 
-        string IMappingPlan.GetDescription() => this;
-        
-        Expression IMappingPlan.GetExpression() => this;
+        /// <inheritdoc />
+        public IMappingPlanFunction Root { get; }
 
-        #endregion
+        string IMappingPlan.ToSourceCode() => this;
+
+        IEnumerator IEnumerable.GetEnumerator() => _mappingPlanFunctions.GetEnumerator();
+
+        IEnumerator<IMappingPlanFunction> IEnumerable<IMappingPlanFunction>.GetEnumerator()
+            => _mappingPlanFunctions.GetEnumerator();
 
         /// <summary>
         /// Returns the string representation of the <see cref="MappingPlan"/>.

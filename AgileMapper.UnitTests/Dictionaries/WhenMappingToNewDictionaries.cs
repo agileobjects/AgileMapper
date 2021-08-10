@@ -5,6 +5,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -42,6 +43,22 @@
 
             result.ShouldContainKey("Value");
             result["Value"].ShouldBeOfType<Product>();
+        }
+
+        [Fact]
+        public void ShouldMapAComplexTypeMemberToAnUntypedDictionary()
+        {
+            var source = new PublicTwoFields<int, Address>
+            {
+                Value1 = 123,
+                Value2 = new Address { Line1 = "One!" }
+            };
+            
+            var result = Mapper.Map(source).ToANew<Dictionary<string, string>>();
+
+            result.ShouldContainKeyAndValue("Value1", "123");
+            result.ShouldContainKeyAndValue("Value2.Line1", "One!");
+            result.ShouldContainKeyAndValue("Value2.Line2", null);
         }
 
         [Fact]

@@ -25,7 +25,8 @@
             if (_toStringMethod == null)
             {
                 throw new MappingConfigurationException(
-                    "No ToString method taking a formatting string exists on type " + sourceValueType.GetFriendlyName());
+                    "No ToString() method taking a formatting string exists " +
+                    "on type " + sourceValueType.GetFriendlyName());
             }
 
             _sourceValueType = sourceValueType;
@@ -35,7 +36,10 @@
         public bool CanConvert(Type nonNullableSourceType, Type nonNullableTargetType)
             => (nonNullableTargetType == typeof(string)) && (_sourceValueType == nonNullableSourceType);
 
-        public Expression GetConversion(Expression sourceValue, Type targetType)
+        public Expression GetConversion(
+            Expression sourceValue, 
+            Type targetType, 
+            bool useSingleStatement)
         {
             if (sourceValue.Type.IsNullableType())
             {

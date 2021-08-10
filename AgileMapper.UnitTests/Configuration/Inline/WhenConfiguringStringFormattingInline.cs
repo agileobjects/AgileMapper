@@ -3,7 +3,7 @@
     using System;
     using AgileMapper.Configuration;
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
 #if !NET35
     using Xunit;
 #else
@@ -82,7 +82,7 @@
                 }
             });
 
-            noFormatEx.Message.ShouldContain("No ToString method");
+            noFormatEx.Message.ShouldContain("No ToString() method");
         }
     }
 }

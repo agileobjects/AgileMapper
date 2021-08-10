@@ -15,6 +15,7 @@
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using TypeConversion;
 
     internal class ElementKeyPartFactory : DictionaryKeyPartFactoryBase
     {
@@ -126,16 +127,24 @@
         private string Pattern => _prefixString + "i" + _suffixString;
 
         public Expression GetElementKeyPartMatcher()
-            => _keyPartMatcher ??= CreateKeyPartRegex().ToConstantExpression();
+            => _keyPartMatcher ??= CreateKeyPartRegexPattern().ToConstantExpression();
 
-        private Regex CreateKeyPartRegex()
+        private string CreateKeyPartRegexPattern()
+            => GetTokenForRegex(_prefixString) + "[0-9]+" + GetTokenForRegex(_suffixString);
+
+        private static string GetTokenForRegex(string value)
         {
-            return new Regex(
-                _prefixString + "[0-9]+" + _suffixString
-#if !NETSTANDARD1_0
-                , RegexOptions.Compiled
-#endif
-                );
+            switch (value)
+            {
+                case "[":
+                case "]":
+                case "(":
+                case ")":
+                    return '\\' + value;
+
+                default:
+                    return value;
+            }
         }
 
         public Expression GetElementKeyPrefixOrNull() => _prefix;
@@ -163,7 +172,7 @@
                 yield return _prefix;
             }
 
-            yield return ConfigInfo.MapperContext.GetValueConversion(index, typeof(string));
+            yield return ConfigInfo.GetValueConversion(index, typeof(string));
 
             if (_suffix != null)
             {

@@ -14,6 +14,7 @@
     using Looping;
     using Members;
     using Members.Dictionaries;
+    using Members.Extensions;
     using Members.Population;
     using TypeConversion;
 

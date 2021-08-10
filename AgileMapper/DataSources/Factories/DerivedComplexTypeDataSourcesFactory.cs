@@ -5,10 +5,8 @@
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using static Microsoft.Scripting.Ast.Expression;
 #else
     using System.Linq.Expressions;
-    using static System.Linq.Expressions.Expression;
 #endif
     using Configuration;
     using Extensions;
@@ -17,6 +15,11 @@
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions;
+#if NET35
+    using static Microsoft.Scripting.Ast.Expression;
+#else
+    using static System.Linq.Expressions.Expression;
+#endif
     using static Constants;
     using static TypeComparer;
 
@@ -263,7 +266,7 @@
                     groupedTypePairs,
                     targetType);
 
-                AddDataSourceIfValid:
+            AddDataSourceIfValid:
                 if (sourceVariableIsDerivedTypeDataSource.IsValid)
                 {
                     derivedTypeDataSources.Insert(sourceVariableIsDerivedTypeDataSource, insertionOffset);
@@ -450,18 +453,25 @@
         }
 
         private static void AddDerivedTargetTypeDataSources(
-            IEnumerable<Type> derivedTargetTypes,
+            ICollection<Type> derivedTargetTypes,
             IObjectMappingData declaredTypeMappingData,
             ICollection<IDataSource> derivedTypeDataSources)
         {
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
-            if (((ICollection<Type>)derivedTargetTypes).Count > 1)
+            if (declaredTypeMapperData.TargetMemberNullOrInaccessible())
             {
-                derivedTargetTypes = derivedTargetTypes.OrderBy(t => t, MostToLeastDerived);
+                return;
             }
 
-            foreach (var derivedTargetType in derivedTargetTypes)
+            IEnumerable<Type> orderedDerivedTargetTypes = derivedTargetTypes;
+
+            if (derivedTargetTypes.Count > 1)
+            {
+                orderedDerivedTargetTypes = orderedDerivedTargetTypes.OrderBy(t => t, MostToLeastDerived);
+            }
+
+            foreach (var derivedTargetType in orderedDerivedTargetTypes)
             {
                 var targetTypeCondition = declaredTypeMapperData.GetTargetIsDerivedTypeCheck(derivedTargetType);
 
@@ -524,7 +534,7 @@
 
         private static Expression GetTargetValidCheckOrNull(this IMemberMapperData mapperData, Type targetType)
         {
-            if (!mapperData.TargetMember.IsReadable || mapperData.TargetIsDefinitelyUnpopulated())
+            if (mapperData.TargetMemberNullOrInaccessible())
             {
                 return null;
             }
@@ -542,6 +552,9 @@
             return targetIsValid;
         }
 
+        private static bool TargetMemberNullOrInaccessible(this IMemberMapperData mapperData)
+            => !mapperData.TargetMember.IsReadable || mapperData.TargetIsDefinitelyUnpopulated();
+
         private static Expression GetTargetIsDerivedTypeCheck(this IMemberMapperData mapperData, Type targetType)
             => TypeIs(mapperData.TargetObject, targetType);
 
@@ -553,7 +566,7 @@
                 IQualifiedMember sourceMember,
                 Expression condition,
                 Expression value)
-                : base(sourceMember, Constants.EmptyParameters, value, condition)
+                : base(sourceMember, EmptyParameters, value, condition)
             {
             }
 

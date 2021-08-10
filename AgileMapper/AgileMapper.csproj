@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net35;net40;netstandard1.0;netstandard1.3;netstandard2.0</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
     <AssemblyTitle>AgileObjects.AgileMapper</AssemblyTitle>
     <AssemblyName>AgileObjects.AgileMapper</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper</RootNamespace>
@@ -14,18 +13,20 @@
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <Title>AgileMapper</Title>
     <Description>A zero-configuration, highly-configurable, unopinionated object mapper with viewable execution plans. Flattens, unflattens, deep clones, merges, updates and projects queries. Targets .NET 3.5+ and .NET Standard 1.0+</Description>
-    <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
+    <PackageTags>Mapper, Mapping, ViewModel, DTO</PackageTags>
     <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Adding .NET Standard 2.0 target
-- Support for configuring data sources by matcher, re: #208
-- Fixing potential cache threading issue, re: #212
-- Throwing ObjectDisposed on attempt to use disposed Mapper, re: #212
-- Improving target member selection, re: #209
+    <PackageReleaseNotes>- Improving surfaced mapping plans
+- Improving enum mapping
+- Improving non-readable member derived target type mapping
+- Improving simple-type enumerable merge and overwrite mapping
+- Improving performance and memory use
     </PackageReleaseNotes>
+    <Version>2.0.0-preview1</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <PackageOutputPath>../NuGet</PackageOutputPath>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -37,7 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.6.0" />
+    <PackageReference Include="AgileObjects.ReadableExpressions" Version="3.0.0-preview2" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
@@ -74,11 +75,11 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_ARRAY_EMPTY</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST;FEATURE_ARRAY_EMPTY</DefineConstants>
   </PropertyGroup>
 
 </Project>

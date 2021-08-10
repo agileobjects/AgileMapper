@@ -1,12 +1,22 @@
 ## Overview
 
-AgileMapper is a zero-configuration, [highly-configurable](/configuration) object-object mapper with [viewable execution plans](/Using-Execution-Plans), targeting [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library) and .NET 3.5+. It performs [query projections](/query-projection), object creation, deep clones, id-aware [updates](/Performing-Updates) and [merges](/Performing-Merges), and can be used via [extension methods](/Mapping-Extension-Methods), or a [static or instance](/Static-vs-Instance-Mappers) API.
+AgileMapper is a zero-configuration, [highly-configurable](/configuration), unopinionated object
+mapper with execution plans you can [view](/Using-Execution-Plans), or 
+[generate and build](/mapper-generation) into your source code. It flattens, unflattens, deep clones, 
+[merges](/Performing-Merges), [updates](/Performing-Updates) and [projects queries](/query-projection)
+via [extension methods](/Mapping-Extension-Methods), or a [static or instance](/Static-vs-Instance-Mappers)
+API. It targets .NET 3.5+ and [.NET Standard 1.0+](https://docs.microsoft.com/en-us/dotnet/articles/standard/library).
 
-Mapping functions are created and cached the first time two types are mapped - no up-front configuration is necessary. You can [cache up-front](/Using-Execution-Plans) if you prefer, though.
+Mapping functions are created and cached the first time two types are mapped - no up-front
+configuration is necessary. You can [cache up-front](/Using-Execution-Plans) if you prefer, though.
 
-[Available via NuGet](https://www.nuget.org/packages/AgileObjects.AgileMapper) and licensed with the [MIT licence](https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md), you can install it via the [package manager console](https://docs.nuget.org/consume/package-manager-console):
+[Available via NuGet](https://www.nuget.org/packages/AgileObjects.AgileMapper) and licensed with the
+[MIT licence](https://github.com/agileobjects/AgileMapper/blob/master/LICENCE.md), you can install it
+via the [package manager console](https://docs.nuget.org/consume/package-manager-console) with:
 
-    PM> Install-Package AgileObjects.AgileMapper
+```shell
+PM> Install-Package AgileObjects.AgileMapper
+```
 
 [![NuGet version](https://badge.fury.io/nu/AgileObjects.AgileMapper.svg)](https://badge.fury.io/nu/AgileObjects.AgileMapper)
 

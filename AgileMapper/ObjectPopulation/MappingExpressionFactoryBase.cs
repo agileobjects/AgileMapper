@@ -3,25 +3,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using ComplexTypes.ShortCircuits;
-    using DataSources;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using ComplexTypes.ShortCircuits;
+    using DataSources;
     using Enumerables.EnumerableExtensions;
     using Extensions;
     using Extensions.Internal;
     using Members;
-    using Members.MemberExtensions;
+    using Members.Extensions;
     using NetStandardPolyfills;
-    using ReadableExpressions;
 #if NET35
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using static ReadableExpressions.ReadableExpression;
 
     internal abstract class MappingExpressionFactoryBase
     {
@@ -31,9 +31,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (TargetCannotBeMapped(mappingData, out var reason))
             {
-                return Expression.Block(
-                    ReadableExpression.Comment(reason),
-                    GetNullMappingFallbackValue(mapperData));
+                var fallbackValue = GetNullMappingFallbackValue(mapperData);
+
+                return mappingData.MappingContext.PlanSettings.CommentUnmappableMembers
+                    ? Expression.Block(Comment(reason), fallbackValue)
+                    : fallbackValue;
             }
 
             var context = new MappingCreationContext(mappingData);
@@ -404,25 +406,31 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return firstExpression;
             }
 
-            Expression returnExpression;
-
-            if (firstExpression.NodeType != Block)
-            {
-                if (TryAdjustForUnusedLocalVariableIfApplicable(context, out returnExpression))
-                {
-                    return returnExpression;
-                }
-            }
-            else if (TryAdjustForUnusedLocalVariableIfApplicable(context, out returnExpression))
+            if (TryAdjustForUnusedLocalVariableIfApplicable(
+                context,
+                out var localVariableUnused,
+                out var returnExpression))
             {
                 return returnExpression;
             }
 
-            mappingExpressions.Add(context.MapperData.GetReturnLabel(GetExpressionToReturn(context)));
+            var mapperData = context.MapperData;
+            returnExpression = GetExpressionToReturn(context);
 
-            var mappingBlock = context.MapperData.Context.UseLocalVariable
-                ? Expression.Block(new[] { context.MapperData.LocalVariable }, mappingExpressions)
-                : mappingExpressions.ToExpression();
+            if (localVariableUnused && (returnExpression == mapperData.LocalVariable) &&
+                context.EnumerateMappingExpressions(includeCallbacks: false).Any())
+            {
+                mappingExpressions.Add(Constants.EmptyExpression);
+            }
+            else
+            {
+                mappingExpressions.Add(mapperData.GetReturnLabel(returnExpression));
+                localVariableUnused = !mapperData.Context.UseLocalVariable;
+            }
+
+            var mappingBlock = localVariableUnused
+                ? mappingExpressions.ToExpression()
+                : Expression.Block(new[] { mapperData.LocalVariable }, mappingExpressions);
 
             return mappingBlock;
         }
@@ -443,24 +451,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        private static bool TryAdjustForUnusedLocalVariableIfApplicable(MappingCreationContext context, out Expression returnExpression)
+        private static bool TryAdjustForUnusedLocalVariableIfApplicable(
+            MappingCreationContext context,
+            out bool localVariableUnused,
+            out Expression returnExpression)
         {
-            if (!context.MapperData.Context.UseLocalVariable)
+            var mapperData = context.MapperData;
+
+            if (!mapperData.RuleSet.Settings.UseSingleRootMappingExpression && (
+                !mapperData.Context.UseLocalVariable ||
+                 mapperData.ReturnLabelUsed ||
+                 context.ToTargetDataSources.Any()))
             {
+                localVariableUnused = false;
                 returnExpression = null;
                 return false;
             }
 
             var mappingExpressions = context.MappingExpressions;
 
-            if (!mappingExpressions.TryGetVariableAssignment(out var localVariableAssignment))
+            if (!mappingExpressions.TryGetAssignment(
+                 mapperData.LocalVariable,
+                 out var localVariableAssignment))
             {
+                localVariableUnused = true;
                 returnExpression = null;
                 return false;
             }
 
-            if ((localVariableAssignment.Left.NodeType != Parameter) ||
-                (localVariableAssignment != mappingExpressions.Last()))
+            localVariableUnused = false;
+
+            if (localVariableAssignment != mappingExpressions.Last())
             {
                 returnExpression = null;
                 return false;
@@ -470,7 +491,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             returnExpression = (assignedValue.NodeType == Invoke)
                 ? Expression.Block(
-                    new[] { (ParameterExpression)localVariableAssignment.Left },
+                    new[] { mapperData.LocalVariable },
                     GetExpressionToReturn(localVariableAssignment, context))
                 : GetExpressionToReturn(assignedValue, context);
 
@@ -479,7 +500,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return true;
             }
 
-            mappingExpressions[mappingExpressions.Count - 1] = context.MapperData.GetReturnLabel(returnExpression);
+            mappingExpressions[mappingExpressions.Count - 1] = mapperData.GetReturnLabel(returnExpression);
             returnExpression = Expression.Block(mappingExpressions);
             return true;
         }

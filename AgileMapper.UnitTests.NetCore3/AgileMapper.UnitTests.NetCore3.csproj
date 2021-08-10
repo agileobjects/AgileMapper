@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RuntimeFrameworkVersion>3.1.4</RuntimeFrameworkVersion>
-    <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore3</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using Common;
+    using Common.TestClasses;
     using TestClasses;
     using Xunit;
 

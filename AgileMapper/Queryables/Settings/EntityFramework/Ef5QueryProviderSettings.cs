@@ -10,7 +10,6 @@
     using System.Reflection;
     using Extensions.Internal;
     using NetStandardPolyfills;
-    using ReadableExpressions.Extensions;
 
     internal class Ef5QueryProviderSettings : LegacyEfQueryProviderSettings
     {

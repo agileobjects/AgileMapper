@@ -1,7 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.UnitTests.Dynamics
 {
     using System.Dynamic;
-    using TestClasses;
+    using Common.TestClasses;
     using Xunit;
 
     public class WhenMappingOverDynamicMembers

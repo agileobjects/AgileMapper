@@ -108,8 +108,11 @@
         /// An IProjectionPlanTargetSelector with which to specify the target Type to which the query projection function to 
         /// be created should be cached.
         /// </returns>
-        protected IProjectionPlanTargetSelector<TSourceElement> GetPlanForProjecting<TSourceElement>(IQueryable<TSourceElement> exampleQueryable)
-            => _mapper.GetPlanForProjecting(exampleQueryable);
+        protected IProjectionPlanTargetSelector<TSourceElement> GetPlanForProjecting<TSourceElement>(
+            IQueryable<TSourceElement> exampleQueryable)
+        {
+            return _mapper.GetPlanForProjecting(exampleQueryable);
+        }
 
         /// <summary>
         /// Create and compile mapping functions for mapping from the source type specified by the given 

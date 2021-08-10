@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
+    using static Constants;
 
     internal class IndexedSourcePopulationLoopData : IPopulationLoopData
     {
@@ -50,10 +51,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
                 return loop;
             }
 
-            return loop.InsertAssignment(
-                Constants.AfterLoopExitCheck,
-                (ParameterExpression)_sourceElement,
-                _indexedSourceAccess);
+            var sourceVariable = (ParameterExpression)_sourceElement;
+
+            return loop
+                .InsertAssignment(AfterLoopExitCheck, sourceVariable, _indexedSourceAccess);
         }
     }
 }

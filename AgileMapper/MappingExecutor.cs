@@ -11,6 +11,7 @@
     using Extensions;
     using Extensions.Internal;
     using ObjectPopulation;
+    using Plans;
 
     internal class MappingExecutor<TSource> :
         ITargetSelector<TSource>,
@@ -20,19 +21,17 @@
     {
         private readonly TSource _source;
 
-        public MappingExecutor(TSource source, MapperContext mapperContext)
+        public MappingExecutor(MapperContext mapperContext, TSource source)
         {
-            _source = source;
             MapperContext = mapperContext.ThrowIfDisposed();
+            _source = source;
         }
 
         public MapperContext MapperContext { get; private set; }
 
         public MappingRuleSet RuleSet { get; private set; }
 
-        public bool IgnoreUnsuccessfulMemberPopulations => true;
-
-        public bool LazyLoadRepeatMappingFuncs => true;
+        MappingPlanSettings IMappingContext.PlanSettings => MappingPlanSettings.Default.LazyPlanned;
 
         #region ToANew Overloads
 
@@ -135,7 +134,7 @@
             {
                 // Optimise for the most common scenario:
                 var typedRootMappingData = ObjectMappingDataFactory
-                    .ForRootFixedTypes(_source, target, this);
+                    .ForRootFixedTypes(_source, target, this, createMapper: true);
 
                 return typedRootMappingData.MapStart();
             }
@@ -155,7 +154,6 @@
             return configurations.Any() ? ToANew(configurations) : ToANew<ExpandoObject>();
         }
 #endif
-
         Dictionary<string, object> IFlatteningSelector<TSource>.ToDictionary(
             params Expression<Action<IFullMappingInlineConfigurator<TSource, Dictionary<string, object>>>>[] configurations)
         {

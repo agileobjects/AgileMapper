@@ -5,7 +5,7 @@
     using AgileMapper.Configuration;
     using AgileMapper.Extensions.Internal;
     using Common;
-    using TestClasses;
+    using Common.TestClasses;
     using static System.Environment;
 #if !NET35
     using Xunit;
