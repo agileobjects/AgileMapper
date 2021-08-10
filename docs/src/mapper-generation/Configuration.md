@@ -2,7 +2,8 @@ Mapper source code generation can be configured in the following ways.
 
 ## Change the Output Project
 
-To output your mappers to a different project, add the following to your mapper configuration project:
+To output your mappers to a different project, add the following to 
+[your mapper configuration](quickstart) project:
 
 ```xml
 <PropertyGroup>

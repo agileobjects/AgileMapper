@@ -1,4 +1,4 @@
-AgileMapper.Buildable is an AgileMapper extension which uses a custom MSBuild target to generates
+AgileMapper.Buildable is an AgileMapper extension which uses a custom MSBuild target to generate
 mapper source code at build time. This provides the best mapping performance, and enables you to step
 into and debug your mappers at runtime.
 

@@ -11,7 +11,7 @@ The `-Pre` flag is required as AgileMapper.Buildable is currently in preview.
 ## Add Configuration
 
 To specify which mapper source code should be generated, add one or more 
-[configuration classes](/configuration/Classes) to a project, derived from AgileMapper.Buildable's 
+[configuration classes](../configuration/classes) to a project, derived from AgileMapper.Buildable's
 `BuildableMapperConfiguration` class:
 
 ```cs
@@ -35,13 +35,24 @@ public class ProductMappingConfiguration : BuildableMapperConfiguration
 ```
 
 AgileMapper.Buildable configuration classes work the same as 
-[AgileMapper configuration classes](/configuration/Classes), but instead of configuring mappers built
-at runtime, they configure mappers generated at build time.
+[AgileMapper configuration classes](../configuration/classes), but instead of configuring mappers
+built at runtime, they configure mappers generated at build time.
 
 AgileMapper.Buildable auto-discovers its configuration, and does not need it to be registered using
 the `Mapper.WhenMapping.UseConfigurations.From*` methods.
 
-## Build the Project
+## Generate Mappers
 
-When the project is built, it will generate mapper source code based on your configuration. Mappers
-are output to a `Mappers` folder and namespace at the root of the project.
+When the project is built, it will generate the following source code based on your configuration:
+
+- One instance-scoped mapper per configured source type
+- A static `Mapper` class
+- A set of mapping extension methods.
+
+These files are output to a `Mappers` folder and namespace at the root of the project. The static
+mapper and extension methods use the instance mappers to perform mappings.
+
+The generated static Mapper and extension methods have the same signatures as AgileMapper's
+equivalent classes, so you can switch from AgileMapper's mapping to your generated mappers simply by
+changing the `using AgileObjects.AgileMapper;` namespace import to 
+`using [YourProject.Namespace].Mappers;`.
