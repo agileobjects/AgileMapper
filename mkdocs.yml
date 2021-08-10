@@ -42,6 +42,10 @@ nav:
         - Recursion: query-projection/Recursive-Relationships.md
         - Join entities: query-projection/Join-Entities.md
         - Entity Framework: query-projection/Entity-Framework.md
+    - Source Code Generation:
+        - Overview: mapper-generation/index.md
+        - Quickstart: mapper-generation/Quickstart.md
+        - Configuration: mapper-generation/Configuration.md
     - Configuration:
         - Overview: configuration/index.md
         - Configuring inline: configuration/Inline.md

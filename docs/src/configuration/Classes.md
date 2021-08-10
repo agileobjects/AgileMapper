@@ -11,7 +11,7 @@ public class ProductMappingConfiguration : MapperConfiguration
 {
     protected override void Configure()
     {
-        // Configure default Mapper ProductDto -> Productmapping:
+        // Configure default Mapper ProductDto -> Product mapping:
         WhenMapping
             .From<ProductDto>()
             .To<Product>()
