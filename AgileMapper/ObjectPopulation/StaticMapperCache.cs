@@ -16,15 +16,16 @@
                 return;
             }
 
-            var ruleSets = mappingData.MappingContext.MapperContext.RuleSets;
+            var mappingContext = mappingData.MappingContext;
+            var ruleSets = mappingContext.MapperContext.RuleSets;
 
-            if (mappingData.MappingContext.RuleSet == ruleSets.CreateNew)
+            if (mappingContext.RuleSet == ruleSets.CreateNew)
             {
                 _createNew.SetMapperIfAppropriate(mapper);
                 return;
             }
 
-            if (mappingData.MappingContext.RuleSet == ruleSets.Overwrite)
+            if (mappingContext.RuleSet == ruleSets.Overwrite)
             {
                 _overwrite.SetMapperIfAppropriate(mapper);
                 return;
@@ -33,21 +34,22 @@
             _merge.SetMapperIfAppropriate(mapper);
         }
 
-        public static bool TryGetMapperFor(IObjectMappingData mappingData, out ObjectMapper<TSource, TTarget> mapper)
+        public static bool TryGetMapperFor(IMappingContext mappingContext, out ObjectMapper<TSource, TTarget> mapper)
         {
-            var ruleSets = mappingData.MappingContext.MapperContext.RuleSets;
+            var mapperContext = mappingContext.MapperContext;
+            var ruleSets = mapperContext.RuleSets;
 
-            if (mappingData.MappingContext.RuleSet == ruleSets.CreateNew)
+            if (mappingContext.RuleSet == ruleSets.CreateNew)
             {
-                return _createNew.TryGetMapper(mappingData, out mapper);
+                return _createNew.TryGetMapper(mapperContext, out mapper);
             }
 
-            if (mappingData.MappingContext.RuleSet == ruleSets.Overwrite)
+            if (mappingContext.RuleSet == ruleSets.Overwrite)
             {
-                return _overwrite.TryGetMapper(mappingData, out mapper);
+                return _overwrite.TryGetMapper(mapperContext, out mapper);
             }
 
-            return _merge.TryGetMapper(mappingData, out mapper);
+            return _merge.TryGetMapper(mapperContext, out mapper);
         }
 
         private class MapperCache
@@ -56,15 +58,12 @@
 
             public void SetMapperIfAppropriate(ObjectMapper<TSource, TTarget> mapper)
             {
-                if (_mapper == null)
-                {
-                    _mapper = mapper.WithResetCallback(Reset);
-                }
+                _mapper ??= mapper.WithResetCallback(Reset);
             }
 
-            public bool TryGetMapper(IMappingContextOwner key, out ObjectMapper<TSource, TTarget> mapper)
+            public bool TryGetMapper(MapperContext mapperContext, out ObjectMapper<TSource, TTarget> mapper)
             {
-                if (_mapper?.MapperData.MapperContext != key.MappingContext.MapperContext)
+                if (_mapper?.MapperData.MapperContext != mapperContext)
                 {
                     mapper = null;
                     return false;

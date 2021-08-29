@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper
     {
         #region Default Rule Sets
 
-        private static readonly MappingRuleSet _createNew = new MappingRuleSet(
+        private static readonly MappingRuleSet _createNew = new(
             Constants.CreateNew,
             MappingRuleSetSettings.ForInMemoryMapping(allowCloneEntityKeyMapping: true),
             CopySourceEnumerablePopulationStrategy.Create,
@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper
             ExistingOrDefaultValueFallbackDataSourceFactory.Create,
             DefaultRootMapperKeyFactory.Create);
 
-        private static readonly MappingRuleSet _overwrite = new MappingRuleSet(
+        private static readonly MappingRuleSet _overwrite = new(
             Constants.Overwrite,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true),
             OverwriteEnumerablePopulationStrategy.Create,
@@ -32,7 +32,7 @@ namespace AgileObjects.AgileMapper
             DefaultValueFallbackDataSourceFactory.Create,
             DefaultRootMapperKeyFactory.Create);
 
-        private static readonly MappingRuleSet _project = new MappingRuleSet(
+        private static readonly MappingRuleSet _project = new(
             Constants.Project,
             new MappingRuleSetSettings
             {
@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper
             DefaultValueFallbackDataSourceFactory.Create,
             QueryProjectorMapperKeyFactory.Create);
 
-        private static readonly MappingRuleSet _merge = new MappingRuleSet(
+        private static readonly MappingRuleSet _merge = new(
             Constants.Merge,
             MappingRuleSetSettings.ForInMemoryMapping(rootHasPopulatedTarget: true, allowGuardedBindings: false),
             MergeEnumerablePopulationStrategy.Create,
@@ -61,7 +61,7 @@ namespace AgileObjects.AgileMapper
             DefaultRootMapperKeyFactory.Create);
 
         public static readonly MappingRuleSetCollection Default =
-            new MappingRuleSetCollection(_createNew, _overwrite, _project, _merge);
+            new(_createNew, _overwrite, _project, _merge);
 
         #endregion
 

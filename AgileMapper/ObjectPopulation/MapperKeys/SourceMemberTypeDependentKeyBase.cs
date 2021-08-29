@@ -2,14 +2,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
     using System;
     using System.Linq;
-    using Extensions;
-    using Extensions.Internal;
-    using Members;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using Extensions;
+    using Extensions.Internal;
+    using Members;
 
     internal abstract class SourceMemberTypeDependentKeyBase
     {
@@ -23,10 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
         public void AddSourceMemberTypeTesterIfRequired(IObjectMappingData mappingData = null)
         {
-            if (mappingData == null)
-            {
-                mappingData = MappingData;
-            }
+            mappingData ??= MappingData;
 
             if (mappingData.IsPartOfDerivedTypeMapping)
             {

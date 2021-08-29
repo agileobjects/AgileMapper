@@ -39,7 +39,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ObjectMapper<TSource, TTarget> GetOrCreateRoot<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
         {
-            if (StaticMapperCache<TSource, TTarget>.TryGetMapperFor(mappingData, out var mapper))
+            if (StaticMapperCache<TSource, TTarget>.TryGetMapperFor(mappingData.MappingContext, out var mapper))
             {
                 return mapper;
             }

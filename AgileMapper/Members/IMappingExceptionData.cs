@@ -27,6 +27,12 @@
         int? ElementIndex { get; }
 
         /// <summary>
+        /// Gets the key of the current Dictionary KeyValuePair being mapped when the mapping
+        /// Exception occurred, if applicable.
+        /// </summary>
+        object ElementKey { get; }
+
+        /// <summary>
         /// Get the Exception object describing the error that occurred during the mapping.
         /// </summary>
         Exception Exception { get; }
