@@ -57,7 +57,7 @@
         /// <param name="exception">The Exception which occurred.</param>
         /// <returns>
         /// An <see cref="IMappingExceptionData{TSource, TTarget}"/> providing information about the
-        /// given, thrown <see cref="Exception"/>.
+        /// given, thrown <paramref name="exception"/>.
         /// </returns>
         public static IMappingExceptionData<TSource, TTarget> CreateTyped<TSource, TTarget>(
             IMappingData<TSource, TTarget> mappingData,
