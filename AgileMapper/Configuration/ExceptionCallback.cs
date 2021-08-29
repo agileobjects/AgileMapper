@@ -1,6 +1,7 @@
 ﻿namespace AgileObjects.AgileMapper.Configuration
 {
     using System;
+    using System.Reflection;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -22,7 +23,7 @@
         }
 
         public Expression ToCatchBody(
-            Expression exceptionVariable, 
+            Expression exceptionVariable,
             Type returnType,
             IMemberMapperData mapperData)
         {
@@ -30,24 +31,23 @@
 
             Type[] contextTypes;
             Expression contextAccess;
+            MethodInfo exceptionContextCreateMethod;
 
             if (callbackActionType.IsGenericType())
             {
                 contextTypes = callbackActionType.GetGenericTypeArguments();
                 contextAccess = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
+                exceptionContextCreateMethod = ObjectMappingExceptionData.CreateTypedMethod;
             }
             else
             {
                 contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
                 contextAccess = mapperData.MappingDataObject;
+                exceptionContextCreateMethod = ObjectMappingExceptionData.CreateMethod;
             }
 
-            var exceptionContextCreateMethod = ObjectMappingExceptionData
-                .CreateMethod
-                .MakeGenericMethod(contextTypes);
-
             var createExceptionContextCall = Expression.Call(
-                exceptionContextCreateMethod,
+                exceptionContextCreateMethod.MakeGenericMethod(contextTypes),
                 contextAccess,
                 exceptionVariable);
 
