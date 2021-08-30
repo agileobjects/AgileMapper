@@ -120,10 +120,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private static Expression AddExistingTargetCheckIfAppropriate(Expression value, IMemberMapperData mapperData)
         {
             if ((value.NodeType == ExpressionType.Default) ||
-                 mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
+                mapperData.RuleSet.Settings.UseSingleRootMappingExpression ||
                 !mapperData.TargetMember.IsReadable ||
-                 mapperData.TargetMemberIsUserStruct() ||
-                 mapperData.TargetIsDefinitelyUnpopulated())
+                mapperData.TargetMemberIsUserStruct() ||
+                mapperData.TargetIsDefinitelyUnpopulated())
             {
                 return value;
             }

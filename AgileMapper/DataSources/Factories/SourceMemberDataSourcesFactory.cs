@@ -68,13 +68,13 @@
         {
             return context.ConfiguredDataSources.Any() &&
                    context.ConfiguredDataSources.Last().IsConditional &&
-                  (context.MatchingSourceMemberDataSource.SourceMember != null);
+                  (context.BestSourceMemberMatch.SourceMember != null);
         }
 
         private static bool UseConfiguredDataSourcesOnly(this DataSourceFindContext context)
         {
             return context.BestSourceMemberMatch.IsUseable ||
-                  (context.MatchingSourceMemberDataSource.SourceMember == null);
+                  (context.BestSourceMemberMatch.SourceMember == null);
         }
 
         private static bool ReturnSimpleTypeToTargetDataSources(this DataSourceFindContext context)

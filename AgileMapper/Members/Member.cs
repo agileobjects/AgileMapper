@@ -1,12 +1,12 @@
 namespace AgileObjects.AgileMapper.Members
 {
     using System;
-    using System.Reflection;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
     using System.Linq.Expressions;
 #endif
+    using System.Reflection;
     using AgileMapper.Extensions;
     using AgileMapper.Extensions.Internal;
     using Dictionaries;

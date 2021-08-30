@@ -14,7 +14,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public MapperDataContext(IMemberMapperData childMapperData)
             : this(
                 childMapperData.Parent,
-                IsForStandaloneMapping(childMapperData),
+                RuntimeTypesNeeded(childMapperData),
                 childMapperData.Parent.Context.IsForDerivedType,
                 childMapperData)
         {
@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Setup
 
-        private static bool IsForStandaloneMapping(ITypePair mapperData)
+        private static bool RuntimeTypesNeeded(ITypePair mapperData)
             => mapperData.SourceType.RuntimeTypeNeeded() || mapperData.TargetType.RuntimeTypeNeeded();
 
         #endregion

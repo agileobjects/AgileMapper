@@ -67,7 +67,7 @@
             var mappingValues = new MappingValues(
                 sourceValue,
                 targetValue,
-                typeof(int?).ToDefaultExpression(),
+                Constants.NullInt,
                 Constants.NullObject);
 
             var inlineMappingBlock = MappingFactory.GetInlineMappingBlock(

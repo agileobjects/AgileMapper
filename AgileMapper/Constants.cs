@@ -22,6 +22,7 @@
 
         public static readonly Expression EmptyExpression = Expression.Empty();
 
+        public static readonly Expression NullInt = typeof(int?).ToDefaultExpression();
         public static readonly Expression NullObject = typeof(object).ToDefaultExpression();
 
         public static readonly ParameterExpression ExecutionContextParameter =

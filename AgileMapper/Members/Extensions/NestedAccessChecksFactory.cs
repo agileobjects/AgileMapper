@@ -60,7 +60,7 @@
         private Dictionary<string, Expression> NestedAccessesByPath
             => _nestedAccessesByPath ??= new Dictionary<string, Expression>();
 
-        public Expression CreateFor(Expression expression)
+        private Expression CreateFor(Expression expression)
         {
             Visit(expression);
 
@@ -224,6 +224,7 @@
             switch (memberAccess.Member.Name)
             {
                 case nameof(IMappingData<int, int>.ElementIndex):
+                case nameof(IMappingData<int, int>.ElementKey):
                 case RootSourceMemberName:
                 case RootTargetMemberName:
                     return true;

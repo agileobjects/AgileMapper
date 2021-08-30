@@ -173,7 +173,7 @@ namespace AgileObjects.AgileMapper.Extensions.Internal
                             return AreEqual((TypeBinaryExpression)x, (TypeBinaryExpression)y);
                     }
 
-                    throw new NotImplementedException("Unable to equate Expressions of type " + x.NodeType);
+                    throw new NotSupportedException("Unable to equate Expressions of type " + x.NodeType);
                 }
             }
 

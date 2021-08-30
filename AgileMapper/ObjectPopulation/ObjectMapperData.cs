@@ -536,8 +536,22 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
-            // TODO:
-            var parentContext = Constants.ExecutionContextParameter;
+            Expression elementIndex, elementKey, parentContext;
+
+            if (IsRoot)
+            {
+                elementIndex = Constants.NullInt;
+                elementKey = Constants.NullObject;
+                parentContext = Constants.ExecutionContextParameter;
+            }
+            else
+            {
+                elementIndex = Parent.ElementIndex;
+                elementKey = Parent.ElementKey;
+
+                // TODO:
+                parentContext = Constants.ExecutionContextParameter;
+            }
 
             var mapCall = Expression.Call(
                 Constants.ExecutionContextParameter,
@@ -545,8 +559,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     .MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(this),
-                typeof(int?).ToDefaultExpression(), // TODO
-                typeof(object).ToDefaultExpression(),  // TODO
+                elementIndex,
+                elementKey,
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression(),
                 parentContext);
