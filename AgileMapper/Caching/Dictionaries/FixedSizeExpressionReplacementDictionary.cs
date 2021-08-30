@@ -21,5 +21,8 @@
 
         public static ISimpleDictionary<Expression, Expression> WithEquivalentKeys(int capacity)
             => new FixedSizeExpressionReplacementDictionary(capacity, ExpressionEvaluation.Equivalator);
+
+        public override ISimpleDictionary<Expression, Expression> Add(Expression key, Expression value)
+            => key != value ? base.Add(key, value) : this;
     }
 }
