@@ -22,6 +22,8 @@
     internal class NestedAccessChecksFactory : ExpressionVisitor
     {
         private readonly Expression _rootMappingData;
+        private readonly Expression _rootSourceParameter;
+        private readonly Expression _rootTargetParameter;
         private readonly bool _invertChecks;
         private ICollection<Expression> _stringMemberAccessSubjects;
         private ICollection<string> _nullCheckSubjects;
@@ -29,7 +31,13 @@
 
         private NestedAccessChecksFactory(IMemberMapperData mapperData, bool invertChecks)
         {
-            _rootMappingData = mapperData?.RootMappingDataObject;
+            if (mapperData != null)
+            {
+                _rootMappingData = mapperData.RootMappingDataObject;
+                _rootSourceParameter = mapperData.SourceObject;
+                _rootTargetParameter = mapperData.TargetObject;
+            }
+
             _invertChecks = invertChecks;
         }
 
@@ -342,7 +350,8 @@
             }
 
             if (memberAccess.Type.CannotBeNull() ||
-             ((_rootMappingData != null) && !memberAccess.IsRootedIn(_rootMappingData)))
+             ((_rootSourceParameter != null) && 
+               !memberAccess.IsRootedIn(_rootSourceParameter, _rootTargetParameter)))
             {
                 return false;
             }

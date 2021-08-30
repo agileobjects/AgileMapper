@@ -292,15 +292,21 @@
             return Expression.Call(typedToEnumerableMethod, enumerable);
         }
 
-        public static bool IsRootedIn(this Expression expression, Expression possibleParent)
+        public static bool IsRootedIn(
+            this Expression expression,
+            params Expression[] possibleParents)
         {
             var parent = expression.GetParentOrNull();
+            var parentCount = possibleParents.Length;
 
             while (parent != null)
             {
-                if (parent == possibleParent)
+                for (var i = 0; i < parentCount; ++i)
                 {
-                    return true;
+                    if (parent == possibleParents[i])
+                    {
+                        return true;
+                    }
                 }
 
                 parent = parent.GetParentOrNull();
