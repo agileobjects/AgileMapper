@@ -38,7 +38,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private List<ObjectMapperData> _derivedMapperDatas;
         private Dictionary<QualifiedMember, IDataSourceSet> _dataSourcesByTargetMember;
         private bool? _isRepeatMapping;
-        private bool _isEntryPoint;
 
         private ObjectMapperData(
             IMappingContext mappingContext,
@@ -483,11 +482,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public override bool IsEntryPoint
-            => _isEntryPoint || IsRoot || Context.IsStandalone || IsRepeatMapping;
+            => IsRoot || Context.IsStandalone || IsRepeatMapping;
 
-        public void SetEntryPoint() => _isEntryPoint = true;
-
-        public bool IsRepeatMapping => (_isRepeatMapping ??= this.IsRepeatMapping());
+        public bool IsRepeatMapping => _isRepeatMapping ??= this.IsRepeatMapping();
 
         public void RegisterRepeatedMapperFunc(IObjectMappingData mappingData)
         {

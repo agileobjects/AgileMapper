@@ -9,21 +9,28 @@ namespace AgileObjects.AgileMapper.Members
         private TypeKey(Type type, KeyType keyType, string name = null)
         {
             Type = type;
-            Name = name;
 
             unchecked
             {
                 _hashCode = ((int)keyType * 397) ^ type.GetHashCode();
+
+                if (name == null)
+                {
+                    return;
+                }
+
+                Name = name;
+                _hashCode = (_hashCode * 397) ^ name.GetHashCode();
             }
         }
 
-        public static TypeKey ForSourceMembers(Type type) => new TypeKey(type, KeyType.SourceMembers);
+        public static TypeKey ForSourceMembers(Type type) => new(type, KeyType.SourceMembers);
 
-        public static TypeKey ForTargetMembers(Type type) => new TypeKey(type, KeyType.TargetMembers);
+        public static TypeKey ForTargetMembers(Type type) => new(type, KeyType.TargetMembers);
 
-        public static TypeKey ForTypeId(Type type) => new TypeKey(type, KeyType.TypeId);
+        public static TypeKey ForTypeId(Type type) => new(type, KeyType.TypeId);
 
-        public static TypeKey ForParameter(Type type, string name) => new TypeKey(type, KeyType.Parameter, name);
+        public static TypeKey ForParameter(Type type, string name) => new(type, KeyType.Parameter, name);
 
         public Type Type { get; }
 

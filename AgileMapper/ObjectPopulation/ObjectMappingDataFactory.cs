@@ -59,7 +59,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 createMapper);
         }
 
-        private static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
+        public static ObjectMappingData<TSource, TTarget> ForRootFixedTypes<TSource, TTarget>(
             TSource source,
             TTarget target,
             MappingTypes mappingTypes,
@@ -69,8 +69,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new ObjectMappingData<TSource, TTarget>(
                 source,
                 target,
-                default(int?),   // <- No element index because we're at the root
-                default(object), // <- No element key because we're at the root
+                elementIndex: default,   // <- No element index because we're at the root
+                elementKey: default, // <- No element key because we're at the root
                 mappingTypes,
                 mappingContext,
                 parent: null,
@@ -80,36 +80,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public static IObjectMappingData ForRoot<TSource, TTarget>(
             TSource source,
             TTarget target,
+            MappingTypes mappingTypes,
             IMappingContext mappingContext)
         {
-            MappingTypes mappingTypes;
-
-            if ((target == null) && (typeof(TTarget) == typeof(object)))
-            {
-                // This is a 'create new' mapping where the target type has come 
-                // through as 'object'. This happens when you use .ToANew<dynamic>(),
-                // and I can't see how to differentiate that from .ToANew<object>().
-                // Given that the former is more likely and that people asking for 
-                // .ToANew<object>() are doing something weird, default the target 
-                // type to ExpandoObject:
-                mappingTypes = MappingTypes.For(source, default(ExpandoObject));
-
-                return Create(
-                    source,
-                    default(ExpandoObject),
-                    default(int?),
-                    default(object),
-                    mappingTypes,
-                    mappingContext);
-            }
-
-            mappingTypes = MappingTypes.For(source, target);
-
             return Create(
                 source,
                 target,
-                default(int?),
-                default(object),
+                elementIndex: default,
+                elementKey: default,
                 mappingTypes,
                 mappingContext);
         }
@@ -163,8 +141,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return Create(
                 default(TSource),
                 default(TTarget),
-                default(int?),
-                default(object),
+                elementIndex: default,
+                elementKey: default,
                 mapperKey,
                 parentMappingData);
         }

@@ -10,6 +10,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal static class CachingExtensions
     {
+        public static ParameterExpression GetOrCreateSourceParameter(this Type type)
+            => type.GetOrCreateParameter("source");
+
+        public static ParameterExpression GetOrCreateTargetParameter(this Type type)
+            => type.GetOrCreateParameter("target");
+
         public static ParameterExpression GetOrCreateParameter(this Type type, string name = null)
         {
             if (type == null)

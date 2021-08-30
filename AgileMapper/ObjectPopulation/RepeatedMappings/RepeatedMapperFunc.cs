@@ -22,7 +22,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             if (lazyLoadFuncs)
             {
                 _mappingFuncLock = new object();
-                _mapperData.SetEntryPoint();
                 return;
             }
 
@@ -43,7 +42,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 
             EnsureFunc(typedData);
 
-            return _repeatedMappingFunc.Invoke(typedData);
+            return _repeatedMappingFunc.Invoke(
+                typedData.Source,
+                typedData.Target,
+                context: null);
         }
 
         private void EnsureFunc(ObjectMappingData<TChildSource, TChildTarget> mappingData)

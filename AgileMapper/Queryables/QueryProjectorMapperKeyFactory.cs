@@ -1,18 +1,20 @@
 ﻿namespace AgileObjects.AgileMapper.Queryables
 {
     using System.Linq;
-    using ObjectPopulation;
     using ObjectPopulation.MapperKeys;
 
     internal static class QueryProjectorMapperKeyFactory
     {
-        public static ObjectMapperKeyBase Create(IObjectMappingData mappingData)
+        public static ObjectMapperKeyBase Create(IEntryPointMappingContext context)
         {
-            var providerType = mappingData.GetSource<IQueryable>().Provider.GetType();
+            var mappingTypes = context.MappingTypes;
+            var providerType = context.GetSource<IQueryable>().Provider.GetType();
+            var mapperContext = context.MapperContext;
 
-            return new QueryProjectorKey(mappingData.MappingTypes, providerType, mappingData.MappingContext.MapperContext)
+            return new QueryProjectorKey(mappingTypes, providerType, mapperContext)
             {
-                MappingData = mappingData
+                MappingData = null,
+                // TODO: MappingContext = context
             };
         }
     }

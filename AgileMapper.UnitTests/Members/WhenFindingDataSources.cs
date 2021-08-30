@@ -47,7 +47,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             var targetMember = TargetMemberFor(childMemberExpression);
 
             var mappingContext = new SimpleMappingContext(DefaultMapperContext.RuleSets.CreateNew, DefaultMapperContext);
-            var rootMappingData = ObjectMappingDataFactory.ForRoot(source, target, mappingContext);
+            var rootMappingData = ObjectMappingDataFactory.ForRoot(source, target, MappingTypes<TSource, TTarget>.Fixed, mappingContext);
             var rootMapperData = rootMappingData.MapperData;
 
             var childMapperData = new ChildMemberMapperData(targetMember, rootMapperData);

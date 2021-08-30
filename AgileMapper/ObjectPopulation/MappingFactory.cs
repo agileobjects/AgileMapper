@@ -270,7 +270,8 @@
             Expression mappingExpression,
             ObjectMapperData mapperData)
         {
-            if (mapperData.Context.IsForDerivedType ||
+            if (mapperData.IsEntryPoint ||
+                mapperData.Context.IsForDerivedType ||
                !mapperData.Context.IsStandalone ||
                 mapperData.UseSingleMappingExpression())
             {

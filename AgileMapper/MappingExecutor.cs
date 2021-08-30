@@ -5,21 +5,30 @@
 #if FEATURE_DYNAMIC
     using System.Dynamic;
 #endif
+    using System.Linq;
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Extensions;
     using Extensions.Internal;
+    using NetStandardPolyfills;
     using ObjectPopulation;
+    using ObjectPopulation.MapperKeys;
     using Plans;
 
     internal class MappingExecutor<TSource> :
         ITargetSelector<TSource>,
         IFlatteningSelector<TSource>,
         IUnflatteningSelector<TSource>,
-        IMappingContext
+        IEntryPointMappingContext,
+        IMappingExecutionContext
     {
         private readonly TSource _source;
+        private object _target;
+        private MappingTypes _mappingTypes;
+        private IRootMapperKey _rootMapperKey;
+        private Func<IObjectMappingData> _rootMappingDataFactory;
+        private Dictionary<object, List<object>> _mappedObjectsBySource;
 
         public MappingExecutor(MapperContext mapperContext, TSource source)
         {
@@ -30,8 +39,6 @@
         public MapperContext MapperContext { get; private set; }
 
         public MappingRuleSet RuleSet { get; private set; }
-
-        MappingPlanSettings IMappingContext.PlanSettings => MappingPlanSettings.Default.LazyPlanned;
 
         #region ToANew Overloads
 
@@ -130,19 +137,31 @@
 
         private TTarget PerformMapping<TTarget>(TTarget target)
         {
+            if (target != null)
+            {
+                _target = target;
+            }
+
             if (MappingTypes<TSource, TTarget>.SkipTypesCheck)
             {
                 // Optimise for the most common scenario:
-                var typedRootMappingData = ObjectMappingDataFactory
-                    .ForRootFixedTypes(_source, target, this, createMapper: true);
-
-                return typedRootMappingData.MapStart();
+                _mappingTypes = MappingTypes<TSource, TTarget>.Fixed;
+                _rootMappingDataFactory = CreateFixedTypeRootMappingData<TTarget>;
+            }
+            else
+            {
+                _mappingTypes = GetRuntimeMappingTypes(target);
             }
 
-            var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
-            var result = rootMappingData.MapStart();
+            //var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
+            //var result = rootMappingData.MapStart();
 
-            return (TTarget)result;
+            //return (TTarget)default(object);
+
+            var mapper = MapperContext.ObjectMapperFactory
+              .GetOrCreateRoot<TSource, TTarget>(this);
+
+            return mapper.Map(_source, target, this);
         }
 
         #region IFlatteningSelector Members
@@ -190,6 +209,97 @@
             params Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>[] configurations)
         {
             return configurations.Any() ? ToANew(configurations) : ToANew<TResult>();
+        }
+
+        #endregion
+
+        #region IMappingContext Members
+
+        MappingPlanSettings IMappingContext.PlanSettings => MappingPlanSettings.Default.LazyPlanned;
+
+        #endregion
+
+        #region IEntryPointMappingContext Members
+
+        MappingTypes IEntryPointMappingContext.MappingTypes => _mappingTypes;
+
+        IRootMapperKey IEntryPointMappingContext.GetRootMapperKey()
+            => _rootMapperKey ??= (IRootMapperKey)RuleSet.RootMapperKeyFactory.Invoke(this);
+
+        IObjectMappingData IEntryPointMappingContext.ToMappingData()
+            => _rootMappingDataFactory.Invoke();
+
+        T IEntryPointMappingContext.GetSource<T>()
+        {
+            if (typeof(TSource).IsAssignableTo(typeof(T)))
+            {
+                return (T)(object)_source;
+            }
+
+            return default;
+        }
+
+        private MappingTypes GetRuntimeMappingTypes<TTarget>(TTarget target)
+        {
+#if FEATURE_DYNAMIC
+            if ((target == null) && (typeof(TTarget) == typeof(object)))
+            {
+                // This is a 'create new' mapping where the target type has come 
+                // through as 'object'. This happens when you use .ToANew<dynamic>(),
+                // and I can't see how to differentiate that from .ToANew<object>().
+                // Given that the former is more likely and that people asking for 
+                // .ToANew<object>() are doing something weird, default the target 
+                // type to ExpandoObject:
+                _rootMappingDataFactory = CreateRuntimeTypedRootMappingData<ExpandoObject>;
+                return MappingTypes.For(_source, default(ExpandoObject));
+            }
+#endif
+            _rootMappingDataFactory = CreateRuntimeTypedRootMappingData<TTarget>;
+            return MappingTypes.For(_source, target);
+        }
+
+        private IObjectMappingData CreateFixedTypeRootMappingData<TTarget>()
+        {
+            return ObjectMappingDataFactory
+                .ForRootFixedTypes(_source, (TTarget)_target, _mappingTypes, this, createMapper: false);
+        }
+
+        private IObjectMappingData CreateRuntimeTypedRootMappingData<TTarget>()
+            => ObjectMappingDataFactory.ForRoot(_source, (TTarget)_target, _mappingTypes, this);
+
+        #endregion
+
+        #region IMappingExecutionContext Members
+
+        private Dictionary<object, List<object>> MappedObjectsBySource
+            => _mappedObjectsBySource ??= new Dictionary<object, List<object>>(13);
+
+        bool IMappingExecutionContext.TryGet<TKey, TComplex>(
+            TKey key,
+            out TComplex complexType)
+            where TComplex : class
+        {
+            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
+            {
+                complexType = mappedTargets.OfType<TComplex>().FirstOrDefault();
+                return complexType != null;
+            }
+
+            complexType = default;
+            return false;
+        }
+
+        void IMappingExecutionContext.Register<TKey, TComplex>(
+            TKey key,
+            TComplex complexType)
+        {
+            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
+            {
+                mappedTargets.Add(complexType);
+                return;
+            }
+
+            _mappedObjectsBySource[key] = new List<object> { complexType };
         }
 
         #endregion

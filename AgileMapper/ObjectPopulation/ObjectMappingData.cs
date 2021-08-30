@@ -2,6 +2,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -78,7 +79,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (createMapper)
             {
-                _mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this);
+                // TODO:
+                //_mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this, mappingContext);
             }
         }
 
@@ -92,7 +94,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IRootMapperKey EnsureRootMapperKey()
         {
-            MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.Invoke(this);
+            // TODO:
+            //MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.Invoke(this);
 
             return (IRootMapperKey)MapperKey;
         }
@@ -226,7 +229,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         object IObjectMappingData.MapStart() => MapStart();
 
-        public TTarget MapStart() => _mapper.Map(this);
+        public TTarget MapStart() => _mapper.Map(Source, Target, context: null);
 
         public TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
@@ -354,7 +357,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
             {
-                complexType = (TComplex)mappedTargets.FirstOrDefault(t => t is TComplex);
+                complexType = mappedTargets.OfType<TComplex>().FirstOrDefault();
                 return complexType != null;
             }
 
@@ -403,10 +406,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MapperData.TargetType,
                 IsPartOfDerivedTypeMapping);
 
-            newSourceMappingData.MapperKey = MappingContext
-                .RuleSet
-                .RootMapperKeyFactory
-                .Invoke(newSourceMappingData);
+            // TODO:
+            //newSourceMappingData.MapperKey = MappingContext
+            //    .RuleSet
+            //    .RootMapperKeyFactory
+            //    .Invoke(newSourceMappingData);
 
             var newSourceMapperData = newSourceMappingData.MapperData;
 

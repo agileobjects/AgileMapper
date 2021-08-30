@@ -29,11 +29,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
         public override IMembersSource GetMembersSource(ObjectMapperData parentMapperData)
         {
-            return _childMemberSource ?? (_childMemberSource =
-                new MemberLookupsChildMembersSource(
-                    parentMapperData,
-                    _targetMemberRegistrationName,
-                    _dataSourceIndex));
+            return _childMemberSource ??= new MemberLookupsChildMembersSource(
+                parentMapperData,
+                _targetMemberRegistrationName,
+                _dataSourceIndex);
         }
 
         protected override ObjectMapperKeyBase CreateInstance(MappingTypes newMappingTypes)
@@ -45,7 +44,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
         public override bool Equals(object obj)
         {
-            if (!(obj is ChildObjectMapperKey otherChildKey))
+            if (obj is not ChildObjectMapperKey otherChildKey)
             {
                 return Equals((ITypedMapperKey)obj);
             }

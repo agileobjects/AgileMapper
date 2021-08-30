@@ -9,9 +9,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
     {
         private readonly IMembersSource _membersSource;
 
-        public RootObjectMapperKey(MappingTypes mappingTypes, IMappingContext mappingContext)
-            : this(mappingContext.RuleSet, mappingTypes, mappingContext.MapperContext.RootMembersSource)
+        public RootObjectMapperKey(IEntryPointMappingContext context)
+            : this(context.RuleSet, context.MappingTypes, context.MapperContext.RootMembersSource)
         {
+            MappingContext = context;
         }
 
         public RootObjectMapperKey(MappingRuleSet ruleSet, MappingTypes mappingTypes, IMembersSource membersSource)

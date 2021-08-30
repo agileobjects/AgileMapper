@@ -287,6 +287,18 @@
             return population;
         }
 
+        public static void SetContext(this QualifiedMember targetMember, MapperContext mapperContext)
+        {
+            // ReSharper disable once ObjectCreationAsStatement
+            new QualifiedMemberContext(
+                MappingRuleSet.All,
+                typeof(object),
+                typeof(object),
+                targetMember,
+                parent: null,
+                mapperContext);
+        }
+
         public static QualifiedMember ToSourceMemberOrNull(
             this Expression memberAccess,
             MapperContext mapperContext)

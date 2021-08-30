@@ -129,14 +129,13 @@ namespace AgileObjects.AgileMapper.Members
         #region Factory Methods
 
         public static QualifiedMember CreateRoot(Member rootMember, MapperContext mapperContext)
-            => new QualifiedMember(rootMember, null, mapperContext);
+            => new(rootMember, null, mapperContext);
 
         public static QualifiedMember Create(Member[] memberChain, MapperContext mapperContext)
         {
             var qualifiedMember = new QualifiedMember(memberChain, Enumerable<string>.EmptyArray, mapperContext);
 
-            QualifiedMemberContext.Set(qualifiedMember, mapperContext);
-
+            qualifiedMember.SetContext(mapperContext);
             return qualifiedMember;
         }
 

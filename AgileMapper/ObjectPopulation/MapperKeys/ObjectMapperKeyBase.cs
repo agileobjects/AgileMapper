@@ -16,6 +16,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
         public abstract IMembersSource GetMembersSource(ObjectMapperData parentMapperData);
 
+        public IObjectMappingData CreateMappingData()
+        {
+            var mappingData = MappingContext.ToMappingData();
+            mappingData.MapperKey = this;
+            return mappingData;
+        }
+
         public ObjectMapperKeyBase WithTypes(Type newSourceType, Type newTargetType, bool forceNewKey)
         {
             if (!forceNewKey && MappingTypes.RuntimeTypesAreTheSame)

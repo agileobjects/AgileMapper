@@ -51,29 +51,19 @@ namespace AgileObjects.AgileMapper.Members
             if (parent == null)
             {
                 IsRoot = true;
+                IsEntryPoint = true;
             }
             else
             {
                 _parent = parent;
+                IsEntryPoint = sourceType == typeof(object);
             }
 
             SourceType = sourceType;
             TargetType = targetType;
             RuleSet = ruleSet;
             MapperContext = mapperContext;
-            TargetMember = (targetMember?.SetContext(this)) ?? QualifiedMember.All;
-        }
-
-        public static void Set(QualifiedMember qualifiedMember, MapperContext mapperContext)
-        {
-            // ReSharper disable once ObjectCreationAsStatement
-            new QualifiedMemberContext(
-                MappingRuleSet.All,
-                typeof(object),
-                typeof(object),
-                qualifiedMember,
-                null,
-                mapperContext);
+            TargetMember = targetMember?.SetContext(this) ?? QualifiedMember.All;
         }
 
         public MapperContext MapperContext { get; }
@@ -82,7 +72,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsRoot { get; }
 
-        public virtual bool IsEntryPoint => IsRoot || SourceType == typeof(object);
+        public virtual bool IsEntryPoint { get; }
 
         public MappingRuleSet RuleSet { get; }
 
@@ -98,7 +88,7 @@ namespace AgileObjects.AgileMapper.Members
             => typePair.HasTypesCompatibleWith(this);
 
         bool ITypePair.IsForSourceType(ITypePair typePair) => this.IsForSourceType(typePair);
-        
+
         bool ITypePair.IsForTargetType(ITypePair typePair) => this.IsForTargetType(typePair);
     }
 }

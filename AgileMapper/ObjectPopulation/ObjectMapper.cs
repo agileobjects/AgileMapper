@@ -64,20 +64,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         #region Setup
 
-        private TTarget LazyCompileMapperFunc(ObjectMappingData<TSource, TTarget> mappingData)
+        private TTarget LazyCompileMapperFunc(
+            TSource source,
+            TTarget target,
+            IMappingExecutionContext context)
         {
             lock (_lazyMapperFuncSync)
             {
                 if (_mapperFuncCompiled)
                 {
-                    return Map(mappingData);
+                    goto DoMapping;
                 }
 
                 _mapperFunc = CompileMapperFunc();
                 _mapperFuncCompiled = true;
             }
 
-            return Map(mappingData);
+            DoMapping:
+            return Map(source, target, context);
         }
 
         private MapperFunc<TSource, TTarget> CompileMapperFunc()
@@ -132,7 +136,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                 Mapping,
-                MapperData.MappingDataObject);
+                (ParameterExpression)MapperData.SourceObject,
+                (ParameterExpression)MapperData.TargetObject,
+                Constants.ExecutionContextParameter);
         }
 
         public ObjectMapperData MapperData { get; }
@@ -151,9 +157,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return _subMappersByKey?.Values.All(subMapperByKey => subMapperByKey.IsStaticallyCacheable()) == true;
         }
 
-        public object Map(IObjectMappingData mappingData) => Map((ObjectMappingData<TSource, TTarget>)mappingData);
+        public object Map(IObjectMappingData mappingData)
+            //=> Map((ObjectMappingData<TSource, TTarget>)mappingData);
+            => null;
 
-        public TTarget Map(ObjectMappingData<TSource, TTarget> mappingData) => _mapperFunc.Invoke(mappingData);
+        public TTarget Map(TSource source, TTarget target, IMappingExecutionContext context)
+            => _mapperFunc.Invoke(source, target, context);
 
         public object MapSubObject(IObjectMappingData mappingData)
         {

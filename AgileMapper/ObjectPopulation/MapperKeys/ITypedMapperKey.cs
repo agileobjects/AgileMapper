@@ -4,6 +4,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
     {
         MappingTypes MappingTypes { get; }
 
+        IEntryPointMappingContext MappingContext { get; }
+
+        IObjectMappingData CreateMappingData();
+
         bool Equals(ITypedMapperKey otherKey);
     }
 }

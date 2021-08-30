@@ -13,6 +13,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class MemberMapperDataBase : QualifiedMemberContext
     {
+        private Expression _sourceObject;
+        private Expression _targetObject;
+
         protected MemberMapperDataBase(
             MappingRuleSet ruleSet,
             IQualifiedMember sourceMember,
@@ -31,8 +34,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             Parent = parent;
             MappingDataObject = CreateMappingDataObject();
             MappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
-            SourceObject = GetMappingDataProperty(MappingDataType, Member.RootSourceMemberName);
-            TargetObject = GetMappingDataProperty(Member.RootTargetMemberName);
         }
 
         #region Setup
@@ -80,17 +81,57 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public ParameterExpression MappingDataObject { get; }
 
-        public Expression SourceObject { get; set; }
+        public Expression SourceObject
+        {
+            get
+            {
+                if (_sourceObject == null)
+                {
+                    PopulateSourceAndTarget();
+                }
 
-        public Expression TargetObject { get; set; }
+                return _sourceObject;
+            }
+            set => _sourceObject = value;
+        }
+
+        public Expression TargetObject
+        {
+            get
+            {
+                if (_targetObject == null)
+                {
+                    PopulateSourceAndTarget();
+                }
+
+                return _targetObject;
+            }
+            set => _targetObject = value;
+        }
+
+        private void PopulateSourceAndTarget()
+        {
+            if (IsEntryPoint)
+            {
+                SourceObject = SourceType.GetOrCreateSourceParameter();
+                TargetObject = TargetType.GetOrCreateTargetParameter();
+                return;
+            }
+
+            SourceObject = SourceMember.GetQualifiedAccess(Parent.SourceObject);
+            TargetObject = TargetMember.GetQualifiedAccess(Parent.TargetObject);
+
+            //SourceObject = GetMappingDataProperty(MappingDataType, Member.RootSourceMemberName);
+            //TargetObject = GetMappingDataProperty(Member.RootTargetMemberName);
+        }
 
         private Type MappingDataType { get; }
 
         protected Expression GetElementIndexAccess()
-            => GetMappingDataProperty(MappingDataType, "ElementIndex");
+            => GetMappingDataProperty(MappingDataType, nameof(IMemberMapperData.ElementIndex));
 
         protected Expression GetElementKeyAccess()
-            => GetMappingDataProperty(MappingDataType, "ElementKey");
+            => GetMappingDataProperty(MappingDataType, nameof(IMemberMapperData.ElementKey));
 
         protected Expression GetParentObjectAccess()
             => GetMappingDataProperty(nameof(Parent));

@@ -20,7 +20,10 @@
             Context = new MapperDataContext(this);
         }
 
-        public ChildMemberMapperData(IQualifiedMember sourceMember, QualifiedMember targetMember, ObjectMapperData parent)
+        public ChildMemberMapperData(
+            IQualifiedMember sourceMember,
+            QualifiedMember targetMember,
+            ObjectMapperData parent)
             : base(
                 parent.RuleSet,
                 sourceMember.Type,
@@ -36,7 +39,7 @@
 
         public override bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
 
-        private bool IsRepeatMapping => (_isRepeatMapping ?? (_isRepeatMapping = this.IsRepeatMapping())).Value;
+        private bool IsRepeatMapping => _isRepeatMapping ??= this.IsRepeatMapping();
 
         public ObjectMapperData Parent { get; }
 
@@ -45,7 +48,7 @@
         public Expression ParentObject => Parent.ParentObject;
 
         public ParameterExpression MappingDataObject => Parent.MappingDataObject;
-        
+
         public Expression RootMappingDataObject => Parent.RootMappingDataObject;
 
         public Expression SourceObject => Parent.SourceObject;
