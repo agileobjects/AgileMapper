@@ -36,16 +36,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 
         public bool HasDerivedTypes => _mapperData.DerivedMapperDatas.Any();
 
-        public object Map(IObjectMappingData mappingData)
+        public object Map(object source, object target, IMappingExecutionContext context)
         {
-            var typedData = (ObjectMappingData<TChildSource, TChildTarget>)mappingData;
+            // TODO
+            var typedData = default(ObjectMappingData<TChildSource, TChildTarget>);
 
             EnsureFunc(typedData);
 
-            return _repeatedMappingFunc.Invoke(
-                typedData.Source,
-                typedData.Target,
-                context: null);
+            return _repeatedMappingFunc
+                .Invoke((TChildSource)source, (TChildTarget)target, context);
         }
 
         private void EnsureFunc(ObjectMappingData<TChildSource, TChildTarget> mappingData)

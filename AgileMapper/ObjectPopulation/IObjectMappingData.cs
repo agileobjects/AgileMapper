@@ -63,28 +63,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         TTarget CreatedObject { get; set; }
 
         /// <summary>
-        /// Map the given <paramref name="sourceValue"/> to the given <paramref name="targetValue"/>.
-        /// </summary>
-        /// <typeparam name="TDeclaredSource">
-        /// The declared type of the given <paramref name="sourceValue"/>.
-        /// </typeparam>
-        /// <typeparam name="TDeclaredTarget">
-        /// The declared type of the given <paramref name="targetValue"/>.
-        /// </typeparam>
-        /// <param name="sourceValue">The source object from which to map.</param>
-        /// <param name="targetValue">The target object to which to map.</param>
-        /// <param name="targetMemberName">The name of the target member being mapped.</param>
-        /// <param name="dataSourceIndex">
-        /// The index of the data source being used to perform the mapping.
-        /// </param>
-        /// <returns>The mapping result.</returns>
-        TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceValue,
-            TDeclaredTarget targetValue,
-            string targetMemberName,
-            int dataSourceIndex);
-
-        /// <summary>
         /// Map the given <paramref name="sourceElement"/> to the given <paramref name="targetElement"/>.
         /// </summary>
         /// <typeparam name="TSourceElement">

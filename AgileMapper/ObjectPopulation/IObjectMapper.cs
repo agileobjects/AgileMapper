@@ -6,6 +6,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #else
     using System.Linq.Expressions;
 #endif
+    using MapperKeys;
     using RepeatedMappings;
 
     internal interface IObjectMapper : IObjectMapperFunc
@@ -19,6 +20,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         void CacheRepeatedMappingFuncs();
 
         bool IsStaticallyCacheable();
+
+        object MapSubObject(
+            object source,
+            object target,
+            IMappingExecutionContext context,
+            ObjectMapperKeyBase mapperKey);
 
         void Reset();
     }

@@ -239,7 +239,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 parent);
         }
 
-        private static IObjectMappingData Create<TDeclaredSource, TDeclaredTarget>(
+        public static IObjectMappingData Create<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource source,
             TDeclaredTarget target,
             int? elementIndex,

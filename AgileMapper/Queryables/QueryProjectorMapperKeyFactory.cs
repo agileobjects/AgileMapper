@@ -13,8 +13,7 @@
 
             return new QueryProjectorKey(mappingTypes, providerType, mapperContext)
             {
-                MappingData = null,
-                // TODO: MappingContext = context
+                MappingContext = context
             };
         }
     }

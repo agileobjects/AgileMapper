@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 _mapperFuncCompiled = true;
             }
 
-            DoMapping:
+        DoMapping:
             return Map(source, target, context);
         }
 
@@ -157,22 +157,23 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return _subMappersByKey?.Values.All(subMapperByKey => subMapperByKey.IsStaticallyCacheable()) == true;
         }
 
-        public object Map(IObjectMappingData mappingData)
-            //=> Map((ObjectMappingData<TSource, TTarget>)mappingData);
-            => null;
+        public object Map(object source, object target, IMappingExecutionContext context)
+            => Map((TSource)source, (TTarget)target, context);
 
         public TTarget Map(TSource source, TTarget target, IMappingExecutionContext context)
             => _mapperFunc.Invoke(source, target, context);
 
-        public object MapSubObject(IObjectMappingData mappingData)
+        public object MapSubObject(
+            object source,
+            object target,
+            IMappingExecutionContext context,
+            ObjectMapperKeyBase mapperKey)
         {
-            mappingData.MapperKey.MappingData = mappingData;
-
             var mapper = _subMappersByKey.GetOrAdd(
-                mappingData.MapperKey,
-                key => key.MappingData.GetOrCreateMapper());
+                mapperKey,
+                key => key.CreateMappingData().GetOrCreateMapper());
 
-            return mapper.Map(mappingData);
+            return mapper.Map(source, target, context);
         }
 
         public object MapRepeated(IObjectMappingData childMappingData)
@@ -180,7 +181,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperFunc = _repeatedMappingFuncsByKey
                 .GetOrAdd(childMappingData.MapperKey, null);
 
-            return mapperFunc.Map(childMappingData);
+            // TODO
+            return mapperFunc.Map(null, null, null);
         }
 
         public ObjectMapper<TSource, TTarget> WithResetCallback(Action callback)

@@ -5,40 +5,41 @@
 #if FEATURE_DYNAMIC
     using System.Dynamic;
 #endif
-    using System.Linq;
     using System.Linq.Expressions;
     using Api;
     using Api.Configuration;
     using Extensions;
     using Extensions.Internal;
-    using NetStandardPolyfills;
     using ObjectPopulation;
     using ObjectPopulation.MapperKeys;
     using Plans;
 
     internal class MappingExecutor<TSource> :
+        MappingExecutionContextBase2<TSource>,
         ITargetSelector<TSource>,
         IFlatteningSelector<TSource>,
-        IUnflatteningSelector<TSource>,
-        IEntryPointMappingContext,
-        IMappingExecutionContext
+        IUnflatteningSelector<TSource>
     {
         private readonly TSource _source;
         private object _target;
+        private MapperContext _mapperContext;
+        private MappingRuleSet _ruleSet;
         private MappingTypes _mappingTypes;
-        private IRootMapperKey _rootMapperKey;
+        private ObjectMapperKeyBase _rootMapperKey;
         private Func<IObjectMappingData> _rootMappingDataFactory;
-        private Dictionary<object, List<object>> _mappedObjectsBySource;
+        private IObjectMappingData _rootMappingData;
+        private IObjectMapper _rootMapper;
 
         public MappingExecutor(MapperContext mapperContext, TSource source)
+            : base(source, parent: null)
         {
-            MapperContext = mapperContext.ThrowIfDisposed();
+            _mapperContext = mapperContext.ThrowIfDisposed();
             _source = source;
         }
 
-        public MapperContext MapperContext { get; private set; }
+        public override MapperContext MapperContext => _mapperContext;
 
-        public MappingRuleSet RuleSet { get; private set; }
+        public override MappingRuleSet RuleSet => _ruleSet;
 
         #region ToANew Overloads
 
@@ -114,7 +115,7 @@
                 return target;
             }
 
-            RuleSet = ruleSet;
+            _ruleSet = ruleSet;
 
             return PerformMapping(target);
         }
@@ -129,8 +130,8 @@
                 return target;
             }
 
-            RuleSet = ruleSet;
-            MapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
+            _ruleSet = ruleSet;
+            _mapperContext = MapperContext.InlineContexts.GetContextFor(configurations, this);
 
             return PerformMapping(target);
         }
@@ -161,6 +162,7 @@
             var mapper = MapperContext.ObjectMapperFactory
               .GetOrCreateRoot<TSource, TTarget>(this);
 
+            _rootMapper = mapper;
             return mapper.Map(_source, target, this);
         }
 
@@ -215,29 +217,21 @@
 
         #region IMappingContext Members
 
-        MappingPlanSettings IMappingContext.PlanSettings => MappingPlanSettings.Default.LazyPlanned;
+        public override MappingPlanSettings PlanSettings => MappingPlanSettings.Default.LazyPlanned;
 
         #endregion
 
         #region IEntryPointMappingContext Members
 
-        MappingTypes IEntryPointMappingContext.MappingTypes => _mappingTypes;
+        public override MappingTypes MappingTypes => _mappingTypes;
 
-        IRootMapperKey IEntryPointMappingContext.GetRootMapperKey()
-            => _rootMapperKey ??= (IRootMapperKey)RuleSet.RootMapperKeyFactory.Invoke(this);
+        public override ObjectMapperKeyBase GetMapperKey()
+            => _rootMapperKey ??= RuleSet.RootMapperKeyFactory.Invoke(this);
 
-        IObjectMappingData IEntryPointMappingContext.ToMappingData()
-            => _rootMappingDataFactory.Invoke();
+        public override IObjectMappingData ToMappingData()
+            => _rootMappingData ??= _rootMappingDataFactory.Invoke();
 
-        T IEntryPointMappingContext.GetSource<T>()
-        {
-            if (typeof(TSource).IsAssignableTo(typeof(T)))
-            {
-                return (T)(object)_source;
-            }
-
-            return default;
-        }
+        public override IObjectMapper GetRootMapper() => _rootMapper;
 
         private MappingTypes GetRuntimeMappingTypes<TTarget>(TTarget target)
         {
@@ -266,41 +260,6 @@
 
         private IObjectMappingData CreateRuntimeTypedRootMappingData<TTarget>()
             => ObjectMappingDataFactory.ForRoot(_source, (TTarget)_target, _mappingTypes, this);
-
-        #endregion
-
-        #region IMappingExecutionContext Members
-
-        private Dictionary<object, List<object>> MappedObjectsBySource
-            => _mappedObjectsBySource ??= new Dictionary<object, List<object>>(13);
-
-        bool IMappingExecutionContext.TryGet<TKey, TComplex>(
-            TKey key,
-            out TComplex complexType)
-            where TComplex : class
-        {
-            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
-            {
-                complexType = mappedTargets.OfType<TComplex>().FirstOrDefault();
-                return complexType != null;
-            }
-
-            complexType = default;
-            return false;
-        }
-
-        void IMappingExecutionContext.Register<TKey, TComplex>(
-            TKey key,
-            TComplex complexType)
-        {
-            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
-            {
-                mappedTargets.Add(complexType);
-                return;
-            }
-
-            _mappedObjectsBySource[key] = new List<object> { complexType };
-        }
 
         #endregion
     }

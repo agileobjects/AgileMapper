@@ -37,5 +37,43 @@
         /// <param name="key">The source object to register.</param>
         /// <param name="complexType">The result target object to register.</param>
         void Register<TKey, TComplex>(TKey key, TComplex complexType);
+
+        /// <summary>
+        /// Map the given <paramref name="sourceValue"/> to the given <paramref name="targetValue"/>.
+        /// </summary>
+        /// <typeparam name="TDeclaredSource">
+        /// The declared type of the given <paramref name="sourceValue"/>.
+        /// </typeparam>
+        /// <typeparam name="TDeclaredTarget">
+        /// The declared type of the given <paramref name="targetValue"/>.
+        /// </typeparam>
+        /// <param name="sourceValue">The source object from which to map.</param>
+        /// <param name="targetValue">The target object to which to map.</param>
+        /// <param name="targetMemberName">The name of the target member being mapped.</param>
+        /// <param name="dataSourceIndex">
+        /// The index of the data source being used to perform the mapping in the ser of matching
+        /// data sources.
+        /// </param>
+        /// <param name="elementIndex">
+        /// The index of the current enumerable element being mapped in the mapping context
+        /// described by this <see cref="IMappingExecutionContext"/>, if applicable.
+        /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingExecutionContext"/>, if applicable.
+        /// </param>
+        /// <param name="parent">
+        /// The <see cref="IMappingExecutionContext"/> describing the parent context of the given
+        /// <paramref name="sourceValue"/> and <paramref name="targetValue"/>.
+        /// </param>
+        /// <returns>The mapping result.</returns>
+        TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
+            int? elementIndex,
+            object elementKey,
+            string targetMemberName,
+            int dataSourceIndex,
+            IMappingExecutionContext parent);
     }
 }

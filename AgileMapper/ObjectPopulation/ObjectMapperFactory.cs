@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapper;
             }
 
-            var rootMapperKey = mappingContext.GetRootMapperKey();
+            var rootMapperKey = (IRootMapperKey)mappingContext.GetMapperKey();
 
             mapper = (ObjectMapper<TSource, TTarget>)_rootMappersCache.GetOrAdd(
                 rootMapperKey,

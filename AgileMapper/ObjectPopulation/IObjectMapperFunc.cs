@@ -6,11 +6,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
 #endif
 
-    internal interface IObjectMapperFuncBase
-    {
-        object Map(IObjectMappingData mappingData);
-    }
-
     internal interface IObjectMapperFunc : IObjectMapperFuncBase
     {
         Expression Mapping { get; }

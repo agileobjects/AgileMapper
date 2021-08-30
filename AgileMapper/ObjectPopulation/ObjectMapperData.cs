@@ -74,7 +74,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 ElementKey = GetElementKeyAccess();
                 ParentObject = GetParentObjectAccess();
             }
-            
+
             _mappedObjectCachingMode = MapperContext.UserConfigurations.CacheMappedObjects(this);
 
             if (targetMember.IsEnumerable)
@@ -536,14 +536,20 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
+            // TODO:
+            var parentContext = Constants.ExecutionContextParameter;
+
             var mapCall = Expression.Call(
-                MappingDataObject,
-                GetMapMethod(MappingDataObject.Type, typeof(int))
+                Constants.ExecutionContextParameter,
+                GetMapMethod(finalParameterType: typeof(IMappingExecutionContext))
                     .MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(this),
+                typeof(int?).ToDefaultExpression(), // TODO
+                typeof(object).ToDefaultExpression(),  // TODO
                 targetMember.RegistrationName.ToConstantExpression(),
-                dataSourceIndex.ToConstantExpression());
+                dataSourceIndex.ToConstantExpression(),
+                parentContext);
 
             return GetSimpleTypeCheckedMapCall(sourceObject, targetMember.Type, mapCall);
         }
@@ -564,7 +570,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mapCall = Expression.Call(
                 MappingDataObject,
-                GetMapMethod(MappingDataObject.Type, typeof(object))
+                GetMapMethod(typeof(object))
                     .MakeGenericMethod(sourceElement.Type, targetElement.Type),
                 sourceElement,
                 targetElement,
@@ -577,10 +583,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private static bool IsSimpleTypeToObjectMapping(Expression sourceObject, Type targetType)
             => sourceObject.Type.IsSimple() && (targetType == typeof(object));
 
-        private static MethodInfo GetMapMethod(Type mappingDataType, Type finalParameterType)
+        private static MethodInfo GetMapMethod(Type finalParameterType)
         {
-            return mappingDataType
-                .GetPublicInstanceMethods("Map")
+            return typeof(IMappingExecutionContext)
+                .GetPublicInstanceMethods(nameof(IMappingExecutionContext.Map))
                 .First(m => m.GetParameters().Last().ParameterType == finalParameterType);
         }
 

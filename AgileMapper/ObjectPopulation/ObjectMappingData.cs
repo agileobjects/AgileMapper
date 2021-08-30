@@ -110,6 +110,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapper = MapperContext.ObjectMapperFactory.Create(this);
 
             MapperKey.MappingData = null;
+            MapperKey.MappingContext = null;
 
             if (_mapper == null)
             {
@@ -231,23 +232,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public TTarget MapStart() => _mapper.Map(Source, Target, context: null);
 
-        public TDeclaredTarget Map<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceValue,
-            TDeclaredTarget targetValue,
-            string targetMemberRegistrationName,
-            int dataSourceIndex)
-        {
-            var childMappingData = GetChildMappingData(
-                sourceValue,
-                targetValue,
-                GetElementIndex(),
-                GetElementKey(),
-                targetMemberRegistrationName,
-                dataSourceIndex);
-
-            return (TDeclaredTarget)_mapper.MapSubObject(childMappingData);
-        }
-
         private IObjectMappingData GetChildMappingData<TDeclaredSource, TDeclaredTarget>(
             TDeclaredSource sourceValue,
             TDeclaredTarget targetValue,
@@ -274,7 +258,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             var elementMappingData = GetElementMappingData(sourceElement, targetElement, elementIndex, elementKey);
 
-            return (TTargetElement)_mapper.MapSubObject(elementMappingData);
+            // TODO
+            return (TTargetElement)_mapper.MapSubObject(null, null, null, null);
         }
 
         private IObjectMappingData GetElementMappingData<TSourceElement, TTargetElement>(
