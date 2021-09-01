@@ -13,7 +13,7 @@
     /// <typeparam name="T">The type of item stored in the collection.</typeparam>
     public class ReadOnlyCollectionWrapper<T> : IList<T>
     {
-        private static readonly ReadOnlyCollection<T> _emptyReadOnlyCollection = new ReadOnlyCollection<T>(Enumerable<T>.EmptyArray);
+        private static readonly ReadOnlyCollection<T> _emptyReadOnlyCollection = new(Enumerable<T>.EmptyArray);
 
         private readonly int _numberOfNewItems;
         private T[] _items;
