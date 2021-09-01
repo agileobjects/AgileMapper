@@ -10,9 +10,9 @@
         TSource GetSource<TSource>();
 
         ObjectMapperKeyBase GetMapperKey();
-
-        IObjectMappingData ToMappingData();
-
+        
         IObjectMapper GetRootMapper();
+        
+        IObjectMappingData ToMappingData();
     }
 }

@@ -75,5 +75,36 @@
             string targetMemberName,
             int dataSourceIndex,
             IMappingExecutionContext parent);
+
+        /// <summary>
+        /// Map the given <paramref name="sourceElement"/> to the given <paramref name="targetElement"/>.
+        /// </summary>
+        /// <typeparam name="TSourceElement">
+        /// The declared type of the given <paramref name="sourceElement"/>.
+        /// </typeparam>
+        /// <typeparam name="TTargetElement">
+        /// The declared type of the given <paramref name="targetElement"/>.
+        /// </typeparam>
+        /// <param name="sourceElement">The source object from which to map.</param>
+        /// <param name="targetElement">The target object to which to map.</param>
+        /// <param name="elementIndex">
+        /// The index of the current enumerable <paramref name="sourceElement"/> being mapped in the
+        /// mapping context described by this <see cref="IMappingExecutionContext"/>, if applicable.
+        /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingExecutionContext"/>, if applicable.
+        /// </param>
+        /// <param name="parent">
+        /// The <see cref="IMappingExecutionContext"/> describing the parent context of the given
+        /// <paramref name="sourceElement"/> and <paramref name="targetElement"/>.
+        /// </param>
+        /// <returns>The element mapping result.</returns>
+        TTargetElement Map<TSourceElement, TTargetElement>(
+            TSourceElement sourceElement,
+            TTargetElement targetElement,
+            int elementIndex,
+            object elementKey,
+            IMappingExecutionContext parent);
     }
 }

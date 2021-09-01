@@ -9,7 +9,7 @@
 
     internal abstract class MappingExecutionContextBase2<TSource> :
         IEntryPointMappingContext,
-        IMappingExecutionContext
+        IMappingExecutionContextInternal
     {
         private readonly TSource _source;
         private readonly IMappingExecutionContext _parent;
@@ -44,8 +44,6 @@
         public abstract ObjectMapperKeyBase GetMapperKey();
 
         public abstract IObjectMappingData ToMappingData();
-
-        public abstract IObjectMapper GetRootMapper();
 
         #region IMappingExecutionContext Members
 
@@ -110,17 +108,45 @@
                 parent,
                 this);
 
+            return MapSubObject(sourceValue, targetValue, context);
+        }
+
+        TTargetElement IMappingExecutionContext.Map<TSourceElement, TTargetElement>(
+            TSourceElement sourceElement,
+            TTargetElement targetElement,
+            int elementIndex,
+            object elementKey,
+            IMappingExecutionContext parent)
+        {
+            var context = new ElementMappingExecutionContext<TSourceElement, TTargetElement>(
+                sourceElement,
+                targetElement,
+                elementIndex,
+                elementKey,
+                parent,
+                this);
+
+            return MapSubObject(sourceElement, targetElement, context);
+        }
+
+        private TSubTarget MapSubObject<TSubSource, TSubTarget>(
+            TSubSource sourceElement,
+            TSubTarget targetElement,
+            MappingExecutionContextBase2<TSubSource> context)
+        {
             var rootMapper = GetRootMapper();
 
             var result = rootMapper.MapSubObject(
-                sourceValue,
-                targetValue,
+                sourceElement,
+                targetElement,
                 context,
                 context.GetMapperKey());
 
-            return (TDeclaredTarget)result;
+            return (TSubTarget)result;
         }
 
         #endregion
+
+        public abstract IObjectMapper GetRootMapper();
     }
 }

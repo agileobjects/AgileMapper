@@ -179,7 +179,7 @@
         }
 
         [Fact]
-        public void ShouldHandleANullObjectElement()
+        public void ShouldHandleANullRuntimeTypedElement()
         {
             var source = new List<object>
             {

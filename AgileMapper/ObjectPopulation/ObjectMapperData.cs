@@ -536,26 +536,24 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
-            Expression elementIndex, elementKey, parentContext;
+            const int MAP_CHILD_PARAMETER_COUNT = 7;
+
+            Expression elementIndex, elementKey;
 
             if (IsRoot)
             {
                 elementIndex = Constants.NullInt;
                 elementKey = Constants.NullObject;
-                parentContext = Constants.ExecutionContextParameter;
             }
             else
             {
                 elementIndex = Parent.ElementIndex;
                 elementKey = Parent.ElementKey;
-
-                // TODO:
-                parentContext = Constants.ExecutionContextParameter;
             }
 
             var mapCall = Expression.Call(
                 Constants.ExecutionContextParameter,
-                GetMapMethod(finalParameterType: typeof(IMappingExecutionContext))
+                GetMapMethod(MAP_CHILD_PARAMETER_COUNT)
                     .MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(this),
@@ -563,7 +561,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 elementKey,
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression(),
-                parentContext);
+                GetParentContext());
 
             return GetSimpleTypeCheckedMapCall(sourceObject, targetMember.Type, mapCall);
         }
@@ -582,26 +580,34 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
+            const int MAP_ELEMENT_PARAMETER_COUNT = 5;
+
             var mapCall = Expression.Call(
-                MappingDataObject,
-                GetMapMethod(typeof(object))
+                Constants.ExecutionContextParameter,
+                GetMapMethod(MAP_ELEMENT_PARAMETER_COUNT)
                     .MakeGenericMethod(sourceElement.Type, targetElement.Type),
                 sourceElement,
                 targetElement,
                 EnumerablePopulationBuilder.Counter,
-                EnumerablePopulationBuilder.GetElementKey());
+                EnumerablePopulationBuilder.GetElementKey(),
+                GetParentContext());
 
             return GetSimpleTypeCheckedMapCall(sourceElement, targetElement.Type, mapCall);
+        }
+
+        private Expression GetParentContext()
+        {
+            // TODO
+            return Constants.ExecutionContextParameter;
         }
 
         private static bool IsSimpleTypeToObjectMapping(Expression sourceObject, Type targetType)
             => sourceObject.Type.IsSimple() && (targetType == typeof(object));
 
-        private static MethodInfo GetMapMethod(Type finalParameterType)
+        private static MethodInfo GetMapMethod(int parameterCount)
         {
             return typeof(IMappingExecutionContext)
-                .GetPublicInstanceMethods(nameof(IMappingExecutionContext.Map))
-                .First(m => m.GetParameters().Last().ParameterType == finalParameterType);
+                .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Map), parameterCount);
         }
 
         private static Expression GetSimpleTypeCheckedMapCall(

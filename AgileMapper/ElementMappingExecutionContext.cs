@@ -1,37 +1,34 @@
 ﻿namespace AgileObjects.AgileMapper
 {
     using ObjectPopulation;
+    using ObjectPopulation.Enumerables;
     using ObjectPopulation.MapperKeys;
 
-    internal class ChildMappingExecutionContext<TChildSource, TChildTarget> :
-        SubObjectMappingExecutionContextBase<TChildSource>
+    internal class ElementMappingExecutionContext<TElementSource, TElementTarget> :
+        SubObjectMappingExecutionContextBase<TElementSource>
     {
-        private readonly TChildSource _source;
-        private readonly TChildTarget _target;
-        private readonly int? _elementIndex;
+        private readonly TElementSource _sourceElement;
+        private readonly TElementTarget _targetElement;
+        private readonly int _elementIndex;
         private readonly object _elementKey;
         private readonly ObjectMapperKeyBase _mapperKey;
 
-        public ChildMappingExecutionContext(
-            TChildSource source,
-            TChildTarget target,
-            int? elementIndex,
+        public ElementMappingExecutionContext(
+            TElementSource sourceElement,
+            TElementTarget targetElement,
+            int elementIndex,
             object elementKey,
-            string targetMemberRegistrationName,
-            int dataSourceIndex,
             IMappingExecutionContext parent,
             IEntryPointMappingContext entryPointContext)
-            : base(source, parent, entryPointContext)
+            : base(sourceElement, parent, entryPointContext)
         {
-            _source = source;
-            _target = target;
+            _sourceElement = sourceElement;
+            _targetElement = targetElement;
             _elementIndex = elementIndex;
             _elementKey = elementKey;
 
-            _mapperKey = new ChildObjectMapperKey(
-                MappingTypes.For(source, target),
-                targetMemberRegistrationName,
-                dataSourceIndex)
+            _mapperKey = new ElementObjectMapperKey(
+                MappingTypes.For(sourceElement, targetElement))
             {
                 MappingContext = this
             };
@@ -42,8 +39,8 @@
         public override IObjectMappingData ToMappingData()
         {
             return ObjectMappingDataFactory.Create(
-                _source,
-                _target,
+                _sourceElement,
+                _targetElement,
                 _elementIndex,
                 _elementKey,
                 _mapperKey,
