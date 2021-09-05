@@ -13,7 +13,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
         private readonly EnumerablePopulationBuilder _builder;
         private readonly Expression _indexedSourceAccess;
         private readonly bool _useDirectValueAccess;
-        private readonly Expression _sourceElement;
 
         public IndexedSourcePopulationLoopData(EnumerablePopulationBuilder builder)
         {
@@ -28,7 +27,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
                 builder.SourceTypeHelper.ElementType.RuntimeTypeNeeded() ||
                 builder.TargetTypeHelper.ElementType.RuntimeTypeNeeded();
 
-            _sourceElement = _useDirectValueAccess
+            SourceElement = _useDirectValueAccess
                 ? _indexedSourceAccess
                 : builder.Context.GetSourceParameterFor(builder.SourceTypeHelper.ElementType);
         }
@@ -39,10 +38,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
 
         public Expression LoopExitCheck { get; }
 
-        public Expression GetSourceElementValue() => _sourceElement;
+        public Expression SourceElement { get; }
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
-            => _builder.GetElementConversion(_sourceElement, enumerableMappingData);
+            => _builder.GetElementConversion(SourceElement, enumerableMappingData);
 
         public Expression Adapt(LoopExpression loop)
         {
@@ -51,7 +50,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
                 return loop;
             }
 
-            var sourceVariable = (ParameterExpression)_sourceElement;
+            var sourceVariable = (ParameterExpression)SourceElement;
 
             return loop
                 .InsertAssignment(AfterLoopExitCheck, sourceVariable, _indexedSourceAccess);

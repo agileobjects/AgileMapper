@@ -14,7 +14,7 @@
 
         Expression LoopExitCheck { get; }
 
-        Expression GetSourceElementValue();
+        Expression SourceElement { get; }
 
         Expression GetElementMapping(IObjectMappingData enumerableMappingData);
 

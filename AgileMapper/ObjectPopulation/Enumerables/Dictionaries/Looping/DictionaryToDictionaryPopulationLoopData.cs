@@ -11,6 +11,8 @@
 
     internal class DictionaryToDictionaryPopulationLoopData : EnumerableSourcePopulationLoopData
     {
+        private Expression _sourceElement;
+
         public DictionaryToDictionaryPopulationLoopData(
             DictionarySourceMember sourceMember,
             ObjectMapperData mapperData)
@@ -21,6 +23,7 @@
         {
         }
 
-        public override Expression GetSourceElementValue() => Expression.Property(SourceElement, "Value");
+        public override Expression SourceElement
+            => _sourceElement ??= Expression.Property(base.SourceElement, "Value");
     }
 }

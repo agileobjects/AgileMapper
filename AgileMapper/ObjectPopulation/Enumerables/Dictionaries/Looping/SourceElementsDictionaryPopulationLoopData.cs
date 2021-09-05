@@ -22,7 +22,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
         private readonly Expression _targetMemberKey;
         private readonly bool _useDirectValueAccess;
         private readonly ParameterExpression _targetElementKey;
-        private readonly Expression _sourceElement;
         private ParameterExpression _elementKeyExists;
 
         public SourceElementsDictionaryPopulationLoopData(
@@ -52,7 +51,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
                 ? Expression.Variable(typeof(string), "targetElementKey")
                 : dictionaryVariables.Key;
 
-            _sourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
+            SourceElement = _useDirectValueAccess ? GetDictionaryEntryValueAccess() : dictionaryVariables.Value;
             ContinueLoopTarget = Expression.Label(typeof(void), "Continue");
             LoopExitCheck = MapperData.IsRoot ? GetRootLoopExitCheck() : GetKeyNotFoundLoopExitCheck();
         }
@@ -121,7 +120,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
 
         public Expression LoopExitCheck { get; }
 
-        public Expression GetSourceElementValue() => _sourceElement;
+        public Expression SourceElement { get; }
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
         {
@@ -130,7 +129,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
                 return GetElementMappingBlock(GetDictionaryToElementMapping(enumerableMappingData));
             }
 
-            var entryToElementMapping = _builder.GetElementConversion(_sourceElement, enumerableMappingData);
+            var entryToElementMapping = _builder.GetElementConversion(SourceElement, enumerableMappingData);
 
             if (ElementTypesAreSimple)
             {
@@ -176,10 +175,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
             }
 
             var dictionaryValueAccess = GetDictionaryEntryValueAccess();
-            var dictionaryEntryAssignment = _sourceElement.AssignTo(dictionaryValueAccess);
+            var dictionaryEntryAssignment = SourceElement.AssignTo(dictionaryValueAccess);
 
             return Expression.Block(
-                new[] { (ParameterExpression)_sourceElement },
+                new[] { (ParameterExpression)SourceElement },
                 dictionaryEntryAssignment,
                 elementMapping);
         }

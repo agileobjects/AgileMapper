@@ -252,7 +252,7 @@
 
         public Expression SourceValue { get; private set; }
 
-        public ParameterExpression SourceElement { get; }
+        public ParameterExpression SourceElement { get; private set; }
 
         public Expression GetSourceCountAccess() => _sourceAdapter.GetSourceCountAccess();
 
@@ -518,6 +518,11 @@
         {
             var loopData = _sourceAdapter.GetPopulationLoopData();
 
+            if (loopData.SourceElement is ParameterExpression sourceElementVariable)
+            {
+                SourceElement = sourceElementVariable;
+            }
+
             var populationLoop = loopData.BuildPopulationLoop(
                 this,
                 mappingData,
@@ -537,10 +542,10 @@
                 return elementMapping;
             }
 
-            if (InsertSourceObjectElementNullCheck(loopData, out var sourceElement))
+            if (InsertSourceObjectElementNullCheck)
             {
                 elementMapping = Expression.Condition(
-                    sourceElement.GetIsDefaultComparison(),
+                    SourceElement.GetIsDefaultComparison(),
                     elementMapping.Type.ToDefaultExpression(),
                     elementMapping);
             }
@@ -548,18 +553,8 @@
             return GetTargetMethodCall("Add", elementMapping);
         }
 
-        private bool InsertSourceObjectElementNullCheck(IPopulationLoopData loopData, out Expression sourceElement)
-        {
-            if (TargetTypeHelper.ElementType != typeof(object))
-            {
-                sourceElement = null;
-                return false;
-            }
-
-            sourceElement = loopData.GetSourceElementValue();
-
-            return sourceElement.Type == typeof(object);
-        }
+        private bool InsertSourceObjectElementNullCheck
+            => SourceElement.Type == typeof(object) && TargetTypeHelper.ElementType == typeof(object);
 
         public Expression GetElementConversion(
             Expression sourceElement,

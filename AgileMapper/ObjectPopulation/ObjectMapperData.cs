@@ -428,12 +428,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetNestedSourceObject()
         {
-            if (Parent.EnumerablePopulationBuilder != null)
-            {
-                return LocalVariable;
-            }
-
-            return base.GetNestedSourceObject();
+            return Parent.EnumerablePopulationBuilder?.SourceElement
+                ?? base.GetNestedSourceObject();
         }
 
         protected override Expression GetNestedTargetObject()

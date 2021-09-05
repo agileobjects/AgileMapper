@@ -38,7 +38,7 @@
 
             var valueFactories = mapperData
                 .QuerySimpleTypeValueFactories(value.Type, targetType)
-                .ToArray();
+                .ToList();
 
             if (valueFactories.None())
             {

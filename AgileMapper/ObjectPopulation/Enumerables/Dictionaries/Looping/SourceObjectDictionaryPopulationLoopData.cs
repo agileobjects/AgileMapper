@@ -51,7 +51,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Dictionaries.Loo
 
         public Expression LoopExitCheck { get; }
 
-        public Expression GetSourceElementValue() => _elementsDictionaryLoopData.GetSourceElementValue();
+        public Expression SourceElement => _elementsDictionaryLoopData.SourceElement;
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
         {

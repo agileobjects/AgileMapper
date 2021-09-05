@@ -85,7 +85,7 @@
                 return elementPopulation;
             }
 
-            var sourceElement = loopData.GetSourceElementValue();
+            var sourceElement = loopData.SourceElement;
 
             var sourceValueFilters = builder.MapperData
                 .GetSourceValueFilters(sourceElement.Type);

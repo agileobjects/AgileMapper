@@ -180,7 +180,7 @@
             ICollection<ParameterExpression> typedVariables,
             ICollection<Expression> mappingExpressions)
         {
-            var sourceElement = loopData.GetSourceElementValue();
+            var sourceElement = loopData.SourceElement;
             var mapNextElement = Expression.Continue(loopData.ContinueLoopTarget);
 
             var orderedDerivedSourceTypes = derivedSourceTypes
@@ -210,7 +210,7 @@
             IMemberMapperData mapperData,
             IList<Expression> mappingExpressions)
         {
-            var sourceElement = loopData.GetSourceElementValue();
+            var sourceElement = loopData.SourceElement;
 
             if (sourceElement.Type.CannotBeNull())
             {

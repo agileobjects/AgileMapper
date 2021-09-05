@@ -47,12 +47,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
 
         public Expression LoopExitCheck { get; }
 
-        public Expression SourceElement { get; }
-
-        public virtual Expression GetSourceElementValue() => SourceElement;
+        public virtual Expression SourceElement { get; }
 
         public Expression GetElementMapping(IObjectMappingData enumerableMappingData)
-            => Builder.GetElementConversion(GetSourceElementValue(), enumerableMappingData);
+            => Builder.GetElementConversion(SourceElement, enumerableMappingData);
 
         public Expression Adapt(LoopExpression loop) => GetLoopBlock(loop);
 
