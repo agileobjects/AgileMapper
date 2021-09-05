@@ -28,7 +28,7 @@
                 childMapperData.TargetMember,
                 dataSourceIndex,
                 childMappingData.Parent);
-
+             
             var targetMemberAccess = childMapperData.GetTargetMemberAccess();
 
             var mappingValues = new MappingValues(
@@ -234,18 +234,18 @@
                 sourceValueVariableValue = null;
             }
 
-            var replacementsByTarget = FixedSizeExpressionReplacementDictionary
-                .WithEquivalentKeys(4)
-                .Add(mapperData.SourceObject, sourceValue)
-                .Add(mapperData.TargetObject, mappingValues.TargetValue)
-                .Add(mapperData.ElementKey, mappingValues.ElementKey)
-                .Add(
-                    mapperData.ElementIndex,
-                    mappingValues.ElementIndex.GetConversionTo(mapperData.ElementIndex.Type));
+            //var replacementsByTarget = FixedSizeExpressionReplacementDictionary
+            //    .WithEquivalentKeys(4)
+            //    .Add(mapperData.SourceObject, sourceValue)
+            //    .Add(mapperData.TargetObject, mappingValues.TargetValue)
+            //    .Add(mapperData.ElementKey, mappingValues.ElementKey)
+            //    .Add(
+            //        mapperData.ElementIndex,
+            //        mappingValues.ElementIndex.GetConversionTo(mapperData.ElementIndex.Type));
 
-            mapping = mapping
-                .Replace(replacementsByTarget)
-                .Replace(mapperData.MappingDataObject, createMappingDataCall);
+            //mapping = mapping
+            //    .Replace(replacementsByTarget)
+            //    .Replace(mapperData.MappingDataObject, createMappingDataCall);
 
             return useLocalSourceValueVariable
                 ? UseLocalValueVariable(

@@ -33,7 +33,6 @@
         private readonly SourceItemsSelector _sourceItemsSelector;
         private readonly ISourceEnumerableAdapter _sourceAdapter;
         private ParameterExpression _sourceVariable;
-        private readonly ParameterExpression _sourceElementParameter;
         private readonly ICollection<Expression> _populationExpressions;
         private LambdaExpression _sourceElementIdLambda;
         private LambdaExpression _targetElementIdLambda;
@@ -41,16 +40,21 @@
         private ParameterExpression _collectionDataVariable;
         private ParameterExpression _counterVariable;
         private ParameterExpression _targetVariable;
+        private readonly Action<ParameterExpression> _targetVariableCreationCallback;
 
-        public EnumerablePopulationBuilder(ObjectMapperData mapperData)
+        public EnumerablePopulationBuilder(
+            ObjectMapperData mapperData,
+            Action<ParameterExpression> targetVariableCreationCallback)
         {
             MapperData = mapperData;
             Context = new EnumerablePopulationContext(mapperData);
             _sourceItemsSelector = new SourceItemsSelector(this);
-            _sourceElementParameter = Context.SourceElementType.GetOrCreateParameter();
+            SourceElement = Context.SourceElementType.GetOrCreateParameter();
 
             _sourceAdapter = SourceEnumerableAdapterFactory.GetAdapterFor(this);
             _populationExpressions = new List<Expression>();
+
+            _targetVariableCreationCallback = targetVariableCreationCallback;
         }
 
         static EnumerablePopulationBuilder()
@@ -192,7 +196,7 @@
             }
 
             var typeIdsCache = MapperData.MapperContext.Cache.CreateScopedWithHashCodes<TypeKey, Expression>();
-            var sourceElementId = MapperData.MapperContext.GetIdentifierOrNull(_sourceElementParameter, typeIdsCache);
+            var sourceElementId = MapperData.MapperContext.GetIdentifierOrNull(SourceElement, typeIdsCache);
 
             if (sourceElementId == null)
             {
@@ -201,10 +205,8 @@
 
             if (Context.ElementTypesAreTheSame)
             {
-                _sourceElementIdLambda =
-                    _targetElementIdLambda =
-                        GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, sourceElementId);
-
+                _sourceElementIdLambda = GetSourceElementIdLambda(sourceElementId, sourceElementId);
+                _targetElementIdLambda = _sourceElementIdLambda;
                 return true;
             }
 
@@ -216,21 +218,18 @@
                 return false;
             }
 
-            _sourceElementIdLambda = GetSourceElementIdLambda(_sourceElementParameter, sourceElementId, targetElementId);
+            _sourceElementIdLambda = GetSourceElementIdLambda(sourceElementId, targetElementId);
             _targetElementIdLambda = GetTargetElementIdLambda(targetElementParameter, targetElementId);
 
             return _targetElementIdLambda != null;
         }
 
-        private LambdaExpression GetSourceElementIdLambda(
-            ParameterExpression sourceElement,
-            Expression sourceElementId,
-            Expression targetElementId)
+        private LambdaExpression GetSourceElementIdLambda(Expression sourceElementId, Expression targetElementId)
         {
             return Expression.Lambda(
-                Expression.GetFuncType(sourceElement.Type, targetElementId.Type),
+                Expression.GetFuncType(SourceElement.Type, targetElementId.Type),
                 GetSimpleElementConversion(sourceElementId, targetElementId.Type),
-                sourceElement);
+                SourceElement);
         }
 
         private static LambdaExpression GetTargetElementIdLambda(ParameterExpression targetElement, Expression targetElementId)
@@ -253,6 +252,8 @@
 
         public Expression SourceValue { get; private set; }
 
+        public ParameterExpression SourceElement { get; }
+
         public Expression GetSourceCountAccess() => _sourceAdapter.GetSourceCountAccess();
 
         public Expression GetSourceIndexAccess() => SourceValue.GetIndexAccess(Counter);
@@ -262,7 +263,11 @@
         public ParameterExpression TargetVariable
         {
             get => _targetVariable;
-            set => _targetVariable ??= value;
+            set
+            {
+                _targetVariable ??= value;
+                _targetVariableCreationCallback.Invoke(value);
+            }
         }
 
         public void AssignSourceVariableToSourceObject()
@@ -315,9 +320,7 @@
                 .SourceItemsProjectedToTargetType(enumerableMappingData)
                 .ToTargetType();
 
-            var returnValue = ConvertForReturnValue(convertedSourceItems);
-
-            return returnValue;
+            return ConvertForReturnValue(convertedSourceItems);
         }
 
         private void AssignTargetVariableTo(Expression value)
@@ -655,8 +658,8 @@
 
             var projectionLambda = Expression.Lambda(
                 projectionFuncType,
-                projectionLambdaFactory.Invoke(_sourceElementParameter),
-                _sourceElementParameter);
+                projectionLambdaFactory.Invoke(SourceElement),
+                SourceElement);
 
             var typedSelectMethod = GetProjectionMethod().MakeGenericMethod(Context.ElementTypes);
             var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionLambda);

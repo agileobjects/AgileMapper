@@ -83,47 +83,45 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression SourceObject
         {
-            get
-            {
-                if (_sourceObject == null)
-                {
-                    PopulateSourceAndTarget();
-                }
-
-                return _sourceObject;
-            }
+            get => _sourceObject ??= GetSourceObject();
             set => _sourceObject = value;
         }
 
-        public Expression TargetObject
-        {
-            get
-            {
-                if (_targetObject == null)
-                {
-                    PopulateSourceAndTarget();
-                }
-
-                return _targetObject;
-            }
-            set => _targetObject = value;
-        }
-
-        private void PopulateSourceAndTarget()
+        private Expression GetSourceObject()
         {
             if (IsEntryPoint)
             {
-                SourceObject = SourceType.GetOrCreateSourceParameter();
-                TargetObject = TargetType.GetOrCreateTargetParameter();
-                return;
+                return SourceType.GetOrCreateSourceParameter();
             }
 
-            SourceObject = SourceMember.GetQualifiedAccess(Parent.SourceObject);
-            TargetObject = TargetMember.GetQualifiedAccess(Parent.TargetObject);
+            return GetNestedSourceObject();
 
             //SourceObject = GetMappingDataProperty(MappingDataType, Member.RootSourceMemberName);
+        }
+
+        protected virtual Expression GetNestedSourceObject()
+            => SourceMember.GetQualifiedAccess(Parent.SourceObject);
+
+        public Expression TargetObject
+        {
+            get => _targetObject ??= GetTargetObject();
+            set => _targetObject = value;
+        }
+
+        private Expression GetTargetObject()
+        {
+            if (IsEntryPoint)
+            {
+                return TargetType.GetOrCreateTargetParameter();
+            }
+
+            return GetNestedTargetObject();
+
             //TargetObject = GetMappingDataProperty(Member.RootTargetMemberName);
         }
+
+        protected virtual Expression GetNestedTargetObject()
+            => TargetMember.GetQualifiedAccess(Parent.TargetObject);
 
         private Type MappingDataType { get; }
 

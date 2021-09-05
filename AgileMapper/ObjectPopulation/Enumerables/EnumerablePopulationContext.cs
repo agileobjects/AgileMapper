@@ -89,7 +89,7 @@
                     : type.GetVariableNameInCamelCase();
             }
 
-            return Parameters.Create(type, parameterName);
+            return type.GetOrCreateParameter(parameterName);
         }
     }
 }

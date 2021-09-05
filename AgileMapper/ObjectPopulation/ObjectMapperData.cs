@@ -79,7 +79,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (targetMember.IsEnumerable)
             {
-                EnumerablePopulationBuilder = new EnumerablePopulationBuilder(this);
+                EnumerablePopulationBuilder =
+                    new EnumerablePopulationBuilder(this, TargetEnumerableVariableCreated);
             }
 
             if (IsRoot)
@@ -239,6 +240,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
 
             return false;
+        }
+
+        private void TargetEnumerableVariableCreated(ParameterExpression targetVariable)
+        {
+            _instanceVariable = targetVariable;
         }
 
         #endregion
@@ -420,6 +426,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression ElementKey { get; }
 
+        protected override Expression GetNestedSourceObject()
+        {
+            if (Parent.EnumerablePopulationBuilder != null)
+            {
+                return LocalVariable;
+            }
+
+            return base.GetNestedSourceObject();
+        }
+
+        protected override Expression GetNestedTargetObject()
+        {
+            if (EnumerablePopulationBuilder?.TargetVariable != null)
+            {
+                return EnumerablePopulationBuilder.TargetVariable;
+            }
+
+            var subjectMapperData = TargetMember.LeafMember.DeclaringType == TargetInstance.Type
+                ? this : Parent;
+
+            return TargetMember.GetAccess(subjectMapperData.TargetInstance, this);
+        }
+
         public Expression TargetInstance
         {
             get => _targetInstance ??= GetTargetInstance();
@@ -436,10 +465,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private ParameterExpression CreateInstanceVariable()
-        {
-            return EnumerablePopulationBuilder?.TargetVariable
-                ?? Expression.Variable(TargetType, TargetType.GetVariableNameInCamelCase());
-        }
+            => TargetType.GetOrCreateParameter(TargetType.GetVariableNameInCamelCase());
 
         public Expression RootMappingDataObject
             => _rootMappingDataObject ??= GetRootMappingDataObject();
