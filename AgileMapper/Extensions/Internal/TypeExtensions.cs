@@ -7,10 +7,17 @@
     using System.Drawing;
 #endif
     using System.Linq;
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
     using Caching.Dictionaries;
+    using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using static Members.Member;
 
     internal static class TypeExtensions
     {
@@ -25,8 +32,31 @@
 #endif
         };
 
+        public static ParameterExpression GetOrCreateSourceParameter(this Type type)
+            => type.GetOrCreateParameter(RootSourceMemberName);
+
+        public static ParameterExpression GetOrCreateTargetParameter(this Type type)
+            => type.GetOrCreateParameter(RootTargetMemberName);
+
+        public static ParameterExpression GetOrCreateParameter(this Type type, string name = null)
+        {
+            if (type == null)
+            {
+                return null;
+            }
+
+            var cache = GlobalContext.Instance.Cache
+                .CreateScopedWithHashCodes<TypeKey, ParameterExpression>();
+
+            var parameter = cache.GetOrAdd(
+                TypeKey.ForParameter(type, name),
+                key => Parameters.Create(key.Type, key.Name));
+
+            return parameter;
+        }
+
         public static string GetSourceValueVariableName(this Type sourceType)
-            => "source" + sourceType.GetVariableNameInPascalCase();
+            => RootSourceMemberName + sourceType.GetVariableNameInPascalCase();
 
         public static string GetShortVariableName(this Type type)
         {

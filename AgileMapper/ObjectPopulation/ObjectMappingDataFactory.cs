@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation
 {
     using System;
-    using System.Dynamic;
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
@@ -317,8 +316,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var createCallerFunc = GlobalContext.Instance.Cache.GetOrAdd(createCallerKey, k =>
             {
                 var bridgeParameter = Expression.Parameter(typeof(IUntypedObjectMappingDataFactory), "bridge");
-                var sourceParameter = Parameters.Create(k.DeclaredSourceType, "source");
-                var targetParameter = Parameters.Create(k.DeclaredTargetType, "target");
+                var sourceParameter = k.DeclaredSourceType.GetOrCreateSourceParameter();
+                var targetParameter = k.DeclaredTargetType.GetOrCreateTargetParameter();
                 var elementIndexParameter = Expression.Parameter(typeof(int?), "i");
                 var elementKeyParameter = Expression.Parameter(typeof(object), "key");
                 var mappingTypesParameter = Expression.Parameter(typeof(object), "mappingTypes");

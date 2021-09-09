@@ -84,9 +84,9 @@ namespace AgileObjects.AgileMapper.Members
 
             if (isEnumerable)
             {
-                ElementType = (childMembers != null)
-                    ? childMembers.Last().ElementType
-                    : type.GetEnumerableElementType();
+                ElementType =
+                    childMembers?.Last().ElementType ??
+                    type.GetEnumerableElementType();
             }
 
             _childMemberCache = mapperContext.Cache

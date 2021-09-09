@@ -11,6 +11,7 @@
     using Members;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using static Members.Member;
 
     internal class EnumerablePopulationContext
     {
@@ -62,10 +63,10 @@
         public EnumerableTypeHelper TargetTypeHelper { get; }
 
         public ParameterExpression GetSourceParameterFor(Type type, string prefix = null)
-            => GetParameterFor(type, prefix, "source");
+            => GetParameterFor(type, prefix, RootSourceMemberName);
 
         public ParameterExpression GetTargetParameterFor(Type type, string prefix = null)
-            => GetParameterFor(type, prefix, "target");
+            => GetParameterFor(type, prefix, RootTargetMemberName);
 
         private ParameterExpression GetParameterFor(
             Type type,

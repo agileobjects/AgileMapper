@@ -8,6 +8,7 @@
     using Lambdas;
     using Members;
     using Members.Extensions;
+    using static Members.Member;
 
     internal class ConfiguredDataSourceFactory :
         ConfiguredDataSourceFactoryBase,
@@ -92,7 +93,7 @@
 
             var reverseConfigInfo = GetReverseConfigInfo();
 
-            var sourceParameter = Parameters.Create(reverseConfigInfo.SourceType, "source");
+            var sourceParameter = Parameters.Create(reverseConfigInfo.SourceType, RootSourceMemberName);
             var sourceMemberAccess = TargetMember.GetQualifiedAccess(sourceParameter);
 
             var sourceMemberAccessLambda = Expression.Lambda(

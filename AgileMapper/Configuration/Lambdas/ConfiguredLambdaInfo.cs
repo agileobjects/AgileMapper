@@ -194,7 +194,7 @@
 
                 if (sourceParameter == null)
                 {
-                    sourceParameter = Parameters.Create(rootExpression.Type, "source");
+                    sourceParameter = rootExpression.Type.GetOrCreateSourceParameter();
                     memberAccessPath = sourceParameter;
                 }
 

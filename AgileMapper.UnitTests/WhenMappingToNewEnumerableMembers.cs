@@ -244,7 +244,7 @@
                     .ToANew<PublicField<List<int>>>()
                     .After
                     .CreatingTargetInstances
-                    .Call((s, pf) => pf.Value = new List<int> { 0 });
+                    .Call((_, pf) => pf.Value = new List<int> { 0 });
 
                 var source = new PublicField<int[]> { Value = new[] { 1, 2, 3 } };
                 var result = mapper.Map(source).ToANew<PublicField<List<int>>>();
@@ -267,7 +267,7 @@
                     .To<PublicProperty<Collection<string>>>()
                     .After
                     .CreatingTargetInstances
-                    .Call((s, t) => t.Value = existingCollection);
+                    .Call((_, t) => t.Value = existingCollection);
 
                 var source = new PublicProperty<IEnumerable<int?>> { Value = new int?[] { 6, 7, 8 } };
                 var result = mapper.Map(source).ToANew<PublicProperty<Collection<string>>>();

@@ -33,6 +33,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private ObjectMapperData _entryPointMapperData;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
+        private ParameterExpression _createdObject;
         private MappedObjectCachingMode _mappedObjectCachingMode;
         private List<ObjectMapperData> _childMapperDatas;
         private List<ObjectMapperData> _derivedMapperDatas;
@@ -56,7 +57,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
-            CreatedObject = GetMappingDataProperty(nameof(CreatedObject));
+            // TODO
+            //CreatedObject = GetMappingDataProperty(nameof(CreatedObject));
 
             var isPartOfDerivedTypeMapping = declaredTypeMapperData != null;
 
@@ -475,7 +477,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
-        public Expression CreatedObject { get; }
+        public bool UsesCreatedObject => _createdObject != null;
+
+        public ParameterExpression CreatedObject => _createdObject ??= CreateCreatedObject();
+
+        private ParameterExpression CreateCreatedObject()
+        {
+            return TargetType.GetOrCreateParameter(
+                "created" + TargetType.GetVariableNameInPascalCase());
+        }
 
         public ObjectMapperData EntryPointMapperData
             => _entryPointMapperData ??= GetNearestEntryPointObjectMapperData();

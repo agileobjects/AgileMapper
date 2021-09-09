@@ -160,10 +160,10 @@
 
         public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression parentInstance)
         {
-            // Skip(1) because the 0th member is the mapperData.SourceObject:
-            return memberChain.Skip(1).Aggregate(
+            // Skip(1) because the 0th member is the root source parameter:
+            return memberChain.Aggregate(
                 parentInstance,
-                (accessSoFar, member) => member.GetAccess(accessSoFar));
+               (accessSoFar, member) => member.GetAccess(accessSoFar));
         }
 
         [DebuggerStepThrough]

@@ -71,7 +71,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public Expression RootMappingDataObject => Parent.RootMappingDataObject;
 
-        public Expression CreatedObject => null;
+        public ParameterExpression CreatedObject => null;
 
         public Expression ElementIndex { get; }
 

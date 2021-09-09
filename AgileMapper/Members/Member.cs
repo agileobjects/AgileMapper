@@ -17,8 +17,8 @@ namespace AgileObjects.AgileMapper.Members
 
     internal class Member
     {
-        public const string RootSourceMemberName = "Source";
-        public const string RootTargetMemberName = "Target";
+        public const string RootSourceMemberName = "source";
+        public const string RootTargetMemberName = "target";
 
         private readonly IAccessFactory _accessFactory;
         private readonly int _hashCode;

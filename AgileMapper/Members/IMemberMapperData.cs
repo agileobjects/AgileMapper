@@ -23,7 +23,7 @@
 
         Expression TargetObject { get; }
 
-        Expression CreatedObject { get; }
+        ParameterExpression CreatedObject { get; }
 
         Expression ElementIndex { get; }
 

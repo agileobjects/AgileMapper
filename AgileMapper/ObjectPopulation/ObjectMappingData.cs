@@ -194,7 +194,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(childSourceMember, sm =>
             {
-                var sourceParameter = typeof(TSource).GetOrCreateParameter("source");
+                var sourceParameter = typeof(TSource).GetOrCreateSourceParameter();
 
                 var memberAccess = sm
                     .GetRelativeQualifiedAccess(MapperData)

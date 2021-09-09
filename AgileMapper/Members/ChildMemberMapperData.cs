@@ -55,7 +55,7 @@
 
         public Expression TargetObject => Parent.TargetObject;
 
-        public Expression CreatedObject => Parent.CreatedObject;
+        public ParameterExpression CreatedObject => Parent.CreatedObject;
 
         public Expression ElementIndex => Parent.ElementIndex;
 
