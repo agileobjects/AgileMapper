@@ -175,12 +175,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCall(ObjectMapperData mapperData)
         {
-            var registerMethod = typeof(IObjectMappingDataUntyped)
-                .GetPublicInstanceMethod(nameof(IObjectMappingDataUntyped.Register))
+            var registerMethod = typeof(IMappingExecutionContext)
+                .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Register))
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             return Expression.Call(
-                mapperData.EntryPointMapperData.MappingDataObject,
+                Constants.ExecutionContextParameter,
                 registerMethod,
                 mapperData.SourceObject,
                 mapperData.TargetInstance);

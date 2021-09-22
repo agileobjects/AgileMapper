@@ -12,7 +12,6 @@
 #endif
     using System.Reflection;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 #if NET35
     using LinqExp = System.Linq.Expressions;
@@ -352,8 +351,8 @@
                     return includeCallbacks;
 
                 case Call when (
-                    IsCallTo(nameof(IObjectMappingDataUntyped.Register), expression) ||
-                    IsCallTo(nameof(IObjectMappingDataUntyped.TryGet), expression)):
+                    IsCallTo(nameof(IMappingExecutionContext.Register), expression) ||
+                    IsCallTo(nameof(IMappingExecutionContext.TryGet), expression)):
 
                     return false;
 
@@ -367,7 +366,7 @@
         private static bool IsMapRepeatedCall(Expression expression)
         {
             return (expression.NodeType == Call) &&
-                   IsCallTo(nameof(IObjectMappingDataUntyped.MapRepeated), expression);
+                   IsCallTo(nameof(IMappingExecutionContext.MapRepeated), expression);
         }
 
         private static bool IsCallTo(string methodName, Expression call)

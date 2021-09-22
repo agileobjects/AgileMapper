@@ -8,7 +8,6 @@
 #endif
     using Extensions.Internal;
     using Members;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
     using TypeConversion;
 

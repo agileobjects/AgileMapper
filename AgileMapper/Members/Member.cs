@@ -12,7 +12,6 @@ namespace AgileObjects.AgileMapper.Members
     using Dictionaries;
     using Extensions;
     using NetStandardPolyfills;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 
     internal class Member
@@ -99,9 +98,9 @@ namespace AgileObjects.AgileMapper.Members
         private static Member Root(string name, Type type)
         {
             return new Member(
-                MemberType.Property,
+                MemberType.Parameter,
                 name,
-                typeof(ObjectMapperData),
+                typeof(IMappingExecutionContext),
                 type,
                 isRoot: true);
         }

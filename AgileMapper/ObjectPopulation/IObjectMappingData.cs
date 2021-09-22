@@ -63,33 +63,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         TTarget CreatedObject { get; set; }
 
         /// <summary>
-        /// Map the given <paramref name="sourceElement"/> to the given <paramref name="targetElement"/>.
-        /// </summary>
-        /// <typeparam name="TSourceElement">
-        /// The declared type of the given <paramref name="sourceElement"/>.
-        /// </typeparam>
-        /// <typeparam name="TTargetElement">
-        /// The declared type of the given <paramref name="targetElement"/>.
-        /// </typeparam>
-        /// <param name="sourceElement">The source object from which to map.</param>
-        /// <param name="targetElement">The target object to which to map.</param>
-        /// <param name="elementIndex">
-        /// The index of the current enumerable <paramref name="sourceElement"/> being mapped in the
-        /// mapping context described by this <see cref="IObjectMappingData{TSource, TTarget}"/>, if
-        /// applicable.
-        /// </param>
-        /// <param name="elementKey">
-        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context described
-        /// by this <see cref="IObjectMappingData{TSource, TTarget}"/>, if applicable.
-        /// </param>
-        /// <returns>The element mapping result.</returns>
-        TTargetElement Map<TSourceElement, TTargetElement>(
-            TSourceElement sourceElement,
-            TTargetElement targetElement,
-            int elementIndex,
-            object elementKey);
-
-        /// <summary>
         /// Gets the <see cref="IObjectMappingData{TSource, TTarget}"/> as an 
         /// <see cref="IObjectMappingData{TNewSource, TTarget}"/> using the given
         /// <paramref name="newSource"/>.

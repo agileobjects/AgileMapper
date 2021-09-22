@@ -106,5 +106,78 @@
             int elementIndex,
             object elementKey,
             IMappingExecutionContext parent);
+
+        /// <summary>
+        /// Map the given <paramref name="sourceValue"/> to the given <paramref name="targetValue"/>
+        /// as part of the mapping of a source and target type mapped multiple times within the
+        /// object graph.
+        /// </summary>
+        /// <typeparam name="TDeclaredSource">
+        /// The declared type of the given <paramref name="sourceValue"/>.
+        /// </typeparam>
+        /// <typeparam name="TDeclaredTarget">
+        /// The declared type of the given <paramref name="targetValue"/>.
+        /// </typeparam>
+        /// <param name="sourceValue">The source object from which to map.</param>
+        /// <param name="targetValue">The target object to which to map.</param>
+        /// <param name="elementIndex">
+        /// The index of the current enumerable element being mapped in the mapping context described
+        /// by this <see cref="IMappingExecutionContext"/>, if applicable.
+        /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingExecutionContext"/>, if applicable.
+        /// </param>
+        /// <param name="targetMemberName">The name of the target member being mapped.</param>
+        /// <param name="dataSourceIndex">
+        /// The index of the data source being used to perform the mapping.
+        /// </param>
+        /// <param name="parent">
+        /// The <see cref="IMappingExecutionContext"/> describing the parent context of the given
+        /// <paramref name="sourceValue"/> and <paramref name="targetValue"/>.
+        /// </param>
+        /// <returns>The mapping result.</returns>
+        TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
+            int? elementIndex,
+            object elementKey,
+            string targetMemberName,
+            int dataSourceIndex,
+            IMappingExecutionContext parent);
+
+        /// <summary>
+        /// Map the given <paramref name="sourceElement"/> to the given
+        /// <paramref name="targetElement"/> as part of the mapping of a source and target element
+        /// type mapped multiple times within the object graph.
+        /// </summary>
+        /// <typeparam name="TDeclaredSource">
+        /// The declared type of the given <paramref name="sourceElement"/>.
+        /// </typeparam>
+        /// <typeparam name="TDeclaredTarget">
+        /// The declared type of the given <paramref name="targetElement"/>.
+        /// </typeparam>
+        /// <param name="sourceElement">The source element from which to map.</param>
+        /// <param name="targetElement">The target element to which to map.</param>
+        /// <param name="elementIndex">
+        /// The index of the current enumerable <paramref name="sourceElement"/> enumerable being
+        /// mapped in the mapping context described by this <see cref="IMappingExecutionContext"/>,
+        /// if applicable.
+        /// </param>
+        /// <param name="elementKey">
+        /// The key of the current Dictionary KeyValuePair being mapped in the mapping context
+        /// described by this <see cref="IMappingExecutionContext"/>, if applicable.
+        /// </param>
+        /// <param name="parent">
+        /// The <see cref="IMappingExecutionContext"/> describing the parent context of the given
+        /// <paramref name="sourceElement"/> and <paramref name="targetElement"/>.
+        /// </param>
+        /// <returns>The mapping result.</returns>
+        TDeclaredTarget MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceElement,
+            TDeclaredTarget targetElement,
+            int elementIndex,
+            object elementKey,
+            IMappingExecutionContext parent);
     }
 }

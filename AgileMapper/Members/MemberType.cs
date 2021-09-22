@@ -2,6 +2,7 @@
 {
     internal enum MemberType
     {
+        Parameter,
         ConstructorParameter,
         Field,
         Property,

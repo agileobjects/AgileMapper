@@ -24,6 +24,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             ElementIndex = GetElementIndexAccess();
             ElementKey = GetElementKeyAccess();
             ElementIndexValue = Parent.ElementIndex;
+            ElementKeyValue = Parent.ElementKey;
         }
 
         private SimpleMemberMapperData(
@@ -78,6 +79,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public Expression ElementKey { get; }
 
         public Expression ElementIndexValue { get; }
+
+        public Expression ElementKeyValue { get; }
 
         public Expression TargetInstance => TargetObject;
     }

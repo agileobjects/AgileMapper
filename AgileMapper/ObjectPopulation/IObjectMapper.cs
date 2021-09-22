@@ -27,6 +27,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             IMappingExecutionContext context,
             ObjectMapperKeyBase mapperKey);
 
+        object MapRepeated(
+            object source,
+            object target,
+            IMappingExecutionContext context,
+            ObjectMapperKeyBase mapperKey);
+
         void Reset();
     }
 }

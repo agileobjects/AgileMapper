@@ -97,10 +97,11 @@
                 value.Type.CanBeNull();
 
             var replacements = FixedSizeExpressionReplacementDictionary
-                .WithEquivalentKeys(3)
+                .WithEquivalentKeys(4)
                 .Add(simpleMemberMapperData.SourceObject, value)
                 .Add(simpleMemberMapperData.TargetObject, mapperData.GetTargetMemberAccess())
-                .Add(simpleMemberMapperData.ElementIndex, simpleMemberMapperData.ElementIndexValue);
+                .Add(simpleMemberMapperData.ElementIndex, simpleMemberMapperData.ElementIndexValue)
+                .Add(simpleMemberMapperData.ElementKey, simpleMemberMapperData.ElementKeyValue);
 
             var conversions = valueFactories.ProjectToArray(vf =>
             {

@@ -23,14 +23,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapperData : MemberMapperDataBase, IMemberMapperData
     {
         private static readonly MethodInfo _mapRepeatedChildMethod =
-            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 6);
+            typeof(IMappingExecutionContext).GetPublicInstanceMethod("MapRepeated", parameterCount: 7);
 
         private static readonly MethodInfo _mapRepeatedElementMethod =
-            typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("MapRepeated", parameterCount: 4);
+            typeof(IMappingExecutionContext).GetPublicInstanceMethod("MapRepeated", parameterCount: 5);
 
         private LabelTarget _returnLabelTarget;
         private Expression _rootMappingDataObject;
         private ObjectMapperData _entryPointMapperData;
+        private Expression _elementIndex;
+        private Expression _elementKey;
         private Expression _targetInstance;
         private ParameterExpression _instanceVariable;
         private ParameterExpression _createdObject;
@@ -65,15 +67,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             if (isPartOfDerivedTypeMapping)
             {
                 DeclaredTypeMapperData = OriginalMapperData = declaredTypeMapperData;
-                ElementIndex = declaredTypeMapperData.ElementIndex;
-                ElementKey = declaredTypeMapperData.ElementKey;
                 ParentObject = declaredTypeMapperData.ParentObject;
                 declaredTypeMapperData.DerivedMapperDatas.Add(this);
             }
             else
             {
-                ElementIndex = GetElementIndexAccess();
-                ElementKey = GetElementKeyAccess();
                 ParentObject = GetParentObjectAccess();
             }
 
@@ -424,9 +422,37 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool TargetTypeWillNotBeMappedAgain { get; }
 
-        public Expression ElementIndex { get; }
+        public Expression ElementIndex
+            => _elementIndex ??= GetElementIndex();
 
-        public Expression ElementKey { get; }
+        private Expression GetElementIndex()
+        {
+            if (IsRoot)
+            {
+                return Constants.NullInt;
+            }
+
+            return
+                DeclaredTypeMapperData?.ElementIndex ??
+                EnumerablePopulationBuilder?.Counter ?? 
+                Parent.GetElementIndex();
+        }
+
+        public Expression ElementKey
+            => _elementKey ??= GetElementKey();
+
+        private Expression GetElementKey()
+        {
+            if (IsRoot)
+            {
+                return Constants.NullObject;
+            }
+
+            return
+                DeclaredTypeMapperData?.ElementKey ??
+                EnumerablePopulationBuilder?.GetElementKey() ??
+                Parent.GetElementKey();
+        }
 
         protected override Expression GetNestedSourceObject()
         {
@@ -627,12 +653,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return GetSimpleTypeCheckedMapCall(sourceElement, targetElement.Type, mapCall);
         }
 
-        private Expression GetParentContext()
-        {
-            // TODO
-            return Constants.ExecutionContextParameter;
-        }
-
         private static bool IsSimpleTypeToObjectMapping(Expression sourceObject, Type targetType)
             => sourceObject.Type.IsSimple() && (targetType == typeof(object));
 
@@ -670,46 +690,51 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingValues mappingValues,
             int dataSourceIndex)
         {
-            MethodInfo mapRepeatedMethod;
-            Expression[] arguments;
-
             if (targetMember.IsEnumerableElement())
             {
-                mapRepeatedMethod = _mapRepeatedElementMethod;
-
-                arguments = new[]
+                return GetMapRepeatedCall(mappingValues, _mapRepeatedElementMethod, new[]
                 {
                     mappingValues.SourceValue,
                     mappingValues.TargetValue,
                     mappingValues.ElementIndex,
-                    mappingValues.ElementKey
-                };
+                    mappingValues.ElementKey,
+                    GetParentContext()
+                });
             }
-            else
+
+            return GetMapRepeatedCall(mappingValues, _mapRepeatedChildMethod, new[]
             {
-                mapRepeatedMethod = _mapRepeatedChildMethod;
+                mappingValues.SourceValue,
+                mappingValues.TargetValue,
+                ElementIndex,
+                ElementKey,
+                targetMember.RegistrationName.ToConstantExpression(),
+                dataSourceIndex.ToConstantExpression(),
+                GetParentContext()
+            });
+        }
 
-                arguments = new[]
-                {
-                    mappingValues.SourceValue,
-                    mappingValues.TargetValue,
-                    ElementIndex,
-                    ElementKey,
-                    targetMember.RegistrationName.ToConstantExpression(),
-                    dataSourceIndex.ToConstantExpression()
-                };
-            }
-
+        private static MethodCallExpression GetMapRepeatedCall(
+            MappingValues mappingValues,
+            MethodInfo mapRepeatedMethod,
+            Expression[] arguments)
+        {
             mapRepeatedMethod = mapRepeatedMethod.MakeGenericMethod(
                 mappingValues.SourceValue.Type,
                 mappingValues.TargetValue.Type);
 
             var mapRepeatedCall = Expression.Call(
-                EntryPointMapperData.MappingDataObject,
+                Constants.ExecutionContextParameter,
                 mapRepeatedMethod,
                 arguments);
 
             return mapRepeatedCall;
+        }
+
+        private Expression GetParentContext()
+        {
+            // TODO
+            return Constants.ExecutionContextParameter;
         }
 
         /// <summary>

@@ -250,18 +250,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 this);
         }
 
-        public TTargetElement Map<TSourceElement, TTargetElement>(
-            TSourceElement sourceElement,
-            TTargetElement targetElement,
-            int elementIndex,
-            object elementKey)
-        {
-            var elementMappingData = GetElementMappingData(sourceElement, targetElement, elementIndex, elementKey);
-
-            // TODO
-            return (TTargetElement)_mapper.MapSubObject(null, null, null, null);
-        }
-
         private IObjectMappingData GetElementMappingData<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
@@ -296,7 +284,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 childMappingData.IsPartOfRepeatedMapping = true;
 
-                return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
+                // TODO
+                //return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }
 
             return Parent.MapRepeated(
@@ -324,7 +313,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
                 childMappingData.IsPartOfRepeatedMapping = true;
 
-                return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
+                // TODO
+                //return (TDeclaredTarget)_mapper.MapRepeated(childMappingData);
             }
 
             return Parent.MapRepeated(sourceElement, targetElement, elementIndex, elementKey);

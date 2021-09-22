@@ -176,13 +176,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return mapper.Map(source, target, context);
         }
 
-        public object MapRepeated(IObjectMappingData childMappingData)
+        public object MapRepeated(
+            object source,
+            object target,
+            IMappingExecutionContext context,
+            ObjectMapperKeyBase mapperKey)
         {
             var mapperFunc = _repeatedMappingFuncsByKey
-                .GetOrAdd(childMappingData.MapperKey, null);
+                .GetOrAdd(mapperKey, null);
 
-            // TODO
-            return mapperFunc.Map(null, null, null);
+            return mapperFunc.Map(source, target, context);
         }
 
         public ObjectMapper<TSource, TTarget> WithResetCallback(Action callback)

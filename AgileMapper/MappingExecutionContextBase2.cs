@@ -80,13 +80,12 @@
                 return;
             }
 
-            if (MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
+            if (!MappedObjectsBySource.TryGetValue(key, out var mappedTargets))
             {
-                mappedTargets.Add(complexType);
-                return;
+                MappedObjectsBySource[key] = mappedTargets = new List<object>();
             }
 
-            _mappedObjectsBySource[key] = new List<object> { complexType };
+            mappedTargets.Add(complexType);
         }
 
         TDeclaredTarget IMappingExecutionContext.Map<TDeclaredSource, TDeclaredTarget>(
@@ -98,7 +97,7 @@
             int dataSourceIndex,
             IMappingExecutionContext parent)
         {
-            var context = new ChildMappingExecutionContext<TDeclaredSource, TDeclaredTarget>(
+            var childContext = new ChildMappingExecutionContext<TDeclaredSource, TDeclaredTarget>(
                 sourceValue,
                 targetValue,
                 elementIndex,
@@ -108,7 +107,7 @@
                 parent,
                 this);
 
-            return MapSubObject(sourceValue, targetValue, context);
+            return MapSubObject(sourceValue, targetValue, childContext);
         }
 
         TTargetElement IMappingExecutionContext.Map<TSourceElement, TTargetElement>(
@@ -118,7 +117,7 @@
             object elementKey,
             IMappingExecutionContext parent)
         {
-            var context = new ElementMappingExecutionContext<TSourceElement, TTargetElement>(
+            var elementContext = new ElementMappingExecutionContext<TSourceElement, TTargetElement>(
                 sourceElement,
                 targetElement,
                 elementIndex,
@@ -126,19 +125,72 @@
                 parent,
                 this);
 
-            return MapSubObject(sourceElement, targetElement, context);
+            return MapSubObject(sourceElement, targetElement, elementContext);
         }
 
         private TSubTarget MapSubObject<TSubSource, TSubTarget>(
-            TSubSource sourceElement,
-            TSubTarget targetElement,
+            TSubSource subSource,
+            TSubTarget subTarget,
             MappingExecutionContextBase2<TSubSource> context)
         {
             var rootMapper = GetRootMapper();
 
             var result = rootMapper.MapSubObject(
-                sourceElement,
-                targetElement,
+                subSource,
+                subTarget,
+                context,
+                context.GetMapperKey());
+
+            return (TSubTarget)result;
+        }
+
+        TDeclaredTarget IMappingExecutionContext.MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceValue,
+            TDeclaredTarget targetValue,
+            int? elementIndex,
+            object elementKey,
+            string targetMemberName,
+            int dataSourceIndex,
+            IMappingExecutionContext parent)
+        {
+            // TODO
+            //if (IsRoot || MappingTypes.RuntimeTypesNeeded)
+            //{
+            //}
+
+            var childContext = new ChildMappingExecutionContext<TDeclaredSource, TDeclaredTarget>(
+                sourceValue,
+                targetValue,
+                elementIndex,
+                elementKey,
+                targetMemberName,
+                dataSourceIndex,
+                parent,
+                this);
+
+            return MapRepeated(sourceValue, targetValue, childContext);
+        }
+
+        TDeclaredTarget IMappingExecutionContext.MapRepeated<TDeclaredSource, TDeclaredTarget>(
+            TDeclaredSource sourceElement,
+            TDeclaredTarget targetElement,
+            int elementIndex,
+            object elementKey,
+            IMappingExecutionContext parent)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        private TSubTarget MapRepeated<TSubSource, TSubTarget>(
+            TSubSource repeatSource,
+            TSubTarget repeatTarget,
+            MappingExecutionContextBase2<TSubSource> context)
+        {
+            var rootMapper = GetRootMapper();
+
+            var result = rootMapper.MapRepeated(
+                repeatSource,
+                repeatTarget,
                 context,
                 context.GetMapperKey());
 
