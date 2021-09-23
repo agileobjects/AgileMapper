@@ -38,16 +38,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
 
         public object Map(object source, object target, IMappingExecutionContext context)
         {
-            // TODO
-            var typedData = default(ObjectMappingData<TChildSource, TChildTarget>);
-
-            EnsureFunc(typedData);
+            EnsureFunc(context);
 
             return _repeatedMappingFunc
                 .Invoke((TChildSource)source, (TChildTarget)target, context);
         }
 
-        private void EnsureFunc(ObjectMappingData<TChildSource, TChildTarget> mappingData)
+        private void EnsureFunc(IMappingExecutionContext context)
         {
             if (_repeatedMappingFunc != null)
             {
@@ -61,6 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
                     return;
                 }
 
+                var mappingData = ((IMappingExecutionContextInternal)context).ToMappingData();
                 mappingData.MapperData = _mapperData;
 
                 CreateMapperFunc(mappingData, isLazyLoading: true);
@@ -70,11 +68,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
         private void CreateMapperFunc(IObjectMappingData mappingData, bool isLazyLoading = false)
         {
             mappingData.MapperKey.MappingData = mappingData;
-            mappingData.MapperKey.MapperData = mappingData.MapperData;
+            mappingData.MapperKey.MapperData = _mapperData;
 
             var mappingLambda = Expression.Lambda<MapperFunc<TChildSource, TChildTarget>>(
                 mappingData.GetOrCreateMapper().Mapping,
-                mappingData.MapperData.MappingDataObject);
+                (ParameterExpression)_mapperData.SourceObject,
+                (ParameterExpression)_mapperData.TargetObject,
+                Constants.ExecutionContextParameter);
 
             Mapping = mappingLambda;
 

@@ -136,8 +136,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                 Mapping,
-                (ParameterExpression)MapperData.SourceObject,
-                (ParameterExpression)MapperData.TargetObject,
+               (ParameterExpression)MapperData.SourceObject,
+               (ParameterExpression)MapperData.TargetObject,
                 Constants.ExecutionContextParameter);
         }
 

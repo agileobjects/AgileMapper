@@ -20,7 +20,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes.ShortCircuits
             }
 
             var tryGetMethod = typeof(IMappingExecutionContext)
-                .GetPublicInstanceMethod(nameof(IMappingExecutionContext))
+                .GetPublicInstanceMethod(nameof(IMappingExecutionContext.TryGet))
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             var tryGetCall = Expression.Call(

@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         bool MapperDataPopulated { get; }
 
-        new ObjectMapperData MapperData { get; }
+        new ObjectMapperData MapperData { get; set; }
 
         IObjectMapper GetOrCreateMapper();
 
