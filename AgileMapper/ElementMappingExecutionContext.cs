@@ -18,8 +18,8 @@
             TElementTarget targetElement,
             int elementIndex,
             object elementKey,
-            IMappingExecutionContext parent,
-            IEntryPointMappingContext entryPointContext)
+            MappingExecutionContextBase2 parent,
+            MappingExecutionContextBase2 entryPointContext)
             : base(sourceElement, parent, entryPointContext)
         {
             _sourceElement = sourceElement;
@@ -35,6 +35,8 @@
         }
 
         public override ObjectMapperKeyBase GetMapperKey() => _mapperKey;
+
+        public override object Target => _targetElement;
 
         public override IObjectMappingData ToMappingData()
         {

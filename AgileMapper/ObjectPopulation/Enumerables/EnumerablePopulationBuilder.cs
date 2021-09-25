@@ -229,7 +229,7 @@
             return Expression.Lambda(
                 Expression.GetFuncType(SourceElement.Type, targetElementId.Type),
                 GetSimpleElementConversion(sourceElementId, targetElementId.Type),
-                SourceElement);
+               (ParameterExpression)SourceElement);
         }
 
         private static LambdaExpression GetTargetElementIdLambda(ParameterExpression targetElement, Expression targetElementId)
@@ -252,7 +252,7 @@
 
         public Expression SourceValue { get; private set; }
 
-        public ParameterExpression SourceElement { get; private set; }
+        public Expression SourceElement { get; private set; }
 
         public Expression GetSourceCountAccess() => _sourceAdapter.GetSourceCountAccess();
 
@@ -517,11 +517,7 @@
             IObjectMappingData mappingData)
         {
             var loopData = _sourceAdapter.GetPopulationLoopData();
-
-            if (loopData.SourceElement is ParameterExpression sourceElementVariable)
-            {
-                SourceElement = sourceElementVariable;
-            }
+            SourceElement = loopData.SourceElement;
 
             var populationLoop = loopData.BuildPopulationLoop(
                 this,
@@ -654,7 +650,7 @@
             var projectionLambda = Expression.Lambda(
                 projectionFuncType,
                 projectionLambdaFactory.Invoke(SourceElement),
-                SourceElement);
+               (ParameterExpression)SourceElement);
 
             var typedSelectMethod = GetProjectionMethod().MakeGenericMethod(Context.ElementTypes);
             var typedSelectCall = Expression.Call(typedSelectMethod, sourceEnumerableValue, projectionLambda);

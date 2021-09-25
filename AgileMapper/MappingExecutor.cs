@@ -228,6 +228,10 @@
         public override ObjectMapperKeyBase GetMapperKey()
             => _rootMapperKey ??= RuleSet.RootMapperKeyFactory.Invoke(this);
 
+        public override object Source => _source;
+
+        public override object Target => _target;
+
         public override IObjectMappingData ToMappingData()
             => _rootMappingData ??= _rootMappingDataFactory.Invoke();
 

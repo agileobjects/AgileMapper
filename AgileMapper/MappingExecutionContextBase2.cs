@@ -7,19 +7,13 @@
     using ObjectPopulation.MapperKeys;
     using Plans;
 
-    internal abstract class MappingExecutionContextBase2<TSource> :
-        IEntryPointMappingContext,
-        IMappingExecutionContextInternal
+    internal abstract class MappingExecutionContextBase2 : IMappingExecutionContext
     {
-        private readonly TSource _source;
         private readonly IMappingExecutionContext _parent;
         private Dictionary<object, List<object>> _mappedObjectsBySource;
 
-        protected MappingExecutionContextBase2(
-            TSource source,
-            IMappingExecutionContext parent)
+        protected MappingExecutionContextBase2(IMappingExecutionContext parent)
         {
-            _source = source;
             _parent = parent;
         }
 
@@ -31,19 +25,15 @@
 
         public abstract MappingTypes MappingTypes { get; }
 
-        T IEntryPointMappingContext.GetSource<T>()
-        {
-            if (typeof(TSource).IsAssignableTo(typeof(T)))
-            {
-                return (T)(object)_source;
-            }
-
-            return default;
-        }
-
         public abstract ObjectMapperKeyBase GetMapperKey();
 
         public abstract IObjectMappingData ToMappingData();
+
+        public abstract IObjectMapper GetRootMapper();
+
+        public abstract object Source { get; }
+
+        public abstract object Target { get; }
 
         #region IMappingExecutionContext Members
 
@@ -88,117 +78,88 @@
             mappedTargets.Add(complexType);
         }
 
-        TDeclaredTarget IMappingExecutionContext.Map<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceValue,
-            TDeclaredTarget targetValue,
+        IMappingExecutionContext IMappingExecutionContext.Create<TSourceValue, TTargetValue>(
+            TSourceValue sourceValue,
+            TTargetValue targetValue,
             int? elementIndex,
             object elementKey,
             string targetMemberName,
-            int dataSourceIndex,
-            IMappingExecutionContext parent)
+            int dataSourceIndex)
         {
-            var childContext = new ChildMappingExecutionContext<TDeclaredSource, TDeclaredTarget>(
+            return new ChildMappingExecutionContext<TSourceValue, TTargetValue>(
                 sourceValue,
                 targetValue,
                 elementIndex,
                 elementKey,
                 targetMemberName,
                 dataSourceIndex,
-                parent,
+                this,
                 this);
-
-            return MapSubObject(sourceValue, targetValue, childContext);
         }
 
-        TTargetElement IMappingExecutionContext.Map<TSourceElement, TTargetElement>(
+        IMappingExecutionContext IMappingExecutionContext.Create<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int elementIndex,
-            object elementKey,
-            IMappingExecutionContext parent)
+            object elementKey)
         {
-            var elementContext = new ElementMappingExecutionContext<TSourceElement, TTargetElement>(
+            return new ElementMappingExecutionContext<TSourceElement, TTargetElement>(
                 sourceElement,
                 targetElement,
                 elementIndex,
                 elementKey,
-                parent,
+                this,
                 this);
-
-            return MapSubObject(sourceElement, targetElement, elementContext);
         }
 
-        private TSubTarget MapSubObject<TSubSource, TSubTarget>(
-            TSubSource subSource,
-            TSubTarget subTarget,
-            MappingExecutionContextBase2<TSubSource> context)
+        object IMappingExecutionContext.Map(IMappingExecutionContext context)
         {
             var rootMapper = GetRootMapper();
+            var result = rootMapper.MapSubObject((MappingExecutionContextBase2)context);
 
-            var result = rootMapper.MapSubObject(
-                subSource,
-                subTarget,
-                context,
-                context.GetMapperKey());
-
-            return (TSubTarget)result;
+            return result;
         }
 
-        TDeclaredTarget IMappingExecutionContext.MapRepeated<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceValue,
-            TDeclaredTarget targetValue,
-            int? elementIndex,
-            object elementKey,
-            string targetMemberName,
-            int dataSourceIndex,
-            IMappingExecutionContext parent)
+        object IMappingExecutionContext.MapRepeated(IMappingExecutionContext context)
         {
             // TODO
             //if (IsRoot || MappingTypes.RuntimeTypesNeeded)
             //{
             //}
 
-            var childContext = new ChildMappingExecutionContext<TDeclaredSource, TDeclaredTarget>(
-                sourceValue,
-                targetValue,
-                elementIndex,
-                elementKey,
-                targetMemberName,
-                dataSourceIndex,
-                parent,
-                this);
-
-            return MapRepeated(sourceValue, targetValue, childContext);
-        }
-
-        TDeclaredTarget IMappingExecutionContext.MapRepeated<TDeclaredSource, TDeclaredTarget>(
-            TDeclaredSource sourceElement,
-            TDeclaredTarget targetElement,
-            int elementIndex,
-            object elementKey,
-            IMappingExecutionContext parent)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private TSubTarget MapRepeated<TSubSource, TSubTarget>(
-            TSubSource repeatSource,
-            TSubTarget repeatTarget,
-            MappingExecutionContextBase2<TSubSource> context)
-        {
             var rootMapper = GetRootMapper();
+            var result = rootMapper.MapRepeated((MappingExecutionContextBase2)context);
 
-            var result = rootMapper.MapRepeated(
-                repeatSource,
-                repeatTarget,
-                context,
-                context.GetMapperKey());
-
-            return (TSubTarget)result;
+            return result;
         }
 
         #endregion
+    }
 
-        public abstract IObjectMapper GetRootMapper();
+    internal abstract class MappingExecutionContextBase2<TSource> :
+        MappingExecutionContextBase2,
+        IEntryPointMappingContext
+    {
+        private readonly TSource _source;
+
+        protected MappingExecutionContextBase2(
+            TSource source,
+            IMappingExecutionContext parent)
+            : base(parent)
+        {
+            _source = source;
+        }
+
+        public override object Source => _source;
+
+        T IEntryPointMappingContext.GetSource<T>()
+        {
+            if (typeof(TSource).IsAssignableTo(typeof(T)))
+            {
+                return (T)(object)_source;
+            }
+
+            return default;
+        }
     }
 }

@@ -19,8 +19,8 @@
             object elementKey,
             string targetMemberRegistrationName,
             int dataSourceIndex,
-            IMappingExecutionContext parent,
-            IEntryPointMappingContext entryPointContext)
+            MappingExecutionContextBase2 parent,
+            MappingExecutionContextBase2 entryPointContext)
             : base(source, parent, entryPointContext)
         {
             _source = source;
@@ -38,6 +38,8 @@
         }
 
         public override ObjectMapperKeyBase GetMapperKey() => _mapperKey;
+
+        public override object Target => _target;
 
         public override IObjectMappingData ToMappingData()
         {

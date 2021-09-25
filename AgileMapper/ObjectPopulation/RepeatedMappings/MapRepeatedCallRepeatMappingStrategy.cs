@@ -56,10 +56,8 @@
 
             childMapperData.RegisterRepeatedMapperFunc(mappingData);
 
-            var mapRepeatedCall = declaredTypeMapperData.GetMapRepeatedCall(
-                childMapperData.TargetMember,
-                mappingValues,
-                mappingValues.DataSourceIndex);
+            var mapRepeatedCall = declaredTypeMapperData
+                .GetMapRepeatedCall(mappingValues, childMapperData.TargetMember);
 
             return mapRepeatedCall;
         }

@@ -28,9 +28,9 @@
             Expression subject,
             ICache<TypeKey, Expression> cache = null)
         {
-            var typeIdsCache = cache ?? context.Cache.CreateScopedWithHashCodes<TypeKey, Expression>();
+            cache ??= context.Cache.CreateScopedWithHashCodes<TypeKey, Expression>();
 
-            return typeIdsCache.GetOrAdd(TypeKey.ForTypeId(subject.Type), key =>
+            return cache.GetOrAdd(TypeKey.ForTypeId(subject.Type), key =>
             {
                 var configuredIdentifier =
                     context.UserConfigurations.Identifiers.GetIdentifierOrNullFor(key.Type);

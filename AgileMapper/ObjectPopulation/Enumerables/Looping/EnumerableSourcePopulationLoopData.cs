@@ -23,7 +23,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
         {
         }
 
-        public EnumerableSourcePopulationLoopData(
+        protected EnumerableSourcePopulationLoopData(
             EnumerablePopulationBuilder builder,
             Type elementType,
             Expression enumerableSubject)

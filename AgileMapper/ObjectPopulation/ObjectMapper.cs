@@ -152,35 +152,27 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return _subMappersByKey?.Values.All(subMapperByKey => subMapperByKey.IsStaticallyCacheable()) == true;
         }
 
-        public object Map(object source, object target, IMappingExecutionContext context)
-            => Map((TSource)source, (TTarget)target, context);
+        public object Map(MappingExecutionContextBase2 context)
+            => Map((TSource)context.Source, (TTarget)context.Target, context);
 
         public TTarget Map(TSource source, TTarget target, IMappingExecutionContext context)
             => _mapperFunc.Invoke(source, target, context);
 
-        public object MapSubObject(
-            object source,
-            object target,
-            IMappingExecutionContext context,
-            ObjectMapperKeyBase mapperKey)
+        public object MapSubObject(MappingExecutionContextBase2 context)
         {
             var mapper = _subMappersByKey.GetOrAdd(
-                mapperKey,
+                context.GetMapperKey(),
                 key => key.CreateMappingData().GetOrCreateMapper());
 
-            return mapper.Map(source, target, context);
+            return mapper.Map(context);
         }
 
-        public object MapRepeated(
-            object source,
-            object target,
-            IMappingExecutionContext context,
-            ObjectMapperKeyBase mapperKey)
+        public object MapRepeated(MappingExecutionContextBase2 context)
         {
             var mapperFunc = _repeatedMappingFuncsByKey
-                .GetOrAdd(mapperKey, null);
+                .GetOrAdd(context.GetMapperKey(), null);
 
-            return mapperFunc.Map(source, target, context);
+            return mapperFunc.Map(context);
         }
 
         public ObjectMapper<TSource, TTarget> WithResetCallback(Action callback)

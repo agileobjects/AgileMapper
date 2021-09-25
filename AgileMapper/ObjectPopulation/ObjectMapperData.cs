@@ -613,16 +613,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 elementKey = Parent.ElementKey;
             }
 
-            var mapCall = Expression.Call(
-                Constants.ExecutionContextParameter,
-                MapChildMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
+            var mappingValues = new MappingValues(
                 sourceObject,
                 targetMember.GetAccess(this),
                 elementIndex,
                 elementKey,
-                targetMember.RegistrationName.ToConstantExpression(),
-                dataSourceIndex.ToConstantExpression(),
-                GetParentContext());
+                dataSourceIndex);
+
+            var mapCall = GetMapCall(mappingValues, MapMethod, targetMember);
 
             return GetSimpleTypeCheckedMapCall(sourceObject, targetMember.Type, mapCall);
         }
@@ -641,14 +639,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
-            var mapCall = Expression.Call(
-                Constants.ExecutionContextParameter,
-                MapElementMethod.MakeGenericMethod(sourceElement.Type, targetElement.Type),
+            var mappingValues = new MappingValues(
                 sourceElement,
                 targetElement,
                 EnumerablePopulationBuilder.Counter,
-                EnumerablePopulationBuilder.GetElementKey(),
-                GetParentContext());
+                EnumerablePopulationBuilder.GetElementKey());
+
+            var mapCall = GetMapCall(mappingValues, MapMethod, targetMember: null);
 
             return GetSimpleTypeCheckedMapCall(sourceElement, targetElement.Type, mapCall);
         }
@@ -679,54 +676,68 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return simpleSourceTypeOrMapCall;
         }
 
-        public MethodCallExpression GetMapRepeatedCall(
-            QualifiedMember targetMember,
+        public Expression GetMapRepeatedCall(MappingValues mappingValues, QualifiedMember targetMember)
+            => GetMapCall(mappingValues, MapRepeatedMethod, targetMember);
+
+        private Expression GetMapCall(
             MappingValues mappingValues,
-            int dataSourceIndex)
+            MethodInfo mapMethod,
+            QualifiedMember targetMember)
         {
-            if (targetMember.IsEnumerableElement())
+            var createExecutionContextCall =
+                GetCreateExecutionContextCall(mappingValues, targetMember);
+
+            var mapRepeatedCall = Expression.Call(
+                Constants.ExecutionContextParameter,
+                mapMethod,
+                createExecutionContextCall);
+
+            return mapRepeatedCall.GetConversionTo(mappingValues.TargetValue.Type);
+        }
+
+        public MethodCallExpression GetCreateExecutionContextCall(
+            MappingValues mappingValues,
+            QualifiedMember targetMember)
+        {
+            if (targetMember?.IsEnumerableElement() != false)
             {
-                return GetMapRepeatedCall(mappingValues, MapRepeatedElementMethod, new[]
-                {
+                return Expression.Call(
+                    GetParentContext(),
+                    GetTypedCreateMethod(CreateElementContextMethod, mappingValues),
                     mappingValues.SourceValue,
                     mappingValues.TargetValue,
                     mappingValues.ElementIndex,
-                    mappingValues.ElementKey,
-                    GetParentContext()
-                });
+                    mappingValues.ElementKey);
+
             }
 
-            return GetMapRepeatedCall(mappingValues, MapRepeatedChildMethod, new[]
-            {
+            return Expression.Call(
+                GetParentContext(),
+                GetTypedCreateMethod(CreateChildContextMethod, mappingValues),
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
                 ElementIndex.GetConversionTo<int?>(),
                 ElementKey,
                 targetMember.RegistrationName.ToConstantExpression(),
-                dataSourceIndex.ToConstantExpression(),
-                GetParentContext()
-            });
+                mappingValues.DataSourceIndex.ToConstantExpression());
         }
 
-        private static MethodCallExpression GetMapRepeatedCall(
-            MappingValues mappingValues,
-            MethodInfo mapRepeatedMethod,
-            Expression[] arguments)
+        private static MethodInfo GetTypedCreateMethod(
+            MethodInfo createMethod,
+            MappingValues mappingValues)
         {
-            mapRepeatedMethod = mapRepeatedMethod.MakeGenericMethod(
+            return createMethod.MakeGenericMethod(
                 mappingValues.SourceValue.Type,
                 mappingValues.TargetValue.Type);
-
-            var mapRepeatedCall = Expression.Call(
-                Constants.ExecutionContextParameter,
-                mapRepeatedMethod,
-                arguments);
-
-            return mapRepeatedCall;
         }
 
         private Expression GetParentContext()
         {
+            if (Parent?.IsRoot != false)
+            {
+                return Constants.ExecutionContextParameter;
+            }
+
             // TODO
             return Constants.ExecutionContextParameter;
         }

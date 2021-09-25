@@ -21,17 +21,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         bool IsStaticallyCacheable();
 
-        object MapSubObject(
-            object source,
-            object target,
-            IMappingExecutionContext context,
-            ObjectMapperKeyBase mapperKey);
+        object MapSubObject(MappingExecutionContextBase2 context);
 
-        object MapRepeated(
-            object source,
-            object target,
-            IMappingExecutionContext context,
-            ObjectMapperKeyBase mapperKey);
+        object MapRepeated(MappingExecutionContextBase2 context);
 
         void Reset();
     }

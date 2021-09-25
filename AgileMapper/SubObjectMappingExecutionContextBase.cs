@@ -6,16 +6,16 @@
     internal abstract class SubObjectMappingExecutionContextBase<TSubSource> :
         MappingExecutionContextBase2<TSubSource>
     {
-        private readonly IMappingExecutionContextInternal _parent;
-        private readonly IEntryPointMappingContext _entryPointContext;
+        private readonly MappingExecutionContextBase2 _parent;
+        private readonly MappingExecutionContextBase2 _entryPointContext;
 
         protected SubObjectMappingExecutionContextBase(
             TSubSource source,
-            IMappingExecutionContext parent,
-            IEntryPointMappingContext entryPointContext)
+            MappingExecutionContextBase2 parent,
+            MappingExecutionContextBase2 entryPointContext)
             : base(source, parent)
         {
-            _parent = (IMappingExecutionContextInternal)parent;
+            _parent = parent;
             _entryPointContext = entryPointContext;
         }
 
