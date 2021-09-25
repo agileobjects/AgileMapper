@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             MappingData = mappingData;
             MapToNullCondition = GetMapToNullConditionOrNull(MapperData);
-            InstantiateLocalVariable = true;
+            InstantiateLocalTargetVariable = true;
             MappingExpressions = new List<Expression>();
 
             if (RuleSet.Settings.UseSingleRootMappingExpression)
@@ -57,7 +57,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public List<Expression> MappingExpressions { get; }
 
-        public bool InstantiateLocalVariable { get; set; }
+        public bool InstantiateLocalTargetVariable { get; set; }
 
         public bool RemoveEmptyMappings
             => !MapperData.TargetMemberIsEnumerableElement() || RuleSet.Settings.RemoveEmptyElementMappings;
@@ -94,7 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var newContext = new MappingCreationContext(newSourceMappingData)
             {
-                InstantiateLocalVariable = isAlternate
+                InstantiateLocalTargetVariable = isAlternate
             };
 
             var newMapperData = newContext.MapperData;
@@ -106,7 +106,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 if (isAlternate)
                 {
-                    newMapperData.LocalVariable = MapperData.LocalVariable;
+                    newMapperData.LocalTargetVariable = MapperData.LocalTargetVariable;
                 }
 
                 newMapperData.TargetInstance = MapperData.TargetInstance;
@@ -184,7 +184,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return;
             }
 
-            toMapperData.LocalVariable = fromMapperData.LocalVariable;
+            toMapperData.LocalTargetVariable = fromMapperData.LocalTargetVariable;
             toMapperData.EnumerablePopulationBuilder.TargetVariable = fromMapperData.EnumerablePopulationBuilder.TargetVariable;
         }
     }

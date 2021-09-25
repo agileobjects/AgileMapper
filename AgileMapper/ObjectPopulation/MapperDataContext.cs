@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapperData = mapperData;
             IsStandalone = isStandalone;
             IsForDerivedType = isForDerivedType;
-            UseLocalVariable = isForDerivedType || ShouldUseLocalVariable(context);
+            UseLocalTargetVariable = isForDerivedType || ShouldUseLocalVariable(context);
         }
 
         #region Setup
@@ -100,7 +100,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        public bool UseLocalVariable { get; }
+        public bool UseLocalTargetVariable { get; }
 
         public bool UseMappingTryCatch
             => _mapperData.RuleSet.Settings.UseTryCatch && (_mapperData.IsEntryPoint || !IsPartOfUserStructMapping());

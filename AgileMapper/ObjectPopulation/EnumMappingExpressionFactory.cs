@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = context.MapperData;
             var enumMapping = mapperData.GetValueConversion(mapperData.SourceObject, mapperData.TargetType);
 
-            var population = context.MapperData.LocalVariable.AssignTo(enumMapping);
+            var population = context.MapperData.LocalTargetVariable.AssignTo(enumMapping);
 
             context.MappingExpressions.Add(population);
         }

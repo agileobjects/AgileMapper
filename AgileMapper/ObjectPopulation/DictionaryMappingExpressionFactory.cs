@@ -282,7 +282,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingCreationContext context,
             out bool useAssignmentOnly)
         {
-            if (!context.InstantiateLocalVariable || context.MapperData.TargetMember.IsReadOnly)
+            if (!context.InstantiateLocalTargetVariable || context.MapperData.TargetMember.IsReadOnly)
             {
                 useAssignmentOnly = false;
                 return null;

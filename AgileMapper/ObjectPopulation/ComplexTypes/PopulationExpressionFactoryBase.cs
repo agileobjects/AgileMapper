@@ -25,21 +25,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var populationsAndCallbacks = GetPopulationsAndCallbacks(mappingData).ToList();
             var guardPopulations = false;
 
-            if (context.InstantiateLocalVariable && mapperData.Context.UseLocalVariable)
+            if (context.InstantiateLocalTargetVariable && mapperData.Context.UseLocalTargetVariable)
             {
                 context.MappingExpressions.AddUnlessNullOrEmpty(preCreationCallback);
 
                 var hasPostCreationCallback = postCreationCallback != null;
                 var assignCreatedObject = hasPostCreationCallback;
 
-                var localVariableInstantiation = GetLocalVariableInstantiation(
+                var localTargetVariableInstantiation = GetLocalTargetVariableInstantiation(
                     assignCreatedObject,
                     populationsAndCallbacks,
                     mappingData);
 
-                context.MappingExpressions.Add(localVariableInstantiation);
+                context.MappingExpressions.Add(localTargetVariableInstantiation);
 
-                guardPopulations = LocalVariableCouldBeNull(localVariableInstantiation);
+                guardPopulations = LocalVariableCouldBeNull(localTargetVariableInstantiation);
 
                 if (hasPostCreationCallback)
                 {
@@ -60,7 +60,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             if (guardPopulations)
             {
                 context.MappingExpressions.Add(Expression.IfThen(
-                    mappingData.MapperData.LocalVariable.GetIsNotDefaultComparison(),
+                    mappingData.MapperData.LocalTargetVariable.GetIsNotDefaultComparison(),
                     Expression.Block(populationsAndCallbacks)));
 
                 goto AddTypeTester;
@@ -78,7 +78,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             out Expression postCreationCallback)
         {
             if (context.RuleSet.Settings.UseSingleRootMappingExpression ||
-               !context.InstantiateLocalVariable ||
+               !context.InstantiateLocalTargetVariable ||
                 context.MapperData.TargetIsDefinitelyPopulated())
             {
                 preCreationCallback = postCreationCallback = null;
@@ -113,18 +113,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IMemberPopulator memberPopulator,
             IObjectMappingData mappingData);
 
-        private Expression GetLocalVariableInstantiation(
+        private Expression GetLocalTargetVariableInstantiation(
             bool assignCreatedObject,
             IList<Expression> memberPopulations,
             IObjectMappingData mappingData)
         {
-            var localVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
+            var localTargetVariableValue = TargetObjectResolutionFactory.GetObjectResolution(
                 GetTargetObjectCreation,
                 mappingData,
                 memberPopulations,
                 assignCreatedObject);
 
-            return mappingData.MapperData.LocalVariable.AssignTo(localVariableValue);
+            return mappingData.MapperData.LocalTargetVariable.AssignTo(localTargetVariableValue);
         }
 
         protected virtual Expression GetTargetObjectCreation(

@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 mappingData,
                 assignTargetObject: true);
 
-            mapping = mappingData.MapperData.LocalVariable.AssignTo(mapping);
+            mapping = mappingData.MapperData.LocalTargetVariable.AssignTo(mapping);
 
             return mapping;
         }

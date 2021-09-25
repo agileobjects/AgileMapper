@@ -34,7 +34,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private Expression _elementIndex;
         private Expression _elementKey;
         private Expression _targetInstance;
-        private ParameterExpression _instanceVariable;
+        private ParameterExpression _targetInstanceVariable;
         private ParameterExpression _createdObject;
         private MappedObjectCachingMode _mappedObjectCachingMode;
         private List<ObjectMapperData> _childMapperDatas;
@@ -244,7 +244,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private void TargetEnumerableVariableCreated(ParameterExpression targetVariable)
         {
-            _instanceVariable = targetVariable;
+            _targetInstanceVariable = targetVariable;
         }
 
         #endregion
@@ -491,12 +491,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         private Expression GetTargetInstance()
-            => Context.UseLocalVariable ? LocalVariable : TargetObject;
+            => Context.UseLocalTargetVariable ? LocalTargetVariable : TargetObject;
 
-        public ParameterExpression LocalVariable
+        public ParameterExpression LocalTargetVariable
         {
-            get => _instanceVariable ??= CreateInstanceVariable();
-            set => _instanceVariable = value;
+            get => _targetInstanceVariable ??= CreateInstanceVariable();
+            set => _targetInstanceVariable = value;
         }
 
         private ParameterExpression CreateInstanceVariable()

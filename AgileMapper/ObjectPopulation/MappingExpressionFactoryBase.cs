@@ -319,12 +319,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
             else
             {
-                fallback = originalMapperData.LocalVariable.Type.GetEmptyInstanceCreation(
+                fallback = originalMapperData.LocalTargetVariable.Type.GetEmptyInstanceCreation(
                     context.TargetMember.ElementType,
                     originalMapperData.EnumerablePopulationBuilder.TargetTypeHelper);
             }
 
-            var assignFallback = originalMapperData.LocalVariable.AssignTo(fallback);
+            var assignFallback = originalMapperData.LocalTargetVariable.AssignTo(fallback);
 
             return Expression.IfThenElse(toTargetDataSource.Condition, toTargetMapping, assignFallback);
         }
@@ -418,7 +418,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             returnExpression = GetExpressionToReturn(context);
             ParameterExpression[] localVariables;
 
-            if (localVariablesUnused && (returnExpression == mapperData.LocalVariable) &&
+            if (localVariablesUnused && (returnExpression == mapperData.LocalTargetVariable) &&
                 context.EnumerateMappingExpressions(includeCallbacks: false).Any())
             {
                 mappingExpressions.Add(Constants.EmptyExpression);
@@ -428,10 +428,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 mappingExpressions.Add(mapperData.GetReturnLabel(returnExpression));
 
-                localVariables = mapperData.Context.UseLocalVariable
+                localVariables = mapperData.Context.UseLocalTargetVariable
                     ? mapperData.UsesCreatedObject
-                        ? new[] { mapperData.LocalVariable, mapperData.CreatedObject }
-                        : new[] { mapperData.LocalVariable }
+                        ? new[] { mapperData.LocalTargetVariable, mapperData.CreatedObject }
+                        : new[] { mapperData.LocalTargetVariable }
                     : mapperData.UsesCreatedObject
                         ? new[] { mapperData.CreatedObject }
                         : Enumerable<ParameterExpression>.EmptyArray;
@@ -468,7 +468,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mapperData = context.MapperData;
 
             if (!mapperData.RuleSet.Settings.UseSingleRootMappingExpression && (
-                !mapperData.Context.UseLocalVariable ||
+                !mapperData.Context.UseLocalTargetVariable ||
                  mapperData.ReturnLabelUsed ||
                  context.ToTargetDataSources.Any()))
             {
@@ -480,7 +480,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var mappingExpressions = context.MappingExpressions;
 
             if (!mappingExpressions.TryGetAssignment(
-                 mapperData.LocalVariable,
+                 mapperData.LocalTargetVariable,
                  out var localVariableAssignment))
             {
                 localVariablesUnused = true;
@@ -500,7 +500,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             returnExpression = (assignedValue.NodeType == Invoke)
                 ? Expression.Block(
-                    new[] { mapperData.LocalVariable },
+                    new[] { mapperData.LocalTargetVariable },
                     GetExpressionToReturn(localVariableAssignment, context))
                 : GetExpressionToReturn(assignedValue, context);
 
