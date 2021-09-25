@@ -9,6 +9,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using System.Linq.Expressions;
 #endif
     using Caching;
+    using Extensions.Internal;
     using MapperKeys;
     using NetStandardPolyfills;
     using RepeatedMappings;
@@ -132,14 +133,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         LambdaExpression IObjectMapper.GetMappingLambda() => GetMappingLambda();
 
-        private Expression<MapperFunc<TSource, TTarget>> GetMappingLambda()
-        {
-            return Expression.Lambda<MapperFunc<TSource, TTarget>>(
-                Mapping,
-               (ParameterExpression)MapperData.SourceObject,
-               (ParameterExpression)MapperData.TargetObject,
-                Constants.ExecutionContextParameter);
-        }
+        private Expression<MapperFunc<TSource, TTarget>> GetMappingLambda() 
+            => Mapping.ToMappingLambda<TSource, TTarget>(MapperData);
 
         public ObjectMapperData MapperData { get; }
 

@@ -70,11 +70,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
             mappingData.MapperKey.MappingData = mappingData;
             mappingData.MapperKey.MapperData = _mapperData;
 
-            var mappingLambda = Expression.Lambda<MapperFunc<TChildSource, TChildTarget>>(
-                mappingData.GetOrCreateMapper().Mapping,
-                (ParameterExpression)_mapperData.SourceObject,
-                (ParameterExpression)_mapperData.TargetObject,
-                Constants.ExecutionContextParameter);
+            var mappingLambda = mappingData
+                .GetOrCreateMapper()
+                .Mapping
+                .ToMappingLambda<TChildSource, TChildTarget>(_mapperData);
 
             Mapping = mappingLambda;
 

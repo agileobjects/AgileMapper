@@ -432,10 +432,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Constants.NullInt;
             }
 
-            return
+            var counter =
                 DeclaredTypeMapperData?.ElementIndex ??
-                EnumerablePopulationBuilder?.Counter ?? 
-                Parent.GetElementIndex();
+                EnumerablePopulationBuilder?.Counter;
+
+            if (counter != null)
+            {
+                return counter;
+            }
+
+            if (IsEntryPoint)
+            {
+                return Constants.NullInt;
+            }
+
+            return Parent.GetElementIndex();
         }
 
         public Expression ElementKey
@@ -706,7 +717,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             {
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
-                ElementIndex,
+                ElementIndex.GetConversionTo<int?>(),
                 ElementKey,
                 targetMember.RegistrationName.ToConstantExpression(),
                 dataSourceIndex.ToConstantExpression(),

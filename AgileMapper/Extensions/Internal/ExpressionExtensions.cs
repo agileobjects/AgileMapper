@@ -12,6 +12,7 @@
 #endif
     using System.Reflection;
     using NetStandardPolyfills;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
 #if NET35
     using LinqExp = System.Linq.Expressions;
@@ -421,5 +422,15 @@
         public static Expression ToDlrExpression(this LinqExp.Expression linqExpression)
             => LinqExpressionToDlrExpressionConverter.Convert(linqExpression);
 #endif
+        public static Expression<MapperFunc<TSource, TTarget>> ToMappingLambda<TSource, TTarget>(
+            this Expression mapping,
+            MemberMapperDataBase mapperData)
+        {
+            return Expression.Lambda<MapperFunc<TSource, TTarget>>(
+                mapping,
+               (ParameterExpression)mapperData.SourceObject,
+               (ParameterExpression)mapperData.TargetObject,
+                Constants.ExecutionContextParameter);
+        }
     }
 }

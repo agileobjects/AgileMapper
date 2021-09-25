@@ -249,7 +249,7 @@
 
             return useLocalSourceValueVariable
                 ? UseLocalValueVariable(
-                    (ParameterExpression)sourceValue,
+                   (ParameterExpression)sourceValue,
                     sourceValueVariableValue,
                     mapping,
                     mapperData)
@@ -263,7 +263,7 @@
         {
             return (sourceValue.NodeType != ExpressionType.Parameter) &&
                    !ruleSetOwner.RuleSet.Settings.UseMemberInitialisation &&
-                    SourceAccessCounter.MultipleAccessesExist(sourceValue, mapping);
+                    SourceValueUseEvaluator.UseLocalVariableFor(sourceValue, mapping);
         }
 
         public static Expression UseLocalSourceValueVariableIfAppropriate(
