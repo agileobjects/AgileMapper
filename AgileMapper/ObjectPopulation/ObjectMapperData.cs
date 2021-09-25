@@ -19,15 +19,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using Members.Sources;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using static MappingExecutionContextConstants;
 
     internal class ObjectMapperData : MemberMapperDataBase, IMemberMapperData
     {
-        private static readonly MethodInfo _mapRepeatedChildMethod =
-            typeof(IMappingExecutionContext).GetPublicInstanceMethod("MapRepeated", parameterCount: 7);
-
-        private static readonly MethodInfo _mapRepeatedElementMethod =
-            typeof(IMappingExecutionContext).GetPublicInstanceMethod("MapRepeated", parameterCount: 5);
-
         private LabelTarget _returnLabelTarget;
         private Expression _rootMappingDataObject;
         private ObjectMapperData _entryPointMapperData;
@@ -605,8 +600,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
-            const int MAP_CHILD_PARAMETER_COUNT = 7;
-
             Expression elementIndex, elementKey;
 
             if (IsRoot)
@@ -622,8 +615,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var mapCall = Expression.Call(
                 Constants.ExecutionContextParameter,
-                GetMapMethod(MAP_CHILD_PARAMETER_COUNT)
-                    .MakeGenericMethod(sourceObject.Type, targetMember.Type),
+                MapChildMethod.MakeGenericMethod(sourceObject.Type, targetMember.Type),
                 sourceObject,
                 targetMember.GetAccess(this),
                 elementIndex,
@@ -649,12 +641,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
-            const int MAP_ELEMENT_PARAMETER_COUNT = 5;
-
             var mapCall = Expression.Call(
                 Constants.ExecutionContextParameter,
-                GetMapMethod(MAP_ELEMENT_PARAMETER_COUNT)
-                    .MakeGenericMethod(sourceElement.Type, targetElement.Type),
+                MapElementMethod.MakeGenericMethod(sourceElement.Type, targetElement.Type),
                 sourceElement,
                 targetElement,
                 EnumerablePopulationBuilder.Counter,
@@ -666,12 +655,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private static bool IsSimpleTypeToObjectMapping(Expression sourceObject, Type targetType)
             => sourceObject.Type.IsSimple() && (targetType == typeof(object));
-
-        private static MethodInfo GetMapMethod(int parameterCount)
-        {
-            return typeof(IMappingExecutionContext)
-                .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Map), parameterCount);
-        }
 
         private static Expression GetSimpleTypeCheckedMapCall(
             Expression sourceObject,
@@ -703,7 +686,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (targetMember.IsEnumerableElement())
             {
-                return GetMapRepeatedCall(mappingValues, _mapRepeatedElementMethod, new[]
+                return GetMapRepeatedCall(mappingValues, MapRepeatedElementMethod, new[]
                 {
                     mappingValues.SourceValue,
                     mappingValues.TargetValue,
@@ -713,7 +696,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 });
             }
 
-            return GetMapRepeatedCall(mappingValues, _mapRepeatedChildMethod, new[]
+            return GetMapRepeatedCall(mappingValues, MapRepeatedChildMethod, new[]
             {
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,

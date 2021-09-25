@@ -10,7 +10,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     using Extensions.Internal;
     using Members;
     using Members.Population;
-    using NetStandardPolyfills;
     using static InvocationPosition;
 
     internal abstract class PopulationExpressionFactoryBase
@@ -175,8 +174,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static Expression GetObjectRegistrationCall(ObjectMapperData mapperData)
         {
-            var registerMethod = typeof(IMappingExecutionContext)
-                .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Register))
+            var registerMethod = MappingExecutionContextConstants.RegisterMethod
                 .MakeGenericMethod(mapperData.SourceType, mapperData.TargetType);
 
             return Expression.Call(
