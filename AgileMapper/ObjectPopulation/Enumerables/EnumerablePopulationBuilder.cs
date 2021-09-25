@@ -155,7 +155,7 @@
 
             var parentMapperData = MapperData.Parent;
 
-            while (!parentMapperData.Context.IsStandalone)
+            while (!parentMapperData.IsEntryPoint)
             {
                 if (parentMapperData.TargetMember.IsEnumerable)
                 {

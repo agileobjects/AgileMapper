@@ -147,7 +147,14 @@
 
         public static bool None<TArg, T>(this IList<T> items, TArg argument, Func<TArg, T, bool> predicate)
         {
-            for (int i = 0, n = items.Count; i < n; i++)
+            var itemCount = items.Count;
+
+            if (itemCount == 0)
+            {
+                return true;
+            }
+
+            for (var i = 0; i < itemCount; ++i)
             {
                 if (predicate.Invoke(argument, items[i]))
                 {

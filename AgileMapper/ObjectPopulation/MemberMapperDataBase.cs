@@ -89,14 +89,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetSourceObject()
         {
-            if (IsEntryPoint)
-            {
-                return SourceType.GetOrCreateSourceParameter();
-            }
-
-            return GetNestedSourceObject();
-
-            //SourceObject = GetMappingDataProperty(MappingDataType, Member.RootSourceMemberName);
+            return IsEntryPoint
+                ? SourceType.GetOrCreateSourceParameter()
+                : GetNestedSourceObject();
         }
 
         protected virtual Expression GetNestedSourceObject()

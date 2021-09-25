@@ -54,9 +54,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             DataSourceIndex = dataSourceIndex.GetValueOrDefault();
 
-            // TODO
-            //CreatedObject = GetMappingDataProperty(nameof(CreatedObject));
-
             var isPartOfDerivedTypeMapping = declaredTypeMapperData != null;
 
             if (isPartOfDerivedTypeMapping)
@@ -237,10 +234,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private void TargetEnumerableVariableCreated(ParameterExpression targetVariable)
-        {
-            _targetInstanceVariable = targetVariable;
-        }
+        private void TargetEnumerableVariableCreated(ParameterExpression targetVariable) 
+            => _targetInstance = _targetInstanceVariable = targetVariable;
 
         #endregion
 
@@ -299,7 +294,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             var parentMapperData = mappingData.Parent.MapperData;
             var membersSource = mappingData.MapperKey.GetMembersSource(parentMapperData);
 
-            if (!(membersSource is IChildMembersSource childMembersSource))
+            if (membersSource is not IChildMembersSource childMembersSource)
             {
                 existingMapperData = null;
                 return false;
@@ -546,7 +541,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public override bool IsEntryPoint
-            => IsRoot || Context.IsStandalone || IsRepeatMapping;
+            => IsRoot || Context.IsStandalone || (!TargetMember.IsEnumerable && IsRepeatMapping);
 
         public bool IsRepeatMapping => _isRepeatMapping ??= this.IsRepeatMapping();
 
@@ -733,13 +728,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetParentContext()
         {
-            if (Parent?.IsRoot != false)
+            if (IsEntryPoint)
             {
                 return Constants.ExecutionContextParameter;
             }
 
-            // TODO
-            return Constants.ExecutionContextParameter;
+            var mappingValues = new MappingValues(
+                SourceObject,
+                TargetInstance,
+                ElementIndex,
+                ElementKey,
+                DataSourceIndex);
+
+            return Parent.GetCreateExecutionContextCall(mappingValues, TargetMember);
         }
 
         /// <summary>

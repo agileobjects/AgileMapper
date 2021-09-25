@@ -314,27 +314,11 @@ namespace AgileObjects.AgileMapper.Members
                 var nonSimpleChildMembers = GetTargetMembers(mappingType)
                     .Filter(m => !m.IsSimple)
                     .Project(targetMember, GetNonEnumerableChildMember)
-                    .ToArray();
+                    .ToList();
 
-                if (nonSimpleChildMembers.None())
-                {
-                    return false;
-                }
-
-                if (nonSimpleChildMembers.Any(cm => cm.IsRecursion))
-                {
-                    return true;
-                }
-
-                foreach (var childMember in nonSimpleChildMembers)
-                {
-                    if (TargetMemberHasRecursiveObjectGraph(childMember))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
+                return
+                    nonSimpleChildMembers.Any(cm => cm.IsRecursion) &&
+                    nonSimpleChildMembers.Any(TargetMemberHasRecursiveObjectGraph);
             }
         }
 
