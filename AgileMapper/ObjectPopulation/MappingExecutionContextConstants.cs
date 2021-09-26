@@ -11,16 +11,16 @@
         public static readonly MethodInfo TryGetMethod = typeof(IMappingExecutionContext)
             .GetPublicInstanceMethod(nameof(IMappingExecutionContext.TryGet));
 
-        public static readonly MethodInfo CreateChildContextMethod = typeof(IMappingExecutionContext)
-            .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Create), parameterCount: 6);
+        public static readonly MethodInfo AddChildContextMethod = typeof(IMappingExecutionContext)
+            .GetPublicInstanceMethod(nameof(IMappingExecutionContext.AddChild), parameterCount: 6);
 
-        public static readonly MethodInfo CreateElementContextMethod = typeof(IMappingExecutionContext)
-            .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Create), parameterCount: 4);
+        public static readonly MethodInfo AddElementContextMethod = typeof(IMappingExecutionContext)
+            .GetPublicInstanceMethod(nameof(IMappingExecutionContext.AddElement), parameterCount: 4);
 
         public static readonly MethodInfo MapMethod = typeof(IMappingExecutionContext)
-            .GetPublicInstanceMethod("Map");
+            .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Map));
 
         public static readonly MethodInfo MapRepeatedMethod = typeof(IMappingExecutionContext)
-            .GetPublicInstanceMethod("MapRepeated");
+            .GetPublicInstanceMethod(nameof(IMappingExecutionContext.MapRepeated));
     }
 }

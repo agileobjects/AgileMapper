@@ -18,6 +18,7 @@
             out IObjectMappingData derivedTypeMappingData)
         {
             derivedTypeMappingData = declaredTypeMappingData.WithDerivedTypes(sourceValue.Type, targetType);
+            derivedTypeMappingData.MapperData.SourceObject = sourceValue;
 
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 

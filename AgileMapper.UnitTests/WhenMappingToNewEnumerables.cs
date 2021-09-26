@@ -50,7 +50,7 @@
         public void ShouldCreateASimpleTypeEnumerable()
         {
             var source = new List<string> { "One", "Two", "Three" };
-            var result = Mapper.Map(source).ToANew<IEnumerable<string>>();
+            var result = Mapper.Map(source).ToANew<IEnumerable<string>>().ToList();
 
             result.ShouldNotBeNull();
             result.ShouldNotBeSameAs(source);

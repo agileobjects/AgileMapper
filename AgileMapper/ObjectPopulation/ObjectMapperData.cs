@@ -417,11 +417,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         private Expression GetElementIndex()
         {
-            if (IsRoot)
-            {
-                return Constants.NullInt;
-            }
-
             var counter =
                 DeclaredTypeMapperData?.ElementIndex ??
                 EnumerablePopulationBuilder?.Counter;
@@ -694,30 +689,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MappingValues mappingValues,
             QualifiedMember targetMember)
         {
-            if (targetMember?.IsEnumerableElement() != false)
+            if (targetMember?.IsEnumerableElement() == false)
             {
                 return Expression.Call(
                     GetParentContext(),
-                    GetTypedCreateMethod(CreateElementContextMethod, mappingValues),
+                    GetTypedAddContextMethod(AddChildContextMethod, mappingValues),
                     mappingValues.SourceValue,
                     mappingValues.TargetValue,
-                    mappingValues.ElementIndex,
-                    mappingValues.ElementKey);
-
+                    ElementIndex.GetConversionTo<int?>(),
+                    ElementKey,
+                    targetMember.RegistrationName.ToConstantExpression(),
+                    mappingValues.DataSourceIndex.ToConstantExpression());
             }
 
             return Expression.Call(
                 GetParentContext(),
-                GetTypedCreateMethod(CreateChildContextMethod, mappingValues),
+                GetTypedAddContextMethod(AddElementContextMethod, mappingValues),
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
-                ElementIndex.GetConversionTo<int?>(),
-                ElementKey,
-                targetMember.RegistrationName.ToConstantExpression(),
-                mappingValues.DataSourceIndex.ToConstantExpression());
+                mappingValues.ElementIndex,
+                mappingValues.ElementKey);
         }
 
-        private static MethodInfo GetTypedCreateMethod(
+        private static MethodInfo GetTypedAddContextMethod(
             MethodInfo createMethod,
             MappingValues mappingValues)
         {

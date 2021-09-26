@@ -60,7 +60,7 @@
         /// described by this <see cref="IMappingExecutionContext"/>, if applicable.
         /// </param>
         /// <returns>The mapping result.</returns>
-        IMappingExecutionContext Create<TSourceValue, TTargetValue>(
+        IMappingExecutionContext AddChild<TSourceValue, TTargetValue>(
             TSourceValue sourceValue,
             TTargetValue targetValue,
             int? elementIndex,
@@ -86,7 +86,7 @@
         /// to be described by the new <see cref="IMappingExecutionContext"/>, if applicable.
         /// </param>
         /// <returns>The mapping result.</returns>
-        IMappingExecutionContext Create<TSourceElement, TTargetElement>(
+        IMappingExecutionContext AddElement<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int elementIndex,

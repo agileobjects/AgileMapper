@@ -146,26 +146,26 @@
 
         private ParameterExpression GetCounterVariable()
         {
-            if (MapperData.IsRoot)
+            if (MapperData.IsEntryPoint)
             {
-                return Parameters.Create<int>("i");
+                return Constants.DefaultCounter;
             }
 
             var counterName = 'i';
+            var parentMapperData = MapperData;
 
-            var parentMapperData = MapperData.Parent;
-
-            while (!parentMapperData.IsEntryPoint)
+            do
             {
+                parentMapperData = parentMapperData.Parent;
+
                 if (parentMapperData.TargetMember.IsEnumerable)
                 {
                     ++counterName;
                 }
-
-                parentMapperData = parentMapperData.Parent;
             }
+            while (!parentMapperData.IsEntryPoint);
 
-            return Parameters.Create<int>(counterName.ToString());
+            return typeof(int).GetOrCreateParameter(counterName.ToString());
         }
 
         public Expression GetElementKey() => _sourceAdapter.GetElementKey();

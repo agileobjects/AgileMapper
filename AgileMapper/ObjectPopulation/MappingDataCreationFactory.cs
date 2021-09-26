@@ -74,7 +74,7 @@
                 createMethod,
                 mappingValues.SourceValue,
                 mappingValues.TargetValue,
-                mappingValues.ElementIndex,
+                mappingValues.ElementIndex.GetConversionTo<int?>(),
                 mappingValues.ElementKey,
                 childMapperData.TargetMember.RegistrationName.ToConstantExpression(),
                 mappingValues.DataSourceIndex.ToConstantExpression(),

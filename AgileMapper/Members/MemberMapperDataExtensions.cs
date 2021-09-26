@@ -316,8 +316,13 @@ namespace AgileObjects.AgileMapper.Members
                     .Project(targetMember, GetNonEnumerableChildMember)
                     .ToList();
 
+                if (nonSimpleChildMembers.None())
+                {
+                    return false;
+                }
+
                 return
-                    nonSimpleChildMembers.Any(cm => cm.IsRecursion) &&
+                    nonSimpleChildMembers.Any(cm => cm.IsRecursion) ||
                     nonSimpleChildMembers.Any(TargetMemberHasRecursiveObjectGraph);
             }
         }

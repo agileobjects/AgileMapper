@@ -78,7 +78,7 @@
             mappedTargets.Add(complexType);
         }
 
-        IMappingExecutionContext IMappingExecutionContext.Create<TSourceValue, TTargetValue>(
+        IMappingExecutionContext IMappingExecutionContext.AddChild<TSourceValue, TTargetValue>(
             TSourceValue sourceValue,
             TTargetValue targetValue,
             int? elementIndex,
@@ -97,7 +97,7 @@
                 this);
         }
 
-        IMappingExecutionContext IMappingExecutionContext.Create<TSourceElement, TTargetElement>(
+        IMappingExecutionContext IMappingExecutionContext.AddElement<TSourceElement, TTargetElement>(
             TSourceElement sourceElement,
             TTargetElement targetElement,
             int elementIndex,
