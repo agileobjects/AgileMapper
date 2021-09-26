@@ -29,7 +29,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables.Looping
 
             SourceElement = _useDirectValueAccess
                 ? _indexedSourceAccess
-                : builder.Context.GetSourceParameterFor(builder.SourceTypeHelper.ElementType);
+                : builder.Context.GetSourceElementParameterFor(builder.SourceTypeHelper.ElementType);
         }
 
         public bool NeedsContinueTarget { get; set; }

@@ -691,14 +691,22 @@
 
         public void MapIntersection(IObjectMappingData enumerableMappingData)
         {
-            var sourceElementParameter = Context.GetSourceParameterFor(Context.SourceElementType, prefix: "existing");
-            var targetElementParameter = Context.GetTargetParameterFor(Context.TargetElementType, prefix: "existing");
+            var sourceElementParameter = Context
+                .GetSourceElementParameterFor(Context.SourceElementType, prefix: "existing");
+
+            var targetElementParameter = Context
+                .GetTargetElementParameterFor(Context.TargetElementType, prefix: "existing");
 
             var defaultLoopCounter = _counterVariable;
             _counterVariable = Parameters.Create<int>("idx");
 
-            var forEachActionType = Expression.GetActionType(Context.SourceElementType, Context.TargetElementType, typeof(int));
-            var forEachAction = GetElementMapping(sourceElementParameter, targetElementParameter, enumerableMappingData);
+            var forEachActionType = Expression
+                .GetActionType(Context.SourceElementType, Context.TargetElementType, typeof(int));
+
+            var forEachAction = GetElementMapping(
+                sourceElementParameter,
+                targetElementParameter,
+                enumerableMappingData);
 
             var forEachLambda = Expression.Lambda(
                 forEachActionType,

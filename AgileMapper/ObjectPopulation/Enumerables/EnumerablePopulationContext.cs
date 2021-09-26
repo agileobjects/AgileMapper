@@ -62,16 +62,23 @@
 
         public EnumerableTypeHelper TargetTypeHelper { get; }
 
-        public ParameterExpression GetSourceParameterFor(Type type, string prefix = null)
-            => GetParameterFor(type, prefix, RootSourceMemberName);
+        public ParameterExpression GetSourceParameterFor(Type type) 
+            => GetParameterFor(type, prefix: null, RootSourceMemberName, suffix: null);
 
-        public ParameterExpression GetTargetParameterFor(Type type, string prefix = null)
-            => GetParameterFor(type, prefix, RootTargetMemberName);
+        public ParameterExpression GetSourceElementParameterFor(Type type, string prefix = null)
+            => GetParameterFor(type, prefix, RootSourceMemberName, suffix: "Element");
+
+        public ParameterExpression GetTargetParameterFor(Type type)
+            => GetParameterFor(type, prefix: null, RootTargetMemberName, suffix: null);
+
+        public ParameterExpression GetTargetElementParameterFor(Type type, string prefix = null)
+            => GetParameterFor(type, prefix, RootTargetMemberName, suffix: "Element");
 
         private ParameterExpression GetParameterFor(
             Type type,
             string prefix,
-            string sameTypesPrefix)
+            string sameTypesPrefix,
+            string suffix)
         {
             string parameterName;
 
@@ -88,6 +95,11 @@
                 parameterName = prefix != null
                     ? prefix + type.GetVariableNameInPascalCase()
                     : type.GetVariableNameInCamelCase();
+            }
+
+            if (suffix != null)
+            {
+                parameterName += suffix;
             }
 
             return type.GetOrCreateParameter(parameterName);
