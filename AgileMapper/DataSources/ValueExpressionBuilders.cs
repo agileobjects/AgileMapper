@@ -14,7 +14,9 @@ namespace AgileObjects.AgileMapper.DataSources
         public static Expression SingleDataSource(IDataSource dataSource, IMemberMapperData mapperData)
         {
             var value = dataSource.IsConditional
-                ? dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition, mapperData)
+                ? mapperData.TargetMember.IsReadOnly
+                    ? Expression.IfThen(dataSource.Condition, dataSource.Value)
+                    : dataSource.Value.ToIfFalseDefaultCondition(dataSource.Condition, mapperData)
                 : dataSource.Value;
 
             return dataSource.AddSourceCondition(value);

@@ -463,7 +463,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return EnumerablePopulationBuilder.TargetVariable;
             }
 
-            var subjectMapperData = TargetMember.LeafMember.DeclaringType == TargetInstance.Type
+            var targetType = _targetInstance?.Type ?? TargetType;
+
+            var subjectMapperData = TargetMember.LeafMember.DeclaringType == targetType
                 ? this : Parent;
 
             return TargetMember.GetAccess(subjectMapperData.TargetInstance, this);
