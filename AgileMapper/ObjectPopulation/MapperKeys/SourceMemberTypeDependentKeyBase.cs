@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
         public ObjectMapperData MapperData { get; set; }
 
-        public IEntryPointMappingContext MappingContext { get; set; }
+        public MappingExecutionContextBase2 MappingContext { get; set; }
 
         public bool HasTypeTester { get; private set; }
 

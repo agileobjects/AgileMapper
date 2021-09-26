@@ -4,7 +4,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
     {
         MappingTypes MappingTypes { get; }
 
-        IEntryPointMappingContext MappingContext { get; }
+        MappingExecutionContextBase2 MappingContext { get; }
 
         IObjectMappingData CreateMappingData();
 

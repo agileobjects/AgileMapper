@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-    using NetStandardPolyfills;
     using ObjectPopulation;
     using ObjectPopulation.MapperKeys;
     using Plans;
@@ -138,7 +137,7 @@
 
     internal abstract class MappingExecutionContextBase2<TSource> :
         MappingExecutionContextBase2,
-        IEntryPointMappingContext
+        IMappingContext
     {
         private readonly TSource _source;
 
@@ -151,15 +150,5 @@
         }
 
         public override object Source => _source;
-
-        T IEntryPointMappingContext.GetSource<T>()
-        {
-            if (typeof(TSource).IsAssignableTo(typeof(T)))
-            {
-                return (T)(object)_source;
-            }
-
-            return default;
-        }
     }
 }
