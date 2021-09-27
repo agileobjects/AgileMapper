@@ -18,7 +18,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
         public IObjectMappingData CreateMappingData()
         {
-            var mappingData = MappingContext.ToMappingData();
+            var mappingData = MappingExecutionContext.ToMappingData();
             mappingData.MapperKey = this;
             return mappingData;
         }

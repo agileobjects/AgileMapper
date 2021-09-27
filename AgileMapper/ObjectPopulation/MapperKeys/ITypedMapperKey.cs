@@ -1,10 +1,8 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
-    internal interface ITypedMapperKey : IMappingDataOwner
+    internal interface ITypedMapperKey : IMappingExecutionContextOwner
     {
         MappingTypes MappingTypes { get; }
-
-        MappingExecutionContextBase2 MappingContext { get; }
 
         IObjectMappingData CreateMappingData();
 

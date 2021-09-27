@@ -11,6 +11,7 @@
         private readonly int? _elementIndex;
         private readonly object _elementKey;
         private readonly ObjectMapperKeyBase _mapperKey;
+        private IObjectMappingData _childMappingData;
 
         public ChildMappingExecutionContext(
             TChildSource source,
@@ -33,7 +34,7 @@
                 targetMemberRegistrationName,
                 dataSourceIndex)
             {
-                MappingContext = this
+                MappingExecutionContext = this
             };
         }
 
@@ -43,7 +44,7 @@
 
         public override IObjectMappingData ToMappingData()
         {
-            return ObjectMappingDataFactory.Create(
+            return _childMappingData ??= ObjectMappingDataFactory.Create(
                 _source,
                 _target,
                 _elementIndex,

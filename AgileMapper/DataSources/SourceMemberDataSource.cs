@@ -8,6 +8,7 @@
 #endif
     using Extensions.Internal;
     using Members;
+    using ObjectPopulation;
     using ReadableExpressions.Extensions;
     using TypeConversion;
 
@@ -50,11 +51,7 @@
                 var cast = (UnaryExpression)parent;
                 parent = cast.Operand;
 
-                if (typeTests == null)
-                {
-                    typeTests = new List<Expression>();
-                }
-
+                typeTests ??= new List<Expression>();
                 typeTests.Insert(0, GetRuntimeTypeCheck(cast, mapperData));
             }
 
@@ -65,12 +62,19 @@
 
         private static Expression GetRuntimeTypeCheck(UnaryExpression cast, IMemberMapperData mapperData)
         {
-            var mappingDataParameter = typeof(IMappingData).GetOrCreateParameter();
-            var getSourceCall = mapperData.GetSourceAccess(mappingDataParameter, mapperData.SourceType);
-            var rootedValue = cast.Operand.Replace(mapperData.SourceObject, getSourceCall);
+            var contextParameter = MappingExecutionContextConstants.Parameter;
+            var sourceProperty = Expression.Property(contextParameter, "Source");
+            var sourcePropertyAsType = Expression.TypeAs(sourceProperty, mapperData.SourceType);
+            var typedSourceVariable = mapperData.SourceType.GetOrCreateParameter("typedSource");
+            var typedSourceAssignment = Expression.Assign(typedSourceVariable, sourcePropertyAsType);
+            var typedAssignmentResultNonNull = typedSourceAssignment.GetIsNotDefaultComparison();
+
+            var rootedValue = cast.Operand.Replace(mapperData.SourceObject, typedSourceVariable);
             var memberHasRuntimeType = Expression.TypeIs(rootedValue, cast.Type);
 
-            return memberHasRuntimeType;
+            var memberUseable = Expression.AndAlso(typedAssignmentResultNonNull, memberHasRuntimeType);
+
+            return Expression.Block(new[] { typedSourceVariable }, memberUseable);
         }
 
         public override Expression Condition { get; }

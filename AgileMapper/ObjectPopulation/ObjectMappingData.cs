@@ -110,7 +110,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapper = MapperContext.ObjectMapperFactory.Create(this);
 
             MapperKey.MappingData = null;
-            MapperKey.MappingContext = null;
+            MapperKey.MappingExecutionContext = null;
 
             if (_mapper == null)
             {

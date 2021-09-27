@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
         public RootObjectMapperKey(MappingExecutionContextBase2 context)
             : this(context.RuleSet, context.MappingTypes, context.MapperContext.RootMembersSource)
         {
-            MappingContext = context;
+            MappingExecutionContext = context;
         }
 
         public RootObjectMapperKey(MappingRuleSet ruleSet, MappingTypes mappingTypes, IMembersSource membersSource)

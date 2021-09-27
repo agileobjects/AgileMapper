@@ -38,7 +38,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             IObjectMappingData mappingData,
             out ConstructionKey constructionKey)
         {
-            return _constructionInfosCache.GetOrAdd(constructionKey = new ConstructionKey(mappingData), key =>
+            constructionKey = new ConstructionKey(mappingData);
+
+            return _constructionInfosCache.GetOrAdd(constructionKey, key =>
             {
                 IList<IConstructionInfo> constructionInfos = new List<IConstructionInfo>();
 
@@ -227,7 +229,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Helper Classes
 
-        private class ConstructionKey : SourceMemberTypeDependentKeyBase, IMappingDataOwner
+        private class ConstructionKey : SourceMemberTypeDependentKeyBase, IMappingExecutionContextOwner
         {
             private readonly MappingRuleSet _ruleSet;
             private readonly IQualifiedMember _sourceMember;
@@ -247,8 +249,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 var otherKey = (ConstructionKey)obj;
 
-                // ReSharper disable once PossibleNullReferenceException
-                return (otherKey._ruleSet == _ruleSet) &&
+                return (otherKey!._ruleSet == _ruleSet) &&
                     (otherKey._sourceMember == _sourceMember) &&
                     (otherKey._targetMember == _targetMember) &&
                      SourceHasRequiredTypes(otherKey);
@@ -324,7 +325,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 IsUnconditional = !_configuredFactory.HasConfiguredCondition;
             }
 
-            public override Construction ToConstruction() => new Construction(_configuredFactory, _mapperData);
+            public override Construction ToConstruction() => new(_configuredFactory, _mapperData);
         }
 
         private abstract class ConstructionDataInfo<TInvokable> : ConstructionInfoBase

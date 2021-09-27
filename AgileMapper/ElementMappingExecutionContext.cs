@@ -12,6 +12,7 @@
         private readonly int _elementIndex;
         private readonly object _elementKey;
         private readonly ObjectMapperKeyBase _mapperKey;
+        private IObjectMappingData _elementMappingData;
 
         public ElementMappingExecutionContext(
             TElementSource sourceElement,
@@ -30,7 +31,7 @@
             _mapperKey = new ElementObjectMapperKey(
                 MappingTypes.For(sourceElement, targetElement))
             {
-                MappingContext = this
+                MappingExecutionContext = this
             };
         }
 
@@ -40,7 +41,7 @@
 
         public override IObjectMappingData ToMappingData()
         {
-            return ObjectMappingDataFactory.Create(
+            return _elementMappingData ??= ObjectMappingDataFactory.Create(
                 _sourceElement,
                 _targetElement,
                 _elementIndex,

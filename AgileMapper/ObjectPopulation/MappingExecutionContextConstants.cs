@@ -1,10 +1,21 @@
 ﻿namespace AgileObjects.AgileMapper.ObjectPopulation
 {
+#if NET35
+    using Microsoft.Scripting.Ast;
+#else
+    using System.Linq.Expressions;
+#endif
     using System.Reflection;
+    using Extensions.Internal;
     using NetStandardPolyfills;
 
     internal static class MappingExecutionContextConstants
     {
+        private static ParameterExpression _parameter;
+
+        public static ParameterExpression Parameter
+            => _parameter ??= typeof(MappingExecutionContextBase2).GetOrCreateParameter("ctx");
+
         public static readonly MethodInfo RegisterMethod = typeof(IMappingExecutionContext)
             .GetPublicInstanceMethod(nameof(IMappingExecutionContext.Register));
 

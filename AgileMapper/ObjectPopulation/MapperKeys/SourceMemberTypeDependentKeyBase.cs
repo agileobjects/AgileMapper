@@ -9,17 +9,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 #endif
     using Extensions;
     using Extensions.Internal;
-    using Members;
 
     internal abstract class SourceMemberTypeDependentKeyBase
     {
-        private Func<IMappingData, bool> _sourceMemberTypeTester;
+        private Func<MappingExecutionContextBase2, bool> _sourceMemberTypeTester;
 
         public IObjectMappingData MappingData { get; set; }
 
         public ObjectMapperData MapperData { get; set; }
 
-        public MappingExecutionContextBase2 MappingContext { get; set; }
+        public MappingExecutionContextBase2 MappingExecutionContext { get; set; }
 
         public bool HasTypeTester { get; private set; }
 
@@ -38,7 +37,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
                 .Values
                 .Project(dataSourceSet => dataSourceSet.SourceMemberTypeTest)
                 .WhereNotNull()
-                .ToArray();
+                .ToList();
 
             if (typeTests.None())
             {
@@ -46,14 +45,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
             }
 
             var typeTest = typeTests.AndTogether();
-            var mappingDataParameter = typeof(IMappingData).GetOrCreateParameter();
-            var typeTestLambda = Expression.Lambda<Func<IMappingData, bool>>(typeTest, mappingDataParameter);
+            var contextParameter = MappingExecutionContextConstants.Parameter;
+            
+            var typeTestLambda = Expression
+                .Lambda<Func<MappingExecutionContextBase2, bool>>(typeTest, contextParameter);
 
             _sourceMemberTypeTester = typeTestLambda.Compile();
             HasTypeTester = true;
         }
 
-        protected bool SourceHasRequiredTypes(IMappingDataOwner otherKey)
-            => !HasTypeTester || _sourceMemberTypeTester.Invoke(otherKey.MappingData);
+        protected bool SourceHasRequiredTypes(IMappingExecutionContextOwner otherKey)
+            => !HasTypeTester || _sourceMemberTypeTester.Invoke(otherKey.MappingExecutionContext);
     }
 }
