@@ -124,6 +124,7 @@
             // TODO
             //if (IsRoot || MappingTypes.RuntimeTypesNeeded)
             //{
+            //    childMappingData.IsPartOfRepeatedMapping = true;
             //}
 
             var rootMapper = GetRootMapper();
