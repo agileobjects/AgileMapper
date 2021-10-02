@@ -12,13 +12,28 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 
     internal abstract class SourceMemberTypeDependentKeyBase
     {
-        private Func<MappingExecutionContextBase2, bool> _sourceMemberTypeTester;
+        private IMapperKeyData _keyData;
+        private IObjectMappingData _mappingData;
+        private ObjectMapperData _mapperData;
+        private Func<object, bool> _sourceMemberTypeTester;
 
-        public IObjectMappingData MappingData { get; set; }
+        public IObjectMappingData MappingData
+        {
+            get => _mappingData ??= KeyData.GetMappingData();
+            set => _mappingData = value;
+        }
 
-        public ObjectMapperData MapperData { get; set; }
+        public ObjectMapperData MapperData
+        {
+            get => _mapperData ??= MappingData.MapperData;
+            set => _mapperData = value;
+        }
 
-        public MappingExecutionContextBase2 MappingExecutionContext { get; set; }
+        public IMapperKeyData KeyData
+        {
+            get => _keyData ??= _mappingData;
+            set => _keyData = value;
+        }
 
         public bool HasTypeTester { get; private set; }
 
@@ -45,16 +60,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
             }
 
             var typeTest = typeTests.AndTogether();
-            var contextParameter = MappingExecutionContextConstants.Parameter;
-            
-            var typeTestLambda = Expression
-                .Lambda<Func<MappingExecutionContextBase2, bool>>(typeTest, contextParameter);
+            var sourceParameter = typeof(object).GetOrCreateSourceParameter();
+            var typeTestLambda = Expression.Lambda<Func<object, bool>>(typeTest, sourceParameter);
 
             _sourceMemberTypeTester = typeTestLambda.Compile();
             HasTypeTester = true;
         }
 
-        protected bool SourceHasRequiredTypes(IMappingExecutionContextOwner otherKey)
-            => !HasTypeTester || _sourceMemberTypeTester.Invoke(otherKey.MappingExecutionContext);
+        protected bool SourceHasRequiredTypes(IMapperKeyDataOwner otherKey)
+            => !HasTypeTester || _sourceMemberTypeTester.Invoke(otherKey.KeyData.Source);
     }
 }

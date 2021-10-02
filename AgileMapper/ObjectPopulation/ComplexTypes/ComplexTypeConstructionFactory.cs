@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     key,
                     out var otherConstructionRequired);
 
-                if (otherConstructionRequired && !key.MappingData.MapperData.TargetType.IsAbstract())
+                if (otherConstructionRequired && !key.MapperData.TargetType.IsAbstract())
                 {
                     AddAutoConstructionInfos(constructionInfos, key);
                 }
@@ -68,7 +68,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             ConstructionKey key,
             out bool otherConstructionRequired)
         {
-            var mapperData = key.MappingData.MapperData;
+            var mapperData = key.MapperData;
 
             var configuredFactories = mapperData
                 .MapperContext
@@ -93,7 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static void AddAutoConstructionInfos(IList<IConstructionInfo> constructionInfos, ConstructionKey key)
         {
-            var mapperData = key.MappingData.MapperData;
+            var mapperData = key.MapperData;
 
             var greediestAvailableFactoryInfos = GetGreediestAvailableFactoryInfos(key);
             var greediestUnconditionalFactoryInfo = greediestAvailableFactoryInfos.LastOrDefault(f => f.IsUnconditional);
@@ -130,7 +130,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private static ConstructionDataInfo<MethodInfo>[] GetGreediestAvailableFactoryInfos(ConstructionKey key)
         {
-            var mapperData = key.MappingData.MapperData;
+            var mapperData = key.MapperData;
 
             var candidateFactoryMethods = mapperData.TargetInstance.Type
                 .GetPublicStaticMethods()
@@ -229,7 +229,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         #region Helper Classes
 
-        private class ConstructionKey : SourceMemberTypeDependentKeyBase, IMappingExecutionContextOwner
+        private class ConstructionKey : SourceMemberTypeDependentKeyBase, IMapperKeyDataOwner
         {
             private readonly MappingRuleSet _ruleSet;
             private readonly IQualifiedMember _sourceMember;
@@ -382,7 +382,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 if (ParameterCount > 0)
                 {
-                    var mapperData = key.MappingData.MapperData;
+                    var mapperData = key.MapperData;
 
                     for (var i = 0; i < ParameterCount; ++i)
                     {
@@ -443,7 +443,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 IsUnconditional = true;
             }
 
-            public override Construction ToConstruction() => new Construction(Expression.New(_targetType));
+            public override Construction ToConstruction() => new(Expression.New(_targetType));
         }
 
         private sealed class ConstructionData<TInvokable>
@@ -580,7 +580,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public Construction With(ConstructionKey key)
             {
-                _mappingDataObject = key.MappingData.MapperData.MappingDataObject;
+                _mappingDataObject = key.MapperData.MappingDataObject;
                 return this;
             }
 

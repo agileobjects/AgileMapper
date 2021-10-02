@@ -34,7 +34,7 @@
                 targetMemberRegistrationName,
                 dataSourceIndex)
             {
-                MappingExecutionContext = this
+                KeyData = this
             };
         }
 
@@ -42,7 +42,7 @@
 
         public override object Target => _target;
 
-        public override IObjectMappingData ToMappingData()
+        public override IObjectMappingData GetMappingData()
         {
             return _childMappingData ??= ObjectMappingDataFactory.Create(
                 _source,

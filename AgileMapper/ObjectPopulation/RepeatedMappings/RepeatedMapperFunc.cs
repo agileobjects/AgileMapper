@@ -58,7 +58,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
                     return;
                 }
 
-                var mappingData = context.ToMappingData();
+                var mappingData = context.GetMappingData();
                 mappingData.MapperData = _mapperData;
 
                 CreateMapperFunc(mappingData, isLazyLoading: true);

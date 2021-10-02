@@ -232,7 +232,7 @@
 
         public override object Target => _target;
 
-        public override IObjectMappingData ToMappingData()
+        public override IObjectMappingData GetMappingData()
             => _rootMappingData ??= _rootMappingDataFactory.Invoke();
 
         public override IObjectMapper GetRootMapper() => _rootMapper;

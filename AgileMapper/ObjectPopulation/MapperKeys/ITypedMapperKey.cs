@@ -1,6 +1,6 @@
 namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
 {
-    internal interface ITypedMapperKey : IMappingExecutionContextOwner
+    internal interface ITypedMapperKey : IMapperKeyDataOwner
     {
         MappingTypes MappingTypes { get; }
 

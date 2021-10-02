@@ -5,7 +5,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     using MapperKeys;
     using Members;
 
-    internal interface IObjectMappingData : IObjectMappingDataUntyped, IDataSourceSetInfo
+    internal interface IObjectMappingData :
+        IObjectMappingDataUntyped,
+        IMapperKeyData,
+        IDataSourceSetInfo
     {
         bool IsRoot { get; }
 

@@ -6,7 +6,9 @@
     using ObjectPopulation.MapperKeys;
     using Plans;
 
-    internal abstract class MappingExecutionContextBase2 : IMappingExecutionContext
+    internal abstract class MappingExecutionContextBase2 : 
+        IMappingExecutionContext,
+        IMapperKeyData
     {
         private readonly IMappingExecutionContext _parent;
         private Dictionary<object, List<object>> _mappedObjectsBySource;
@@ -26,7 +28,7 @@
 
         public abstract ObjectMapperKeyBase GetMapperKey();
 
-        public abstract IObjectMappingData ToMappingData();
+        public abstract IObjectMappingData GetMappingData();
 
         public abstract IObjectMapper GetRootMapper();
 

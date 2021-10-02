@@ -29,6 +29,6 @@
 
         public override IObjectMapper GetRootMapper() => _entryPointContext.GetRootMapper();
 
-        protected IObjectMappingData GetParentMappingData() => _parent.ToMappingData();
+        protected IObjectMappingData GetParentMappingData() => _parent.GetMappingData();
     }
 }

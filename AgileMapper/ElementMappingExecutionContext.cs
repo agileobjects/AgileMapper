@@ -31,7 +31,7 @@
             _mapperKey = new ElementObjectMapperKey(
                 MappingTypes.For(sourceElement, targetElement))
             {
-                MappingExecutionContext = this
+                KeyData = this
             };
         }
 
@@ -39,7 +39,7 @@
 
         public override object Target => _targetElement;
 
-        public override IObjectMappingData ToMappingData()
+        public override IObjectMappingData GetMappingData()
         {
             return _elementMappingData ??= ObjectMappingDataFactory.Create(
                 _sourceElement,

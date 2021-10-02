@@ -107,7 +107,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _mapper = MapperContext.ObjectMapperFactory.Create(this);
 
             MapperKey.MappingData = null;
-            MapperKey.MappingExecutionContext = null;
+            MapperKey.KeyData = null;
 
             if (_mapper == null)
             {
@@ -329,5 +329,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MapperKey = mapperKey
             };
         }
+
+        #region IObjectMapperKeyData Members
+
+        object IMapperKeyData.Source => Source;
+
+        IObjectMappingData IMapperKeyData.GetMappingData() => this;
+
+        #endregion
     }
 }

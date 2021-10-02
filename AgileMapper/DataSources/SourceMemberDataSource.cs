@@ -8,7 +8,6 @@
 #endif
     using Extensions.Internal;
     using Members;
-    using ObjectPopulation;
     using ReadableExpressions.Extensions;
     using TypeConversion;
 
@@ -62,19 +61,14 @@
 
         private static Expression GetRuntimeTypeCheck(UnaryExpression cast, IMemberMapperData mapperData)
         {
-            var contextParameter = MappingExecutionContextConstants.Parameter;
-            var sourceProperty = Expression.Property(contextParameter, "Source");
-            var sourcePropertyAsType = Expression.TypeAs(sourceProperty, mapperData.SourceType);
-            var typedSourceVariable = mapperData.SourceType.GetOrCreateParameter("typedSource");
-            var typedSourceAssignment = Expression.Assign(typedSourceVariable, sourcePropertyAsType);
-            var typedAssignmentResultNonNull = typedSourceAssignment.GetIsNotDefaultComparison();
+            var sourceParameter = typeof(object).GetOrCreateSourceParameter();
+            var sourcePropertyIsType = Expression.TypeIs(sourceParameter, mapperData.SourceType);
 
-            var rootedValue = cast.Operand.Replace(mapperData.SourceObject, typedSourceVariable);
+            var castSource = sourceParameter.GetConversionTo(mapperData.SourceType);
+            var rootedValue = cast.Operand.Replace(mapperData.SourceObject, castSource);
             var memberHasRuntimeType = Expression.TypeIs(rootedValue, cast.Type);
 
-            var memberUseable = Expression.AndAlso(typedAssignmentResultNonNull, memberHasRuntimeType);
-
-            return Expression.Block(new[] { typedSourceVariable }, memberUseable);
+            return Expression.AndAlso(sourcePropertyIsType, memberHasRuntimeType);
         }
 
         public override Expression Condition { get; }
