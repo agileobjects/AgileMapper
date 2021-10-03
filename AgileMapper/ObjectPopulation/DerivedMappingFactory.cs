@@ -18,7 +18,6 @@
             out IObjectMappingData derivedTypeMappingData)
         {
             derivedTypeMappingData = declaredTypeMappingData.WithDerivedTypes(sourceValue.Type, targetType);
-            derivedTypeMappingData.MapperData.SourceObject = sourceValue;
 
             var declaredTypeMapperData = declaredTypeMappingData.MapperData;
 
@@ -30,6 +29,9 @@
             var targetValue = declaredTypeMapperData.TargetMember.IsReadable
                 ? declaredTypeMapperData.TargetObject.GetConversionTo(targetType)
                 : targetType.ToDefaultExpression();
+
+            derivedTypeMappingData.MapperData.SourceObject = sourceValue;
+            derivedTypeMappingData.MapperData.TargetObject = targetValue;
 
             if (declaredTypeMappingData.IsRoot)
             {

@@ -22,7 +22,7 @@
         private int _returnInstanceCount;
 
         [Fact]
-        public void ShouldApplyAConstant()
+        public void ShouldApplyAConstantOnCreateNew()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -36,6 +36,25 @@
                 var result = mapper.Map(source).ToANew<PublicProperty<string>>();
 
                 result.Value.ShouldBe("Hello there!");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAConstantOnOverwrite()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .Over<Person>()
+                    .Map("Big Timmy")
+                    .To(x => x.Name);
+
+                var source = new Person { Name = "Alice" };
+                var target = new Person { Name = "Frank" };
+                var result = mapper.Map(source).Over(target);
+
+                result.Name.ShouldBe("Big Timmy");
             }
         }
 
@@ -106,7 +125,7 @@
         }
 
         [Fact]
-        public void ShouldApplyASourceMember()
+        public void ShouldApplyASourceMemberOnCreateNew()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -120,6 +139,25 @@
                 var result = mapper.Map(source).ToANew<PublicProperty<Guid>>();
 
                 result.Value.ShouldBe(source.Id);
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyASourceMemberOnOverwrite()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Customer>()
+                    .Over<Person>()
+                    .Map(ctx => ctx.Source.Id)
+                    .To(x => x.Name);
+
+                var source = new Customer { Id = Guid.NewGuid() };
+                var target = new Person();
+                var result = mapper.Map(source).Over(target);
+
+                result.Name.ShouldBe(source.Id.ToString());
             }
         }
 
