@@ -59,6 +59,27 @@
         }
 
         [Fact]
+        public void ShouldApplyAConstantOnNestedMerge()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PersonViewModel>()
+                    .OnTo<Person>()
+                    .Map("Hello there!")
+                    .To(x => x.Address.Line2);
+
+                var source = new PersonViewModel { Name = "Alice" };
+                var target = new Person { Address = new Address() };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Name.ShouldBe("Alice");
+                result.Address.ShouldNotBeNull();
+                result.Address.Line2.ShouldBe("Hello there!");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyAConstantFromAllSourceTypes()
         {
             using (var mapper = Mapper.CreateNew())
@@ -162,6 +183,25 @@
         }
 
         [Fact]
+        public void ShouldHandleANullSourceMemberOnNestedMerge()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .OnTo<Person>()
+                    .Map(ctx => ctx.Source.Address.Line1)
+                    .To(x => x.Address.Line2);
+
+                var source = new Person { Name = "Scott" };
+                var target = new Person { Address = new Address() };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Address.Line2.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldApplyASourceInterfaceMember()
         {
             using (var mapper = Mapper.CreateNew())
@@ -255,7 +295,7 @@
         }
 
         [Fact]
-        public void ShouldApplyAConfiguredExpression()
+        public void ShouldApplyAnExpressionOnCreateNew()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -269,6 +309,45 @@
                 var result = mapper.Map(source).ToANew<Person>();
 
                 result.Address.Line1.ShouldBe("Fred, Lala Land");
+            }
+        }
+
+        [Fact]
+        public void ShouldApplyAnExpressionOnNestedMerge()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .OnTo<Person>()
+                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1)
+                    .To(x => x.Address.Line1);
+
+                var source = new Person { Name = "Bob", Address = new Address { Line1 = "Booooom" } };
+                var target = new Person { Address = new Address() };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Name.ShouldBe(source.Name);
+                result.Address.Line1.ShouldBe("Bob, Booooom");
+            }
+        }
+
+        [Fact]
+        public void ShouldNotOverwriteWithAnExpressionOnNestedMerge()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .OnTo<Person>()
+                    .Map(ctx => ctx.Source.Name + ", " + ctx.Source.Address.Line1)
+                    .To(x => x.Address.Line1);
+
+                var source = new Person { Name = "Lilly", Address = new Address { Line1 = "Booooom" } };
+                var target = new Person { Address = new Address { Line1 = "Already populated!" } };
+                var result = mapper.Map(source).OnTo(target);
+
+                result.Address.Line1.ShouldBe("Already populated!");
             }
         }
 
