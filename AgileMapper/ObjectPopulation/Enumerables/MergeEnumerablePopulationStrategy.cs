@@ -24,9 +24,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.Enumerables
             if (builder.ElementsAreIdentifiable)
             {
                 builder.CreateCollectionData();
-                builder.MapIntersection(enumerableMappingData);
                 builder.AssignSourceVariableTo(s => s.CollectionDataNewSourceItems());
                 builder.AssignTargetVariable();
+                builder.MapIntersection(enumerableMappingData);
                 builder.AddNewItemsToTargetVariable(enumerableMappingData);
 
                 return builder;
