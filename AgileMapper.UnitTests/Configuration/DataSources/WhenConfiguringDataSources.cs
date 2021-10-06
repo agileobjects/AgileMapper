@@ -183,6 +183,25 @@
         }
 
         [Fact]
+        public void ShouldHandleANullSourceMemberOnNestedOverwrite()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Person>()
+                    .Over<Person>()
+                    .Map(ctx => ctx.Source.Address.Line1)
+                    .To(x => x.Address.Line2);
+
+                var source = new Person { Name = "Scott" };
+                var target = new Person { Address = new Address() };
+                var result = mapper.Map(source).Over(target);
+
+                result.Address.ShouldBeNull();
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMemberOnNestedMerge()
         {
             using (var mapper = Mapper.CreateNew())
