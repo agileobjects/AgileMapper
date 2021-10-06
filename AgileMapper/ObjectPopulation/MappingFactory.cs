@@ -92,6 +92,10 @@
                 mappingData = ObjectMappingDataFactory.ForElement(mappingData);
             }
 
+            var elementMapperData = mappingData.MapperData;
+            elementMapperData.SourceObject = sourceElementValue;
+            elementMapperData.TargetObject = targetElementValue;
+
             mapperData.TargetMember.MapCreating(sourceElementValue.Type);
 
             if (mappingData.MappingTypes.RuntimeTypesNeeded)
