@@ -148,22 +148,29 @@
                 // Optimise for the most common scenario:
                 _mappingTypes = MappingTypes<TSource, TTarget>.Fixed;
                 _rootMappingDataFactory = CreateFixedTypeRootMappingData<TTarget>;
-            }
-            else
-            {
-                _mappingTypes = GetRuntimeMappingTypes(target);
+                
+                var typedRootMapper = (ObjectMapper<TSource, TTarget>)GetOrCreateRootMapper<TTarget>();
+                _rootMapper = typedRootMapper;
+
+                return typedRootMapper.Map(_source, target, this);
             }
 
+            _mappingTypes = GetRuntimeMappingTypes(target);
+
+            var untypedMapper = GetOrCreateRootMapper<TTarget>();
+            _rootMapper = untypedMapper;
+
+            return (TTarget)untypedMapper.Map(this);
             //var rootMappingData = ObjectMappingDataFactory.ForRoot(_source, target, this);
             //var result = rootMappingData.MapStart();
 
             //return (TTarget)default(object);
 
-            var mapper = MapperContext.ObjectMapperFactory
-              .GetOrCreateRoot<TSource, TTarget>(this);
+            //var mapper = MapperContext.ObjectMapperFactory
+            //  .GetOrCreateRoot<TSource, TTarget>(this);
 
-            _rootMapper = mapper;
-            return mapper.Map(_source, target, this);
+            //_rootMapper = mapper;
+            //return (TTarget)mapper.Map(this);
         }
 
         #region IFlatteningSelector Members
@@ -264,6 +271,12 @@
 
         private IObjectMappingData CreateRuntimeTypedRootMappingData<TTarget>()
             => ObjectMappingDataFactory.ForRoot(_source, (TTarget)_target, _mappingTypes, this);
+
+        private IObjectMapper GetOrCreateRootMapper<TTarget>()
+        {
+            return MapperContext.ObjectMapperFactory
+                .GetOrCreateRoot<TSource, TTarget>(this);
+        }
 
         #endregion
     }

@@ -37,7 +37,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             _creationCallbacksByKey.Add(creationCallbackKey, callback);
         }
 
-        public ObjectMapper<TSource, TTarget> GetOrCreateRoot<TSource, TTarget>(
+        public IObjectMapper GetOrCreateRoot<TSource, TTarget>(
             MappingExecutionContextBase2<TSource> mappingContext)
         {
             if (StaticMapperCache<TSource, TTarget>.TryGetMapperFor(mappingContext, out var mapper))
@@ -47,11 +47,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var rootMapperKey = (IRootMapperKey)mappingContext.GetMapperKey();
 
-            mapper = (ObjectMapper<TSource, TTarget>)_rootMappersCache.GetOrAdd(
+            var untypedMapper = _rootMappersCache.GetOrAdd(
                 rootMapperKey,
                 key => key.CreateMappingData().GetOrCreateMapper());
 
-            return mapper;
+            return untypedMapper;
         }
 
         public ObjectMapper<TSource, TTarget> Create<TSource, TTarget>(ObjectMappingData<TSource, TTarget> mappingData)
