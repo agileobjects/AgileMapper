@@ -58,7 +58,7 @@
             return false;
         }
 
-        [DebuggerStepThrough]
+        //[DebuggerStepThrough]
         public static Expression ForChild(MappingValues mappingValues, ObjectMapperData childMapperData)
         {
             if (UseAsConversion(childMapperData, out var asConversion))

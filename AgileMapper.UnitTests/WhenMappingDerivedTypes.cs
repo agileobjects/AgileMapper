@@ -124,38 +124,6 @@
         }
 
         [Fact]
-        public void ShouldConditionallyMapDerivedTypesFromNestedMembers()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<CustomerViewModel>()
-                    .To<CustomerViewModel>()
-                    .If((s, t) => s.Name == "Mystery Customer")
-                    .MapTo<MysteryCustomerViewModel>()
-                    .And
-                    .If((s, t) => s.Name == "Customer Mystery!")
-                    .MapTo<MysteryCustomerViewModel>();
-
-                var mysteryCustomerSource = new PublicField<PersonViewModel>
-                {
-                    Value = new CustomerViewModel { Name = "Mystery Customer", Discount = 0.5 }
-                };
-                var result = mapper.Map(mysteryCustomerSource).ToANew<PublicProperty<PersonViewModel>>();
-
-                result.Value.ShouldBeOfType<MysteryCustomerViewModel>().Discount.ShouldBe(0.5);
-
-                var customerSource = new PublicField<PersonViewModel>
-                {
-                    Value = new CustomerViewModel { Name = "Banksy" }
-                };
-                result = mapper.Map(customerSource).ToANew<PublicProperty<PersonViewModel>>();
-
-                result.Value.ShouldBeOfType<CustomerViewModel>();
-            }
-        }
-
-        [Fact]
         public void ShouldCreateARootDerivedTargetFromADerivedSource()
         {
             using (var mapper = Mapper.CreateNew())
@@ -192,8 +160,7 @@
 
                 var customerResult = mapper.Map(customerSource).ToANew<PublicField<Person>>();
 
-                customerResult.Value.ShouldBeOfType<Customer>();
-                ((Customer)customerResult.Value).Discount.ShouldBe(0.5);
+                customerResult.Value.ShouldBeOfType<Customer>().Discount.ShouldBe(0.5);
 
                 var mysteryCustomerSource = new PublicProperty<PersonViewModel>
                 {
@@ -202,8 +169,7 @@
 
                 var mysteryCustomerResult = mapper.Map(mysteryCustomerSource).ToANew<PublicField<Customer>>();
 
-                mysteryCustomerResult.Value.ShouldBeOfType<MysteryCustomer>();
-                ((MysteryCustomer)mysteryCustomerResult.Value).Report.ShouldBe("Great!");
+                mysteryCustomerResult.Value.ShouldBeOfType<MysteryCustomer>().Report.ShouldBe("Great!");
             }
         }
 
@@ -275,30 +241,6 @@
         }
 
         [Fact]
-        public void ShouldMapADerivedTypeToAStruct()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<MysteryCustomer>()
-                    .ToANew<PublicPropertyStruct<string>>()
-                    .Map((mc, pps) => mc.Name)
-                    .To(pps => pps.Value);
-
-                Customer customer = new MysteryCustomer { Id = Guid.NewGuid(), Name = "Mystery!" };
-                var customerResult = mapper.Map(customer).ToANew<PublicPropertyStruct<string>>();
-
-                customerResult.Value.ShouldBe("Mystery!");
-            }
-
-            var source = new MysteryCustomer { Discount = 0.2m };
-            var result = Mapper.Map(source).ToANew<PersonViewModel>();
-
-            result.ShouldBeOfType<MysteryCustomerViewModel>();
-            ((MysteryCustomerViewModel)result).Discount.ShouldBe(0.2);
-        }
-
-        [Fact]
         public void ShouldMapDerivedTypesToTheSameTargetType()
         {
             var source = new MysteryCustomer { Id = Guid.NewGuid(), Name = "Customer!" };
@@ -314,8 +256,7 @@
             var source = new MysteryCustomer { Discount = 0.2m };
             var result = Mapper.Map(source).ToANew<PersonViewModel>();
 
-            result.ShouldBeOfType<MysteryCustomerViewModel>();
-            ((MysteryCustomerViewModel)result).Discount.ShouldBe(0.2);
+            result.ShouldBeOfType<MysteryCustomerViewModel>().Discount.ShouldBe(0.2);
         }
 
         [Fact]
@@ -325,7 +266,7 @@
             PersonViewModel target = new CustomerViewModel();
             var result = Mapper.Map(source).OnTo(target);
 
-            ((CustomerViewModel)result).Discount.ShouldBe(0.1);
+            result.ShouldBeOfType<CustomerViewModel>().Discount.ShouldBe(0.1);
         }
 
         [Fact]
@@ -334,8 +275,7 @@
             Customer source = new MysteryCustomer { Discount = 0.333m };
             var result = Mapper.Map(source).ToANew<PersonViewModel>();
 
-            result.ShouldBeOfType<MysteryCustomerViewModel>();
-            ((MysteryCustomerViewModel)result).Discount.ShouldBe(0.333);
+            result.ShouldBeOfType<MysteryCustomerViewModel>().Discount.ShouldBe(0.333);
         }
 
         [Fact]

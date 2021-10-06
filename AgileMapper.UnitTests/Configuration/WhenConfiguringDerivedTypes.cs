@@ -174,6 +174,24 @@
         }
 
         [Fact]
+        public void ShouldMapAConfiguredDerivedTypeMemberToAStruct()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<MysteryCustomer>()
+                    .ToANew<PublicPropertyStruct<string>>()
+                    .Map((mc, pps) => mc.Name)
+                    .To(pps => pps.Value);
+
+                Customer customer = new MysteryCustomer { Id = Guid.NewGuid(), Name = "Mystery!" };
+                var customerResult = mapper.Map(customer).ToANew<PublicPropertyStruct<string>>();
+
+                customerResult.Value.ShouldBe("Mystery!");
+            }
+        }
+
+        [Fact]
         public void ShouldMapADerivedTypePairConditionally()
         {
             using (var mapper = Mapper.CreateNew())
@@ -183,10 +201,10 @@
                 mapper.WhenMapping
                     .From(exampleInstance)
                     .ToANew<PersonViewModel>()
-                    .If(s => s.Source.Discount.HasValue)
+                    .If(ctx => ctx.Source.Discount.HasValue)
                     .MapTo<CustomerViewModel>()
                     .And
-                    .If(x => !x.Source.Report.IsNullOrWhiteSpace())
+                    .If(ctx => !ctx.Source.Report.IsNullOrWhiteSpace())
                     .MapTo<MysteryCustomerViewModel>();
 
                 var mysteryCustomerSource = new
@@ -227,6 +245,38 @@
 
                 personResult.ShouldBeOfType<PersonViewModel>();
                 personResult.Name.ShouldBe("Datey");
+            }
+        }
+
+        [Fact]
+        public void ShouldMapANestedDerivedTypePairConditionally()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<CustomerViewModel>()
+                    .To<CustomerViewModel>()
+                    .If((s, t) => s.Name == "Mystery Customer")
+                    .MapTo<MysteryCustomerViewModel>()
+                    .And
+                    .If((s, t) => s.Name == "Customer Mystery!")
+                    .MapTo<MysteryCustomerViewModel>();
+
+                var mysteryCustomerSource = new PublicField<PersonViewModel>
+                {
+                    Value = new CustomerViewModel { Name = "Mystery Customer", Discount = 0.5 }
+                };
+                var result = mapper.Map(mysteryCustomerSource).ToANew<PublicProperty<PersonViewModel>>();
+
+                result.Value.ShouldBeOfType<MysteryCustomerViewModel>().Discount.ShouldBe(0.5);
+
+                var customerSource = new PublicField<PersonViewModel>
+                {
+                    Value = new CustomerViewModel { Name = "Banksy" }
+                };
+                result = mapper.Map(customerSource).ToANew<PublicProperty<PersonViewModel>>();
+
+                result.Value.ShouldBeOfType<CustomerViewModel>();
             }
         }
 

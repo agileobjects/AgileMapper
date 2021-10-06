@@ -196,11 +196,11 @@
 
             if (mapperData.Context.UsesMappingDataObject)
             {
-                return UseLocalValueVariable(
-                    mapperData.MappingDataObject,
-                    createMappingDataCallFactory.Invoke(mappingValues, mapperData),
-                    mapper.Mapping,
-                    mapperData);
+                //return UseLocalValueVariable(
+                //    mapperData.MappingDataObject,
+                //    createMappingDataCallFactory.Invoke(mappingValues, mapperData),
+                //    mapper.Mapping,
+                //    mapperData);
             }
 
             return GetDirectAccessMapping(
