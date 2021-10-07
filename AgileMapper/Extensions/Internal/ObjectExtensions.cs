@@ -11,7 +11,7 @@
     public static class ObjectExtensions
     {
         internal static readonly MethodInfo GetRuntimeSourceTypeMethod =
-            typeof(ObjectExtensions).GetPublicStaticMethod("GetRuntimeSourceType");
+            typeof(ObjectExtensions).GetPublicStaticMethod(nameof(GetRuntimeSourceType));
 
         /// <summary>
         /// Gets the runtime type of the given <paramref name="source"/> object.

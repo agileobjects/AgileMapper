@@ -92,10 +92,6 @@
                 mappingData = ObjectMappingDataFactory.ForElement(mappingData);
             }
 
-            var elementMapperData = mappingData.MapperData;
-            elementMapperData.SourceObject = sourceElementValue;
-            elementMapperData.TargetObject = targetElementValue;
-
             mapperData.TargetMember.MapCreating(sourceElementValue.Type);
 
             if (mappingData.MappingTypes.RuntimeTypesNeeded)
@@ -183,6 +179,10 @@
             MappingValues mappingValues,
             CreateMappingDataCallFactory createMappingDataCallFactory)
         {
+            var mapperData = mappingData.MapperData;
+            mapperData.SourceObject = mappingValues.SourceValue;
+            mapperData.TargetObject = mappingValues.TargetValue;
+
             var mapper = mappingData.GetOrCreateMapper();
 
             if (mapper == null)
@@ -195,8 +195,6 @@
 
                 return Constants.EmptyExpression;
             }
-
-            var mapperData = mapper.MapperData;
 
             if (mapperData.Context.UsesMappingDataObject)
             {

@@ -188,14 +188,25 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var getRuntimeTypeFunc = _runtimeTypeGettersCache.GetOrAdd(childSourceMember, sm =>
             {
-                var sourceParameter = typeof(TSource).GetOrCreateSourceParameter();
+                var sourceObject = MapperData.SourceObject;
+
+                var sourceObjectIsNotParameter =
+                    sourceObject.NodeType != ExpressionType.Parameter;
+
+                var sourceParameter = sourceObjectIsNotParameter
+                    ? typeof(TSource).GetOrCreateSourceParameter()
+                    : (ParameterExpression)sourceObject;
 
                 var memberAccess = sm
-                    .GetRelativeQualifiedAccess(MapperData)
-                    .Replace(
-                        MapperData.SourceObject,
+                    .GetRelativeQualifiedAccess(MapperData);
+
+                if (sourceObjectIsNotParameter)
+                {
+                    memberAccess = memberAccess.Replace(
+                        sourceObject,
                         sourceParameter,
                         ExpressionEvaluation.Equivalator);
+                }
 
                 if (memberAccess.NodeType == ExpressionType.Invoke)
                 {

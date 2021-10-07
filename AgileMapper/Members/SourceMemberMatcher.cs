@@ -1,9 +1,9 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
+    using AgileMapper.Extensions;
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using AgileMapper.Extensions;
     using TypeConversion;
 
     internal static class SourceMemberMatcher
@@ -52,7 +52,7 @@
 
             context.MatchingSourceMember = matchingSourceMember;
 
-            return TypesAreCompatible(matchingSourceMember.Type, context.MemberMapperData);
+            return context.MemberMapperData.TargetTypeIsCompatibleWith(matchingSourceMember);
         }
 
         private static bool MembersAreTheSame(IMemberMapperData mapperData, Member sourceMember)
@@ -141,7 +141,7 @@
 
             foreach (var sourceMember in candidateSourceMembers)
             {
-                if (TypesAreCompatible(sourceMember.Type, context.MemberMapperData))
+                if (context.MemberMapperData.TargetTypeIsCompatibleWith(sourceMember))
                 {
                     context.SourceMemberMatch = context.CreateSourceMemberMatch(sourceMember);
                     return true;
@@ -207,7 +207,11 @@
                    rootMapperData.TargetMember.Type == typeof(object);
         }
 
-        private static bool TypesAreCompatible(Type sourceType, IMemberMapperData mapperData)
-            => mapperData.CanConvert(sourceType, mapperData.TargetMember.Type);
+        private static bool TargetTypeIsCompatibleWith(
+            this IMemberMapperData mapperData,
+            IQualifiedMember sourceMember)
+        {
+            return mapperData.CanConvert(sourceMember.Type, mapperData.TargetMember.Type);
+        }
     }
 }
