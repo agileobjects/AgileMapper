@@ -52,28 +52,5 @@
 
             result.ShouldBe(target);
         }
-
-        [Fact]
-        public void ShouldApplyAConfiguredExpression()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicField<int>>()
-                    .Over<PublicTwoFieldsStruct<int, int>>()
-                    .Map(ctx => ctx.Source.Value)
-                    .To(pps => pps.Value1)
-                    .And
-                    .Map((pf, ptfs, i) => pf.Value + ptfs.Value2)
-                    .To(pps => pps.Value2);
-
-                var source = new PublicField<int> { Value = 63872 };
-                var target = new PublicTwoFieldsStruct<int, int> { Value1 = 1, Value2 = 2 };
-                var result = mapper.Map(source).Over(target);
-
-                result.Value1.ShouldBe(63872);
-                result.Value2.ShouldBe(63874);
-            }
-        }
     }
 }

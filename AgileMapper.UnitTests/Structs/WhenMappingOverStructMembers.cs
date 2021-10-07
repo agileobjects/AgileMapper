@@ -37,30 +37,5 @@
             result.Value1.ShouldBe("You");  
             result.Value2.ShouldBe(527);
         }
-
-        [Fact]
-        public void ShouldApplyAConfiguredConstant()
-        {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicField<string>>()
-                    .Over<PublicPropertyStruct<int>>()
-                    .Map("123")
-                    .To(pps => pps.Value);
-
-                var source = new PublicField<PublicField<string>>
-                {
-                    Value = new PublicField<string> { Value = "456" }
-                };
-                var target = new PublicField<PublicPropertyStruct<int>>
-                {
-                    Value = new PublicPropertyStruct<int> { Value = 789 }
-                };
-                var result = mapper.Map(source).Over(target);
-
-                result.Value.Value.ShouldBe(123);
-            }
-        }
     }
 }
