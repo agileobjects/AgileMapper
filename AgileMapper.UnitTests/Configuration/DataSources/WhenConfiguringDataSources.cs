@@ -183,6 +183,28 @@
         }
 
         [Fact]
+        public void ShouldHandleANullSourceMemberOnNestedEnumerableCreateNew()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<PublicProperty<string>>()
+                    .To<PublicField<int[]>>()
+#if FEATURE_STRINGSPLIT_OPTIONS
+                    .Map(ctx => ctx.Source.Value.Split(':', System.StringSplitOptions.None))
+#else
+                    .Map(ctx => ctx.Source.Value.Split(':'))
+#endif
+                    .To(x => x.Value);
+
+                var source = new PublicProperty<string> { Value = null };
+                var result = mapper.Map(source).ToANew<PublicField<int[]>>();
+
+                result.Value.ShouldBeEmpty();
+            }
+        }
+
+        [Fact]
         public void ShouldHandleANullSourceMemberOnNestedOverwrite()
         {
             using (var mapper = Mapper.CreateNew())
