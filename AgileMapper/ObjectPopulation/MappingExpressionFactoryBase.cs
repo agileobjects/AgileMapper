@@ -348,7 +348,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var assignedValue = ((BinaryExpression)mappingExpressions[0]).Right;
 
-            if (assignedValue.NodeType == Default)
+            if (assignedValue.NodeType == Default && !assignedValue.Type.IsValueType())
             {
                 return true;
             }
