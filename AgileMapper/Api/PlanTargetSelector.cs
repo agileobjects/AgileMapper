@@ -11,8 +11,7 @@
     using ObjectPopulation;
     using Plans;
     using Queryables.Api;
-    using static Plans.MappingPlanSettings.Default;
-    
+
     internal class PlanTargetSelector<TSource> :
         IPlanTargetSelector<TSource>,
         IPlanTargetAndRuleSetSelector<TSource>,
@@ -32,17 +31,16 @@
             _mapperContext = mapperContext.ThrowIfDisposed();
         }
 
-        public MappingPlanSet To<TTarget>() 
+        public MappingPlanSet To<TTarget>()
             => To(configurations: Enumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>>.EmptyArray);
 
         public MappingPlanSet To<TTarget>(
             Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>[] configurations)
         {
             return new(_mapperContext
-                .RuleSets
-                .All
+                .RuleSets.All
                 .Filter(_mapperContext, (mc, ruleSet) => ruleSet != mc.RuleSets.Project)
-                .Project(configurations, (cs, rs) => GetMappingPlan(rs, EagerPlanned, cs))
+                .Project(configurations, (cfg, rs) => GetMappingPlan(rs, cfg))
                 .ToArray());
         }
 
@@ -51,7 +49,6 @@
         {
             return GetMappingPlan(
                 _mapperContext.RuleSets.CreateNew,
-                EagerPlanned,
                 configurations);
         }
 
@@ -60,7 +57,6 @@
         {
             return GetMappingPlan(
                 _mapperContext.RuleSets.Merge,
-                EagerPlanned,
                 configurations);
         }
 
@@ -69,47 +65,45 @@
         {
             return GetMappingPlan(
                 _mapperContext.RuleSets.Overwrite,
-                EagerPlanned,
                 configurations);
         }
 
         MappingPlan IProjectionPlanTargetSelector<TSource>.To<TResult>()
         {
-            return GetMappingPlan(
-                _mapperContext.QueryProjectionMappingContext,
-                planContext => ObjectMappingDataFactory.ForProjection<TSource, TResult>(_exampleQueryable, planContext),
-                Enumerable<Expression<Action<IFullMappingInlineConfigurator<TSource, TResult>>>>.EmptyArray);
+            return GetMappingPlan<TResult>(
+                new ProjectionPlanObjectMapperFactoryData<TSource, TResult>(
+                    _exampleQueryable,
+                    _mapperContext));
         }
 
         private MappingPlan GetMappingPlan<TTarget>(
             MappingRuleSet ruleSet,
-            MappingPlanSettings settings,
             ICollection<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations)
         {
-            return GetMappingPlan(
-                new SimpleMappingContext(ruleSet, settings, _mapperContext),
-                ObjectMappingDataFactory.ForRootFixedTypes<TSource, TTarget>,
-                configurations);
-        }
+            var factoryData = new PlanObjectMapperFactoryData<TSource, TTarget>(ruleSet, _mapperContext);
 
-        private static MappingPlan GetMappingPlan<TTarget>(
-            IMappingContext planContext,
-            Func<IMappingContext, IObjectMappingData> mappingDataFactory,
-            ICollection<Expression<Action<IFullMappingInlineConfigurator<TSource, TTarget>>>> configurations)
-        {
             if (configurations.Any())
             {
                 InlineMappingConfigurator<TSource, TTarget>
+                    .ConfigureMapperContext(
 #if NET35
-                    .ConfigureMapperContext(configurations.Project(c => c.ToDlrExpression()), planContext);
+                        configurations.Project(c => c.ToDlrExpression()),
 #else
-                    .ConfigureMapperContext(configurations, planContext);
+                        configurations,
 #endif
+                        factoryData);
             }
 
-            var mappingData = mappingDataFactory.Invoke(planContext);
+            return GetMappingPlan<TTarget>(factoryData);
+        }
 
-            return MappingPlan.For(mappingData);
+        private MappingPlan GetMappingPlan<TTarget>(IObjectMapperFactoryData objectMapperFactoryData)
+        {
+            var mapper = _mapperContext
+                .ObjectMapperFactory
+                .GetOrCreateRoot<TSource, TTarget>(objectMapperFactoryData);
+
+            return new MappingPlan(mapper);
         }
     }
 }

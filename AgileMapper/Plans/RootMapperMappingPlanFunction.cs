@@ -51,7 +51,7 @@
         public LambdaExpression Mapping
             => _finalMapping ??= GetFinalMappingExpression();
 
-        public string ToSourceCode()
+        public string ToCSharp()
         {
             var description = GetMappingDescription(linePrefix: "// ");
 

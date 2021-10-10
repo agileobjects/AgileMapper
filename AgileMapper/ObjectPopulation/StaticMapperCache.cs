@@ -2,15 +2,15 @@
 {
     internal static class StaticMapperCache<TSource, TTarget>
     {
-        private static readonly MapperCache _createNew = new MapperCache();
-        private static readonly MapperCache _overwrite = new MapperCache();
-        private static readonly MapperCache _merge = new MapperCache();
+        private static readonly MapperCache _createNew = new();
+        private static readonly MapperCache _overwrite = new();
+        private static readonly MapperCache _merge = new();
 
         public static void AddIfAppropriate(ObjectMapper<TSource, TTarget> mapper, IObjectMappingData mappingData)
         {
             if (!mappingData.IsRoot ||
                  mappingData.IsPartOfDerivedTypeMapping ||
-                !mappingData.MappingContext.RuleSet.Settings.RootKeysAreStaticallyCacheable ||
+                !mappingData.RuleSet.Settings.RootKeysAreStaticallyCacheable ||
                 !mapper.IsStaticallyCacheable())
             {
                 return;

@@ -12,7 +12,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             MapperData = mapperData;
         }
 
-        public MappingRuleSet RuleSet => _parent.MappingContext.RuleSet;
+        public MappingRuleSet RuleSet => _parent.RuleSet;
 
         public IObjectMappingData Parent => _parent;
 

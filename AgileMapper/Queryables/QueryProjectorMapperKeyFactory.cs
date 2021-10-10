@@ -5,16 +5,10 @@
 
     internal static class QueryProjectorMapperKeyFactory
     {
-        public static ObjectMapperKeyBase Create(MappingExecutionContextBase2 context)
+        public static ObjectMapperKeyBase Create(IMapperKeyData data)
         {
-            var mappingTypes = context.MappingTypes;
-            var providerType = ((IQueryable)context.Source).Provider.GetType();
-            var mapperContext = context.MapperContext;
-
-            return new QueryProjectorKey(mappingTypes, providerType, mapperContext)
-            {
-                KeyData = context
-            };
+            var providerType = ((IQueryable)data.Source).Provider.GetType();
+            return new QueryProjectorKey(data, providerType);
         }
     }
 }

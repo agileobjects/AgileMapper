@@ -20,8 +20,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         IObjectMappingData DeclaredTypeMappingData { get; }
 
-        MappingTypes MappingTypes { get; }
-
         ObjectMapperKeyBase MapperKey { get; set; }
 
         bool MapperDataPopulated { get; }

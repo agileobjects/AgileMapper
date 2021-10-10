@@ -28,7 +28,7 @@
                 .GetPlanFor<PublicField<string>>()
                 .ToANew<PublicProperty<string>>();
 
-            plan.ShouldContain("stringPublicProperty.Value = spfToSppData.Source.Value;");
+            plan.ShouldContain("stringPublicProperty.Value = source.Value;");
         }
 
         [Fact]
@@ -61,8 +61,8 @@
                 .ToANew<MysteryCustomer>();
 
             plan.ShouldContain("Map AnonymousType<string, int> -> MysteryCustomer");
-            plan.ShouldContain("mysteryCustomer.Name = siatToMcData.Source.Name;");
-            plan.ShouldContain("mysteryCustomer.Discount = siatToMcData.Source.Discount;");
+            plan.ShouldContain("mysteryCustomer.Name = source.Name;");
+            plan.ShouldContain("mysteryCustomer.Discount = source.Discount;");
             plan.ShouldContain("// No data sources for Report");
         }
 
@@ -76,8 +76,8 @@
                     .OnTo<Customer>();
 
                 plan.ShouldContain("Map AnonymousType<string, string> -> Customer");
-                plan.ShouldContain(".Target.Name = ssatToCData.Source.Name");
-                plan.ShouldContain("address.Line1 = ssatToCData.Source.AddressLine1");
+                plan.ShouldContain("target.Name = source.Name");
+                plan.ShouldContain("address.Line1 = source.AddressLine1");
             }
         }
 
@@ -88,7 +88,7 @@
                 .GetPlanFor<PublicTwoFieldsStruct<int, int>>()
                 .Over<PublicTwoFieldsStruct<string, string>>();
 
-            plan.ShouldContain("stringStringPublicTwoFieldsStruct.Value1 = iiptfsToSsptfsData.Source.Value1.ToString();");
+            plan.ShouldContain("stringStringPublicTwoFieldsStruct.Value1 = source.Value1.ToString();");
         }
 
         [Fact]
@@ -98,7 +98,7 @@
                 .GetPlanFor<PublicTwoFieldsStruct<int, int>>()
                 .OnTo<PublicTwoFieldsStruct<string, string>>();
 
-            plan.ShouldContain("stringStringPublicTwoFieldsStruct.Value1 = iiptfsToSsptfsData.Source.Value1.ToString();");
+            plan.ShouldContain("stringStringPublicTwoFieldsStruct.Value1 = source.Value1.ToString();");
         }
 
         [Fact]
@@ -111,7 +111,7 @@
                     .ToANew<PublicCtorStruct<string>>();
 
                 plan.ShouldContain("Map PublicPropertyStruct<string> -> PublicCtorStruct<string>");
-                plan.ShouldContain("new PublicCtorStruct<string>(sppsToSpcsData.Source.Value)");
+                plan.ShouldContain("new PublicCtorStruct<string>(source.Value)");
                 plan.ShouldContain("return stringPublicCtorStruct");
             }
         }
@@ -123,8 +123,8 @@
                 .GetPlanFor<PersonViewModel>()
                 .ToANew<Person>();
 
-            plan.ShouldContain("person.Name = sourcePersonViewModel.Name;");
-            plan.ShouldContain("address.Line1 = sourcePersonViewModel.AddressLine1;");
+            plan.ShouldContain("person.Name = source.Name;");
+            plan.ShouldContain("address.Line1 = source.AddressLine1;");
         }
 
         [Fact]
@@ -148,29 +148,36 @@
                 .GetPlanFor<PublicProperty<Guid>>()
                 .ToANew<PublicField<string>>();
 
-            plan.ShouldContain("gppToSpfData.Source.Value.ToString(");
+            plan.ShouldContain("source.Value.ToString(");
         }
 
         [Fact]
-        public void ShouldShowARootComplexTypeEnumerableMapping()
+        public void ShouldShowARootComplexTypeEnumerableMerge()
         {
             string plan = Mapper
                 .GetPlanFor<IEnumerable<Person>>()
                 .OnTo<IEnumerable<PersonViewModel>>();
 
-            plan.ShouldContain("collectionData.Intersection.ForEach((existingPerson, existingPersonViewModel, idx) =>");
+            plan.ShouldContain(
+                "collectionData.Intersection.ForEach(" +
+                    "(existingPersonElement, existingPersonViewModelElement, idx) =>");
+            
             plan.ShouldContain("personIEnumerable = collectionData.NewSourceItems");
         }
 
         [Fact]
-        public void ShouldShowAComplexTypeEnumerableMemberMapping()
+        public void ShouldShowAComplexTypeEnumerableMemberOverwrite()
         {
             string plan = Mapper
                 .GetPlanFor<IList<PersonViewModel>>()
                 .Over<IEnumerable<Person>>();
 
             plan.ShouldContain("personViewModelIEnumerable = collectionData.NewSourceItems");
-            plan.ShouldContain("collectionData.Intersection.ForEach((existingPersonViewModel, existingPerson, idx) =>");
+            
+            plan.ShouldContain(
+                "collectionData.Intersection.ForEach(" +
+                    "(existingPersonViewModelElement, existingPersonElement, idx) =>");
+            
             plan.ShouldContain("collectionData.AbsentTargetItems.ForEach(p => personICollection.Remove(p)");
 
             plan.ShouldContain("IList<PersonViewModel> -> IEnumerable<Person>");
@@ -208,7 +215,7 @@
                 .ToANew<PublicSetMethod<Customer>>();
 
             plan.ShouldContain("// Map PublicProperty<object> -> PublicSetMethod<Customer>");
-            plan.ShouldContain("oppToCpsmData.Map(");
+            plan.ShouldContain("context.Map(");
             plan.ShouldContain("\"SetValue\"");
         }
 
@@ -221,7 +228,7 @@
 
             plan.ShouldContain("// Map PublicProperty<PublicField<object>> -> PublicSetMethod<PublicProperty<Order>>");
             plan.ShouldNotContain("// Map PublicField<object> -> PublicProperty<Order>");
-            plan.ShouldContain("opfToOppData.Map(");
+            plan.ShouldContain("context.Map(");
             plan.ShouldContain("\"Value\"");
         }
 
@@ -233,7 +240,7 @@
                 .ToANew<PublicSetMethod<ICollection<Product>>>();
 
             plan.ShouldContain("// Map PublicProperty<object[]> -> PublicSetMethod<ICollection<Product>>");
-            RemoveWhiteSpace(plan).ShouldContain("productList.Add(oaToPicData.Map(objectArray[i]");
+            RemoveWhiteSpace(plan).ShouldContain("productList.Add((Product)context.Map(context.AddChild(");
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/24
@@ -254,18 +261,18 @@
             {
                 string plan = mapper.GetPlanFor<Parent>().ToANew<Parent>();
 
-                plan.ShouldContain("pToPData =>");
+                plan.ShouldContain("context) =>");
 
-                plan.ShouldContain("pToPData.Register(sourceParent, parent)");
-                plan.ShouldContain("pToPData.Register(sourceParent.EldestChild, child)");
+                plan.ShouldContain("context.Register(source, parent)");
+                plan.ShouldContain("context.Register(sourceChild, child)");
 
                 plan.ShouldContain("Repeated Mapping Mapper");
 
                 plan.ShouldContain("Parent -> Parent");
-                plan.ShouldContain("pToPData2.TryGet(pToPData2.Source, out parent)");
+                plan.ShouldContain("context.TryGet(source, out parent)");
 
                 plan.ShouldContain("Child -> Child");
-                plan.ShouldContain("cToCData2.TryGet(cToCData2.Source, out child)");
+                plan.ShouldContain("context.TryGet(source, out child)");
             }
         }
 
@@ -343,11 +350,11 @@
                     .Over<PublicField<string>>()
                     .Before
                     .CreatingInstances
-                    .Call(ctx => Console.WriteLine("Nope!"))
+                    .Call(_ => Console.WriteLine("Nope!"))
                     .And
                     .After
                     .CreatingInstances
-                    .Call(ctx => Console.WriteLine("No way!"));
+                    .Call(_ => Console.WriteLine("No way!"));
 
                 string plan = mapper.GetPlanFor<PublicField<string>>().Over<PublicField<string>>();
 
@@ -363,7 +370,7 @@
                 .GetPlanFor<Issue146.Source.Container>()
                 .ToANew<Issue146.Target.Cont>();
 
-            plan.ShouldContain("data.Id = cToCData.Source.Info.Id;");
+            plan.ShouldContain("data.Id = source.Info.Id;");
         }
 
         [Fact]
@@ -411,7 +418,7 @@
                     .GetPlanFor<PublicTwoFields<Person, string>>()
                     .ToANew<PublicTwoFieldsStruct<Person, int>>();
 
-                plan.ShouldContain("int.TryParse(psptfToPiptfsData.Source.Value2");
+                plan.ShouldContain("int.TryParse(source.Value2");
                 plan.ShouldContain("Person member on a struct");
             }
         }
@@ -459,7 +466,7 @@
 
                 var expressions = mapper.GetPlanExpressionsInCache();
 
-                expressions.ShouldNotBeNull().Any().ShouldBeTrue();
+                expressions.ShouldNotBeNull().ShouldNotBeEmpty();
             }
         }
 

@@ -26,18 +26,15 @@
             RuleSetName = cachedMapper.MapperData.RuleSet.Name;
             Root = new RootMapperMappingPlanFunction(cachedMapper);
 
-            _mappingPlanFunctions = new List<IMappingPlanFunction> { Root };
-
             if (cachedMapper.MapperData.HasRepeatedMapperFuncs)
             {
+                _mappingPlanFunctions = new List<IMappingPlanFunction> { Root };
+
                 _mappingPlanFunctions.AddRange(cachedMapper
                     .RepeatedMappingFuncs
                     .Project(mf => new RepeatedMappingMappingPlanFunction(mf)));
             }
         }
-
-        internal static MappingPlan For(IObjectMappingData mappingData)
-            => new MappingPlan(mappingData.GetOrCreateMapper());
 
         /// <summary>
         /// Converts the given <paramref name="mappingPlan"/> to its string representation.
@@ -46,9 +43,14 @@
         /// <returns>The string representation of the given <paramref name="mappingPlan"/>.</returns>
         public static implicit operator string(MappingPlan mappingPlan)
         {
+            if (mappingPlan._mappingPlanFunctions == null)
+            {
+                return mappingPlan.Root.ToCSharp();
+            }
+
             return mappingPlan
                 ._mappingPlanFunctions
-                .ProjectToArray(pf => pf.ToSourceCode())
+                .ProjectToArray(pf => pf.ToCSharp())
                 .Join(Environment.NewLine + Environment.NewLine);
         }
 
@@ -60,7 +62,6 @@
         public static implicit operator Expression(MappingPlan mappingPlan)
         {
             return Expression.Block(mappingPlan
-                ._mappingPlanFunctions
                 .SelectMany(mpf => new Expression[] { mpf.Summary, mpf.Mapping }));
         }
 
@@ -72,10 +73,24 @@
 
         string IMappingPlan.ToSourceCode() => this;
 
-        IEnumerator IEnumerable.GetEnumerator() => _mappingPlanFunctions.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         IEnumerator<IMappingPlanFunction> IEnumerable<IMappingPlanFunction>.GetEnumerator()
-            => _mappingPlanFunctions.GetEnumerator();
+            => GetEnumerator();
+
+        private IEnumerator<IMappingPlanFunction> GetEnumerator()
+        {
+            if (_mappingPlanFunctions == null)
+            {
+                yield return Root;
+                yield break;
+            }
+
+            foreach (var function in _mappingPlanFunctions)
+            {
+                yield return function;
+            }
+        }
 
         /// <summary>
         /// Returns the string representation of the <see cref="MappingPlan"/>.

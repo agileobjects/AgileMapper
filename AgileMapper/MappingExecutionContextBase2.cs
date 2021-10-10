@@ -6,9 +6,10 @@
     using ObjectPopulation.MapperKeys;
     using Plans;
 
-    internal abstract class MappingExecutionContextBase2 : 
+    internal abstract class MappingExecutionContextBase2 :
         IMappingExecutionContext,
-        IMapperKeyData
+        IMapperKeyData,
+        IObjectMapperFactoryData
     {
         private readonly IMappingExecutionContext _parent;
         private Dictionary<object, List<object>> _mappedObjectsBySource;
@@ -139,8 +140,7 @@
     }
 
     internal abstract class MappingExecutionContextBase2<TSource> :
-        MappingExecutionContextBase2,
-        IMappingContext
+        MappingExecutionContextBase2
     {
         private readonly TSource _source;
 

@@ -228,7 +228,7 @@
 
         #endregion
 
-        #region IEntryPointMappingContext Members
+        #region MappingExecutionContextBase Members
 
         public override MappingTypes MappingTypes => _mappingTypes;
 

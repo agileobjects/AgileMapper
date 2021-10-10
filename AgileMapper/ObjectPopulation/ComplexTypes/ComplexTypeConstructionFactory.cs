@@ -238,7 +238,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public ConstructionKey(IObjectMappingData mappingData)
             {
                 MappingData = mappingData;
-                _ruleSet = mappingData.MappingContext.RuleSet;
+                _ruleSet = mappingData.RuleSet;
                 _sourceMember = mappingData.MapperData.SourceMember;
                 _targetMember = mappingData.MapperData.TargetMember;
             }

@@ -42,7 +42,7 @@
 
         public LambdaExpression Mapping => _mapperFunc.Mapping;
 
-        public string ToSourceCode()
+        public string ToCSharp()
         {
             var description = GetMappingDescription(linePrefix: "// ");
 

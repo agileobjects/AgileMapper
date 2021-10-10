@@ -85,6 +85,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperContext MapperContext => MappingContext.MapperContext;
 
+        public MappingRuleSet RuleSet => MappingContext.RuleSet;
+
         public MappingTypes MappingTypes { get; }
 
         public ObjectMapperKeyBase MapperKey { get; set; }
@@ -92,7 +94,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         public IRootMapperKey EnsureRootMapperKey()
         {
             // TODO:
-            //MapperKey = MappingContext.RuleSet.RootMapperKeyFactory.Invoke(this);
+            //MapperKey = RuleSet.RootMapperKeyFactory.Invoke(this);
 
             return (IRootMapperKey)MapperKey;
         }

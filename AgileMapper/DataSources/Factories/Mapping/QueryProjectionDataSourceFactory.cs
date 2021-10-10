@@ -17,7 +17,7 @@
 
             return mapperData.IsRoot &&
                    mapperData.TargetMember.IsEnumerable &&
-                  (mappingData.MappingContext.RuleSet.Name == Constants.Project) &&
+                  (mappingData.RuleSet.Name == Constants.Project) &&
                    mapperData.SourceType.IsQueryable();
         }
     }

@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public IObjectMapper GetOrCreateRoot<TSource, TTarget>(
-            MappingExecutionContextBase2<TSource> mappingContext)
+            IObjectMapperFactoryData mappingContext)
         {
             if (StaticMapperCache<TSource, TTarget>.TryGetMapperFor(mappingContext, out var mapper))
             {

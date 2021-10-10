@@ -41,7 +41,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperContext MapperContext => MapperData.MapperContext;
 
-        public MappingRuleSet RuleSet => MappingData.MappingContext.RuleSet;
+        public MappingRuleSet RuleSet => MappingData.RuleSet;
 
         public ObjectMapperData MapperData => MappingData.MapperData;
 

@@ -49,9 +49,9 @@
         LambdaExpression Mapping { get; }
 
         /// <summary>
-        /// Gets a source-code string translation of this <see cref="IMappingPlanFunction"/>.
+        /// Gets a C# source-code string translation of this <see cref="IMappingPlanFunction"/>.
         /// </summary>
-        /// <returns>A source-code string translation of this <see cref="IMappingPlanFunction"/>.</returns>
-        string ToSourceCode();
+        /// <returns>A C# source-code string translation of this <see cref="IMappingPlanFunction"/>.</returns>
+        string ToCSharp();
     }
 }

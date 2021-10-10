@@ -281,7 +281,7 @@
             var mappingContext = new SimpleMappingContext(ruleSet, MapperContext);
 
             _mappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes<TSource, TTarget>(mappingContext, createMapper: false);
+                .ForRootFixedTypes<TSource, TTarget>(mappingContext);
 
             return _mappingData;
         }

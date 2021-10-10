@@ -9,7 +9,13 @@
     {
         private readonly MapperContext _mapperContext;
 
-        public QueryProjectorKey(
+        public QueryProjectorKey(IMapperKeyData data, Type queryProviderType)
+            : this(data.MappingTypes, queryProviderType, data.MapperContext)
+        {
+            KeyData = data;
+        }
+
+        private QueryProjectorKey(
             MappingTypes mappingTypes,
             Type queryProviderType,
             MapperContext mapperContext)
