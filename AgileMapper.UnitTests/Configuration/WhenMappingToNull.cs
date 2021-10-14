@@ -180,7 +180,7 @@
                     new CustomerViewModel { AddressLine1 = null },
                     new CustomerViewModel { AddressLine1 = "Hello!" }
                 };
-                var result = mapper.Map(source).ToANew<IEnumerable<MysteryCustomer>>();
+                var result = mapper.Map(source).ToANew<IEnumerable<MysteryCustomer>>().ToList();
 
                 result.First().Address.ShouldBeNull();
                 result.Second().Address.ShouldNotBeNull();

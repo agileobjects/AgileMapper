@@ -6,7 +6,6 @@
     using System.Linq.Expressions;
 #endif
     using Members;
-    using static Members.Member;
 
     internal class MappingContextMemberAccessFinder : ExpressionVisitor
     {
@@ -25,16 +24,6 @@
             finder.Visit(lambda.Body);
 
             return finder._requiredValues;
-        }
-
-        protected override Expression VisitParameter(ParameterExpression parameter)
-        {
-            if (parameter == _contextParameter)
-            {
-                _requiredValues.MappingContext = parameter;
-            }
-
-            return base.VisitParameter(parameter);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
@@ -60,11 +49,11 @@
                     _requiredValues.MappingContext = memberAccess.Expression;
                     _requiredValues.Parent = memberAccess;
                     return memberAccess;
-
-                case RootSourceMemberName:
+                    
+                case nameof(IMappingData<int, int>.Source):
                     return _requiredValues.Source = memberAccess;
-
-                case RootTargetMemberName:
+                    
+                case nameof(IMappingData<int, int>.Target):
                     return _requiredValues.Target = memberAccess;
 
                 case nameof(IMappingData<int, int>.ElementIndex):

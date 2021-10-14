@@ -8,10 +8,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 #endif
     using Members;
 
-    internal interface IValueInjector
+    internal interface IValueReplacer
     {
         bool HasMappingContextParameter { get; }
         
-        Expression Inject(Type[] contextTypes, IMemberMapperData mapperData);
+        Expression Replace(Type[] contextTypes, IMemberMapperData mapperData);
     }
 }

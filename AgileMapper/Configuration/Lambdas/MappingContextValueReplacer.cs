@@ -13,7 +13,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     using static LambdaValue;
     using static Members.Member;
 
-    internal class MappingContextValueInjector : IValueInjector
+    internal class MappingContextValueReplacer : IValueReplacer
     {
         private readonly LambdaExpression _lambda;
         private readonly MappingConfigInfo _configInfo;
@@ -22,7 +22,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         private readonly bool _isMappingContextInvokeLambda;
         private RequiredValuesSet _requiredValues;
 
-        private MappingContextValueInjector(
+        private MappingContextValueReplacer(
             LambdaExpression lambda,
             MappingConfigInfo configInfo,
             bool isMappingContextInvokeLambda)
@@ -30,7 +30,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         {
         }
 
-        private MappingContextValueInjector(
+        private MappingContextValueReplacer(
             LambdaExpression lambda,
             MappingConfigInfo configInfo,
             RequiredValuesSet requiredValues,
@@ -46,26 +46,26 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #region Factory Method
 
-        public static IValueInjector CreateFor(LambdaExpression lambda, MappingConfigInfo configInfo)
+        public static IValueReplacer CreateFor(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
             if (IsMappingContextInvoke(lambda))
             {
-                return new MappingContextValueInjector(lambda, configInfo, true);
+                return new MappingContextValueReplacer(lambda, configInfo, true);
             }
 
             var requiredValues = GetRequiredValues(lambda);
 
             if (requiredValues.ValuesCount == 0)
             {
-                return new NullValueInjector(lambda);
+                return new NullValueReplacer(lambda);
             }
 
             if (requiredValues.Includes(MappingContext))
             {
-                return new MappingContextValueInjector(lambda, configInfo, requiredValues, false);
+                return new MappingContextValueReplacer(lambda, configInfo, requiredValues, false);
             }
 
-            return ContextValuesValueInjector.Create(lambda, configInfo, requiredValues);
+            return ContextValuesValueReplacer.Create(lambda, configInfo, requiredValues);
         }
 
         private static RequiredValuesSet GetRequiredValues(LambdaExpression lambda)
@@ -81,14 +81,14 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         private RequiredValuesSet GetRequiredValues()
             => _requiredValues ??= GetRequiredValues(_lambda);
 
-        public Expression Inject(Type[] contextTypes, IMemberMapperData mapperData)
+        public Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
         {
             if (mapperData.MappingDataObject.Type.IsAssignableTo(_contextType))
             {
                 return _lambda.ReplaceParameterWith(mapperData.MappingDataObject);
             }
 
-            var args = new ValueInjectionArgs(_lambda, _configInfo, contextTypes, mapperData);
+            var args = new ValueReplacementArgs(_lambda, _configInfo, contextTypes, mapperData);
             var context = args.GetAppropriateMappingContext();
 
             if (_isMappingContextInvokeLambda)

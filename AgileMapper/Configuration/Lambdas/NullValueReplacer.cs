@@ -8,17 +8,17 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 #endif
     using Members;
 
-    internal class NullValueInjector : IValueInjector
+    internal class NullValueReplacer : IValueReplacer
     {
         private readonly Expression _lambdaBody;
 
-        public NullValueInjector(LambdaExpression lambda)
+        public NullValueReplacer(LambdaExpression lambda)
         {
             _lambdaBody = lambda.Body;
         }
 
         public bool HasMappingContextParameter => false;
 
-        public Expression Inject(Type[] contextTypes, IMemberMapperData mapperData) => _lambdaBody;
+        public Expression Replace(Type[] contextTypes, IMemberMapperData mapperData) => _lambdaBody;
     }
 }

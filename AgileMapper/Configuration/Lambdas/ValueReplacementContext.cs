@@ -12,26 +12,26 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     using NetStandardPolyfills;
     using ObjectPopulation;
 
-    internal class ValueInjectionContext
+    internal class ValueReplacementContext
     {
-        private readonly ValueInjectionArgs _args;
+        private readonly ValueReplacementArgs _args;
         private readonly Expression _contextAccess;
         private readonly Expression _sourceAccess;
         private readonly Expression _targetAccess;
 
-        public ValueInjectionContext(ValueInjectionArgs args)
+        public ValueReplacementContext(ValueReplacementArgs args)
             : this(args, args.MapperData.MappingDataObject)
         {
         }
 
-        public ValueInjectionContext(ValueInjectionArgs args, Expression contextAccess)
+        public ValueReplacementContext(ValueReplacementArgs args, Expression contextAccess)
         {
             _args = args;
             _contextAccess = contextAccess;
         }
 
-        public ValueInjectionContext(
-            ValueInjectionArgs args,
+        public ValueReplacementContext(
+            ValueReplacementArgs args,
             Expression contextAccess,
             Expression sourceAccess,
             Expression targetAccess)

@@ -188,10 +188,8 @@
                 condition));
         }
 
-        private static void FixEnumComparisonsIfNecessary(ref LambdaExpression conditionLambda)
-        {
-            conditionLambda = EnumComparisonFixer.Check(conditionLambda);
-        }
+        private static void FixEnumComparisonsIfNecessary(ref LambdaExpression conditionLambda) 
+            => conditionLambda = EnumComparisonFixer.Check(conditionLambda);
 
         public void NegateCondition()
         {

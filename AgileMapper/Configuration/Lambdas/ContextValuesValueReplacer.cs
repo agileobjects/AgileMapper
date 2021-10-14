@@ -11,27 +11,27 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     using Members;
     using static LambdaValue;
 
-    internal delegate Expression ContextValueFactory(ValueInjectionContext context);
+    internal delegate Expression ContextValueFactory(ValueReplacementContext context);
 
-    internal abstract class ContextValuesValueInjector : IValueInjector
+    internal abstract class ContextValuesValueReplacer : IValueReplacer
     {
         private readonly LambdaExpression _lambda;
         private readonly MappingConfigInfo _configInfo;
 
-        protected ContextValuesValueInjector(LambdaExpression lambda, MappingConfigInfo configInfo)
+        protected ContextValuesValueReplacer(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
             _lambda = lambda;
             _configInfo = configInfo;
         }
 
-        public static IValueInjector Create(LambdaExpression lambda, MappingConfigInfo configInfo)
+        public static IValueReplacer Create(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
             var requiredValues = ParametersAccessFinder.GetValuesRequiredBy(lambda);
 
             return Create(lambda, configInfo, requiredValues);
         }
 
-        public static IValueInjector Create(
+        public static IValueReplacer Create(
             LambdaExpression lambda,
             MappingConfigInfo configInfo,
             RequiredValuesSet requiredValues)
@@ -39,35 +39,35 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             switch (requiredValues.ValuesCount)
             {
                 case 0:
-                    return new NullValueInjector(lambda);
+                    return new NullValueReplacer(lambda);
 
                 case 1:
-                    return new SingleContextValueValueInjector(lambda, configInfo, requiredValues);
+                    return new SingleContextValueValueReplacer(lambda, configInfo, requiredValues);
 
                 default:
-                    return new MultipleContextValuesValueInjector(lambda, configInfo, requiredValues);
+                    return new MultipleContextValuesValueReplacer(lambda, configInfo, requiredValues);
             }
         }
 
         public abstract bool HasMappingContextParameter { get; }
 
-        public abstract Expression Inject(Type[] contextTypes, IMemberMapperData mapperData);
+        public abstract Expression Replace(Type[] contextTypes, IMemberMapperData mapperData);
 
-        protected ValueInjectionContext CreateContext(Type[] contextTypes, IMemberMapperData mapperData)
+        protected ValueReplacementContext CreateContext(Type[] contextTypes, IMemberMapperData mapperData)
         {
-            var args = new ValueInjectionArgs(_lambda, _configInfo, contextTypes, mapperData);
+            var args = new ValueReplacementArgs(_lambda, _configInfo, contextTypes, mapperData);
             var context = args.GetAppropriateMappingContext();
 
             return context;
         }
 
-        private class SingleContextValueValueInjector : ContextValuesValueInjector
+        private class SingleContextValueValueReplacer : ContextValuesValueReplacer
         {
             private readonly Expression _lambdaBody;
             private readonly Expression _value;
             private readonly ContextValueFactory _replacementFactory;
 
-            public SingleContextValueValueInjector(
+            public SingleContextValueValueReplacer(
                 LambdaExpression lambda,
                 MappingConfigInfo configInfo,
                 RequiredValuesSet requiredValues)
@@ -118,7 +118,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             public override bool HasMappingContextParameter => false;
 
-            public override Expression Inject(Type[] contextTypes, IMemberMapperData mapperData)
+            public override Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
             {
                 var context = CreateContext(contextTypes, mapperData);
                 var replacement = _replacementFactory.Invoke(context);
@@ -127,13 +127,13 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             }
         }
 
-        private class MultipleContextValuesValueInjector : ContextValuesValueInjector
+        private class MultipleContextValuesValueReplacer : ContextValuesValueReplacer
         {
             private readonly Expression _lambdaBody;
             private readonly bool _isInvocation;
             private readonly RequiredValuesSet _requiredValues;
 
-            public MultipleContextValuesValueInjector(
+            public MultipleContextValuesValueReplacer(
                 LambdaExpression lambda,
                 MappingConfigInfo configInfo,
                 RequiredValuesSet requiredValues)
@@ -148,7 +148,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             public override bool HasMappingContextParameter => _requiredValues.Includes(MappingContext);
 
-            public override Expression Inject(Type[] contextTypes, IMemberMapperData mapperData)
+            public override Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
             {
                 var replacements = _isInvocation
                     ? FixedSizeExpressionReplacementDictionary.WithEqualKeys(RequiredValuesCount)

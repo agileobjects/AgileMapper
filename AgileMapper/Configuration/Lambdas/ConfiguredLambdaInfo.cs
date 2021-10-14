@@ -21,7 +21,7 @@
         private readonly Expression _lambdaBody;
         private readonly Type[] _contextTypes;
         private readonly bool _isForTargetDictionary;
-        private readonly IValueInjector _valueInjector;
+        private readonly IValueReplacer _valueReplacer;
         private LambdaExpression _sourceMemberLambda;
         private bool? _isSourceMember;
         private string _description;
@@ -36,7 +36,7 @@
             _lambda = lambda;
             _lambdaBody = lambda.Body;
             _contextTypes = contextTypes;
-            _valueInjector = valueInjectorFactory.CreateFor(lambda, configInfo);
+            _valueReplacer = valueInjectorFactory.CreateFor(lambda, configInfo);
             ReturnType = returnType;
 
             _isForTargetDictionary = (contextTypes.Length > 1) && contextTypes[1].IsDictionary();
@@ -156,7 +156,7 @@
 
         #endregion
 
-        public bool UsesMappingDataObjectParameter => _valueInjector.HasMappingContextParameter;
+        public bool UsesMappingDataObjectParameter => _valueReplacer.HasMappingContextParameter;
 
         public Type ReturnType { get; }
 
@@ -273,7 +273,7 @@
                 contextTypes[1] = mapperData.TargetType;
             }
 
-            return _valueInjector.Inject(contextTypes, mapperData);
+            return _valueReplacer.Replace(contextTypes, mapperData);
         }
     }
 }

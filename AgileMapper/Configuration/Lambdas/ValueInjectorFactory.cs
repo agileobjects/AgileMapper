@@ -17,16 +17,16 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     {
         private delegate bool ApplicabilityPredicate(Type[] contextTypes, Type[] funcArguments);
 
-        private static readonly ValueInjectorFactory _empty = new ValueInjectorFactory();
+        private static readonly ValueInjectorFactory _empty = new();
 
         private static readonly ValueInjectorFactory[] _factories =
         {
-            new ValueInjectorFactory(MappingContext, IsContext),
-            new ValueInjectorFactory(Source, IsSourceOnly),
-            new ValueInjectorFactory(Source | Target),
-            new ValueInjectorFactory(Source | Target | ElementIndex),
-            new ValueInjectorFactory(Source | Target | CreatedObject),
-            new ValueInjectorFactory(Source | Target | CreatedObject | ElementIndex)
+            new(MappingContext, IsContext),
+            new(Source, IsSourceOnly),
+            new(Source | Target),
+            new(Source | Target | ElementIndex),
+            new(Source | Target | CreatedObject),
+            new(Source | Target | CreatedObject | ElementIndex)
         };
 
         private readonly LambdaValue _lambdaValue;
@@ -151,18 +151,18 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #endregion
 
-        public IValueInjector CreateFor(LambdaExpression lambda, MappingConfigInfo configInfo)
+        public IValueReplacer CreateFor(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
             switch (_lambdaValue)
             {
                 case default(LambdaValue):
-                    return new NullValueInjector(lambda);
+                    return new NullValueReplacer(lambda);
 
                 case MappingContext:
-                    return MappingContextValueInjector.CreateFor(lambda, configInfo);
+                    return MappingContextValueReplacer.CreateFor(lambda, configInfo);
 
                 default:
-                    return ContextValuesValueInjector.Create(lambda, configInfo);
+                    return ContextValuesValueReplacer.Create(lambda, configInfo);
             }
         }
     }

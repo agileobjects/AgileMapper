@@ -11,11 +11,11 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     using Members;
     using ObjectPopulation;
 
-    internal class ValueInjectionArgs
+    internal class ValueReplacementArgs
     {
         private readonly LambdaExpression _lambda;
 
-        public ValueInjectionArgs(
+        public ValueReplacementArgs(
             LambdaExpression lambda,
             MappingConfigInfo configInfo,
             Type[] contextTypes,
@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         private Expression GetAppropriateMappingContextAccess()
             => MapperData.GetAppropriateMappingContextAccess(ContextTypes);
 
-        public ValueInjectionContext GetAppropriateMappingContext()
+        public ValueReplacementContext GetAppropriateMappingContext()
         {
             if (UseSimpleTypeMappingContextInfo())
             {
@@ -65,12 +65,12 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             if (ContextTypesMatch())
             {
-                return new ValueInjectionContext(this);
+                return new ValueReplacementContext(this);
             }
 
             var contextAccess = GetAppropriateMappingContextAccess();
 
-            return new ValueInjectionContext(this, contextAccess);
+            return new ValueReplacementContext(this, contextAccess);
         }
 
         private bool UseSimpleTypeMappingContextInfo()
@@ -82,7 +82,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             return ContextSourceType.IsSimple() && ContextTargetType != typeof(object);
         }
 
-        private ValueInjectionContext GetSimpleTypesMappingContextInfo()
+        private ValueReplacementContext GetSimpleTypesMappingContextInfo()
         {
             var mapperData = MapperData;
             var contextMapperData = MapperData;
@@ -115,14 +115,14 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 break;
             }
 
-            return new ValueInjectionContext(
+            return new ValueReplacementContext(
                 this,
                 mapperData.MappingDataObject,
                 sourceMember.GetQualifiedAccess(contextMapperData.SourceObject),
                 targetMember.GetQualifiedAccess(contextMapperData.TargetInstance));
         }
 
-        public Expression GetInvocationContextArgument(ValueInjectionContext context)
+        public Expression GetInvocationContextArgument(ValueReplacementContext context)
         {
             if (context.IsCallback())
             {
