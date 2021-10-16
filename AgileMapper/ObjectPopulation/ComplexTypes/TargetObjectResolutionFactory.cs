@@ -65,7 +65,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             {
                 if (assignCreatedObject)
                 {
-                    mapperData.Context.UsesMappingDataObjectAsParameter = true;
+                    // TODO mapperData.Context.UsesMappingDataObjectAsParameter = true;
                     objectValue = mapperData.CreatedObject.AssignTo(objectValue);
                 }
 

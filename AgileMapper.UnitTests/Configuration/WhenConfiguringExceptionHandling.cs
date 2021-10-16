@@ -21,7 +21,7 @@
                 mapper.WhenMapping.SwallowAllExceptions();
 
                 mapper.After.CreatingInstances
-                    .Call(ctx => throw new InvalidOperationException("BANG"));
+                    .Call(_ => throw new InvalidOperationException("BANG"));
 
                 var result = mapper.Map(new Person()).ToANew<PersonViewModel>();
 
@@ -38,7 +38,7 @@
 
                 mapper.After
                     .CreatingInstancesOf<Address>()
-                    .Call(ctx => throw new InvalidOperationException("ASPLODE"));
+                    .Call(_ => throw new InvalidOperationException("ASPLODE"));
 
                 var result = mapper.Map(new PersonViewModel { AddressLine1 = "YO" }).ToANew<Person>();
 
@@ -65,7 +65,7 @@
                     });
 
                 mapper.After.CreatingInstances
-                    .Call(ctx => throw new InvalidOperationException("BOOM"));
+                    .Call(_ => throw new InvalidOperationException("BOOM"));
 
                 mapper.Map(new Person()).ToANew<PersonViewModel>();
 
@@ -88,7 +88,7 @@
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => throw new InvalidOperationException("CRUNCH"));
+                    .Call(_ => throw new InvalidOperationException("CRUNCH"));
 
                 Should.Throw<MappingException>(() =>
                     mapper.Map(new PersonViewModel()).ToANew<Person>());
@@ -117,7 +117,7 @@
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => throw new InvalidOperationException("ASPLODE"));
+                    .Call(_ => throw new InvalidOperationException("ASPLODE"));
 
                 ShouldNotCallCallback(() => mapper.Map(new PersonViewModel()).ToANew<Person>(), ref thrownException);
 
@@ -143,7 +143,7 @@
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => throw new InvalidOperationException("BSOD"));
+                    .Call(_ => throw new InvalidOperationException("BSOD"));
 
                 Should.Throw<MappingException>(() =>
                     mapper.Map(new Customer()).ToANew<Person>());
@@ -171,7 +171,7 @@
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => throw new InvalidOperationException("WALLOP"));
+                    .Call(_ => throw new InvalidOperationException("WALLOP"));
 
                 ShouldNotCallCallback(
                     () => mapper.Map(new Customer()).ToANew<Person>(),
