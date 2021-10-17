@@ -6,15 +6,16 @@
     using System.Linq;
 #if NET35
     using Microsoft.Scripting.Ast;
-    using ReadableExpressions.Translations;
 #else
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
+    using System.Reflection.Emit;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
 #if NET35
+    using ReadableExpressions.Translations;
     using LinqExp = System.Linq.Expressions;
     using static Microsoft.Scripting.Ast.ExpressionType;
 #else
@@ -426,11 +427,32 @@
             this Expression mapping,
             MemberMapperDataBase mapperData)
         {
+            var sourceParameter = GetParameter(mapperData.SourceObject);
+            var targetParameter = GetParameter(mapperData.TargetObject);
+
             return Expression.Lambda<MapperFunc<TSource, TTarget>>(
                 mapping,
-               (ParameterExpression)mapperData.SourceObject,
-               (ParameterExpression)mapperData.TargetObject,
+                sourceParameter,
+                targetParameter,
                 Constants.ExecutionContextParameter);
+        }
+
+        private static ParameterExpression GetParameter(Expression value)
+        {
+            while (true)
+            {
+                switch (value.NodeType)
+                {
+                    case ExpressionType.Convert:
+                        value = ((UnaryExpression)value).Operand;
+                        continue;
+
+                    case Default:
+                        return value.Type.GetOrCreateTargetParameter();
+                }
+
+                return (ParameterExpression)value;
+            }
         }
     }
 }
