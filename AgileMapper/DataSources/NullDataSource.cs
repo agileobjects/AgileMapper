@@ -9,6 +9,9 @@
 
     internal class NullDataSource : DataSourceBase
     {
+        public static readonly IDataSource EmptyValue = 
+            new NullDataSource(Constants.EmptyExpression);
+
         public NullDataSource(Expression value)
             : base(default(IQualifiedMember), value)
         {

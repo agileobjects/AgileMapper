@@ -152,6 +152,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             }
         }
 
-        public bool Compile => IsStandalone && !IsForDerivedType;
+        public bool Compile => IsStandalone && !IsForDerivedType && !IsForToTargetMapping;
     }
 }

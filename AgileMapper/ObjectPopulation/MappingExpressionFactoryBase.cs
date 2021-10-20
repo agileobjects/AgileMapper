@@ -237,7 +237,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             var toTargetDataSources = context
                 .ToTargetDataSources
-                .Filter(cds => cds.IsSequential);
+                .Filter(ds => ds.IsSequential);
 
             var i = 0;
 

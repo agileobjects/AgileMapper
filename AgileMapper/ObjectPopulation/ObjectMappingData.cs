@@ -93,9 +93,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public IRootMapperKey EnsureRootMapperKey()
         {
-            // TODO:
-            //MapperKey = RuleSet.RootMapperKeyFactory.Invoke(this);
-
+            MapperKey ??= RuleSet.RootMapperKeyFactory.Invoke(this);
             return (IRootMapperKey)MapperKey;
         }
 
@@ -263,11 +261,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 MapperData.TargetType,
                 IsPartOfDerivedTypeMapping);
 
-            // TODO:
-            //newSourceMappingData.MapperKey = MappingContext
-            //    .RuleSet
-            //    .RootMapperKeyFactory
-            //    .Invoke(newSourceMappingData);
+            newSourceMappingData.MapperKey = MappingContext
+                .RuleSet
+                .RootMapperKeyFactory
+                .Invoke(newSourceMappingData);
 
             var newSourceMapperData = newSourceMappingData.MapperData;
 

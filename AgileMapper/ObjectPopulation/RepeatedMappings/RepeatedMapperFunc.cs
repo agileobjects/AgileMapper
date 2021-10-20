@@ -7,6 +7,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
+    using MapperKeys;
     using Members;
 
     internal class RepeatedMapperFunc<TChildSource, TChildTarget> : IRepeatedMapperFunc
@@ -44,7 +45,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
                 .Invoke((TChildSource)context.Source, (TChildTarget)context.Target, context);
         }
 
-        private void EnsureFunc(MappingExecutionContextBase2 context)
+        private void EnsureFunc(IMapperKeyData data)
         {
             if (_repeatedMappingFunc != null)
             {
@@ -58,7 +59,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.RepeatedMappings
                     return;
                 }
 
-                var mappingData = context.GetMappingData();
+                var mappingData = data.GetMappingData();
                 mappingData.MapperData = _mapperData;
 
                 CreateMapperFunc(mappingData, isLazyLoading: true);

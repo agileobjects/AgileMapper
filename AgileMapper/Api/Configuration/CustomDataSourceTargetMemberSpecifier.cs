@@ -56,14 +56,9 @@
         public CustomDataSourceTargetMemberSpecifier(
             MappingConfigInfo configInfo,
             ConfiguredLambdaInfo customValueLambdaInfo)
-            : this(configInfo)
-        {
-            _customValueLambdaInfo = customValueLambdaInfo;
-        }
-
-        private CustomDataSourceTargetMemberSpecifier(MappingConfigInfo configInfo)
         {
             _configInfo = configInfo;
+            _customValueLambdaInfo = customValueLambdaInfo;
             _sequenceDataSourceFactories = configInfo.GetSequenceDataSourceFactories();
         }
 

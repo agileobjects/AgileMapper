@@ -1,5 +1,6 @@
 ﻿namespace AgileObjects.AgileMapper.DataSources
 {
+    using System;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -28,7 +29,10 @@
         {
             var mapping = ComplexTypeMappingExpressionFactory.Instance.Create(mappingData);
 
-            return new ComplexTypeDataSource(mappingData.MapperData.SourceMember, mapping);
+            return Create(
+                mappingData.MapperData.SourceMember,
+                mapping,
+               (sm, m) => new ComplexTypeDataSource(sm, m));
         }
 
         public static IDataSource Create(
@@ -42,7 +46,10 @@
                 dataSourceIndex,
                 complexTypeMappingData);
 
-            return new ComplexTypeDataSource(wrappedDataSource, mapping);
+            return Create(
+                wrappedDataSource,
+                mapping,
+               (wds, m) => new ComplexTypeDataSource(wds, m));
         }
 
         public static IDataSource Create(int dataSourceIndex, IChildMemberMappingData complexTypeMappingData)
@@ -60,7 +67,20 @@
                 dataSourceIndex,
                 complexTypeMappingData);
 
-            return new ComplexTypeDataSource(sourceMember, mapping);
+            return Create(
+                sourceMember,
+                mapping,
+               (sm, m) => new ComplexTypeDataSource(sm, m));
+        }
+
+        private static IDataSource Create<TArg>(
+            TArg argument,
+            Expression mapping,
+            Func<TArg, Expression, IDataSource> factory)
+        {
+            return mapping == Constants.EmptyExpression
+                ? NullDataSource.EmptyValue
+                : factory.Invoke(argument, mapping);
         }
 
         #endregion

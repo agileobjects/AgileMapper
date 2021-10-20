@@ -439,20 +439,9 @@
 
         private static ParameterExpression GetParameter(Expression value)
         {
-            while (true)
-            {
-                switch (value.NodeType)
-                {
-                    case ExpressionType.Convert:
-                        value = ((UnaryExpression)value).Operand;
-                        continue;
-
-                    case Default:
-                        return value.Type.GetOrCreateTargetParameter();
-                }
-
-                return (ParameterExpression)value;
-            }
+            return value.NodeType == Parameter
+                ? (ParameterExpression)value
+                : value.Type.GetOrCreateTargetParameter();
         }
     }
 }

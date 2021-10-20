@@ -20,7 +20,7 @@
 
             if (!childMapperData.MapperContext.UserConfigurations.HasMappingFactories)
             {
-                return new NullDataSource(Constants.EmptyExpression);
+                return NullDataSource.EmptyValue;
             }
 
             var childObjectMappingData = ObjectMappingDataFactory.ForChild(
@@ -36,7 +36,7 @@
 
             if (mapping == null)
             {
-                return new NullDataSource(Constants.EmptyExpression);
+                return NullDataSource.EmptyValue;
             }
 
             var childObjectMapperData = childObjectMappingData.MapperData;

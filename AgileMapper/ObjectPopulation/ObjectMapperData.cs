@@ -25,7 +25,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     {
         private LabelTarget _returnLabelTarget;
         private Expression _rootMappingDataObject;
-        private ObjectMapperData _entryPointMapperData;
         private Expression _elementIndex;
         private Expression _elementKey;
         private Expression _targetInstance;
@@ -234,7 +233,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        private void TargetEnumerableVariableCreated(ParameterExpression targetVariable) 
+        private void TargetEnumerableVariableCreated(ParameterExpression targetVariable)
             => _targetInstance = _targetInstanceVariable = targetVariable;
 
         #endregion
@@ -412,42 +411,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public bool TargetTypeWillNotBeMappedAgain { get; }
 
-        public Expression ElementIndex
-            => _elementIndex ??= GetElementIndex();
-
-        private Expression GetElementIndex()
+        protected override Expression GetSourceObject()
         {
-            var counter =
-                DeclaredTypeMapperData?.ElementIndex ??
-                EnumerablePopulationBuilder?.Counter;
-
-            if (counter != null)
+            if (OriginalMapperData == null)
             {
-                return counter;
+                return base.GetSourceObject();
             }
 
-            if (IsEntryPoint)
-            {
-                return Constants.NullInt;
-            }
-
-            return Parent.GetElementIndex();
-        }
-
-        public Expression ElementKey
-            => _elementKey ??= GetElementKey();
-
-        private Expression GetElementKey()
-        {
-            if (IsRoot)
-            {
-                return Constants.NullObject;
-            }
-
-            return
-                DeclaredTypeMapperData?.ElementKey ??
-                EnumerablePopulationBuilder?.GetElementKey() ??
-                Parent.GetElementKey();
+            return null;
         }
 
         protected override Expression GetNestedSourceObject()
@@ -511,30 +482,40 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 "created" + TargetType.GetVariableNameInPascalCase());
         }
 
-        public ObjectMapperData EntryPointMapperData
-            => _entryPointMapperData ??= GetNearestEntryPointObjectMapperData();
+        public Expression ElementIndex => _elementIndex ??= GetElementIndex();
 
-        private ObjectMapperData GetNearestEntryPointObjectMapperData()
+        private Expression GetElementIndex()
         {
-            var mapperData = GetEntryPointMapperDataCandidate(this);
+            var counter =
+                DeclaredTypeMapperData?.ElementIndex ??
+                EnumerablePopulationBuilder?.Counter;
 
-            while (!mapperData.IsEntryPoint)
+            if (counter != null)
             {
-                mapperData = GetEntryPointMapperDataCandidate(mapperData.Parent);
+                return counter;
             }
 
-            return mapperData;
+            if (IsEntryPoint)
+            {
+                return Constants.NullInt;
+            }
+
+            return Parent.GetElementIndex();
         }
 
-        private static ObjectMapperData GetEntryPointMapperDataCandidate(ObjectMapperData mapperData)
+        public Expression ElementKey => _elementKey ??= GetElementKey();
+
+        private Expression GetElementKey()
         {
-            if ((mapperData.OriginalMapperData == null) ||
-               (!mapperData.OriginalMapperData.IsEntryPoint && mapperData.IsEntryPoint))
+            if (IsRoot)
             {
-                return mapperData;
+                return Constants.NullObject;
             }
 
-            return mapperData.OriginalMapperData;
+            return
+                DeclaredTypeMapperData?.ElementKey ??
+                EnumerablePopulationBuilder?.GetElementKey() ??
+                Parent.GetElementKey();
         }
 
         public override bool IsEntryPoint

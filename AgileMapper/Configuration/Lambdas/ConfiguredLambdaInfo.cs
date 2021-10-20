@@ -30,13 +30,13 @@
             LambdaExpression lambda,
             Type[] contextTypes,
             Type returnType,
-            ValueInjectorFactory valueInjectorFactory,
+            ValueReplacerFactory valueReplacerFactory,
             MappingConfigInfo configInfo)
         {
             _lambda = lambda;
             _lambdaBody = lambda.Body;
             _contextTypes = contextTypes;
-            _valueReplacer = valueInjectorFactory.CreateFor(lambda, configInfo);
+            _valueReplacer = valueReplacerFactory.CreateFor(lambda, configInfo);
             ReturnType = returnType;
 
             _isForTargetDictionary = (contextTypes.Length > 1) && contextTypes[1].IsDictionary();
@@ -48,13 +48,13 @@
         {
             var funcArguments = lambda.Parameters.ProjectToArray(p => p.Type);
             var contextTypes = GetContextTypes(funcArguments);
-            var valueInjectorFactory = ValueInjectorFactory.For(contextTypes, funcArguments);
+            var valueReplacerFactory = ValueReplacerFactory.For(contextTypes, funcArguments);
 
             return new ConfiguredLambdaInfo(
                 lambda,
                 contextTypes,
                 lambda.ReturnType,
-                valueInjectorFactory,
+                valueReplacerFactory,
                 configInfo);
         }
 
@@ -134,9 +134,9 @@
 
             var funcTypes = funcType.GetGenericTypeArguments();
             var funcArguments = funcArgumentsFactory.Invoke(funcTypes);
-            var valueInjectorFactory = ValueInjectorFactory.For(contextTypes, funcArguments);
+            var valueReplacerFactory = ValueReplacerFactory.For(contextTypes, funcArguments);
 
-            if (valueInjectorFactory == null)
+            if (valueReplacerFactory == null)
             {
                 return null;
             }
@@ -150,7 +150,7 @@
                 valueFactoryLambda,
                 contextTypes,
                 returnTypeFactory.Invoke(funcTypes),
-                valueInjectorFactory,
+                valueReplacerFactory,
                 configInfo);
         }
 

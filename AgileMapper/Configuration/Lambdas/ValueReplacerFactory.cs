@@ -13,13 +13,13 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     using ObjectPopulation;
     using static LambdaValue;
 
-    internal class ValueInjectorFactory
+    internal class ValueReplacerFactory
     {
         private delegate bool ApplicabilityPredicate(Type[] contextTypes, Type[] funcArguments);
 
-        private static readonly ValueInjectorFactory _empty = new();
+        private static readonly ValueReplacerFactory _empty = new();
 
-        private static readonly ValueInjectorFactory[] _factories =
+        private static readonly ValueReplacerFactory[] _factories =
         {
             new(MappingContext, IsContext),
             new(Source, IsSourceOnly),
@@ -33,7 +33,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         private readonly ApplicabilityPredicate _applicabilityPredicate;
         private readonly int _numberOfParameters;
 
-        private ValueInjectorFactory(
+        private ValueReplacerFactory(
             LambdaValue lambdaValue,
             ApplicabilityPredicate applicabilityPredicate = null)
             : this(applicabilityPredicate)
@@ -42,14 +42,14 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             _numberOfParameters = lambdaValue.Count();
         }
 
-        private ValueInjectorFactory(ApplicabilityPredicate applicabilityPredicate = null)
+        private ValueReplacerFactory(ApplicabilityPredicate applicabilityPredicate = null)
         {
             _applicabilityPredicate = applicabilityPredicate ?? MatchesLambdaValue;
         }
 
         #region Factory Method
 
-        public static ValueInjectorFactory For(Type[] contextTypes, Type[] funcArguments)
+        public static ValueReplacerFactory For(Type[] contextTypes, Type[] funcArguments)
         {
             var funcArgumentCount = funcArguments.Length;
 
