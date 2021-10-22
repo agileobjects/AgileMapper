@@ -35,6 +35,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private List<ObjectMapperData> _derivedMapperDatas;
         private Dictionary<QualifiedMember, IDataSourceSet> _dataSourcesByTargetMember;
         private bool? _isRepeatMapping;
+        private IQualifiedMember _sourceMember;
 
         private ObjectMapperData(
             IMappingContext mappingContext,
@@ -360,6 +361,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperDataContext Context { get; }
 
+        public override IQualifiedMember SourceMember
+            => _sourceMember ?? base.SourceMember;
+
+        public void SetSourceMember(IQualifiedMember sourceMember)
+            => _sourceMember = sourceMember;
+
         public IQualifiedMember GetSourceMemberFor(string targetMemberRegistrationName, int dataSourceIndex)
         {
             var targetMember = GetTargetMember(targetMemberRegistrationName);
@@ -413,12 +420,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         protected override Expression GetSourceObject()
         {
-            if (OriginalMapperData == null)
-            {
-                return base.GetSourceObject();
-            }
-
-            return null;
+            return Context.IsForToTargetMapping
+                ? SourceMember.GetQualifiedAccess(OriginalMapperData.SourceObject)
+                : base.GetSourceObject();
         }
 
         protected override Expression GetNestedSourceObject()

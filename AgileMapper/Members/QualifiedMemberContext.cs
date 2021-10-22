@@ -80,7 +80,7 @@ namespace AgileObjects.AgileMapper.Members
 
         public Type TargetType { get; }
 
-        public IQualifiedMember SourceMember { get; }
+        public virtual IQualifiedMember SourceMember { get; }
 
         public QualifiedMember TargetMember { get; }
 

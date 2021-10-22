@@ -87,7 +87,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             set => _sourceObject = value;
         }
 
-        protected virtual Expression GetSourceObject()
+        protected virtual  Expression GetSourceObject()
         {
             return IsEntryPoint
                 ? SourceType.GetOrCreateSourceParameter()
