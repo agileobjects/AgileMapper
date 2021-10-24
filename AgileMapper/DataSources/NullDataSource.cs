@@ -6,16 +6,24 @@
     using System.Linq.Expressions;
 #endif
     using Members;
+    using static Constants;
 
     internal class NullDataSource : DataSourceBase
     {
-        public static readonly IDataSource EmptyValue = 
-            new NullDataSource(Constants.EmptyExpression);
+        public static readonly IDataSource EmptyValue = Empty(sourceMember: null);
 
         public NullDataSource(Expression value)
-            : base(default(IQualifiedMember), value)
+            : this(default, value)
         {
         }
+
+        private NullDataSource(IQualifiedMember sourceMember, Expression value)
+            : base(sourceMember, value)
+        {
+        }
+
+        public static IDataSource Empty(IQualifiedMember sourceMember)
+            => new NullDataSource(sourceMember, EmptyExpression);
 
         public override bool IsValid => false;
     }

@@ -270,7 +270,11 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             newSourceMapperData.OriginalMapperData = MapperData;
             newSourceMapperData.Context.IsForToTargetMapping = true;
-            newSourceMapperData.SetSourceMember(sourceMember);
+
+            if (!MapperData.TargetMemberIsEnumerableElement())
+            {
+                newSourceMapperData.SetSourceMember(sourceMember);
+            }
 
             return newSourceMappingData;
         }

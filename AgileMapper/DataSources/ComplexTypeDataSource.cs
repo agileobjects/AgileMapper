@@ -32,6 +32,7 @@
             return Create(
                 mappingData.MapperData.SourceMember,
                 mapping,
+                sm => sm,
                (sm, m) => new ComplexTypeDataSource(sm, m));
         }
 
@@ -49,6 +50,7 @@
             return Create(
                 wrappedDataSource,
                 mapping,
+                wds => wds.SourceMember,
                (wds, m) => new ComplexTypeDataSource(wds, m));
         }
 
@@ -70,16 +72,18 @@
             return Create(
                 sourceMember,
                 mapping,
+                sm => sm,
                (sm, m) => new ComplexTypeDataSource(sm, m));
         }
 
         private static IDataSource Create<TArg>(
             TArg argument,
             Expression mapping,
+            Func<TArg, IQualifiedMember> sourceMemberFactory,
             Func<TArg, Expression, IDataSource> factory)
         {
             return mapping == Constants.EmptyExpression
-                ? NullDataSource.EmptyValue
+                ? NullDataSource.Empty(sourceMemberFactory.Invoke(argument))
                 : factory.Invoke(argument, mapping);
         }
 

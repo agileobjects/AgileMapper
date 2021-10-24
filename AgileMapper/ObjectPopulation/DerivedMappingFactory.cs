@@ -30,9 +30,6 @@
                 ? declaredTypeMapperData.TargetObject.GetConversionTo(targetType)
                 : targetType.ToDefaultExpression();
 
-            derivedTypeMappingData.MapperData.SourceObject = sourceValue;
-            derivedTypeMappingData.MapperData.TargetObject = targetValue;
-
             if (declaredTypeMappingData.IsRoot)
             {
                 return GetDerivedTypeRootMapping(derivedTypeMappingData, sourceValue, targetValue);
