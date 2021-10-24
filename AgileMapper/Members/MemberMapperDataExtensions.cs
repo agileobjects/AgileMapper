@@ -21,7 +21,6 @@ namespace AgileObjects.AgileMapper.Members
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables.EnumerableExtensions;
-    using static Member;
     using static System.StringComparison;
 
     internal static class MemberMapperDataExtensions
@@ -439,8 +438,20 @@ namespace AgileObjects.AgileMapper.Members
             return typedAccess;
         }
 
-        public static Expression GetAppropriateMappingContextAccess(this IMemberMapperData mapperData, params Type[] contextTypes)
+        public static Expression GetAppropriateMappingContextAccess(
+            this IMemberMapperData mapperData,
+            params Type[] contextTypes)
         {
+            return mapperData.GetAppropriateMappingContextAccess(out _, contextTypes);
+        }
+
+        public static Expression GetAppropriateMappingContextAccess(
+            this IMemberMapperData mapperData,
+            out IMemberMapperData contextMapperData,
+            params Type[] contextTypes)
+        {
+            contextMapperData = mapperData;
+
             if (mapperData.TypesMatch(contextTypes))
             {
                 return mapperData.MappingDataObject;
@@ -473,7 +484,7 @@ namespace AgileObjects.AgileMapper.Members
                     dataAccess = mapperData.Parent.MappingDataObject;
                 }
 
-                mapperData = mapperData.Parent;
+                contextMapperData = mapperData = mapperData.Parent;
             }
 
             return dataAccess;
@@ -612,29 +623,32 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Expression GetSourceAccess(
             this IMemberMapperData mapperData,
+            IMemberMapperData contextMapperData,
             Expression contextAccess,
             Type sourceType)
         {
-            return GetAccess(mapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+            return GetAccess(mapperData, contextMapperData,contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
         }
 
         public static Expression GetTargetAccess(
             this IMemberMapperData mapperData,
+            IMemberMapperData contextMapperData,
             Expression contextAccess,
             Type targetType)
         {
-            return GetAccess(mapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
+            return GetAccess(mapperData, contextMapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
         }
 
         private static Expression GetAccess(
             IMemberMapperData mapperData,
+            IMemberMapperData contextMapperData,
             Expression contextAccess,
             Func<Expression, Type, Expression> accessMethodFactory,
             Type type,
             Expression directAccessExpression,
             int contextTypesIndex)
         {
-            if (contextAccess == mapperData.MappingDataObject)
+            if (contextMapperData == mapperData)
             {
                 return directAccessExpression;
             }
@@ -651,14 +665,9 @@ namespace AgileObjects.AgileMapper.Members
                 return accessMethodFactory.Invoke(contextAccess, type);
             }
 
-            var propertyName = new[] { RootSourceMemberName, RootTargetMemberName }[contextTypesIndex];
-
-            var property = contextAccess.Type.GetPublicInstanceProperty(propertyName) ??
-                typeof(IMappingData<,>)
-                    .MakeGenericType(contextTypes[0], contextTypes[1])
-                    .GetPublicInstanceProperty(propertyName);
-
-            return Expression.Property(contextAccess, property);
+            return contextTypesIndex == 0
+                ? contextMapperData.SourceObject
+                : contextMapperData.TargetObject;
         }
 
         private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetPublicInstanceMethod("GetSource");

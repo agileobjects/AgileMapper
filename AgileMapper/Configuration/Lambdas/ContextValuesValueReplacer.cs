@@ -56,7 +56,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         protected ValueReplacementContext CreateContext(Type[] contextTypes, IMemberMapperData mapperData)
         {
             var args = new ValueReplacementArgs(_lambda, _configInfo, contextTypes, mapperData);
-            var context = args.GetAppropriateMappingContext();
+            var context = args.GetValueReplacementContext();
 
             return context;
         }
@@ -92,7 +92,9 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 if (requiredValues.Includes(ElementIndex))
                 {
                     _value = requiredValues.ElementIndex;
-                    _replacementFactory = ctx => ctx.GetElementIndex();
+                    
+                    _replacementFactory = 
+                        ctx => ctx.GetElementIndex().GetConversionTo<int?>();
                 }
 
                 if (requiredValues.Includes(CreatedObject))
@@ -178,7 +180,9 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
                 if (_requiredValues.Includes(ElementIndex))
                 {
-                    replacements.Add(_requiredValues.ElementIndex, context.GetElementIndex());
+                    replacements.Add(
+                        _requiredValues.ElementIndex,
+                        context.GetElementIndex().GetConversionTo<int?>());
                 }
 
                 if (_requiredValues.Includes(ElementKey))

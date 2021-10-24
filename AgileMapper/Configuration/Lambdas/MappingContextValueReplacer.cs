@@ -89,7 +89,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             }
 
             var args = new ValueReplacementArgs(_lambda, _configInfo, contextTypes, mapperData);
-            var context = args.GetAppropriateMappingContext();
+            var context = args.GetValueReplacementContext();
 
             if (_isMappingContextInvokeLambda)
             {

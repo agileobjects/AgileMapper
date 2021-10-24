@@ -40,7 +40,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                    targetMember == QualifiedMember.None ||
                    targetMember == QualifiedMember.All;
         }
-        
+
         public bool UseTargetObject { get; }
 
         public Type[] ContextTypes { get; }
@@ -53,14 +53,11 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         private bool ContextTypesMatch() => MapperData.TypesMatch(ContextTypes);
 
-        private Expression GetAppropriateMappingContextAccess()
-            => MapperData.GetAppropriateMappingContextAccess(ContextTypes);
-
-        public ValueReplacementContext GetAppropriateMappingContext()
+        public ValueReplacementContext GetValueReplacementContext()
         {
-            if (UseSimpleTypeMappingContextInfo())
+            if (UseSimpleTypeValueReplacementContext())
             {
-                return GetSimpleTypesMappingContextInfo();
+                return GetSimpleTypesValueReplacementContext();
             }
 
             if (ContextTypesMatch())
@@ -68,12 +65,15 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 return new ValueReplacementContext(this);
             }
 
-            var contextAccess = GetAppropriateMappingContextAccess();
+            var contextAccess = MapperData
+                .GetAppropriateMappingContextAccess(
+                    out var contextMapperData,
+                    ContextTypes);
 
-            return new ValueReplacementContext(this, contextAccess);
+            return new ValueReplacementContext(this, contextMapperData, contextAccess);
         }
 
-        private bool UseSimpleTypeMappingContextInfo()
+        private bool UseSimpleTypeValueReplacementContext()
         {
             // If ContextTargetType == object, it's a configured
             // simple -> target context; use a parent context
@@ -82,9 +82,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             return ContextSourceType.IsSimple() && ContextTargetType != typeof(object);
         }
 
-        private ValueReplacementContext GetSimpleTypesMappingContextInfo()
+        private ValueReplacementContext GetSimpleTypesValueReplacementContext()
         {
-            var mapperData = MapperData;
             var contextMapperData = MapperData;
 
             IQualifiedMember targetMember;
@@ -94,8 +93,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             {
                 if (contextMapperData.TargetMemberIsEnumerableElement())
                 {
-                    sourceMember = mapperData.SourceMember.RelativeTo(contextMapperData.SourceMember);
-                    targetMember = mapperData.TargetMember.RelativeTo(contextMapperData.TargetMember);
+                    sourceMember = MapperData.SourceMember.RelativeTo(contextMapperData.SourceMember);
+                    targetMember = MapperData.TargetMember.RelativeTo(contextMapperData.TargetMember);
                     break;
                 }
 
@@ -105,11 +104,11 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                     continue;
                 }
 
-                sourceMember = mapperData.SourceMember;
-                targetMember = mapperData.TargetMember;
+                sourceMember = MapperData.SourceMember;
+                targetMember = MapperData.TargetMember;
 
-                contextMapperData = mapperData.GetAppropriateMappingContext(
-                    mapperData.SourceMember.RootType,
+                contextMapperData = MapperData.GetAppropriateMappingContext(
+                    MapperData.SourceMember.RootType,
                     targetMember.RootType);
 
                 break;
@@ -117,10 +116,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             return new ValueReplacementContext(
                 this,
-                mapperData.MappingDataObject,
                 sourceMember.GetQualifiedAccess(contextMapperData.SourceObject),
                 targetMember.GetQualifiedAccess(contextMapperData.TargetInstance));
         }
+
 
         public Expression GetInvocationContextArgument(ValueReplacementContext context)
         {

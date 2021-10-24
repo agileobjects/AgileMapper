@@ -24,7 +24,7 @@
             {
                 mapper.WhenMapping
                     .InstancesOf<Address>()
-                    .CreateUsing(ctx => new Address { Line2 = "Some Street" });
+                    .CreateUsing(_ => new Address { Line2 = "Some Street" });
 
                 var source = new PersonViewModel { AddressLine1 = "Some House" };
                 var target = new Person();

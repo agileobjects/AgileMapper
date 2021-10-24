@@ -15,27 +15,31 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
     internal class ValueReplacementContext
     {
         private readonly ValueReplacementArgs _args;
+        private readonly IMemberMapperData _contextMapperData;
         private readonly Expression _contextAccess;
         private readonly Expression _sourceAccess;
         private readonly Expression _targetAccess;
 
         public ValueReplacementContext(ValueReplacementArgs args)
-            : this(args, args.MapperData.MappingDataObject)
+            : this(args, args.MapperData, args.MapperData.MappingDataObject)
         {
         }
 
-        public ValueReplacementContext(ValueReplacementArgs args, Expression contextAccess)
+        public ValueReplacementContext(
+            ValueReplacementArgs args,
+            IMemberMapperData contextMapperData,
+            Expression contextAccess)
         {
             _args = args;
+            _contextMapperData = contextMapperData;
             _contextAccess = contextAccess;
         }
 
         public ValueReplacementContext(
             ValueReplacementArgs args,
-            Expression contextAccess,
             Expression sourceAccess,
             Expression targetAccess)
-            : this(args, contextAccess)
+            : this(args, args.MapperData, args.MapperData.MappingDataObject)
         {
             _sourceAccess = sourceAccess;
             _targetAccess = targetAccess;
@@ -44,7 +48,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         #region Target Value Factories
 
         private Expression GetTargetObjectAccess()
-            => MapperData.GetTargetAccess(_contextAccess, _args.ContextTargetType);
+            => MapperData.GetTargetAccess(_contextMapperData, _contextAccess, _args.ContextTargetType);
 
         private Expression GetTargetVariableAccess()
         {
@@ -96,7 +100,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         public Expression GetSourceAccess()
         {
             return _sourceAccess ?? GetValueAccess(
-                MapperData.GetSourceAccess(_contextAccess, _args.ContextSourceType),
+                MapperData.GetSourceAccess(_contextMapperData, _contextAccess, _args.ContextSourceType),
                 _args.ContextSourceType);
         }
 

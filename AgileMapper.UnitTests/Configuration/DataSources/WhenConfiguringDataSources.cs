@@ -928,7 +928,7 @@
                         .And
                         .Before
                         .CreatingInstancesOf<Address>()
-                        .Call(ctx => { throw new InvalidOperationException("I don't like addresses"); });
+                        .Call(_ => throw new InvalidOperationException("I don't like addresses"));
 
                     var target = new PublicField<Person> { Value = new Person { Name = "Someone" } };
 
@@ -1152,7 +1152,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 Func<PersonViewModel, Person, int?, string> combineAddressLine1 =
-                    (pvm, p, i) => $"{i}: {pvm.Name}, {pvm.AddressLine1}";
+                    (pvm, _, i) => $"{i}: {pvm.Name}, {pvm.AddressLine1}";
 
                 mapper.WhenMapping
                     .From<PersonViewModel>()
