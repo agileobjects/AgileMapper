@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #endregion
 
-        public bool HasMappingContextParameter => GetRequiredValues().Includes(MappingContext);
+        public bool NeedsMappingData => GetRequiredValues().Includes(MappingContext);
 
         private RequiredValuesSet GetRequiredValues()
             => _requiredValues ??= GetRequiredValues(_lambda);

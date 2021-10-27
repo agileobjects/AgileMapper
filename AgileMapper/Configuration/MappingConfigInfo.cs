@@ -152,8 +152,8 @@
 
         #region Conditions
 
-        public bool ConditionUsesMappingDataObjectParameter
-            => HasCondition && _conditionLambda.UsesMappingDataObjectParameter;
+        public bool ConditionNeedsMappingData
+            => HasCondition && _conditionLambda.NeedsMappingData;
 
         public bool HasCondition => _conditionLambda != null;
 
@@ -188,7 +188,7 @@
                 condition));
         }
 
-        private static void FixEnumComparisonsIfNecessary(ref LambdaExpression conditionLambda) 
+        private static void FixEnumComparisonsIfNecessary(ref LambdaExpression conditionLambda)
             => conditionLambda = EnumComparisonFixer.Check(conditionLambda);
 
         public void NegateCondition()

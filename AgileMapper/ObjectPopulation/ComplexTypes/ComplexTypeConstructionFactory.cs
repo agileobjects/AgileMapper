@@ -208,7 +208,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 return construction;
             });
 
-            mappingData.MapperData.Context.UsesMappingDataObjectAsParameter = cachedConstruction.UsesMappingDataObjectParameter;
+            mappingData.MapperData.Context.NeedsMappingData = cachedConstruction.NeedsMappingData;
 
             var constructionExpression = cachedConstruction.GetConstruction(mappingData);
 
@@ -540,17 +540,17 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
                 : this(configuredFactory.Create(mapperData), configuredFactory.GetConditionOrNull(mapperData))
             {
-                UsesMappingDataObjectParameter = configuredFactory.UsesMappingDataObjectParameter;
+                NeedsMappingData = configuredFactory.NeedsMappingData;
             }
 
             public Construction(
                 Expression construction,
                 Expression condition = null,
-                bool usesMappingDataObjectParameter = false)
+                bool needsMappingData = false)
             {
                 _construction = construction;
                 _condition = condition;
-                UsesMappingDataObjectParameter = usesMappingDataObjectParameter;
+                NeedsMappingData = needsMappingData;
             }
 
             #region Factory Methods
@@ -564,7 +564,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
                 var construction = new Construction(
                     ReverseChain(constructions),
-                    usesMappingDataObjectParameter: constructions.Any(c => c.UsesMappingDataObjectParameter));
+                    needsMappingData: constructions.Any(c => c.NeedsMappingData));
 
                 return construction.With(key);
             }
@@ -586,7 +586,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             #endregion
 
-            public bool UsesMappingDataObjectParameter { get; }
+            public bool NeedsMappingData { get; }
 
             public Expression GetConstruction(IObjectMappingData mappingData)
                 => _construction.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);

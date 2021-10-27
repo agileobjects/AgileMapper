@@ -1131,7 +1131,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 Func<PersonViewModel, Address, string> combineAddressLine1 =
-                    (pvm, a) => pvm.Name + ", " + pvm.AddressLine1;
+                    (pvm, _) => pvm.Name + ", " + pvm.AddressLine1;
 
                 mapper.WhenMapping
                     .From<PersonViewModel>()

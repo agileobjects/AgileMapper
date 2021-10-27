@@ -196,14 +196,14 @@
                 return Constants.EmptyExpression;
             }
 
-            if (mapperData.Context.UsesMappingDataObject)
-            {
-                //return UseLocalValueVariable(
-                //    mapperData.MappingDataObject,
-                //    createMappingDataCallFactory.Invoke(mappingValues, mapperData),
-                //    mapper.Mapping,
-                //    mapperData);
-            }
+            //if (mapperData.Context.UsesMappingDataObject)
+            //{
+            //    return UseLocalValueVariable(
+            //        mapperData.MappingDataObject,
+            //        createMappingDataCallFactory.Invoke(mappingValues, mapperData),
+            //        mapper.Mapping,
+            //        mapperData);
+            //}
 
             return GetDirectAccessMapping(
                 mapper.Mapping,
@@ -295,23 +295,24 @@
                 performValueReplacement: true);
         }
 
-        public static Expression UseLocalToTargetDataSourceVariableIfAppropriate(
-            ObjectMapperData mapperData,
-            ObjectMapperData toTargetMapperData,
-            Expression toTargetDataSourceValue,
-            Expression mappingExpression)
-        {
-            if (!toTargetMapperData.Context.UsesMappingDataObject)
-            {
-                return mappingExpression;
-            }
+        // TODO: Remove?
+        //public static Expression UseLocalToTargetDataSourceVariableIfAppropriate(
+        //    ObjectMapperData mapperData,
+        //    ObjectMapperData toTargetMapperData,
+        //    Expression toTargetDataSourceValue,
+        //    Expression mappingExpression)
+        //{
+        //    if (!toTargetMapperData.Context.UsesMappingDataObject)
+        //    {
+        //        return mappingExpression;
+        //    }
 
-            return UseLocalValueVariable(
-                toTargetMapperData.MappingDataObject,
-                MappingDataCreationFactory.ForToTarget(mapperData, toTargetDataSourceValue),
-                mappingExpression,
-                toTargetMapperData);
-        }
+        //    return UseLocalValueVariable(
+        //        toTargetMapperData.MappingDataObject,
+        //        MappingDataCreationFactory.ForToTarget(mapperData, toTargetDataSourceValue),
+        //        mappingExpression,
+        //        toTargetMapperData);
+        //}
 
         private static Expression UseLocalValueVariable(
             ParameterExpression variable,

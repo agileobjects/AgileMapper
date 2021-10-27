@@ -156,7 +156,7 @@
 
         #endregion
 
-        public bool UsesMappingDataObjectParameter => _valueReplacer.HasMappingContextParameter;
+        public bool NeedsMappingData => _valueReplacer.NeedsMappingData;
 
         public Type ReturnType { get; }
 

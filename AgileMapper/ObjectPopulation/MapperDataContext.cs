@@ -8,8 +8,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class MapperDataContext
     {
         private readonly ObjectMapperData _mapperData;
-        private bool _usesMappingDataObjectAsParameter;
-        private bool? _isMappingDataObjectNeeded;
+        private bool _needsMappingData;
+        //private bool? _isMappingDataNeeded;
 
         public MapperDataContext(IMemberMapperData childMapperData)
             : this(
@@ -128,29 +128,32 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return false;
         }
 
-        public bool UsesMappingDataObjectAsParameter
+        public bool NeedsMappingData
         {
             get
             {
-                return _mapperData.Context._usesMappingDataObjectAsParameter ||
-                       _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.UsesMappingDataObjectAsParameter);
+                return _mapperData.Context._needsMappingData ||
+                       _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.NeedsMappingData);
             }
             set
             {
-                _mapperData.Context._usesMappingDataObjectAsParameter =
-                    _mapperData.Context._usesMappingDataObjectAsParameter || value;
+                if (value && !_mapperData.Context._needsMappingData)
+                {
+                    _mapperData.Context._needsMappingData = true;
+                }
             }
         }
 
-        public bool UsesMappingDataObject
-        {
-            get
-            {
-                return (_isMappingDataObjectNeeded ??=
-                        (NeedsRuntimeTypedMapping || UsesMappingDataObjectAsParameter ||
-                        _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.UsesMappingDataObject)));
-            }
-        }
+        // TODO: Remove?
+        //public bool UsesMappingDataObject
+        //{
+        //    get
+        //    {
+        //        return (_isMappingDataNeeded ??=
+        //               (NeedsRuntimeTypedMapping || NeedsMappingData ||
+        //               _mapperData.AnyChildMapperDataMatches(cmd => cmd.Context.UsesMappingDataObject)));
+        //    }
+        //}
 
         public bool Compile => IsStandalone && !IsForDerivedType && !IsForToTargetMapping;
     }

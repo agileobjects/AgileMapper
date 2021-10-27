@@ -27,7 +27,7 @@
 
         public Type ObjectType => _factoryInfo.ReturnType;
 
-        public bool UsesMappingDataObjectParameter => _factoryInfo.UsesMappingDataObjectParameter;
+        public bool NeedsMappingData => _factoryInfo.NeedsMappingData;
 
         public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
         {

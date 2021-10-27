@@ -10,7 +10,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
     internal interface IValueReplacer
     {
-        bool HasMappingContextParameter { get; }
+        bool NeedsMappingData { get; }
         
         Expression Replace(Type[] contextTypes, IMemberMapperData mapperData);
     }

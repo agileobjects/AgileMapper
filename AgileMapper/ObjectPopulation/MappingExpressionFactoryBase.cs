@@ -287,11 +287,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                     context.MapperData.GetReturnExpression(GetExpressionToReturn(toTargetContext)));
             }
 
-            var toTargetMapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
-                originalMapperData,
-                toTargetContext.MapperData,
-                toTargetDataSource.Value,
-                toTargetContext.GetMappingExpression());
+            // TODO: Remove?
+            //var toTargetMapping = MappingFactory.UseLocalToTargetDataSourceVariableIfAppropriate(
+            //    originalMapperData,
+            //    toTargetContext.MapperData,
+            //    toTargetDataSource.Value,
+            //    toTargetContext.GetMappingExpression());
+
+            var toTargetMapping = toTargetContext.GetMappingExpression();
 
             var hasCondition = isSequential
                 ? toTargetDataSource.IsConditional

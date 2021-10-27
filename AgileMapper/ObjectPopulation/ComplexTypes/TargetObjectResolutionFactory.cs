@@ -59,7 +59,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             if (UseNullFallbackValue(mapperData, objectValue, memberPopulations))
             {
                 objectValue = mapperData.GetTargetMemberDefault();
-                mapperData.Context.UsesMappingDataObjectAsParameter = false;
+                mapperData.Context.NeedsMappingData = false;
             }
             else
             {
@@ -69,7 +69,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                     objectValue = mapperData.CreatedObject.AssignTo(objectValue);
                 }
 
-                if (assignTargetObject || mapperData.Context.UsesMappingDataObjectAsParameter)
+                if (assignTargetObject || mapperData.Context.NeedsMappingData)
                 {
                     objectValue = mapperData.TargetObject.AssignTo(objectValue);
                 }

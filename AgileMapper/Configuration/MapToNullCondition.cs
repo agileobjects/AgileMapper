@@ -37,8 +37,8 @@
 
         public override Expression GetConditionOrNull(IMemberMapperData mapperData)
         {
-            mapperData.Context.UsesMappingDataObjectAsParameter =
-                ConfigInfo.ConditionUsesMappingDataObjectParameter;
+            mapperData.Context.NeedsMappingData =
+                ConfigInfo.ConditionNeedsMappingData;
 
             return base.GetConditionOrNull(mapperData);
         }

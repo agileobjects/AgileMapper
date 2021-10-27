@@ -31,9 +31,9 @@
 
         public Expression Create(IMemberMapperData mapperData)
         {
-            mapperData.Context.UsesMappingDataObjectAsParameter =
-               _callbackLambda.UsesMappingDataObjectParameter ||
-                ConfigInfo.ConditionUsesMappingDataObjectParameter;
+            mapperData.Context.NeedsMappingData =
+               _callbackLambda.NeedsMappingData ||
+                ConfigInfo.ConditionNeedsMappingData;
 
             var condition = GetConditionOrNull(mapperData);
             var callback = _callbackLambda.GetBody(mapperData);

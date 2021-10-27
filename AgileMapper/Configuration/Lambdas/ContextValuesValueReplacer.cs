@@ -49,7 +49,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             }
         }
 
-        public abstract bool HasMappingContextParameter { get; }
+        public abstract bool NeedsMappingData { get; }
 
         public abstract Expression Replace(Type[] contextTypes, IMemberMapperData mapperData);
 
@@ -118,7 +118,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 }
             }
 
-            public override bool HasMappingContextParameter => false;
+            public override bool NeedsMappingData => false;
 
             public override Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
             {
@@ -148,7 +148,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             private int RequiredValuesCount => _requiredValues.ValuesCount;
 
-            public override bool HasMappingContextParameter => _requiredValues.Includes(MappingContext);
+            public override bool NeedsMappingData => _requiredValues.Includes(MappingContext);
 
             public override Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
             {

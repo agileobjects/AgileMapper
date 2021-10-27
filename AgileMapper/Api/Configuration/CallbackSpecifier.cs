@@ -61,12 +61,12 @@
             var callbackLambda = ConfiguredLambdaInfo
                 .ForAction(callback, _configInfo, typeof(TSource), typeof(TTarget));
 
-            var creationCallbackFactory = new MappingCallbackFactory(
+            var callbackFactory = new MappingCallbackFactory(
                 _configInfo,
                 callbackLambda,
                 _targetMember);
 
-            _configInfo.UserConfigurations.Add(creationCallbackFactory);
+            _configInfo.UserConfigurations.Add(callbackFactory);
 
             return new MappingConfigContinuation<TSource, TTarget>(_configInfo);
         }
