@@ -10,7 +10,6 @@
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
-    using System.Reflection.Emit;
     using NetStandardPolyfills;
     using ObjectPopulation;
     using ReadableExpressions.Extensions;
@@ -46,7 +45,8 @@
                    (memberAccess.Expression.Type.IsNullableType());
         }
 
-        public static bool IsInvocation(this LambdaExpression lambda) => lambda.Body.NodeType == Invoke;
+        public static bool IsInvocation(this LambdaExpression lambda)
+            => lambda.Body.NodeType == Invoke;
 
         public static Expression Negate(this Expression expression)
             => (expression.NodeType != Not) ? Expression.Not(expression) : ((UnaryExpression)expression).Operand;

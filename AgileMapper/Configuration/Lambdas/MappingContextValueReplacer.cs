@@ -48,7 +48,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         public static IValueReplacer CreateFor(LambdaExpression lambda, MappingConfigInfo configInfo)
         {
-            if (IsMappingContextInvoke(lambda))
+            if (IsMappingDataParameterFuncInvoke(lambda))
             {
                 return new MappingContextValueReplacer(lambda, configInfo, true);
             }
@@ -68,11 +68,11 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             return ContextValuesValueReplacer.Create(lambda, configInfo, requiredValues);
         }
 
+        private static bool IsMappingDataParameterFuncInvoke(LambdaExpression lambda)
+            => lambda.Parameters.HasOne() && lambda.IsInvocation();
+
         private static RequiredValuesSet GetRequiredValues(LambdaExpression lambda)
             => MappingContextMemberAccessFinder.GetValuesRequiredBy(lambda);
-
-        private static bool IsMappingContextInvoke(LambdaExpression lambda)
-            => lambda.Parameters.HasOne() && lambda.IsInvocation();
 
         #endregion
 
@@ -93,7 +93,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             if (_isMappingContextInvokeLambda)
             {
-                return args.GetInvocationContextArgument(context);
+                return args.GetFuncInvokeMappingDataArgument(context);
             }
 
             var targetContextTypes = _contextType.GetGenericTypeArguments();

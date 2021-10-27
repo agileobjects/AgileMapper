@@ -121,7 +121,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         }
 
 
-        public Expression GetInvocationContextArgument(ValueReplacementContext context)
+        public Expression GetFuncInvokeMappingDataArgument(ValueReplacementContext context)
         {
             if (context.IsCallback())
             {
