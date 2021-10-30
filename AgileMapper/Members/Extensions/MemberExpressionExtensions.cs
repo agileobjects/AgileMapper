@@ -9,13 +9,8 @@ namespace AgileObjects.AgileMapper.Members.Extensions
 
     internal static class MemberExpressionExtensions
     {
-        public static bool IsMappingDataObjectCall(
-            this MethodCallExpression methodCall,
-            Expression rootMappingDataObject)
-        {
-            return (methodCall.Method.DeclaringType == typeof(IMappingData)) ||
-                   (methodCall.Object == rootMappingDataObject);
-        }
+        public static bool IsMappingContextCall(this MethodCallExpression methodCall)
+            => methodCall.Object == Constants.ExecutionContextParameter;
 
         public static TryExpression WrapInTryCatch(this Expression mapping, IMemberMapperData mapperData)
         {

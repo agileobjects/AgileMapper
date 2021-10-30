@@ -37,7 +37,6 @@
 
             MultiInvocationsFinder.FindIn(
                 populationExpressions,
-                mapperData,
                 out var multiInvocations,
                 out variables);
 

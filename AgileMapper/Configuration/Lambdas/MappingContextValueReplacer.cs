@@ -19,14 +19,14 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         private readonly MappingConfigInfo _configInfo;
         private readonly ParameterExpression _contextParameter;
         private readonly Type _contextType;
-        private readonly bool _isMappingContextInvokeLambda;
+        private readonly bool _isMappingDataParameterLambda;
         private RequiredValuesSet _requiredValues;
 
         private MappingContextValueReplacer(
             LambdaExpression lambda,
             MappingConfigInfo configInfo,
-            bool isMappingContextInvokeLambda)
-            : this(lambda, configInfo, null, isMappingContextInvokeLambda)
+            bool isMappingDataParameterLambda)
+            : this(lambda, configInfo, null, isMappingDataParameterLambda)
         {
         }
 
@@ -34,10 +34,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             LambdaExpression lambda,
             MappingConfigInfo configInfo,
             RequiredValuesSet requiredValues,
-            bool isMappingContextInvokeLambda)
+            bool isMappingDataParameterLambda)
         {
             _lambda = lambda;
-            _isMappingContextInvokeLambda = isMappingContextInvokeLambda;
+            _isMappingDataParameterLambda = isMappingDataParameterLambda;
             _requiredValues = requiredValues;
             _configInfo = configInfo;
             _contextParameter = lambda.Parameters[0];
@@ -83,7 +83,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         public Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
         {
-            if (mapperData.MappingDataObject.Type.IsAssignableTo(_contextType))
+            if (mapperData.TypesMatch(contextTypes))
             {
                 return _lambda.ReplaceParameterWith(mapperData.MappingDataObject);
             }
@@ -91,13 +91,15 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             var args = new ValueReplacementArgs(_lambda, _configInfo, contextTypes, mapperData);
             var context = args.GetValueReplacementContext();
 
-            if (_isMappingContextInvokeLambda)
+            if (_isMappingDataParameterLambda)
             {
                 return args.GetFuncInvokeMappingDataArgument(context);
             }
 
-            var targetContextTypes = _contextType.GetGenericTypeArguments();
-            var contextType = context.IsCallback(targetContextTypes) ? _contextType : _contextType.GetAllInterfaces().First();
+            // TODO: does contextTypes work?
+            // var targetContextTypes = _contextType.GetGenericTypeArguments();
+            // var targetContextTypes = contextTypes;
+            var contextType = context.IsCallback(contextTypes) ? _contextType : _contextType.GetAllInterfaces().First();
 
             var requiredValues = GetRequiredValues();
 

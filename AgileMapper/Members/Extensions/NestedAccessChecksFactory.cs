@@ -17,11 +17,11 @@
 #else
     using static System.Linq.Expressions.ExpressionType;
 #endif
+    using static Constants;
     using static Member;
 
     internal class NestedAccessChecksFactory : ExpressionVisitor
     {
-        private readonly Expression _rootMappingData;
         private readonly Expression _rootSourceParameter;
         private readonly Expression _rootTargetParameter;
         private readonly bool _invertChecks;
@@ -33,7 +33,6 @@
         {
             if (mapperData != null)
             {
-                _rootMappingData = mapperData.RootMappingDataObject;
                 _rootSourceParameter = mapperData.SourceObject;
                 _rootTargetParameter = mapperData.TargetObject;
             }
@@ -216,7 +215,7 @@
                     .StartsWith(nameof(IMappingData), StringComparison.Ordinal);
             }
 
-            if (memberAccess.Expression != _rootMappingData)
+            if (memberAccess.Expression != ExecutionContextParameter)
             {
                 return false;
             }
@@ -270,7 +269,7 @@
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if (methodCall.IsMappingDataObjectCall(_rootMappingData))
+            if (methodCall.IsMappingContextCall())
             {
                 return base.VisitMethodCall(methodCall);
             }

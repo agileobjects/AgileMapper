@@ -24,7 +24,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
     internal class ObjectMapperData : MemberMapperDataBase, IMemberMapperData
     {
         private LabelTarget _returnLabelTarget;
-        private Expression _rootMappingDataObject;
         private Expression _elementIndex;
         private Expression _elementKey;
         private Expression _targetInstance;
@@ -465,16 +464,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         private ParameterExpression CreateInstanceVariable()
             => TargetType.GetOrCreateParameter(TargetType.GetVariableNameInCamelCase());
 
-        public Expression RootMappingDataObject
-            => _rootMappingDataObject ??= GetRootMappingDataObject();
-
-        private Expression GetRootMappingDataObject()
-        {
-            return Context.IsForToTargetMapping
-                ? OriginalMapperData.MappingDataObject
-                : MappingDataObject;
-        }
-
         public EnumerablePopulationBuilder EnumerablePopulationBuilder { get; }
 
         public bool UsesCreatedObject => _createdObject != null;
@@ -553,7 +542,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             nearestStandaloneMapperData.RepeatedMapperFuncKeys.Add(mappingData.MapperKey);
         }
 
-        public ObjectMapperData GetNearestStandaloneMapperData()
+        private ObjectMapperData GetNearestStandaloneMapperData()
         {
             var mapperData = this;
 

@@ -17,8 +17,6 @@
 
         ParameterExpression MappingDataObject { get; }
 
-        Expression RootMappingDataObject { get; }
-
         Expression SourceObject { get; }
 
         Expression TargetObject { get; }

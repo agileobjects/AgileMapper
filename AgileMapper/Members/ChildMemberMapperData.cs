@@ -49,8 +49,6 @@
 
         public ParameterExpression MappingDataObject => Parent.MappingDataObject;
 
-        public Expression RootMappingDataObject => Parent.RootMappingDataObject;
-
         public Expression SourceObject => Parent.SourceObject;
 
         public Expression TargetObject => Parent.TargetObject;

@@ -2,7 +2,9 @@
 {
     using NetStandardPolyfills;
 
-    internal class MappingInstanceData<TSource, TTarget> : IMappingData<TSource, TTarget>, IMappingData
+    internal class MappingInstanceData<TSource, TTarget> : 
+        IMappingData<TSource, TTarget>, 
+        IMappingData
     {
         private readonly IMappingData _parent;
         private readonly IMappingContext _mappingContext;

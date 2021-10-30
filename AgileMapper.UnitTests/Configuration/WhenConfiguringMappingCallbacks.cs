@@ -42,7 +42,7 @@
                 var mappedNames = new List<string>();
 
                 mapper.After.MappingEnds
-                    .If((s, t) => t.GetType() != typeof(Address))
+                    .If((_, t) => t.GetType() != typeof(Address))
                     .Call(ctx => mappedNames.AddRange(new[] { ((PersonViewModel)ctx.Source).Name, ((Person)ctx.Target).Name }));
 
                 var source = new PersonViewModel { Name = "Bernie" };
@@ -61,8 +61,7 @@
             {
                 mapper.WhenMapping
                     .To<Person>()
-                    .Before
-                    .MappingBegins
+                    .Before.MappingBegins
                     .If(ctx => ctx.Target.Name == "Joe")
                     .Call(ctx => ctx.Target.Title = Title.Mr);
 
@@ -94,11 +93,10 @@
                     .Over<PersonViewModel>()
                     .Before
                     .Mapping(pvm => pvm.Name)
-                    .Call((p, pvm) => preMappingName = pvm.Name)
-                    .And
-                    .After
+                    .Call((_, pvm) => preMappingName = pvm.Name)
+                    .And.After
                     .Mapping(pvm => pvm.Name)
-                    .Call((p, pvm) => postMappingName = pvm.Name);
+                    .Call((_, pvm) => postMappingName = pvm.Name);
 
                 var source = new Person { Name = "After" };
                 var target = new PersonViewModel { Name = "Before" };
@@ -122,8 +120,8 @@
                     .ToANew<Person>()
                     .Before
                     .Mapping(p => p.Address)
-                    .If(ctx => ctx.Target.Id != default(Guid))
-                    .Call((s, t) => mappedTargetId = t.Id);
+                    .If(ctx => ctx.Target.Id != default)
+                    .Call((_, t) => mappedTargetId = t.Id);
 
                 var noIdSource = new Person { Name = "Dawn" };
                 mapper.DeepClone(noIdSource);
@@ -150,7 +148,7 @@
                     .After
                     .Mapping(p => p.Address)
                     .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
-                    .Call((s, t) =>
+                    .Call((_, t) =>
                     {
                         mappedAddress = t.Address;
                         callbackCalled = true;
@@ -195,8 +193,7 @@
             {
                 mapper.WhenMapping
                     .To<PublicField<string>>()
-                    .Before
-                    .MappingBegins
+                    .Before.MappingBegins
                     .Call(ctx => ctx.Target.Value = "SetByCallback");
 
                 var source = new PublicProperty<string> { Value = "SetBySource" };
@@ -220,8 +217,7 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<string>>()
-                    .Before
-                    .MappingBegins
+                    .Before.MappingBegins
                     .If((pp, pf, i) => !i.HasValue && pp.Value.StartsWith("H"))
                     .Call(ctx => ctx.Source.Value = "SetByCallback");
 
@@ -244,8 +240,7 @@
             {
                 mapper.WhenMapping
                     .To<PersonViewModel>()
-                    .After
-                    .MappingEnds
+                    .After.MappingEnds
                     .If(ctx => ctx.Target.Name == "Joe")
                     .Call(ctx => ctx.Target.Id = Guid.NewGuid());
 
@@ -272,13 +267,11 @@
             {
                 var counter = 0;
 
-                mapper.Before
-                    .MappingBegins
-                    .Call(ctx => ++counter)
-                    .And
-                    .After
-                    .MappingEnds
-                    .Call(ctx => ++counter);
+                mapper
+                    .Before.MappingBegins
+                    .Call(_ => ++counter)
+                    .And.After.MappingEnds
+                    .Call(_ => ++counter);
 
                 var result = mapper.Map("Mrs").ToANew<Title?>();
 
@@ -294,8 +287,7 @@
             {
                 mapper.WhenMapping
                     .To<PublicProperty<string>>()
-                    .After
-                    .MappingEnds
+                    .After.MappingEnds
                     .Call(ctx => ctx.Target.Value = "SetByCallback");
 
                 var source = new PublicField<string> { Value = "SetBySource" };
@@ -319,9 +311,8 @@
                 mapper.WhenMapping
                     .From<PublicField<string>>()
                     .To<PublicProperty<string>>()
-                    .After
-                    .MappingEnds
-                    .Call((pf, pp, i) => pp.Value = "SetByCallback");
+                    .After.MappingEnds
+                    .Call((_, pp, _) => pp.Value = "SetByCallback");
 
                 var nonMatchingSource = new PublicGetMethod<string>("SetBySource");
                 var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<string>>();
@@ -364,8 +355,7 @@
                 mapper.WhenMapping
                     .From<PublicProperty<string>>()
                     .To<PublicField<string>>()
-                    .After
-                    .MappingEnds
+                    .After.MappingEnds
                     .Call(ctx => ctx.Target.Value += "!");
 
                 var source = new PublicField<PublicProperty<string>>
@@ -397,7 +387,7 @@
                     .From<PublicField<int>>()
                     .To<PublicField<int>>()
                     .Before.MappingBegins
-                    .Call(md => callbackCalled = true);
+                    .Call(_ => callbackCalled = true);
 
                 var source = new PublicTwoFields<PublicField<int>, int>
                 {
@@ -429,7 +419,7 @@
                     .From<PublicField<int>>()
                     .To<PublicField<int>>()
                     .After.MappingEnds
-                    .Call(md => callbackCalled = true);
+                    .Call(_ => callbackCalled = true);
 
                 var source = new PublicProperty<PublicTwoFields<PublicField<int>, int>>
                 {
@@ -465,7 +455,7 @@
                     .From<PublicField<int>>()
                     .To<PublicField<int>>()
                     .After.MappingEnds
-                    .Call(md => ++callbackCount);
+                    .Call(_ => ++callbackCount);
 
                 var source = new[]
                 {

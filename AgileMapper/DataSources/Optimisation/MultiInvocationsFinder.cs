@@ -8,18 +8,16 @@
     using System.Linq.Expressions;
 #endif
     using Extensions.Internal;
-    using Members;
     using Members.Extensions;
 
     internal static class MultiInvocationsFinder
     {
         public static void FindIn(
             Expression value,
-            IMemberMapperData mapperData,
             out IList<Expression> multiInvocations,
             out IList<ParameterExpression> variables)
         {
-            var finder = new MultiInvocationsFinderInstance(mapperData);
+            var finder = new MultiInvocationsFinderInstance();
             multiInvocations = finder.FindIn(value);
 
             switch (multiInvocations.Count)
@@ -61,14 +59,8 @@
 
         private class MultiInvocationsFinderInstance : ExpressionVisitor
         {
-            private readonly Expression _rootMappingData;
             private List<Expression> _allInvocations;
             private List<Expression> _multiInvocations;
-
-            public MultiInvocationsFinderInstance(IMemberMapperData mapperData)
-            {
-                _rootMappingData = mapperData.RootMappingDataObject;
-            }
 
             private ICollection<Expression> AllInvocations
                 => _allInvocations ??= new List<Expression>();
@@ -115,19 +107,18 @@
                     return true;
                 }
 
-                if (methodCall.Method.IsStatic && 
+                if (methodCall.Method.IsStatic &&
                    (methodCall.Method.DeclaringType == typeof(MappingException)))
                 {
                     return true;
                 }
 
-                return methodCall.IsMappingDataObjectCall(_rootMappingData);
+                return methodCall.IsMappingContextCall();
             }
 
             protected override Expression VisitInvocation(InvocationExpression invocation)
             {
                 AddInvocation(invocation);
-
                 return base.VisitInvocation(invocation);
             }
 
