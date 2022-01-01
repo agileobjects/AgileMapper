@@ -2,12 +2,12 @@
 {
     using NetStandardPolyfills;
 
-    internal class MappingInstanceData<TSource, TTarget> : 
-        IMappingData<TSource, TTarget>, 
-        IMappingData
+    internal class MappingInstanceData<TSource, TTarget> :
+        IMappingData,
+        IMappingData<TSource, TTarget>
     {
         private readonly IMappingData _parent;
-        private readonly IMappingContext _mappingContext;
+        private readonly IMapperContextOwner _mapperContextOwner;
 
         protected MappingInstanceData(IMappingData<TSource, TTarget> mappingData)
             : this(
@@ -16,20 +16,31 @@
                 mappingData.ElementIndex,
                 mappingData.ElementKey,
                 mappingData.Parent,
-                ((IMappingContextOwner)mappingData).MappingContext)
+              ((IMappingContextOwner)mappingData).MappingContext)
         {
         }
 
-        protected MappingInstanceData(
+        public MappingInstanceData(IMappingData mappingData)
+            : this(
+                mappingData.GetSource<TSource>(),
+                mappingData.GetTarget<TTarget>(),
+                mappingData.GetElementIndex(),
+                mappingData.GetElementKey(),
+                mappingData.Parent,
+               (IMapperContextOwner)mappingData)
+        {
+        }
+
+        public MappingInstanceData(
             TSource source,
             TTarget target,
             int? elementIndex,
             object elementKey,
             IMappingData parent,
-            IMappingContext mappingContext)
+            IMapperContextOwner mapperContextOwner)
         {
             _parent = parent;
-            _mappingContext = mappingContext;
+            _mapperContextOwner = mapperContextOwner;
             Source = source;
             Target = target;
             ElementIndex = elementIndex;
@@ -52,20 +63,20 @@
         {
             if (typeof(TSource).IsAssignableTo(typeof(T)))
             {
-                return (T)((object)Source);
+                return (T)(object)Source;
             }
 
-            return default(T);
+            return default;
         }
 
         T IMappingData.GetTarget<T>()
         {
             if (typeof(TTarget).IsAssignableTo(typeof(T)))
             {
-                return (T)((object)Target);
+                return (T)(object)Target;
             }
 
-            return default(T);
+            return default;
         }
 
         public int? GetElementIndex() => ElementIndex ?? _parent?.GetElementIndex();
@@ -73,35 +84,15 @@
         public object GetElementKey() => ElementKey ?? _parent?.GetElementKey();
 
         IMappingData<TDataSource, TDataTarget> IMappingData.As<TDataSource, TDataTarget>()
-        {
-            var thisMappingData = (IMappingData)this;
-
-            return new MappingInstanceData<TDataSource, TDataTarget>(
-                thisMappingData.GetSource<TDataSource>(),
-                thisMappingData.GetTarget<TDataTarget>(),
-                GetElementIndex(),
-                GetElementKey(),
-                _parent,
-                _mappingContext);
-        }
+            => this.ToTyped<TDataSource, TDataTarget>();
 
         TService IServiceProviderAccessor.GetService<TService>()
-            => ((IServiceProviderAccessor)this).GetService<TService>(name: null);
+            => _mapperContextOwner.GetServiceOrThrow<TService>(name: null);
 
         TService IServiceProviderAccessor.GetService<TService>(string name)
-        {
-            return _mappingContext
-                .MapperContext
-                .UserConfigurations
-                .GetServiceOrThrow<TService>(name);
-        }
+            => _mapperContextOwner.GetServiceOrThrow<TService>(name);
 
         TServiceProvider IServiceProviderAccessor.GetServiceProvider<TServiceProvider>()
-        {
-            return _mappingContext
-                .MapperContext
-                .UserConfigurations
-                .GetServiceProviderOrThrow<TServiceProvider>();
-        }
+            => _mapperContextOwner.GetServiceProviderOrThrow<TServiceProvider>();
     }
 }

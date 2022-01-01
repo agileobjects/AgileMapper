@@ -15,7 +15,7 @@
     using Plans;
 
     internal class MappingExecutor<TSource> :
-        MappingExecutionContextBase2<TSource>,
+        MappingExecutionContextBase2,
         ITargetSelector<TSource>,
         IFlatteningSelector<TSource>,
         IUnflatteningSelector<TSource>
@@ -148,7 +148,7 @@
                 // Optimise for the most common scenario:
                 _mappingTypes = MappingTypes<TSource, TTarget>.Fixed;
                 _rootMappingDataFactory = CreateFixedTypeRootMappingData<TTarget>;
-                
+
                 var typedRootMapper = (ObjectMapper<TSource, TTarget>)GetOrCreateRootMapper<TTarget>();
                 _rootMapper = typedRootMapper;
 
@@ -234,8 +234,6 @@
 
         public override ObjectMapperKeyBase GetMapperKey()
             => _rootMapperKey ??= RuleSet.RootMapperKeyFactory.Invoke(this);
-
-        public override object Source => _source;
 
         public override object Target => _target;
 

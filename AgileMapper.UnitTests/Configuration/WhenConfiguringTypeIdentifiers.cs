@@ -35,7 +35,7 @@
                 };
                 var target = new List<PersonViewModel>
                 {
-                    new PersonViewModel { Id = Guid.NewGuid(), Name = "Boris" }
+                    new() { Id = Guid.NewGuid(), Name = "Boris" }
                 };
                 var result = mapper.Map(source).OnTo(target);
 
@@ -57,7 +57,7 @@
                 {
                     new Customer { Title = Title.Dr, Name = "Hetty" }
                 };
-                var target = new List<Person> { new Person { Title = Title.Ms, Name = "Hetty" } };
+                var target = new List<Person> { new() { Title = Title.Ms, Name = "Hetty" } };
                 var result = mapper.Map(source).Over(target);
 
                 result.ShouldHaveSingleItem();
@@ -80,11 +80,11 @@
 
                 var source = new List<Person>
                 {
-                    new Person { Title = Title.Dr, Name = "Boris", Address = new Address { Line1 = "Here" } }
+                    new() { Title = Title.Dr, Name = "Boris", Address = new Address { Line1 = "Here" } }
                 };
                 var target = new List<PersonViewModel>
                 {
-                    new PersonViewModel { Name = "Dr Boris" }
+                    new() { Name = "Dr Boris" }
                 };
                 var result = mapper.Map(source).OnTo(target);
 
@@ -96,59 +96,58 @@
         [Fact]
         public void ShouldUseACompositeIdentifierWithAnEntityKey()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            mapper.WhenMapping
+                .InstancesOf<PublicTwoFields<int, Product>>()
+                .IdentifyUsing(ptf => ptf.Value1, ptf => ptf.Value2);
+
+            var source = new[]
             {
-                mapper.WhenMapping
-                    .InstancesOf<PublicTwoFields<int, Product>>()
-                    .IdentifyUsing(ptf => ptf.Value1, ptf => ptf.Value2);
-
-                var source = new[]
+                new PublicTwoFields<int, Product>
                 {
-                    new PublicTwoFields<int, Product>
-                    {
-                        Value1 = 123,
-                        Value2 = new Product { ProductId = "321", Price = 99.99 }
-                    },
-                    new PublicTwoFields<int, Product>
-                    {
-                        Value1 = 456,
-                        Value2 = new Product { ProductId = "654", Price = 11.99 }
-                    }
-                };
-
-                var target = new List<PublicTwoFields<int, Product>>
+                    Value1 = 123,
+                    Value2 = new Product { ProductId = "321", Price = 99.99 }
+                },
+                new PublicTwoFields<int, Product>
                 {
-                    new PublicTwoFields<int, Product>
-                    {
-                        Value1 = 123,
-                        Value2 = new Product { ProductId = "333", Price = 10.99 }
-                    },
-                    new PublicTwoFields<int, Product>
-                    {
-                        Value1 = 456,
-                        Value2 = new Product { ProductId = "654", Price = 10.99 }
-                    }
-                };
+                    Value1 = 456,
+                    Value2 = new Product { ProductId = "654", Price = 11.99 }
+                }
+            };
 
-                var itemOne = target.First();
-                var itemTwo = target.Second();
+            var target = new List<PublicTwoFields<int, Product>>
+            {
+                new()
+                {
+                    Value1 = 123,
+                    Value2 = new Product { ProductId = "333", Price = 10.99 }
+                },
+                new()
+                {
+                    Value1 = 456,
+                    Value2 = new Product { ProductId = "654", Price = 10.99 }
+                }
+            };
 
-                mapper.Map(source).Over(target);
+            var itemOne = target.First();
+            var itemTwo = target.Second();
 
-                target.Count.ShouldBe(2);
+            mapper.Map(source).Over(target);
 
-                target.First().ShouldBeSameAs(itemTwo);
-                target.First().Value1.ShouldBe(456);
-                target.First().Value2.ShouldNotBeNull();
-                target.First().Value2.ProductId.ShouldBe("654");
-                target.First().Value2.Price.ShouldBe(11.99);
+            target.Count.ShouldBe(2);
 
-                target.Second().ShouldNotBeSameAs(itemOne);
-                target.Second().Value1.ShouldBe(123);
-                target.Second().Value2.ShouldNotBeNull();
-                target.Second().Value2.ProductId.ShouldBe("321");
-                target.Second().Value2.Price.ShouldBe(99.99);
-            }
+            target.First().ShouldBeSameAs(itemTwo);
+            target.First().Value1.ShouldBe(456);
+            target.First().Value2.ShouldNotBeNull();
+            target.First().Value2.ProductId.ShouldBe("654");
+            target.First().Value2.Price.ShouldBe(11.99);
+
+            target.Second().ShouldNotBeSameAs(itemOne);
+            target.Second().Value1.ShouldBe(123);
+            target.Second().Value2.ShouldNotBeNull();
+            target.Second().Value2.ProductId.ShouldBe("321");
+            target.Second().Value2.Price.ShouldBe(99.99);
         }
 
         [Fact]

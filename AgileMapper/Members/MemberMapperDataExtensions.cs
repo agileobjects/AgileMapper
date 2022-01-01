@@ -113,6 +113,70 @@ namespace AgileObjects.AgileMapper.Members
             return mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
         }
 
+        public static Expression GetToMappingDataCall(
+            this IMemberMapperData mapperData,
+            Type[] contextTypes)
+        {
+            var objectMapperData = (ObjectMapperData)mapperData;
+
+            var mappingValues = mapperData.TargetMemberIsEnumerableElement()
+                ? objectMapperData.GetMappingValues(
+                    mapperData.SourceObject,
+                    mapperData.TargetObject)
+                : objectMapperData.ToMappingValues();
+
+            var mappingContext = mapperData.IsRoot
+                ? (Expression)Constants.ExecutionContextParameter
+                : mapperData.Parent.GetCreateExecutionContextCall(
+                      mappingValues,
+                      mapperData.TargetMember);
+
+            var asMethod = typeof(IMappingData)
+                .GetPublicInstanceMethod("As")
+                .MakeGenericMethod(contextTypes);
+
+            return Expression.Call(mappingContext, asMethod);
+        }
+
+        public static MappingValues GetMappingValues(
+            this IMemberMapperData mapperData,
+            Expression sourceValue,
+            QualifiedMember targetMember,
+            int dataSourceIndex)
+        {
+            Expression elementIndex, elementKey;
+
+            if (mapperData.IsRoot)
+            {
+                elementIndex = Constants.NullInt;
+                elementKey = Constants.NullObject;
+            }
+            else
+            {
+                elementIndex = mapperData.Parent.ElementIndex;
+                elementKey = mapperData.Parent.ElementKey;
+            }
+
+            return new MappingValues(
+                sourceValue,
+                targetMember.GetAccess(mapperData),
+                elementIndex,
+                elementKey,
+                dataSourceIndex);
+        }
+
+        public static MappingValues GetMappingValues(
+            this ObjectMapperData enumerableMapperData,
+            Expression sourceElement,
+            Expression targetElement)
+        {
+            return new MappingValues(
+                sourceElement,
+                targetElement,
+                enumerableMapperData.EnumerablePopulationBuilder.Counter,
+                enumerableMapperData.EnumerablePopulationBuilder.GetElementKey());
+        }
+
         public static MemberInfo GetOrderMember(this IMemberMapperData mapperData, Type type)
         {
             return type.GetPublicInstanceMember("Order") ??
@@ -627,7 +691,7 @@ namespace AgileObjects.AgileMapper.Members
             Expression contextAccess,
             Type sourceType)
         {
-            return GetAccess(mapperData, contextMapperData,contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+            return GetAccess(mapperData, contextMapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
         }
 
         public static Expression GetTargetAccess(

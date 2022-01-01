@@ -36,7 +36,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             int? elementIndex,
             object elementKey,
             MappingTypes mappingTypes,
-            IMappingContext mappingContext,
+            IMappingContext mapperContextOwner,
             IObjectMappingData parent,
             bool createMapper = true)
             : this(
@@ -45,7 +45,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                   elementIndex,
                   elementKey,
                   mappingTypes,
-                  mappingContext,
+                  mapperContextOwner,
                   null,
                   parent,
                   createMapper)
@@ -76,7 +76,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (createMapper)
             {
-                // TODO:
+                // TODO: Shouldn't be needed:
                 //_mapper = MapperContext.ObjectMapperFactory.GetOrCreateRoot(this, mappingContext);
             }
         }

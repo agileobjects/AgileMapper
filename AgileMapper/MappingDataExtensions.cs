@@ -52,7 +52,7 @@
             return null;
         }
 
-        public static IList<IConfiguredDataSource> GetToTargetDataSources(this IObjectMappingData mappingData) 
+        public static IList<IConfiguredDataSource> GetToTargetDataSources(this IObjectMappingData mappingData)
             => mappingData.MapperData.GetToTargetDataSources();
 
         public static IList<IConfiguredDataSource> GetToTargetDataSources(
@@ -70,6 +70,18 @@
             return
                 (mappingData.MapperData.SourceType == mappingData.MapperData.TargetType) &&
                 (mappingData.MapperData.SourceMember is ConfiguredSourceMember);
+        }
+
+        public static IMappingData<TSource, TTarget> ToTyped<TSource, TTarget>(
+            this IMappingData mappingData)
+        {
+            if (typeof(TSource) == typeof(object) &&
+                typeof(TTarget) == typeof(object))
+            {
+                return (IMappingData<TSource, TTarget>)mappingData;
+            }
+
+            return new MappingInstanceData<TSource, TTarget>(mappingData);
         }
     }
 }

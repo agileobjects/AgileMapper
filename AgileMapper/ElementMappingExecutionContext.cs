@@ -5,7 +5,7 @@
     using ObjectPopulation.MapperKeys;
 
     internal class ElementMappingExecutionContext<TElementSource, TElementTarget> :
-        SubObjectMappingExecutionContextBase<TElementSource>
+        SubObjectMappingExecutionContextBase
     {
         private readonly TElementSource _sourceElement;
         private readonly TElementTarget _targetElement;
@@ -19,9 +19,8 @@
             TElementTarget targetElement,
             int elementIndex,
             object elementKey,
-            MappingExecutionContextBase2 parent,
-            MappingExecutionContextBase2 entryPointContext)
-            : base(sourceElement, parent, entryPointContext)
+            MappingExecutionContextBase2 parent)
+            : base(sourceElement, targetElement, elementIndex, elementKey, parent)
         {
             _sourceElement = sourceElement;
             _targetElement = targetElement;
@@ -36,8 +35,6 @@
         }
 
         public override ObjectMapperKeyBase GetMapperKey() => _mapperKey;
-
-        public override object Target => _targetElement;
 
         public override IObjectMappingData GetMappingData()
         {

@@ -48,5 +48,22 @@
 
         public static Member GetIdentifierOrNull(this MapperContext context, Type type)
             => context.Naming.GetIdentifierOrNull(type);
+
+        public static TService GetServiceOrThrow<TService>(
+            this IMapperContextOwner mapperContextOwner,
+            string name)
+            where TService : class
+        {
+            return mapperContextOwner.MapperContext.UserConfigurations
+                .GetServiceOrThrow<TService>(name);
+        }
+
+        public static TServiceProvider GetServiceProviderOrThrow<TServiceProvider>(
+            this IMapperContextOwner mapperContextOwner)
+            where TServiceProvider : class
+        {
+            return mapperContextOwner.MapperContext.UserConfigurations
+                .GetServiceProviderOrThrow<TServiceProvider>();
+        }
     }
 }

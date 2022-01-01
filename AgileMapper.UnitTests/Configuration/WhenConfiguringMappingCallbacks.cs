@@ -18,467 +18,449 @@
         [Fact]
         public void ShouldExecuteAGlobalPreMappingCallback()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var mappedNames = new List<string>();
+            using var mapper = Mapper.CreateNew();
 
-                mapper.Before.MappingBegins
-                    .Call((s, t) => mappedNames.AddRange(new[] { ((Person)s).Name, ((PersonViewModel)t).Name }));
+            var mappedNames = new List<string>();
 
-                var source = new Person { Name = "Bernie" };
-                var target = new PersonViewModel { Name = "Hillary" };
-                mapper.Map(source).Over(target);
+            mapper.Before.MappingBegins
+                .Call((s, t) => mappedNames.AddRange(new[] { ((Person)s).Name, ((PersonViewModel)t).Name }));
 
-                mappedNames.ShouldNotBeEmpty();
-                mappedNames.ShouldBe("Bernie", "Hillary");
-            }
+            var source = new Person { Name = "Bernie" };
+            var target = new PersonViewModel { Name = "Hillary" };
+            mapper.Map(source).Over(target);
+
+            mappedNames.ShouldNotBeEmpty();
+            mappedNames.ShouldBe("Bernie", "Hillary");
         }
 
         [Fact]
         public void ShouldExecuteAGlobalPostMappingCallbackConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var mappedNames = new List<string>();
+            using var mapper = Mapper.CreateNew();
 
-                mapper.After.MappingEnds
-                    .If((_, t) => t.GetType() != typeof(Address))
-                    .Call(ctx => mappedNames.AddRange(new[] { ((PersonViewModel)ctx.Source).Name, ((Person)ctx.Target).Name }));
+            var mappedNames = new List<string>();
 
-                var source = new PersonViewModel { Name = "Bernie" };
-                var target = new Person { Name = "Hillary" };
-                mapper.Map(source).Over(target);
+            mapper.After.MappingEnds
+                .If((_, t) => t.GetType() != typeof(Address))
+                .Call(ctx => mappedNames.AddRange(new[] { ((PersonViewModel)ctx.Source).Name, ((Person)ctx.Target).Name }));
 
-                mappedNames.ShouldNotBeEmpty();
-                mappedNames.ShouldBe("Bernie", "Bernie");
-            }
+            var source = new PersonViewModel { Name = "Bernie" };
+            var target = new Person { Name = "Hillary" };
+            mapper.Map(source).Over(target);
+
+            mappedNames.ShouldNotBeEmpty();
+            mappedNames.ShouldBe("Bernie", "Bernie");
         }
 
         [Fact]
         public void ShouldExecuteAPreMappingCallbackForASpecifiedTargetTypeConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .To<Person>()
-                    .Before.MappingBegins
-                    .If(ctx => ctx.Target.Name == "Joe")
-                    .Call(ctx => ctx.Target.Title = Title.Mr);
+            using var mapper = Mapper.CreateNew();
 
-                var source = new PersonViewModel { Name = "Brendan" };
-                var nonMatchingTarget = new Person { Name = "Bryan" };
-                mapper.Map(source).Over(nonMatchingTarget);
+            mapper.WhenMapping
+                .To<Person>()
+                .Before.MappingBegins
+                .If(ctx => ctx.Target.Name == "Joe")
+                .Call(ctx => ctx.Target.Title = Title.Mr);
 
-                nonMatchingTarget.Name.ShouldBe("Brendan");
-                nonMatchingTarget.Title.ShouldBeDefault();
+            var source = new PersonViewModel { Name = "Brendan" };
+            var nonMatchingTarget = new Person { Name = "Bryan" };
+            mapper.Map(source).Over(nonMatchingTarget);
 
-                var matchingTarget = new Person { Name = "Joe" };
-                mapper.Map(source).Over(matchingTarget);
+            nonMatchingTarget.Name.ShouldBe("Brendan");
+            nonMatchingTarget.Title.ShouldBeDefault();
 
-                matchingTarget.Name.ShouldBe("Brendan");
-                matchingTarget.Title.ShouldBe(Title.Mr);
-            }
+            var matchingTarget = new Person { Name = "Joe" };
+            mapper.Map(source).Over(matchingTarget);
+
+            matchingTarget.Name.ShouldBe("Brendan");
+            matchingTarget.Title.ShouldBe(Title.Mr);
         }
 
         [Fact]
         public void ShouldExecutePreAndPostMappingCallbacksForASpecifiedMember()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var preMappingName = default(string);
-                var postMappingName = default(string);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .From<Person>()
-                    .Over<PersonViewModel>()
-                    .Before
-                    .Mapping(pvm => pvm.Name)
-                    .Call((_, pvm) => preMappingName = pvm.Name)
-                    .And.After
-                    .Mapping(pvm => pvm.Name)
-                    .Call((_, pvm) => postMappingName = pvm.Name);
+            var preMappingName = default(string);
+            var postMappingName = default(string);
 
-                var source = new Person { Name = "After" };
-                var target = new PersonViewModel { Name = "Before" };
+            mapper.WhenMapping
+                .From<Person>()
+                .Over<PersonViewModel>()
+                .Before
+                .Mapping(pvm => pvm.Name)
+                .Call((_, pvm) => preMappingName = pvm.Name)
+                .And.After
+                .Mapping(pvm => pvm.Name)
+                .Call((_, pvm) => postMappingName = pvm.Name);
 
-                mapper.Map(source).Over(target);
+            var source = new Person { Name = "After" };
+            var target = new PersonViewModel { Name = "Before" };
 
-                preMappingName.ShouldBe("Before");
-                postMappingName.ShouldBe("After");
-            }
+            mapper.Map(source).Over(target);
+
+            preMappingName.ShouldBe("Before");
+            postMappingName.ShouldBe("After");
         }
 
         [Fact]
         public void ShouldExecuteAPreMemberMappingCallbackConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var mappedTargetId = default(Guid);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .From<Person>()
-                    .ToANew<Person>()
-                    .Before
-                    .Mapping(p => p.Address)
-                    .If(ctx => ctx.Target.Id != default)
-                    .Call((_, t) => mappedTargetId = t.Id);
+            var mappedTargetId = default(Guid);
 
-                var noIdSource = new Person { Name = "Dawn" };
-                mapper.DeepClone(noIdSource);
+            mapper.WhenMapping
+                .From<Person>()
+                .ToANew<Person>()
+                .Before
+                .Mapping(p => p.Address)
+                .If(ctx => ctx.Target.Id != default)
+                .Call((_, t) => mappedTargetId = t.Id);
 
-                mappedTargetId.ShouldBeDefault();
+            var noIdSource = new Person { Name = "Dawn" };
+            mapper.DeepClone(noIdSource);
 
-                var idSource = new Person { Id = Guid.NewGuid() };
-                mapper.DeepClone(idSource);
+            mappedTargetId.ShouldBeDefault();
 
-                mappedTargetId.ShouldBe(idSource.Id);
-            }
+            var idSource = new Person { Id = Guid.NewGuid() };
+            mapper.DeepClone(idSource);
+
+            mappedTargetId.ShouldBe(idSource.Id);
         }
 
         [Fact]
         public void ShouldExecuteAPostMemberMappingCallbackConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var mappedAddress = default(Address);
-                var callbackCalled = false;
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .ToANew<Person>()
-                    .After
-                    .Mapping(p => p.Address)
-                    .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
-                    .Call((_, t) =>
-                    {
-                        mappedAddress = t.Address;
-                        callbackCalled = true;
-                    });
+            var mappedAddress = default(Address);
+            var callbackCalled = false;
 
-                var nullAddressNullNameSource = new Person();
-                var nullAddressNullNameResult = mapper.DeepClone(nullAddressNullNameSource);
+            mapper.WhenMapping
+                .ToANew<Person>()
+                .After
+                .Mapping(p => p.Address)
+                .If((s, p) => (p.Address != null) ? (p.Address.Line1 != null) : (p.Name != null))
+                .Call((_, t) =>
+                {
+                    mappedAddress = t.Address;
+                    callbackCalled = true;
+                });
 
-                nullAddressNullNameResult.Address.ShouldBeNull();
-                mappedAddress.ShouldBeNull();
-                callbackCalled.ShouldBeFalse();
+            var nullAddressNullNameSource = new Person();
+            var nullAddressNullNameResult = mapper.DeepClone(nullAddressNullNameSource);
 
-                var nullAddressWithNameSource = new Person { Name = "David" };
-                var nullAddressWithNameResult = mapper.DeepClone(nullAddressWithNameSource);
+            nullAddressNullNameResult.Address.ShouldBeNull();
+            mappedAddress.ShouldBeNull();
+            callbackCalled.ShouldBeFalse();
 
-                nullAddressWithNameResult.Address.ShouldBeNull();
-                mappedAddress.ShouldBeNull();
-                callbackCalled.ShouldBeTrue();
+            var nullAddressWithNameSource = new Person { Name = "David" };
+            var nullAddressWithNameResult = mapper.DeepClone(nullAddressWithNameSource);
 
-                callbackCalled = false;
+            nullAddressWithNameResult.Address.ShouldBeNull();
+            mappedAddress.ShouldBeNull();
+            callbackCalled.ShouldBeTrue();
 
-                var nullLine1WithNameSource = new Person { Name = "Brent", Address = new Address { Line2 = "City" } };
-                var nullLine1WithNameResult = mapper.DeepClone(nullLine1WithNameSource);
+            callbackCalled = false;
 
-                nullLine1WithNameResult.Address.ShouldNotBeNull();
-                mappedAddress.ShouldBeNull();
-                callbackCalled.ShouldBeFalse();
+            var nullLine1WithNameSource = new Person { Name = "Brent", Address = new Address { Line2 = "City" } };
+            var nullLine1WithNameResult = mapper.DeepClone(nullLine1WithNameSource);
 
-                var withLine1WithNameSource = new Person { Name = "Chris", Address = new Address { Line1 = "Town" } };
-                var withLine1WithNameResult = mapper.DeepClone(withLine1WithNameSource);
+            nullLine1WithNameResult.Address.ShouldNotBeNull();
+            mappedAddress.ShouldBeNull();
+            callbackCalled.ShouldBeFalse();
 
-                withLine1WithNameResult.Address.ShouldNotBeNull();
-                mappedAddress.ShouldNotBeNull();
-                callbackCalled.ShouldBeTrue();
-            }
+            var withLine1WithNameSource = new Person { Name = "Chris", Address = new Address { Line1 = "Town" } };
+            var withLine1WithNameResult = mapper.DeepClone(withLine1WithNameSource);
+
+            withLine1WithNameResult.Address.ShouldNotBeNull();
+            mappedAddress.ShouldNotBeNull();
+            callbackCalled.ShouldBeTrue();
         }
 
         [Fact]
         public void ShouldRestrictAPreMappingCallbackByTargetType()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .To<PublicField<string>>()
-                    .Before.MappingBegins
-                    .Call(ctx => ctx.Target.Value = "SetByCallback");
+            using var mapper = Mapper.CreateNew();
 
-                var source = new PublicProperty<string> { Value = "SetBySource" };
-                var nonMatchingTarget = new PublicProperty<string> { Value = null };
-                mapper.Map(source).OnTo(nonMatchingTarget);
+            mapper.WhenMapping
+                .To<PublicField<string>>()
+                .Before.MappingBegins
+                .Call(ctx => ctx.Target.Value = "SetByCallback");
 
-                nonMatchingTarget.Value.ShouldBe("SetBySource");
+            var source = new PublicProperty<string> { Value = "SetBySource" };
+            var nonMatchingTarget = new PublicProperty<string> { Value = null };
+            mapper.Map(source).OnTo(nonMatchingTarget);
 
-                var matchingTarget = new PublicField<string> { Value = null };
-                mapper.Map(source).OnTo(matchingTarget);
+            nonMatchingTarget.Value.ShouldBe("SetBySource");
 
-                matchingTarget.Value.ShouldBe("SetByCallback");
-            }
+            var matchingTarget = new PublicField<string> { Value = null };
+            mapper.Map(source).OnTo(matchingTarget);
+
+            matchingTarget.Value.ShouldBe("SetByCallback");
         }
 
         [Fact]
         public void ShouldRestrictAPreMappingCallbackBySourceTypeConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicProperty<string>>()
-                    .To<PublicField<string>>()
-                    .Before.MappingBegins
-                    .If((pp, pf, i) => !i.HasValue && pp.Value.StartsWith("H"))
-                    .Call(ctx => ctx.Source.Value = "SetByCallback");
+            using var mapper = Mapper.CreateNew();
 
-                var nonMatchingSource = new PublicGetMethod<string>("Harold");
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<string>>();
+            mapper.WhenMapping
+                .From<PublicProperty<string>>()
+                .To<PublicField<string>>()
+                .Before.MappingBegins
+                .If((pp, pf, i) => !i.HasValue && pp.Value.StartsWith("H"))
+                .Call(ctx => ctx.Source.Value = "SetByCallback");
 
-                nonMatchingResult.Value.ShouldBe("Harold");
+            var nonMatchingSource = new PublicGetMethod<string>("Harold");
+            var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicField<string>>();
 
-                var matchingSource = new PublicProperty<string> { Value = "Harold" };
-                var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<string>>();
+            nonMatchingResult.Value.ShouldBe("Harold");
 
-                matchingResult.Value.ShouldBe("SetByCallback");
-            }
+            var matchingSource = new PublicProperty<string> { Value = "Harold" };
+            var matchingResult = mapper.Map(matchingSource).ToANew<PublicField<string>>();
+
+            matchingResult.Value.ShouldBe("SetByCallback");
         }
 
         [Fact]
         public void ShouldExecuteAPostMappingCallbackForASpecifiedTargetTypeConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .To<PersonViewModel>()
-                    .After.MappingEnds
-                    .If(ctx => ctx.Target.Name == "Joe")
-                    .Call(ctx => ctx.Target.Id = Guid.NewGuid());
+            using var mapper = Mapper.CreateNew();
 
-                var nonMatchingSource = new Person { Name = "Brendan" };
-                var nonMatchingTarget = new PersonViewModel { Name = "Bryan" };
-                mapper.Map(nonMatchingSource).Over(nonMatchingTarget);
+            mapper.WhenMapping
+                .To<PersonViewModel>()
+                .After.MappingEnds
+                .If(ctx => ctx.Target.Name == "Joe")
+                .Call(ctx => ctx.Target.Id = Guid.NewGuid());
 
-                nonMatchingTarget.Name.ShouldBe("Brendan");
-                nonMatchingTarget.Id.ShouldBeDefault();
+            var nonMatchingSource = new Person { Name = "Brendan" };
+            var nonMatchingTarget = new PersonViewModel { Name = "Bryan" };
+            mapper.Map(nonMatchingSource).Over(nonMatchingTarget);
 
-                var matchingSource = new Person { Name = "Joe" };
-                var matchingTarget = new PersonViewModel { Name = "Brendan" };
-                mapper.Map(matchingSource).Over(matchingTarget);
+            nonMatchingTarget.Name.ShouldBe("Brendan");
+            nonMatchingTarget.Id.ShouldBeDefault();
 
-                matchingTarget.Name.ShouldBe("Joe");
-                matchingTarget.Id.ShouldNotBeDefault();
-            }
+            var matchingSource = new Person { Name = "Joe" };
+            var matchingTarget = new PersonViewModel { Name = "Brendan" };
+            mapper.Map(matchingSource).Over(matchingTarget);
+
+            matchingTarget.Name.ShouldBe("Joe");
+            matchingTarget.Id.ShouldNotBeDefault();
         }
 
         [Fact]
         public void ShouldExecuteGlobalPreAndPostMappingCallbacksInARootNullableEnumMapping()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var counter = 0;
+            using var mapper = Mapper.CreateNew();
 
-                mapper
-                    .Before.MappingBegins
-                    .Call(_ => ++counter)
-                    .And.After.MappingEnds
-                    .Call(_ => ++counter);
+            var counter = 0;
 
-                var result = mapper.Map("Mrs").ToANew<Title?>();
+            mapper
+                .Before.MappingBegins
+                .Call(_ => ++counter)
+                .And.After.MappingEnds
+                .Call(_ => ++counter);
 
-                result.ShouldBe(Title.Mrs);
-                counter.ShouldBe(2);
-            }
+            var result = mapper.Map("Mrs").ToANew<Title?>();
+
+            result.ShouldBe(Title.Mrs);
+            counter.ShouldBe(2);
         }
 
         [Fact]
         public void ShouldRestrictAPostMappingCallbackByTargetType()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .To<PublicProperty<string>>()
-                    .After.MappingEnds
-                    .Call(ctx => ctx.Target.Value = "SetByCallback");
+            using var mapper = Mapper.CreateNew();
 
-                var source = new PublicField<string> { Value = "SetBySource" };
-                var nonMatchingTarget = new PublicField<string> { Value = "OriginalValue" };
-                mapper.Map(source).Over(nonMatchingTarget);
+            mapper.WhenMapping
+                .To<PublicProperty<string>>()
+                .After.MappingEnds
+                .Call(ctx => ctx.Target.Value = "SetByCallback");
 
-                nonMatchingTarget.Value.ShouldBe("SetBySource");
+            var source = new PublicField<string> { Value = "SetBySource" };
+            var nonMatchingTarget = new PublicField<string> { Value = "OriginalValue" };
+            mapper.Map(source).Over(nonMatchingTarget);
 
-                var matchingTarget = new PublicProperty<string> { Value = "OriginalValue" };
-                mapper.Map(source).Over(matchingTarget);
+            nonMatchingTarget.Value.ShouldBe("SetBySource");
 
-                matchingTarget.Value.ShouldBe("SetByCallback");
-            }
+            var matchingTarget = new PublicProperty<string> { Value = "OriginalValue" };
+            mapper.Map(source).Over(matchingTarget);
+
+            matchingTarget.Value.ShouldBe("SetByCallback");
         }
 
         [Fact]
         public void ShouldRestrictAPostMappingCallbackBySourceType()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PublicField<string>>()
-                    .To<PublicProperty<string>>()
-                    .After.MappingEnds
-                    .Call((_, pp, _) => pp.Value = "SetByCallback");
+            using var mapper = Mapper.CreateNew();
 
-                var nonMatchingSource = new PublicGetMethod<string>("SetBySource");
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<string>>();
+            mapper.WhenMapping
+                .From<PublicField<string>>()
+                .To<PublicProperty<string>>()
+                .After.MappingEnds
+                .Call((_, pp, _) => pp.Value = "SetByCallback");
 
-                nonMatchingResult.Value.ShouldBe("SetBySource");
+            var nonMatchingSource = new PublicGetMethod<string>("SetBySource");
+            var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<string>>();
 
-                var matchingSource = new PublicField<string> { Value = "SetBySource" };
-                var matchingResult = mapper.Map(matchingSource).ToANew<PublicProperty<string>>();
+            nonMatchingResult.Value.ShouldBe("SetBySource");
 
-                matchingResult.Value.ShouldBe("SetByCallback");
-            }
+            var matchingSource = new PublicField<string> { Value = "SetBySource" };
+            var matchingResult = mapper.Map(matchingSource).ToANew<PublicProperty<string>>();
+
+            matchingResult.Value.ShouldBe("SetByCallback");
         }
 
         [Fact]
         public void ShouldExecuteAPostMappingCallbackForADerivedType()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var derivedSource = default(object);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .From<CustomerViewModel>()
-                    .To<Person>()
-                    .After.MappingEnds
-                    .Call(ctx => derivedSource = ctx.Source);
+            var derivedSource = default(object);
 
-                PersonViewModel source = new CustomerViewModel { Name = "?!?!?" };
-                mapper.Map(source).ToANew<Person>();
+            mapper.WhenMapping
+                .From<CustomerViewModel>()
+                .To<Person>()
+                .After.MappingEnds
+                .Call(ctx => derivedSource = ctx.Source);
 
-                derivedSource.ShouldBeSameAs(source);
-            }
+            PersonViewModel source = new CustomerViewModel { Name = "?!?!?" };
+            mapper.Map(source).ToANew<Person>();
+
+            derivedSource.ShouldBeSameAs(source);
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/15
         [Fact]
         public void ShouldPopulateAChildTargetObjectInAPostMappingCallback()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            mapper.WhenMapping
+                .From<PublicProperty<string>>()
+                .To<PublicField<string>>()
+                .After.MappingEnds
+                .Call(ctx => ctx.Target.Value += "!");
+
+            var source = new PublicField<PublicProperty<string>>
             {
-                mapper.WhenMapping
-                    .From<PublicProperty<string>>()
-                    .To<PublicField<string>>()
-                    .After.MappingEnds
-                    .Call(ctx => ctx.Target.Value += "!");
+                Value = new PublicProperty<string> { Value = "Hello" }
+            };
 
-                var source = new PublicField<PublicProperty<string>>
-                {
-                    Value = new PublicProperty<string> { Value = "Hello" }
-                };
+            var result = mapper.Map(source).ToANew<PublicProperty<PublicField<string>>>();
 
-                var result = mapper.Map(source).ToANew<PublicProperty<PublicField<string>>>();
-
-                result.Value.ShouldNotBeNull();
-                result.Value.Value.ShouldBe("Hello!");
-            }
+            result.Value.ShouldNotBeNull();
+            result.Value.Value.ShouldBe("Hello!");
         }
 
         [Fact]
         public void ShouldExecuteAPreMappingCallbackInARootToTargetMapping()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            var callbackCalled = false;
+
+            mapper.WhenMapping
+                .From<PublicTwoFields<PublicField<int>, int>>()
+                .To<PublicField<int>>()
+                .Map(ctx => ctx.Source.Value1)
+                .ToTarget();
+
+            mapper.WhenMapping
+                .From<PublicField<int>>()
+                .To<PublicField<int>>()
+                .Before.MappingBegins
+                .Call(_ => callbackCalled = true);
+
+            var source = new PublicTwoFields<PublicField<int>, int>
             {
-                var callbackCalled = false;
+                Value1 = new PublicField<int> { Value = 123 },
+                Value2 = 456
+            };
 
-                mapper.WhenMapping
-                    .From<PublicTwoFields<PublicField<int>, int>>()
-                    .To<PublicField<int>>()
-                    .Map(ctx => ctx.Source.Value1)
-                    .ToTarget();
+            var result = mapper.Map(source).ToANew<PublicField<int>>();
 
-                mapper.WhenMapping
-                    .From<PublicField<int>>()
-                    .To<PublicField<int>>()
-                    .Before.MappingBegins
-                    .Call(_ => callbackCalled = true);
-
-                var source = new PublicTwoFields<PublicField<int>, int>
-                {
-                    Value1 = new PublicField<int> { Value = 123 },
-                    Value2 = 456
-                };
-
-                var result = mapper.Map(source).ToANew<PublicField<int>>();
-
-                result.Value.ShouldBe(123);
-                callbackCalled.ShouldBeTrue();
-            }
+            result.Value.ShouldBe(123);
+            callbackCalled.ShouldBeTrue();
         }
 
         [Fact]
         public void ShouldExecuteAPreMappingCallbackInAChildToTargetMapping()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            var callbackCalled = false;
+
+            mapper.WhenMapping
+                .From<PublicTwoFields<PublicField<int>, int>>()
+                .To<PublicField<int>>()
+                .Map(ctx => ctx.Source.Value1)
+                .ToTarget();
+
+            mapper.WhenMapping
+                .From<PublicField<int>>()
+                .To<PublicField<int>>()
+                .After.MappingEnds
+                .Call(_ => callbackCalled = true);
+
+            var source = new PublicProperty<PublicTwoFields<PublicField<int>, int>>
             {
-                var callbackCalled = false;
-
-                mapper.WhenMapping
-                    .From<PublicTwoFields<PublicField<int>, int>>()
-                    .To<PublicField<int>>()
-                    .Map(ctx => ctx.Source.Value1)
-                    .ToTarget();
-
-                mapper.WhenMapping
-                    .From<PublicField<int>>()
-                    .To<PublicField<int>>()
-                    .After.MappingEnds
-                    .Call(_ => callbackCalled = true);
-
-                var source = new PublicProperty<PublicTwoFields<PublicField<int>, int>>
+                Value = new PublicTwoFields<PublicField<int>, int>
                 {
-                    Value = new PublicTwoFields<PublicField<int>, int>
-                    {
-                        Value1 = new PublicField<int> { Value = 456 },
-                        Value2 = 123
-                    }
-                };
+                    Value1 = new PublicField<int> { Value = 456 },
+                    Value2 = 123
+                }
+            };
 
-                var result = mapper.Map(source).ToANew<PublicSetMethod<PublicField<int>>>();
+            var result = mapper.Map(source).ToANew<PublicSetMethod<PublicField<int>>>();
 
-                result.Value.ShouldNotBeNull();
-                result.Value.Value.ShouldBe(456);
-                callbackCalled.ShouldBeTrue();
-            }
+            result.Value.ShouldNotBeNull();
+            result.Value.Value.ShouldBe(456);
+            callbackCalled.ShouldBeTrue();
         }
 
         [Fact]
         public void ShouldExecuteAPreMappingCallbackInAnElementToTargetMapping()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+            var callbackCount = 0;
+
+            mapper.WhenMapping
+                .From<PublicTwoFields<int, PublicField<int>>>()
+                .To<PublicField<int>>()
+                .Map(ctx => ctx.Source.Value2)
+                .ToTarget();
+
+            mapper.WhenMapping
+                .From<PublicField<int>>()
+                .To<PublicField<int>>()
+                .After.MappingEnds
+                .Call(_ => ++callbackCount);
+
+            var source = new[]
             {
-                var callbackCount = 0;
-
-                mapper.WhenMapping
-                    .From<PublicTwoFields<int, PublicField<int>>>()
-                    .To<PublicField<int>>()
-                    .Map(ctx => ctx.Source.Value2)
-                    .ToTarget();
-
-                mapper.WhenMapping
-                    .From<PublicField<int>>()
-                    .To<PublicField<int>>()
-                    .After.MappingEnds
-                    .Call(_ => ++callbackCount);
-
-                var source = new[]
+                new PublicTwoFields<int, PublicField<int>>
                 {
-                    new PublicTwoFields<int, PublicField<int>>
-                    {
-                        Value1 = 111,
-                        Value2 = new PublicField<int> { Value = 222 },
-                    },
-                    new PublicTwoFields<int, PublicField<int>>
-                    {
-                        Value1 = 333,
-                        Value2 = new PublicField<int> { Value = 444 },
-                    }
-                };
+                    Value1 = 111,
+                    Value2 = new PublicField<int> { Value = 222 },
+                },
+                new PublicTwoFields<int, PublicField<int>>
+                {
+                    Value1 = 333,
+                    Value2 = new PublicField<int> { Value = 444 },
+                }
+            };
 
-                var result = mapper.Map(source).ToANew<PublicField<int>[]>();
+            var result = mapper.Map(source).ToANew<PublicField<int>[]>();
 
-                result.ShouldNotBeNull();
-                result.Length.ShouldBe(2);
-                result.First().Value.ShouldBe(222);
-                result.Second().Value.ShouldBe(444);
-                callbackCount.ShouldBe(2);
-            }
+            result.ShouldNotBeNull();
+            result.Length.ShouldBe(2);
+            result.First().Value.ShouldBe(222);
+            result.Second().Value.ShouldBe(444);
+            callbackCount.ShouldBe(2);
         }
     }
 }

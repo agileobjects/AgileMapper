@@ -573,27 +573,10 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
-            Expression elementIndex, elementKey;
+            var mappingValues = this
+                .GetMappingValues(sourceObject, targetMember, dataSourceIndex);
 
-            if (IsRoot)
-            {
-                elementIndex = Constants.NullInt;
-                elementKey = Constants.NullObject;
-            }
-            else
-            {
-                elementIndex = Parent.ElementIndex;
-                elementKey = Parent.ElementKey;
-            }
-
-            var mappingValues = new MappingValues(
-                sourceObject,
-                targetMember.GetAccess(this),
-                elementIndex,
-                elementKey,
-                dataSourceIndex);
-
-            var mapCall = GetMapCall(mappingValues, MapMethod, targetMember);
+            var mapCall = GetRootExecutionContextMapCall(mappingValues, targetMember);
 
             return GetSimpleTypeCheckedMapCall(sourceObject, targetMember.Type, mapCall);
         }
@@ -612,13 +595,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             Context.RuntimeTypedMappingNeeded();
 
-            var mappingValues = new MappingValues(
-                sourceElement,
-                targetElement,
-                EnumerablePopulationBuilder.Counter,
-                EnumerablePopulationBuilder.GetElementKey());
-
-            var mapCall = GetMapCall(mappingValues, MapMethod, targetMember: null);
+            var mappingValues = this.GetMappingValues(sourceElement, targetElement);
+            var mapCall = GetRootExecutionContextMapCall(mappingValues, targetMember: null);
 
             return GetSimpleTypeCheckedMapCall(sourceElement, targetElement.Type, mapCall);
         }
@@ -636,8 +614,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return mapCall;
             }
 
-            var sourceObjectGetTypeMethod = typeof(object).GetPublicInstanceMethod(nameof(GetType));
-            var sourceObjectGetTypeCall = Expression.Call(sourceObject, sourceObjectGetTypeMethod);
+            var objectGetTypeMethod = typeof(object).GetPublicInstanceMethod(nameof(GetType));
+            var sourceObjectGetTypeCall = Expression.Call(sourceObject, objectGetTypeMethod);
             var isSimpleMethod = Extensions.PublicTypeExtensions.IsSimpleMethod;
             var sourceObjectTypeIsSimpleCall = Expression.Call(isSimpleMethod, sourceObjectGetTypeCall);
 
@@ -650,22 +628,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public Expression GetMapRepeatedCall(MappingValues mappingValues, QualifiedMember targetMember)
-            => GetMapCall(mappingValues, MapRepeatedMethod, targetMember);
+            => GetRootExecutionContextMethodCall(mappingValues, MapRepeatedMethod, targetMember);
 
-        private Expression GetMapCall(
+        private Expression GetRootExecutionContextMapCall(
             MappingValues mappingValues,
-            MethodInfo mapMethod,
+            QualifiedMember targetMember)
+        {
+            return GetRootExecutionContextMethodCall(mappingValues, MapMethod, targetMember);
+        }
+
+        private Expression GetRootExecutionContextMethodCall(
+            MappingValues mappingValues,
+            MethodInfo method,
             QualifiedMember targetMember)
         {
             var createExecutionContextCall =
                 GetCreateExecutionContextCall(mappingValues, targetMember);
 
-            var mapRepeatedCall = Expression.Call(
+            var mapCall = Expression.Call(
                 Constants.ExecutionContextParameter,
-                mapMethod,
+                method,
                 createExecutionContextCall);
 
-            return mapRepeatedCall.GetConversionTo(mappingValues.TargetValue.Type);
+            return mapCall.GetConversionTo(mappingValues.TargetValue.Type);
         }
 
         public MethodCallExpression GetCreateExecutionContextCall(
@@ -710,14 +695,19 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 return Constants.ExecutionContextParameter;
             }
 
-            var mappingValues = new MappingValues(
+            var mappingValues = ToMappingValues();
+
+            return Parent.GetCreateExecutionContextCall(mappingValues, TargetMember);
+        }
+
+        public MappingValues ToMappingValues()
+        {
+            return new MappingValues(
                 SourceObject,
                 TargetInstance,
                 ElementIndex,
                 ElementKey,
                 DataSourceIndex);
-
-            return Parent.GetCreateExecutionContextCall(mappingValues, TargetMember);
         }
 
         /// <summary>

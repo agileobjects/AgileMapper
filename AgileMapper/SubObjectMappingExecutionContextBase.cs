@@ -3,31 +3,34 @@
     using ObjectPopulation;
     using Plans;
 
-    internal abstract class SubObjectMappingExecutionContextBase<TSubSource> :
-        MappingExecutionContextBase2<TSubSource>
+    internal abstract class SubObjectMappingExecutionContextBase :
+        MappingExecutionContextBase2
     {
         private readonly MappingExecutionContextBase2 _parent;
-        private readonly MappingExecutionContextBase2 _entryPointContext;
 
         protected SubObjectMappingExecutionContextBase(
-            TSubSource source,
-            MappingExecutionContextBase2 parent,
-            MappingExecutionContextBase2 entryPointContext)
-            : base(source, parent)
+            object source,
+            object target,
+            int? elementIndex,
+            object elementKey,
+            MappingExecutionContextBase2 parent)
+            : base(source, elementIndex, elementKey, parent)
         {
             _parent = parent;
-            _entryPointContext = entryPointContext;
+            Target = target;
         }
 
-        public override MapperContext MapperContext => _entryPointContext.MapperContext;
+        public override MapperContext MapperContext => _parent.MapperContext;
 
-        public override MappingRuleSet RuleSet => _entryPointContext.RuleSet;
+        public override MappingRuleSet RuleSet => _parent.RuleSet;
 
-        public override MappingPlanSettings PlanSettings => _entryPointContext.PlanSettings;
+        public override MappingPlanSettings PlanSettings => _parent.PlanSettings;
 
         public override MappingTypes MappingTypes => GetMapperKey().MappingTypes;
 
-        public override IObjectMapper GetRootMapper() => _entryPointContext.GetRootMapper();
+        public override IObjectMapper GetRootMapper() => _parent.GetRootMapper();
+
+        public override object Target { get; }
 
         protected IObjectMappingData GetParentMappingData() => _parent.GetMappingData();
     }

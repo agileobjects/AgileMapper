@@ -2,21 +2,37 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using Members;
     using ObjectPopulation;
     using ObjectPopulation.MapperKeys;
     using Plans;
 
     internal abstract class MappingExecutionContextBase2 :
         IMappingExecutionContext,
+        IMappingData<object, object>,
         IMapperKeyData,
         IObjectMapperFactoryData
     {
         private readonly IMappingExecutionContext _parent;
         private Dictionary<object, List<object>> _mappedObjectsBySource;
 
-        protected MappingExecutionContextBase2(IMappingExecutionContext parent)
+        protected MappingExecutionContextBase2(
+            object source,
+            int? elementIndex,
+            object elementKey,
+            IMappingExecutionContext parent)
+            : this(source, parent)
+        {
+            ElementIndex = elementIndex;
+            ElementKey = elementKey;
+        }
+
+        protected MappingExecutionContextBase2(
+            object source,
+            IMappingExecutionContext parent)
         {
             _parent = parent;
+            Source = source;
         }
 
         public abstract MapperContext MapperContext { get; }
@@ -33,9 +49,13 @@
 
         public abstract IObjectMapper GetRootMapper();
 
-        public abstract object Source { get; }
+        public object Source { get; }
 
         public abstract object Target { get; }
+
+        public int? ElementIndex { get; }
+
+        public object ElementKey { get; }
 
         #region IMappingExecutionContext Members
 
@@ -95,7 +115,6 @@
                 elementKey,
                 targetMemberName,
                 dataSourceIndex,
-                this,
                 this);
         }
 
@@ -110,7 +129,6 @@
                 targetElement,
                 elementIndex,
                 elementKey,
-                this,
                 this);
         }
 
@@ -124,7 +142,7 @@
 
         object IMappingExecutionContext.MapRepeated(IMappingExecutionContext context)
         {
-            // TODO
+            // TODO - is this needed?
             //if (IsRoot || MappingTypes.RuntimeTypesNeeded)
             //{
             //    childMappingData.IsPartOfRepeatedMapping = true;
@@ -137,21 +155,51 @@
         }
 
         #endregion
-    }
 
-    internal abstract class MappingExecutionContextBase2<TSource> :
-        MappingExecutionContextBase2
-    {
-        private readonly TSource _source;
+        #region IMappingData Members
 
-        protected MappingExecutionContextBase2(
-            TSource source,
-            IMappingExecutionContext parent)
-            : base(parent)
+        public IMappingData Parent => _parent;
+
+        public TSource GetSource<TSource>()
         {
-            _source = source;
+            if (Source is TSource typedSource)
+            {
+                return typedSource;
+            }
+
+            return default;
         }
 
-        public override object Source => _source;
+        public TTarget GetTarget<TTarget>()
+        {
+            if (Target is TTarget typedTarget)
+            {
+                return typedTarget;
+            }
+
+            return default;
+        }
+
+        int? IMappingData.GetElementIndex() => ElementIndex;
+
+        object IMappingData.GetElementKey() => ElementKey;
+
+        IMappingData<TSource, TTarget> IMappingData.As<TSource, TTarget>()
+            => this.ToTyped<TSource, TTarget>();
+
+        #endregion
+
+        #region IServiceProviderAccessor Members
+
+        TService IServiceProviderAccessor.GetService<TService>()
+            => this.GetServiceOrThrow<TService>(name: null);
+
+        TService IServiceProviderAccessor.GetService<TService>(string name)
+            => this.GetServiceOrThrow<TService>(name);
+
+        TServiceProvider IServiceProviderAccessor.GetServiceProvider<TServiceProvider>()
+            => this.GetServiceProviderOrThrow<TServiceProvider>();
+
+        #endregion
     }
 }

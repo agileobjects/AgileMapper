@@ -158,19 +158,44 @@
         public static Expression GetQualifiedAccess(this IQualifiedMember sourceMember, IMemberMapperData mapperData)
             => sourceMember.GetQualifiedAccess(mapperData.SourceObject);
 
-        public static Expression GetQualifiedAccess(this IEnumerable<Member> memberChain, Expression parentInstance)
+        public static Expression GetQualifiedAccess(this IList<Member> memberChain, Expression parentInstance)
         {
-            // Skip(1) because the 0th member is the parentInstance:
-            return memberChain.Skip(1).Aggregate(
-                parentInstance,
-               (accessSoFar, member) => member.GetAccess(accessSoFar));
+            var memberCount = memberChain.Count;
+            var startIndex = 1;
+
+            if (!parentInstance.Type.IsAssignableTo(memberChain[0].Type))
+            {
+                for (var i = 1; i < memberCount;)
+                {
+                    var member = memberChain[i];
+                    ++i;
+
+                    if (parentInstance.Type.IsAssignableTo(member.Type))
+                    {
+                        startIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            var qualifiedAccess = parentInstance;
+
+            for (var i = startIndex; i < memberCount; ++i)
+            {
+                var member = memberChain[i];
+                qualifiedAccess = member.GetAccess(qualifiedAccess);
+            }
+
+            return qualifiedAccess;
         }
 
         [DebuggerStepThrough]
-        public static bool IsEnumerableElement(this QualifiedMember member) => member.LeafMember.IsEnumerableElement();
+        public static bool IsEnumerableElement(this QualifiedMember member)
+            => member.LeafMember.IsEnumerableElement();
 
         [DebuggerStepThrough]
-        public static bool IsEnumerableElement(this Member member) => member.MemberType == MemberType.EnumerableElement;
+        public static bool IsEnumerableElement(this Member member)
+            => member.MemberType == MemberType.EnumerableElement;
 
         [DebuggerStepThrough]
         public static bool IsConstructorParameter(this QualifiedMember member)

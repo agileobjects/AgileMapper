@@ -1,9 +1,11 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using Members;
+
     /// <summary>
     /// Provides services required during a mapping.
     /// </summary>
-    public interface IMappingExecutionContext
+    public interface IMappingExecutionContext : IMappingData
     {
         /// <summary>
         /// Returns a value indicating if the given <paramref name="key">source object</paramref>
@@ -42,7 +44,7 @@
         /// Create a new <see cref="IMappingExecutionContext"/> for the given
         /// <paramref name="sourceValue"/> and <paramref name="targetValue"/>.
         /// </summary>
-        /// <typeparam name="TSourceValue">The type of the given <paramref name="sourceValue"/>. </typeparam>
+        /// <typeparam name="TSourceValue">The type of the given <paramref name="sourceValue"/>.</typeparam>
         /// <typeparam name="TTargetValue">The declared type of the given <paramref name="targetValue"/>.</typeparam>
         /// <param name="sourceValue">The source object from which to map.</param>
         /// <param name="targetValue">The target object to which to map.</param>
@@ -94,7 +96,7 @@
 
         /// <summary>
         /// Use the given <paramref name="context"/> to map a source and target object with types
-        /// which need to be determined at runtime.
+        /// determined at runtime.
         /// </summary>
         /// <param name="context">
         /// The <see cref="IMappingExecutionContext"/> describing the current context in which
@@ -105,7 +107,7 @@
 
         /// <summary>
         /// Use the given <paramref name="context"/> to map a source and target object with types
-        /// mapped multiple times within the object graph.
+        /// mapped recursively within the object graph.
         /// </summary>
         /// <param name="context">
         /// The <see cref="IMappingExecutionContext"/> describing the current context in which
