@@ -22,21 +22,20 @@
         [Fact]
         public void ShouldCallAGlobalObjectCreatedCallback()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var createdInstance = default(object);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.After
-                    .CreatingInstances
-                    .Call(ctx => createdInstance = ctx.CreatedObject);
+            var createdInstance = default(object);
 
-                var source = new PublicField<int>();
-                var result = mapper.Map(source).ToANew<PublicProperty<int>>();
+            mapper.After
+                .CreatingInstances
+                .Call(ctx => createdInstance = ctx.CreatedObject);
 
-                createdInstance.ShouldNotBeNull();
-                createdInstance.ShouldBeOfType<PublicProperty<int>>();
-                createdInstance.ShouldBeSameAs(result);
-            }
+            var source = new PublicField<int>();
+            var result = mapper.Map(source).ToANew<PublicProperty<int>>();
+
+            createdInstance.ShouldNotBeNull();
+            createdInstance.ShouldBeOfType<PublicProperty<int>>();
+            createdInstance.ShouldBeSameAs(result);
         }
 
         [Fact]
@@ -44,14 +43,13 @@
         {
             var createdEx = Should.Throw<MappingException>(() =>
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.After
-                        .CreatingInstances
-                        .Call(ctx => throw new InvalidOperationException());
+                using var mapper = Mapper.CreateNew();
 
-                    mapper.Map(new PublicProperty<int>()).ToANew<PublicField<int>>();
-                }
+                mapper.After
+                    .CreatingInstances
+                    .Call(_ => throw new InvalidOperationException());
+
+                mapper.Map(new PublicProperty<int>()).ToANew<PublicField<int>>();
             });
 
             createdEx.ShouldNotBeNull();
@@ -63,480 +61,456 @@
         {
             var createdEx = Should.Throw<MappingException>(() =>
             {
-                using (var mapper = Mapper.CreateNew())
-                {
-                    mapper.Before
-                        .CreatingInstancesOf<Address>()
-                        .Call(ctx => throw new InvalidOperationException("OH NO"));
+                using var mapper = Mapper.CreateNew();
 
-                    mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToANew<Person>();
-                }
+                mapper.Before
+                    .CreatingInstancesOf<Address>()
+                    .Call(_ => throw new InvalidOperationException("OH NO"));
+
+                mapper.Map(new PersonViewModel { AddressLine1 = "My House" }).ToANew<Person>();
             });
 
             createdEx.InnerException.ShouldNotBeNull();
             createdEx.InnerException.ShouldBeOfType<MappingException>();
-            // ReSharper disable once PossibleNullReferenceException
-            createdEx.InnerException.InnerException.ShouldNotBeNull();
+            createdEx.InnerException!.InnerException.ShouldNotBeNull();
             createdEx.InnerException.InnerException.ShouldBeOfType<InvalidOperationException>();
-            // ReSharper disable once PossibleNullReferenceException
-            createdEx.InnerException.InnerException.Message.ShouldBe("OH NO");
+            createdEx.InnerException.InnerException!.Message.ShouldBe("OH NO");
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackForASpecifiedType()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var createdPerson = default(Person);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.After
-                    .CreatingInstancesOf<Person>()
-                    .Call((s, t, p, i) => createdPerson = p);
+            var createdPerson = default(Person);
 
-                var nonMatchingSource = new { Value = "12345" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<int>>();
+            mapper.After
+                .CreatingInstancesOf<Person>()
+                .Call((_, _, p, _) => createdPerson = p);
 
-                createdPerson.ShouldBeDefault();
-                nonMatchingResult.Value.ShouldBe(12345);
+            var nonMatchingSource = new { Value = "12345" };
+            var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PublicProperty<int>>();
 
-                var matchingSource = new Person { Name = "Alex" };
-                var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
+            createdPerson.ShouldBeDefault();
+            nonMatchingResult.Value.ShouldBe(12345);
 
-                createdPerson.ShouldNotBeNull();
-                createdPerson.ShouldBe(matchingResult);
-            }
+            var matchingSource = new Person { Name = "Alex" };
+            var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
+
+            createdPerson.ShouldNotBeNull();
+            createdPerson.ShouldBe(matchingResult);
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceAndTargetTypes()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var createdPerson = default(Person);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .To<Person>()
-                    .After
-                    .CreatingTargetInstances
-                    .Call(ctx => createdPerson = ctx.CreatedObject);
+            var createdPerson = default(Person);
 
-                var nonMatchingSource = new { Name = "Harry" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
+            mapper.WhenMapping
+                .From<PersonViewModel>()
+                .To<Person>()
+                .After
+                .CreatingTargetInstances
+                .Call(ctx => createdPerson = ctx.CreatedObject);
 
-                createdPerson.ShouldBeNull();
-                nonMatchingResult.Name.ShouldBe("Harry");
+            var nonMatchingSource = new { Name = "Harry" };
+            var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
 
-                var matchingSource = new PersonViewModel { Name = "Tom" };
-                var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
+            createdPerson.ShouldBeNull();
+            nonMatchingResult.Name.ShouldBe("Harry");
 
-                createdPerson.ShouldNotBeNull();
-                createdPerson.ShouldBe(matchingResult);
-            }
+            var matchingSource = new PersonViewModel { Name = "Tom" };
+            var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
+
+            createdPerson.ShouldNotBeNull();
+            createdPerson.ShouldBe(matchingResult);
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackForSpecifiedSourceTargetAndCreatedTypes()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var createdAddress = default(Address);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .To<Person>()
-                    .After
-                    .CreatingInstancesOf<Address>()
-                    .Call(ctx => createdAddress = ctx.CreatedObject);
+            var createdAddress = default(Address);
 
-                var nonMatchingSource = new { Address = new Address { Line1 = "Blah" } };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
+            mapper.WhenMapping
+                .From<PersonViewModel>()
+                .To<Person>()
+                .After
+                .CreatingInstancesOf<Address>()
+                .Call(ctx => createdAddress = ctx.CreatedObject);
 
-                createdAddress.ShouldBeNull();
-                nonMatchingResult.Address.Line1.ShouldBe("Blah");
+            var nonMatchingSource = new { Address = new Address { Line1 = "Blah" } };
+            var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<Person>();
 
-                var matchingSource = new PersonViewModel { AddressLine1 = "Bleh" };
-                var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
+            createdAddress.ShouldBeNull();
+            nonMatchingResult.Address.Line1.ShouldBe("Blah");
 
-                createdAddress.ShouldNotBeNull();
-                createdAddress.ShouldBe(matchingResult.Address);
-                matchingResult.Address.Line1.ShouldBe("Bleh");
-            }
+            var matchingSource = new PersonViewModel { AddressLine1 = "Bleh" };
+            var matchingResult = mapper.Map(matchingSource).ToANew<Person>();
+
+            createdAddress.ShouldNotBeNull();
+            createdAddress.ShouldBe(matchingResult.Address);
+            matchingResult.Address.Line1.ShouldBe("Bleh");
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackWithASourceObject()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .OnTo<Person>()
-                    .After
-                    .CreatingInstancesOf<Address>()
-                    .Call(ctx => ctx.CreatedObject.Line2 = ctx.Source.Name);
+            using var mapper = Mapper.CreateNew();
 
-                var nonMatchingSource = new { Name = "Wilma" };
-                var nonMatchingTarget = new Person { Name = "Fred" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).OnTo(nonMatchingTarget);
+            mapper.WhenMapping
+                .From<PersonViewModel>()
+                .OnTo<Person>()
+                .After
+                .CreatingInstancesOf<Address>()
+                .Call(ctx => ctx.CreatedObject.Line2 = ctx.Source.Name);
 
-                nonMatchingResult.Address.ShouldBeNull();
-                nonMatchingResult.Name.ShouldBe("Fred");
+            var nonMatchingSource = new { Name = "Wilma" };
+            var nonMatchingTarget = new Person { Name = "Fred" };
+            var nonMatchingResult = mapper.Map(nonMatchingSource).OnTo(nonMatchingTarget);
 
-                var matchingSource = new PersonViewModel { Name = "Betty" };
-                var matchingTarget = new Person { Name = "Fred" };
-                var matchingResult = mapper.Map(matchingSource).OnTo(matchingTarget);
+            nonMatchingResult.Address.ShouldBeNull();
+            nonMatchingResult.Name.ShouldBe("Fred");
 
-                matchingResult.Address.Line2.ShouldBe("Betty");
-                matchingResult.Name.ShouldBe("Fred");
-            }
+            var matchingSource = new PersonViewModel { Name = "Betty" };
+            var matchingTarget = new Person { Name = "Fred" };
+            var matchingResult = mapper.Map(matchingSource).OnTo(matchingTarget);
+
+            matchingResult.Address.Line2.ShouldBe("Betty");
+            matchingResult.Name.ShouldBe("Fred");
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var createdInstanceTypes = new List<Type>();
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .ToANew<Person>()
-                    .After
-                    .CreatingInstances
-                    .If(ctx => ctx.Parent != null)
-                    .Call(ctx => createdInstanceTypes.Add(ctx.CreatedObject.GetType()));
+            var createdInstanceTypes = new List<Type>();
 
-                var source = new { Name = "Homer", AddressLine1 = "Springfield" };
-                var nonMatchingResult = mapper.Map(source).ToANew<PersonViewModel>();
+            mapper.WhenMapping
+                .ToANew<Person>()
+                .After
+                .CreatingInstances
+                .If(ctx => ctx.Parent != null)
+                .Call(ctx => createdInstanceTypes.Add(ctx.CreatedObject.GetType()));
 
-                createdInstanceTypes.ShouldBeEmpty();
-                nonMatchingResult.Name.ShouldBe("Homer");
+            var source = new { Name = "Homer", AddressLine1 = "Springfield" };
+            var nonMatchingResult = mapper.Map(source).ToANew<PersonViewModel>();
 
-                var matchingResult = mapper.Map(source).ToANew<Person>();
+            createdInstanceTypes.ShouldBeEmpty();
+            nonMatchingResult.Name.ShouldBe("Homer");
 
-                createdInstanceTypes.AsEnumerable().ShouldBe(new[] { typeof(Address) });
-                matchingResult.Name.ShouldBe("Homer");
-            }
+            var matchingResult = mapper.Map(source).ToANew<Person>();
+
+            createdInstanceTypes.AsEnumerable().ShouldBe(new[] { typeof(Address) });
+            matchingResult.Name.ShouldBe("Homer");
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackWithASourceObject()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<Person>()
-                    .ToANew<PersonViewModel>()
-                    .Before
-                    .CreatingTargetInstances
-                    .Call(ctx => ctx.Source.Name += $"! {ctx.Source.Name}!");
+            using var mapper = Mapper.CreateNew();
 
-                var nonMatchingSource = new { Name = "Lester" };
-                var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PersonViewModel>();
+            mapper.WhenMapping
+                .From<Person>()
+                .ToANew<PersonViewModel>()
+                .Before
+                .CreatingTargetInstances
+                .Call(ctx => ctx.Source.Name += $"! {ctx.Source.Name}!");
 
-                nonMatchingResult.Name.ShouldBe("Lester");
+            var nonMatchingSource = new { Name = "Lester" };
+            var nonMatchingResult = mapper.Map(nonMatchingSource).ToANew<PersonViewModel>();
 
-                var matchingSource = new Person { Name = "Carolin" };
-                var matchingResult = mapper.Map(matchingSource).ToANew<PersonViewModel>();
+            nonMatchingResult.Name.ShouldBe("Lester");
 
-                matchingResult.Name.ShouldBe("Carolin! Carolin!");
-            }
+            var matchingSource = new Person { Name = "Carolin" };
+            var matchingResult = mapper.Map(matchingSource).ToANew<PersonViewModel>();
+
+            matchingResult.Name.ShouldBe("Carolin! Carolin!");
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackWithASourceAndTargetConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            mapper.WhenMapping
+                .From<PersonViewModel>()
+                .OnTo<Person>()
+                .Before
+                .CreatingInstances
+                .If((pvm, p) => p.Name == "Charlie")
+                .Call((pvm, p) => p.Name += " + " + pvm.Name);
+
+            var source = new[]
             {
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .OnTo<Person>()
-                    .Before
-                    .CreatingInstances
-                    .If((pvm, p) => p.Name == "Charlie")
-                    .Call((pvm, p) => p.Name += " + " + pvm.Name);
+                new PersonViewModel { Id = Guid.NewGuid(), Name = "Mac", AddressLine1 = "Blah" },
+                new PersonViewModel { Id = Guid.NewGuid(), Name = "Dennis", AddressLine1 = "Jah" }
+            };
 
-                var source = new[]
-                {
-                    new PersonViewModel { Id = Guid.NewGuid(), Name = "Mac", AddressLine1 = "Blah" },
-                    new PersonViewModel { Id = Guid.NewGuid(), Name = "Dennis", AddressLine1 = "Jah" }
-                };
+            var target = new[]
+            {
+                new Person { Id = source.First().Id, Name = "Dee" },
+                new Person { Id = source.Second().Id, Name = "Charlie" }
+            };
 
-                var target = new[]
-                {
-                    new Person { Id = source.First().Id, Name = "Dee" },
-                    new Person { Id = source.Second().Id, Name = "Charlie" }
-                };
+            var result = mapper.Map(source).OnTo(target);
 
-                var result = mapper.Map(source).OnTo(target);
-
-                result.First().Name.ShouldBe("Dee");
-                result.Second().Name.ShouldBe("Charlie + Dennis");
-            }
+            result.First().Name.ShouldBe("Dee");
+            result.Second().Name.ShouldBe("Charlie + Dennis");
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackInARootEnumerableConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            var createdAddressesByIndex = new Dictionary<int, string>();
+
+            mapper.WhenMapping
+                .From<PersonViewModel>()
+                .ToANew<Person>()
+                .Before
+                .CreatingInstancesOf<Address>()
+                .If((s, t, i) => (i == 1) || (i == 2))
+                .Call(ctx => createdAddressesByIndex[ctx.ElementIndex.GetValueOrDefault()] = ctx.Source.AddressLine1);
+
+            var source = new[]
             {
-                var createdAddressesByIndex = new Dictionary<int, string>();
+                new PersonViewModel { AddressLine1 = "Zero!" },
+                new PersonViewModel { AddressLine1 = "One!" },
+                new PersonViewModel { AddressLine1 = "Two!" }
+            };
 
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .ToANew<Person>()
-                    .Before
-                    .CreatingInstancesOf<Address>()
-                    .If((s, t, i) => (i == 1) || (i == 2))
-                    .Call(ctx => createdAddressesByIndex[ctx.ElementIndex.GetValueOrDefault()] = ctx.Source.AddressLine1);
+            var result = mapper.Map(source).ToANew<Person[]>();
 
-                var source = new[]
-                {
-                    new PersonViewModel { AddressLine1 = "Zero!" },
-                    new PersonViewModel { AddressLine1 = "One!" },
-                    new PersonViewModel { AddressLine1 = "Two!" }
-                };
+            result.Select(p => p.Address.Line1).ShouldBe("Zero!", "One!", "Two!");
 
-                var result = mapper.Map(source).ToANew<Person[]>();
-
-                result.Select(p => p.Address.Line1).ShouldBe("Zero!", "One!", "Two!");
-
-                createdAddressesByIndex.ShouldNotContainKey(0);
-                createdAddressesByIndex.ShouldContainKeyAndValue(1, "One!");
-                createdAddressesByIndex.ShouldContainKeyAndValue(2, "Two!");
-            }
+            createdAddressesByIndex.ShouldNotContainKey(0);
+            createdAddressesByIndex.ShouldContainKeyAndValue(1, "One!");
+            createdAddressesByIndex.ShouldContainKeyAndValue(2, "Two!");
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatingCallbackInAMemberEnumerable()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var sourceObjectTypesByIndex = new Dictionary<int, Type>();
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .From<Person>()
-                    .ToANew<PersonViewModel>()
-                    .Before
-                    .CreatingInstances
-                    .Call((p, pvm, i) => sourceObjectTypesByIndex[i.GetValueOrDefault()] = p.GetType());
+            var sourceObjectTypesByIndex = new Dictionary<int, Type>();
 
-                var source = new[] { new Person(), new Customer() };
-                var result = mapper.Map(source).ToANew<ICollection<PersonViewModel>>();
+            mapper.WhenMapping
+                .From<Person>()
+                .ToANew<PersonViewModel>()
+                .Before
+                .CreatingInstances
+                .Call((p, _, i) => sourceObjectTypesByIndex[i.GetValueOrDefault()] = p.GetType());
 
-                result.Count.ShouldBe(2);
-                sourceObjectTypesByIndex.ShouldContainKeyAndValue(0, typeof(Person));
-                sourceObjectTypesByIndex.ShouldContainKeyAndValue(1, typeof(Customer));
-            }
+            var source = new[] { new Person(), new Customer() };
+            var result = mapper.Map(source).ToANew<ICollection<PersonViewModel>>();
+
+            result.Count.ShouldBe(2);
+            sourceObjectTypesByIndex.ShouldContainKeyAndValue(0, typeof(Person));
+            sourceObjectTypesByIndex.ShouldContainKeyAndValue(1, typeof(Customer));
         }
 
         [Fact]
         public void ShouldCallAnObjectCreatedCallbackInAMemberCollectionConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            var sourceAddressesByIndex = new Dictionary<int, Address>();
+
+            mapper.WhenMapping
+                .From<Person>()
+                .Over<Customer>()
+                .After
+                .CreatingInstancesOf<Address>()
+                .If((p, c, o, i) => i >= 1)
+                .Call((_, _, o, i) => sourceAddressesByIndex[i.GetValueOrDefault()] = o);
+
+            var source = new PublicField<Collection<Person>>
             {
-                var sourceAddressesByIndex = new Dictionary<int, Address>();
-
-                mapper.WhenMapping
-                    .From<Person>()
-                    .Over<Customer>()
-                    .After
-                    .CreatingInstancesOf<Address>()
-                    .If((p, c, o, i) => i >= 1)
-                    .Call((p, c, o, i) => sourceAddressesByIndex[i.GetValueOrDefault()] = o);
-
-                var source = new PublicField<Collection<Person>>
+                Value = new Collection<Person>
                 {
-                    Value = new Collection<Person>
-                    {
-                        new Person { Id = Guid.NewGuid(), Name = "Person 0" },
-                        new Person { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "My house" } },
-                        new Person { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "Your house" } }
-                    }
-                };
-                var target = new PublicProperty<IEnumerable>
+                    new() { Id = Guid.NewGuid(), Name = "Person 0" },
+                    new() { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "My house" } },
+                    new() { Id = Guid.NewGuid(), Name = "Person 1", Address = new Address { Line1 = "Your house" } }
+                }
+            };
+            var target = new PublicProperty<IEnumerable>
+            {
+                Value = new[]
                 {
-                    Value = new[]
-                    {
-                        new Person { Id = source.Value.First().Id },
-                        new Customer { Id = source.Value.Second().Id },
-                        new Person { Id = source.Value.Third().Id }
-                    }
-                };
-                var result = mapper.Map(source).Over(target);
-                var resultItems = result.Value.Cast<Person>().ToArray();
+                    new Person { Id = source.Value.First().Id },
+                    new Customer { Id = source.Value.Second().Id },
+                    new Person { Id = source.Value.Third().Id }
+                }
+            };
+            var result = mapper.Map(source).Over(target);
+            var resultItems = result.Value.Cast<Person>().ToArray();
 
-                resultItems.Length.ShouldBe(3);
-                sourceAddressesByIndex.Count.ShouldBe(1);
-                sourceAddressesByIndex.ShouldContainKeyAndValue(1, resultItems.Second().Address);
-            }
+            resultItems.Length.ShouldBe(3);
+            sourceAddressesByIndex.Count.ShouldBe(1);
+            sourceAddressesByIndex.ShouldContainKeyAndValue(1, resultItems.Second().Address);
         }
 
         [Fact]
         public void ShouldCallGlobalObjectCreatingAndObjectCreatedCallbacks()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var preCallbackObjects = new List<object>();
-                var postCallbackObjects = new List<object>();
+            using var mapper = Mapper.CreateNew();
 
-                mapper
-                    .Before
-                    .CreatingInstances
-                    .Call((s, t) => preCallbackObjects.AddRange(new[] { s, t }));
+            var preCallbackObjects = new List<object>();
+            var postCallbackObjects = new List<object>();
 
-                mapper
-                    .After
-                    .CreatingInstances
-                    .If((s, t, o) => o != null)
-                    .Call((s, t) => postCallbackObjects.AddRange(new[] { s, t }));
+            mapper.Before
+                .CreatingInstances
+                .Call((s, t) => preCallbackObjects.AddRange(new[] { s, t }));
 
-                var source = new Person();
-                var result = mapper.Map(source).ToANew<PersonViewModel>();
+            mapper.After
+                .CreatingInstances
+                .If((s, t, o) => o != null)
+                .Call((s, t) => postCallbackObjects.AddRange(new[] { s, t }));
 
-                preCallbackObjects.ShouldNotBeEmpty();
-                preCallbackObjects.ShouldBe(source, default(PersonViewModel));
+            var source = new Person();
+            var result = mapper.Map(source).ToANew<PersonViewModel>();
 
-                postCallbackObjects.ShouldNotBeEmpty();
-                postCallbackObjects.ShouldBe(source, result);
-            }
+            preCallbackObjects.ShouldNotBeEmpty();
+            preCallbackObjects.ShouldBe(source, default(PersonViewModel));
+
+            postCallbackObjects.ShouldNotBeEmpty();
+            postCallbackObjects.ShouldBe(source, result);
         }
 
         [Fact]
         public void ShouldCallObjectCreatingAndObjectCreatedCallbacksForSpecifiedTypesConditionally()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var preCallbackObjects = new List<object>();
-                var postCallbackObjects = new List<object>();
+            using var mapper = Mapper.CreateNew();
 
-                mapper
-                    .Before
-                    .CreatingInstancesOf<Address>()
-                    .If(ctx => ctx.Source.GetType().Name == "PersonViewModel")
-                    .Call((s, p) => preCallbackObjects.AddRange(new[] { s, p }));
+            var preCallbackObjects = new List<object>();
+            var postCallbackObjects = new List<object>();
 
-                mapper
-                    .After
-                    .CreatingInstancesOf<Address>()
-                    .If((s, t) => s.GetType().Name == "PersonViewModel")
-                    .Call((s, t, a) => postCallbackObjects.AddRange(new[] { s, a }));
+            mapper.Before
+                .CreatingInstancesOf<Address>()
+                .If(ctx => ctx.Source.GetType().Name == "PersonViewModel")
+                .Call((s, p) => preCallbackObjects.AddRange(new[] { s, p }));
 
-                var source = new PersonViewModel { AddressLine1 = "Housetown" };
-                var target = new Person();
+            mapper.After
+                .CreatingInstancesOf<Address>()
+                .If((s, t) => s.GetType().Name == "PersonViewModel")
+                .Call((s, _, a) => postCallbackObjects.AddRange(new[] { s, a }));
 
-                mapper.Map(source).OnTo(target);
+            var source = new PersonViewModel { AddressLine1 = "Housetown" };
+            var target = new Person();
 
-                preCallbackObjects.ShouldNotBeEmpty();
-                preCallbackObjects.ShouldBe(source, default(Address));
+            mapper.Map(source).OnTo(target);
 
-                postCallbackObjects.ShouldNotBeEmpty();
-                postCallbackObjects.ShouldBe(source, target.Address);
-            }
+            preCallbackObjects.ShouldNotBeEmpty();
+            preCallbackObjects.ShouldBe(source, default(Address));
+
+            postCallbackObjects.ShouldNotBeEmpty();
+            postCallbackObjects.ShouldBe(source, target.Address);
         }
 
         [Fact]
         public void ShouldUseATypedParentContextAccessForACallbackArgument()
         {
-            using (var mapper = Mapper.CreateNew())
+            using var mapper = Mapper.CreateNew();
+
+            mapper.WhenMapping
+                .From<PublicField<object>>()
+                .To<PublicProperty<Product>>()
+                .After
+                .CreatingInstancesOf<Product>()
+                .Call(Console.WriteLine);
+
+            var source = new PublicField<object>
             {
-                mapper
-                    .WhenMapping
-                    .From<PublicField<object>>()
-                    .To<PublicProperty<Product>>()
-                    .After
-                    .CreatingInstancesOf<Product>()
-                    .Call(Console.WriteLine);
+                Value = new Product { ProductId = "UBER-WIDGET" }
+            };
+            var target = new PublicProperty<Product>();
 
-                var source = new PublicField<object>
-                {
-                    Value = new Product { ProductId = "UBER-WIDGET" }
-                };
-                var target = new PublicProperty<Product>();
-
-                mapper.Map(source).OnTo(target);
-            }
+            mapper.Map(source).OnTo(target);
         }
 
         [Fact]
         public void ShouldOnlyInvokeACallbackWhenAnObjectIsCreated()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var createdInstance = default(object);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.After
-                    .CreatingInstances
-                    .Call(ctx => createdInstance = ctx.CreatedObject);
+            var createdInstance = default(object);
 
-                var source = new PublicField<Product> { Value = new Product { ProductId = "YEAH" } };
-                var target = new PublicField<Product> { Value = new Product() };
-                mapper.Map(source).OnTo(target);
+            mapper.After
+                .CreatingInstances
+                .Call(ctx => createdInstance = ctx.CreatedObject);
 
-                createdInstance.ShouldBeNull();
+            var source = new PublicField<Product> { Value = new Product { ProductId = "YEAH" } };
+            var target = new PublicField<Product> { Value = new Product() };
+            mapper.Map(source).OnTo(target);
 
-                target.Value = null;
-                var result = mapper.Map(source).OnTo(target);
+            createdInstance.ShouldBeNull();
 
-                createdInstance.ShouldBe(result.Value);
-            }
+            target.Value = null;
+            var result = mapper.Map(source).OnTo(target);
+
+            createdInstance.ShouldBe(result.Value);
         }
 
         [Fact]
         public void ShouldCallAnObjectingCreatingCallbackForAConstructorOnlyTarget()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var callbackCalled = false;
+            using var mapper = Mapper.CreateNew();
 
-                Func<IMappingData<object, PublicCtor<string>>, PublicCtor<string>> factory =
-                    ctx => new PublicCtor<string>(ctx.Source.GetType().GetFriendlyName());
+            var callbackCalled = false;
 
-                mapper.WhenMapping
-                    .To<PublicCtor<string>>()
-                    .CreateInstancesUsing(factory)
-                    .And
-                    .Before
-                    .CreatingTargetInstances
-                    .Call(ctx => callbackCalled = true);
+            Func<IMappingData<object, PublicCtor<string>>, PublicCtor<string>> factory =
+                ctx => new PublicCtor<string>(ctx.Source.GetType().GetFriendlyName());
 
-                var source = new PublicProperty<Guid>();
-                var result = mapper.Map(source).ToANew<PublicCtor<string>>();
+            mapper.WhenMapping
+                .To<PublicCtor<string>>()
+                .CreateInstancesUsing(factory)
+                .And
+                .Before
+                .CreatingTargetInstances
+                .Call(_ => callbackCalled = true);
 
-                result.Value.ShouldBe("PublicProperty<Guid>");
-                callbackCalled.ShouldBeTrue();
-            }
+            var source = new PublicProperty<Guid>();
+            var result = mapper.Map(source).ToANew<PublicCtor<string>>();
+
+            result.Value.ShouldBe("PublicProperty<Guid>");
+            callbackCalled.ShouldBeTrue();
         }
 
         [Fact]
         public void ShouldProvideAccessToATypedParentContextInACallback()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                IMappingData<Customer, Person> parentContext = null;
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .MapNullCollectionsToNull()
-                    .AndWhenMapping
-                    .From<Address>()
-                    .OnTo<Address>()
-                    .After
-                    .CreatingInstancesOf<Address>()
-                    .Call(ctx => parentContext = ctx.Parent.As<Customer, Person>());
+            IMappingData<Customer, Person> parentContext = null;
 
-                var source = new Customer { Name = "Billy", Address = new Address { Line1 = "Corgan Lane" } };
-                var target = new Person();
-                var result = mapper.Map(source).OnTo(target);
+            mapper.WhenMapping
+                .MapNullCollectionsToNull()
+                .AndWhenMapping
+                .From<Address>()
+                .OnTo<Address>()
+                .After
+                .CreatingInstancesOf<Address>()
+                .Call(ctx => parentContext = ctx.Parent.As<Customer, Person>());
 
-                parentContext.ShouldNotBeNull();
-                parentContext.Source.ShouldBeSameAs(source);
-                parentContext.Target.ShouldBeSameAs(target);
-                parentContext.ElementIndex.ShouldBeNull();
-                parentContext.Parent.ShouldBeNull();
+            var source = new Customer { Name = "Billy", Address = new Address { Line1 = "Corgan Lane" } };
+            var target = new Person();
+            var result = mapper.Map(source).OnTo(target);
 
-                result.Name.ShouldBe("Billy");
-                result.Address.Line1.ShouldBe("Corgan Lane");
-            }
+            parentContext.ShouldNotBeNull();
+            parentContext.Source.ShouldBeSameAs(source);
+            parentContext.Target.ShouldBeSameAs(target);
+            parentContext.ElementIndex.ShouldBeNull();
+            parentContext.Parent.ShouldBeNull();
+
+            result.Name.ShouldBe("Billy");
+            result.Address.Line1.ShouldBe("Corgan Lane");
         }
     }
 }

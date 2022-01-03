@@ -16,72 +16,70 @@
         [Fact]
         public void ShouldConfigureGlobalExceptionSwallowing()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping.SwallowAllExceptions();
+            using var mapper = Mapper.CreateNew();
 
-                mapper.After.CreatingInstances
-                    .Call(_ => throw new InvalidOperationException("BANG"));
+            mapper.WhenMapping.SwallowAllExceptions();
 
-                var result = mapper.Map(new Person()).ToANew<PersonViewModel>();
+            mapper.After.CreatingInstances
+                .Call(_ => throw new InvalidOperationException("BANG"));
 
-                result.ShouldBeNull();
-            }
+            var result = mapper.Map(new Person()).ToANew<PersonViewModel>();
+
+            result.ShouldBeNull();
         }
 
         [Fact]
         public void ShouldSwallowANestedMappingException()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping.SwallowAllExceptions();
+            using var mapper = Mapper.CreateNew();
 
-                mapper.After
-                    .CreatingInstancesOf<Address>()
-                    .Call(_ => throw new InvalidOperationException("ASPLODE"));
+            mapper.WhenMapping.SwallowAllExceptions();
 
-                var result = mapper.Map(new PersonViewModel { AddressLine1 = "YO" }).ToANew<Person>();
+            mapper.After
+                .CreatingInstancesOf<Address>()
+                .Call(_ => throw new InvalidOperationException("ASPLODE"));
 
-                result.ShouldNotBeNull();
-                result.Address.ShouldBeNull();
-            }
+            var result = mapper.Map(new PersonViewModel { AddressLine1 = "YO" }).ToANew<Person>();
+
+            result.ShouldNotBeNull();
+            result.Address.ShouldBeNull();
         }
 
         [Fact]
         public void ShouldConfigureAGlobalCallback()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var thrownSource = default(object);
-                var thrownTarget = default(object);
-                var thrownException = default(Exception);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .PassExceptionsTo(ctx =>
-                    {
-                        thrownSource = ctx.Source;
-                        thrownTarget = ctx.Target;
-                        thrownException = ctx.Exception;
-                    });
+            var thrownSource = default(object);
+            var thrownTarget = default(object);
+            var thrownException = default(Exception);
 
-                mapper.After.CreatingInstances
-                    .Call(_ => throw new InvalidOperationException("BOOM"));
+            mapper.WhenMapping
+                .PassExceptionsTo(ctx =>
+                {
+                    thrownSource = ctx.Source;
+                    thrownTarget = ctx.Target;
+                    thrownException = ctx.Exception;
+                });
 
-                mapper.Map(new Person()).ToANew<PersonViewModel>();
+            mapper.After.CreatingInstances
+                .Call(_ => throw new InvalidOperationException("BOOM"));
 
-                thrownSource.ShouldBeOfType<Person>();
-                thrownTarget.ShouldBeOfType<PersonViewModel>();
-                thrownException.ShouldNotBeNull();
-                thrownException.Message.ShouldBe("BOOM");
-            }
+            mapper.Map(new Person()).ToANew<PersonViewModel>();
+
+            thrownSource.ShouldBeOfType<Person>();
+            thrownTarget.ShouldBeOfType<PersonViewModel>();
+            thrownException.ShouldNotBeNull();
+            thrownException.Message.ShouldBe("BOOM");
         }
 
-        // ReSharper disable AccessToDisposedClosure
         [Fact]
         public void ShouldRestrictExceptionSwallowingByTargetType()
         {
-            using (var mapper = Mapper.CreateNew())
+            Should.Throw<MappingException>(() =>
             {
+                using var mapper = Mapper.CreateNew();
+
                 mapper.WhenMapping
                     .To<PersonViewModel>()
                     .SwallowAllExceptions();
@@ -90,21 +88,22 @@
                     .CreatingInstances
                     .Call(_ => throw new InvalidOperationException("CRUNCH"));
 
-                Should.Throw<MappingException>(() =>
-                    mapper.Map(new PersonViewModel()).ToANew<Person>());
+                mapper.Map(new PersonViewModel()).ToANew<Person>();
 
                 mapper.Map(new Person()).ToANew<PersonViewModel>();
-            }
+            });
         }
 
         [Fact]
         public void ShouldRestrictACallbackByTargetType()
         {
-            using (var mapper = Mapper.CreateNew())
+            var thrownSource = default(object);
+            var thrownTarget = default(PersonViewModel);
+            var thrownException = default(Exception);
+
+            ShouldNotCallCallback(() =>
             {
-                var thrownSource = default(object);
-                var thrownTarget = default(PersonViewModel);
-                var thrownException = default(Exception);
+                using var mapper = Mapper.CreateNew();
 
                 mapper.WhenMapping
                     .To<PersonViewModel>()
@@ -119,7 +118,7 @@
                     .CreatingInstances
                     .Call(_ => throw new InvalidOperationException("ASPLODE"));
 
-                ShouldNotCallCallback(() => mapper.Map(new PersonViewModel()).ToANew<Person>(), ref thrownException);
+                mapper.Map(new PersonViewModel()).ToANew<Person>();
 
                 var source = new Person();
                 mapper.Map(source).ToANew<PersonViewModel>();
@@ -128,68 +127,71 @@
                 thrownTarget.ShouldBeOfType<PersonViewModel>();
                 thrownException.ShouldNotBeNull();
                 thrownException.Message.ShouldBe("ASPLODE");
-            }
+            }, ref thrownException);
         }
 
+        // ReSharper disable AccessToDisposedClosure
         [Fact]
         public void ShouldRestrictExceptionSwallowingBySourceAndTargetType()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .To<Person>()
-                    .SwallowAllExceptions();
+            using var mapper = Mapper.CreateNew();
 
-                mapper.After
-                    .CreatingInstances
-                    .Call(_ => throw new InvalidOperationException("BSOD"));
+            mapper.WhenMapping
+                .From<PersonViewModel>()
+                .To<Person>()
+                .SwallowAllExceptions();
 
-                Should.Throw<MappingException>(() =>
-                    mapper.Map(new Customer()).ToANew<Person>());
+            mapper.After
+                .CreatingInstances
+                .Call(_ => throw new InvalidOperationException("BSOD"));
 
-                Should.Throw<MappingException>(() =>
-                    mapper.Map(new Person()).ToANew<PersonViewModel>());
+            Should.Throw<MappingException>(() =>
+                mapper.Map(new Customer()).ToANew<Person>());
 
-                mapper.Map(new PersonViewModel()).ToANew<Person>();
-            }
+            Should.Throw<MappingException>(() =>
+                mapper.Map(new Person()).ToANew<PersonViewModel>());
+
+            mapper.Map(new PersonViewModel()).ToANew<Person>();
         }
 
         [Fact]
         public void ShouldRestrictACallbackBySourceAndTargetType()
         {
-            using (var mapper = Mapper.CreateNew())
-            {
-                var thrownException = default(Exception);
+            using var mapper = Mapper.CreateNew();
 
-                mapper.WhenMapping
-                    .From<PersonViewModel>()
-                    .To<Person>()
-                    .PassExceptionsTo(ctx => thrownException = ctx.Exception)
-                    .And
-                    .MaintainIdentityIntegrity();
+            var thrownException = default(Exception);
 
-                mapper.After
-                    .CreatingInstances
-                    .Call(_ => throw new InvalidOperationException("WALLOP"));
+            mapper.WhenMapping
+                .From<PersonViewModel>()
+                .To<Person>()
+                .PassExceptionsTo(ctx => thrownException = ctx.Exception)
+                .And
+                .MaintainIdentityIntegrity();
 
-                ShouldNotCallCallback(
-                    () => mapper.Map(new Customer()).ToANew<Person>(),
-                    ref thrownException);
+            mapper.After
+                .CreatingInstances
+                .Call(_ => throw new InvalidOperationException("WALLOP"));
 
-                ShouldNotCallCallback(
-                    () => mapper.Map(new Person()).ToANew<PersonViewModel>(),
-                    ref thrownException);
+            ShouldNotCallCallback(
+                () => mapper.Map(new Customer()).ToANew<Person>(),
+                ref thrownException);
 
-                mapper.Map(new PersonViewModel()).ToANew<Person>();
+            ShouldNotCallCallback(
+                () => mapper.Map(new Person()).ToANew<PersonViewModel>(),
+                ref thrownException);
 
-                thrownException.ShouldNotBeNull();
-                thrownException.Message.ShouldBe("WALLOP");
-            }
+            mapper.Map(new PersonViewModel()).ToANew<Person>();
+
+            thrownException.ShouldNotBeNull();
+            thrownException.Message.ShouldBe("WALLOP");
         }
         // ReSharper restore AccessToDisposedClosure
 
-        private static void ShouldNotCallCallback(Action action, ref Exception thrownException)
+        #region Helper Members
+
+        private static void ShouldNotCallCallback(
+            Action action,
+            ref Exception thrownException)
         {
             try
             {
@@ -204,5 +206,7 @@
                 thrownException.ShouldBeNull();
             }
         }
+
+        #endregion
     }
 }

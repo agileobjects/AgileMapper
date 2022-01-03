@@ -38,14 +38,14 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         }
 
         public IObjectMapper GetOrCreateRoot<TSource, TTarget>(
-            IObjectMapperFactoryData mappingContext)
+            IObjectMapperFactoryData factoryData)
         {
-            if (StaticMapperCache<TSource, TTarget>.TryGetMapperFor(mappingContext, out var mapper))
+            if (StaticMapperCache<TSource, TTarget>.TryGetMapperFor(factoryData, out var mapper))
             {
                 return mapper;
             }
 
-            var rootMapperKey = (IRootMapperKey)mappingContext.GetMapperKey();
+            var rootMapperKey = (IRootMapperKey)factoryData.GetMapperKey();
 
             var untypedMapper = _rootMappersCache.GetOrAdd(
                 rootMapperKey,

@@ -131,9 +131,13 @@ namespace AgileObjects.AgileMapper.Members
                       mappingValues,
                       mapperData.TargetMember);
 
+            var sourceAndTargetTypes = contextTypes.Length == 2
+                ? contextTypes
+                : new[] { contextTypes[0], contextTypes[1] };
+
             var asMethod = typeof(IMappingData)
                 .GetPublicInstanceMethod("As")
-                .MakeGenericMethod(contextTypes);
+                .MakeGenericMethod(sourceAndTargetTypes);
 
             return Expression.Call(mappingContext, asMethod);
         }

@@ -3,6 +3,7 @@
     using NetStandardPolyfills;
 
     internal class MappingInstanceData<TSource, TTarget> :
+        IMapperContextOwner,
         IMappingData,
         IMappingData<TSource, TTarget>
     {
@@ -16,7 +17,7 @@
                 mappingData.ElementIndex,
                 mappingData.ElementKey,
                 mappingData.Parent,
-              ((IMappingContextOwner)mappingData).MappingContext)
+               (IMapperContextOwner)mappingData)
         {
         }
 
@@ -46,6 +47,9 @@
             ElementIndex = elementIndex;
             ElementKey = elementKey;
         }
+
+        MapperContext IMapperContextOwner.MapperContext
+            => _mapperContextOwner.MapperContext;
 
         IMappingData IMappingData.Parent => _parent;
 

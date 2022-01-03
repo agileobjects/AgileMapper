@@ -8,8 +8,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 #endif
     using Extensions.Internal;
     using Members;
-    using ReadableExpressions.Extensions;
-    using static Members.Member;
 
     internal class DerivedSourceTypeCheck
     {
@@ -17,7 +15,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             DerivedSourceType = derivedSourceType;
 
-            var typedVariableName = RootSourceMemberName + derivedSourceType.GetVariableNameInPascalCase();
+            var typedVariableName = derivedSourceType.GetSourceValueVariableName();
             TypedVariable = Expression.Variable(derivedSourceType, typedVariableName);
         }
 

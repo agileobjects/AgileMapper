@@ -10,6 +10,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 #endif
     using System.Reflection;
     using Caching;
+    using Caching.Dictionaries;
     using Configuration;
     using DataSources;
     using DataSources.Factories;
@@ -23,12 +24,12 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
     internal class ComplexTypeConstructionFactory
     {
         private readonly ICache<ConstructionKey, IList<IConstructionInfo>> _constructionInfosCache;
-        private readonly ICache<ConstructionKey, Construction> _constructionsCache;
+        private readonly ICache<ConstructionKey, IConstruction> _constructionsCache;
 
         public ComplexTypeConstructionFactory(CacheSet mapperScopedCacheSet)
         {
             _constructionInfosCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, IList<IConstructionInfo>>();
-            _constructionsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, Construction>();
+            _constructionsCache = mapperScopedCacheSet.CreateScoped<ConstructionKey, IConstruction>();
         }
 
         public IList<IBasicConstructionInfo> GetTargetObjectCreationInfos(IObjectMappingData mappingData)
@@ -77,7 +78,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             foreach (var configuredFactory in configuredFactories)
             {
-                var configuredConstructionInfo = new ConfiguredFactoryInfo(configuredFactory, mapperData);
+                var configuredConstructionInfo = new ConfiguredFactoryInfo(configuredFactory);
 
                 constructionInfos.Add(configuredConstructionInfo);
 
@@ -210,7 +211,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             mappingData.MapperData.Context.NeedsMappingData = cachedConstruction.NeedsMappingData;
 
-            var constructionExpression = cachedConstruction.GetConstruction(mappingData);
+            var constructionExpression = cachedConstruction.GetConstruction(mappingData.MapperData);
 
             return constructionExpression;
         }
@@ -220,9 +221,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             var key = new ConstructionKey(mappingData);
             var factoryData = GetGreediestAvailableFactoryInfos(key);
 
-            return factoryData.Any()
-                ? factoryData.First().ToConstruction().With(key).GetConstruction(mappingData)
-                : null;
+            if (factoryData.None())
+            {
+                return null;
+            }
+
+            return factoryData
+                .First()
+                .ToConstruction()
+                .With(key)
+                .GetConstruction(mappingData.MapperData);
         }
 
         public void Reset() => _constructionsCache.Empty();
@@ -265,7 +273,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
         private interface IConstructionInfo : IBasicConstructionInfo, IComparable<IConstructionInfo>
         {
-            Construction ToConstruction();
+            IConstruction ToConstruction();
         }
 
         private abstract class ConstructionInfoBase : IConstructionInfo
@@ -280,7 +288,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public virtual bool HasCtorParameterFor(Member targetMember) => false;
 
-            public abstract Construction ToConstruction();
+            public abstract IConstruction ToConstruction();
 
             public int CompareTo(IConstructionInfo other)
             {
@@ -315,17 +323,16 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
         private sealed class ConfiguredFactoryInfo : ConstructionInfoBase
         {
             private readonly ConfiguredObjectFactory _configuredFactory;
-            private readonly IMemberMapperData _mapperData;
 
-            public ConfiguredFactoryInfo(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
+            public ConfiguredFactoryInfo(ConfiguredObjectFactory configuredFactory)
             {
                 _configuredFactory = configuredFactory;
-                _mapperData = mapperData;
                 IsConfigured = true;
                 IsUnconditional = !_configuredFactory.HasConfiguredCondition;
             }
 
-            public override Construction ToConstruction() => new(_configuredFactory, _mapperData);
+            public override IConstruction ToConstruction()
+                => new ConfiguredFactoryConstruction(_configuredFactory);
         }
 
         private abstract class ConstructionDataInfo<TInvokable> : ConstructionInfoBase
@@ -397,7 +404,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public abstract Expression GetConstructionExpression(IList<Expression> argumentValues);
 
-            public override Construction ToConstruction() => new ConstructionData<TInvokable>(this).Construction;
+            public override IConstruction ToConstruction() => new ConstructionData<TInvokable>(this).Construction;
         }
 
         private sealed class ObjectNewingInfo : ConstructionDataInfo<ConstructorInfo>
@@ -443,7 +450,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 IsUnconditional = true;
             }
 
-            public override Construction ToConstruction() => new(Expression.New(_targetType));
+            public override IConstruction ToConstruction()
+                => new Construction(Expression.New(_targetType), replaceValues: false);
         }
 
         private sealed class ConstructionData<TInvokable>
@@ -456,7 +464,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 if (info.ArgumentDataSources.None())
                 {
                     constructionExpression = info.GetConstructionExpression(Enumerable<Expression>.EmptyArray);
-                    Construction = new Construction(constructionExpression);
+                    Construction = new Construction(constructionExpression, replaceValues: false);
                     return;
                 }
 
@@ -531,31 +539,60 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             public Construction Construction { get; }
         }
 
-        private class Construction
+        private interface IConstruction
         {
-            private readonly Expression _condition;
-            private readonly Expression _construction;
-            private ParameterExpression _mappingDataObject;
+            bool NeedsMappingData { get; }
 
-            public Construction(ConfiguredObjectFactory configuredFactory, IMemberMapperData mapperData)
-                : this(configuredFactory.Create(mapperData), configuredFactory.GetConditionOrNull(mapperData))
+            Expression GetConditionOrNull(IMemberMapperData mapperData);
+
+            Expression GetConstruction(IMemberMapperData mapperData);
+
+            IConstruction With(ConstructionKey key);
+        }
+
+        private class ConfiguredFactoryConstruction : IConstruction
+        {
+            private readonly ConfiguredObjectFactory _configuredFactory;
+
+            public ConfiguredFactoryConstruction(
+                ConfiguredObjectFactory configuredFactory)
             {
-                NeedsMappingData = configuredFactory.NeedsMappingData;
+                _configuredFactory = configuredFactory;
             }
+
+            public bool NeedsMappingData => _configuredFactory.NeedsMappingData;
+
+            public Expression GetConditionOrNull(IMemberMapperData mapperData)
+                => _configuredFactory.GetConditionOrNull(mapperData);
+
+            public Expression GetConstruction(IMemberMapperData mapperData)
+                => _configuredFactory.Create(mapperData);
+
+            public IConstruction With(ConstructionKey key) => this;
+        }
+
+        private class Construction : IConstruction
+        {
+            private readonly Expression _construction;
+            private readonly Expression _condition;
+            private readonly bool _replaceValues;
+            private IMemberMapperData _mapperData;
 
             public Construction(
                 Expression construction,
                 Expression condition = null,
+                bool replaceValues = true,
                 bool needsMappingData = false)
             {
                 _construction = construction;
                 _condition = condition;
+                _replaceValues = replaceValues;
                 NeedsMappingData = needsMappingData;
             }
 
             #region Factory Methods
 
-            public static Construction For(IList<Construction> constructions, ConstructionKey key)
+            public static IConstruction For(IList<IConstruction> constructions, ConstructionKey key)
             {
                 if (constructions.HasOne())
                 {
@@ -563,24 +600,29 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 }
 
                 var construction = new Construction(
-                    ReverseChain(constructions),
+                    ReverseChain(constructions, key.MapperData),
                     needsMappingData: constructions.Any(c => c.NeedsMappingData));
 
                 return construction.With(key);
             }
 
-            private static Expression ReverseChain(IList<Construction> constructions)
+            private static Expression ReverseChain(
+                IList<IConstruction> constructions,
+                IMemberMapperData mapperData)
             {
                 return constructions.Chain(
                     cs => cs.Last(),
-                    item => item._construction,
-                    (valueSoFar, item) => Expression.Condition(item._condition, item._construction, valueSoFar),
+                    item => item.GetConstruction(mapperData),
+                   (valueSoFar, item) => Expression.Condition(
+                       item.GetConditionOrNull(mapperData),
+                       item.GetConstruction(mapperData),
+                       valueSoFar),
                     i => i.Reverse());
             }
 
-            public Construction With(ConstructionKey key)
+            public IConstruction With(ConstructionKey key)
             {
-                _mappingDataObject = key.MapperData.MappingDataObject;
+                _mapperData = key.MapperData;
                 return this;
             }
 
@@ -588,8 +630,35 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
 
             public bool NeedsMappingData { get; }
 
-            public Expression GetConstruction(IObjectMappingData mappingData)
-                => _construction.Replace(_mappingDataObject, mappingData.MapperData.MappingDataObject);
+            public Expression GetConditionOrNull(IMemberMapperData mapperData)
+                => _condition != null ? ReplaceValuesIn(_condition, mapperData) : null;
+
+            public Expression GetConstruction(IMemberMapperData mapperData)
+            {
+                return _replaceValues
+                    ? ReplaceValuesIn(_construction, mapperData)
+                    : _construction;
+            }
+
+            private Expression ReplaceValuesIn(
+                Expression expression,
+                IMemberMapperData mapperData)
+            {
+                if (_mapperData == null || mapperData == _mapperData)
+                {
+                    return expression;
+                }
+
+                var replacements = FixedSizeExpressionReplacementDictionary
+                    .WithEqualKeys(5)
+                    .Add(_mapperData.SourceObject, mapperData.SourceObject)
+                    .Add(_mapperData.TargetObject, mapperData.TargetObject)
+                    .Add(_mapperData.CreatedObject, mapperData.CreatedObject)
+                    .Add(_mapperData.ElementIndex, mapperData.ElementIndex)
+                    .Add(_mapperData.ElementKey, mapperData.ElementKey);
+
+                return expression.Replace(replacements);
+            }
         }
 
         #endregion

@@ -39,6 +39,8 @@
         private bool? _elementsAreIdentifiable;
         private ParameterExpression _collectionDataVariable;
         private ParameterExpression _counterVariable;
+        private int _counterIndex;
+        private int _counterIncrements;
         private ParameterExpression _targetVariable;
         private readonly Action<ParameterExpression> _targetVariableCreationCallback;
 
@@ -96,6 +98,11 @@
 
         public static implicit operator BlockExpression(EnumerablePopulationBuilder builder)
         {
+            if (builder._counterIncrements != 0)
+            {
+                builder.GetEntryPointBuilder()._counterIndex -= builder._counterIncrements;
+            }
+
             if ((builder._sourceVariable == null) &&
                 (builder._collectionDataVariable == null))
             {
@@ -142,31 +149,7 @@
 
         public Expression GetCounterIncrement() => Expression.PreIncrementAssign(Counter);
 
-        public ParameterExpression Counter => _counterVariable ??= GetCounterVariable();
-
-        private ParameterExpression GetCounterVariable()
-        {
-            if (MapperData.IsEntryPoint)
-            {
-                return Constants.DefaultCounter;
-            }
-
-            var counterName = 'i';
-            var parentMapperData = MapperData;
-
-            do
-            {
-                parentMapperData = parentMapperData.Parent;
-
-                if (parentMapperData.TargetMember.IsEnumerable)
-                {
-                    ++counterName;
-                }
-            }
-            while (!parentMapperData.IsEntryPoint);
-
-            return typeof(int).GetOrCreateParameter(counterName.ToString());
-        }
+        public ParameterExpression Counter => _counterVariable ??= GetNextCounterVariable();
 
         public Expression GetElementKey() => _sourceAdapter.GetElementKey();
 
@@ -698,7 +681,7 @@
                 .GetTargetElementParameterFor(Context.TargetElementType, prefix: "existing");
 
             var defaultLoopCounter = _counterVariable;
-            _counterVariable = Parameters.Create<int>("idx");
+            _counterVariable = GetNextCounterVariable();
 
             var forEachActionType = Expression
                 .GetActionType(Context.SourceElementType, Context.TargetElementType, typeof(int));
@@ -784,6 +767,44 @@
             var forEachCall = Expression.Call(typedForEachMethod, subject, forEachLambda);
 
             return forEachCall;
+        }
+
+        private ParameterExpression GetNextCounterVariable()
+        {
+            ++_counterIncrements;
+
+            var entryPointBuilder = GetEntryPointBuilder();
+            var counterIncrement = entryPointBuilder._counterIndex++;
+
+            var counterName = 'i';
+
+            if (counterIncrement != 0)
+            {
+                for (var i = 0; i < counterIncrement; ++i)
+                {
+                    ++counterName;
+                }
+            }
+
+            return typeof(int).GetOrCreateParameter(counterName.ToString());
+        }
+
+        private EnumerablePopulationBuilder GetEntryPointBuilder()
+        {
+            var entryPointMapperData = MapperData;
+            var entryPointBuilder = this;
+
+            while (!entryPointMapperData.IsEntryPoint)
+            {
+                entryPointMapperData = entryPointMapperData.Parent;
+
+                if (entryPointMapperData.TargetMember.IsEnumerable)
+                {
+                    entryPointBuilder = entryPointMapperData.EnumerablePopulationBuilder;
+                }
+            }
+
+            return entryPointBuilder;
         }
 
         public class SourceItemsSelector

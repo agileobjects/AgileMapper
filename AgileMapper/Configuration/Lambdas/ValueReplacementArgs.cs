@@ -120,17 +120,16 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 targetMember.GetQualifiedAccess(contextMapperData.TargetInstance));
         }
 
-
         public Expression GetFuncInvokeMappingDataArgument(ValueReplacementContext context)
         {
             if (context.IsCallback())
             {
-                return _lambda.ReplaceParameterWith(context.GetMappingDataAccess());
+                return _lambda.ReplaceParameterWith(context.GetToMappingDataCall());
             }
 
             var createObjectCreationContextCall = Expression.Call(
                 ObjectCreationMappingData.CreateMethod.MakeGenericMethod(context.Types),
-                context.GetMappingDataAccess(),
+                context.GetToMappingDataCall(),
                 context.GetCreatedObject());
 
             return _lambda.ReplaceParameterWith(createObjectCreationContextCall);

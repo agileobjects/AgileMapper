@@ -83,7 +83,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         public Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
         {
-            if (_isMappingDataParameterLambda && mapperData.TypesMatch(contextTypes))
+            if (_isMappingDataParameterLambda &&
+                contextTypes.AreForCallback() && mapperData.TypesMatch(contextTypes))
             {
                 return _lambda.ReplaceParameterWith(mapperData
                     .GetToMappingDataCall(contextTypes));
@@ -98,7 +99,10 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             }
 
             var targetContextTypes = _contextType.GetGenericTypeArguments();
-            var contextType = context.IsCallback(targetContextTypes) ? _contextType : _contextType.GetAllInterfaces().First();
+
+            var contextType = targetContextTypes.AreForCallback()
+                ? _contextType
+                : _contextType.GetAllInterfaces().First();
 
             var requiredValues = GetRequiredValues();
 

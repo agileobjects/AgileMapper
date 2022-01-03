@@ -82,6 +82,9 @@
 
         public static bool IsComplex(this Type type) => !type.IsSimple() && !type.IsEnumerable();
 
+        public static bool AreForCallback(this ICollection<Type> contextTypes)
+            => contextTypes.Count == 2;
+
         public static Type[] GetCoercibleNumericTypes(this Type numericType)
         {
             var typeMaxValue = Constants.NumericTypeMaxValuesByType[numericType];

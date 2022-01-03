@@ -92,8 +92,8 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 if (requiredValues.Includes(ElementIndex))
                 {
                     _value = requiredValues.ElementIndex;
-                    
-                    _replacementFactory = 
+
+                    _replacementFactory =
                         ctx => ctx.GetElementIndex().GetConversionTo<int?>();
                 }
 
@@ -160,7 +160,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
                 if (_requiredValues.Includes(MappingContext))
                 {
-                    replacements.Add(_requiredValues.MappingContext, context.GetMappingDataAccess());
+                    replacements.Add(_requiredValues.MappingContext, context.GetToMappingDataCall());
                 }
 
                 if (_requiredValues.Includes(Source))

@@ -28,9 +28,6 @@
         public static readonly ParameterExpression ExecutionContextParameter =
             Expression.Parameter(typeof(IMappingExecutionContext), "context");
 
-        public static readonly ParameterExpression DefaultCounter =
-            Expression.Parameter(typeof(int), "i");
-
         public const string CreateNew = nameof(CreateNew);
 
         public const string Merge = nameof(Merge);

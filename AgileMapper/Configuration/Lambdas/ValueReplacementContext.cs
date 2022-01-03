@@ -1,7 +1,6 @@
 namespace AgileObjects.AgileMapper.Configuration.Lambdas
 {
     using System;
-    using System.Collections.Generic;
 #if NET35
     using Microsoft.Scripting.Ast;
 #else
@@ -84,18 +83,24 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         #endregion
 
-        public bool IsCallback() => IsCallback(Types);
-
-        public bool IsCallback(ICollection<Type> contextTypes) => contextTypes.Count == 2;
+        public bool IsCallback() => Types.AreForCallback();
 
         public Type[] Types => _args.ContextTypes;
 
-        private IMemberMapperData MapperData => _args.MapperData;
+        public IMemberMapperData MapperData => _args.MapperData;
 
-        public Expression GetMappingDataAccess()
-            => MapperData.GetTypedContextAccess(_contextAccess, Types);
+        public Expression GetToMappingDataCall()
+            => MapperData.GetToMappingDataCall(Types);
 
-        public Expression GetParentAccess() => MapperData.ParentObject;
+        public Expression GetParentAccess()
+        {
+            if (MapperData.IsRoot)
+            {
+                return typeof(IMappingData).ToDefaultExpression();
+            }
+
+            return MapperData.Parent.GetToMappingDataCall(Types);
+        }
 
         public Expression GetSourceAccess()
         {
