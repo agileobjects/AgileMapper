@@ -15,11 +15,23 @@
     internal class ExceptionCallback : UserConfiguredItemBase
     {
         private readonly Expression _callback;
+        private readonly bool _isGlobalCallback;
+        private readonly Type[] _contextTypes;
 
         public ExceptionCallback(MappingConfigInfo configInfo, Expression callback)
             : base(configInfo)
         {
             _callback = callback;
+
+            var callbackActionType = _callback.Type.GetGenericTypeArguments()[0];
+            _isGlobalCallback = !callbackActionType.IsGenericType();
+
+            if (_isGlobalCallback)
+            {
+                return;
+            }
+
+            _contextTypes = callbackActionType.GetGenericTypeArguments();
         }
 
         public Expression ToCatchBody(
@@ -27,28 +39,26 @@
             Type returnType,
             IMemberMapperData mapperData)
         {
-            var callbackActionType = _callback.Type.GetGenericTypeArguments()[0];
-
             Type[] contextTypes;
-            Expression contextAccess;
+            Expression mappingData;
             MethodInfo exceptionContextCreateMethod;
 
-            if (callbackActionType.IsGenericType())
+            if (_isGlobalCallback)
             {
-                contextTypes = callbackActionType.GetGenericTypeArguments();
-                contextAccess = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
-                exceptionContextCreateMethod = ObjectMappingExceptionData.CreateTypedMethod;
+                contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
+                mappingData = mapperData.GetToMappingDataCall(contextTypes);
+                exceptionContextCreateMethod = ObjectMappingExceptionData.CreateMethod;
             }
             else
             {
-                contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
-                contextAccess = mapperData.MappingDataObject;
-                exceptionContextCreateMethod = ObjectMappingExceptionData.CreateMethod;
+                contextTypes = _contextTypes;
+                mappingData = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
+                exceptionContextCreateMethod = ObjectMappingExceptionData.CreateTypedMethod;
             }
 
             var createExceptionContextCall = Expression.Call(
                 exceptionContextCreateMethod.MakeGenericMethod(contextTypes),
-                contextAccess,
+                mappingData,
                 exceptionVariable);
 
             var callbackInvocation = Expression.Invoke(_callback, createExceptionContextCall);
