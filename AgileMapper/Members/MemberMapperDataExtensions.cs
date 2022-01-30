@@ -117,6 +117,11 @@ namespace AgileObjects.AgileMapper.Members
             this IMemberMapperData mapperData,
             Type[] contextTypes)
         {
+            if (mapperData.IsRoot && contextTypes.All(t => t == typeof(object)))
+            {
+                return Constants.ExecutionContextParameter;
+            }
+
             var objectMapperData = (ObjectMapperData)mapperData;
 
             var mappingValues = mapperData.TargetMemberIsEnumerableElement()

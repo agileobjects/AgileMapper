@@ -5,7 +5,10 @@
     /// <summary>
     /// Provides services required during a mapping.
     /// </summary>
-    public interface IMappingExecutionContext : IMappingData
+    // ReSharper disable once PossibleInterfaceMemberAmbiguity
+    public interface IMappingExecutionContext : 
+        IMappingData,
+        IMappingData<object, object>
     {
         /// <summary>
         /// Returns a value indicating if the given <paramref name="key">source object</paramref>

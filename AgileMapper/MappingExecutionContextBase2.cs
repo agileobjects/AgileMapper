@@ -9,7 +9,6 @@
 
     internal abstract class MappingExecutionContextBase2 :
         IMappingExecutionContext,
-        IMappingData<object, object>,
         IMapperKeyData,
         IObjectMapperFactoryData
     {
