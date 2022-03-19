@@ -12,7 +12,6 @@
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
-    using Caching.Dictionaries;
     using Configuration;
     using Extensions;
     using Extensions.Internal;
@@ -254,12 +253,6 @@
 
         private delegate Expression PopulationFactory(Expression instance, Member member, Expression value);
 
-        private static readonly ISimpleDictionary<MemberType, PopulationFactory> _populationFactoriesByMemberType =
-            new FixedSizeSimpleDictionary<MemberType, PopulationFactory>(3)
-                .Add(MemberType.Field, AssignMember)
-                .Add(MemberType.Property, AssignMember)
-                .Add(MemberType.SetMethod, CallSetMethod);
-
         private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
             => targetMember.GetAccess(instance).AssignTo(value);
 
@@ -270,10 +263,22 @@
 
         public static Expression GetPopulation(this Member targetMember, Expression instance, Expression value)
         {
-            var populationFactory = _populationFactoriesByMemberType[targetMember.MemberType];
+            var populationFactory = GetPopulationFactory(targetMember);
             var population = populationFactory.Invoke(instance, targetMember, value);
 
             return population;
+        }
+
+        private static PopulationFactory GetPopulationFactory(Member targetMember)
+        {
+            return targetMember.MemberType switch
+            {
+                MemberType.Field => AssignMember,
+                MemberType.Property => AssignMember,
+                MemberType.SetMethod => CallSetMethod,
+                _ => throw new NotSupportedException(
+                    "No PopulationFactory defined for MemberType")
+            };
         }
 
         public static QualifiedMember ToSourceMemberOrNull(
@@ -323,7 +328,7 @@
                 nonMemberAction ?? ThrowIfUnsupported,
                 mapperContext);
         }
-        
+
 #if NET35
         public static QualifiedMember ToTargetMemberOrNull(this LinqExp.LambdaExpression memberAccess, MapperContext mapperContext)
             => memberAccess.ToDlrExpression().ToTargetMemberOrNull(mapperContext);

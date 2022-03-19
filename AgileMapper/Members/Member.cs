@@ -19,6 +19,9 @@ namespace AgileObjects.AgileMapper.Members
         public const string RootSourceMemberName = "Source";
         public const string RootTargetMemberName = "Target";
 
+        private static readonly int _ctorParameterHashCode = 
+            MemberType.ConstructorParameter.GetHashCode();
+
         private readonly IAccessFactory _accessFactory;
         private readonly int _hashCode;
 
@@ -67,6 +70,11 @@ namespace AgileObjects.AgileMapper.Members
             unchecked
             {
                 _hashCode = (_hashCode * 397) ^ name.GetHashCode();
+
+                if (memberType == MemberType.ConstructorParameter)
+                {
+                    _hashCode = (_hashCode * 397) ^ _ctorParameterHashCode;
+                }
             }
 
             JoiningName = (isRoot || this.IsEnumerableElement()) ? name : "." + name;

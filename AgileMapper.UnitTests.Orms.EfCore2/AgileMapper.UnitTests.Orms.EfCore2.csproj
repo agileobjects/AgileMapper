@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <RuntimeFrameworkVersion>2.2.7</RuntimeFrameworkVersion>
-    <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.Orms.EfCore2</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.Orms.EfCore2</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

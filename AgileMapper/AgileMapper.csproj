@@ -20,11 +20,8 @@
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Adding .NET Standard 2.0 target
-- Support for configuring data sources by matcher, re: #208
-- Fixing potential cache threading issue, re: #212
-- Throwing ObjectDisposed on attempt to use disposed Mapper, re: #212
-- Improving target member selection, re: #209
+    <PackageReleaseNotes>- Fixing exact-name-matching constructor parameter mapping, re: #221
+- Performance improvements
     </PackageReleaseNotes>
   </PropertyGroup>
 

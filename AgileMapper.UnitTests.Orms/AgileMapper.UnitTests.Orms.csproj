@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard1.3</TargetFrameworks>
-    <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.Orms</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests.Orms</RootNamespace>
     <DebugType>full</DebugType>

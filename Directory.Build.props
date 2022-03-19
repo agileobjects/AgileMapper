@@ -4,13 +4,14 @@
     <Company>AgileObjects Ltd</Company>
     <Product>AgileObjects.AgileMapper</Product>
     <Authors>Steve Wilkes</Authors>
-    <Copyright>Copyright © AgileObjects Ltd 2021</Copyright>
+    <Copyright>Copyright © AgileObjects Ltd 2022</Copyright>
     <NeutralResourcesLanguage>en</NeutralResourcesLanguage>
     <AssemblyOriginatorKeyFile>..\AgileMapper.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/AgileObjects/AgileMapper</RepositoryUrl>
+    <LangVersion>latest</LangVersion>
     <Version>1.8.0</Version>
     <AssemblyVersion>1.8.0.0</AssemblyVersion>
     <FileVersion>1.8.0.0</FileVersion>
