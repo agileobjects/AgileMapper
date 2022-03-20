@@ -77,7 +77,7 @@
         {
             if (BestSourceMemberMatch.IsUseable)
             {
-                return GetFinalDataSource(
+                return Finalise(
                     _bestSourceMemberMatch.CreateDataSource(),
                     _bestSourceMemberMatch.ContextMappingData);
             }
@@ -105,10 +105,10 @@
         public IDataSource GetFallbackDataSource()
             => MemberMappingData.RuleSet.FallbackDataSourceFactory.Invoke(MemberMapperData);
 
-        public IDataSource GetFinalDataSource(IDataSource foundDataSource)
-            => GetFinalDataSource(foundDataSource, MemberMappingData);
+        public IDataSource Finalise(IDataSource foundDataSource)
+            => Finalise(foundDataSource, MemberMappingData);
 
-        public IDataSource GetFinalDataSource(IDataSource foundDataSource, IChildMemberMappingData mappingData)
+        public IDataSource Finalise(IDataSource foundDataSource, IChildMemberMappingData mappingData)
         {
             var childTargetMember = mappingData.MapperData.TargetMember;
 

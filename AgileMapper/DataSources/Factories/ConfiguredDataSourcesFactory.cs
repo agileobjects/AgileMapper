@@ -14,7 +14,7 @@
 
             foreach (var dataSource in context.ConfiguredDataSources)
             {
-                yield return context.GetFinalDataSource(dataSource);
+                yield return context.Finalise(dataSource);
 
                 if (!dataSource.IsConditional)
                 {
