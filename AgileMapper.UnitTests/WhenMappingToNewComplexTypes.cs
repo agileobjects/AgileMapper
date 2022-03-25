@@ -3,6 +3,7 @@
     using System;
     using AgileMapper.Extensions;
     using Common;
+    using MoreTestClasses.Vb;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -131,6 +132,38 @@
             addressResult.Address.ShouldNotBeNull();
             addressResult.Address.ShouldNotBeSameAs(addressSource.Address);
             addressResult.Address.Line1.ShouldBe("Line 1!");
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/221
+        [Fact]
+        public void ShouldIgnoreSourceIndexedProperties()
+        {
+            var source = new PublicNamedIndex<PublicField<string>>
+            {
+                ValueToReturn = new PublicField<string> { Value = "Test" }
+            };
+
+            var result = Mapper
+                .Map(source)
+                .ToANew<PublicField<PublicField<string>>>();
+
+            result.ShouldNotBeNull().Value.ShouldBeNull();
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/221
+        [Fact]
+        public void ShouldIgnoreTargetIndexedProperties()
+        {
+            var source = new PublicField<PublicField<string>>
+            {
+                Value = new PublicField<string> { Value = "Hello!" }
+            };
+
+            var result = Mapper
+                .Map(source)
+                .ToANew<PublicNamedIndex<PublicField<string>>>();
+
+            result.ShouldNotBeNull().get_Value().ShouldBeNull();
         }
 
         #region Helper Classes

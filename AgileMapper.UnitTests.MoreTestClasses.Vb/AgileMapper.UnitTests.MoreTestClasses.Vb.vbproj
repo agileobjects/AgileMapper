@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net35;netstandard1.0</TargetFrameworks>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.MoreTestClasses.Vb</AssemblyName>
+    <RootNamespace>AgileObjects.AgileMapper.UnitTests.MoreTestClasses.Vb</RootNamespace>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <FrameworkPathOverride Condition="'$(TargetFramework)' == 'net35'">$(MSBuildProgramFiles32)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client</FrameworkPathOverride>
+  </PropertyGroup>
+
+</Project>

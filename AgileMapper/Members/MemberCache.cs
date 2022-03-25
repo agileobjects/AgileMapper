@@ -1,14 +1,14 @@
 ﻿namespace AgileObjects.AgileMapper.Members
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Reflection;
     using Caching;
     using Extensions;
     using Extensions.Internal;
     using NetStandardPolyfills;
     using ReadableExpressions.Extensions;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Reflection;
     using static System.StringComparer;
 
     internal class MemberCache
@@ -132,7 +132,11 @@
         private static bool AllExceptBclComplexTypes(PropertyInfo property)
             => AllExceptBclComplexTypes(property.PropertyType);
 
-        private static bool OnlyGettable(PropertyInfo property) => property.IsReadable();
+        private static bool OnlyGettable(PropertyInfo property)
+        {
+            var getter = property.GetGetter();
+            return getter != null && getter.GetParameters().None();
+        }
 
         #endregion
 

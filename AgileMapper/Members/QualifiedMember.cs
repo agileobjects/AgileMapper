@@ -180,6 +180,8 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsReadable => LeafMember.IsReadable;
 
         public bool IsReadOnly { get; set; }
+        
+        public bool IsIndexed => LeafMember.IsIndexed;
 
         public bool IsRecursion { get; }
 

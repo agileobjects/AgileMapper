@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.Members
         public const string RootSourceMemberName = "Source";
         public const string RootTargetMemberName = "Target";
 
-        private static readonly int _ctorParameterHashCode = 
+        private static readonly int _ctorParameterHashCode =
             MemberType.ConstructorParameter.GetHashCode();
 
         private readonly IAccessFactory _accessFactory;
@@ -30,6 +30,7 @@ namespace AgileObjects.AgileMapper.Members
             Type type,
             MemberInfo memberInfo,
             IAccessFactory accessFactory = null,
+            bool isIndexed = false,
             bool isReadable = true,
             bool isWriteable = true,
             bool isRoot = false)
@@ -39,6 +40,7 @@ namespace AgileObjects.AgileMapper.Members
                   memberInfo.DeclaringType,
                   type,
                   accessFactory,
+                  isIndexed,
                   isReadable,
                   isWriteable,
                   isRoot)
@@ -52,6 +54,7 @@ namespace AgileObjects.AgileMapper.Members
             Type declaringType,
             Type type,
             IAccessFactory accessFactory = null,
+            bool isIndexed = false,
             bool isReadable = true,
             bool isWriteable = true,
             bool isRoot = false)
@@ -61,6 +64,7 @@ namespace AgileObjects.AgileMapper.Members
             DeclaringType = declaringType;
             Type = type;
             _accessFactory = accessFactory;
+            IsIndexed = isIndexed;
             IsReadable = isReadable;
             IsWriteable = isWriteable;
             IsRoot = isRoot;
@@ -136,13 +140,21 @@ namespace AgileObjects.AgileMapper.Members
 
         public static Member Property(PropertyInfo propertyInfo)
         {
+            var isReadable = propertyInfo.IsReadable();
+            var isWritable = propertyInfo.IsWritable();
+
+            var isIndexed =
+                isReadable && propertyInfo.GetGetter().GetParameters().Any() ||
+                isWritable && propertyInfo.GetSetter().GetParameters().Length > 1;
+
             return new Member(
                 MemberType.Property,
                 propertyInfo.PropertyType,
                 propertyInfo,
                 new PropertyInfoWrapper(propertyInfo),
-                propertyInfo.IsReadable(),
-                propertyInfo.IsWritable());
+                isIndexed,
+                isReadable,
+                isWritable);
         }
 
         public static Member GetMethod(MethodInfo methodInfo)
@@ -203,6 +215,8 @@ namespace AgileObjects.AgileMapper.Members
 
         public bool IsSimple { get; }
 
+        public bool IsIndexed { get; set; }
+
         public bool IsReadable { get; }
 
         public bool IsWriteable { get; }
@@ -240,6 +254,7 @@ namespace AgileObjects.AgileMapper.Members
                     runtimeType,
                     MemberInfo,
                     _accessFactory,
+                    IsIndexed,
                     IsReadable,
                     IsWriteable,
                     IsRoot);
@@ -250,6 +265,7 @@ namespace AgileObjects.AgileMapper.Members
                 Name,
                 DeclaringType,
                 runtimeType,
+                isIndexed: IsIndexed,
                 isReadable: IsReadable,
                 isWriteable: IsWriteable,
                 isRoot: IsRoot);

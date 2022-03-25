@@ -103,13 +103,26 @@
 
             if (member.IsSimple || member.Type.IsValueType())
             {
-                reason = "readonly " + ((member.IsComplex) ? "struct" : member.Type.GetFriendlyName());
+                reason = "readonly " + (member.IsComplex ? "struct" : member.Type.GetFriendlyName());
                 return true;
             }
 
             if (member.IsEnumerable && member.Type.IsClosedTypeOf(typeof(ReadOnlyCollection<>)))
             {
                 reason = "readonly " + member.Type.GetFriendlyName();
+                return true;
+            }
+
+            if (member.IsIndexed)
+            {
+                var property = (PropertyInfo)member.LeafMember.MemberInfo;
+
+                var indexes = string.Join(", ", property
+                    .GetGetter()
+                    .GetParameters()
+                    .ProjectToArray(p => p.Name + ": " + p.ParameterType.GetFriendlyName()));
+
+                reason = "requires index(es) - " + indexes;
                 return true;
             }
 
@@ -285,7 +298,7 @@
             this Expression memberAccess,
             MapperContext mapperContext)
         {
-            return memberAccess.ToSourceMember(mapperContext, nt => { });
+            return memberAccess.ToSourceMember(mapperContext, _ => { });
         }
 
         public static QualifiedMember ToSourceMemberOrNull(
@@ -294,7 +307,7 @@
             out string failureReason)
         {
             var hasUnsupportedNodeType = false;
-            var sourceMember = memberAccess.ToSourceMember(mapperContext, nt => hasUnsupportedNodeType = true);
+            var sourceMember = memberAccess.ToSourceMember(mapperContext, _ => hasUnsupportedNodeType = true);
 
             if (hasUnsupportedNodeType)
             {
@@ -347,7 +360,7 @@
             out string failureReason)
         {
             var hasUnsupportedNodeType = false;
-            var targetMember = memberAccess.ToTargetMember(mapperContext, nt => hasUnsupportedNodeType = true);
+            var targetMember = memberAccess.ToTargetMember(mapperContext, _ => hasUnsupportedNodeType = true);
 
             if (hasUnsupportedNodeType)
             {

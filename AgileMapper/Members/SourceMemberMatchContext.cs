@@ -55,10 +55,7 @@
 
         public SourceMemberMatch CreateSourceMemberMatch(IQualifiedMember matchingSourceMember = null, bool isUseable = true)
         {
-            if (matchingSourceMember == null)
-            {
-                matchingSourceMember = MatchingSourceMember;
-            }
+            matchingSourceMember ??= MatchingSourceMember;
 
             var ignoreCondition = GetSourceMemberCondition(matchingSourceMember);
 

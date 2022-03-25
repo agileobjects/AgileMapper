@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses.Vb\AgileMapper.UnitTests.MoreTestClasses.Vb.vbproj" />
+    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj" />
     <ProjectReference Include="..\AgileMapper\AgileMapper.csproj" />
   </ItemGroup>
 
