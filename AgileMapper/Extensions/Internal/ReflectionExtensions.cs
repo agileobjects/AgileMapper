@@ -63,5 +63,29 @@
                 return ex.Types.WhereNotNull();
             }
         }
+
+        public static IEnumerable<ParameterInfo> QueryRequiredParameters(
+            this MethodInfo method)
+        {
+            return method.GetParameters().QueryRequired();
+        }
+
+        public static IEnumerable<ParameterInfo> QueryRequired(
+            this IEnumerable<ParameterInfo> parameters)
+        {
+            return parameters.Filter(p =>
+            {
+                if (p.IsOptional)
+                {
+                    return false;
+                }
+
+#if FEATURE_DBNULL
+                return p.DefaultValue == DBNull.Value;
+#else
+                return p.DefaultValue.GetType().Name == "DBNull";
+#endif
+            });
+        }
     }
 }

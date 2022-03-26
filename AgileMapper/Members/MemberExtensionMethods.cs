@@ -89,6 +89,17 @@
                 return false;
             }
 
+            if (member.LeafMember.RequiredIndexes.Any())
+            {
+                var indexes = string.Join(", ", member
+                    .LeafMember
+                    .RequiredIndexes
+                    .ProjectToArray(p => p.Name + ": " + p.ParameterType.GetFriendlyName()));
+
+                reason = "requires index(es) - " + indexes;
+                return true;
+            }
+
             if (!member.IsReadOnly)
             {
                 reason = null;
@@ -110,19 +121,6 @@
             if (member.IsEnumerable && member.Type.IsClosedTypeOf(typeof(ReadOnlyCollection<>)))
             {
                 reason = "readonly " + member.Type.GetFriendlyName();
-                return true;
-            }
-
-            if (member.IsIndexed)
-            {
-                var property = (PropertyInfo)member.LeafMember.MemberInfo;
-
-                var indexes = string.Join(", ", property
-                    .GetGetter()
-                    .GetParameters()
-                    .ProjectToArray(p => p.Name + ": " + p.ParameterType.GetFriendlyName()));
-
-                reason = "requires index(es) - " + indexes;
                 return true;
             }
 
@@ -164,7 +162,7 @@
             // Skip(1) because the 0th member is the mapperData.SourceObject:
             return memberChain.Skip(1).Aggregate(
                 parentInstance,
-                (accessSoFar, member) => member.GetAccess(accessSoFar));
+                (accessSoFar, member) => member.GetReadAccess(accessSoFar));
         }
 
         [DebuggerStepThrough]
@@ -260,38 +258,6 @@
             }
 
             return relativeMemberChain;
-        }
-
-        #region PopulationFactoriesByMemberType
-
-        private delegate Expression PopulationFactory(Expression instance, Member member, Expression value);
-
-        private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
-            => targetMember.GetAccess(instance).AssignTo(value);
-
-        private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
-            => Expression.Call(instance, targetMember.Name, EmptyTypeArray, value);
-
-        #endregion
-
-        public static Expression GetPopulation(this Member targetMember, Expression instance, Expression value)
-        {
-            var populationFactory = GetPopulationFactory(targetMember);
-            var population = populationFactory.Invoke(instance, targetMember, value);
-
-            return population;
-        }
-
-        private static PopulationFactory GetPopulationFactory(Member targetMember)
-        {
-            return targetMember.MemberType switch
-            {
-                MemberType.Field => AssignMember,
-                MemberType.Property => AssignMember,
-                MemberType.SetMethod => CallSetMethod,
-                _ => throw new NotSupportedException(
-                    "No PopulationFactory defined for MemberType")
-            };
         }
 
         public static QualifiedMember ToSourceMemberOrNull(

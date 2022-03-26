@@ -1,19 +1,29 @@
-Public Class PublicNamedIndex(Of T)
+Public Class PublicNamedIndex(Of T1, T2)
 
-    Private _valueToReturn As T
+    Private _value1ToReturn As T1
 
-    Public WriteOnly Property ValueToReturn As T
+    Public WriteOnly Property Value1ToReturn As T1
         Set
-            _valueToReturn = Value
+            _value1ToReturn = Value
         End Set
     End Property
 
-    Public ReadOnly Property Value(
+    Public ReadOnly Property Value1(
         Optional indexOne As Integer = 1,
-        Optional indexTwo As Integer = 2) As T
+        Optional indexTwo As Integer = 2) As T1
         Get
-            Return _valueToReturn
+            Return _value1ToReturn
         End Get
+    End Property
+
+    Public Property Value2SetValue As T2
+
+    Public WriteOnly Property Value2(
+        indexOne As Integer,
+        indexTwo As Integer) As T2
+        Set
+            Value2SetValue = Value
+        End Set
     End Property
 
 End Class

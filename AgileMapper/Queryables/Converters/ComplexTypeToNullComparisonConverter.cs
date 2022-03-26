@@ -46,7 +46,7 @@
                     out var entityMemberIdMember))
             {
                 return entityMemberIdMember
-                    .GetAccess(entityParentAccess)
+                    .GetReadAccess(entityParentAccess)
                     .GetIsNotDefaultComparison();
             }
 

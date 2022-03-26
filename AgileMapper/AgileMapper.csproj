@@ -21,6 +21,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>- Fixing exact-name-matching constructor parameter mapping, re: #221
+- Partial support for VB.NET named, indexed properties, re: #221
 - Performance improvements
     </PackageReleaseNotes>
   </PropertyGroup>
@@ -42,7 +43,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
-    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;FEATURE_APPDOMAIN</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;FEATURE_APPDOMAIN;FEATURE_DBNULL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -51,7 +52,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST;FEATURE_MAKEINDEX;FEATURE_DBNULL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
@@ -61,7 +62,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DYNAMIC;FEATURE_ISET;FEATURE_MAKEINDEX</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -71,11 +72,11 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_MAKEINDEX</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST;FEATURE_MAKEINDEX;FEATURE_DBNULL</DefineConstants>
   </PropertyGroup>
 
 </Project>

@@ -136,34 +136,40 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/221
         [Fact]
-        public void ShouldIgnoreSourceIndexedProperties()
+        public void ShouldIgnoreUnmappableSourceIndexedProperties()
         {
-            var source = new PublicNamedIndex<PublicField<string>>
+            var source = new PublicNamedIndex<PublicField<string>, PublicField<int>>
             {
-                ValueToReturn = new PublicField<string> { Value = "Test" }
+                Value1ToReturn = new PublicField<string> { Value = "Test" }
             };
 
             var result = Mapper
                 .Map(source)
-                .ToANew<PublicField<PublicField<string>>>();
+                .ToANew<PublicTwoFields<PublicField<string>, PublicField<int>>>();
 
-            result.ShouldNotBeNull().Value.ShouldBeNull();
+            result.ShouldNotBeNull().Value1.ShouldNotBeNull().Value.ShouldBe("Test");
+            result.ShouldNotBeNull().Value2.ShouldBeNull();
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/221
         [Fact]
-        public void ShouldIgnoreTargetIndexedProperties()
+        public void ShouldIgnoreUnmappableTargetIndexedProperties()
         {
-            var source = new PublicField<PublicField<string>>
+            var source = new PublicTwoFields<PublicField<int>, PublicField<string>>
             {
-                Value = new PublicField<string> { Value = "Hello!" }
+                Value1 = new PublicField<int> { Value = 999 },
+                Value2 = new PublicField<string> { Value = "C ya!" }
             };
 
-            var result = Mapper
-                .Map(source)
-                .ToANew<PublicNamedIndex<PublicField<string>>>();
+            var target = new PublicNamedIndex<PublicField<int>, PublicField<string>>
+            {
+                Value1ToReturn = new PublicField<int>()
+            };
 
-            result.ShouldNotBeNull().get_Value().ShouldBeNull();
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldNotBeNull().get_Value1().ShouldNotBeNull().Value.ShouldBe(999);
+            result.ShouldNotBeNull().Value2SetValue.ShouldBeNull();
         }
 
         #region Helper Classes

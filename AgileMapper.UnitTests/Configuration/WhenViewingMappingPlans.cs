@@ -159,8 +159,8 @@
         public void ShouldIncludeUnmappableIndexedPropertyDetails()
         {
             string plan = Mapper
-                .GetPlanFor<PublicField<PublicField<string>>>()
-                .ToANew<PublicNamedIndex<PublicField<string>>>();
+                .GetPlanFor<PublicTwoFields<PublicField<string>, PublicField<int>>>()
+                .ToANew<PublicNamedIndex<PublicField<string>, PublicField<int>>>();
 
             plan.ShouldContain("requires index(es) - indexOne: int, indexTwo: int");
         }

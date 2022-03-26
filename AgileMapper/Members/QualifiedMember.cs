@@ -38,7 +38,7 @@ namespace AgileObjects.AgileMapper.Members
 
             foreach (var childMember in adaptedMember._childMemberCache.Values)
             {
-                _childMemberCache.GetOrAdd(childMember.LeafMember, m => childMember);
+                _childMemberCache.GetOrAdd(childMember.LeafMember, _ => childMember);
             }
         }
 
@@ -180,8 +180,6 @@ namespace AgileObjects.AgileMapper.Members
         public bool IsReadable => LeafMember.IsReadable;
 
         public bool IsReadOnly { get; set; }
-        
-        public bool IsIndexed => LeafMember.IsIndexed;
 
         public bool IsRecursion { get; }
 
@@ -299,7 +297,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public virtual Expression GetAccess(Expression instance, IMemberMapperData mapperData)
-            => LeafMember.GetAccess(instance);
+            => LeafMember.GetReadAccess(instance);
 
         public Expression GetQualifiedAccess(Expression parentInstance)
             => MemberChain.GetQualifiedAccess(parentInstance);
@@ -337,7 +335,7 @@ namespace AgileObjects.AgileMapper.Members
             => this.GetAccess(mapperData).GetIsDefaultComparison();
 
         public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
-            => LeafMember.GetPopulation(mapperData.TargetInstance, value);
+            => LeafMember.GetAssignment(mapperData.TargetInstance, value);
 
         public virtual void MapCreating(Type sourceType)
         {
