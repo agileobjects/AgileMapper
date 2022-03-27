@@ -57,6 +57,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore2", "AgileMapper.UnitTests.NetCore2\AgileMapper.UnitTests.NetCore2.csproj", "{EAA0D417-B853-445F-A0DE-D72A7014A0C9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Net5", "AgileMapper.UnitTests.Net5\AgileMapper.UnitTests.Net5.csproj", "{53B84733-D210-499C-9B10-F20126186AB7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Net6", "AgileMapper.UnitTests.Net6\AgileMapper.UnitTests.Net6.csproj", "{669C670D-D6DC-4896-A070-48454A2A1B7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -143,6 +147,14 @@ Global
 		{EAA0D417-B853-445F-A0DE-D72A7014A0C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAA0D417-B853-445F-A0DE-D72A7014A0C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAA0D417-B853-445F-A0DE-D72A7014A0C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -169,6 +181,8 @@ Global
 		{4D694869-5B53-4145-BD7F-9187652FD847} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{7FFAD504-0119-4263-AC1D-FDEA4EDAA581} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{EAA0D417-B853-445F-A0DE-D72A7014A0C9} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{53B84733-D210-499C-9B10-F20126186AB7} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{669C670D-D6DC-4896-A070-48454A2A1B7F} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C39E9BDB-0077-445C-8F09-801CAE1AF8AB}

@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
-    <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore1</AssemblyName>
+    <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.Net5</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors></WarningsAsErrors>
@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>$(DefineConstants);NETCOREAPP1_0;TRACE;FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
+    <DefineConstants>$(DefineConstants);TRACE;FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_STRINGSPLIT_OPTIONS;FEATURE_APPDOMAIN</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,11 +22,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
