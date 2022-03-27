@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using System.Threading;
     using Extensions.Internal;
-    using Queryables.Converters;
+    using static System.Threading.LockRecursionPolicy;
 
     internal abstract class ArrayCacheBase<TKey, TValue> : ICache<TKey, TValue>
     {
@@ -19,7 +19,7 @@
         {
             _capacity = DefaultCapacity;
             _values = new TValue[DefaultCapacity];
-            _lock = new ReaderWriterLockSlim();
+            _lock = new ReaderWriterLockSlim(SupportsRecursion);
         }
 
         int ICache<TKey, TValue>.Count => _length;

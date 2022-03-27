@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
-    <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore</AssemblyName>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore1</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsAsErrors></WarningsAsErrors>
