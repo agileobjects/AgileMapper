@@ -2,12 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using Extensions.Internal;
+    using Queryables.Converters;
 
     internal abstract class ArrayCacheBase<TKey, TValue> : ICache<TKey, TValue>
     {
         protected const int DefaultCapacity = 10;
-        private readonly object _keyLock = new object();
+        private readonly ReaderWriterLockSlim _lock;
 
         private TValue[] _values;
         private int _capacity;
@@ -17,6 +19,7 @@
         {
             _capacity = DefaultCapacity;
             _values = new TValue[DefaultCapacity];
+            _lock = new ReaderWriterLockSlim();
         }
 
         int ICache<TKey, TValue>.Count => _length;
@@ -34,30 +37,56 @@
 
         public TValue GetOrAdd(TKey key, Func<TKey, TValue> valueFactory)
         {
+            _lock.EnterReadLock();
+
             var currentLength = _length;
 
-            if (TryGetValue(key, 0, currentLength, out var value))
+            TValue value;
+
+            try
             {
-                return value;
+                if (TryGetValue(key, 0, currentLength, out value))
+                {
+                    return value;
+                }
+            }
+            finally
+            {
+                _lock.ExitReadLock();
             }
 
-            lock (_keyLock)
+            _lock.EnterUpgradeableReadLock();
+
+            try
             {
                 if ((_length > currentLength) && TryGetValue(key, currentLength, _length, out value))
                 {
                     return value;
                 }
 
-                value = valueFactory.Invoke(key);
+                _lock.EnterWriteLock();
 
-                EnsureCapacity();
-                StoreKeyAt(_length, key);
+                try
+                {
+                    value = valueFactory.Invoke(key);
 
-                _values[_length] = value;
-                _length++;
+                    EnsureCapacity();
+                    StoreKeyAt(_length, key);
+
+                    _values[_length] = value;
+                    _length++;
+
+                    return value;
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
             }
-
-            return value;
+            finally
+            {
+                _lock.ExitUpgradeableReadLock();
+            }
         }
 
         private bool TryGetValue(TKey key, int startIndex, int length, out TValue value)
