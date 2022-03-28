@@ -26,4 +26,14 @@ Public Class PublicNamedIndex(Of T1, T2)
         End Set
     End Property
 
+    Public Property Value3SetValue As T2
+
+    Public WriteOnly Property Value3(
+         Optional indexOne As Integer = 1,
+         Optional indexTwo As Nullable(Of Integer) = Nothing) As T2
+        Set
+            Value3SetValue = Value
+        End Set
+    End Property
+
 End Class

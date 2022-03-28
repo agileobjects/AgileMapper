@@ -170,6 +170,7 @@
 
             result.ShouldNotBeNull().get_Value1().ShouldNotBeNull().Value.ShouldBe(999);
             result.ShouldNotBeNull().Value2SetValue.ShouldBeNull();
+            result.ShouldNotBeNull().Value3SetValue.ShouldBeNull();
         }
 
         #region Helper Classes

@@ -377,10 +377,12 @@ namespace AgileObjects.AgileMapper.Members
                     .ProjectToArray<ParameterInfo, Expression>(p =>
                     {
                         var defaultValue = p.DefaultValue;
+
+                        if (defaultValue == null || 
 #if FEATURE_DBNULL
-                        if (defaultValue == DBNull.Value)
+                            defaultValue == DBNull.Value)
 #else
-                        if (defaultValue.GetType().Name == "DBNull")
+                            defaultValue.GetType().Name == "DBNull")
 #endif
                         {
                             return p.ParameterType.ToDefaultExpression();
