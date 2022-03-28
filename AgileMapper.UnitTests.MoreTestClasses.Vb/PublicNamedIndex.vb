@@ -10,7 +10,7 @@ Public Class PublicNamedIndex(Of T1, T2)
 
     Public ReadOnly Property Value1(
         Optional indexOne As Integer = 1,
-        Optional indexTwo As Integer = 2) As T1
+        Optional indexTwo As Integer? = Nothing) As T1
         Get
             Return _value1ToReturn
         End Get
@@ -23,16 +23,6 @@ Public Class PublicNamedIndex(Of T1, T2)
         indexTwo As Integer) As T2
         Set
             Value2SetValue = Value
-        End Set
-    End Property
-
-    Public Property Value3SetValue As T2
-
-    Public WriteOnly Property Value3(
-         Optional indexOne As Integer = 1,
-         Optional indexTwo As Nullable(Of Integer) = Nothing) As T2
-        Set
-            Value3SetValue = Value
         End Set
     End Property
 
