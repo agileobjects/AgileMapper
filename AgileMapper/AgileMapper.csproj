@@ -22,7 +22,7 @@
     <PackageIcon>./Icon.png</PackageIcon>
     <PackageReleaseNotes>- Fixing exact-name-matching constructor parameter mapping, re: #221
 - Partial support for VB.NET named, indexed properties, re: #221
-- Fixing .NET 6 Dictionary mapping
+- Fixing .NET 6 Dictionary mapping, re: #222
 - Performance improvements
     </PackageReleaseNotes>
   </PropertyGroup>
