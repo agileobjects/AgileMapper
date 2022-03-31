@@ -42,7 +42,7 @@
 
                 var identifier = context.GetIdentifierOrNull(key.Type);
 
-                return identifier?.GetAccess(subject);
+                return identifier?.GetReadAccess(subject);
             });
         }
 

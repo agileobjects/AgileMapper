@@ -1,13 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30002.166
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05AB6D17-6066-41D5-8E79-31C342DFC2DC}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		LICENCE.md = LICENCE.md
-		NuGetPack.bat = NuGetPack.bat
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -16,8 +15,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NonParallel", "AgileMapper.UnitTests.NonParallel\AgileMapper.UnitTests.NonParallel.csproj", "{254D5970-FCEF-4386-8E5E-2028B765982B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper", "AgileMapper\AgileMapper.csproj", "{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore", "AgileMapper.UnitTests.NetCore\AgileMapper.UnitTests.NetCore.csproj", "{55D6C11F-FE58-415E-AAB0-DA7F1FCC2811}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.MoreTestClasses", "AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj", "{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}"
 EndProject
@@ -53,7 +50,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests", "Ag
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore3", "AgileMapper.UnitTests.NetCore3\AgileMapper.UnitTests.NetCore3.csproj", "{F9307FDB-0F73-40AB-B7AC-AE79CFA5521C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore2", "AgileMapper.UnitTests.NetCore2\AgileMapper.UnitTests.NetCore2.csproj", "{72287439-1634-4164-ABAC-E4A462235C5D}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "AgileMapper.UnitTests.MoreTestClasses.Vb", "AgileMapper.UnitTests.MoreTestClasses.Vb\AgileMapper.UnitTests.MoreTestClasses.Vb.vbproj", "{4D694869-5B53-4145-BD7F-9187652FD847}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore1", "AgileMapper.UnitTests.NetCore1\AgileMapper.UnitTests.NetCore1.csproj", "{7FFAD504-0119-4263-AC1D-FDEA4EDAA581}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.NetCore2", "AgileMapper.UnitTests.NetCore2\AgileMapper.UnitTests.NetCore2.csproj", "{EAA0D417-B853-445F-A0DE-D72A7014A0C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Net5", "AgileMapper.UnitTests.Net5\AgileMapper.UnitTests.Net5.csproj", "{53B84733-D210-499C-9B10-F20126186AB7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AgileMapper.UnitTests.Net6", "AgileMapper.UnitTests.Net6\AgileMapper.UnitTests.Net6.csproj", "{669C670D-D6DC-4896-A070-48454A2A1B7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,10 +78,6 @@ Global
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46D95C53-B4CB-4EE7-9573-5D3EF96099C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{55D6C11F-FE58-415E-AAB0-DA7F1FCC2811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{55D6C11F-FE58-415E-AAB0-DA7F1FCC2811}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{55D6C11F-FE58-415E-AAB0-DA7F1FCC2811}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{55D6C11F-FE58-415E-AAB0-DA7F1FCC2811}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -133,10 +134,26 @@ Global
 		{F9307FDB-0F73-40AB-B7AC-AE79CFA5521C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9307FDB-0F73-40AB-B7AC-AE79CFA5521C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9307FDB-0F73-40AB-B7AC-AE79CFA5521C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72287439-1634-4164-ABAC-E4A462235C5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72287439-1634-4164-ABAC-E4A462235C5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72287439-1634-4164-ABAC-E4A462235C5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72287439-1634-4164-ABAC-E4A462235C5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D694869-5B53-4145-BD7F-9187652FD847}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D694869-5B53-4145-BD7F-9187652FD847}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D694869-5B53-4145-BD7F-9187652FD847}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D694869-5B53-4145-BD7F-9187652FD847}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FFAD504-0119-4263-AC1D-FDEA4EDAA581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FFAD504-0119-4263-AC1D-FDEA4EDAA581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FFAD504-0119-4263-AC1D-FDEA4EDAA581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FFAD504-0119-4263-AC1D-FDEA4EDAA581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAA0D417-B853-445F-A0DE-D72A7014A0C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAA0D417-B853-445F-A0DE-D72A7014A0C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAA0D417-B853-445F-A0DE-D72A7014A0C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAA0D417-B853-445F-A0DE-D72A7014A0C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53B84733-D210-499C-9B10-F20126186AB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{669C670D-D6DC-4896-A070-48454A2A1B7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -144,7 +161,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{2B8A4535-7E5C-4DB6-BB86-06AEB4F3DE81} = {8155DEC6-431B-4371-9EBC-D8E729AF3096}
 		{254D5970-FCEF-4386-8E5E-2028B765982B} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
-		{55D6C11F-FE58-415E-AAB0-DA7F1FCC2811} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{0D045F11-1CBB-4BE1-B854-D7E5D348C2FE} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{63B8975D-0CDE-48F5-8CA9-8AF8FE729610} = {86B68C08-267A-47BD-BCBC-427710D2654F}
 		{66522D44-19F5-4AF5-9D43-483A3CD6F958} = {86B68C08-267A-47BD-BCBC-427710D2654F}
@@ -161,7 +177,11 @@ Global
 		{86B68C08-267A-47BD-BCBC-427710D2654F} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{5085AA3F-A5B7-40E2-9309-7E0B81FBE113} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 		{F9307FDB-0F73-40AB-B7AC-AE79CFA5521C} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
-		{72287439-1634-4164-ABAC-E4A462235C5D} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{4D694869-5B53-4145-BD7F-9187652FD847} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{7FFAD504-0119-4263-AC1D-FDEA4EDAA581} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{EAA0D417-B853-445F-A0DE-D72A7014A0C9} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{53B84733-D210-499C-9B10-F20126186AB7} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
+		{669C670D-D6DC-4896-A070-48454A2A1B7F} = {88D48136-E176-4AF7-ACA4-A2954F3BD55B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C39E9BDB-0077-445C-8F09-801CAE1AF8AB}

@@ -5,6 +5,7 @@
     using AgileMapper.Members;
     using Common;
     using Common.TestClasses;
+    using MoreTestClasses.Vb;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -152,6 +153,16 @@
 
                 plan.ShouldContain("readonly array");
             }
+        }
+
+        [Fact]
+        public void ShouldIncludeUnmappableIndexedPropertyDetails()
+        {
+            string plan = Mapper
+                .GetPlanFor<PublicTwoFields<PublicField<string>, PublicField<int>>>()
+                .ToANew<PublicNamedIndex<PublicField<string>, PublicField<int>>>();
+
+            plan.ShouldContain("requires index(es) - indexOne: int, indexTwo: int");
         }
 
         [Fact]

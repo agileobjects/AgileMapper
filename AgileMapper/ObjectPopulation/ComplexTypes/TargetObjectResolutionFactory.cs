@@ -19,7 +19,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
             bool assignTargetObject = false)
         {
             return GetObjectResolution(
-                (md, mps) => construction,
+                (_, _) => construction,
                 mappingData,
                 null,
                 false,

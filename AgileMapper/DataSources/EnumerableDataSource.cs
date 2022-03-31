@@ -118,7 +118,7 @@
             IMemberMapperData mapperData)
         {
             var funcTypes = new[] { linkParameter.Type, forwardLink.Type };
-            var forwardLinkAccess = forwardLink.GetAccess(linkParameter);
+            var forwardLinkAccess = forwardLink.GetReadAccess(linkParameter);
 
             var forwardLinkLambda = Expression.Lambda(
                 Expression.GetFuncType(funcTypes),
@@ -150,7 +150,7 @@
 
             var orderMemberAccess = Expression.MakeMemberAccess(
                 (orderMember.DeclaringType != linkParameter.Type)
-                    ? forwardLink.GetAccess(linkParameter)
+                    ? forwardLink.GetReadAccess(linkParameter)
                     : linkParameter,
                 orderMember);
 

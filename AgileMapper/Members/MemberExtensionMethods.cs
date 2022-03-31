@@ -12,7 +12,6 @@
     using System.Linq.Expressions;
 #endif
     using System.Reflection;
-    using Caching.Dictionaries;
     using Configuration;
     using Extensions;
     using Extensions.Internal;
@@ -90,6 +89,17 @@
                 return false;
             }
 
+            if (member.LeafMember.RequiredIndexes.Any())
+            {
+                var indexes = string.Join(", ", member
+                    .LeafMember
+                    .RequiredIndexes
+                    .ProjectToArray(p => p.Name + ": " + p.ParameterType.GetFriendlyName()));
+
+                reason = "requires index(es) - " + indexes;
+                return true;
+            }
+
             if (!member.IsReadOnly)
             {
                 reason = null;
@@ -104,7 +114,7 @@
 
             if (member.IsSimple || member.Type.IsValueType())
             {
-                reason = "readonly " + ((member.IsComplex) ? "struct" : member.Type.GetFriendlyName());
+                reason = "readonly " + (member.IsComplex ? "struct" : member.Type.GetFriendlyName());
                 return true;
             }
 
@@ -152,7 +162,7 @@
             // Skip(1) because the 0th member is the mapperData.SourceObject:
             return memberChain.Skip(1).Aggregate(
                 parentInstance,
-                (accessSoFar, member) => member.GetAccess(accessSoFar));
+                (accessSoFar, member) => member.GetReadAccess(accessSoFar));
         }
 
         [DebuggerStepThrough]
@@ -250,37 +260,11 @@
             return relativeMemberChain;
         }
 
-        #region PopulationFactoriesByMemberType
-
-        private delegate Expression PopulationFactory(Expression instance, Member member, Expression value);
-
-        private static readonly ISimpleDictionary<MemberType, PopulationFactory> _populationFactoriesByMemberType =
-            new FixedSizeSimpleDictionary<MemberType, PopulationFactory>(3)
-                .Add(MemberType.Field, AssignMember)
-                .Add(MemberType.Property, AssignMember)
-                .Add(MemberType.SetMethod, CallSetMethod);
-
-        private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
-            => targetMember.GetAccess(instance).AssignTo(value);
-
-        private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
-            => Expression.Call(instance, targetMember.Name, EmptyTypeArray, value);
-
-        #endregion
-
-        public static Expression GetPopulation(this Member targetMember, Expression instance, Expression value)
-        {
-            var populationFactory = _populationFactoriesByMemberType[targetMember.MemberType];
-            var population = populationFactory.Invoke(instance, targetMember, value);
-
-            return population;
-        }
-
         public static QualifiedMember ToSourceMemberOrNull(
             this Expression memberAccess,
             MapperContext mapperContext)
         {
-            return memberAccess.ToSourceMember(mapperContext, nt => { });
+            return memberAccess.ToSourceMember(mapperContext, _ => { });
         }
 
         public static QualifiedMember ToSourceMemberOrNull(
@@ -289,7 +273,7 @@
             out string failureReason)
         {
             var hasUnsupportedNodeType = false;
-            var sourceMember = memberAccess.ToSourceMember(mapperContext, nt => hasUnsupportedNodeType = true);
+            var sourceMember = memberAccess.ToSourceMember(mapperContext, _ => hasUnsupportedNodeType = true);
 
             if (hasUnsupportedNodeType)
             {
@@ -323,7 +307,7 @@
                 nonMemberAction ?? ThrowIfUnsupported,
                 mapperContext);
         }
-        
+
 #if NET35
         public static QualifiedMember ToTargetMemberOrNull(this LinqExp.LambdaExpression memberAccess, MapperContext mapperContext)
             => memberAccess.ToDlrExpression().ToTargetMemberOrNull(mapperContext);
@@ -342,7 +326,7 @@
             out string failureReason)
         {
             var hasUnsupportedNodeType = false;
-            var targetMember = memberAccess.ToTargetMember(mapperContext, nt => hasUnsupportedNodeType = true);
+            var targetMember = memberAccess.ToTargetMember(mapperContext, _ => hasUnsupportedNodeType = true);
 
             if (hasUnsupportedNodeType)
             {

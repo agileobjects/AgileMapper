@@ -20,7 +20,7 @@
 
             foreach (var maptimeDataSource in maptimeDataSources)
             {
-                yield return context.GetFinalDataSource(maptimeDataSource);
+                yield return context.Finalise(maptimeDataSource);
 
                 if (maptimeDataSource.IsConditional)
                 {

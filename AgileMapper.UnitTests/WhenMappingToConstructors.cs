@@ -84,6 +84,17 @@
             result.Value.Line1.ShouldBe("Over there");
         }
 
+        // See https://github.com/agileobjects/AgileMapper/issues/221
+        [Fact]
+        public void ShouldSupportExactMatchingConstructorsParameterNames()
+        {
+            var dto = new Issue221.ItemDto { A = 1, B = "two" };
+            var item = Mapper.Map(dto).ToANew<Issue221.Item>();
+
+            item.A.ShouldBe(1);
+            item.B.ShouldBe("two");
+        }
+
         [Fact]
         public void ShouldIgnoreConstructorsWithNoUseableDataSource()
         {
@@ -176,7 +187,7 @@
                 result.PreferenceDtoList.First().SelectedOption.ShouldNotBeNull();
                 result.PreferenceDtoList.Second().OptionList.ShouldHaveSingleItem();
                 result.PreferenceDtoList.Second().SelectedOption.ShouldNotBeNull();
-                
+
                 result.Source.ShouldBe(Issue209.GridPreferenceCallerSource.ActivityRecord);
             }
         }
@@ -224,6 +235,33 @@
             public T1 Value1 { get; set; }
 
             public T2 Value2 { get; set; }
+        }
+
+        private static class Issue221
+        {
+            public class ItemDto
+            {
+                public int A { get; set; }
+                
+                public string B { get; set; }
+            }
+
+            public class Item
+            {
+                public Item() { }
+
+                // ReSharper disable InconsistentNaming
+                public Item(int A, string B)
+                {
+                    this.A = A;
+                    this.B = B;
+                }
+                // ReSharper restore InconsistentNaming
+
+                public int A { get; set; }
+                
+                public string B { get; set; }
+            }
         }
 
         private class CopyConstructor

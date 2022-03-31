@@ -14,18 +14,19 @@
     <PackageId>AgileObjects.AgileMapper</PackageId>
     <Title>AgileMapper</Title>
     <Description>A zero-configuration, highly-configurable, unopinionated object mapper with viewable execution plans. Flattens, unflattens, deep clones, merges, updates and projects queries. Targets .NET 3.5+ and .NET Standard 1.0+</Description>
-    <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
-    <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
-    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>./Icon.png</PackageIcon>
-    <PackageReleaseNotes>- Adding .NET Standard 2.0 target
-- Support for configuring data sources by matcher, re: #208
-- Fixing potential cache threading issue, re: #212
-- Throwing ObjectDisposed on attempt to use disposed Mapper, re: #212
-- Improving target member selection, re: #209
+    <PackageTags>Mapper, Mapping, Mappings, ViewModel, DTO, NetStandard</PackageTags>
+    <PackageProjectUrl>https://github.com/AgileObjects/AgileMapper</PackageProjectUrl>
+    <PackageReleaseNotes>- Fixing exact-name-matching constructor parameter mapping, re: #221
+- Partial support for VB.NET named, indexed properties, re: #221
+- Fixing .NET 6 Dictionary mapping, re: #222
+- Performance improvements
     </PackageReleaseNotes>
+    <PackageOutputPath>../NuGet</PackageOutputPath>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.0' ">1.6.1</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -37,6 +38,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.Net35, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.NetCore1, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.NetCore2, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.NetCore3, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.Net5, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.Net6, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.NonParallel, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.Orms, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+    <InternalsVisibleTo Include="AgileObjects.AgileMapper.UnitTests.Common, PublicKey=0024000004800000940000000602000000240000525341310004000001000100570b21a39fbc3df774a5e60b41cd41078ebae1c9210a3ae4355d518a0abecab27f9346fbfe941618dc835e99ab21b75ff38e5815dceebdd8480dc14c0ee14f5cdcd3ace7f980173238c9d827f95a6f46100ff19a7dcf912c9291bf95dcd64694692a193428f2a35023bbed186f3c8f9769e01e5077a8ea5cabafe5d7948024af" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AgileObjects.ReadableExpressions" Version="2.6.0" />
   </ItemGroup>
 
@@ -45,7 +59,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == 'net35'">
-    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;FEATURE_APPDOMAIN</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DRAWING;FEATURE_APPDOMAIN;FEATURE_DBNULL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -54,7 +68,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST;FEATURE_MAKEINDEX;FEATURE_DBNULL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
@@ -64,7 +78,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_DYNAMIC;FEATURE_ISET</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_DYNAMIC;FEATURE_ISET;FEATURE_MAKEINDEX</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
@@ -74,11 +88,11 @@
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_MAKEINDEX</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST</DefineConstants>
+    <DefineConstants>$(DefineConstants);FEATURE_SERIALIZATION;FEATURE_DYNAMIC;FEATURE_DYNAMIC_ROOT_SOURCE;FEATURE_ISET;FEATURE_APPDOMAIN;FEATURE_ASSEMBLY_TRUST;FEATURE_MAKEINDEX;FEATURE_DBNULL</DefineConstants>
   </PropertyGroup>
 
 </Project>

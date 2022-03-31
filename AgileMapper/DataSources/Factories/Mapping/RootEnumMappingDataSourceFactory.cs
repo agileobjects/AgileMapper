@@ -2,7 +2,6 @@
 {
     using NetStandardPolyfills;
     using ObjectPopulation;
-    using ReadableExpressions.Extensions;
 
     internal class RootEnumMappingDataSourceFactory : MappingDataSourceFactoryBase
     {
@@ -12,6 +11,6 @@
         }
 
         public override bool IsFor(IObjectMappingData mappingData)
-            => mappingData.IsRoot && mappingData.MapperData.TargetType.GetNonNullableType().IsEnum();
+            => mappingData.IsRoot && mappingData.MappingTypes.TargetType.GetNonNullableType().IsEnum();
     }
 }
