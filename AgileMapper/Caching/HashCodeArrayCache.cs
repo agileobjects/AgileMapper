@@ -35,15 +35,16 @@
             while (lowerBound <= upperBound)
             {
                 var searchIndex = (lowerBound + upperBound) / 2;
+                var searchHashCode = _hashCodes[searchIndex];
 
-                if (_hashCodes[searchIndex] == hashCode)
+                if (searchHashCode == hashCode)
                 {
                     var valueIndex = _valueIndexes[searchIndex];
                     value = values[valueIndex];
                     return true;
                 }
 
-                if (_hashCodes[searchIndex] > hashCode)
+                if (searchHashCode > hashCode)
                 {
                     upperBound = searchIndex - 1;
                 }

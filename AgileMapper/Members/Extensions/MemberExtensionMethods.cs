@@ -101,6 +101,17 @@
                 return false;
             }
 
+            if (member.LeafMember.RequiredIndexes.Any())
+            {
+                var indexes = string.Join(", ", member
+                    .LeafMember
+                    .RequiredIndexes
+                    .ProjectToArray(p => p.Name + ": " + p.ParameterType.GetFriendlyName()));
+
+                reason = "requires index(es) - " + indexes;
+                return true;
+            }
+
             if (!member.IsReadOnly)
             {
                 reason = null;
@@ -115,7 +126,7 @@
 
             if (member.IsSimple || member.Type.IsValueType())
             {
-                reason = "readonly " + ((member.IsComplex) ? "struct" : member.Type.GetFriendlyName());
+                reason = "readonly " + (member.IsComplex ? "struct" : member.Type.GetFriendlyName());
                 return true;
             }
 
@@ -183,7 +194,7 @@
             for (var i = startIndex; i < memberCount; ++i)
             {
                 var member = memberChain[i];
-                qualifiedAccess = member.GetAccess(qualifiedAccess);
+                qualifiedAccess = member.GetReadAccess(qualifiedAccess);
             }
 
             return qualifiedAccess;
@@ -284,32 +295,6 @@
             }
 
             return relativeMemberChain;
-        }
-
-        #region PopulationFactoriesByMemberType
-
-        private delegate Expression PopulationFactory(Expression instance, Member member, Expression value);
-
-        private static readonly ISimpleDictionary<MemberType, PopulationFactory> _populationFactoriesByMemberType =
-            new FixedSizeSimpleDictionary<MemberType, PopulationFactory>(3)
-                .Add(MemberType.Field, AssignMember)
-                .Add(MemberType.Property, AssignMember)
-                .Add(MemberType.SetMethod, CallSetMethod);
-
-        private static Expression AssignMember(Expression instance, Member targetMember, Expression value)
-            => targetMember.GetAccess(instance).AssignTo(value);
-
-        private static Expression CallSetMethod(Expression instance, Member targetMember, Expression value)
-            => Expression.Call(instance, targetMember.Name, EmptyTypeArray, value);
-
-        #endregion
-
-        public static Expression GetPopulation(this Member targetMember, Expression instance, Expression value)
-        {
-            var populationFactory = _populationFactoriesByMemberType[targetMember.MemberType];
-            var population = populationFactory.Invoke(instance, targetMember, value);
-
-            return population;
         }
 
         public static void SetContext(this QualifiedMember targetMember, MapperContext mapperContext)

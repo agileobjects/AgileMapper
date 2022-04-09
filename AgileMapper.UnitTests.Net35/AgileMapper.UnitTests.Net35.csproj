@@ -28,7 +28,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <PackageReference Include="DynamicLanguageRuntime" Version="1.1.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.7.0">
       <PrivateAssets>all</PrivateAssets>
@@ -38,7 +37,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
-    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj" />
   </ItemGroup>
 
 </Project>

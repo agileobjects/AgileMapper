@@ -25,7 +25,7 @@
             {
                 var dataSource = metaMember.GetDataSource();
 
-                yield return context.GetFinalDataSource(dataSource);
+                yield return context.Finalise(dataSource);
 
                 if (dataSource.IsConditional)
                 {

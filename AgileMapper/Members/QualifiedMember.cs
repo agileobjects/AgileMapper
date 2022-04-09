@@ -295,7 +295,7 @@ namespace AgileObjects.AgileMapper.Members
         }
 
         public virtual Expression GetAccess(Expression instance, IMemberMapperData mapperData)
-            => LeafMember.GetAccess(instance);
+            => LeafMember.GetReadAccess(instance);
 
         public Expression GetQualifiedAccess(Expression parentInstance)
             => MemberChain.GetQualifiedAccess(parentInstance);
@@ -333,7 +333,7 @@ namespace AgileObjects.AgileMapper.Members
             => this.GetAccess(mapperData).GetIsDefaultComparison();
 
         public virtual Expression GetPopulation(Expression value, IMemberMapperData mapperData)
-            => LeafMember.GetPopulation(mapperData.TargetInstance, value);
+            => LeafMember.GetAssignment(mapperData.TargetInstance, value);
 
         public virtual void MapCreating(Type sourceType)
         {

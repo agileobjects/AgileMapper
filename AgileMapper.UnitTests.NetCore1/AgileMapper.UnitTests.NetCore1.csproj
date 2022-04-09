@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp1.0</TargetFramework>
+    <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore1</AssemblyName>
+    <LangVersion>8.0</LangVersion>
     <AssemblyName>AgileObjects.AgileMapper.UnitTests.NetCore</AssemblyName>
     <RootNamespace>AgileObjects.AgileMapper.UnitTests</RootNamespace>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -23,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
@@ -34,8 +36,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AgileMapper.UnitTests.Common\AgileMapper.UnitTests.Common.csproj" />
-    <ProjectReference Include="..\AgileMapper.UnitTests.MoreTestClasses\AgileMapper.UnitTests.MoreTestClasses.csproj" />
-    <ProjectReference Include="..\AgileMapper\AgileMapper.csproj" AdditionalProperties="TargetFramework=netstandard1.0" />
   </ItemGroup>
 
 </Project>

@@ -25,7 +25,21 @@ namespace AgileObjects.AgileMapper.DataSources
         #region Cached MethodInfos
 
         private static readonly MethodInfo _linqFirstOrDefaultMethod = typeof(Enumerable)
-            .GetPublicStaticMethod("FirstOrDefault", parameterCount: 2)
+            .GetPublicStaticMethods("FirstOrDefault")
+            .First(m =>
+            {
+                var parameters = m.GetParameters();
+
+                if (parameters.Length != 2)
+                {
+                    return false;
+                }
+
+                var predicateParameterType = parameters[1].ParameterType;
+
+                return predicateParameterType.IsGenericType() &&
+                       predicateParameterType.GetGenericTypeDefinition() == typeof(Func<,>);
+            })
             .MakeGenericMethod(typeof(string));
 
         private static readonly MethodInfo _stringStartsWithMethod = typeof(string)

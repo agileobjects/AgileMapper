@@ -33,7 +33,7 @@
                 }
             }
 
-            if (context.ReturnSimpleTypeToTargetDataSources())
+            if (context.CheckForSimpleTypeToTargetDataSources())
             {
                 var updatedMapperData = new ChildMemberMapperData(
                     context.MatchingSourceMemberDataSource.SourceMember,
@@ -77,7 +77,7 @@
                   (context.BestSourceMemberMatch.SourceMember == null);
         }
 
-        private static bool ReturnSimpleTypeToTargetDataSources(this DataSourceFindContext context)
+        private static bool CheckForSimpleTypeToTargetDataSources(this DataSourceFindContext context)
         {
             return context.MatchingSourceMemberDataSource.SourceMember.IsSimple &&
                    context.MapperContext.UserConfigurations.HasToTargetDataSources;

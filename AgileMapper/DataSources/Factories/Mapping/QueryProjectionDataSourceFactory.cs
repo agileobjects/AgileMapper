@@ -13,12 +13,10 @@
 
         public override bool IsFor(IObjectMappingData mappingData)
         {
-            var mapperData = mappingData.MapperData;
-
-            return mapperData.IsRoot &&
-                   mapperData.TargetMember.IsEnumerable &&
-                  (mappingData.RuleSet.Name == Constants.Project) &&
-                   mapperData.SourceType.IsQueryable();
+            return mappingData.IsRoot &&
+                  (mappingData.MappingContext.RuleSet.Name == Constants.Project) &&
+                   mappingData.MapperData.TargetMember.IsEnumerable &&
+                   mappingData.MapperData.SourceType.IsQueryable();
         }
     }
 }

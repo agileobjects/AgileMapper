@@ -195,8 +195,9 @@
                     for (var i = 0; ;)
                     {
                         result[i] = projector.Invoke(argument, items[i]);
+                        ++i;
 
-                        if (++i == itemCount)
+                        if (i == itemCount)
                         {
                             return result;
                         }

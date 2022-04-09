@@ -4,6 +4,7 @@
     using AgileMapper.Extensions;
     using Common;
     using Common.TestClasses;
+    using MoreTestClasses.Vb;
     using TestClasses;
 #if !NET35
     using Xunit;
@@ -132,6 +133,44 @@
             addressResult.Address.ShouldNotBeNull();
             addressResult.Address.ShouldNotBeSameAs(addressSource.Address);
             addressResult.Address.Line1.ShouldBe("Line 1!");
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/221
+        [Fact]
+        public void ShouldIgnoreUnmappableSourceIndexedProperties()
+        {
+            var source = new PublicNamedIndex<PublicField<string>, PublicField<int>>
+            {
+                Value1ToReturn = new PublicField<string> { Value = "Test" }
+            };
+
+            var result = Mapper
+                .Map(source)
+                .ToANew<PublicTwoFields<PublicField<string>, PublicField<int>>>();
+
+            result.ShouldNotBeNull().Value1.ShouldNotBeNull().Value.ShouldBe("Test");
+            result.ShouldNotBeNull().Value2.ShouldBeNull();
+        }
+
+        // See https://github.com/agileobjects/AgileMapper/issues/221
+        [Fact]
+        public void ShouldIgnoreUnmappableTargetIndexedProperties()
+        {
+            var source = new PublicTwoFields<PublicField<int>, PublicField<string>>
+            {
+                Value1 = new PublicField<int> { Value = 999 },
+                Value2 = new PublicField<string> { Value = "C ya!" }
+            };
+
+            var target = new PublicNamedIndex<PublicField<int>, PublicField<string>>
+            {
+                Value1ToReturn = new PublicField<int>()
+            };
+
+            var result = Mapper.Map(source).OnTo(target);
+
+            result.ShouldNotBeNull().get_Value1().ShouldNotBeNull().Value.ShouldBe(999);
+            result.ShouldNotBeNull().Value2SetValue.ShouldBeNull();
         }
 
         #region Helper Classes

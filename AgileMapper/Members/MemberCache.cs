@@ -41,16 +41,24 @@
         {
             return _membersCache.GetOrAdd(TypeKey.ForTargetMembers(targetType), key =>
             {
-                if (key.Type == typeof(object) || key.Type.IsEnum() || key.Type.IsEnumerable())
+                var type = key.Type;
+
+                if (type == typeof(string) || type.IsEnum() ||
+                    type == typeof(object) || type.IsEnumerable())
                 {
                     return Enumerable<Member>.EmptyArray;
                 }
 
-                var fields = GetFields(key.Type, AllExceptBclComplexTypes);
-                var properties = GetProperties(key.Type, AllExceptBclComplexTypes);
-                var methods = GetMethods(key.Type, OnlyCallableSetters, Member.SetMethod);
+                if (type.IsValueType() && type.IsFromBcl())
+                {
+                    return Enumerable<Member>.EmptyArray;
+                }
 
-                var constructorParameterNames = key.Type
+                var fields = GetFields(type, AllExceptBclComplexTypes);
+                var properties = GetProperties(type, AllExceptBclComplexTypes);
+                var methods = GetMethods(type, OnlyCallableSetters, Member.SetMethod);
+
+                var constructorParameterNames = type
                     .GetPublicInstanceConstructors()
                     .SelectMany(ctor => ctor.GetParameters().ProjectToArray(p => p.Name))
                     .Distinct()
@@ -65,7 +73,7 @@
                     })
                     .ToArray();
 
-                return GetAllMembers(key.Type, GetTargetMembers, fieldsAndProperties, methods);
+                return GetAllMembers(type, GetTargetMembers, fieldsAndProperties, methods);
             });
         }
 
@@ -132,7 +140,11 @@
         private static bool AllExceptBclComplexTypes(PropertyInfo property)
             => AllExceptBclComplexTypes(property.PropertyType);
 
-        private static bool OnlyGettable(PropertyInfo property) => property.IsReadable();
+        private static bool OnlyGettable(PropertyInfo property)
+        {
+            var getter = property.GetGetter();
+            return getter != null && getter.QueryRequiredParameters().None();
+        }
 
         #endregion
 
