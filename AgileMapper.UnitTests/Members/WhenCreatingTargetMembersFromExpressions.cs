@@ -18,7 +18,7 @@
 #endif
     public class WhenCreatingTargetMembersFromExpressions : MemberTestsBase
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldCreateAFieldMember()
         {
             var fieldMember = TargetMemberFor<PublicField<string>>(x => x.Value);
@@ -31,7 +31,7 @@
             fieldMember.Members().First().Type.ShouldBe(typeof(PublicField<string>));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldCreateANestedPropertyMember()
         {
             var addressLine1Member = TargetMemberFor<Person>(x => x.Address.Line1);
@@ -47,7 +47,7 @@
             addressLine1Member.Members().First().Type.ShouldBe(typeof(Person));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldCreateASetMethodMember()
         {
             Expression<Func<PublicSetMethod<int>, Action<int>>> setMethodAccess = x => x.SetValue;

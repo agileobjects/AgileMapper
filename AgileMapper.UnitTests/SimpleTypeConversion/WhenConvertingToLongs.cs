@@ -13,7 +13,7 @@
 #endif
     public class WhenConvertingToLongs
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapASignedByteOverALong()
         {
             var source = new PublicProperty<sbyte> { Value = 16 };
@@ -22,7 +22,7 @@
             result.Value.ShouldBe(16);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAByteOntoALong()
         {
             var source = new PublicProperty<byte> { Value = 32 };
@@ -31,7 +31,7 @@
             result.Value.ShouldBe(32);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAShortToALong()
         {
             var source = new PublicProperty<short> { Value = 987 };
@@ -40,7 +40,7 @@
             result.Value.ShouldBe(987);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnIntToALong()
         {
             var source = new PublicField<int> { Value = 32156 };
@@ -49,7 +49,7 @@
             result.Value.ShouldBe(32156);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnsignedIntToALong()
         {
             var source = new PublicField<uint> { Value = 32658 };
@@ -58,7 +58,7 @@
             result.Value.ShouldBe(32658);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeUnsignedLongToALong()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
@@ -67,7 +67,7 @@
             result.Value.ShouldBe(9292726);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeUnsignedLongToANullableLong()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
@@ -76,7 +76,7 @@
             result.Value.ShouldBe(9383625);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigUnsignedLongToALong()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
@@ -85,7 +85,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigUnsignedLongToANullableLong()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
@@ -94,7 +94,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeWholeNumberFloatOverALong()
         {
             var source = new PublicField<float> { Value = 8532.00f };
@@ -103,7 +103,7 @@
             result.Value.ShouldBe(8532);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeNonWholeNumberNullableFloatToANullableLong()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
@@ -112,7 +112,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigWholeNumberFloatOverALong()
         {
             var source = new PublicProperty<float> { Value = float.MaxValue };
@@ -121,7 +121,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooSmallWholeNumberFloatOverALong()
         {
             var source = new PublicProperty<float> { Value = float.MinValue };
@@ -130,7 +130,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeWholeNumberDecimalToANullableLong()
         {
             var source = new PublicGetMethod<decimal>(53632.00m);
@@ -139,7 +139,7 @@
             result.Value.ShouldBe(53632);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeNonWholeNumberDecimalOnToALong()
         {
             var source = new PublicProperty<decimal> { Value = 637.5367m };
@@ -148,7 +148,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigNonWholeNumberNullableDecimalOverALong()
         {
             var source = new PublicProperty<decimal> { Value = decimal.MaxValue };
@@ -157,7 +157,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeWholeNumberDoubleToALong()
         {
             var source = new PublicField<double> { Value = 63728 };
@@ -166,7 +166,7 @@
             result.Value.ShouldBe(63728);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigWholeNumberDoubleOnToANullableLong()
         {
             var source = new PublicField<double> { Value = double.MaxValue };
@@ -175,7 +175,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooSmallWholeNumberDoubleOverALong()
         {
             var source = new PublicProperty<double> { Value = double.MinValue };
@@ -184,7 +184,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnEnumOverALong()
         {
             var source = new PublicField<Title> { Value = Title.Miss };
@@ -193,7 +193,7 @@
             target.Value.ShouldBe((long)Title.Miss);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapACharacterToANullableLong()
         {
             var source = new PublicProperty<char> { Value = '9' };
@@ -202,7 +202,7 @@
             result.Value.ShouldBe(9);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableCharacterToALong()
         {
             var source = new PublicProperty<char> { Value = 't' };
@@ -211,7 +211,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAParsableStringOnToALong()
         {
             var source = new PublicField<string> { Value = "63476387" };
@@ -220,7 +220,7 @@
             result.Value.ShouldBe(63476387);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAParsableStringOverANullableLong()
         {
             var source = new PublicField<string> { Value = "9282625" };
@@ -229,7 +229,7 @@
             result.Value.ShouldBe(9282625);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAParsableNonWholeNumberStringOverANullableLong()
         {
             var source = new PublicProperty<string> { Value = "6372389.63" };
@@ -238,7 +238,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableStringToALong()
         {
             var source = new PublicProperty<string> { Value = "CATFISH" };
@@ -247,7 +247,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableNumericStringOverALong()
         {
             var source = new PublicField<string> { Value = "6738732.637" };
@@ -256,7 +256,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableStringToANullableLong()
         {
             var source = new PublicProperty<string> { Value = "DOGFISH" };
@@ -265,7 +265,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAStringArrayOnToALongCollection()
         {
             var source = new[] { "1", "1" };

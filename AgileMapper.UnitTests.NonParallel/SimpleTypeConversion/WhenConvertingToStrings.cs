@@ -8,7 +8,7 @@
 
     public class WhenConvertingToStrings
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapADateTimeToAStringUsingTheThreadDateFormat()
         {
             var currentCulture = CultureInfo.CurrentCulture;
@@ -33,7 +33,7 @@
             }
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableDateTimeToAStringUsingTheThreadDateFormat()
         {
             var currentCulture = CultureInfo.CurrentCulture;
@@ -58,7 +58,7 @@
             }
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullNullableDateTimeToAStringUsingTheThreadDateFormat()
         {
             var currentCulture = CultureInfo.CurrentCulture;

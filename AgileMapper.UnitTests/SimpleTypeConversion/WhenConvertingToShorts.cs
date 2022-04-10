@@ -13,7 +13,7 @@
 #endif
     public class WhenConvertingToShorts
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapASignedByteOntoAShort()
         {
             var source = new PublicProperty<sbyte> { Value = 8 };
@@ -22,7 +22,7 @@
             target.Value.ShouldBe(8);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAByteToAShort()
         {
             var source = new PublicProperty<byte> { Value = 12 };
@@ -31,7 +31,7 @@
             target.Value.ShouldBe(12);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnIntToAShort()
         {
             var source = new PublicProperty<int> { Value = 5267 };
@@ -40,7 +40,7 @@
             result.Value.ShouldBe(5267);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnsignedIntToAShort()
         {
             var source = new PublicField<uint> { Value = 627 };
@@ -49,7 +49,7 @@
             result.Value.ShouldBe(627);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeLongToAShort()
         {
             var source = new PublicField<long> { Value = 12730 };
@@ -58,7 +58,7 @@
             result.Value.ShouldBe(12730);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigLongToAShort()
         {
             var source = new PublicField<long> { Value = long.MaxValue };
@@ -67,7 +67,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeUnsignedLongToANullableShort()
         {
             var source = new PublicField<ulong> { Value = 7289 };
@@ -76,7 +76,7 @@
             result.Value.ShouldBe(7289);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeUnsignedLongToAShort()
         {
             var source = new PublicField<ulong> { Value = 32027 };
@@ -85,7 +85,7 @@
             result.Value.ShouldBe(32027);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigUnsignedLongToANullableShort()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
@@ -94,7 +94,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeWholeNumberFloatOverANullableShort()
         {
             var source = new PublicField<float> { Value = 532.00f };
@@ -103,7 +103,7 @@
             result.Value.ShouldBe(532);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeNonWholeNumberNullableFloatToAShort()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
@@ -112,7 +112,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigWholeNumberFloatOnToAShort()
         {
             var source = new PublicProperty<float> { Value = float.MaxValue };
@@ -121,7 +121,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooSmallWholeNumberFloatOverAShort()
         {
             var source = new PublicProperty<float> { Value = float.MinValue };
@@ -130,7 +130,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeWholeNumberDecimalToANullableShort()
         {
             var source = new PublicGetMethod<decimal>(5362.00m);
@@ -139,7 +139,7 @@
             result.Value.ShouldBe(5362);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeNonWholeNumberDecimalOnToAShort()
         {
             var source = new PublicProperty<decimal> { Value = 637.5367m };
@@ -148,7 +148,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigNonWholeNumberNullableDecimalOverAShort()
         {
             var source = new PublicProperty<decimal> { Value = 637638.6373m };
@@ -157,7 +157,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInRangeWholeNumberDoubleToAShort()
         {
             var source = new PublicField<double> { Value = 6728d };
@@ -166,7 +166,7 @@
             result.Value.ShouldBe(6728);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooBigWholeNumberNullableDoubleOnToAShort()
         {
             var source = new PublicField<double?> { Value = double.MaxValue };
@@ -175,7 +175,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapATooSmallWholeNumberDoubleOverANullableShort()
         {
             var source = new PublicProperty<double> { Value = double.MinValue };
@@ -184,7 +184,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnEnumOverAShort()
         {
             var source = new PublicField<Title> { Value = Title.Miss };
@@ -193,7 +193,7 @@
             result.Value.ShouldBe((short)source.Value);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapACharacterToAShort()
         {
             var source = new PublicProperty<char> { Value = '9' };
@@ -202,7 +202,7 @@
             result.Value.ShouldBe(9);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableNullableCharacterToANullableShort()
         {
             var source = new PublicProperty<char?> { Value = 'k' };
@@ -211,7 +211,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAParsableStringOnToAShort()
         {
             var source = new PublicField<string> { Value = "23387" };
@@ -220,7 +220,7 @@
             result.Value.ShouldBe(23387);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAParsableStringOverANullableShort()
         {
             var source = new PublicField<string> { Value = "12625" };
@@ -229,7 +229,7 @@
             result.Value.ShouldBe(12625);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAParsableNonWholeNumberStringOverAShort()
         {
             var source = new PublicProperty<string> { Value = "2389.9" };
@@ -238,7 +238,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableStringToAShort()
         {
             var source = new PublicProperty<string> { Value = "BLARGGHH" };
@@ -247,7 +247,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableNumericStringOverAShort()
         {
             var source = new PublicField<string> { Value = "673873278282" };
@@ -256,7 +256,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparsableStringToANullableShort()
         {
             var source = new PublicProperty<string> { Value = "HENDRIX" };
@@ -265,7 +265,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAStringArrayToAShortEnumerable()
         {
             var source = new[] { "10", "20", "30" };

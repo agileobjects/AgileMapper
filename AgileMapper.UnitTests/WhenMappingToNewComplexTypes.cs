@@ -15,7 +15,7 @@
 #endif
     public class WhenMappingToNewComplexTypes
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapFromAnAnonymousType()
         {
             var source = new { Value = "Hello there!" };
@@ -24,7 +24,7 @@
             result.Value.ShouldBe(source.Value);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldHandleANullSourceObject()
         {
             var result = Mapper.Map(default(PublicProperty<int>)).ToANew<PublicField<int>>();
@@ -32,7 +32,7 @@
             result.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapUsingStaticCloneMethod()
         {
             var source = new Person { Name = "Barney" };
@@ -42,7 +42,7 @@
             result.Name.ShouldBe("Barney");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapUsingInstanceCloneMethod()
         {
             var source = new Person { Name = "Maggie" };
@@ -52,7 +52,7 @@
             result.Name.ShouldBe("Maggie");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldCopyAnIntValue()
         {
             var source = new PublicField<int> { Value = 123 };
@@ -62,7 +62,7 @@
             result.Value.ShouldBe(123);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldCopyAStringValue()
         {
             var source = new PublicProperty<string> { Value = "Oi 'Arry!" };
@@ -72,7 +72,7 @@
             result.Value.ShouldBe("Oi 'Arry!");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapFromASimpleTypeToObject()
         {
             var source = new PublicProperty<string> { Value = "Oi 'Arold!" };
@@ -82,7 +82,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/11
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapFromAnInterface()
         {
             IPublicInterface<string> source = new PublicImplementation<string>
@@ -96,7 +96,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/66
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapToAGivenTypeObject()
         {
             var source = new PublicProperty<string>
@@ -109,7 +109,7 @@
             ((PublicField<string>)result).Value.ShouldBe("kjubfelkjnds;lkmm");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldHandleAnUnconstructableRootTargetType()
         {
             var result = Mapper.Map(new { Test = "Nope" }).ToANew<PublicCtor<int>>();
@@ -117,7 +117,7 @@
             result.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldConditionallyUseConstructorsWhereArgumentsAreNull()
         {
             var noAddressSource = new CtorTester("Test 1");
@@ -136,7 +136,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/221
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldIgnoreUnmappableSourceIndexedProperties()
         {
             var source = new PublicNamedIndex<PublicField<string>, PublicField<int>>
@@ -153,7 +153,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/221
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldIgnoreUnmappableTargetIndexedProperties()
         {
             var source = new PublicTwoFields<PublicField<int>, PublicField<string>>

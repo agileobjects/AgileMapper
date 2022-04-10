@@ -14,7 +14,7 @@
 #endif
     public class WhenConvertingToStrings
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAGuidToAString()
         {
             var source = new PublicProperty<Guid> { Value = Guid.NewGuid() };
@@ -23,7 +23,7 @@
             result.Value.ShouldBe(source.Value.ToString());
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapADateTimeToAString()
         {
             var source = new PublicProperty<DateTime> { Value = DateTime.Now };
@@ -32,7 +32,7 @@
             result.Value.ShouldBe(source.Value.ToCurrentCultureString());
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAByteToAString()
         {
             var source = new PublicProperty<byte> { Value = 200 };
@@ -41,7 +41,7 @@
             result.Value.ShouldBe("200");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapASignedByteToAString()
         {
             var source = new PublicProperty<sbyte> { Value = -16 };
@@ -50,7 +50,7 @@
             result.Value.ShouldBe("-16");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapABase64StringByteArrayToAString()
         {
             var bytes = Encoding.GetEncoding(0).GetBytes("Fish n chips");
@@ -63,7 +63,7 @@
             result.Value.ShouldBe(base64String);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullByteArrayToNull()
         {
             var source = new PublicProperty<byte[]> { Value = null };
@@ -72,7 +72,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullByteArrayOverAString()
         {
             var source = new PublicProperty<byte[]> { Value = null };
@@ -82,7 +82,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAShortToAString()
         {
             var source = new PublicProperty<short> { Value = 638 };
@@ -91,7 +91,7 @@
             result.Value.ShouldBe("638");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnIntToAString()
         {
             var source = new PublicProperty<int> { Value = 63738 };
@@ -100,7 +100,7 @@
             result.Value.ShouldBe("63738");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAFloatToAString()
         {
             var source = new PublicProperty<float> { Value = 389.2832f };
@@ -109,7 +109,7 @@
             result.Value.ShouldBe("389.2832");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAFloatOnToAnUnpopulatedString()
         {
             var source = new PublicField<float> { Value = 79.22f };
@@ -118,7 +118,7 @@
             target.Value.ShouldBe("79.22");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapALongToAString()
         {
             var source = new PublicProperty<long> { Value = 63738 };
@@ -127,7 +127,7 @@
             result.Value.ShouldBe("63738");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapALongOnToAPopulatedString()
         {
             var source = new PublicGetMethod<long>(20190738);
@@ -136,7 +136,7 @@
             target.Value.ShouldBe("Boo!");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapADecimalToAString()
         {
             var source = new PublicProperty<decimal> { Value = 7638.27282m };
@@ -145,7 +145,7 @@
             result.Value.ShouldBe("7638.27282");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullNullableDecimalOverAString()
         {
             var source = new PublicProperty<decimal?> { Value = null };
@@ -154,7 +154,7 @@
             target.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapADoubleToAString()
         {
             var source = new PublicProperty<double> { Value = 56473.92 };
@@ -163,7 +163,7 @@
             result.Value.ShouldBe("56473.92");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableDoubleToAString()
         {
             var source = new PublicProperty<double?> { Value = 91887.8167473 };
@@ -172,7 +172,7 @@
             result.Value.ShouldBe("91887.8167473");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullNullableDoubleToAString()
         {
             var source = new PublicProperty<double?> { Value = null };
@@ -181,7 +181,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapACharacterOverAString()
         {
             var source = new PublicField<char> { Value = 'Z' };
@@ -191,7 +191,7 @@
             result.Value.ShouldBe("Z");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableBoolToAString()
         {
             var source = new PublicProperty<bool?> { Value = true };
@@ -200,7 +200,7 @@
             result.Value.ShouldBe("true");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullNullableBoolToAString()
         {
             var source = new PublicProperty<bool?> { Value = null };
@@ -209,7 +209,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnEnumOnToAString()
         {
             var source = new PublicField<Title> { Value = Title.Dr };
@@ -219,7 +219,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/153
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnInterfaceToAString()
         {
             var source = new { Value = (IPublicInterface<string>)new PublicImplementation<string> { Value = "123" } };

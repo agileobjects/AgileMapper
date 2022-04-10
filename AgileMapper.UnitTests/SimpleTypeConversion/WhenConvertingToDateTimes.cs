@@ -12,7 +12,7 @@
 #endif
     public class WhenConvertingToDateTimes
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableDateTimeToADateTime()
         {
             var source = new PublicProperty<DateTime?> { Value = DateTime.Today };
@@ -21,7 +21,7 @@
             result.Value.ShouldBe(DateTime.Today);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAYearMonthDayStringToADateTime()
         {
             var source = new PublicProperty<string> { Value = "2016/06/08" };
@@ -30,7 +30,7 @@
             result.Value.ShouldBe(new DateTime(2016, 06, 08));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparseableStringToANullableDateTime()
         {
             var source = new PublicProperty<string> { Value = "OOH OOH OOH" };
@@ -39,7 +39,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullObjectStringToADateTime()
         {
             var source = new PublicProperty<object> { Value = default(string) };

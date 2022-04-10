@@ -11,7 +11,7 @@
 #endif
     public class WhenCachingWithHashCodes
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldRetrieveFromAnEvenNumberedLengthCache()
         {
             ICache<TestKey, int> cache = new HashCodeArrayCache<TestKey, int>();
@@ -40,7 +40,7 @@
             six.ShouldBe(6);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldRetrieveFromAnOddNumberedLengthCache()
         {
             ICache<TestKey, int> cache = new HashCodeArrayCache<TestKey, int>();

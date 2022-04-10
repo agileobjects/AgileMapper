@@ -14,7 +14,7 @@
 #endif
     public class WhenDeterminingRecursion : MemberTestsBase
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldNotCountARootMemberAsRecursive()
         {
             var rootMember = new QualifiedMemberFactory(DefaultMapperContext)
@@ -23,7 +23,7 @@
             rootMember.IsRecursion.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldNotCountARootChildMemberAsRecursive()
         {
             var rootChildMember = TargetMemberFor<Parent>(p => p.EldestChild);
@@ -31,7 +31,7 @@
             rootChildMember.IsRecursion.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldCountARootChildParentMemberAsRecursive()
         {
             var rootChildParentMember = TargetMemberFor<Parent>(
@@ -40,7 +40,7 @@
             rootChildParentMember.IsRecursion.ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldNotCountASimpleTypeChildMemberAsRecursive()
         {
             var rootChildParentChildMember = TargetMemberFor<PublicField<Person>>(
@@ -49,7 +49,7 @@
             rootChildParentChildMember.IsRecursion.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindRecusionInAnImmediateCircularRelationship()
         {
             var circularChildMember = TargetMemberFor<SelfReferencingClass>(c => c.Reference.Reference);
@@ -57,7 +57,7 @@
             circularChildMember.IsRecursion.ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindRecusionViaAComplexTypeIntermediate()
         {
             var rootChildParentChildMember = TargetMemberFor<Parent>(
@@ -66,7 +66,7 @@
             rootChildParentChildMember.IsRecursion.ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindDeeperRecusionViaAComplexTypeIntermediate()
         {
             var rootChildParentChildParentMember = TargetMemberFor<Parent>(
@@ -75,7 +75,7 @@
             rootChildParentChildParentMember.IsRecursion.ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindRecusionViaAnEnumerableIntermediate()
         {
             var rootChildEnumerableMember = TargetMemberFor<FacebookUser>(u => u.Friends);

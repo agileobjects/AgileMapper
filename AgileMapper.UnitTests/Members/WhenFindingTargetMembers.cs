@@ -16,7 +16,7 @@
     // ReSharper disable PossibleNullReferenceException
     public class WhenFindingTargetMembers : MemberTestsBase
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAPublicProperty()
         {
             var member = MemberCache
@@ -27,7 +27,7 @@
             member.Type.ShouldBe(typeof(byte));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAPublicField()
         {
             var member = MemberCache
@@ -39,7 +39,7 @@
             member.IsWriteable.ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAPublicReadOnlyField()
         {
             var member = MemberCache
@@ -51,7 +51,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAPublicSetMethod()
         {
             var member = MemberCache
@@ -63,7 +63,7 @@
             member.IsWriteable.ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAPublicReadOnlyComplexTypeProperty()
         {
             var member = MemberCache
@@ -75,7 +75,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAPublicReadOnlyArrayField()
         {
             var member = MemberCache
@@ -88,7 +88,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAPublicReadOnlySimpleTypeProperty()
         {
             var member = MemberCache
@@ -100,7 +100,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldFindAReadOnlyArrayProperty()
         {
             var member = MemberCache
@@ -113,7 +113,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldIgnoreANonPublicField()
         {
             var member = MemberCache
@@ -123,7 +123,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldIgnoreAGetMethod()
         {
             var member = MemberCache
@@ -133,7 +133,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldIgnoreAPropertySetter()
         {
             var member = MemberCache

@@ -16,7 +16,7 @@
 #endif
     public class WhenAccessingCaches
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldAcceptANullKey()
         {
             var cache = new DefaultArrayCache<string, int>(keyComparer: null);
@@ -26,7 +26,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/212#issuecomment-812121113
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldHandleANullKey()
         {
             var cache = new DefaultArrayCache<string, int>(keyComparer: null);
@@ -37,7 +37,7 @@
         }
 
 #if !NET35
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public async Task ShouldBeThreadSafe()
         {
             const int CACHE_COUNT = 10;

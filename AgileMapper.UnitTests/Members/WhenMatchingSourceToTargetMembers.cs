@@ -15,7 +15,7 @@
 #endif
     public class WhenMatchingSourceToTargetMembers : MemberTestsBase
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchASameNameSameTypeFieldToAProperty()
         {
             var sourceMember = SourceMemberFor<PublicField<string>>(x => x.Value);
@@ -24,7 +24,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchSameNameSameTypePropertiesCaseInsensitively()
         {
             var source = new { vaLuE = string.Empty };
@@ -34,7 +34,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchDottedToFlatNamedSameTypeProperties()
         {
             var sourceMember = SourceMemberFor<Person>(x => x.Address.Line1);
@@ -43,7 +43,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchFlatToDottedNamedSameTypeProperties()
         {
             var sourceMember = SourceMemberFor<PersonViewModel>(x => x.AddressLine1);
@@ -52,7 +52,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchAGetMethodToAnEquivalentNameSameTypeField()
         {
             var sourceMember = SourceMemberFor<PublicGetMethod<int>>(x => x.GetValue());
@@ -61,7 +61,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchAnIdentifierPropertyToASameTypeIdProperty()
         {
             var sourceMember = SourceMemberFor(new { Identifier = Guid.NewGuid() });
@@ -70,7 +70,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchAnIdentifierPropertyToASameTypeTypeNameIdProperty()
         {
             var sourceMember = SourceMemberFor(new { Identifier = "123XYZ" });
@@ -79,7 +79,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchFlatIdentifierToDottedIdSameTypeProperties()
         {
             var sourceMember = SourceMemberFor(new { ValueIdentifier = Guid.NewGuid() });
@@ -88,7 +88,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMatchFlatIdToDottedTypeNameIdSameTypeProperties()
         {
             var sourceMember = SourceMemberFor(new { ValueId = "6473982" });
@@ -97,7 +97,7 @@
             sourceMember.Matches(targetMember).ShouldBeTrue();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldNotMatchADifferentNameSameTypeFieldToAProperty()
         {
             var sourceMember = SourceMemberFor<PublicField<Guid>>(x => x.Value);

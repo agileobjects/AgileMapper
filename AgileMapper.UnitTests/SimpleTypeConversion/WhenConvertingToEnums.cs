@@ -14,7 +14,7 @@
 #endif
     public class WhenConvertingToEnums
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAByteToAnEnum()
         {
             var source = new PublicField<byte> { Value = (byte)Dr };
@@ -23,7 +23,7 @@
             result.Value.ShouldBe(Dr);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAShortToAnEnum()
         {
             var source = new PublicField<short> { Value = (short)Miss };
@@ -32,7 +32,7 @@
             result.Value.ShouldBe(Miss);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableIntToAnEnum()
         {
             var source = new PublicProperty<int?> { Value = (int)Lady };
@@ -41,7 +41,7 @@
             result.Value.ShouldBe(Lady);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnIntToAnEnum()
         {
             var source = new PublicProperty<int> { Value = (int)Dr };
@@ -50,7 +50,7 @@
             result.Value.ShouldBe((Title)source.Value);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullNullableIntToAnEnum()
         {
             var source = new PublicProperty<int?> { Value = null };
@@ -59,7 +59,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapALongToAnEnum()
         {
             var source = new PublicProperty<long> { Value = (long)Miss };
@@ -68,7 +68,7 @@
             result.Value.ShouldBe((Title)source.Value);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANonMatchingNullableLongToANullableEnum()
         {
             var source = new PublicProperty<long?> { Value = (long)Earl };
@@ -77,7 +77,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAMatchingCharacterOnToAnEnum()
         {
             var source = new PublicField<char> { Value = '6' };
@@ -86,7 +86,7 @@
             result.Value.ShouldBe((TitleShortlist)6);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANonMatchingNullableCharacterOnToANullableEnum()
         {
             var source = new PublicField<char?> { Value = 'x' };
@@ -95,7 +95,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAMatchingNullableCharacterOnToANullableEnum()
         {
             var source = new PublicField<char?> { Value = '2' };
@@ -104,7 +104,7 @@
             result.Value.ShouldBe((Title)2);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAMatchingStringOnToAnEnum()
         {
             var source = new PublicField<string> { Value = Mrs.ToString() };
@@ -113,7 +113,7 @@
             result.Value.ShouldBe(Mrs);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAMatchingStringOnToAnEnumCaseInsensitively()
         {
             var source = new PublicField<string> { Value = Miss.ToString().ToLowerInvariant() };
@@ -122,7 +122,7 @@
             result.Value.ShouldBe(Miss);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAMatchingStringOnToARootEnum()
         {
             var result = Mapper.Map(Mrs.ToString()).ToANew<Title>();
@@ -130,7 +130,7 @@
             result.ShouldBe(Mrs);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAMatchingNumericStringOverAnEnum()
         {
             var source = new PublicField<string> { Value = ((int)Dr).ToString() };
@@ -139,7 +139,7 @@
             result.Value.ShouldBe(Dr);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANonMatchingStringOnToAnEnum()
         {
             var source = new PublicField<string> { Value = "ihdfsjsda" };
@@ -148,7 +148,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANonMatchingStringToANullableEnum()
         {
             var source = new PublicProperty<string> { Value = "ytej" };
@@ -157,7 +157,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullStringOverANullableEnum()
         {
             var source = new PublicField<string> { Value = default(string) };
@@ -168,7 +168,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnEmptyStringOnToAnEnum()
         {
             var source = new PublicField<string> { Value = string.Empty };
@@ -177,7 +177,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnEnumToAnEnum()
         {
             var source = new PublicProperty<TitleShortlist> { Value = TitleShortlist.Mrs };
@@ -186,7 +186,7 @@
             result.Value.ShouldBe(Mrs);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnEnumToARootEnum()
         {
             var result = Mapper.Map(TitleShortlist.Mrs).ToANew<Title>();
@@ -194,7 +194,7 @@
             result.ShouldBe(Mrs);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANonMatchingEnumToANullableEnum()
         {
             var source = new PublicProperty<Title> { Value = Lord };
@@ -203,7 +203,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableEnumToAnEnum()
         {
             var source = new PublicProperty<Title?> { Value = Dr };
@@ -212,7 +212,7 @@
             result.Value.ShouldBe(Dr);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullNullableEnumToAnEnum()
         {
             var source = new PublicProperty<Title?> { Value = null };
@@ -221,7 +221,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullObjectToAnEnum()
         {
             var source = new PublicProperty<object> { Value = null };
@@ -230,7 +230,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnObjectEnumMemberNameToAnEnum()
         {
             var source = new PublicProperty<object> { Value = "Ms" };
@@ -239,7 +239,7 @@
             result.Value.ShouldBe(TitleShortlist.Ms);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnObjectEnumMemberValueToAnNullableEnum()
         {
             var source = new PublicProperty<object> { Value = (int)TitleShortlist.Dr };
@@ -248,7 +248,7 @@
             result.Value.ShouldBe(TitleShortlist.Dr);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnObjectNullableEnumMemberValueToAnNullableEnum()
         {
             var source = new PublicProperty<object> { Value = (Title?)Mr };
@@ -257,7 +257,7 @@
             result.Value.ShouldBe(TitleShortlist.Mr);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapEnumsConditionally()
         {
             using (var mapper = Mapper.CreateNew())
@@ -290,7 +290,7 @@
             }
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapNonIntDerivedRootEnumValuesInAnArray()
         {
             var source = new[] { (short)ShortNumbers.One, (short)ShortNumbers.Three, (short)5 };

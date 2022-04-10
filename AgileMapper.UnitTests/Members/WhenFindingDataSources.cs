@@ -15,7 +15,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
 #endif
     public class WhenFindingDataSources : MemberTestsBase
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldNotMatchSameNameIncompatibleTypeProperties()
         {
             var source = new TwoValues { Value = new int[5], value = string.Empty };
@@ -27,7 +27,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Members
             matchingSourceMember.Name.ShouldBe("value");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldUseBaseClassMembers()
         {
             var source = new Derived { Value = 123 };

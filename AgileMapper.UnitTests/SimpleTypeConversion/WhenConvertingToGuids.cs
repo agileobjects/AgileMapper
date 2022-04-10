@@ -13,7 +13,7 @@
 #endif
     public class WhenConvertingToGuids
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAStringToAGuid()
         {
             var guid = Guid.NewGuid();
@@ -23,7 +23,7 @@
             result.Value.ShouldBe(guid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnObjectGuidToAGuid()
         {
             var guid = Guid.NewGuid();
@@ -33,7 +33,7 @@
             result.Value.ShouldBe(guid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnObjectStringGuidToAGuid()
         {
             var guid = Guid.NewGuid();
@@ -43,7 +43,7 @@
             result.Value.ShouldBe(guid);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAGuidToANullableGuid()
         {
             var source = new PublicGetMethod<Guid>(Guid.NewGuid());
@@ -52,7 +52,7 @@
             result.Value.ShouldBe(source.GetValue());
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableGuidToAGuid()
         {
             var source = new PublicGetMethod<Guid?>(Guid.NewGuid());

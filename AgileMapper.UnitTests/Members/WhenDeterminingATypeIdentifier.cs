@@ -11,7 +11,7 @@
 #endif
     public class WhenDeterminingATypeIdentifier : MemberTestsBase
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldUseAnIdProperty()
         {
             DefaultMapperContext
@@ -20,7 +20,7 @@
                 .ShouldNotBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldUseAnIdentifierProperty()
         {
             DefaultMapperContext
@@ -29,7 +29,7 @@
                 .ShouldNotBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldUseATypeIdProperty()
         {
             DefaultMapperContext
@@ -38,7 +38,7 @@
                 .ShouldNotBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldReturnNullIfNoIdentifier()
         {
             DefaultMapperContext

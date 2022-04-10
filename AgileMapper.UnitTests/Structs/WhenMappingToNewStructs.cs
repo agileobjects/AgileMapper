@@ -12,7 +12,7 @@
 #endif
     public class WhenMappingToNewStructs
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldHandleANullSourceObject()
         {
             var result = Mapper.Map(default(PublicField<int>)).ToANew<PublicCtorStruct<int>>();
@@ -21,7 +21,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldCloneAStruct()
         {
             var result = Mapper.DeepClone(new PublicPropertyStruct<int> { Value = 123 });
@@ -30,7 +30,7 @@
             result.Value.ShouldBe(123);
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapFromAnAnonymousTypeToAStruct()
         {
             var source = new { Value = "Hello struct!" };
@@ -39,7 +39,7 @@
             result.Value.ShouldBe("Hello struct!");
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldConvertFieldValues()
         {
             var source = new PublicTwoFieldsStruct<int, int> { Value1 = 123, Value2 = 456 };

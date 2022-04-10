@@ -12,7 +12,7 @@
 #endif
     public class WhenConvertingToDateTimeOffsets
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableDateTimeOffsetToADateTimeOffset()
         {
             var source = new PublicProperty<DateTimeOffset?> { Value = DateTime.Today.AddHours(12) };
@@ -21,7 +21,7 @@
             result.Value.ShouldBe(new DateTimeOffset(DateTime.Today.AddHours(12)));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAYearMonthDayStringToADateTimeOffset()
         {
             var source = new PublicProperty<string> { Value = "2020/01/05" };
@@ -30,7 +30,7 @@
             result.Value.ShouldBe(new DateTimeOffset(new DateTime(2020, 01, 05)));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparseableStringToANullableDateTimeOffset()
         {
             var source = new PublicProperty<string> { Value = "NO NO NO" };
@@ -39,7 +39,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullObjectStringToADateTimeOffset()
         {
             var source = new PublicProperty<object> { Value = default(string) };

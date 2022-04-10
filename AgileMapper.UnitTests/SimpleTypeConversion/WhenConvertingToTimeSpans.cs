@@ -12,7 +12,7 @@
 #endif
     public class WhenConvertingToTimeSpans
     {
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullableTimeSpanToATimeSpan()
         {
             var source = new PublicProperty<TimeSpan?> { Value = TimeSpan.FromHours(1) };
@@ -21,7 +21,7 @@
             result.Value.ShouldBe(TimeSpan.FromHours(1));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAYearMonthDayStringToATimeSpan()
         {
             var source = new PublicProperty<string> { Value = "01:00:00" };
@@ -30,7 +30,7 @@
             result.Value.ShouldBe(TimeSpan.FromHours(01));
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapAnUnparseableStringToANullableTimeSpan()
         {
             var source = new PublicProperty<string> { Value = "OH OH OH" };
@@ -39,7 +39,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact]
+        [Fact, Trait("Category", "Checked")]
         public void ShouldMapANullObjectStringToATimeSpan()
         {
             var source = new PublicProperty<object> { Value = default(string) };
