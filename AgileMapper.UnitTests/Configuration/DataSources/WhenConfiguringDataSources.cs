@@ -393,6 +393,37 @@
         }
 
         [Fact]
+        public void ShouldApplyAConfiguredLinqExpression()
+        {
+            using (var mapper = Mapper.CreateNew())
+            {
+                mapper.WhenMapping
+                    .From<Issue225.Address>()
+                    .To<Address>()
+                    .Map((sourceAddress, _) => string.Join(", ", new[]
+                        {
+                            sourceAddress.SubBuilding,
+                            sourceAddress.Building,
+                            sourceAddress.BuildingNumber,
+                            sourceAddress.DependentThoroughfare,
+                            sourceAddress.Thoroughfare
+                        }.Where(addressPart => !string.IsNullOrWhiteSpace(addressPart))
+                        .Select(addressPart => addressPart.Trim())))
+                    .To(targetAddress => targetAddress.Line1);
+
+                var source = new Issue225.Address
+                {
+                    SubBuilding = "Building",
+                    BuildingNumber = "1",
+                    DependentThoroughfare = "DependentThoroughfare"
+                };
+                var result = mapper.Map(source).ToANew<Address>();
+
+                result.Line1.ShouldBe("Building, 1, DependentThoroughfare");
+            }
+        }
+
+        [Fact]
         public void ShouldApplyASourceMemberConditionally()
         {
             using (var mapper = Mapper.CreateNew())
@@ -1744,6 +1775,23 @@
 
             return new T();
         }
+
+        public static class Issue225
+        {
+            public class Address
+            {
+                public string SubBuilding { get; set; }
+
+                public string Building { get; set; }
+
+                public string BuildingNumber { get; set; }
+
+                public string DependentThoroughfare { get; set; }
+
+                public string Thoroughfare { get; set; }
+            }
+        }
+
 
         #endregion
     }

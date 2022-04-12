@@ -315,10 +315,14 @@
                 memberAccess = (MemberExpression)expression;
                 subject = memberAccess.Expression;
             }
-            else
+            else if (expression.NodeType == Call)
             {
                 memberAccess = null;
                 subject = ((MethodCallExpression)expression).Object;
+            }
+            else
+            {
+                return expression.Type.CanBeNull();
             }
 
             if (subject == null)
