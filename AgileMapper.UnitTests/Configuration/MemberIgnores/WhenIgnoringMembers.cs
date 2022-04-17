@@ -16,6 +16,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenIgnoringMembers
     {
         [Fact]

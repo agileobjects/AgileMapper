@@ -11,6 +11,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConfiguringStringFormatting
     {
         // See https://github.com/agileobjects/AgileMapper/issues/23
