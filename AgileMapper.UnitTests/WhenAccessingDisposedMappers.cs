@@ -12,10 +12,11 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     // See https://github.com/agileobjects/AgileMapper/issues/212#issuecomment-813390188
     public class WhenAccessingDisposedMappers
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnConfigurationStartIfDisposed()
         {
             IMapper mapper;
@@ -32,7 +33,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnBeforeEventConfigurationIfDisposed()
         {
             IMapper mapper;
@@ -49,7 +50,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnAfterEventConfigurationIfDisposed()
         {
             IMapper mapper;
@@ -66,7 +67,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnSampleInstancePlanRetrievalIfDisposed()
         {
             IMapper mapper;
@@ -81,7 +82,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnSampleInstancePlanSetRetrievalIfDisposed()
         {
             IMapper mapper;
@@ -96,7 +97,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnPlanRetrievalIfDisposed()
         {
             IMapper mapper;
@@ -111,7 +112,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnPlanSetRetrievalIfDisposed()
         {
             IMapper mapper;
@@ -126,7 +127,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnProjectionPlanRetrievalIfDisposed()
         {
             IMapper mapper;
@@ -142,7 +143,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnAllPlansRetrievalIfDisposed()
         {
             IMapper mapper;
@@ -159,7 +160,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnAllPlanExpressionsRetrievalIfDisposed()
         {
             IMapper mapper;
@@ -176,7 +177,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnPlanCheckIfDisposed()
         {
             IMapper mapper;
@@ -191,7 +192,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnCreateNewIfDisposed()
         {
             IMapper mapper;
@@ -207,7 +208,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnMergeIfDisposed()
         {
             IMapper mapper;
@@ -223,7 +224,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnOverwriteIfDisposed()
         {
             IMapper mapper;
@@ -239,7 +240,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnProjectionIfDisposed()
         {
             IMapper mapper;
@@ -259,7 +260,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnDeepCloneIfDisposed()
         {
             IMapper mapper;
@@ -274,7 +275,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnInlineConfiguredDeepCloneIfDisposed()
         {
             IMapper mapper;
@@ -292,7 +293,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnFlattenIfDisposed()
         {
             IMapper mapper;
@@ -307,7 +308,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnUnflattenIfDisposed()
         {
             IMapper mapper;
@@ -322,7 +323,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnQueryStringUnflattenIfDisposed()
         {
             IMapper mapper;
@@ -337,7 +338,7 @@
             });
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldErrorOnCloneSelfIfDisposed()
         {
             IMapper mapper;

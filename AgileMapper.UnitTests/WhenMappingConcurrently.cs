@@ -12,6 +12,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenMappingConcurrently
     {
         // See https://github.com/agileobjects/AgileMapper/issues/86
@@ -21,7 +22,7 @@
             Parallel.For(
                 0,
                 Environment.ProcessorCount,
-                i =>
+                _ =>
                 {
                     var counts = new Counts(100, 100);
 

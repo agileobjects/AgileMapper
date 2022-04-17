@@ -10,9 +10,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenMappingToNewStructs
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleANullSourceObject()
         {
             var result = Mapper.Map(default(PublicField<int>)).ToANew<PublicCtorStruct<int>>();
@@ -21,7 +22,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldCloneAStruct()
         {
             var result = Mapper.DeepClone(new PublicPropertyStruct<int> { Value = 123 });
@@ -30,7 +31,7 @@
             result.Value.ShouldBe(123);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapFromAnAnonymousTypeToAStruct()
         {
             var source = new { Value = "Hello struct!" };
@@ -39,7 +40,7 @@
             result.Value.ShouldBe("Hello struct!");
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldConvertFieldValues()
         {
             var source = new PublicTwoFieldsStruct<int, int> { Value1 = 123, Value2 = 456 };

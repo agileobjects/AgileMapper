@@ -9,9 +9,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenDeterminingATypeIdentifier : MemberTestsBase
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUseAnIdProperty()
         {
             DefaultMapperContext
@@ -20,7 +21,7 @@
                 .ShouldNotBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUseAnIdentifierProperty()
         {
             DefaultMapperContext
@@ -29,7 +30,7 @@
                 .ShouldNotBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUseATypeIdProperty()
         {
             DefaultMapperContext
@@ -38,7 +39,7 @@
                 .ShouldNotBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldReturnNullIfNoIdentifier()
         {
             DefaultMapperContext

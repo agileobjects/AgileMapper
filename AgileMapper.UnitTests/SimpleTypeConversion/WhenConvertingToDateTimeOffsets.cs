@@ -10,9 +10,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToDateTimeOffsets
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableDateTimeOffsetToADateTimeOffset()
         {
             var source = new PublicProperty<DateTimeOffset?> { Value = DateTime.Today.AddHours(12) };
@@ -21,7 +22,7 @@
             result.Value.ShouldBe(new DateTimeOffset(DateTime.Today.AddHours(12)));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAYearMonthDayStringToADateTimeOffset()
         {
             var source = new PublicProperty<string> { Value = "2020/01/05" };
@@ -30,7 +31,7 @@
             result.Value.ShouldBe(new DateTimeOffset(new DateTime(2020, 01, 05)));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparseableStringToANullableDateTimeOffset()
         {
             var source = new PublicProperty<string> { Value = "NO NO NO" };
@@ -39,7 +40,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullObjectStringToADateTimeOffset()
         {
             var source = new PublicProperty<object> { Value = default(string) };

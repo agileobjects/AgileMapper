@@ -13,9 +13,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenMappingToNewComplexTypeMembers
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAMemberProperty()
         {
             var source = new Person
@@ -33,7 +34,7 @@
             result.Address.Line1.ShouldBe("Over here!");
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleANullSourceMember()
         {
             var source = new Person { Name = "Freddie" };
@@ -43,7 +44,7 @@
             result.Address.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleANullSourceGetMethodResult()
         {
             var source = new PublicGetMethod<Address>(default);
@@ -52,7 +53,7 @@
             result.ShouldNotBeNull().Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleNoMatchingSourceMember()
         {
             var source = new { Hello = "There" };
@@ -62,7 +63,7 @@
             result.Address.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUnflattenToNestedProperties()
         {
             var source = new WeddingDto
@@ -81,7 +82,7 @@
             result.Groom.Address.Line1.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleNoMatchingSourceForNestedCtorParameter()
         {
             var source = new { Value = new { Hello = "There" } };
@@ -91,7 +92,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleRuntimeTypedNestedMemberMatches()
         {
             var runtimeTypedSource = new
@@ -120,7 +121,7 @@
             nonRuntimeTypedResult.AddressLine1.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUntypedMemberField()
         {
             var source = new PublicField<Address>
@@ -139,7 +140,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/13
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldNotMapAnUntypedMemberFieldWithNoMatchingSourceMember()
         {
             var source = new Address
@@ -153,7 +154,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/22
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUseBestMatchingSourceMemberWhenCloning()
         {
             var source = new Country
@@ -167,7 +168,7 @@
             result.CurrencyId.ShouldBe(1);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUseBestMatchingSourceMemberWhenNotCloning()
         {
             var source = new
@@ -183,7 +184,7 @@
             result.CurrencyId.ShouldBe(456);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASourcePropertyToMultipleTargets()
         {
             var source = new { CurrencyId = 1 };
@@ -195,7 +196,7 @@
             result.CurrencyId.ShouldBe(1);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonGenericInterfaceMember()
         {
             var source = new PublicField<IPublicInterface>();
@@ -205,7 +206,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/146
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapToATargetInterfaceMembersImplementedInterfaceMembers()
         {
             var source = new Issue146.Source.Container("999") { Name = "Source" };
@@ -217,7 +218,7 @@
             result.Data.Id.ShouldBe("999");
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldAccessAParentContextInAStandaloneMapper()
         {
             var source = new PublicProperty<object>
@@ -229,7 +230,7 @@
             result.Value.Name.ShouldBe("Fred");
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldPopulateANonNullReadOnlyNestedMemberProperty()
         {
             using (var mapper = Mapper.CreateNew())
@@ -247,7 +248,7 @@
             }
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleANullReadOnlyNestedMemberProperty()
         {
             using (var mapper = Mapper.CreateNew())
@@ -261,7 +262,7 @@
             }
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapToANonNullUnconstructableNestedMember()
         {
             using (var mapper = Mapper.CreateNew())
@@ -285,7 +286,7 @@
             }
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleANullUnconstructableRootTarget()
         {
             var source = new { Value = new { Value = "Goodbye!" } };
@@ -294,7 +295,7 @@
             result.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleANullUnconstructableNestedMember()
         {
             var source = new { Value = new { Value = new { Value = "Goodbye!" } } };
@@ -303,7 +304,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleAnUnconstructableRuntimeTypedChildMember()
         {
             var result = Mapper
@@ -314,7 +315,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleRuntimeTypedComplexAndEnumerableChildMembers()
         {
             using (var mapper = Mapper.CreateNew())
@@ -355,7 +356,7 @@
             }
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleRuntimeTypedComplexAndEnumerableElementMembers()
         {
             var source = new PublicTwoFields<object, IList<object>>

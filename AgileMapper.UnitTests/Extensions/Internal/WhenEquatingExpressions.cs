@@ -15,6 +15,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenEquatingExpressions
     {
         [Fact]
@@ -43,6 +44,7 @@
 
             VerifyEqual(bindingsOne, bindingsTwo);
         }
+
         [Fact]
         public void ShouldEquateAModuloOperation()
         {

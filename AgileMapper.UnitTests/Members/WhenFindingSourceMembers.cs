@@ -12,10 +12,11 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     // ReSharper disable PossibleNullReferenceException
     public class WhenFindingSourceMembers : MemberTestsBase
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicProperty()
         {
             var member = MemberCache
@@ -26,7 +27,7 @@
             member.Type.ShouldBe(typeof(string));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicField()
         {
             var member = MemberCache
@@ -37,7 +38,7 @@
             member.Type.ShouldBe(typeof(int));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicGetMethod()
         {
             var member = MemberCache
@@ -48,7 +49,7 @@
             member.Type.ShouldBe(typeof(DateTime));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindARootArrayElement()
         {
             var member = MemberCache
@@ -58,7 +59,7 @@
             member.ShouldNotBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreAWriteOnlyPublicProperty()
         {
             var member = MemberCache
@@ -68,7 +69,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreANonPublicField()
         {
             var member = MemberCache
@@ -78,7 +79,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreASetMethod()
         {
             var member = MemberCache
@@ -88,7 +89,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreGetType()
         {
             var member = MemberCache
@@ -98,7 +99,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreGetHashCode()
         {
             var member = MemberCache
@@ -108,7 +109,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreAPropertyGetter()
         {
             var member = MemberCache

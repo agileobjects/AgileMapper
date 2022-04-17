@@ -9,6 +9,7 @@
     using TestClasses;
     using Xunit;
 
+    [Trait("Category", "Checked")]
     public class WhenUsingPartialTrust
     {
         [Fact]
@@ -231,9 +232,9 @@
                 plan);
 
             Assert.Contains("// Rule Set: Overwrite", plan);
-            Assert.Contains("ooaptfToCcieptfData.Map(", plan);
             Assert.Contains("\"Value1\"", plan);
-            Assert.Contains("customerICollection.Add(oaToCieData.Map(objectArray[i]", RemoveWhiteSpace(plan));
+            Assert.Contains("customerICollection.Add((Customer)context.Map(context.AddChild(", RemoveWhiteSpace(plan));
+            Assert.Contains("AddElement(objectArray[i],default(Customer),", RemoveWhiteSpace(plan));
         }
 
         #region Helper Members

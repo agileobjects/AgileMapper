@@ -14,9 +14,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenAccessingCaches
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldAcceptANullKey()
         {
             var cache = new DefaultArrayCache<string, int>(keyComparer: null);
@@ -26,7 +27,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/212#issuecomment-812121113
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldHandleANullKey()
         {
             var cache = new DefaultArrayCache<string, int>(keyComparer: null);
@@ -37,7 +38,7 @@
         }
 
 #if !NET35
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public async Task ShouldBeThreadSafe()
         {
             const int CACHE_COUNT = 10;

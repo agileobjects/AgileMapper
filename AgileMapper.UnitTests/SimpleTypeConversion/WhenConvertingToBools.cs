@@ -12,9 +12,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToBools
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASignedByteOneOnToABool()
         {
             var source = new PublicProperty<sbyte> { Value = 1 };
@@ -23,7 +24,7 @@
             target.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableShortZeroToABool()
         {
             var source = new PublicProperty<short?> { Value = 0 };
@@ -32,7 +33,7 @@
             target.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedShortZeroToANullableBool()
         {
             var source = new PublicProperty<ushort> { Value = 0 };
@@ -41,7 +42,7 @@
             target.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnIntOneToABool()
         {
             var source = new PublicProperty<int> { Value = 1 };
@@ -50,7 +51,7 @@
             result.Value.ShouldBe(23);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedIntToABool()
         {
             var source = new PublicField<uint> { Value = 250 };
@@ -59,7 +60,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnNonBoolIntToABool()
         {
             var source = new PublicField<int> { Value = -1 };
@@ -68,7 +69,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapALongZeroToABool()
         {
             var source = new PublicField<long> { Value = 0 };
@@ -77,7 +78,7 @@
             result.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonBoolLongToANullableBool()
         {
             var source = new PublicField<long> { Value = 637 };
@@ -86,7 +87,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedLongZeroToANullableBool()
         {
             var source = new PublicField<ulong> { Value = 0 };
@@ -95,7 +96,7 @@
             result.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedLongOneOverABool()
         {
             var source = new PublicField<ulong> { Value = 1 };
@@ -105,7 +106,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonBoolUnsignedLongToANullableBool()
         {
             var source = new PublicField<ulong> { Value = 63 };
@@ -114,7 +115,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnNonBoolWholeNumberFloatOverANullableBool()
         {
             var source = new PublicField<float> { Value = 52.00f };
@@ -123,7 +124,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnNonWholeNumberNullableFloatToABool()
         {
             var source = new PublicProperty<float?> { Value = 1.01f };
@@ -132,7 +133,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAFloatZeroOnToABool()
         {
             var source = new PublicProperty<float> { Value = 0f };
@@ -141,7 +142,7 @@
             target.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonBoolWholeNumberFloatOverABool()
         {
             var source = new PublicProperty<float> { Value = -34f };
@@ -150,7 +151,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnDecimalOneToANullableBool()
         {
             var source = new PublicGetMethod<decimal>(1);
@@ -159,7 +160,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnNonBoolNonWholeNumberDecimalOnToABool()
         {
             var source = new PublicProperty<decimal> { Value = 62.7m };
@@ -168,7 +169,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableDecimalZeroOverABool()
         {
             var source = new PublicProperty<decimal> { Value = decimal.Zero };
@@ -177,7 +178,7 @@
             target.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapADoubleOneToABool()
         {
             var source = new PublicField<double> { Value = 1d };
@@ -186,7 +187,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonBoolWholeNumberNullableDoubleOnToABool()
         {
             var source = new PublicField<double?> { Value = 892d };
@@ -195,7 +196,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapADoubleZeroOnToANullableBool()
         {
             var source = new PublicProperty<double> { Value = 0.0d };
@@ -204,7 +205,7 @@
             target.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterOneToABool()
         {
             var source = new PublicProperty<char> { Value = '1' };
@@ -213,7 +214,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterZeroToANullableBool()
         {
             var source = new PublicProperty<char> { Value = '0' };
@@ -222,7 +223,7 @@
             result.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableNullableCharacterToANullableBool()
         {
             var source = new PublicProperty<char?> { Value = 'x' };
@@ -231,7 +232,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterEnumerableMemberToANullableByteCollection()
         {
             var source = new PublicProperty<IEnumerable<char>> { Value = new[] { '1', 'f', '0' } };
@@ -240,7 +241,7 @@
             result.Value.ShouldBe(true, null, false);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringTrueOnToABool()
         {
             var source = new PublicProperty<string> { Value = "true" };
@@ -249,7 +250,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringTrueOnToANullableBoolCaseInsensitively()
         {
             var source = new PublicProperty<string> { Value = "tRuE" };
@@ -258,7 +259,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringFalseOnToANullableBool()
         {
             var source = new PublicProperty<string> { Value = "false" };
@@ -267,7 +268,7 @@
             result.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringOneOverABool()
         {
             var source = new PublicField<string> { Value = "1" };
@@ -276,7 +277,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringZeroOverANullableBool()
         {
             var source = new PublicField<string> { Value = "0" };
@@ -285,7 +286,7 @@
             result.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonBoolStringToABool()
         {
             var source = new PublicProperty<string> { Value = "LALA" };
@@ -294,7 +295,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonBoolStringOverANullableBool()
         {
             var source = new PublicField<string> { Value = "629" };
@@ -303,7 +304,7 @@
             target.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringArrayToABoolCollection()
         {
             var source = new[] { "9", "1", "0" };
@@ -312,7 +313,7 @@
             result.ShouldBe(false, true, false);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableBoolTrueToABool()
         {
             var source = new PublicProperty<bool?> { Value = true };
@@ -321,7 +322,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableBoolNullToABool()
         {
             var source = new PublicProperty<bool?> { Value = null };
@@ -330,7 +331,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectStringTrueToABool()
         {
             var source = new PublicProperty<object> { Value = "true" };
@@ -339,7 +340,7 @@
             result.Value.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectStringZeroToANullableBool()
         {
             var source = new PublicProperty<object> { Value = "0" };
@@ -348,7 +349,7 @@
             result.Value.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectNonBoolStringToANullableBool()
         {
             var source = new PublicProperty<object> { Value = "jfkdlk" };
@@ -357,7 +358,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectLongOneToANullableBool()
         {
             var source = new PublicProperty<object> { Value = 1L };

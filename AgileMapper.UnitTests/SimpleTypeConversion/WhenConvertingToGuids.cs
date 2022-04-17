@@ -11,9 +11,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToGuids
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringToAGuid()
         {
             var guid = Guid.NewGuid();
@@ -23,7 +24,7 @@
             result.Value.ShouldBe(guid);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectGuidToAGuid()
         {
             var guid = Guid.NewGuid();
@@ -33,7 +34,7 @@
             result.Value.ShouldBe(guid);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectStringGuidToAGuid()
         {
             var guid = Guid.NewGuid();
@@ -43,7 +44,7 @@
             result.Value.ShouldBe(guid);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAGuidToANullableGuid()
         {
             var source = new PublicGetMethod<Guid>(Guid.NewGuid());
@@ -52,7 +53,7 @@
             result.Value.ShouldBe(source.GetValue());
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableGuidToAGuid()
         {
             var source = new PublicGetMethod<Guid?>(Guid.NewGuid());

@@ -12,59 +12,60 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenAccessingTypeInformation
     {
         #region IsComplex
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldEvaluateAClassAsComplex()
         {
             typeof(Person).IsComplex().ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldEvaluateAStructAsComplex()
         {
             typeof(PublicCtorStruct<>).IsComplex().ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldEvaluateAnInterfaceAsComplex()
         {
             typeof(IPublicInterface<>).IsComplex().ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldNotEvaluateAnArrayAsComplex()
         {
             typeof(string[]).IsComplex().ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldNotEvaluateAGenericCollectionAsComplex()
         {
             typeof(ICollection<byte>).IsComplex().ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldNotEvaluateAStringAsComplex()
         {
             typeof(string).IsComplex().ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldNotEvaluateAValueTypeAsComplex()
         {
             typeof(int).IsComplex().ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldNotEvaluateAGuidAsComplex()
         {
             typeof(Guid).IsComplex().ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldNotEvaluateANullableValueTypeAsComplex()
         {
             typeof(double?).IsComplex().ShouldBeFalse();
@@ -72,13 +73,13 @@
 
         #endregion
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldEvaluateATypeAsFromTheBcl()
         {
             typeof(Func<>).IsFromBcl().ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldEvaluateATypeAsNotFromTheBcl()
         {
             typeof(WhenAccessingTypeInformation).IsFromBcl().ShouldBeFalse();

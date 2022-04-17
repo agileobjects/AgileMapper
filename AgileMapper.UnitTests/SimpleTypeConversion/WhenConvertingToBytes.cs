@@ -11,9 +11,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToBytes
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASignedByteOnToAByte()
         {
             var source = new PublicProperty<sbyte> { Value = 6 };
@@ -22,7 +23,7 @@
             target.Value.ShouldBe(6);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableShortToAByte()
         {
             var source = new PublicProperty<short?> { Value = 32 };
@@ -31,7 +32,7 @@
             target.Value.ShouldBe(32);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedShortToANullableByte()
         {
             var source = new PublicProperty<ushort> { Value = 60 };
@@ -40,7 +41,7 @@
             target.Value.ShouldBe(60);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeIntToAByte()
         {
             var source = new PublicProperty<int> { Value = 23 };
@@ -49,7 +50,7 @@
             result.Value.ShouldBe(23);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeUnsignedIntToAByte()
         {
             var source = new PublicField<uint> { Value = 250 };
@@ -58,7 +59,7 @@
             result.Value.ShouldBe(250);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigIntToAByte()
         {
             var source = new PublicField<int> { Value = 276 };
@@ -67,7 +68,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeLongToAByte()
         {
             var source = new PublicField<long> { Value = 166 };
@@ -76,7 +77,7 @@
             result.Value.ShouldBe(166);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigLongToAByte()
         {
             var source = new PublicField<long> { Value = 637 };
@@ -85,7 +86,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeUnsignedLongToANullableByte()
         {
             var source = new PublicField<ulong> { Value = 100 };
@@ -94,7 +95,7 @@
             result.Value.ShouldBe(100);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeUnsignedLongOverAByte()
         {
             var source = new PublicField<ulong> { Value = 36 };
@@ -104,7 +105,7 @@
             result.Value.ShouldBe(36);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigUnsignedLongToANullableByte()
         {
             var source = new PublicField<ulong> { Value = 6328 };
@@ -113,7 +114,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeWholeNumberFloatOverANullableByte()
         {
             var source = new PublicField<float> { Value = 52.00f };
@@ -122,7 +123,7 @@
             result.Value.ShouldBe(52);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeNonWholeNumberNullableFloatToAByte()
         {
             var source = new PublicProperty<float?> { Value = 37.21f };
@@ -131,7 +132,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigWholeNumberFloatOnToAByte()
         {
             var source = new PublicProperty<float> { Value = 722f };
@@ -140,7 +141,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooSmallWholeNumberFloatOverAByte()
         {
             var source = new PublicProperty<float> { Value = -354f };
@@ -149,7 +150,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeWholeNumberDecimalToANullableByte()
         {
             var source = new PublicGetMethod<decimal>(62.00m);
@@ -158,7 +159,7 @@
             result.Value.ShouldBe(62);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeNonWholeNumberDecimalOnToAByte()
         {
             var source = new PublicProperty<decimal> { Value = 67.5367m };
@@ -167,7 +168,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigNonWholeNumberNullableDecimalOverAByte()
         {
             var source = new PublicProperty<decimal> { Value = 755.009m };
@@ -176,7 +177,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeWholeNumberDoubleToAByte()
         {
             var source = new PublicField<double> { Value = 28d };
@@ -185,7 +186,7 @@
             result.Value.ShouldBe(28);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigWholeNumberNullableDoubleOnToAByte()
         {
             var source = new PublicField<double?> { Value = 89292d };
@@ -194,7 +195,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooSmallWholeNumberDoubleOnToANullableByte()
         {
             var source = new PublicProperty<double> { Value = -83872d };
@@ -203,7 +204,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapABoolFalseToByteZero()
         {
             var source = new PublicProperty<bool> { Value = false };
@@ -212,7 +213,7 @@
             result.Value.ShouldBe(0);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnEnumOverAByte()
         {
             var source = new PublicField<Title> { Value = Title.Miss };
@@ -221,7 +222,7 @@
             result.Value.ShouldBe((byte)source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterToAByte()
         {
             var source = new PublicProperty<char> { Value = '2' };
@@ -230,7 +231,7 @@
             result.Value.ShouldBe(2);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableNullableCharacterToANullableByte()
         {
             var source = new PublicProperty<char?> { Value = 'z' };
@@ -239,7 +240,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterEnumerableMemberToANullableByteCollection()
         {
             var source = new PublicProperty<IEnumerable<char>> { Value = new[] { '3', '2', '1' } };
@@ -249,7 +250,7 @@
             result.Value.ShouldBe(s => (int)s, 3, 2, 1);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableStringOverAByte()
         {
             var source = new PublicField<string> { Value = "97" };
@@ -258,7 +259,7 @@
             result.Value.ShouldBe(97);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableStringOverANullableByte()
         {
             var source = new PublicField<string> { Value = "225" };
@@ -267,7 +268,7 @@
             result.Value.ShouldBe(225);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableNonWholeNumberStringOverAByte()
         {
             var source = new PublicProperty<string> { Value = "89.9" };
@@ -276,7 +277,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToAByte()
         {
             var source = new PublicProperty<string> { Value = "LALALA" };
@@ -285,7 +286,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableNumericStringOverANullableByte()
         {
             var source = new PublicField<string> { Value = "8329" };
@@ -294,7 +295,7 @@
             target.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToANullableByte()
         {
             var source = new PublicProperty<string> { Value = "Lennon" };
@@ -303,7 +304,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringArrayToAByteEnumerable()
         {
             var source = new[] { "9", "8", "7" };

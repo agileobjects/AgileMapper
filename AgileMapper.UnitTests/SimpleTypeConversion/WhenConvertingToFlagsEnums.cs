@@ -11,9 +11,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToFlagsEnums
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASingleValueByteToAFlagsEnum()
         {
             var source = new PublicField<byte> { Value = (byte)InProgress };
@@ -22,7 +23,7 @@
             result.Value.ShouldBe(InProgress);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAMultiValueShortToAFlagsEnum()
         {
             var source = new PublicField<short> { Value = (short)(InProgress | Assigned) };
@@ -34,7 +35,7 @@
             result.Value.ShouldBe(InProgress | Assigned);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAMultiValueNullableIntToAFlagsEnum()
         {
             var source = new PublicProperty<int?> { Value = (int)(New | Completed | Cancelled) };
@@ -43,7 +44,7 @@
             result.Value.ShouldBe(New | Completed | Cancelled);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullNullableIntToANullableFlagsEnum()
         {
             var source = new PublicProperty<int?> { Value = default(int?) };
@@ -52,7 +53,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASingleValueLongToANullableFlagsEnum()
         {
             var source = new PublicProperty<long> { Value = (long)Removed };
@@ -61,7 +62,7 @@
             result.Value.ShouldBe(Removed);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAMultiValueNumericCharacterToAFlagsEnum()
         {
             var source = new PublicProperty<char> { Value = '9' };
@@ -70,7 +71,7 @@
             result.Value.ShouldBe(New | Completed);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASingleValueNumericStringToAFlagsEnum()
         {
             var source = new PublicProperty<string> { Value = "4" };
@@ -79,7 +80,7 @@
             result.Value.ShouldBe((Status)4);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAMultiValueMixedStringToAFlagsEnum()
         {
             var source = new PublicProperty<string> { Value = "9, InProgress, 4" };
@@ -88,7 +89,7 @@
             result.Value.ShouldBe(New | InProgress | Completed);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAMultiValueMixedObjectStringToAFlagsEnum()
         {
             var source = new PublicProperty<object> { Value = "New, InProgress, LaLaLa, 32" };
@@ -97,7 +98,7 @@
             result.Value.ShouldBe(New | InProgress | Removed);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASingleValueNullableFlagsEnumToAFlagsEnum()
         {
             var source = new PublicProperty<Status?> { Value = Cancelled };
@@ -106,7 +107,7 @@
             result.Value.ShouldBe(Cancelled);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAMultiValueFlagsEnumToANullableFlagsEnum()
         {
             var source = new PublicProperty<Status> { Value = Assigned | Completed | Cancelled };

@@ -13,10 +13,11 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     // ReSharper disable PossibleNullReferenceException
     public class WhenFindingTargetMembers : MemberTestsBase
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicProperty()
         {
             var member = MemberCache
@@ -27,7 +28,7 @@
             member.Type.ShouldBe(typeof(byte));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicField()
         {
             var member = MemberCache
@@ -39,7 +40,7 @@
             member.IsWriteable.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicReadOnlyField()
         {
             var member = MemberCache
@@ -51,7 +52,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicSetMethod()
         {
             var member = MemberCache
@@ -63,7 +64,7 @@
             member.IsWriteable.ShouldBeTrue();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicReadOnlyComplexTypeProperty()
         {
             var member = MemberCache
@@ -75,7 +76,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicReadOnlyArrayField()
         {
             var member = MemberCache
@@ -88,7 +89,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAPublicReadOnlySimpleTypeProperty()
         {
             var member = MemberCache
@@ -100,7 +101,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldFindAReadOnlyArrayProperty()
         {
             var member = MemberCache
@@ -113,7 +114,7 @@
             member.IsWriteable.ShouldBeFalse();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreANonPublicField()
         {
             var member = MemberCache
@@ -123,7 +124,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreAGetMethod()
         {
             var member = MemberCache
@@ -133,7 +134,7 @@
             member.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldIgnoreAPropertySetter()
         {
             var member = MemberCache

@@ -12,9 +12,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToDoubles
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASignedByteOverADouble()
         {
             var source = new PublicProperty<sbyte> { Value = 83 };
@@ -23,7 +24,7 @@
             result.Value.ShouldBe(83);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAByteOntoADouble()
         {
             var source = new PublicProperty<byte> { Value = 99 };
@@ -32,7 +33,7 @@
             result.Value.ShouldBe(99);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAShortToADouble()
         {
             var source = new PublicProperty<short> { Value = 9287 };
@@ -41,7 +42,7 @@
             result.Value.ShouldBe(9287);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnIntToADouble()
         {
             var source = new PublicField<int> { Value = 32156 };
@@ -50,7 +51,7 @@
             result.Value.ShouldBe(32156);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableIntToADouble()
         {
             var source = new PublicField<int?> { Value = 321 };
@@ -59,7 +60,7 @@
             result.Value.ShouldBe(321);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedIntToADouble()
         {
             var source = new PublicField<uint> { Value = 32658 };
@@ -68,7 +69,7 @@
             result.Value.ShouldBe(32658);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapALongToADouble()
         {
             var source = new PublicField<long> { Value = 3156 };
@@ -77,7 +78,7 @@
             result.Value.ShouldBe(3156);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedLongToADouble()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
@@ -86,7 +87,7 @@
             result.Value.ShouldBe(9292726);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedLongToANullableDouble()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
@@ -95,7 +96,7 @@
             result.Value.ShouldBe(9383625);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAWholeNumberFloatOverADouble()
         {
             var source = new PublicField<float> { Value = 8532.00f };
@@ -104,7 +105,7 @@
             result.Value.ShouldBe(8532);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonWholeNumberNullableFloatToANullableDouble()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
@@ -113,7 +114,7 @@
             Math.Round(result.Value.GetValueOrDefault(), 2).ShouldBe(73.62);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAWholeNumberDecimalToADouble()
         {
             var source = new PublicField<decimal> { Value = 637128 };
@@ -122,7 +123,7 @@
             result.Value.ShouldBe(637128);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAWholeNumberDecimalToANullableDouble()
         {
             var source = new PublicGetMethod<decimal>(5332.00m);
@@ -131,7 +132,7 @@
             result.Value.ShouldBe(5332);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonWholeNumberNullableDecimalOverADouble()
         {
             var source = new PublicProperty<decimal?> { Value = 938378.637m };
@@ -140,7 +141,7 @@
             target.Value.ShouldBe(938378.637);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableBoolTrueToDoubleOne()
         {
             var source = new PublicProperty<bool?> { Value = true };
@@ -149,7 +150,7 @@
             result.Value.ShouldBe(1d);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullNullableBoolToNullableDoubleNull()
         {
             var source = new PublicProperty<bool?> { Value = default(bool?) };
@@ -158,7 +159,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnEnumOverADouble()
         {
             var source = new PublicField<Title> { Value = Title.Miss };
@@ -167,7 +168,7 @@
             target.Value.ShouldBe((double)Title.Miss);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterToANullableDouble()
         {
             var source = new PublicProperty<char> { Value = '9' };
@@ -176,7 +177,7 @@
             result.Value.ShouldBe(9);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableCharacterToADouble()
         {
             var source = new PublicProperty<char> { Value = 'l' };
@@ -185,7 +186,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableWholeNumberStringOnToADouble()
         {
             var source = new PublicField<string> { Value = "6347687" };
@@ -194,7 +195,7 @@
             result.Value.ShouldBe(6347687);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableNonWholeNumberStringOverANullableDouble()
         {
             var source = new PublicProperty<string> { Value = "6372389.63" };
@@ -203,7 +204,7 @@
             result.Value.ShouldBe(6372389.63);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToADouble()
         {
             var source = new PublicProperty<string> { Value = "TURKEY" };
@@ -212,7 +213,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToANullableDouble()
         {
             var source = new PublicProperty<string> { Value = "CHEETOS" };
@@ -221,7 +222,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterArrayOnToADoubleCollection()
         {
             var source = new[] { '7', '2', '7' };

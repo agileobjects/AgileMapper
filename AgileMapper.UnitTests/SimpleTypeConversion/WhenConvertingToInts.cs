@@ -12,9 +12,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToInts
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASignedByteOverAnInt()
         {
             var source = new PublicProperty<sbyte> { Value = 16 };
@@ -23,7 +24,7 @@
             target.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAByteToAnInt()
         {
             var source = new PublicProperty<byte> { Value = 32 };
@@ -32,7 +33,7 @@
             target.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAShortToAnInt()
         {
             var source = new PublicProperty<short> { Value = 987 };
@@ -41,7 +42,7 @@
             result.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapALongToAnInt()
         {
             var source = new PublicField<long> { Value = 3215663 };
@@ -50,7 +51,7 @@
             result.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedIntToAnInt()
         {
             var source = new PublicField<uint> { Value = 32156 };
@@ -59,7 +60,7 @@
             result.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeUnsignedLongToAnInt()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
@@ -68,7 +69,7 @@
             result.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeUnsignedLongToANullableInt()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
@@ -77,7 +78,7 @@
             result.Value.ShouldBe((int)source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigUnsignedLongToAnInt()
         {
             var source = new PublicField<ulong> { Value = ulong.MaxValue };
@@ -86,7 +87,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigUnsignedNullableLongToANullableInt()
         {
             var source = new PublicField<ulong?> { Value = ulong.MaxValue };
@@ -95,7 +96,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeWholeNumberFloatOverAnInt()
         {
             var source = new PublicField<float> { Value = 8532.00f };
@@ -104,7 +105,7 @@
             result.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeNonWholeNumberNullableFloatToANullableInt()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
@@ -113,7 +114,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigWholeNumberFloatOverAnInt()
         {
             var source = new PublicProperty<float> { Value = float.MaxValue };
@@ -122,7 +123,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooSmallWholeNumberFloatOverAnInt()
         {
             var source = new PublicProperty<float> { Value = float.MinValue };
@@ -131,7 +132,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeWholeNumberDecimalToANullableInt()
         {
             var source = new PublicGetMethod<decimal>(53632.00m);
@@ -140,7 +141,7 @@
             result.Value.ShouldBe((int)source.GetValue());
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeNonWholeNumberDecimalOnToAnInt()
         {
             var source = new PublicProperty<decimal> { Value = 637.5367m };
@@ -149,7 +150,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigNonWholeNumberNullableDecimalOverAnInt()
         {
             var source = new PublicProperty<decimal> { Value = decimal.MaxValue };
@@ -158,7 +159,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeWholeNumberDoubleToAnInt()
         {
             var source = new PublicField<double> { Value = 63728 };
@@ -167,7 +168,7 @@
             result.Value.ShouldBe(source.Value);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigWholeNumberDoubleOnToANullableInt()
         {
             var source = new PublicField<double> { Value = double.MaxValue };
@@ -176,7 +177,7 @@
             target.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooSmallWholeNumberDoubleOverAnInt()
         {
             var source = new PublicProperty<double> { Value = double.MinValue };
@@ -185,7 +186,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapABoolTrueToIntOne()
         {
             var source = new PublicProperty<bool> { Value = true };
@@ -194,7 +195,7 @@
             result.Value.ShouldBe(1);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnEnumOverAnInt()
         {
             var source = new PublicField<Title> { Value = Title.Miss };
@@ -203,7 +204,7 @@
             result.Value.ShouldBe((int)Title.Miss);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterToAnInt()
         {
             var source = new PublicProperty<char> { Value = '4' };
@@ -212,7 +213,7 @@
             result.Value.ShouldBe(4);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableNullableCharacterToAnInt()
         {
             var source = new PublicProperty<char?> { Value = 'h' };
@@ -221,7 +222,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableStringOnToAnInt()
         {
             const int VALUE = 63476387;
@@ -231,7 +232,7 @@
             result.Value.ShouldBe(VALUE);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableStringOverANullableInt()
         {
             const int VALUE = 9282625;
@@ -241,7 +242,7 @@
             result.Value.ShouldBe(VALUE);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableNonWholeNumberStringOverANullableInt()
         {
             var source = new PublicProperty<string> { Value = "72389.9" };
@@ -250,7 +251,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToAnInt()
         {
             var source = new PublicProperty<string> { Value = "BAGPUSS" };
@@ -259,7 +260,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableNumericStringOverAnInt()
         {
             var source = new PublicField<string> { Value = "6738732.637" };
@@ -268,7 +269,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToANullableInt()
         {
             var source = new PublicProperty<string> { Value = "BAGTASTIC" };
@@ -277,7 +278,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectIntOverAnInt()
         {
             var source = new PublicProperty<object> { Value = 123 };
@@ -287,7 +288,7 @@
             result.Value.ShouldBe(123);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnObjectParseableStringOnToAnInt()
         {
             var source = new PublicProperty<object> { Value = "999" };
@@ -297,7 +298,7 @@
             result.Value.ShouldBe(999);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullObjectOverANullableInt()
         {
             var source = new PublicProperty<object> { Value = null };
@@ -307,7 +308,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullObjectOnToAnInt()
         {
             var source = new PublicProperty<object> { Value = null };
@@ -317,7 +318,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAStringEnumerableToAnIntEnumerable()
         {
             IEnumerable<string> source = new[] { "1", "2", "3" };
@@ -327,7 +328,7 @@
         }
 
         // See https://github.com/agileobjects/AgileMapper/issues/114
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUseUserDefinedToIntOperators()
         {
             var source = new PublicField<UserId> { Value = new UserId(123) };
@@ -336,7 +337,7 @@
             result.Value.ShouldBe(123);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldUseUserDefinedFromIntOperators()
         {
             var source = new PublicField<int> { Value = 456 };

@@ -11,9 +11,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToDecimals
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapASignedByteOverADecimal()
         {
             var source = new PublicProperty<sbyte> { Value = 83 };
@@ -22,7 +23,7 @@
             result.Value.ShouldBe(83);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAByteOntoADecimal()
         {
             var source = new PublicProperty<byte> { Value = 99 };
@@ -31,7 +32,7 @@
             result.Value.ShouldBe(99);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAShortToADecimal()
         {
             var source = new PublicProperty<short> { Value = 9287 };
@@ -40,7 +41,7 @@
             result.Value.ShouldBe(9287);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnIntToADecimal()
         {
             var source = new PublicField<int> { Value = 32156 };
@@ -49,7 +50,7 @@
             result.Value.ShouldBe(32156);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedIntToADecimal()
         {
             var source = new PublicField<uint> { Value = 32658 };
@@ -57,7 +58,7 @@
 
             result.Value.ShouldBe(32658);
         }
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapALongToADecimal()
         {
             var source = new PublicField<long> { Value = 3156 };
@@ -66,7 +67,7 @@
             result.Value.ShouldBe(3156);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedLongToADecimal()
         {
             var source = new PublicField<ulong> { Value = 9292726 };
@@ -75,7 +76,7 @@
             result.Value.ShouldBe(9292726);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnsignedLongToANullableDecimal()
         {
             var source = new PublicField<ulong> { Value = 9383625 };
@@ -84,7 +85,7 @@
             result.Value.ShouldBe(9383625);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAWholeNumberFloatOverADecimal()
         {
             var source = new PublicField<float> { Value = 8532.00f };
@@ -93,7 +94,7 @@
             result.Value.ShouldBe(8532);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonWholeNumberNullableFloatToANullableDecimal()
         {
             var source = new PublicProperty<float?> { Value = 73.62f };
@@ -102,7 +103,7 @@
             result.Value.ShouldBe(73.62);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigWholeNumberFloatToANullableDecimal()
         {
             var source = new PublicProperty<float> { Value = float.MaxValue };
@@ -111,7 +112,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooSmallWholeNumberFloatToANullableDecimal()
         {
             var source = new PublicProperty<float> { Value = float.MinValue };
@@ -120,7 +121,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAWholeNumberDecimalToANullableDecimal()
         {
             var source = new PublicGetMethod<decimal>(5332.00m);
@@ -129,7 +130,7 @@
             result.Value.ShouldBe(5332);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANonWholeNumberNullableDecimalOverADecimal()
         {
             var source = new PublicProperty<decimal> { Value = 938378.637m };
@@ -138,7 +139,7 @@
             target.Value.ShouldBe(938378.637);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnInRangeWholeNumberDoubleToADecimal()
         {
             var source = new PublicField<double> { Value = 637128 };
@@ -147,7 +148,7 @@
             result.Value.ShouldBe(637128);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooBigWholeNumberDoubleOnToANullableDecimal()
         {
             var source = new PublicField<double> { Value = double.MaxValue };
@@ -156,7 +157,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapATooSmallWholeNumberDoubleOverADecimal()
         {
             var source = new PublicProperty<double> { Value = double.MinValue };
@@ -165,7 +166,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableBoolFalseToNullableDecimalOne()
         {
             var source = new PublicProperty<bool?> { Value = false };
@@ -174,7 +175,7 @@
             result.Value.ShouldBe(decimal.Zero);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnEnumOverADecimal()
         {
             var source = new PublicField<Title> { Value = Title.Miss };
@@ -183,7 +184,7 @@
             target.Value.ShouldBe((decimal)Title.Miss);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterToANullableDecimal()
         {
             var source = new PublicProperty<char> { Value = '3' };
@@ -192,7 +193,7 @@
             result.Value.ShouldBe(3);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableCharacterToADecimal()
         {
             var source = new PublicProperty<char> { Value = 'g' };
@@ -201,7 +202,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableWholeNumberStringOnToADecimal()
         {
             var source = new PublicField<string> { Value = "6347687" };
@@ -210,7 +211,7 @@
             result.Value.ShouldBe(6347687);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAParsableNonWholeNumberStringOverANullableDecimal()
         {
             var source = new PublicProperty<string> { Value = "6372389.63" };
@@ -219,7 +220,7 @@
             result.Value.ShouldBe(6372389.63);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToADecimal()
         {
             var source = new PublicProperty<string> { Value = "GIBLETS" };
@@ -228,7 +229,7 @@
             result.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableNumericStringOverADecimal()
         {
             var source = new PublicField<string> { Value = "938383737383839209220202928287272727282829292092020202020296738732.637" };
@@ -237,7 +238,7 @@
             target.Value.ShouldBeDefault();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparsableStringToANullableDecimal()
         {
             var source = new PublicProperty<string> { Value = "PFFFFFT" };
@@ -246,7 +247,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapACharacterArrayOnToADecimalList()
         {
             var source = new[] { '1', '9', '7' };

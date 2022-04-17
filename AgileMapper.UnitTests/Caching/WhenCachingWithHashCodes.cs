@@ -9,9 +9,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenCachingWithHashCodes
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldRetrieveFromAnEvenNumberedLengthCache()
         {
             ICache<TestKey, int> cache = new HashCodeArrayCache<TestKey, int>();
@@ -40,7 +41,7 @@
             six.ShouldBe(6);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldRetrieveFromAnOddNumberedLengthCache()
         {
             ICache<TestKey, int> cache = new HashCodeArrayCache<TestKey, int>();

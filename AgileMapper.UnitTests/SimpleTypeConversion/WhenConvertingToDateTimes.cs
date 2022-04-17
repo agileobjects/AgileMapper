@@ -10,9 +10,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToDateTimes
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableDateTimeToADateTime()
         {
             var source = new PublicProperty<DateTime?> { Value = DateTime.Today };
@@ -21,7 +22,7 @@
             result.Value.ShouldBe(DateTime.Today);
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAYearMonthDayStringToADateTime()
         {
             var source = new PublicProperty<string> { Value = "2016/06/08" };
@@ -30,7 +31,7 @@
             result.Value.ShouldBe(new DateTime(2016, 06, 08));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparseableStringToANullableDateTime()
         {
             var source = new PublicProperty<string> { Value = "OOH OOH OOH" };
@@ -39,7 +40,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullObjectStringToADateTime()
         {
             var source = new PublicProperty<object> { Value = default(string) };

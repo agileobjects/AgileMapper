@@ -10,6 +10,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenMappingToNewStructMembers
     {
         [Fact]

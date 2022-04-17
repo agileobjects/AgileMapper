@@ -407,8 +407,10 @@
                             sourceAddress.BuildingNumber,
                             sourceAddress.DependentThoroughfare,
                             sourceAddress.Thoroughfare
-                        }.Where(addressPart => !string.IsNullOrWhiteSpace(addressPart))
-                        .Select(addressPart => addressPart.Trim())))
+                        }
+                        .Where(addressPart => !string.IsNullOrEmpty(addressPart))
+                        .Select(addressPart => addressPart.Trim())
+                        .ToArray()))
                     .To(targetAddress => targetAddress.Line1);
 
                 var source = new Issue225.Address

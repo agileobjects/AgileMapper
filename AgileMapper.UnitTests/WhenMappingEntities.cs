@@ -13,6 +13,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenMappingEntities
     {
         // See https://github.com/agileobjects/AgileMapper/issues/121

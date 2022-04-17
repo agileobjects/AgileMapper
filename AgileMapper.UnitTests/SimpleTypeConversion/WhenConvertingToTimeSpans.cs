@@ -10,9 +10,10 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConvertingToTimeSpans
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableTimeSpanToATimeSpan()
         {
             var source = new PublicProperty<TimeSpan?> { Value = TimeSpan.FromHours(1) };
@@ -21,7 +22,7 @@
             result.Value.ShouldBe(TimeSpan.FromHours(1));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAYearMonthDayStringToATimeSpan()
         {
             var source = new PublicProperty<string> { Value = "01:00:00" };
@@ -30,7 +31,7 @@
             result.Value.ShouldBe(TimeSpan.FromHours(01));
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapAnUnparseableStringToANullableTimeSpan()
         {
             var source = new PublicProperty<string> { Value = "OH OH OH" };
@@ -39,7 +40,7 @@
             result.Value.ShouldBeNull();
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullObjectStringToATimeSpan()
         {
             var source = new PublicProperty<object> { Value = default(string) };

@@ -6,9 +6,10 @@
     using Common.TestClasses;
     using Xunit;
 
+    [Trait("Category", "Checked")]
     public class WhenConvertingToStrings
     {
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapADateTimeToAStringUsingTheThreadDateFormat()
         {
             var currentCulture = CultureInfo.CurrentCulture;
@@ -33,7 +34,7 @@
             }
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullableDateTimeToAStringUsingTheThreadDateFormat()
         {
             var currentCulture = CultureInfo.CurrentCulture;
@@ -58,7 +59,7 @@
             }
         }
 
-        [Fact, Trait("Category", "Checked")]
+        [Fact]
         public void ShouldMapANullNullableDateTimeToAStringUsingTheThreadDateFormat()
         {
             var currentCulture = CultureInfo.CurrentCulture;
