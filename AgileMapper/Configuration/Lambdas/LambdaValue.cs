@@ -11,6 +11,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         Target = 8,
         CreatedObject = 16,
         ElementIndex = 32,
-        ElementKey = 64
+        ElementKey = 64,
+        ServiceProvider = 128
     }
 }

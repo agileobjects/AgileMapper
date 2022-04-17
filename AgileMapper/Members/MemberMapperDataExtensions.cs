@@ -122,19 +122,26 @@ namespace AgileObjects.AgileMapper.Members
                 return Constants.ExecutionContextParameter;
             }
 
-            var objectMapperData = (ObjectMapperData)mapperData;
+            Expression mappingContext;
 
-            var mappingValues = mapperData.TargetMemberIsEnumerableElement()
-                ? objectMapperData.GetMappingValues(
-                    mapperData.SourceObject,
-                    mapperData.TargetObject)
-                : objectMapperData.ToMappingValues();
+            if (mapperData.IsRoot)
+            {
+                mappingContext = Constants.ExecutionContextParameter;
+            }
+            else
+            {
+                var objectMapperData = (ObjectMapperData)mapperData;
 
-            var mappingContext = mapperData.IsRoot
-                ? (Expression)Constants.ExecutionContextParameter
-                : mapperData.Parent.GetCreateExecutionContextCall(
+                var mappingValues = mapperData.TargetMemberIsEnumerableElement()
+                    ? objectMapperData.GetMappingValues(
+                        mapperData.SourceObject,
+                        mapperData.TargetObject)
+                    : objectMapperData.ToMappingValues();
+
+                mappingContext = mapperData.Parent.GetCreateExecutionContextCall(
                       mappingValues,
                       mapperData.TargetMember);
+            }
 
             var sourceAndTargetTypes = contextTypes.Length == 2
                 ? contextTypes

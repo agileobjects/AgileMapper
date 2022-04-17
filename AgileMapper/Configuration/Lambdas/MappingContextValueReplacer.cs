@@ -26,7 +26,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             LambdaExpression lambda,
             MappingConfigInfo configInfo,
             bool isMappingDataParameterLambda)
-            : this(lambda, configInfo, null, isMappingDataParameterLambda)
+            : this(lambda, configInfo, requiredValues: null, isMappingDataParameterLambda)
         {
         }
 
@@ -37,9 +37,9 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             bool isMappingDataParameterLambda)
         {
             _lambda = lambda;
-            _isMappingDataParameterLambda = isMappingDataParameterLambda;
-            _requiredValues = requiredValues;
             _configInfo = configInfo;
+            _requiredValues = requiredValues;
+            _isMappingDataParameterLambda = isMappingDataParameterLambda;
             _contextParameter = lambda.Parameters[0];
             _contextType = _contextParameter.Type;
         }
@@ -62,7 +62,11 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             if (requiredValues.Includes(MappingContext))
             {
-                return new MappingContextValueReplacer(lambda, configInfo, requiredValues, false);
+                return new MappingContextValueReplacer(
+                    lambda,
+                    configInfo, 
+                    requiredValues,
+                    isMappingDataParameterLambda: requiredValues.ValuesCount == 1);
             }
 
             return ContextValuesValueReplacer.Create(lambda, configInfo, requiredValues);

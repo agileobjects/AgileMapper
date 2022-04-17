@@ -15,6 +15,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
         private Expression _createdObject;
         private Expression _elementIndex;
         private Expression _elementKey;
+        private Expression _serviceProvider;
         private LambdaValue _values;
 
         public Expression MappingContext
@@ -97,6 +98,18 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 if (AppendIfMissing(LambdaValue.ElementKey))
                 {
                     _elementKey = value;
+                }
+            }
+        }
+
+        public Expression ServiceProvider
+        {
+            get => _serviceProvider;
+            set
+            {
+                if (AppendIfMissing(LambdaValue.ServiceProvider))
+                {
+                    _serviceProvider = value;
                 }
             }
         }

@@ -28,11 +28,18 @@
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCall)
         {
-            if (methodCall.Object == _contextParameter)
+            if (methodCall.Object != _contextParameter)
             {
-                _requiredValues.MappingContext = _contextParameter;
+                return base.VisitMethodCall(methodCall);
             }
 
+            if (methodCall.Method.DeclaringType == typeof(IServiceProviderAccessor))
+            {
+                _requiredValues.ServiceProvider = _contextParameter;
+                return base.VisitMethodCall(methodCall);
+            }
+
+            _requiredValues.MappingContext = _contextParameter;
             return base.VisitMethodCall(methodCall);
         }
 
@@ -49,10 +56,10 @@
                     _requiredValues.MappingContext = memberAccess.Expression;
                     _requiredValues.Parent = memberAccess;
                     return memberAccess;
-                    
+
                 case nameof(IMappingData<int, int>.Source):
                     return _requiredValues.Source = memberAccess;
-                    
+
                 case nameof(IMappingData<int, int>.Target):
                     return _requiredValues.Target = memberAccess;
 

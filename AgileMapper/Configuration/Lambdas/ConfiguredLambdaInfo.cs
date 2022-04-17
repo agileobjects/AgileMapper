@@ -267,7 +267,7 @@
 
             if (_isForTargetDictionary &&
                 (mapperData.TargetMember is DictionaryTargetMember dictionaryMember) &&
-                (dictionaryMember.HasCompatibleType(contextTypes[1])))
+                 dictionaryMember.HasCompatibleType(contextTypes[1]))
             {
                 contextTypes = contextTypes.CopyToArray();
                 contextTypes[1] = mapperData.TargetType;

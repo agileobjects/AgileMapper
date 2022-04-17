@@ -139,6 +139,9 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
         public Expression GetElementKey() => MapperData.ElementKey;
 
+        public Expression GetServiceProvider() 
+            => Constants.ExecutionContextParameter;
+
         private static Expression GetValueAccess(Expression valueAccess, Type neededAccessType)
         {
             return (neededAccessType != valueAccess.Type) && valueAccess.Type.IsValueType()

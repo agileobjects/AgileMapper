@@ -16,6 +16,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenResolvingServices
     {
         [Fact]
@@ -26,7 +27,7 @@
                 var logger = new Logger();
 
                 mapper.WhenMapping
-                    .UseServiceProvider(t => logger);
+                    .UseServiceProvider(_ => logger);
 
                 mapper.Before
                     .MappingBegins
@@ -50,7 +51,7 @@
                 using (var mapper = Mapper.CreateNew())
                 {
                     mapper.WhenMapping
-                        .UseServiceProvider((t, name) => (name == "Frank") ? logger : throw new NotSupportedException("NO!"));
+                        .UseServiceProvider((_, name) => (name == "Frank") ? logger : throw new NotSupportedException("NO!"));
 
                     mapper.Before
                         .MappingBegins
@@ -219,7 +220,7 @@
 
                 mapper.After
                     .CreatingInstances
-                    .Call(ctx => throw new InvalidOperationException("NO"));
+                    .Call(_ => throw new InvalidOperationException("NO"));
 
                 new PublicField<int> { Value = 123 }
                     .MapUsing(mapper)
@@ -406,7 +407,7 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.WhenMapping.UseServiceProvider(t => new Logger());
+                    mapper.WhenMapping.UseServiceProvider(_ => new Logger());
 
                     mapper.Before
                         .MappingBegins
@@ -418,10 +419,9 @@
                 }
             });
 
-            mappingEx.InnerException.ShouldNotBeNull();
-
-            // ReSharper disable once PossibleNullReferenceException
-            mappingEx.InnerException.Message.ShouldContain("No named service providers configured");
+            mappingEx
+                .InnerException.ShouldNotBeNull()
+                .Message.ShouldContain("No named service providers configured");
         }
 
         [Fact]
@@ -431,8 +431,8 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.WhenMapping.UseServiceProvider(t => new Logger());
-                    mapper.WhenMapping.UseServiceProvider(t => new object());
+                    mapper.WhenMapping.UseServiceProvider(_ => new Logger());
+                    mapper.WhenMapping.UseServiceProvider(_ => new object());
                 }
             });
 
@@ -446,8 +446,8 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.WhenMapping.UseServiceProvider((t, name) => new Logger());
-                    mapper.WhenMapping.UseServiceProvider((t, name) => new object());
+                    mapper.WhenMapping.UseServiceProvider((_, _) => new Logger());
+                    mapper.WhenMapping.UseServiceProvider((_, _) => new object());
                 }
             });
 

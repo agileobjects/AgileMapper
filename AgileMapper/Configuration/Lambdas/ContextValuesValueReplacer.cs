@@ -111,6 +111,14 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                     return;
                 }
 
+                if (requiredValues.Includes(ServiceProvider))
+                {
+                    _value = requiredValues.ServiceProvider;
+                    _replacementFactory = ctx => ctx.GetServiceProvider();
+                    NeedsMappingData = true;
+                    return;
+                }
+
                 if (requiredValues.Includes(Parent))
                 {
                     _value = requiredValues.Parent;
@@ -118,7 +126,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 }
             }
 
-            public override bool NeedsMappingData => false;
+            public override bool NeedsMappingData { get; }
 
             public override Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
             {
@@ -134,6 +142,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
             private readonly Expression _lambdaBody;
             private readonly bool _isInvocation;
             private readonly RequiredValuesSet _requiredValues;
+            private bool _needsMappingData;
 
             public MultipleContextValuesValueReplacer(
                 LambdaExpression lambda,
@@ -148,7 +157,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             private int RequiredValuesCount => _requiredValues.ValuesCount;
 
-            public override bool NeedsMappingData => _requiredValues.Includes(MappingContext);
+            public override bool NeedsMappingData => _needsMappingData;
 
             public override Expression Replace(Type[] contextTypes, IMemberMapperData mapperData)
             {
@@ -161,6 +170,12 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 if (_requiredValues.Includes(MappingContext))
                 {
                     replacements.Add(_requiredValues.MappingContext, context.GetToMappingDataCall());
+                    _needsMappingData = true;
+                }
+
+                if (_requiredValues.Includes(Parent))
+                {
+                    replacements.Add(_requiredValues.Parent, context.GetParentAccess());
                 }
 
                 if (_requiredValues.Includes(Source))
@@ -188,6 +203,12 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 if (_requiredValues.Includes(ElementKey))
                 {
                     replacements.Add(_requiredValues.ElementKey, context.GetElementKey());
+                }
+
+                if (_requiredValues.Includes(ServiceProvider))
+                {
+                    replacements.Add(_requiredValues.ServiceProvider, context.GetServiceProvider());
+                    _needsMappingData = true;
                 }
 
                 return _lambdaBody.Replace(replacements);
