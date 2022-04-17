@@ -113,7 +113,8 @@
 
                 case Index:
                     var index = (IndexExpression)access;
-                    var indexKeyType = index.Indexer.GetGetter().GetParameters().First().ParameterType;
+                    var indexValue = index.Arguments.First();
+                    var indexKeyType = indexValue.Type;
 
                     if (!indexKeyType.IsNumeric())
                     {
@@ -127,7 +128,7 @@
                         goto default;
                     }
 
-                    var indexValue = index.Arguments.First().GetConversionTo(count.Type);
+                    indexValue = indexValue.GetConversionTo(count.Type);
 
                     return _invertChecks
                         ? Expression.LessThanOrEqual(count, indexValue)
@@ -354,7 +355,7 @@
             }
 
             if (memberAccess.Type.CannotBeNull() ||
-             ((_rootSourceParameter != null) && 
+             ((_rootSourceParameter != null) &&
                !memberAccess.IsRootedIn(_rootSourceParameter, _rootTargetParameter)))
             {
                 return false;

@@ -14,6 +14,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenMappingToMetaMembers
     {
         [Fact]
@@ -256,8 +257,7 @@
             var result = Mapper.Map(source).ToANew<PublicFirstItem<Address, Address[]>>();
 
             result.Items.ShouldHaveSingleItem();
-            result.FirstItem.ShouldNotBeNull();
-            result.FirstItem.Line1.ShouldBe("Yay!");
+            result.FirstItem.ShouldNotBeNull().Line1.ShouldBe("Yay!");
         }
 
         [Fact]
