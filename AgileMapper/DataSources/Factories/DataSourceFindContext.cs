@@ -99,7 +99,8 @@
         {
             return _useSourceMemberDataSource ??=
                     BestSourceMemberMatch.IsUseable &&
-                   !ConfiguredDataSources.Any(MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
+                   // MatchingSourceMemberDataSource.IsValid &&
+                    ConfiguredDataSources.None(MatchingSourceMemberDataSource, (msmds, cds) => cds.IsSameAs(msmds));
         }
 
         public IDataSource GetFallbackDataSource()

@@ -1,11 +1,13 @@
 ﻿namespace AgileObjects.AgileMapper
 {
+    using Members;
     using ObjectPopulation;
     using ObjectPopulation.Enumerables;
     using ObjectPopulation.MapperKeys;
 
     internal class ElementMappingExecutionContext<TElementSource, TElementTarget> :
-        SubObjectMappingExecutionContextBase
+        SubObjectMappingExecutionContextBase,
+        IMappingData<TElementSource, TElementTarget>
     {
         private readonly TElementSource _sourceElement;
         private readonly TElementTarget _targetElement;
@@ -46,5 +48,15 @@
                 _mapperKey,
                 GetParentMappingData());
         }
+
+        #region IMappingData<,> Members
+
+        TElementSource IMappingData<TElementSource, TElementTarget>.Source
+            => _sourceElement;
+
+        TElementTarget IMappingData<TElementSource, TElementTarget>.Target
+            => _targetElement;
+
+        #endregion
     }
 }

@@ -117,36 +117,58 @@ namespace AgileObjects.AgileMapper.Members
             this IMemberMapperData mapperData,
             Type[] contextTypes)
         {
-            if (mapperData.IsRoot && contextTypes.All(t => t == typeof(object)))
-            {
-                return Constants.ExecutionContextParameter;
-            }
-
+            ObjectMapperData parentMapperData;
             Expression mappingContext;
 
             if (mapperData.IsRoot)
             {
+                if (contextTypes.All(t => t == typeof(object)))
+                {
+                    return Constants.ExecutionContextParameter;
+                }
+
+                parentMapperData = (ObjectMapperData)mapperData;
                 mappingContext = Constants.ExecutionContextParameter;
-            }
-            else
-            {
-                var objectMapperData = (ObjectMapperData)mapperData;
-
-                var mappingValues = mapperData.TargetMemberIsEnumerableElement()
-                    ? objectMapperData.GetMappingValues(
-                        mapperData.SourceObject,
-                        mapperData.TargetObject)
-                    : objectMapperData.ToMappingValues();
-
-                mappingContext = mapperData.Parent.GetCreateExecutionContextCall(
-                      mappingValues,
-                      mapperData.TargetMember);
+                goto CheckContextTypes;
             }
 
+            parentMapperData = mapperData.Parent;
+
+            var objectMapperData =
+                mapperData as ObjectMapperData ?? parentMapperData;
+
+            var mappingValues = mapperData.TargetMemberIsEnumerableElement()
+                ? objectMapperData.GetMappingValues(
+                    mapperData.SourceObject,
+                    mapperData.TargetObject)
+                : objectMapperData.ToMappingValues();
+
+            mappingContext = parentMapperData.GetCreateExecutionContextCall(
+                mappingValues,
+                mapperData.TargetMember);
+
+        CheckContextTypes:
             var sourceAndTargetTypes = contextTypes.Length == 2
                 ? contextTypes
                 : new[] { contextTypes[0], contextTypes[1] };
 
+            if (parentMapperData.IsRoot)
+            {
+                goto CreateAsCall;
+            }
+
+            var targetMappingDataType = typeof(IMappingData<,>)
+                .MakeGenericType(sourceAndTargetTypes);
+
+            var hasCompatibleContext = mappingContext.Type
+                .IsAssignableTo(targetMappingDataType);
+
+            if (hasCompatibleContext)
+            {
+                return mappingContext;
+            }
+
+        CreateAsCall:
             var asMethod = typeof(IMappingData)
                 .GetPublicInstanceMethod("As")
                 .MakeGenericMethod(sourceAndTargetTypes);
