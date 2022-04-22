@@ -10,20 +10,35 @@
 
     internal class NullDataSource : DataSourceBase
     {
-        public static readonly IDataSource EmptyValue = Empty(sourceMember: null);
+        public static readonly IDataSource EmptyValue =
+            Empty(sourceMember: null, condition: null);
 
         public NullDataSource(Expression value)
-            : this(default, value)
+            : this(sourceMember: null, value, condition: null)
         {
         }
 
-        private NullDataSource(IQualifiedMember sourceMember, Expression value)
-            : base(sourceMember, value)
+        private NullDataSource(
+            IQualifiedMember sourceMember,
+            Expression value,
+            Expression condition)
+            : base(sourceMember, EmptyParameters, value, condition)
         {
         }
 
-        public static IDataSource Empty(IQualifiedMember sourceMember)
-            => new NullDataSource(sourceMember, EmptyExpression);
+        #region Factory Methods
+
+        public static IDataSource Empty(
+            IQualifiedMember sourceMember,
+            Expression condition)
+        {
+            return new NullDataSource(
+                sourceMember,
+                EmptyExpression,
+                condition);
+        }
+
+        #endregion
 
         public override bool IsValid => false;
     }
