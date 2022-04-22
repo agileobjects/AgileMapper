@@ -18,7 +18,6 @@
     using static System.Linq.Expressions.ExpressionType;
 #endif
     using static Constants;
-    using static Member;
 
     internal class NestedAccessChecksFactory : ExpressionVisitor
     {
@@ -209,11 +208,15 @@
 
         private bool IsRootObject(MemberExpression memberAccess)
         {
-            if (memberAccess.Member.Name == nameof(IMappingData.Parent))
+            if (memberAccess.Expression == null)
             {
-                // ReSharper disable once PossibleNullReferenceException
-                return memberAccess.Member.DeclaringType.Name
-                    .StartsWith(nameof(IMappingData), StringComparison.Ordinal);
+                return false;
+            }
+
+            if (memberAccess.Expression == _rootSourceParameter ||
+                memberAccess.Expression == _rootTargetParameter)
+            {
+                return false;
             }
 
             if (memberAccess.Expression != ExecutionContextParameter)
@@ -225,8 +228,7 @@
             {
                 case nameof(IMappingData<int, int>.ElementIndex):
                 case nameof(IMappingData<int, int>.ElementKey):
-                case RootSourceMemberName:
-                case RootTargetMemberName:
+                case nameof(IMappingData.Parent):
                     return true;
 
                 default:
