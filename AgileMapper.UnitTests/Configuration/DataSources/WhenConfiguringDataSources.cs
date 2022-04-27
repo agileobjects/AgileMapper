@@ -17,6 +17,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConfiguringDataSources
     {
         private int _returnInstanceCount;

@@ -367,6 +367,11 @@
 
         private static bool IsMapRepeatedCall(Expression expression)
         {
+            if (expression.NodeType == ExpressionType.Convert)
+            {
+                expression = ((UnaryExpression)expression).Operand;
+            }
+
             return (expression.NodeType == Call) &&
                    IsCallTo(nameof(IMappingExecutionContext.MapRepeated), expression);
         }
