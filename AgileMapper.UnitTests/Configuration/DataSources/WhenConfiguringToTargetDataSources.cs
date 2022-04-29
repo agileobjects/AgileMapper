@@ -14,6 +14,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConfiguringToTargetDataSources
     {
         private int _addressCreationCount;

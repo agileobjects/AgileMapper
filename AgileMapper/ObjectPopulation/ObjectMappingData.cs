@@ -273,7 +273,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             if (!MapperData.TargetMemberIsEnumerableElement())
             {
-                newSourceMapperData.SetSourceMember(sourceMember);
+               // newSourceMapperData.SetSourceMember(sourceMember);
             }
 
             return newSourceMappingData;
