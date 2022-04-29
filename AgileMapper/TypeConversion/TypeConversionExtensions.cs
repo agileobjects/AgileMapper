@@ -97,11 +97,9 @@
                 value.Type.CanBeNull();
 
             var replacements = FixedSizeExpressionReplacementDictionary
-                .WithEquivalentKeys(4)
+                .WithEquivalentKeys(2)
                 .Add(simpleMemberMapperData.SourceObject, value)
-                .Add(simpleMemberMapperData.TargetObject, mapperData.GetTargetMemberAccess())
-                .Add(simpleMemberMapperData.ElementIndex, simpleMemberMapperData.ElementIndexValue)
-                .Add(simpleMemberMapperData.ElementKey, simpleMemberMapperData.ElementKeyValue);
+                .Add(simpleMemberMapperData.TargetObject, mapperData.GetTargetMemberAccess());
 
             var conversions = valueFactories.ProjectToArray(vf =>
             {
@@ -121,7 +119,7 @@
                     }
                 }
 
-                return new SimpleTypeValueFactory
+                return new SimpleTypeValueConversion
                 {
                     Factory = factoryExpression.Replace(replacements).GetConversionTo(targetType),
                     Condition = condition?.Replace(replacements)
@@ -130,7 +128,7 @@
 
             if (conversions.Last().Condition != null)
             {
-                conversions = conversions.Append(new SimpleTypeValueFactory
+                conversions = conversions.Append(new SimpleTypeValueConversion
                 {
                     Factory = mapperData.GetValueConversion(value, targetType) ??
                               simpleMemberMapperData.GetTargetMemberDefault()
@@ -144,14 +142,15 @@
             return GetConversionExpression(conversions);
         }
 
-        private static Expression GetConversionExpression(IList<SimpleTypeValueFactory> conversions)
+        private static Expression GetConversionExpression(IList<SimpleTypeValueConversion> conversions)
         {
             var conversionExpression = default(Expression);
             var conversionIndex = conversions.Count;
 
             while (true)
             {
-                var conversion = conversions[--conversionIndex];
+                --conversionIndex;
+                var conversion = conversions[conversionIndex];
 
                 if (conversionExpression == null)
                 {
@@ -171,11 +170,11 @@
             }
         }
 
-        private class SimpleTypeValueFactory
+        private class SimpleTypeValueConversion
         {
-            public Expression Factory { get; set; }
-
             public Expression Condition { get; set; }
+
+            public Expression Factory { get; set; }
         }
     }
 }

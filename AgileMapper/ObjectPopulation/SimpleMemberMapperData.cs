@@ -12,7 +12,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal class SimpleMemberMapperData : MemberMapperDataBase, IMemberMapperData
     {
-        public SimpleMemberMapperData(IQualifiedMember sourceMember, IMemberMapperData memberMapperData)
+        private Expression _parentObject;
+        private Expression _sourceObject;
+        private Expression _targetObject;
+
+        public SimpleMemberMapperData(
+            IQualifiedMember sourceMember,
+            IMemberMapperData memberMapperData)
             : base(
                 memberMapperData.RuleSet,
                 sourceMember,
@@ -20,28 +26,26 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
                 memberMapperData.Parent,
                 memberMapperData.MapperContext)
         {
-            ParentObject = GetParentObjectAccess();
-            ElementIndex = GetElementIndexAccess();
-            ElementKey = GetElementKeyAccess();
-            ElementIndexValue = Parent.ElementIndex;
-            ElementKeyValue = Parent.ElementKey;
+            ElementIndex = Parent.ElementIndex;
+            ElementKey = Parent.ElementKey;
         }
 
         private SimpleMemberMapperData(
-            IQualifiedMember sourceMember,
-            QualifiedMember targetMember,
+            IQualifiedMember sourceElementMember,
+            QualifiedMember targetElementMember,
             ObjectMapperData enumerableMapperData)
             : base(
                 enumerableMapperData.RuleSet,
-                sourceMember,
-                targetMember,
+                sourceElementMember,
+                targetElementMember,
                 enumerableMapperData,
                 enumerableMapperData.MapperContext)
         {
-            ParentObject = GetParentObjectAccess();
-            ElementIndex = GetElementIndexAccess();
-            ElementKey = GetElementKeyAccess();
-            ElementIndexValue = enumerableMapperData.EnumerablePopulationBuilder.Counter.GetConversionTo<int?>();
+            ElementIndex = enumerableMapperData
+                .EnumerablePopulationBuilder.Counter.GetConversionTo<int?>();
+
+            ElementKey = enumerableMapperData
+                .EnumerablePopulationBuilder.GetElementKey();
         }
 
         #region Factory Method
@@ -50,7 +54,9 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             if (!mapperData.TargetMember.IsEnumerable)
             {
-                return new SimpleMemberMapperData(sourceValue.ToSourceMember(mapperData.MapperContext), mapperData);
+                return new SimpleMemberMapperData(
+                    sourceValue.ToSourceMember(mapperData.MapperContext),
+                    mapperData);
             }
 
             var enumerableMapperData = (ObjectMapperData)mapperData;
@@ -68,18 +74,21 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
         public MapperDataContext Context => null;
 
-        public Expression ParentObject { get; }
+        public Expression ParentObject
+            => _parentObject ??= GetParentObjectAccess();
+
+        protected override Expression GetNestedSourceObject()
+            => _sourceObject ??= GetMappingDataProperty("Source");
+
+        protected override Expression GetNestedTargetObject()
+            => _targetObject ??= GetMappingDataProperty("Target");
+
+        public Expression TargetInstance => TargetObject;
 
         public ParameterExpression CreatedObject => null;
 
         public Expression ElementIndex { get; }
 
         public Expression ElementKey { get; }
-
-        public Expression ElementIndexValue { get; }
-
-        public Expression ElementKeyValue { get; }
-
-        public Expression TargetInstance => TargetObject;
     }
 }

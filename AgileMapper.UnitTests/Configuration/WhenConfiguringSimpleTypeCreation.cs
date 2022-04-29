@@ -13,6 +13,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConfiguringSimpleTypeCreation
     {
         // See https://github.com/agileobjects/AgileMapper/issues/165
@@ -141,7 +142,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 Func<long, DateTimeOffset, DateTimeOffset> factory =
-                    (fileTime, existing) => DateTimeOffset.FromFileTime(fileTime);
+                    (fileTime, _) => DateTimeOffset.FromFileTime(fileTime);
 
                 mapper.WhenMapping
                     .From<long>()

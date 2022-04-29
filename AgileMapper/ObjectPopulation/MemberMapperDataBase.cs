@@ -13,6 +13,7 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
     internal abstract class MemberMapperDataBase : QualifiedMemberContext
     {
+        private Type _mappingDataType;
         private Expression _sourceObject;
         private Expression _targetObject;
 
@@ -33,7 +34,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         {
             Parent = parent;
             MappingDataObject = CreateMappingDataObject();
-            MappingDataType = typeof(IMappingData<,>).MakeGenericType(SourceType, TargetType);
         }
 
         #region Setup
@@ -64,16 +64,6 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
 
             return Expression.Parameter(mdType, mappingDataVariableName);
         }
-
-        private Expression GetMappingDataProperty(Type mappingDataType, string propertyName)
-        {
-            var property = mappingDataType.GetPublicInstanceProperty(propertyName);
-
-            return Expression.Property(MappingDataObject, property);
-        }
-
-        protected Expression GetMappingDataProperty(string propertyName)
-            => Expression.Property(MappingDataObject, propertyName);
 
         #endregion
 
@@ -118,15 +108,18 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
         protected virtual Expression GetNestedTargetObject()
             => TargetMember.GetQualifiedAccess(Parent.TargetObject);
 
-        private Type MappingDataType { get; }
-
-        protected Expression GetElementIndexAccess()
-            => GetMappingDataProperty(MappingDataType, nameof(IMemberMapperData.ElementIndex));
-
-        protected Expression GetElementKeyAccess()
-            => GetMappingDataProperty(MappingDataType, nameof(IMemberMapperData.ElementKey));
-
         protected Expression GetParentObjectAccess()
             => GetMappingDataProperty(nameof(Parent));
+
+        protected Expression GetMappingDataProperty(string propertyName)
+        {
+            var property = MappingDataType.GetPublicInstanceProperty(propertyName);
+
+            return Expression.Property(MappingDataObject, property);
+        }
+
+        private Type MappingDataType
+            => _mappingDataType ??= typeof(IMappingData<,>)
+                .MakeGenericType(SourceType, TargetType);
     }
 }
