@@ -13,6 +13,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenIgnoringMembersByFilter
     {
         [Fact]
@@ -397,7 +398,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.MemberIgnores
 
         public class AttributeHelper
         {
-            public AttributeHelper([IgnoreMe]string value2)
+            public AttributeHelper([IgnoreMe] string value2)
             {
                 Value2 = value2;
             }

@@ -9,6 +9,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenIgnoringSourceMembersByValueFilterIncorrectly
     {
         [Fact]
@@ -38,7 +39,7 @@
             {
                 using (var mapper = Mapper.CreateNew())
                 {
-                    mapper.WhenMapping.IgnoreSources(c => true);
+                    mapper.WhenMapping.IgnoreSources(_ => true);
                 }
             });
 

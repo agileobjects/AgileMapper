@@ -16,7 +16,7 @@ namespace AgileObjects.AgileMapper.Configuration
         {
         }
 
-        internal override string PathPrefix => "Target.";
+        internal override string PathPrefix => Member.RootTargetMemberName + ".";
 
         /// <summary>
         /// Select all set methods.
