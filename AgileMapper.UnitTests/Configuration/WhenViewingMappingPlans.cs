@@ -14,6 +14,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenViewingMappingPlans
     {
         [Fact]
@@ -25,14 +26,14 @@
                     .WhenMapping
                     .From<Person>()
                     .Over<PersonViewModel>()
-                    .Map((p, pvm) => p.Title + " " + p.Name)
+                    .Map((p, _) => p.Title + " " + p.Name)
                     .To(pvm => pvm.Name);
 
                 string plan = mapper
                     .GetPlanFor<Person>()
                     .Over<PersonViewModel>();
 
-                plan.ShouldContain("pToPvmData.Target.Name = sourcePerson.Title + \" \" + sourcePerson.Name");
+                plan.ShouldContain("target.Name = source.Title + \" \" + source.Name");
             }
         }
 
@@ -52,8 +53,8 @@
                     .GetPlanFor<PublicField<PublicField<string>>>()
                     .ToANew<PublicProperty<string>>();
 
-                plan.ShouldContain("ata.Source.Value.Value");
-                plan.ShouldNotContain("ata.Source.Value.ToString()");
+                plan.ShouldContain("source.Value.Value");
+                plan.ShouldNotContain("source.Value.ToString()");
             }
         }
 
@@ -92,7 +93,7 @@
 
         // See https://github.com/agileobjects/AgileMapper/issues/13
         [Fact]
-        public void ShouldShowMapChildObjectCalls()
+        public void ShouldShowConfiguredSimpleTypeToObjectAssignments()
         {
             using (var mapper = Mapper.CreateNew())
             {
@@ -107,7 +108,7 @@
                     .ToANew<PublicTwoFields<string, object>>();
 
                 plan.ShouldContain("// Map PublicProperty<string> -> PublicTwoFields<string, object>");
-                plan.ShouldContain(".Value1 = sppToSoptfData.Source.Value");
+                plan.ShouldContain(".Value1 = source.Value");
                 plan.ShouldContain("// No data sources for Value2");
             }
         }
@@ -219,7 +220,7 @@
 
                 mappingPlan.ShouldNotBeNull();
                 mappingPlan.ShouldContain("srcEnumResult = ");
-                mappingPlan.ShouldContain(".Invoke(sToTsData)");
+                mappingPlan.ShouldContain(".Invoke(asResult)");
             }
         }
 
