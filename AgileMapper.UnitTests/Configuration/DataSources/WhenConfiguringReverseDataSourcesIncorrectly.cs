@@ -12,6 +12,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConfiguringReverseDataSourcesIncorrectly
     {
         [Fact]

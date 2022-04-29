@@ -13,6 +13,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConfiguringSequentialDataSourcesIncorrectly
     {
         [Fact]

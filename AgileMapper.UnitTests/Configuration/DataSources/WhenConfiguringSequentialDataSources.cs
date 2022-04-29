@@ -10,6 +10,7 @@
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     // See https://github.com/agileobjects/AgileMapper/issues/184
     public class WhenConfiguringSequentialDataSources
     {

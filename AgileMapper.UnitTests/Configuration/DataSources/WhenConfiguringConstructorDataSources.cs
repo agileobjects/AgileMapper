@@ -12,6 +12,7 @@ namespace AgileObjects.AgileMapper.UnitTests.Configuration.DataSources
 
     [NUnit.Framework.TestFixture]
 #endif
+    [Trait("Category", "Checked")]
     public class WhenConfiguringConstructorDataSources
     {
         [Fact]
