@@ -285,13 +285,26 @@
 
         #endregion
 
-        public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions() => PassExceptionsTo(_ => { });
+        #region Exception Handling
 
-        public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(Action<IMappingExceptionData<TSource, TTarget>> callback)
+        public IFullMappingSettings<TSource, TTarget> SwallowAllExceptions()
+            => PassExceptionsTo(new ExceptionSwallower(ConfigInfo));
+
+        public IFullMappingSettings<TSource, TTarget> PassExceptionsTo(
+            Action<IMappingExceptionData<TSource, TTarget>> callback)
         {
-            UserConfigurations.Add(new ExceptionCallback(ConfigInfo, callback.ToConstantExpression()));
+            return PassExceptionsTo(new ConfiguredExceptionCallback(
+                ConfigInfo, 
+                callback.ToConstantExpression()));
+        }
+
+        private IFullMappingSettings<TSource, TTarget> PassExceptionsTo(ExceptionCallback callback)
+        {
+            UserConfigurations.Add(callback);
             return this;
         }
+
+        #endregion
 
         public IFullMappingSettings<TSource, TTarget> MaintainIdentityIntegrity() => SetMappedObjectCaching(cache: true);
 
