@@ -7,6 +7,7 @@
     using System.Linq.Expressions;
 #endif
     using Configuration.MemberIgnores.SourceValueFilters;
+    using Extensions;
     using Extensions.Internal;
     using Members;
     using Members.Extensions;
@@ -113,7 +114,7 @@
             return filters.HasOne()
                 ? filters.First().GetConditionOrNull(sourceValue, mapperData)
                 : filters
-                    .ProjectToArray(
+                    .Project(
                         new { sourceValue, mapperData },
                        (d, filter) => filter.GetConditionOrNull(d.sourceValue, d.mapperData))
                     .AndTogether();

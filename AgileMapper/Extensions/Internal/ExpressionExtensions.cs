@@ -74,21 +74,34 @@
                 defaultValue ?? value.Type.ToDefaultExpression());
         }
 
-        public static Expression AndTogether(this IList<Expression> expressions)
+        public static Expression AndTogether(this IEnumerable<Expression> expressions)
+            => expressions.Combine(Expression.AndAlso);
+
+        public static Expression Combine(
+            this IEnumerable<Expression> expressions,
+            Func<Expression, Expression, Expression> combinator)
         {
-            if (expressions.None())
+            using var enumerator = expressions.GetEnumerator();
+
+            if (!enumerator.MoveNext())
             {
                 return null;
             }
 
-            if (expressions.HasOne())
+            var combination = enumerator.Current;
+
+            if (!enumerator.MoveNext())
             {
-                return expressions.First();
+                return combination;
             }
 
-            var allClauses = expressions.Chain(firstClause => firstClause, Expression.AndAlso);
+            do
+            {
+                combination = combinator.Invoke(combination, enumerator.Current);
+            }
+            while (enumerator.MoveNext());
 
-            return allClauses;
+            return combination;
         }
 
         public static LoopExpression InsertAssignment(

@@ -51,15 +51,15 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
                 .DataSourcesByTargetMember
                 .Values
                 .Project(dataSourceSet => dataSourceSet.SourceMemberTypeTest)
-                .WhereNotNull()
-                .ToList();
+                .WhereNotNull();
 
-            if (typeTests.None())
+            var typeTest = typeTests.AndTogether();
+
+            if (typeTest == null)
             {
                 return;
             }
 
-            var typeTest = typeTests.AndTogether();
             var sourceParameter = typeof(object).GetOrCreateSourceParameter();
             var typeTestLambda = Expression.Lambda<Func<object, bool>>(typeTest, sourceParameter);
 

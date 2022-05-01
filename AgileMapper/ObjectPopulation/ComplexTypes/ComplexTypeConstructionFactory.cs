@@ -611,13 +611,13 @@ namespace AgileObjects.AgileMapper.ObjectPopulation.ComplexTypes
                 IMemberMapperData mapperData)
             {
                 return constructions.Chain(
-                    cs => cs.Last(),
-                    item => item.GetConstruction(mapperData),
-                   (valueSoFar, item) => Expression.Condition(
-                       item.GetConditionOrNull(mapperData),
-                       item.GetConstruction(mapperData),
+                    ctors => ctors.Last(),
+                    ctor => ctor.GetConstruction(mapperData),
+                   (valueSoFar, ctor) => Expression.Condition(
+                       ctor.GetConditionOrNull(mapperData),
+                       ctor.GetConstruction(mapperData),
                        valueSoFar),
-                    i => i.Reverse());
+                    ctors => ctors.Reverse());
             }
 
             public IConstruction With(ConstructionKey key)

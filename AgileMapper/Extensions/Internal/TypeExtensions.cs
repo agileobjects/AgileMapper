@@ -136,10 +136,14 @@
         {
             type = type.GetNonNullableType();
 
-            return type.IsEnum() ? enumValueFactory.Invoke(GetEnumValuesArray(type, Convert.ToInt64)) : cache[type];
+            return type.IsEnum()
+                ? enumValueFactory.Invoke(ProjectEnumValuesToArray(type, Convert.ToInt64))
+                : cache[type];
         }
 
-        public static TResult[] GetEnumValuesArray<TResult>(this Type enumType, Func<object, TResult> resultFactory)
+        public static TResult[] ProjectEnumValuesToArray<TResult>(
+            this Type enumType,
+            Func<object, TResult> resultFactory)
         {
             var values = Enum.GetValues(enumType);
             var valueCount = values.Length;
@@ -154,7 +158,8 @@
 
             foreach (var value in values)
             {
-                resultValues[i++] = resultFactory.Invoke(value);
+                resultValues[i] = resultFactory.Invoke(value);
+                ++i;
             }
 
             return resultValues;
