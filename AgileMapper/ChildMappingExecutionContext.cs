@@ -57,6 +57,7 @@
         TChildSource IMappingData<TChildSource, TChildTarget>.Source => _source;
 
         TChildTarget IMappingData<TChildSource, TChildTarget>.Target => _target;
+        
 
         #endregion
     }

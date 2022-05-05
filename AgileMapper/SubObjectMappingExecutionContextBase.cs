@@ -32,6 +32,11 @@
 
         public override object Target { get; }
 
+        protected override void Set(object target)
+        {
+            // Only ever called on root objects
+        }
+
         protected IObjectMappingData GetParentMappingData() => _parent.GetMappingData();
     }
 }

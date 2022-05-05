@@ -58,6 +58,14 @@
 
         #region IMappingExecutionContext Members
 
+        public IMappingExecutionContext SetTarget(object target)
+        {
+            Set(target);
+            return this;
+        }
+
+        protected abstract void Set(object target);
+
         private Dictionary<object, List<object>> MappedObjectsBySource
             => _mappedObjectsBySource ??= new Dictionary<object, List<object>>(13);
 

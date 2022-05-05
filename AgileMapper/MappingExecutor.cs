@@ -237,6 +237,8 @@
 
         public override object Target => _target;
 
+        protected override void Set(object target) => _target = target;
+
         public override IObjectMappingData GetMappingData()
             => _rootMappingData ??= _rootMappingDataFactory.Invoke();
 

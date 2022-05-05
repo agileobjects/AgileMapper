@@ -60,23 +60,21 @@ internal static class TargetObjectResolutionFactory
         {
             objectValue = mapperData.GetTargetMemberDefault();
             mapperData.Context.NeedsMappingData = false;
+            return AddExistingTargetCheckIfAppropriate(objectValue, mapperData);
         }
-        else
+
+        if (assignCreatedObject)
         {
-            if (assignCreatedObject)
-            {
-                // TODO mapperData.Context.UsesMappingDataObjectAsParameter = true;
-                objectValue = mapperData.CreatedObject.AssignTo(objectValue);
-            }
-
-            if (assignTargetObject || mapperData.Context.NeedsMappingData)
-            {
-                objectValue = mapperData.TargetObject.AssignTo(objectValue);
-            }
+            // TODO mapperData.Context.UsesMappingDataObjectAsParameter = true;
+            objectValue = mapperData.CreatedObject.AssignTo(objectValue);
         }
 
-        objectValue = AddExistingTargetCheckIfAppropriate(objectValue, mapperData);
-        return objectValue;
+        if (assignTargetObject || mapperData.Context.NeedsMappingData)
+        {
+            objectValue = mapperData.TargetObject.AssignTo(objectValue);
+        }
+
+        return AddExistingTargetCheckIfAppropriate(objectValue, mapperData);
     }
 
     private static bool MarkUnconstructableMemberAsReadOnly(IObjectMappingData mappingData)

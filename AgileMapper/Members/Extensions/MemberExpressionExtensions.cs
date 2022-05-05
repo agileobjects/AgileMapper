@@ -1,19 +1,25 @@
 namespace AgileObjects.AgileMapper.Members.Extensions;
 
 using System;
+using System.Linq;
 #if NET35
 using Microsoft.Scripting.Ast;
 #else
 using System.Linq.Expressions;
 #endif
 using AgileMapper.Extensions.Internal;
+#if NET35
+using static Microsoft.Scripting.Ast.Expression;
+#else
+using static System.Linq.Expressions.Expression;
+#endif
 
 internal static class MemberExpressionExtensions
 {
     public static bool IsMappingContextCall(this MethodCallExpression methodCall)
         => methodCall.Object == Constants.ExecutionContextParameter;
 
-    public static TryExpression WrapInTryCatch(this Expression mapping, IMemberMapperData mapperData)
+    public static Expression WrapInTryCatch(this Expression mapping, IMemberMapperData mapperData)
     {
         var configuredCallback = mapperData
             .MapperContext.UserConfigurations
@@ -24,7 +30,7 @@ internal static class MemberExpressionExtensions
 
         if (configuredCallback == null)
         {
-            var catchBody = Expression.Throw(
+            var catchBody = Throw(
                 MappingException.GetFactoryMethodCall(mapperData, exceptionVariable),
                 mapping.Type);
 
@@ -34,10 +40,22 @@ internal static class MemberExpressionExtensions
         var configuredCatchBody = configuredCallback
             .ToCatchBody(exceptionVariable, mapping.Type, mapperData);
 
-        return CreateTryCatch(
-            mapping,
-            exceptionVariable,
-            configuredCatchBody);
+        if (mapping.NodeType != ExpressionType.Block ||
+            !mapperData.Context.UseLocalTargetVariable)
+        {
+            return CreateTryCatch(mapping, exceptionVariable, configuredCatchBody);
+        }
+
+        var targetVariable = (ParameterExpression)mapperData.TargetInstance;
+        var mappingBlock = (BlockExpression)mapping;
+
+        mapping = Block(
+            mappingBlock.Variables.Except(new[] { targetVariable }),
+            mappingBlock.Expressions);
+
+        return Block(
+            new[] { targetVariable },
+            CreateTryCatch(mapping, exceptionVariable, configuredCatchBody));
     }
 
     private static string GetExceptionName(this IMemberMapperData mapperData)
@@ -62,8 +80,8 @@ internal static class MemberExpressionExtensions
         ParameterExpression exceptionVariable,
         Expression catchBody)
     {
-        var catchBlock = Expression.Catch(exceptionVariable, catchBody);
+        var catchBlock = Catch(exceptionVariable, catchBody);
 
-        return Expression.TryCatch(mappingBlock, catchBlock);
+        return TryCatch(mappingBlock, catchBlock);
     }
 }

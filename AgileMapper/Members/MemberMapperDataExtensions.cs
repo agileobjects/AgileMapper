@@ -122,13 +122,14 @@ namespace AgileObjects.AgileMapper.Members
 
             if (mapperData.IsRoot)
             {
+                mappingContext = mapperData.GetRootExecutionContext();
+
                 if (contextTypes.All(t => t == typeof(object)))
                 {
-                    return Constants.ExecutionContextParameter;
+                    return mappingContext;
                 }
 
                 parentMapperData = (ObjectMapperData)mapperData;
-                mappingContext = Constants.ExecutionContextParameter;
                 goto CheckContextTypes;
             }
 
@@ -174,6 +175,25 @@ namespace AgileObjects.AgileMapper.Members
                 .MakeGenericMethod(sourceAndTargetTypes);
 
             return Expression.Call(mappingContext, asMethod);
+        }
+
+        public static Expression GetRootExecutionContext(
+            this IMemberMapperData mapperData)
+        {
+            var rootContext = Constants.ExecutionContextParameter;
+
+            if (mapperData.TargetIsDefinitelyPopulated())
+            {
+                return rootContext;
+            }
+
+            var setTargetCall = Expression.Call(
+                rootContext,
+                typeof(IMappingExecutionContext)
+                    .GetPublicInstanceMethod("SetTarget"),
+                mapperData.TargetInstance);
+
+            return setTargetCall;
         }
 
         public static MappingValues GetMappingValues(
