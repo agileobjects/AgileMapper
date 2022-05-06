@@ -4,7 +4,7 @@ using System;
 #if NET35
 using Microsoft.Scripting.Ast;
 #else
-    using System.Linq.Expressions;
+using System.Linq.Expressions;
 #endif
 using System.Reflection;
 using Extensions.Internal;
@@ -15,7 +15,7 @@ using ObjectPopulation;
 internal class ConfiguredExceptionCallback : ExceptionCallback
 {
     private readonly Expression _callback;
-    private readonly bool _isGlobalCallback;
+    private readonly bool _isGlobal;
     private readonly Type[] _contextTypes;
 
     public ConfiguredExceptionCallback(
@@ -26,9 +26,9 @@ internal class ConfiguredExceptionCallback : ExceptionCallback
         _callback = callback;
 
         var callbackActionType = _callback.Type.GetGenericTypeArguments()[0];
-        _isGlobalCallback = !callbackActionType.IsGenericType();
+        _isGlobal = !callbackActionType.IsGenericType();
 
-        if (_isGlobalCallback)
+        if (_isGlobal)
         {
             return;
         }
@@ -42,21 +42,21 @@ internal class ConfiguredExceptionCallback : ExceptionCallback
         IMemberMapperData mapperData)
     {
         Type[] contextTypes;
-        Expression mappingData;
         MethodInfo exceptionContextCreateMethod;
 
-        if (_isGlobalCallback)
+        if (_isGlobal)
         {
             contextTypes = new[] { mapperData.SourceType, mapperData.TargetType };
-            mappingData = mapperData.GetToMappingDataCall(contextTypes);
             exceptionContextCreateMethod = ObjectMappingExceptionData.CreateMethod;
         }
         else
         {
             contextTypes = _contextTypes;
-            mappingData = mapperData.GetAppropriateTypedMappingContextAccess(contextTypes);
+            mapperData = mapperData.GetMapperDataFor(contextTypes);
             exceptionContextCreateMethod = ObjectMappingExceptionData.CreateTypedMethod;
         }
+
+        var mappingData = mapperData.GetToMappingDataCall(contextTypes);
 
         var createExceptionContextCall = Expression.Call(
             exceptionContextCreateMethod.MakeGenericMethod(contextTypes),

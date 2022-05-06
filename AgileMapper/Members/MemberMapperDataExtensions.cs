@@ -1,820 +1,819 @@
-namespace AgileObjects.AgileMapper.Members
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
+namespace AgileObjects.AgileMapper.Members;
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 #if NET35
-    using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast;
 #else
-    using System.Linq.Expressions;
+using System.Linq.Expressions;
 #endif
-    using System.Reflection;
-    using AgileMapper.Extensions;
-    using AgileMapper.Extensions.Internal;
-    using Configuration;
-    using Configuration.DataSources;
-    using Configuration.MemberIgnores.SourceValueFilters;
-    using DataSources;
-    using Dictionaries;
-    using Extensions;
-    using NetStandardPolyfills;
-    using ObjectPopulation;
-    using ObjectPopulation.Enumerables.EnumerableExtensions;
-    using static System.StringComparison;
+using System.Reflection;
+using AgileMapper.Extensions;
+using AgileMapper.Extensions.Internal;
+using Configuration;
+using Configuration.DataSources;
+using Configuration.MemberIgnores.SourceValueFilters;
+using DataSources;
+using Dictionaries;
+using Extensions;
+using NetStandardPolyfills;
+using ObjectPopulation;
+using ObjectPopulation.Enumerables.EnumerableExtensions;
+using static System.StringComparison;
 
-    internal static class MemberMapperDataExtensions
+internal static class MemberMapperDataExtensions
+{
+    public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
+        => IsEntity(mapperData, mapperData.TargetType, out _);
+
+    public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
     {
-        public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
-            => IsEntity(mapperData, mapperData.TargetType, out _);
-
-        public static bool IsEntity(this IMemberMapperData mapperData, Type type, out Member idMember)
+        if ((type == null) ||
+            type.Name.EndsWith("ViewModel", Ordinal) ||
+            type.Name.EndsWith("Dto", Ordinal) ||
+            type.Name.EndsWith("DataTransferObject", Ordinal))
         {
-            if ((type == null) ||
-                 type.Name.EndsWith("ViewModel", Ordinal) ||
-                 type.Name.EndsWith("Dto", Ordinal) ||
-                 type.Name.EndsWith("DataTransferObject", Ordinal))
-            {
-                idMember = null;
-                return false;
-            }
-
-            idMember = mapperData.GetIdentifierOrNull(type);
-
-            return idMember?.IsEntityId() == true;
+            idMember = null;
+            return false;
         }
 
-        public static bool UseSingleMappingExpression(this IQualifiedMemberContext context)
-            => context.IsRoot && context.RuleSet.Settings.UseSingleRootMappingExpression;
+        idMember = mapperData.GetIdentifierOrNull(type);
 
-        public static bool UseMemberInitialisations(this IMemberMapperData mapperData)
-            => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping();
+        return idMember?.IsEntityId() == true;
+    }
 
-        public static bool MapToNullCollections(this IQualifiedMemberContext context)
-            => context.MapperContext.UserConfigurations.MapToNullCollections(context);
+    public static bool UseSingleMappingExpression(this IQualifiedMemberContext context)
+        => context.IsRoot && context.RuleSet.Settings.UseSingleRootMappingExpression;
 
-        [DebuggerStepThrough]
-        public static ObjectMapperData GetRootMapperData(this IQualifiedMemberContext context)
+    public static bool UseMemberInitialisations(this IMemberMapperData mapperData)
+        => mapperData.RuleSet.Settings.UseMemberInitialisation || mapperData.Context.IsPartOfUserStructMapping();
+
+    public static bool MapToNullCollections(this IQualifiedMemberContext context)
+        => context.MapperContext.UserConfigurations.MapToNullCollections(context);
+
+    [DebuggerStepThrough]
+    public static ObjectMapperData GetRootMapperData(this IQualifiedMemberContext context)
+    {
+        while (!context.IsRoot)
         {
-            while (!context.IsRoot)
-            {
-                context = context.Parent;
-            }
-
-            return (ObjectMapperData)context;
+            context = context.Parent;
         }
 
-        public static IQualifiedMemberContext GetElementMemberContext(this IMemberMapperData mapperData)
-        {
-            if (mapperData.TargetMember.IsEnumerable)
-            {
-                return new QualifiedMemberContext(
-                    mapperData.RuleSet,
-                    mapperData.SourceType,
-                    mapperData.TargetMember.ElementType,
-                    mapperData.SourceMember,
-                    mapperData.TargetMember.GetElementMember(),
-                    mapperData,
-                    mapperData.MapperContext);
-            }
+        return (ObjectMapperData)context;
+    }
 
-            return mapperData;
+    public static IQualifiedMemberContext GetElementMemberContext(this IMemberMapperData mapperData)
+    {
+        if (mapperData.TargetMember.IsEnumerable)
+        {
+            return new QualifiedMemberContext(
+                mapperData.RuleSet,
+                mapperData.SourceType,
+                mapperData.TargetMember.ElementType,
+                mapperData.SourceMember,
+                mapperData.TargetMember.GetElementMember(),
+                mapperData,
+                mapperData.MapperContext);
         }
 
-        public static IEnumerable<ObjectMapperData> EnumerateAllMapperDatas(this ObjectMapperData mapperData)
-        {
-            yield return mapperData;
+        return mapperData;
+    }
 
-            foreach (var childMapperData in mapperData.ChildMapperDatasOrEmpty.SelectMany(md => md.EnumerateAllMapperDatas()))
-            {
-                yield return childMapperData;
-            }
+    public static IEnumerable<ObjectMapperData> EnumerateAllMapperDatas(this ObjectMapperData mapperData)
+    {
+        yield return mapperData;
+
+        foreach (var childMapperData in mapperData.ChildMapperDatasOrEmpty.SelectMany(md => md.EnumerateAllMapperDatas()))
+        {
+            yield return childMapperData;
+        }
+    }
+
+    public static bool TargetCouldBePopulated(this IMemberMapperData mapperData)
+        => !TargetIsDefinitelyUnpopulated(mapperData);
+
+    public static bool TargetIsDefinitelyPopulated(this IQualifiedMemberContext context)
+    {
+        return context.RuleSet.Settings.RootHasPopulatedTarget &&
+               (context.IsRoot || context.TargetMemberIsUserStruct());
+    }
+
+    public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
+        => mapperData.Context.IsForNewElement || (mapperData.TargetMember.IsRoot && !mapperData.RuleSet.Settings.RootHasPopulatedTarget);
+
+    public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
+    {
+        if (mapperData.Context.IsStandalone)
+        {
+            return false;
         }
 
-        public static bool TargetCouldBePopulated(this IMemberMapperData mapperData)
-            => !TargetIsDefinitelyUnpopulated(mapperData);
+        return mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
+    }
 
-        public static bool TargetIsDefinitelyPopulated(this IQualifiedMemberContext context)
+    public static Expression GetToMappingDataCall(
+        this IMemberMapperData mapperData,
+        Type[] contextTypes)
+    {
+        ObjectMapperData parentMapperData;
+        Expression mappingContext;
+
+        if (mapperData.IsRoot)
         {
-            return context.RuleSet.Settings.RootHasPopulatedTarget &&
-                  (context.IsRoot || context.TargetMemberIsUserStruct());
-        }
+            mappingContext = mapperData.GetRootExecutionContext();
 
-        public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
-            => mapperData.Context.IsForNewElement || (mapperData.TargetMember.IsRoot && !mapperData.RuleSet.Settings.RootHasPopulatedTarget);
-
-        public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
-        {
-            if (mapperData.Context.IsStandalone)
-            {
-                return false;
-            }
-
-            return mapperData.SourceMember.Matches(mapperData.Parent.SourceMember);
-        }
-
-        public static Expression GetToMappingDataCall(
-            this IMemberMapperData mapperData,
-            Type[] contextTypes)
-        {
-            ObjectMapperData parentMapperData;
-            Expression mappingContext;
-
-            if (mapperData.IsRoot)
-            {
-                mappingContext = mapperData.GetRootExecutionContext();
-
-                if (contextTypes.All(t => t == typeof(object)))
-                {
-                    return mappingContext;
-                }
-
-                parentMapperData = (ObjectMapperData)mapperData;
-                goto CheckContextTypes;
-            }
-
-            parentMapperData = mapperData.Parent;
-
-            var objectMapperData =
-                mapperData as ObjectMapperData ?? parentMapperData;
-
-            var mappingValues = mapperData.TargetMemberIsEnumerableElement()
-                ? objectMapperData.GetMappingValues(
-                    mapperData.SourceObject,
-                    mapperData.TargetObject)
-                : objectMapperData.ToMappingValues();
-
-            mappingContext = parentMapperData.GetCreateExecutionContextCall(
-                mappingValues,
-                mapperData.TargetMember);
-
-        CheckContextTypes:
-            var sourceAndTargetTypes = contextTypes.Length == 2
-                ? contextTypes
-                : new[] { contextTypes[0], contextTypes[1] };
-
-            if (parentMapperData.IsRoot)
-            {
-                goto CreateAsCall;
-            }
-
-            var targetMappingDataType = typeof(IMappingData<,>)
-                .MakeGenericType(sourceAndTargetTypes);
-
-            var hasCompatibleContext = mappingContext.Type
-                .IsAssignableTo(targetMappingDataType);
-
-            if (hasCompatibleContext)
+            if (contextTypes.All(t => t == typeof(object)))
             {
                 return mappingContext;
             }
 
+            parentMapperData = (ObjectMapperData)mapperData;
+            goto CheckContextTypes;
+        }
+
+        parentMapperData = mapperData.Parent;
+
+        var objectMapperData =
+            mapperData as ObjectMapperData ?? parentMapperData;
+
+        var mappingValues = mapperData.TargetMemberIsEnumerableElement()
+            ? objectMapperData.GetMappingValues(
+                mapperData.SourceObject,
+                mapperData.TargetObject)
+            : objectMapperData.ToMappingValues();
+
+        mappingContext = parentMapperData.GetCreateExecutionContextCall(
+            mappingValues,
+            mapperData.TargetMember);
+
+        CheckContextTypes:
+        var sourceAndTargetTypes = contextTypes.Length == 2
+            ? contextTypes
+            : new[] { contextTypes[0], contextTypes[1] };
+
+        if (parentMapperData.IsRoot)
+        {
+            goto CreateAsCall;
+        }
+
+        var targetMappingDataType = typeof(IMappingData<,>)
+            .MakeGenericType(sourceAndTargetTypes);
+
+        var hasCompatibleContext = mappingContext.Type
+            .IsAssignableTo(targetMappingDataType);
+
+        if (hasCompatibleContext)
+        {
+            return mappingContext;
+        }
+
         CreateAsCall:
-            var asMethod = typeof(IMappingData)
-                .GetPublicInstanceMethod("As")
-                .MakeGenericMethod(sourceAndTargetTypes);
+        var asMethod = typeof(IMappingData)
+            .GetPublicInstanceMethod("As")
+            .MakeGenericMethod(sourceAndTargetTypes);
 
-            return Expression.Call(mappingContext, asMethod);
+        return Expression.Call(mappingContext, asMethod);
+    }
+
+    public static Expression GetRootExecutionContext(
+        this IMemberMapperData mapperData)
+    {
+        var rootContext = Constants.ExecutionContextParameter;
+
+        if (mapperData.TargetIsDefinitelyPopulated())
+        {
+            return rootContext;
         }
 
-        public static Expression GetRootExecutionContext(
-            this IMemberMapperData mapperData)
+        var setTargetCall = Expression.Call(
+            rootContext,
+            typeof(IMappingExecutionContext)
+                .GetPublicInstanceMethod("SetTarget"),
+            mapperData.TargetInstance);
+
+        return setTargetCall;
+    }
+
+    public static MappingValues GetMappingValues(
+        this IMemberMapperData mapperData,
+        Expression sourceValue,
+        QualifiedMember targetMember,
+        int dataSourceIndex)
+    {
+        Expression elementIndex, elementKey;
+
+        if (mapperData.IsRoot)
         {
-            var rootContext = Constants.ExecutionContextParameter;
-
-            if (mapperData.TargetIsDefinitelyPopulated())
-            {
-                return rootContext;
-            }
-
-            var setTargetCall = Expression.Call(
-                rootContext,
-                typeof(IMappingExecutionContext)
-                    .GetPublicInstanceMethod("SetTarget"),
-                mapperData.TargetInstance);
-
-            return setTargetCall;
+            elementIndex = Constants.NullInt;
+            elementKey = Constants.NullObject;
+        }
+        else
+        {
+            elementIndex = mapperData.Parent.ElementIndex;
+            elementKey = mapperData.Parent.ElementKey;
         }
 
-        public static MappingValues GetMappingValues(
-            this IMemberMapperData mapperData,
-            Expression sourceValue,
-            QualifiedMember targetMember,
-            int dataSourceIndex)
+        return new MappingValues(
+            sourceValue,
+            targetMember.GetAccess(mapperData),
+            elementIndex,
+            elementKey,
+            dataSourceIndex);
+    }
+
+    public static MappingValues GetMappingValues(
+        this ObjectMapperData enumerableMapperData,
+        Expression sourceElement,
+        Expression targetElement)
+    {
+        return new MappingValues(
+            sourceElement,
+            targetElement,
+            enumerableMapperData.EnumerablePopulationBuilder.Counter,
+            enumerableMapperData.EnumerablePopulationBuilder.GetElementKey());
+    }
+
+    public static MemberInfo GetOrderMember(this IMemberMapperData mapperData, Type type)
+    {
+        return type.GetPublicInstanceMember("Order") ??
+               type.GetPublicInstanceMember("DateCreated") ??
+               mapperData.GetIdentifierOrNull(type)?.MemberInfo;
+    }
+
+    public static Member GetIdentifierOrNull(this IMemberMapperData mapperData, Type type)
+        => mapperData.MapperContext.GetIdentifierOrNull(type);
+
+    public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
+    {
+        if (mapperData.Context.IsStandalone)
         {
-            Expression elementIndex, elementKey;
-
-            if (mapperData.IsRoot)
-            {
-                elementIndex = Constants.NullInt;
-                elementKey = Constants.NullObject;
-            }
-            else
-            {
-                elementIndex = mapperData.Parent.ElementIndex;
-                elementKey = mapperData.Parent.ElementKey;
-            }
-
-            return new MappingValues(
-                sourceValue,
-                targetMember.GetAccess(mapperData),
-                elementIndex,
-                elementKey,
-                dataSourceIndex);
+            return mapperData.TargetObject;
         }
 
-        public static MappingValues GetMappingValues(
-            this ObjectMapperData enumerableMapperData,
-            Expression sourceElement,
-            Expression targetElement)
+        var subjectMapperData = mapperData.TargetMember.LeafMember.DeclaringType == mapperData.TargetInstance.Type
+            ? mapperData
+            : mapperData.Parent;
+
+        return mapperData.TargetMember.GetAccess(subjectMapperData.TargetInstance, mapperData);
+    }
+
+    [DebuggerStepThrough]
+    public static Expression GetTargetMemberDefault(this IQualifiedMemberContext context)
+        => context.TargetMember.Type.ToDefaultExpression();
+
+    public static ConditionalExpression ToIfFalseDefaultCondition(
+        this Expression value,
+        Expression condition,
+        IMemberMapperData mapperData)
+    {
+        return value.ToIfFalseDefaultCondition(condition, mapperData.GetTargetFallbackValue());
+    }
+
+    public static Expression GetTargetFallbackValue(this IMemberMapperData mapperData)
+        => mapperData.RuleSet.FallbackDataSourceFactory.Invoke(mapperData).Value;
+
+    public static Expression GetNestedAccessChecksFor(this IMemberMapperData mapperData, Expression value)
+        => GetNestedAccessChecksFor(value, mapperData.RuleSet, mapperData);
+
+    public static Expression GetNestedAccessChecksFor(this MappingRuleSet ruleSet, Expression value)
+        => GetNestedAccessChecksFor(value, ruleSet, mapperData: null);
+
+    private static Expression GetNestedAccessChecksFor(
+        Expression value,
+        MappingRuleSet ruleSet,
+        IMemberMapperData mapperData)
+    {
+        if (ruleSet.Settings?.GuardAccessTo(value) == false)
         {
-            return new MappingValues(
-                sourceElement,
-                targetElement,
-                enumerableMapperData.EnumerablePopulationBuilder.Counter,
-                enumerableMapperData.EnumerablePopulationBuilder.GetElementKey());
-        }
-
-        public static MemberInfo GetOrderMember(this IMemberMapperData mapperData, Type type)
-        {
-            return type.GetPublicInstanceMember("Order") ??
-                   type.GetPublicInstanceMember("DateCreated") ??
-                   mapperData.GetIdentifierOrNull(type)?.MemberInfo;
-        }
-
-        public static Member GetIdentifierOrNull(this IMemberMapperData mapperData, Type type)
-            => mapperData.MapperContext.GetIdentifierOrNull(type);
-
-        public static Expression GetTargetMemberAccess(this IMemberMapperData mapperData)
-        {
-            if (mapperData.Context.IsStandalone)
-            {
-                return mapperData.TargetObject;
-            }
-
-            var subjectMapperData = mapperData.TargetMember.LeafMember.DeclaringType == mapperData.TargetInstance.Type
-                ? mapperData
-                : mapperData.Parent;
-
-            return mapperData.TargetMember.GetAccess(subjectMapperData.TargetInstance, mapperData);
-        }
-
-        [DebuggerStepThrough]
-        public static Expression GetTargetMemberDefault(this IQualifiedMemberContext context)
-            => context.TargetMember.Type.ToDefaultExpression();
-
-        public static ConditionalExpression ToIfFalseDefaultCondition(
-            this Expression value,
-            Expression condition,
-            IMemberMapperData mapperData)
-        {
-            return value.ToIfFalseDefaultCondition(condition, mapperData.GetTargetFallbackValue());
-        }
-
-        public static Expression GetTargetFallbackValue(this IMemberMapperData mapperData)
-            => mapperData.RuleSet.FallbackDataSourceFactory.Invoke(mapperData).Value;
-
-        public static Expression GetNestedAccessChecksFor(this IMemberMapperData mapperData, Expression value)
-            => GetNestedAccessChecksFor(value, mapperData.RuleSet, mapperData);
-
-        public static Expression GetNestedAccessChecksFor(this MappingRuleSet ruleSet, Expression value)
-            => GetNestedAccessChecksFor(value, ruleSet, mapperData: null);
-
-        private static Expression GetNestedAccessChecksFor(
-            Expression value,
-            MappingRuleSet ruleSet,
-            IMemberMapperData mapperData)
-        {
-            if (ruleSet.Settings?.GuardAccessTo(value) == false)
-            {
-                return null;
-            }
-
-            return NestedAccessChecksFactory.GetNestedAccessChecksFor(value, mapperData);
-        }
-
-        public static bool SourceMemberIsStringKeyedDictionary(
-            this IMemberMapperData mapperData,
-            out DictionarySourceMember dictionarySourceMember)
-        {
-            dictionarySourceMember = mapperData.GetDictionarySourceMemberOrNull();
-
-            if (dictionarySourceMember == null)
-            {
-                return false;
-            }
-
-            return dictionarySourceMember.KeyType == typeof(string);
-        }
-
-        public static DictionarySourceMember GetDictionarySourceMemberOrNull(this IMemberMapperData mapperData)
-        {
-            if (mapperData.SourceMember is DictionarySourceMember dictionarySourceMember)
-            {
-                return dictionarySourceMember;
-            }
-
-            // We're mapping a dictionary entry by its runtime type:
             return null;
         }
 
-        public static void RegisterTargetMemberDataSources(
-            this IMemberMapperData memberMapperData,
-            IDataSourceSet dataSources)
+        return NestedAccessChecksFactory.GetNestedAccessChecksFor(value, mapperData);
+    }
+
+    public static bool SourceMemberIsStringKeyedDictionary(
+        this IMemberMapperData mapperData,
+        out DictionarySourceMember dictionarySourceMember)
+    {
+        dictionarySourceMember = mapperData.GetDictionarySourceMemberOrNull();
+
+        if (dictionarySourceMember == null)
         {
-            memberMapperData.Parent
-                .MergeTargetMemberDataSources(memberMapperData.TargetMember, dataSources);
+            return false;
         }
 
-        public static void MergeTargetMemberDataSources(
-            this ObjectMapperData mapperData,
-            QualifiedMember targetMember,
-            IDataSourceSet dataSources)
+        return dictionarySourceMember.KeyType == typeof(string);
+    }
+
+    public static DictionarySourceMember GetDictionarySourceMemberOrNull(this IMemberMapperData mapperData)
+    {
+        if (mapperData.SourceMember is DictionarySourceMember dictionarySourceMember)
         {
-            var dataSourcesByTargetMember = mapperData.DataSourcesByTargetMember;
-
-            if (dataSourcesByTargetMember.TryGetValue(targetMember, out var registeredDataSources) &&
-                registeredDataSources.HasValue)
-            {
-                return;
-            }
-
-            dataSourcesByTargetMember[targetMember] = dataSources;
+            return dictionarySourceMember;
         }
 
-        public static bool TargetMemberIsUnmappable<TTMapperData>(
-            this TTMapperData mapperData,
-            QualifiedMember targetMember,
-            Func<TTMapperData, IEnumerable<ConfiguredDataSourceFactoryBase>> configuredDataSourcesFactory,
-            UserConfigurationSet userConfigurations,
-            out string reason)
-            where TTMapperData : IQualifiedMemberContext
+        // We're mapping a dictionary entry by its runtime type:
+        return null;
+    }
+
+    public static void RegisterTargetMemberDataSources(
+        this IMemberMapperData memberMapperData,
+        IDataSourceSet dataSources)
+    {
+        memberMapperData.Parent
+            .MergeTargetMemberDataSources(memberMapperData.TargetMember, dataSources);
+    }
+
+    public static void MergeTargetMemberDataSources(
+        this ObjectMapperData mapperData,
+        QualifiedMember targetMember,
+        IDataSourceSet dataSources)
+    {
+        var dataSourcesByTargetMember = mapperData.DataSourcesByTargetMember;
+
+        if (dataSourcesByTargetMember.TryGetValue(targetMember, out var registeredDataSources) &&
+            registeredDataSources.HasValue)
         {
-            if (targetMember == QualifiedMember.All)
-            {
-                reason = null;
-                return false;
-            }
+            return;
+        }
 
-            if (!targetMember.LeafMember.IsEntityId() ||
-                 userConfigurations.MapEntityKeys(mapperData) ||
-                 configuredDataSourcesFactory.Invoke(mapperData).Any())
-            {
-                return targetMember.IsUnmappable(out reason);
-            }
+        dataSourcesByTargetMember[targetMember] = dataSources;
+    }
 
-            // If we're here:
-            //   1. TargetMember is an Entity key
-            //   2. The rule set doesn't allow entity key mapping
-            //   3. No configuration exists to allow Entity key Mapping
-            //   4. No configured data sources exist
+    public static bool TargetMemberIsUnmappable<TTMapperData>(
+        this TTMapperData mapperData,
+        QualifiedMember targetMember,
+        Func<TTMapperData, IEnumerable<ConfiguredDataSourceFactoryBase>> configuredDataSourcesFactory,
+        UserConfigurationSet userConfigurations,
+        out string reason)
+        where TTMapperData : IQualifiedMemberContext
+    {
+        if (targetMember == QualifiedMember.All)
+        {
+            reason = null;
+            return false;
+        }
 
-            if (mapperData.RuleSet.Settings.AllowCloneEntityKeyMapping &&
-               (mapperData.SourceType == mapperData.TargetType))
-            {
-                return targetMember.IsUnmappable(out reason);
-            }
+        if (!targetMember.LeafMember.IsEntityId() ||
+            userConfigurations.MapEntityKeys(mapperData) ||
+            configuredDataSourcesFactory.Invoke(mapperData).Any())
+        {
+            return targetMember.IsUnmappable(out reason);
+        }
 
-            reason = "Entity key member";
+        // If we're here:
+        //   1. TargetMember is an Entity key
+        //   2. The rule set doesn't allow entity key mapping
+        //   3. No configuration exists to allow Entity key Mapping
+        //   4. No configured data sources exist
+
+        if (mapperData.RuleSet.Settings.AllowCloneEntityKeyMapping &&
+            (mapperData.SourceType == mapperData.TargetType))
+        {
+            return targetMember.IsUnmappable(out reason);
+        }
+
+        reason = "Entity key member";
+        return true;
+    }
+
+    [DebuggerStepThrough]
+    public static bool TargetMemberIsEnumerableElement(this IQualifiedMemberContext context)
+        => context.TargetMember.IsEnumerableElement();
+
+    [DebuggerStepThrough]
+    public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
+        => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping();
+
+    [DebuggerStepThrough]
+    public static bool TargetMemberIsUserStruct(this IQualifiedMemberContext context)
+        => context.TargetMember.IsComplex && context.TargetMember.Type.IsValueType();
+
+    public static bool IsRepeatMapping(this IQualifiedMemberContext context)
+    {
+        if (context.IsRoot || (context.TargetMember.Depth == 2))
+        {
+            return false;
+        }
+
+        if (context.TargetMember.IsRecursion)
+        {
             return true;
         }
 
-        [DebuggerStepThrough]
-        public static bool TargetMemberIsEnumerableElement(this IQualifiedMemberContext context)
-            => context.TargetMember.IsEnumerableElement();
-
-        [DebuggerStepThrough]
-        public static bool TargetMemberHasInitAccessibleValue(this IMemberMapperData mapperData)
-            => mapperData.TargetMember.IsReadable && !mapperData.Context.IsPartOfUserStructMapping();
-
-        [DebuggerStepThrough]
-        public static bool TargetMemberIsUserStruct(this IQualifiedMemberContext context)
-            => context.TargetMember.IsComplex && context.TargetMember.Type.IsValueType();
-
-        public static bool IsRepeatMapping(this IQualifiedMemberContext context)
+        if ((context.TargetMember.Depth == 3) && context.TargetMemberIsEnumerableElement())
         {
-            if (context.IsRoot || (context.TargetMember.Depth == 2))
+            return false;
+        }
+
+        if (TargetMemberHasRecursiveObjectGraph(context.TargetMember) == false)
+        {
+            return false;
+        }
+
+        // The target member we're mapping right now isn't recursive, but it has recursion
+        // within its child members, and its mapping might be repeated elsewhere within the
+        // mapping graph. We therefore check if this member ever repeats; if so we'll map it
+        // by calling MapRepeated, and it'll be the entry point of the RepeatedMapperFunc
+        // which performs the repeated mapping:
+        var rootMember = context.GetRootMapperData().TargetMember;
+
+        return TargetMemberEverRepeatsWithin(rootMember, context.TargetMember);
+    }
+
+    private static IEnumerable<Member> GetTargetMembers(Type targetType)
+        => GlobalContext.Instance.MemberCache.GetTargetMembers(targetType);
+
+    private static bool TargetMemberHasRecursiveObjectGraph(QualifiedMember targetMember)
+    {
+        while (true)
+        {
+            var mappingType = targetMember.IsEnumerable ? targetMember.ElementType : targetMember.Type;
+
+            var nonSimpleChildMembers = GetTargetMembers(mappingType)
+                .Filter(m => !m.IsSimple)
+                .Project(targetMember, GetNonEnumerableChildMember)
+                .ToList();
+
+            if (nonSimpleChildMembers.None())
             {
                 return false;
             }
 
-            if (context.TargetMember.IsRecursion)
+            return
+                nonSimpleChildMembers.Any(cm => cm.IsRecursion) ||
+                nonSimpleChildMembers.Any(TargetMemberHasRecursiveObjectGraph);
+        }
+    }
+
+    private static bool TargetMemberEverRepeatsWithin(QualifiedMember parentMember, IQualifiedMember subjectMember)
+    {
+        while (true)
+        {
+            var nonSimpleChildMembers = GetTargetMembers(parentMember.Type)
+                .Filter(m => !m.IsSimple)
+                .ToArray();
+
+            if (nonSimpleChildMembers.None())
+            {
+                return false;
+            }
+
+            var sameTypedChildMembers = nonSimpleChildMembers
+                .FilterToArray(subjectMember, (sm, cm) => (cm.IsEnumerable ? cm.ElementType : cm.Type) == sm.Type);
+
+            if (sameTypedChildMembers
+                .Project(parentMember, GetNonEnumerableChildMember)
+                .Any(cm => cm != subjectMember))
             {
                 return true;
             }
 
-            if ((context.TargetMember.Depth == 3) && context.TargetMemberIsEnumerableElement())
+            foreach (var childMember in nonSimpleChildMembers)
             {
-                return false;
-            }
+                var qualifiedChildMember = GetNonEnumerableChildMember(parentMember, childMember);
 
-            if (TargetMemberHasRecursiveObjectGraph(context.TargetMember) == false)
-            {
-                return false;
-            }
-
-            // The target member we're mapping right now isn't recursive, but it has recursion
-            // within its child members, and its mapping might be repeated elsewhere within the
-            // mapping graph. We therefore check if this member ever repeats; if so we'll map it
-            // by calling MapRepeated, and it'll be the entry point of the RepeatedMapperFunc
-            // which performs the repeated mapping:
-            var rootMember = context.GetRootMapperData().TargetMember;
-
-            return TargetMemberEverRepeatsWithin(rootMember, context.TargetMember);
-        }
-
-        private static IEnumerable<Member> GetTargetMembers(Type targetType)
-            => GlobalContext.Instance.MemberCache.GetTargetMembers(targetType);
-
-        private static bool TargetMemberHasRecursiveObjectGraph(QualifiedMember targetMember)
-        {
-            while (true)
-            {
-                var mappingType = targetMember.IsEnumerable ? targetMember.ElementType : targetMember.Type;
-
-                var nonSimpleChildMembers = GetTargetMembers(mappingType)
-                    .Filter(m => !m.IsSimple)
-                    .Project(targetMember, GetNonEnumerableChildMember)
-                    .ToList();
-
-                if (nonSimpleChildMembers.None())
+                if (qualifiedChildMember.IsRecursion)
                 {
-                    return false;
+                    continue;
                 }
 
-                return
-                    nonSimpleChildMembers.Any(cm => cm.IsRecursion) ||
-                    nonSimpleChildMembers.Any(TargetMemberHasRecursiveObjectGraph);
-            }
-        }
-
-        private static bool TargetMemberEverRepeatsWithin(QualifiedMember parentMember, IQualifiedMember subjectMember)
-        {
-            while (true)
-            {
-                var nonSimpleChildMembers = GetTargetMembers(parentMember.Type)
-                    .Filter(m => !m.IsSimple)
-                    .ToArray();
-
-                if (nonSimpleChildMembers.None())
-                {
-                    return false;
-                }
-
-                var sameTypedChildMembers = nonSimpleChildMembers
-                    .FilterToArray(subjectMember, (sm, cm) => (cm.IsEnumerable ? cm.ElementType : cm.Type) == sm.Type);
-
-                if (sameTypedChildMembers
-                        .Project(parentMember, GetNonEnumerableChildMember)
-                        .Any(cm => cm != subjectMember))
+                if (TargetMemberEverRepeatsWithin(qualifiedChildMember, subjectMember))
                 {
                     return true;
                 }
-
-                foreach (var childMember in nonSimpleChildMembers)
-                {
-                    var qualifiedChildMember = GetNonEnumerableChildMember(parentMember, childMember);
-
-                    if (qualifiedChildMember.IsRecursion)
-                    {
-                        continue;
-                    }
-
-                    if (TargetMemberEverRepeatsWithin(qualifiedChildMember, subjectMember))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
             }
+
+            return false;
+        }
+    }
+
+    private static QualifiedMember GetNonEnumerableChildMember(QualifiedMember parentMember, Member childMember)
+    {
+        var qualifiedChildMember = parentMember.Append(childMember);
+
+        if (qualifiedChildMember.IsEnumerable)
+        {
+            qualifiedChildMember = qualifiedChildMember.GetElementMember();
         }
 
-        private static QualifiedMember GetNonEnumerableChildMember(QualifiedMember parentMember, Member childMember)
+        return qualifiedChildMember;
+    }
+
+    public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)
+    {
+        var targetMember = mapperData.TargetMember;
+
+        Expression emptyEnumerable;
+
+        if (mapperData.TargetMemberHasInitAccessibleValue())
         {
-            var qualifiedChildMember = parentMember.Append(childMember);
-
-            if (qualifiedChildMember.IsEnumerable)
-            {
-                qualifiedChildMember = qualifiedChildMember.GetElementMember();
-            }
-
-            return qualifiedChildMember;
-        }
-
-        public static Expression GetFallbackCollectionValue(this IMemberMapperData mapperData)
-        {
-            var targetMember = mapperData.TargetMember;
-
-            Expression emptyEnumerable;
-
-            if (mapperData.TargetMemberHasInitAccessibleValue())
-            {
-                var existingValue = mapperData.GetTargetMemberAccess();
-
-                if (mapperData.MapToNullCollections())
-                {
-                    return existingValue;
-                }
-
-                emptyEnumerable = targetMember.Type.GetEmptyInstanceCreation(targetMember.ElementType);
-
-                return Expression.Coalesce(existingValue, emptyEnumerable);
-            }
+            var existingValue = mapperData.GetTargetMemberAccess();
 
             if (mapperData.MapToNullCollections())
             {
-                return targetMember.Type.ToDefaultExpression();
+                return existingValue;
             }
 
             emptyEnumerable = targetMember.Type.GetEmptyInstanceCreation(targetMember.ElementType);
 
-            return emptyEnumerable.GetConversionTo(targetMember.Type);
+            return Expression.Coalesce(existingValue, emptyEnumerable);
         }
 
-        public static IList<ConfiguredSourceValueFilter> GetSourceValueFilters(this IMemberMapperData mapperData, Type sourceValueType)
-            => mapperData.MapperContext.UserConfigurations.GetSourceValueFilters(mapperData, sourceValueType);
-
-        public static Expression GetMappingCallbackOrNull(
-            this IQualifiedMemberContext context,
-            InvocationPosition invocationPosition,
-            IMemberMapperData mapperData)
+        if (mapperData.MapToNullCollections())
         {
-            return mapperData
-                .MapperContext
-                .UserConfigurations
-                .GetCallbackOrNull(invocationPosition, context, mapperData);
+            return targetMember.Type.ToDefaultExpression();
         }
 
-        public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
-            => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
+        emptyEnumerable = targetMember.Type.GetEmptyInstanceCreation(targetMember.ElementType);
 
-        public static ICollection<Type> GetDerivedTargetTypes(this IMemberMapperData mapperData)
-            => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.TargetType);
+        return emptyEnumerable.GetConversionTo(targetMember.Type);
+    }
 
-        public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
+    public static IList<ConfiguredSourceValueFilter> GetSourceValueFilters(this IMemberMapperData mapperData, Type sourceValueType)
+        => mapperData.MapperContext.UserConfigurations.GetSourceValueFilters(mapperData, sourceValueType);
+
+    public static Expression GetMappingCallbackOrNull(
+        this IQualifiedMemberContext context,
+        InvocationPosition invocationPosition,
+        IMemberMapperData mapperData)
+    {
+        return mapperData
+            .MapperContext
+            .UserConfigurations
+            .GetCallbackOrNull(invocationPosition, context, mapperData);
+    }
+
+    public static ICollection<Type> GetDerivedSourceTypes(this IMemberMapperData mapperData)
+        => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.SourceType);
+
+    public static ICollection<Type> GetDerivedTargetTypes(this IMemberMapperData mapperData)
+        => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.TargetType);
+
+    public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
+    {
+        var access = mapperData.GetAppropriateMappingContextAccess(contextTypes);
+        var typedAccess = mapperData.GetTypedContextAccess(access, contextTypes);
+
+        return typedAccess;
+    }
+
+    public static Expression GetAppropriateMappingContextAccess(
+        this IMemberMapperData mapperData,
+        params Type[] contextTypes)
+    {
+        return mapperData.GetAppropriateMappingContextAccess(out _, contextTypes);
+    }
+
+    public static Expression GetAppropriateMappingContextAccess(
+        this IMemberMapperData mapperData,
+        out IMemberMapperData contextMapperData,
+        Type[] contextTypes)
+    {
+        contextMapperData = mapperData;
+
+        if (mapperData.TypesMatch(contextTypes))
         {
-            var access = mapperData.GetAppropriateMappingContextAccess(contextTypes);
-            var typedAccess = mapperData.GetTypedContextAccess(access, contextTypes);
-
-            return typedAccess;
+            return mapperData.MappingDataObject;
         }
 
-        public static Expression GetAppropriateMappingContextAccess(
-            this IMemberMapperData mapperData,
-            params Type[] contextTypes)
+        Expression dataAccess = mapperData.MappingDataObject;
+
+        if (mapperData.TargetMember.IsSimple)
         {
-            return mapperData.GetAppropriateMappingContextAccess(out _, contextTypes);
+            mapperData = mapperData.Parent;
         }
 
-        public static Expression GetAppropriateMappingContextAccess(
-            this IMemberMapperData mapperData,
-            out IMemberMapperData contextMapperData,
-            params Type[] contextTypes)
+        var useParentAccess = false;
+        PropertyInfo parentProperty = null;
+
+        while (!mapperData.TypesMatch(contextTypes))
         {
-            contextMapperData = mapperData;
+            useParentAccess = useParentAccess || mapperData.IsEntryPoint;
 
-            if (mapperData.TypesMatch(contextTypes))
+            if (useParentAccess)
             {
-                return mapperData.MappingDataObject;
+                var dataAccessParentProperty =
+                    dataAccess.Type.GetPublicInstanceProperty("Parent") ??
+                    (parentProperty ??= typeof(IMappingData).GetPublicInstanceProperty("Parent"));
+
+                dataAccess = Expression.Property(dataAccess, dataAccessParentProperty);
+            }
+            else
+            {
+                dataAccess = mapperData.Parent.MappingDataObject;
             }
 
-            Expression dataAccess = mapperData.MappingDataObject;
-
-            if (mapperData.TargetMember.IsSimple)
-            {
-                mapperData = mapperData.Parent;
-            }
-
-            var useParentAccess = false;
-            PropertyInfo parentProperty = null;
-
-            while (!mapperData.TypesMatch(contextTypes))
-            {
-                useParentAccess = useParentAccess || mapperData.IsEntryPoint;
-
-                if (useParentAccess)
-                {
-                    var dataAccessParentProperty =
-                        dataAccess.Type.GetPublicInstanceProperty("Parent") ??
-                       (parentProperty ??= typeof(IMappingData).GetPublicInstanceProperty("Parent"));
-
-                    dataAccess = Expression.Property(dataAccess, dataAccessParentProperty);
-                }
-                else
-                {
-                    dataAccess = mapperData.Parent.MappingDataObject;
-                }
-
-                contextMapperData = mapperData = mapperData.Parent;
-            }
-
-            return dataAccess;
+            contextMapperData = mapperData = mapperData.Parent;
         }
 
-        public static IMemberMapperData GetAppropriateMappingContext(this IMemberMapperData mapperData, params Type[] contextTypes)
+        return dataAccess;
+    }
+
+    public static IMemberMapperData GetMapperDataFor(this IMemberMapperData mapperData, params Type[] contextTypes)
+    {
+        if (mapperData.TypesMatch(contextTypes))
         {
-            if (mapperData.TypesMatch(contextTypes))
-            {
-                return mapperData;
-            }
-
-            if (mapperData.TargetMember.IsSimple)
-            {
-                mapperData = mapperData.Parent;
-            }
-
-            while (!mapperData.TypesMatch(contextTypes))
-            {
-                mapperData = mapperData.Parent;
-            }
-
             return mapperData;
         }
 
-        public static bool TypesMatch(this ITypePair typePair, IList<Type> contextTypes)
+        if (mapperData.TargetMember.IsSimple)
         {
-            var sourceType = contextTypes[0];
-            var targetType = contextTypes[1];
-
-            return (typePair.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(typePair.SourceType)) &&
-                   (typePair.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(typePair.TargetType));
+            mapperData = mapperData.Parent;
         }
 
-        public static Expression GetTypedContextAccess(
-            this IMemberMapperData mapperData,
-            Expression contextAccess,
-            Type[] contextTypes)
+        while (!mapperData.TypesMatch(contextTypes))
         {
-            if (contextAccess == mapperData.MappingDataObject)
-            {
-                return GetFinalContextAccess(contextAccess, contextTypes);
-            }
-
-            if (contextAccess.Type.IsGenericType())
-            {
-                var contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
-
-                if (contextAccessTypes[0].IsAssignableTo(contextTypes[0]) &&
-                    contextAccessTypes[1].IsAssignableTo(contextTypes[1]))
-                {
-                    return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
-                }
-            }
-
-            return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+            mapperData = mapperData.Parent;
         }
 
-        private static Expression GetFinalContextAccess(
-            Expression contextAccess,
-            IList<Type> contextTypes,
-            IList<Type> contextAccessTypes = null)
+        return mapperData;
+    }
+
+    public static bool TypesMatch(this ITypePair typePair, IList<Type> contextTypes)
+    {
+        var sourceType = contextTypes[0];
+        var targetType = contextTypes[1];
+
+        return (typePair.SourceType.IsAssignableTo(sourceType) || sourceType.IsAssignableTo(typePair.SourceType)) &&
+               (typePair.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(typePair.TargetType));
+    }
+
+    public static Expression GetTypedContextAccess(
+        this IMemberMapperData mapperData,
+        Expression contextAccess,
+        Type[] contextTypes)
+    {
+        if (contextAccess == mapperData.MappingDataObject)
         {
-            if (contextAccessTypes == null)
+            return GetFinalContextAccess(contextAccess, contextTypes);
+        }
+
+        if (contextAccess.Type.IsGenericType())
+        {
+            var contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
+
+            if (contextAccessTypes[0].IsAssignableTo(contextTypes[0]) &&
+                contextAccessTypes[1].IsAssignableTo(contextTypes[1]))
             {
-                if (!contextAccess.Type.IsGenericType())
-                {
-                    return contextAccess;
-                }
-
-                contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
+                return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
             }
+        }
 
-            if (contextAccessTypes.None(t => t.IsValueType()))
+        return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+    }
+
+    private static Expression GetFinalContextAccess(
+        Expression contextAccess,
+        IList<Type> contextTypes,
+        IList<Type> contextAccessTypes = null)
+    {
+        if (contextAccessTypes == null)
+        {
+            if (!contextAccess.Type.IsGenericType())
             {
                 return contextAccess;
             }
 
-            return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+            contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
         }
 
-        public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
-            => mapperData.TargetMember.GetPopulation(value, mapperData);
-
-        public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
-            => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
-
-        public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
-            => GetAsCallIfRequired(subject, contextTypes);
-
-        private static Expression GetAsCallIfRequired(this Expression subject, Type[] contextTypes)
+        if (contextAccessTypes.None(t => t.IsValueType()))
         {
-            if (subject.Type.IsGenericType() &&
-                subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
-            {
-                return subject;
-            }
-
-            return GetAsCall(subject, true.ToConstantExpression(), contextTypes);
+            return contextAccess;
         }
 
-        public static Expression GetAsCall(
-            this Expression subject,
-            Expression isForDerivedTypeArgument,
-            params Type[] contextTypes)
+        return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+    }
+
+    public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
+        => mapperData.TargetMember.GetPopulation(value, mapperData);
+
+    public static Expression GetAsCall(this IMemberMapperData mapperData, Type sourceType, Type targetType)
+        => GetAsCall(mapperData.MappingDataObject, sourceType, targetType);
+
+    public static Expression GetAsCall(this Expression subject, params Type[] contextTypes)
+        => GetAsCallIfRequired(subject, contextTypes);
+
+    private static Expression GetAsCallIfRequired(this Expression subject, Type[] contextTypes)
+    {
+        if (subject.Type.IsGenericType() &&
+            subject.Type.GetGenericTypeArguments().SequenceEqual(contextTypes))
         {
-            if (subject.Type == typeof(IMappingData))
-            {
-                return Expression.Call(
-                    subject,
-                    typeof(IMappingData).GetPublicInstanceMethod("As").MakeGenericMethod(contextTypes));
-            }
+            return subject;
+        }
 
-            var conversionMethod = GetConversionMethod(subject, contextTypes);
+        return GetAsCall(subject, true.ToConstantExpression(), contextTypes);
+    }
 
+    public static Expression GetAsCall(
+        this Expression subject,
+        Expression isForDerivedTypeArgument,
+        params Type[] contextTypes)
+    {
+        if (subject.Type == typeof(IMappingData))
+        {
             return Expression.Call(
                 subject,
-                conversionMethod.MakeGenericMethod(contextTypes),
-                isForDerivedTypeArgument);
+                typeof(IMappingData).GetPublicInstanceMethod("As").MakeGenericMethod(contextTypes));
         }
 
-        private static MethodInfo GetConversionMethod(Expression subject, Type[] contextTypes)
+        var conversionMethod = GetConversionMethod(subject, contextTypes);
+
+        return Expression.Call(
+            subject,
+            conversionMethod.MakeGenericMethod(contextTypes),
+            isForDerivedTypeArgument);
+    }
+
+    private static MethodInfo GetConversionMethod(Expression subject, Type[] contextTypes)
+    {
+        if (contextTypes[0].IsValueType())
         {
-            if (contextTypes[0].IsValueType())
-            {
-                return subject.Type.GetPublicInstanceMethod("WithTargetType");
-            }
-
-            if (contextTypes[1].IsValueType())
-            {
-                return subject.Type.GetPublicInstanceMethod("WithSourceType");
-            }
-
-            return typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
+            return subject.Type.GetPublicInstanceMethod("WithTargetType");
         }
 
-        public static Expression GetSourceAccess(
-            this IMemberMapperData mapperData,
-            IMemberMapperData contextMapperData,
-            Expression contextAccess,
-            Type sourceType)
+        if (contextTypes[1].IsValueType())
         {
-            return GetAccess(mapperData, contextMapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+            return subject.Type.GetPublicInstanceMethod("WithSourceType");
         }
 
-        public static Expression GetTargetAccess(
-            this IMemberMapperData mapperData,
-            IMemberMapperData contextMapperData,
-            Expression contextAccess,
-            Type targetType)
+        return typeof(IObjectMappingDataUntyped).GetPublicInstanceMethod("As");
+    }
+
+    public static Expression GetSourceAccess(
+        this IMemberMapperData mapperData,
+        IMemberMapperData contextMapperData,
+        Expression contextAccess,
+        Type sourceType)
+    {
+        return GetAccess(mapperData, contextMapperData, contextAccess, GetSourceAccess, sourceType, mapperData.SourceObject, 0);
+    }
+
+    public static Expression GetTargetAccess(
+        this IMemberMapperData mapperData,
+        IMemberMapperData contextMapperData,
+        Expression contextAccess,
+        Type targetType)
+    {
+        return GetAccess(mapperData, contextMapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
+    }
+
+    private static Expression GetAccess(
+        IMemberMapperData mapperData,
+        IMemberMapperData contextMapperData,
+        Expression contextAccess,
+        Func<Expression, Type, Expression> accessMethodFactory,
+        Type type,
+        Expression directAccessExpression,
+        int contextTypesIndex)
+    {
+        if (contextMapperData == mapperData)
         {
-            return GetAccess(mapperData, contextMapperData, contextAccess, GetTargetAccess, targetType, mapperData.TargetObject, 1);
+            return directAccessExpression;
         }
 
-        private static Expression GetAccess(
-            IMemberMapperData mapperData,
-            IMemberMapperData contextMapperData,
-            Expression contextAccess,
-            Func<Expression, Type, Expression> accessMethodFactory,
-            Type type,
-            Expression directAccessExpression,
-            int contextTypesIndex)
+        if (!contextAccess.Type.IsGenericType())
         {
-            if (contextMapperData == mapperData)
-            {
-                return directAccessExpression;
-            }
-
-            if (!contextAccess.Type.IsGenericType())
-            {
-                return accessMethodFactory.Invoke(contextAccess, type);
-            }
-
-            var contextTypes = contextAccess.Type.GetGenericTypeArguments();
-
-            if (!contextTypes[contextTypesIndex].IsAssignableTo(type))
-            {
-                return accessMethodFactory.Invoke(contextAccess, type);
-            }
-
-            return contextTypesIndex == 0
-                ? contextMapperData.SourceObject
-                : contextMapperData.TargetObject;
+            return accessMethodFactory.Invoke(contextAccess, type);
         }
 
-        private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetPublicInstanceMethod("GetSource");
+        var contextTypes = contextAccess.Type.GetGenericTypeArguments();
 
-        private static Expression GetSourceAccess(Expression subject, Type sourceType)
-            => GetAccess(subject, _getSourceMethod, sourceType);
-
-        private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetPublicInstanceMethod("GetTarget");
-
-        public static Expression GetTargetAccess(Expression subject, Type targetType)
-            => GetAccess(subject, _getTargetMethod, targetType);
-
-        private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
-            => Expression.Call(subject, method.MakeGenericMethod(typeArgument));
-
-        public static Expression GetFinalisedReturnValue(
-            this ObjectMapperData mapperData,
-            Expression value,
-            out bool returnsDefault)
+        if (!contextTypes[contextTypesIndex].IsAssignableTo(type))
         {
-            returnsDefault = value.NodeType != ExpressionType.Goto;
-
-            return returnsDefault
-                ? mapperData.GetReturnLabel(mapperData.GetTargetFallbackValue())
-                : ((GotoExpression)value).Value;
+            return accessMethodFactory.Invoke(contextAccess, type);
         }
+
+        return contextTypesIndex == 0
+            ? contextMapperData.SourceObject
+            : contextMapperData.TargetObject;
+    }
+
+    private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetPublicInstanceMethod("GetSource");
+
+    private static Expression GetSourceAccess(Expression subject, Type sourceType)
+        => GetAccess(subject, _getSourceMethod, sourceType);
+
+    private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetPublicInstanceMethod("GetTarget");
+
+    public static Expression GetTargetAccess(Expression subject, Type targetType)
+        => GetAccess(subject, _getTargetMethod, targetType);
+
+    private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
+        => Expression.Call(subject, method.MakeGenericMethod(typeArgument));
+
+    public static Expression GetFinalisedReturnValue(
+        this ObjectMapperData mapperData,
+        Expression value,
+        out bool returnsDefault)
+    {
+        returnsDefault = value.NodeType != ExpressionType.Goto;
+
+        return returnsDefault
+            ? mapperData.GetReturnLabel(mapperData.GetTargetFallbackValue())
+            : ((GotoExpression)value).Value;
     }
 }
