@@ -22,9 +22,26 @@ using NetStandardPolyfills;
 using ObjectPopulation;
 using ObjectPopulation.Enumerables.EnumerableExtensions;
 using static System.StringComparison;
+#if NET35
+using static Microsoft.Scripting.Ast.Expression;
+#else
+using static System.Linq.Expressions.Expression;
+#endif
 
 internal static class MemberMapperDataExtensions
 {
+    private static readonly MethodInfo _getSourceMethod =
+        typeof(IMappingData).GetPublicInstanceMethod("GetSource");
+
+    private static readonly MethodInfo _getTargetMethod =
+        typeof(IMappingData).GetPublicInstanceMethod("GetTarget");
+
+    private static readonly MethodInfo _setTargetMethod =
+        typeof(IMappingExecutionContext).GetPublicInstanceMethod("SetTarget");
+
+    private static readonly MethodInfo _asMethod =
+        typeof(IMappingData).GetPublicInstanceMethod("As");
+
     public static bool TargetTypeIsEntity(this IMemberMapperData mapperData)
         => IsEntity(mapperData, mapperData.TargetType, out _);
 
@@ -148,7 +165,7 @@ internal static class MemberMapperDataExtensions
             mappingValues,
             mapperData.TargetMember);
 
-        CheckContextTypes:
+    CheckContextTypes:
         var sourceAndTargetTypes = contextTypes.Length == 2
             ? contextTypes
             : new[] { contextTypes[0], contextTypes[1] };
@@ -169,12 +186,9 @@ internal static class MemberMapperDataExtensions
             return mappingContext;
         }
 
-        CreateAsCall:
-        var asMethod = typeof(IMappingData)
-            .GetPublicInstanceMethod("As")
-            .MakeGenericMethod(sourceAndTargetTypes);
-
-        return Expression.Call(mappingContext, asMethod);
+    CreateAsCall:
+        var asMethod = _asMethod.MakeGenericMethod(sourceAndTargetTypes);
+        return Call(mappingContext, asMethod);
     }
 
     public static Expression GetRootExecutionContext(
@@ -187,13 +201,14 @@ internal static class MemberMapperDataExtensions
             return rootContext;
         }
 
-        var setTargetCall = Expression.Call(
-            rootContext,
-            typeof(IMappingExecutionContext)
-                .GetPublicInstanceMethod("SetTarget"),
-            mapperData.TargetInstance);
+        var target = mapperData.TargetInstance;
 
-        return setTargetCall;
+        if (target.Type.IsValueType())
+        {
+            target = Convert(target, typeof(object));
+        }
+
+        return Call(rootContext, _setTargetMethod, target);
     }
 
     public static MappingValues GetMappingValues(
@@ -519,7 +534,7 @@ internal static class MemberMapperDataExtensions
 
             emptyEnumerable = targetMember.Type.GetEmptyInstanceCreation(targetMember.ElementType);
 
-            return Expression.Coalesce(existingValue, emptyEnumerable);
+            return Coalesce(existingValue, emptyEnumerable);
         }
 
         if (mapperData.MapToNullCollections())
@@ -552,13 +567,13 @@ internal static class MemberMapperDataExtensions
     public static ICollection<Type> GetDerivedTargetTypes(this IMemberMapperData mapperData)
         => GlobalContext.Instance.DerivedTypes.GetTypesDerivedFrom(mapperData.TargetType);
 
-    public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
-    {
-        var access = mapperData.GetAppropriateMappingContextAccess(contextTypes);
-        var typedAccess = mapperData.GetTypedContextAccess(access, contextTypes);
+    //public static Expression GetAppropriateTypedMappingContextAccess(this IMemberMapperData mapperData, Type[] contextTypes)
+    //{
+    //    var access = mapperData.GetAppropriateMappingContextAccess(contextTypes);
+    //    var typedAccess = mapperData.GetTypedContextAccess(access, contextTypes);
 
-        return typedAccess;
-    }
+    //    return typedAccess;
+    //}
 
     public static Expression GetAppropriateMappingContextAccess(
         this IMemberMapperData mapperData,
@@ -599,7 +614,7 @@ internal static class MemberMapperDataExtensions
                     dataAccess.Type.GetPublicInstanceProperty("Parent") ??
                     (parentProperty ??= typeof(IMappingData).GetPublicInstanceProperty("Parent"));
 
-                dataAccess = Expression.Property(dataAccess, dataAccessParentProperty);
+                dataAccess = Property(dataAccess, dataAccessParentProperty);
             }
             else
             {
@@ -641,52 +656,52 @@ internal static class MemberMapperDataExtensions
                (typePair.TargetType.IsAssignableTo(targetType) || targetType.IsAssignableTo(typePair.TargetType));
     }
 
-    public static Expression GetTypedContextAccess(
-        this IMemberMapperData mapperData,
-        Expression contextAccess,
-        Type[] contextTypes)
-    {
-        if (contextAccess == mapperData.MappingDataObject)
-        {
-            return GetFinalContextAccess(contextAccess, contextTypes);
-        }
+    //public static Expression GetTypedContextAccess(
+    //    this IMemberMapperData mapperData,
+    //    Expression contextAccess,
+    //    Type[] contextTypes)
+    //{
+    //    if (contextAccess == mapperData.MappingDataObject)
+    //    {
+    //        return GetFinalContextAccess(contextAccess, contextTypes);
+    //    }
 
-        if (contextAccess.Type.IsGenericType())
-        {
-            var contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
+    //    if (contextAccess.Type.IsGenericType())
+    //    {
+    //        var contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
 
-            if (contextAccessTypes[0].IsAssignableTo(contextTypes[0]) &&
-                contextAccessTypes[1].IsAssignableTo(contextTypes[1]))
-            {
-                return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
-            }
-        }
+    //        if (contextAccessTypes[0].IsAssignableTo(contextTypes[0]) &&
+    //            contextAccessTypes[1].IsAssignableTo(contextTypes[1]))
+    //        {
+    //            return GetFinalContextAccess(contextAccess, contextTypes, contextAccessTypes);
+    //        }
+    //    }
 
-        return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
-    }
+    //    return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+    //}
 
-    private static Expression GetFinalContextAccess(
-        Expression contextAccess,
-        IList<Type> contextTypes,
-        IList<Type> contextAccessTypes = null)
-    {
-        if (contextAccessTypes == null)
-        {
-            if (!contextAccess.Type.IsGenericType())
-            {
-                return contextAccess;
-            }
+    //private static Expression GetFinalContextAccess(
+    //    Expression contextAccess,
+    //    IList<Type> contextTypes,
+    //    IList<Type> contextAccessTypes = null)
+    //{
+    //    if (contextAccessTypes == null)
+    //    {
+    //        if (!contextAccess.Type.IsGenericType())
+    //        {
+    //            return contextAccess;
+    //        }
 
-            contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
-        }
+    //        contextAccessTypes = contextAccess.Type.GetGenericTypeArguments();
+    //    }
 
-        if (contextAccessTypes.None(t => t.IsValueType()))
-        {
-            return contextAccess;
-        }
+    //    if (contextAccessTypes.None(t => t.IsValueType()))
+    //    {
+    //        return contextAccess;
+    //    }
 
-        return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
-    }
+    //    return GetAsCall(contextAccess, contextTypes[0], contextTypes[1]);
+    //}
 
     public static Expression GetTargetMemberPopulation(this IMemberMapperData mapperData, Expression value)
         => mapperData.TargetMember.GetPopulation(value, mapperData);
@@ -715,20 +730,18 @@ internal static class MemberMapperDataExtensions
     {
         if (subject.Type == typeof(IMappingData))
         {
-            return Expression.Call(
-                subject,
-                typeof(IMappingData).GetPublicInstanceMethod("As").MakeGenericMethod(contextTypes));
+            return Call(subject, _asMethod.MakeGenericMethod(contextTypes));
         }
 
         var conversionMethod = GetConversionMethod(subject, contextTypes);
 
-        return Expression.Call(
+        return Call(
             subject,
             conversionMethod.MakeGenericMethod(contextTypes),
             isForDerivedTypeArgument);
     }
 
-    private static MethodInfo GetConversionMethod(Expression subject, Type[] contextTypes)
+    private static MethodInfo GetConversionMethod(Expression subject, IList<Type> contextTypes)
     {
         if (contextTypes[0].IsValueType())
         {
@@ -792,18 +805,14 @@ internal static class MemberMapperDataExtensions
             : contextMapperData.TargetObject;
     }
 
-    private static readonly MethodInfo _getSourceMethod = typeof(IMappingData).GetPublicInstanceMethod("GetSource");
-
     private static Expression GetSourceAccess(Expression subject, Type sourceType)
         => GetAccess(subject, _getSourceMethod, sourceType);
-
-    private static readonly MethodInfo _getTargetMethod = typeof(IMappingData).GetPublicInstanceMethod("GetTarget");
 
     public static Expression GetTargetAccess(Expression subject, Type targetType)
         => GetAccess(subject, _getTargetMethod, targetType);
 
     private static Expression GetAccess(Expression subject, MethodInfo method, Type typeArgument)
-        => Expression.Call(subject, method.MakeGenericMethod(typeArgument));
+        => Call(subject, method.MakeGenericMethod(typeArgument));
 
     public static Expression GetFinalisedReturnValue(
         this ObjectMapperData mapperData,
