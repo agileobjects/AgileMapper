@@ -27,6 +27,7 @@ using static Microsoft.Scripting.Ast.Expression;
 #else
 using static System.Linq.Expressions.Expression;
 #endif
+using static Constants;
 
 internal static class MemberMapperDataExtensions
 {
@@ -114,11 +115,14 @@ internal static class MemberMapperDataExtensions
     public static bool TargetIsDefinitelyPopulated(this IQualifiedMemberContext context)
     {
         return context.RuleSet.Settings.RootHasPopulatedTarget &&
-               (context.IsRoot || context.TargetMemberIsUserStruct());
+              (context.IsRoot || context.TargetMemberIsUserStruct());
     }
 
     public static bool TargetIsDefinitelyUnpopulated(this IMemberMapperData mapperData)
-        => mapperData.Context.IsForNewElement || (mapperData.TargetMember.IsRoot && !mapperData.RuleSet.Settings.RootHasPopulatedTarget);
+    {
+        return mapperData.Context.IsForNewElement ||
+              (mapperData.TargetMember.IsRoot && !mapperData.RuleSet.Settings.RootHasPopulatedTarget);
+    }
 
     public static bool HasSameSourceAsParent(this IMemberMapperData mapperData)
     {
@@ -194,7 +198,7 @@ internal static class MemberMapperDataExtensions
     public static Expression GetRootExecutionContext(
         this IMemberMapperData mapperData)
     {
-        var rootContext = Constants.ExecutionContextParameter;
+        var rootContext = ExecutionContextParameter;
 
         if (mapperData.TargetIsDefinitelyPopulated())
         {
@@ -211,6 +215,36 @@ internal static class MemberMapperDataExtensions
         return Call(rootContext, _setTargetMethod, target);
     }
 
+    public static Expression RemoveSetTargetCall(this Expression expression)
+    {
+        var originalExpression = expression;
+
+        while (true)
+        {
+            switch (expression?.NodeType)
+            {
+                case ExpressionType.Invoke:
+                    var invocation = (InvocationExpression)expression;
+                    expression = invocation.Arguments.First();
+                    continue;
+
+                case ExpressionType.Call when IsSetTargetCall(expression):
+                    return originalExpression.Replace(expression, ExecutionContextParameter);
+
+                case ExpressionType.Call:
+                    var call = (MethodCallExpression)expression;
+                    expression = call.Object ?? call.Arguments.FirstOrDefault();
+                    continue;
+
+                default:
+                    return originalExpression;
+            }
+        }
+    }
+
+    private static bool IsSetTargetCall(Expression expression)
+        => ((MethodCallExpression)expression).Method.Equals(_setTargetMethod);
+
     public static MappingValues GetMappingValues(
         this IMemberMapperData mapperData,
         Expression sourceValue,
@@ -221,8 +255,8 @@ internal static class MemberMapperDataExtensions
 
         if (mapperData.IsRoot)
         {
-            elementIndex = Constants.NullInt;
-            elementKey = Constants.NullObject;
+            elementIndex = NullInt;
+            elementKey = NullObject;
         }
         else
         {

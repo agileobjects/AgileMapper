@@ -53,7 +53,8 @@
                   _factoryInfo.Supports(context.RuleSet);
         }
 
-        public Expression Create(IMemberMapperData mapperData) => _factoryInfo.GetBody(mapperData);
+        public Expression Create(IMemberMapperData mapperData)
+            => _factoryInfo.GetBody(mapperData).RemoveSetTargetCall();
 
         #region IPotentialAutoCreatedItem Members
 

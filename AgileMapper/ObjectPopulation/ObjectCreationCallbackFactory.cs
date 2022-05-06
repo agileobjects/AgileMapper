@@ -1,53 +1,75 @@
-﻿namespace AgileObjects.AgileMapper.ObjectPopulation
-{
-    using System;
+﻿namespace AgileObjects.AgileMapper.ObjectPopulation;
+
+using System;
 #if NET35
-    using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast;
 #else
-    using System.Linq.Expressions;
+using System.Linq.Expressions;
 #endif
-    using Configuration;
-    using Configuration.Lambdas;
-    using Extensions.Internal;
-    using Members;
-    using NetStandardPolyfills;
+using Configuration;
+using Configuration.Lambdas;
+using Extensions.Internal;
+using Members;
+using NetStandardPolyfills;
+using static InvocationPosition;
 
-    internal class ObjectCreationCallbackFactory : MappingCallbackFactory
+internal class ObjectCreationCallbackFactory : MappingCallbackFactory
+{
+    private readonly Type _creationTargetType;
+
+    public ObjectCreationCallbackFactory(
+        MappingConfigInfo configInfo,
+        Type creationTargetType,
+        ConfiguredLambdaInfo callbackLambda)
+        : base(configInfo, callbackLambda, QualifiedMember.All)
     {
-        private readonly Type _creationTargetType;
+        _creationTargetType = creationTargetType;
+    }
 
-        public ObjectCreationCallbackFactory(
-            MappingConfigInfo configInfo,
-            Type creationTargetType,
-            ConfiguredLambdaInfo callbackLambda)
-            : base(configInfo, callbackLambda, QualifiedMember.All)
+    public override bool AppliesTo(
+        InvocationPosition invocationPosition,
+        IQualifiedMemberContext context)
+    {
+        return context.TargetMember.Type.IsAssignableTo(_creationTargetType) &&
+               base.AppliesTo(invocationPosition, context);
+    }
+
+    protected override bool TypesMatch(IQualifiedMemberContext context)
+        => SourceAndTargetTypesMatch(context);
+
+    public override Expression GetConditionOrNull(IMemberMapperData mapperData)
+    {
+        var condition = base.GetConditionOrNull(mapperData);
+
+        if (InvocationPosition == Before || mapperData.TargetMemberIsUserStruct())
         {
-            _creationTargetType = creationTargetType;
+            return condition.RemoveSetTargetCall();
         }
 
-        public override bool AppliesTo(InvocationPosition invocationPosition, IQualifiedMemberContext context)
-            => context.TargetMember.Type.IsAssignableTo(_creationTargetType) && base.AppliesTo(invocationPosition, context);
+        var newObjectHasBeenCreated = mapperData.CreatedObject.GetIsNotDefaultComparison();
 
-        protected override bool TypesMatch(IQualifiedMemberContext context)
-             => SourceAndTargetTypesMatch(context);
-
-        public override Expression GetConditionOrNull(IMemberMapperData mapperData)
+        if (condition == null)
         {
-            var condition = base.GetConditionOrNull(mapperData);
-
-            if ((InvocationPosition != InvocationPosition.After) || mapperData.TargetMemberIsUserStruct())
-            {
-                return condition;
-            }
-
-            var newObjectHasBeenCreated = mapperData.CreatedObject.GetIsNotDefaultComparison();
-
-            if (condition == null)
-            {
-                return newObjectHasBeenCreated;
-            }
-
-            return Expression.AndAlso(newObjectHasBeenCreated, condition);
+            return newObjectHasBeenCreated;
         }
+
+        return Expression.AndAlso(newObjectHasBeenCreated, condition);
+    }
+
+    protected override Expression GetCallbackBody(IMemberMapperData mapperData)
+    {
+        var callback = base.GetCallbackBody(mapperData);
+
+        if (InvocationPosition == After)
+        {
+            return callback;
+        }
+
+        var createdObject = mapperData.CreatedObject;
+        var nullCreatedObject = createdObject.Type.ToDefaultExpression();
+
+        return callback
+            .RemoveSetTargetCall()
+            .Replace(createdObject, nullCreatedObject);
     }
 }

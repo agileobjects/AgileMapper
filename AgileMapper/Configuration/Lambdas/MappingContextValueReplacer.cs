@@ -135,12 +135,12 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
 
             if (requiredValues.Includes(ElementIndex))
             {
-                replacements.Add(PropertyAccess(nameof(ElementIndex), contextType), context.GetElementIndex());
+                replacements.Add(PropertyAccess(nameof(ElementIndex), contextType), context.ElementIndex);
             }
 
             if (requiredValues.Includes(ElementKey))
             {
-                replacements.Add(PropertyAccess(nameof(ElementKey), contextType), context.GetElementKey());
+                replacements.Add(PropertyAccess(nameof(ElementKey), contextType), context.ElementKey);
             }
 
             return _lambda.Body.Replace(replacements);

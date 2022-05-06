@@ -94,7 +94,7 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                     _value = requiredValues.ElementIndex;
 
                     _replacementFactory =
-                        ctx => ctx.GetElementIndex().GetConversionTo<int?>();
+                        ctx => ctx.ElementIndex.GetConversionTo<int?>();
                 }
 
                 if (requiredValues.Includes(CreatedObject))
@@ -107,14 +107,14 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 if (requiredValues.Includes(ElementKey))
                 {
                     _value = requiredValues.ElementKey;
-                    _replacementFactory = ctx => ctx.GetElementKey();
+                    _replacementFactory = ctx => ctx.ElementKey;
                     return;
                 }
 
                 if (requiredValues.Includes(ServiceProvider))
                 {
                     _value = requiredValues.ServiceProvider;
-                    _replacementFactory = ctx => ctx.GetServiceProvider();
+                    _replacementFactory = ctx => ctx.ServiceProvider;
                     NeedsMappingData = true;
                     return;
                 }
@@ -197,17 +197,17 @@ namespace AgileObjects.AgileMapper.Configuration.Lambdas
                 {
                     replacements.Add(
                         _requiredValues.ElementIndex,
-                        context.GetElementIndex().GetConversionTo<int?>());
+                        context.ElementIndex.GetConversionTo<int?>());
                 }
 
                 if (_requiredValues.Includes(ElementKey))
                 {
-                    replacements.Add(_requiredValues.ElementKey, context.GetElementKey());
+                    replacements.Add(_requiredValues.ElementKey, context.ElementKey);
                 }
 
                 if (_requiredValues.Includes(ServiceProvider))
                 {
-                    replacements.Add(_requiredValues.ServiceProvider, context.GetServiceProvider());
+                    replacements.Add(_requiredValues.ServiceProvider, context.ServiceProvider);
                     _needsMappingData = true;
                 }
 

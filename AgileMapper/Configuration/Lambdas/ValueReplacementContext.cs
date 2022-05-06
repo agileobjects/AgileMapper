@@ -135,12 +135,11 @@ internal class ValueReplacementContext
         return GetValueAccess(createdObject, neededCreatedObjectType);
     }
 
-    public Expression GetElementIndex() => MapperData.ElementIndex;
+    public Expression ElementIndex => MapperData.ElementIndex;
 
-    public Expression GetElementKey() => MapperData.ElementKey;
+    public Expression ElementKey => MapperData.ElementKey;
 
-    public Expression GetServiceProvider() 
-        => Constants.ExecutionContextParameter;
+    public Expression ServiceProvider => Constants.ExecutionContextParameter;
 
     private static Expression GetValueAccess(Expression valueAccess, Type neededAccessType)
     {
