@@ -188,7 +188,9 @@ internal abstract class MappingExecutionContextBase2 :
     }
 
     IMappingData<TSource, TTarget> IMappingData.As<TSource, TTarget>()
-        => this.ToTyped<TSource, TTarget>();
+        => WithTypes<TSource, TTarget>();
+
+    public abstract IMappingData<TSource, TTarget> WithTypes<TSource, TTarget>();
 
     #endregion
 

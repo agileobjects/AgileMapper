@@ -1,81 +1,80 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
-{
-    using System;
+﻿namespace AgileObjects.AgileMapper.Configuration;
+
+using System;
 #if NET35
-    using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast;
 #else
-    using System.Linq.Expressions;
+using System.Linq.Expressions;
 #endif
-    using Lambdas;
-    using Members;
-    using NetStandardPolyfills;
+using Lambdas;
+using Members;
+using NetStandardPolyfills;
 
-    internal class ConfiguredObjectFactory :
-        UserConfiguredItemBase,
-        IPotentialAutoCreatedItem
+internal class ConfiguredObjectFactory :
+    UserConfiguredItemBase,
+    IPotentialAutoCreatedItem
 #if NET35
-        , IComparable<ConfiguredObjectFactory>
+    , IComparable<ConfiguredObjectFactory>
 #endif
+{
+    private readonly ConfiguredLambdaInfo _factoryInfo;
+
+    public ConfiguredObjectFactory(MappingConfigInfo configInfo, ConfiguredLambdaInfo factoryInfo)
+        : base(configInfo)
     {
-        private readonly ConfiguredLambdaInfo _factoryInfo;
+        _factoryInfo = factoryInfo;
+    }
 
-        public ConfiguredObjectFactory(MappingConfigInfo configInfo, ConfiguredLambdaInfo factoryInfo)
-            : base(configInfo)
+    public Type ObjectType => _factoryInfo.ReturnType;
+
+    public bool NeedsMappingData => _factoryInfo.NeedsMappingData;
+
+    public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
+    {
+        if (!base.ConflictsWith(otherConfiguredItem))
         {
-            _factoryInfo = factoryInfo;
+            return false;
         }
 
-        public Type ObjectType => _factoryInfo.ReturnType;
+        return !WasAutoCreated ||
+               _factoryInfo.IsSameAs(((ConfiguredObjectFactory)otherConfiguredItem)._factoryInfo);
+    }
 
-        public bool NeedsMappingData => _factoryInfo.NeedsMappingData;
+    protected override bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
+    {
+        return base.HasOverlappingTypes(otherConfiguredItem) &&
+               ((ConfiguredObjectFactory)otherConfiguredItem).ObjectType == ObjectType;
+    }
 
-        public override bool ConflictsWith(UserConfiguredItemBase otherConfiguredItem)
+    public override bool AppliesTo(IQualifiedMemberContext context)
+    {
+        return ObjectType.IsAssignableTo(context.TargetType) &&
+               base.AppliesTo(context) &&
+               _factoryInfo.Supports(context.RuleSet);
+    }
+
+    public Expression Create(IMemberMapperData mapperData)
+        => _factoryInfo.GetBody(mapperData).RemoveSetTargetCallIfNecessary(mapperData);
+
+    #region IPotentialAutoCreatedItem Members
+
+    public bool WasAutoCreated { get; private set; }
+
+    public IPotentialAutoCreatedItem Clone()
+    {
+        return new ConfiguredObjectFactory(ConfigInfo, _factoryInfo)
         {
-            if (!base.ConflictsWith(otherConfiguredItem))
-            {
-                return false;
-            }
+            WasAutoCreated = true
+        };
+    }
 
-            return !WasAutoCreated ||
-                   _factoryInfo.IsSameAs(((ConfiguredObjectFactory)otherConfiguredItem)._factoryInfo);
-        }
+    public bool IsReplacementFor(IPotentialAutoCreatedItem clonedObjectFactory)
+        => ConflictsWith((ConfiguredObjectFactory)clonedObjectFactory);
 
-        protected override bool HasOverlappingTypes(UserConfiguredItemBase otherConfiguredItem)
-        {
-            return base.HasOverlappingTypes(otherConfiguredItem) &&
-                (((ConfiguredObjectFactory)otherConfiguredItem).ObjectType == ObjectType);
-        }
-
-        public override bool AppliesTo(IQualifiedMemberContext context)
-        {
-            return ObjectType.IsAssignableTo(context.TargetType) &&
-                   base.AppliesTo(context) &&
-                  _factoryInfo.Supports(context.RuleSet);
-        }
-
-        public Expression Create(IMemberMapperData mapperData)
-            => _factoryInfo.GetBody(mapperData).RemoveSetTargetCall();
-
-        #region IPotentialAutoCreatedItem Members
-
-        public bool WasAutoCreated { get; private set; }
-
-        public IPotentialAutoCreatedItem Clone()
-        {
-            return new ConfiguredObjectFactory(ConfigInfo, _factoryInfo)
-            {
-                WasAutoCreated = true
-            };
-        }
-
-        public bool IsReplacementFor(IPotentialAutoCreatedItem clonedObjectFactory)
-            => ConflictsWith((ConfiguredObjectFactory)clonedObjectFactory);
-
-        #endregion
+    #endregion
 
 #if NET35
-        int IComparable<ConfiguredObjectFactory>.CompareTo(ConfiguredObjectFactory other)
-            => DoComparisonTo(other);
+    int IComparable<ConfiguredObjectFactory>.CompareTo(ConfiguredObjectFactory other)
+        => DoComparisonTo(other);
 #endif
-    }
 }

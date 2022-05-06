@@ -1,358 +1,357 @@
-﻿namespace AgileObjects.AgileMapper.Configuration
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Globalization;
+﻿namespace AgileObjects.AgileMapper.Configuration;
+
+using System;
+using System.Collections.Generic;
+using System.Globalization;
 #if NET35
-    using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast;
 #else
-    using System.Linq.Expressions;
+using System.Linq.Expressions;
 #endif
-    using Extensions.Internal;
-    using Lambdas;
-    using Members;
-    using NetStandardPolyfills;
-    using ObjectPopulation;
-    using ReadableExpressions;
-    using ReadableExpressions.Extensions;
-    using static MappingRuleSet;
+using Extensions.Internal;
+using Lambdas;
+using Members;
+using NetStandardPolyfills;
+using ObjectPopulation;
+using ReadableExpressions;
+using ReadableExpressions.Extensions;
+using static MappingRuleSet;
 #if NET35
-    using LinqExp = System.Linq.Expressions;
+using LinqExp = System.Linq.Expressions;
 #endif
 
-    internal delegate bool SourceTypeComparer(ITypePair typePair, ITypePair otherTypePair);
+internal delegate bool SourceTypeComparer(ITypePair typePair, ITypePair otherTypePair);
 
-    internal delegate bool TargetTypeComparer(ITypePair typePair, ITypePair otherTypePair);
+internal delegate bool TargetTypeComparer(ITypePair typePair, ITypePair otherTypePair);
 
-    internal class MappingConfigInfo : IMapperContextOwner, IRuleSetOwner, ITypePair
+internal class MappingConfigInfo : IMapperContextOwner, IRuleSetOwner, ITypePair
+{
+    public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
+        AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();
+
+    private ConfiguredLambdaInfo _conditionLambda;
+    private bool _negateCondition;
+    private Dictionary<Type, object> _data;
+    private IObjectMappingData _mappingData;
+    private bool _isForSourceTypeOnly;
+
+    public MappingConfigInfo(MapperContext mapperContext)
     {
-        public static readonly MappingConfigInfo AllRuleSetsSourceTypesAndTargetTypes =
-            AllRuleSetsAndSourceTypes(null).ForAllTargetTypes();
+        MapperContext = mapperContext;
+        InvocationPosition = InvocationPosition.After;
+    }
 
-        private ConfiguredLambdaInfo _conditionLambda;
-        private bool _negateCondition;
-        private Dictionary<Type, object> _data;
-        private IObjectMappingData _mappingData;
-        private bool _isForSourceTypeOnly;
+    #region Factory Methods
 
-        public MappingConfigInfo(MapperContext mapperContext)
+    public static MappingConfigInfo AllRuleSetsAndSourceTypes(MapperContext mapperContext)
+        => new MappingConfigInfo(mapperContext).ForAllSourceTypes().ForAllRuleSets();
+
+    #endregion
+
+    public MapperContext MapperContext { get; }
+
+    public UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
+
+    public bool HasSameTypesAs(UserConfiguredItemBase userConfiguredItem)
+        => HasSameSourceTypeAs(userConfiguredItem) && HasSameTargetTypeAs(userConfiguredItem);
+
+    public bool HasCompatibleTypes(ITypePair otherTypePair)
+        => this.HasTypesCompatibleWith(otherTypePair);
+
+    public Type SourceType { get; private set; }
+
+    public MappingConfigInfo ForAllSourceTypes() => ForSourceType(Constants.AllTypes);
+
+    public MappingConfigInfo ForSourceTypeOnly()
+    {
+        if (SourceType.IsSealed())
         {
-            MapperContext = mapperContext;
-            InvocationPosition = InvocationPosition.After;
+            throw new MappingConfigurationException(
+                $"Source type {SourceType.GetFriendlyName()} is sealed, so cannot have derived types");
         }
 
-        #region Factory Methods
+        _isForSourceTypeOnly = true;
+        return this;
+    }
 
-        public static MappingConfigInfo AllRuleSetsAndSourceTypes(MapperContext mapperContext)
-            => new MappingConfigInfo(mapperContext).ForAllSourceTypes().ForAllRuleSets();
+    public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
 
-        #endregion
+    public MappingConfigInfo ForSourceType(Type sourceType)
+    {
+        SourceType = sourceType;
+        return this;
+    }
 
-        public MapperContext MapperContext { get; }
-
-        public UserConfigurationSet UserConfigurations => MapperContext.UserConfigurations;
-
-        public bool HasSameTypesAs(UserConfiguredItemBase userConfiguredItem)
-            => HasSameSourceTypeAs(userConfiguredItem) && HasSameTargetTypeAs(userConfiguredItem);
-
-        public bool HasCompatibleTypes(ITypePair otherTypePair)
-            => this.HasTypesCompatibleWith(otherTypePair);
-
-        public Type SourceType { get; private set; }
-
-        public MappingConfigInfo ForAllSourceTypes() => ForSourceType(Constants.AllTypes);
-
-        public MappingConfigInfo ForSourceTypeOnly()
+    bool ITypePair.IsForSourceType(ITypePair typePair)
+    {
+        if (_isForSourceTypeOnly)
         {
-            if (SourceType.IsSealed())
-            {
-                throw new MappingConfigurationException(
-                    $"Source type {SourceType.GetFriendlyName()} is sealed, so cannot have derived types");
-            }
-
-            _isForSourceTypeOnly = true;
-            return this;
+            return this.IsForAllSourceTypes() || HasSameSourceTypeAs(typePair);
         }
 
-        public MappingConfigInfo ForSourceType<TSource>() => ForSourceType(typeof(TSource));
+        return Get<SourceTypeComparer>()?.Invoke(this, typePair) ??
+               this.IsForSourceType(typePair);
+    }
 
-        public MappingConfigInfo ForSourceType(Type sourceType)
-        {
-            SourceType = sourceType;
-            return this;
-        }
+    public bool HasSameSourceTypeAs(UserConfiguredItemBase userConfiguredItem)
+        => HasSameSourceTypeAs(userConfiguredItem.ConfigInfo);
 
-        bool ITypePair.IsForSourceType(ITypePair typePair)
-        {
-            if (_isForSourceTypeOnly)
-            {
-                return this.IsForAllSourceTypes() || HasSameSourceTypeAs(typePair);
-            }
+    private bool HasSameSourceTypeAs(ITypePair typePair) => typePair.SourceType == SourceType;
 
-            return Get<SourceTypeComparer>()?.Invoke(this, typePair) ??
-                   this.IsForSourceType(typePair);
-        }
+    public Type TargetType { get; private set; }
 
-        public bool HasSameSourceTypeAs(UserConfiguredItemBase userConfiguredItem)
-            => HasSameSourceTypeAs(userConfiguredItem.ConfigInfo);
+    public bool IsForAllTargetTypes() => TargetType == typeof(object);
 
-        private bool HasSameSourceTypeAs(ITypePair typePair) => typePair.SourceType == SourceType;
+    public MappingConfigInfo ForAllTargetTypes() => ForTargetType<object>();
 
-        public Type TargetType { get; private set; }
+    public MappingConfigInfo ForTargetType<TTarget>() => ForTargetType(typeof(TTarget));
 
-        public bool IsForAllTargetTypes() => TargetType == typeof(object);
+    public MappingConfigInfo ForTargetType(Type targetType)
+    {
+        TargetType = targetType;
+        return this;
+    }
 
-        public MappingConfigInfo ForAllTargetTypes() => ForTargetType<object>();
+    bool ITypePair.IsForTargetType(ITypePair typePair)
+    {
+        return Get<TargetTypeComparer>()?.Invoke(this, typePair) ??
+               this.IsForTargetType(typePair);
+    }
 
-        public MappingConfigInfo ForTargetType<TTarget>() => ForTargetType(typeof(TTarget));
+    public bool HasSameTargetTypeAs(UserConfiguredItemBase userConfiguredItem)
+        => TargetType == userConfiguredItem.TargetType;
 
-        public MappingConfigInfo ForTargetType(Type targetType)
-        {
-            TargetType = targetType;
-            return this;
-        }
+    public MappingRuleSet RuleSet { get; private set; }
 
-        bool ITypePair.IsForTargetType(ITypePair typePair)
-        {
-            return Get<TargetTypeComparer>()?.Invoke(this, typePair) ??
-                   this.IsForTargetType(typePair);
-        }
+    public MappingConfigInfo ForAllRuleSets() => ForRuleSet(All);
 
-        public bool HasSameTargetTypeAs(UserConfiguredItemBase userConfiguredItem)
-            => TargetType == userConfiguredItem.TargetType;
+    public MappingConfigInfo ForRuleSet(string ruleSetName)
+        => ForRuleSet(MapperContext.RuleSets.GetByName(ruleSetName));
 
-        public MappingRuleSet RuleSet { get; private set; }
+    public MappingConfigInfo ForRuleSet(MappingRuleSet ruleSet)
+    {
+        RuleSet = ruleSet;
+        return this;
+    }
 
-        public MappingConfigInfo ForAllRuleSets() => ForRuleSet(All);
+    public bool IsForAllRuleSets => IsFor(All);
 
-        public MappingConfigInfo ForRuleSet(string ruleSetName)
-            => ForRuleSet(MapperContext.RuleSets.GetByName(ruleSetName));
+    public bool IsFor(MappingRuleSet mappingRuleSet)
+        => (RuleSet == All) || (mappingRuleSet == All) || (mappingRuleSet == RuleSet);
 
-        public MappingConfigInfo ForRuleSet(MappingRuleSet ruleSet)
-        {
-            RuleSet = ruleSet;
-            return this;
-        }
+    public Type SourceValueType { get; private set; }
 
-        public bool IsForAllRuleSets => IsFor(All);
+    public MappingConfigInfo ForSourceValueType(Type sourceValueType)
+    {
+        SourceValueType = sourceValueType;
+        return this;
+    }
 
-        public bool IsFor(MappingRuleSet mappingRuleSet)
-            => (RuleSet == All) || (mappingRuleSet == All) || (mappingRuleSet == RuleSet);
+    public void ThrowIfSourceTypeUnconvertible(Type targetValueType)
+        => MapperContext.ValueConverters.ThrowIfUnconvertible(SourceValueType, targetValueType);
 
-        public Type SourceValueType { get; private set; }
+    #region Conditions
 
-        public MappingConfigInfo ForSourceValueType(Type sourceValueType)
-        {
-            SourceValueType = sourceValueType;
-            return this;
-        }
+    public bool ConditionNeedsMappingData
+        => HasCondition && _conditionLambda.NeedsMappingData;
 
-        public void ThrowIfSourceTypeUnconvertible(Type targetValueType)
-            => MapperContext.ValueConverters.ThrowIfUnconvertible(SourceValueType, targetValueType);
+    public bool HasCondition => _conditionLambda != null;
 
-        #region Conditions
-
-        public bool ConditionNeedsMappingData
-            => HasCondition && _conditionLambda.NeedsMappingData;
-
-        public bool HasCondition => _conditionLambda != null;
-
-        public bool ConditionSupports(MappingRuleSet ruleSet) => _conditionLambda.Supports(ruleSet);
+    public bool ConditionSupports(MappingRuleSet ruleSet) => _conditionLambda.Supports(ruleSet);
 
 #if NET35
         public void AddConditionOrThrow(LinqExp.LambdaExpression conditionLambda)
             => AddConditionOrThrow(conditionLambda.ToDlrExpression());
 #endif
-        public void AddConditionOrThrow(LambdaExpression conditionLambda)
-        {
-            ErrorIfConditionHasTypeTest(conditionLambda);
-            FixEnumComparisonsIfNecessary(ref conditionLambda);
+    public void AddConditionOrThrow(LambdaExpression conditionLambda)
+    {
+        ErrorIfConditionHasTypeTest(conditionLambda);
+        FixEnumComparisonsIfNecessary(ref conditionLambda);
 
-            _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda, this);
+        _conditionLambda = ConfiguredLambdaInfo.For(conditionLambda, this);
+    }
+
+    private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
+    {
+        if ((SourceType?.IsInterface() == true) ||
+            TypeTestFinder.HasNoTypeTest(conditionLambda))
+        {
+            return;
         }
 
-        private void ErrorIfConditionHasTypeTest(LambdaExpression conditionLambda)
+        var condition = conditionLambda.Body.ToReadableString();
+
+        throw new MappingConfigurationException(string.Format(
+            CultureInfo.InvariantCulture,
+            "Instead of type testing in condition '{0}', " +
+            "configure for a more derived source or target type.",
+            condition));
+    }
+
+    private static void FixEnumComparisonsIfNecessary(ref LambdaExpression conditionLambda)
+        => conditionLambda = EnumComparisonFixer.Check(conditionLambda);
+
+    public void NegateCondition()
+    {
+        if (HasCondition)
         {
-            if ((SourceType?.IsInterface() == true) ||
-                 TypeTestFinder.HasNoTypeTest(conditionLambda))
-            {
-                return;
-            }
+            _negateCondition = true;
+        }
+    }
 
-            var condition = conditionLambda.Body.ToReadableString();
+    public string GetConditionDescription() => _conditionLambda.GetDescription(this);
 
-            throw new MappingConfigurationException(string.Format(
-                CultureInfo.InvariantCulture,
-                "Instead of type testing in condition '{0}', " +
-                "configure for a more derived source or target type.",
-                condition));
+    public Expression GetConditionOrNull(IMemberMapperData mapperData)
+    {
+        if (!HasCondition)
+        {
+            return null;
         }
 
-        private static void FixEnumComparisonsIfNecessary(ref LambdaExpression conditionLambda)
-            => conditionLambda = EnumComparisonFixer.Check(conditionLambda);
+        var condition = _conditionLambda.GetBody(mapperData);
 
-        public void NegateCondition()
+        if (_negateCondition)
         {
-            if (HasCondition)
-            {
-                _negateCondition = true;
-            }
+            condition = condition.Negate();
         }
 
-        public string GetConditionDescription() => _conditionLambda.GetDescription(this);
+        var conditionNestedAccessesChecks = mapperData.GetNestedAccessChecksFor(condition);
 
-        public Expression GetConditionOrNull(IMemberMapperData mapperData)
+        if (conditionNestedAccessesChecks != null)
         {
-            if (!HasCondition)
-            {
-                return null;
-            }
-
-            var condition = _conditionLambda.GetBody(mapperData);
-
-            if (_negateCondition)
-            {
-                condition = condition.Negate();
-            }
-
-            var conditionNestedAccessesChecks = mapperData.GetNestedAccessChecksFor(condition);
-
-            if (conditionNestedAccessesChecks != null)
-            {
-                condition = Expression.AndAlso(conditionNestedAccessesChecks, condition);
-            }
-
-            return condition;
+            condition = Expression.AndAlso(conditionNestedAccessesChecks, condition);
         }
 
-        #endregion
+        return condition;
+    }
 
-        public InvocationPosition InvocationPosition { get; private set; }
+    #endregion
 
-        public MappingConfigInfo WithInvocationPosition(InvocationPosition position)
+    public InvocationPosition InvocationPosition { get; private set; }
+
+    public MappingConfigInfo WithInvocationPosition(InvocationPosition position)
+    {
+        InvocationPosition = position;
+        return this;
+    }
+
+    public bool IsSequentialConfiguration { get; private set; }
+
+    public ConfigurationType ConfigurationType { get; private set; }
+
+    public MappingConfigInfo ForSequentialConfiguration()
+    {
+        ConfigurationType = ConfigurationType.Sequential;
+        IsSequentialConfiguration = true;
+        return this;
+    }
+
+    public T Get<T>()
+    {
+        if (_data == null)
         {
-            InvocationPosition = position;
-            return this;
+            return default;
         }
 
-        public bool IsSequentialConfiguration { get; private set; }
+        return _data.TryGetValue(typeof(T), out var value) ? (T)value : default;
+    }
 
-        public ConfigurationType ConfigurationType { get; private set; }
+    public MappingConfigInfo Set<T>(T value)
+    {
+        Data[typeof(T)] = value;
+        return this;
+    }
 
-        public MappingConfigInfo ForSequentialConfiguration()
+    private Dictionary<Type, object> Data => _data ??= new Dictionary<Type, object>();
+
+    public IObjectMappingData ToMappingData<TSource, TTarget>()
+    {
+        if ((_mappingData != null) &&
+            _mappingData.MappingTypes.Equals(MappingTypes<TSource, TTarget>.Fixed))
         {
-            ConfigurationType = ConfigurationType.Sequential;
-            IsSequentialConfiguration = true;
-            return this;
-        }
-
-        public T Get<T>()
-        {
-            if (_data == null)
-            {
-                return default;
-            }
-
-            return _data.TryGetValue(typeof(T), out var value) ? (T)value : default;
-        }
-
-        public MappingConfigInfo Set<T>(T value)
-        {
-            Data[typeof(T)] = value;
-            return this;
-        }
-
-        private Dictionary<Type, object> Data => _data ??= new Dictionary<Type, object>();
-
-        public IObjectMappingData ToMappingData<TSource, TTarget>()
-        {
-            if ((_mappingData != null) &&
-                 _mappingData.MappingTypes.Equals(MappingTypes<TSource, TTarget>.Fixed))
-            {
-                return _mappingData;
-            }
-
-            var ruleSet = IsForAllRuleSets
-                ? MapperContext.RuleSets.CreateNew
-                : RuleSet;
-
-            var mappingContext = new SimpleMappingContext(ruleSet, MapperContext);
-
-            _mappingData = ObjectMappingDataFactory
-                .ForRootFixedTypes<TSource, TTarget>(mappingContext);
-
             return _mappingData;
         }
 
-        public IQualifiedMemberContext ToMemberContext(QualifiedMember targetMember = null)
-        {
-            if (targetMember == null)
-            {
-                targetMember = QualifiedMember.CreateRoot(Member.RootTarget(TargetType), MapperContext);
-            }
+        var ruleSet = IsForAllRuleSets
+            ? MapperContext.RuleSets.CreateNew
+            : RuleSet;
 
-            return new QualifiedMemberContext(
-                RuleSet,
-                SourceType,
-                TargetType,
-                targetMember,
-                parent: null,
-                mapperContext: MapperContext);
+        var mappingContext = new SimpleMappingContext(ruleSet, MapperContext);
+
+        _mappingData = ObjectMappingDataFactory
+            .ForRootFixedTypes<TSource, TTarget>(mappingContext);
+
+        return _mappingData;
+    }
+
+    public IQualifiedMemberContext ToMemberContext(QualifiedMember targetMember = null)
+    {
+        if (targetMember == null)
+        {
+            targetMember = QualifiedMember.CreateRoot(Member.RootTarget(TargetType), MapperContext);
         }
 
-        public MappingConfigInfo Copy()
+        return new QualifiedMemberContext(
+            RuleSet,
+            SourceType,
+            TargetType,
+            targetMember,
+            parent: null,
+            mapperContext: MapperContext);
+    }
+
+    public MappingConfigInfo Copy()
+    {
+        var cloned = new MappingConfigInfo(MapperContext)
+            .ForRuleSet(RuleSet)
+            .ForSourceType(SourceType)
+            .ForTargetType(TargetType)
+            .ForSourceValueType(SourceValueType)
+            .WithInvocationPosition(InvocationPosition);
+
+        if (_data == null)
         {
-            var cloned = new MappingConfigInfo(MapperContext)
-                .ForRuleSet(RuleSet)
-                .ForSourceType(SourceType)
-                .ForTargetType(TargetType)
-                .ForSourceValueType(SourceValueType)
-                .WithInvocationPosition(InvocationPosition);
-
-            if (_data == null)
-            {
-                return cloned;
-            }
-
-            foreach (var itemByType in _data)
-            {
-                cloned.Data.Add(itemByType.Key, itemByType.Value);
-            }
-
             return cloned;
         }
 
-        private class TypeTestFinder : QuickUnwindExpressionVisitor
+        foreach (var itemByType in _data)
         {
-            protected override bool QuickUnwind => TypeTestExists;
+            cloned.Data.Add(itemByType.Key, itemByType.Value);
+        }
 
-            private bool TypeTestExists { get; set; }
+        return cloned;
+    }
 
-            public static bool HasNoTypeTest(LambdaExpression lambda)
-            {
-                var typesFinder = new TypeTestFinder();
+    private class TypeTestFinder : QuickUnwindExpressionVisitor
+    {
+        protected override bool QuickUnwind => TypeTestExists;
 
-                typesFinder.Visit(lambda.Body);
+        private bool TypeTestExists { get; set; }
 
-                return !typesFinder.TypeTestExists;
-            }
+        public static bool HasNoTypeTest(LambdaExpression lambda)
+        {
+            var typesFinder = new TypeTestFinder();
 
-            protected override Expression VisitUnary(UnaryExpression unary)
-            {
-                if (unary.NodeType == ExpressionType.TypeAs)
-                {
-                    TypeTestExists = true;
-                    return unary;
-                }
+            typesFinder.Visit(lambda.Body);
 
-                return base.VisitUnary(unary);
-            }
+            return !typesFinder.TypeTestExists;
+        }
 
-            protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinary)
+        protected override Expression VisitUnary(UnaryExpression unary)
+        {
+            if (unary.NodeType == ExpressionType.TypeAs)
             {
                 TypeTestExists = true;
-                return typeBinary;
+                return unary;
             }
+
+            return base.VisitUnary(unary);
+        }
+
+        protected override Expression VisitTypeBinary(TypeBinaryExpression typeBinary)
+        {
+            TypeTestExists = true;
+            return typeBinary;
         }
     }
 }

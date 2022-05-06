@@ -43,7 +43,7 @@ internal class ObjectCreationCallbackFactory : MappingCallbackFactory
 
         if (InvocationPosition == Before || mapperData.TargetMemberIsUserStruct())
         {
-            return condition.RemoveSetTargetCall();
+            return condition.RemoveSetTargetCallIfNecessary(mapperData);
         }
 
         var newObjectHasBeenCreated = mapperData.CreatedObject.GetIsNotDefaultComparison();
@@ -69,7 +69,7 @@ internal class ObjectCreationCallbackFactory : MappingCallbackFactory
         var nullCreatedObject = createdObject.Type.ToDefaultExpression();
 
         return callback
-            .RemoveSetTargetCall()
+            .RemoveSetTargetCallIfNecessary(mapperData)
             .Replace(createdObject, nullCreatedObject);
     }
 }

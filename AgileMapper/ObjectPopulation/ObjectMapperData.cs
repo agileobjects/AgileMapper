@@ -312,13 +312,13 @@ internal class ObjectMapperData : MemberMapperDataBase, IMemberMapperData
 
     private static ObjectMapperData GetMapperDataOrNull(
         ObjectMapperData parentMapperData,
-        IList<Type> mapperTypes,
+        Type[] mapperTypes,
         string targetMemberRegistrationName)
     {
         foreach (var mapperData in parentMapperData.ChildMapperDatasOrEmpty)
         {
-            if ((mapperData.TypesMatch(mapperTypes)) &&
-                (mapperData.TargetMember.RegistrationName == targetMemberRegistrationName))
+            if (mapperData.TypesMatch(mapperTypes) &&
+               (mapperData.TargetMember.RegistrationName == targetMemberRegistrationName))
             {
                 return mapperData;
             }

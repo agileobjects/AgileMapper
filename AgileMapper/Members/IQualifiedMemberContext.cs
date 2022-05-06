@@ -1,15 +1,17 @@
-namespace AgileObjects.AgileMapper.Members
+namespace AgileObjects.AgileMapper.Members;
+
+internal interface IQualifiedMemberContext :
+    IMapperContextOwner,
+    IRuleSetOwner,
+    ITypePair
 {
-    internal interface IQualifiedMemberContext : IMapperContextOwner, IRuleSetOwner, ITypePair
-    {
-        bool IsRoot { get; }
+    bool IsRoot { get; }
 
-        bool IsEntryPoint { get; }
+    bool IsEntryPoint { get; }
 
-        IQualifiedMemberContext Parent { get; }
+    IQualifiedMemberContext Parent { get; }
 
-        IQualifiedMember SourceMember { get; }
-        
-        QualifiedMember TargetMember { get; }
-    }
+    IQualifiedMember SourceMember { get; }
+
+    QualifiedMember TargetMember { get; }
 }

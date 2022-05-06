@@ -215,8 +215,15 @@ internal static class MemberMapperDataExtensions
         return Call(rootContext, _setTargetMethod, target);
     }
 
-    public static Expression RemoveSetTargetCall(this Expression expression)
+    public static Expression RemoveSetTargetCallIfNecessary(
+        this Expression expression,
+        IMemberMapperData mapperData)
     {
+        if (!mapperData.IsRoot || mapperData.TargetIsDefinitelyPopulated())
+        {
+            return expression;
+        }
+
         var originalExpression = expression;
 
         while (true)
@@ -225,7 +232,7 @@ internal static class MemberMapperDataExtensions
             {
                 case ExpressionType.Invoke:
                     var invocation = (InvocationExpression)expression;
-                    expression = invocation.Arguments.First();
+                    expression = invocation.Arguments.FirstOrDefault();
                     continue;
 
                 case ExpressionType.Call when IsSetTargetCall(expression):
@@ -681,7 +688,7 @@ internal static class MemberMapperDataExtensions
         return mapperData;
     }
 
-    public static bool TypesMatch(this ITypePair typePair, IList<Type> contextTypes)
+    public static bool TypesMatch(this ITypePair typePair, params Type[] contextTypes)
     {
         var sourceType = contextTypes[0];
         var targetType = contextTypes[1];

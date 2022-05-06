@@ -1,71 +1,70 @@
-﻿namespace AgileObjects.AgileMapper.Members
-{
+﻿namespace AgileObjects.AgileMapper.Members;
+
 #if NET35
-    using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast;
 #else
-    using System.Linq.Expressions;
+using System.Linq.Expressions;
 #endif
-    using ObjectPopulation;
+using ObjectPopulation;
 
-    internal class ChildMemberMapperData : QualifiedMemberContext, IMemberMapperData
+internal class ChildMemberMapperData : QualifiedMemberContext, IMemberMapperData
+{
+    private readonly bool _useParentForTypeCheck;
+    private bool? _isRepeatMapping;
+
+    public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
+        : base(parent.SourceMember, targetMember, parent)
     {
-        private readonly bool _useParentForTypeCheck;
-        private bool? _isRepeatMapping;
+        _useParentForTypeCheck = true;
+        Parent = parent;
+        Context = new MapperDataContext(this);
+    }
 
-        public ChildMemberMapperData(QualifiedMember targetMember, ObjectMapperData parent)
-            : base(parent.SourceMember, targetMember, parent)
-        {
-            _useParentForTypeCheck = true;
-            Parent = parent;
-            Context = new MapperDataContext(this);
-        }
+    public ChildMemberMapperData(
+        IQualifiedMember sourceMember,
+        QualifiedMember targetMember,
+        ObjectMapperData parent)
+        : base(
+            parent.RuleSet,
+            sourceMember.Type,
+            targetMember.Type,
+            sourceMember,
+            targetMember,
+            parent,
+            parent.MapperContext)
+    {
+        Parent = parent;
+        Context = new MapperDataContext(this);
+    }
 
-        public ChildMemberMapperData(
-            IQualifiedMember sourceMember,
-            QualifiedMember targetMember,
-            ObjectMapperData parent)
-            : base(
-                parent.RuleSet,
-                sourceMember.Type,
-                targetMember.Type,
-                sourceMember,
-                targetMember,
-                parent,
-                parent.MapperContext)
-        {
-            Parent = parent;
-            Context = new MapperDataContext(this);
-        }
+    public override bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
 
-        public override bool IsEntryPoint => Context.IsStandalone || IsRepeatMapping;
+    private bool IsRepeatMapping => _isRepeatMapping ??= this.IsRepeatMapping();
 
-        private bool IsRepeatMapping => _isRepeatMapping ??= this.IsRepeatMapping();
+    public ObjectMapperData Parent { get; }
 
-        public ObjectMapperData Parent { get; }
+    public MapperDataContext Context { get; }
 
-        public MapperDataContext Context { get; }
+    public Expression ParentObject => Parent.ParentObject;
 
-        public Expression ParentObject => Parent.ParentObject;
+    public ParameterExpression MappingDataObject => Parent.MappingDataObject;
 
-        public ParameterExpression MappingDataObject => Parent.MappingDataObject;
+    public Expression SourceObject => Parent.SourceObject;
 
-        public Expression SourceObject => Parent.SourceObject;
+    public Expression TargetObject => Parent.TargetObject;
 
-        public Expression TargetObject => Parent.TargetObject;
+    public ParameterExpression CreatedObject => Parent.CreatedObject;
 
-        public ParameterExpression CreatedObject => Parent.CreatedObject;
+    public Expression ElementIndex => Parent.ElementIndex;
 
-        public Expression ElementIndex => Parent.ElementIndex;
+    public Expression ElementKey => Parent.ElementKey;
 
-        public Expression ElementKey => Parent.ElementKey;
+    public Expression TargetInstance => Parent.TargetInstance;
 
-        public Expression TargetInstance => Parent.TargetInstance;
-
-        public override bool HasCompatibleTypes(ITypePair typePair)
-        {
-            return _useParentForTypeCheck
-                ? Parent.HasCompatibleTypes(typePair)
-                : base.HasCompatibleTypes(typePair);
-        }
+    public override bool HasCompatibleTypes(ITypePair typePair)
+    {
+        return _useParentForTypeCheck
+            ? Parent.HasCompatibleTypes(typePair)
+            : base.HasCompatibleTypes(typePair);
     }
 }

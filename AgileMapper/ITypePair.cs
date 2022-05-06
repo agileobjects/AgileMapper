@@ -1,17 +1,16 @@
-namespace AgileObjects.AgileMapper
+namespace AgileObjects.AgileMapper;
+
+using System;
+
+internal interface ITypePair
 {
-    using System;
+    Type SourceType { get; }
 
-    internal interface ITypePair
-    {
-        Type SourceType { get; }
+    Type TargetType { get; }
 
-        Type TargetType { get; }
+    bool IsForSourceType(ITypePair typePair);
 
-        bool IsForSourceType(ITypePair typePair);
+    bool IsForTargetType(ITypePair typePair);
 
-        bool IsForTargetType(ITypePair typePair);
-
-        bool HasCompatibleTypes(ITypePair typePair);
-    }
+    bool HasCompatibleTypes(ITypePair typePair);
 }
