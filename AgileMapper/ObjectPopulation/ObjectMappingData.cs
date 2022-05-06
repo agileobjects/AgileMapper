@@ -333,8 +333,8 @@ namespace AgileObjects.AgileMapper.ObjectPopulation
             return new ObjectMappingData<TNewSource, TNewTarget>(
                 typedSource,
                 typedTarget,
-                GetElementIndex(),
-                GetElementKey(),
+                ElementIndex,
+                ElementKey,
                 mapperKey.MappingTypes,
                 MappingContext,
                 isForDerivedTypeMapping ? this : null,
