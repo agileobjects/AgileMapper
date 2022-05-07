@@ -1,87 +1,85 @@
-﻿namespace AgileObjects.AgileMapper
+﻿namespace AgileObjects.AgileMapper;
+
+using System.Collections.Generic;
+using System.Diagnostics;
+using DataSources;
+using Extensions.Internal;
+using Members;
+using ObjectPopulation;
+using ObjectPopulation.ComplexTypes;
+
+internal static class MappingDataExtensions
 {
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using DataSources;
-    using Extensions.Internal;
-    using Members;
-    using ObjectPopulation;
-    using ObjectPopulation.ComplexTypes;
+    [DebuggerStepThrough]
+    public static bool IsStandalone(this IObjectMappingData mappingData)
+        => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
 
-    internal static class MappingDataExtensions
+    public static bool IsTargetConstructable(this IObjectMappingData mappingData)
+        => GetTargetObjectCreationInfos(mappingData).Any();
+
+    public static IList<IBasicConstructionInfo> GetTargetObjectCreationInfos(this IObjectMappingData mappingData)
     {
-        [DebuggerStepThrough]
-        public static bool IsStandalone(this IObjectMappingData mappingData)
-            => mappingData.IsRoot || mappingData.MappingTypes.RuntimeTypesNeeded;
+        return mappingData
+            .MapperData
+            .MapperContext
+            .ConstructionFactory
+            .GetTargetObjectCreationInfos(mappingData);
+    }
 
-        public static bool IsTargetConstructable(this IObjectMappingData mappingData)
-            => GetTargetObjectCreationInfos(mappingData).Any();
+    public static bool IsConstructableFromToTargetDataSource(this IObjectMappingData mappingData)
+        => mappingData.GetToTargetDataSourceOrNullForTargetType() != null;
 
-        public static IList<IBasicConstructionInfo> GetTargetObjectCreationInfos(this IObjectMappingData mappingData)
+    public static IConfiguredDataSource GetToTargetDataSourceOrNullForTargetType(this IObjectMappingData mappingData)
+    {
+        var toTargetDataSources = mappingData.GetToTargetDataSources();
+
+        if (toTargetDataSources.None())
         {
-            return mappingData
-                .MapperData
-                .MapperContext
-                .ConstructionFactory
-                .GetTargetObjectCreationInfos(mappingData);
-        }
-
-        public static bool IsConstructableFromToTargetDataSource(this IObjectMappingData mappingData)
-            => mappingData.GetToTargetDataSourceOrNullForTargetType() != null;
-
-        public static IConfiguredDataSource GetToTargetDataSourceOrNullForTargetType(this IObjectMappingData mappingData)
-        {
-            var toTargetDataSources = mappingData.GetToTargetDataSources();
-
-            if (toTargetDataSources.None())
-            {
-                return null;
-            }
-
-            foreach (var dataSource in toTargetDataSources)
-            {
-                mappingData = mappingData.WithToTargetSource(dataSource.SourceMember);
-
-                if (mappingData.IsTargetConstructable())
-                {
-                    return dataSource;
-                }
-            }
-
-            // TODO: Cover: Unconstructable ToTarget data source
             return null;
         }
 
-        public static IList<IConfiguredDataSource> GetToTargetDataSources(this IObjectMappingData mappingData)
-            => mappingData.MapperData.GetToTargetDataSources();
-
-        public static IList<IConfiguredDataSource> GetToTargetDataSources(
-            this IMemberMapperData mapperData,
-            bool? sequential = null)
+        foreach (var dataSource in toTargetDataSources)
         {
-            return mapperData
-                .MapperContext
-                .UserConfigurations
-                .GetDataSourcesForToTarget(mapperData, sequential);
-        }
+            mappingData = mappingData.WithToTargetSource(dataSource.SourceMember);
 
-        public static bool HasSameTypedConfiguredDataSource(this IObjectMappingData mappingData)
-        {
-            return
-                (mappingData.MapperData.SourceType == mappingData.MapperData.TargetType) &&
-                (mappingData.MapperData.SourceMember is ConfiguredSourceMember);
-        }
-
-        public static IMappingData<TSource, TTarget> ToTyped<TSource, TTarget>(
-            this IMappingData mappingData)
-        {
-            if (typeof(TSource) == typeof(object) &&
-                typeof(TTarget) == typeof(object))
+            if (mappingData.IsTargetConstructable())
             {
-                return (IMappingData<TSource, TTarget>)mappingData;
+                return dataSource;
             }
-
-            return new MappingInstanceData<TSource, TTarget>(mappingData);
         }
+
+        // TODO: Cover: Unconstructable ToTarget data source
+        return null;
+    }
+
+    public static IList<IConfiguredDataSource> GetToTargetDataSources(this IObjectMappingData mappingData)
+        => mappingData.MapperData.GetToTargetDataSources();
+
+    public static IList<IConfiguredDataSource> GetToTargetDataSources(
+        this IMemberMapperData mapperData,
+        bool? sequential = null)
+    {
+        return mapperData
+            .MapperContext
+            .UserConfigurations
+            .GetDataSourcesForToTarget(mapperData, sequential);
+    }
+
+    public static bool HasSameTypedConfiguredDataSource(this IObjectMappingData mappingData)
+    {
+        return
+            (mappingData.MapperData.SourceType == mappingData.MapperData.TargetType) &&
+            (mappingData.MapperData.SourceMember is ConfiguredSourceMember);
+    }
+
+    public static IMappingData<TSource, TTarget> ToTyped<TSource, TTarget>(
+        this IMappingData mappingData)
+    {
+        if (mappingData is IMappingData<TSource, TTarget> typedMappingData)
+        {
+            return typedMappingData;
+        }
+
+        return new MappingInstanceData<TSource, TTarget>(mappingData);
     }
 }

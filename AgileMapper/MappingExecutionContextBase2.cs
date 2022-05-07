@@ -187,10 +187,22 @@ internal abstract class MappingExecutionContextBase2 :
         return default;
     }
 
-    IMappingData<TSource, TTarget> IMappingData.As<TSource, TTarget>()
-        => WithTypes<TSource, TTarget>();
+    public IMappingData<TSource, TTarget> As<TSource, TTarget>()
+        where TSource : class
+        where TTarget : class
+    {
+        if (this is IMappingData<TSource, TTarget> mappingData)
+        {
+            return mappingData;
+        }
 
-    public abstract IMappingData<TSource, TTarget> WithTypes<TSource, TTarget>();
+        if (_parent == null)
+        {
+            return this.ToTyped<TSource, TTarget>();
+        }
+
+        return _parent.As<TSource, TTarget>();
+    }
 
     #endregion
 

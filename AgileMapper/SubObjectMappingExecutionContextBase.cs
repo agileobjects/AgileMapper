@@ -1,7 +1,4 @@
 ﻿namespace AgileObjects.AgileMapper;
-
-using Members;
-using NetStandardPolyfills;
 using ObjectPopulation;
 using Plans;
 
@@ -40,19 +37,4 @@ internal abstract class SubObjectMappingExecutionContextBase :
     }
 
     protected IObjectMappingData GetParentMappingData() => _parent.GetMappingData();
-
-    public override IMappingData<TSource, TTarget> WithTypes<TSource, TTarget>()
-    {
-        var mappingTypes = MappingTypes;
-        var sourceType = mappingTypes.SourceType;
-        var targetType = mappingTypes.TargetType;
-
-        var typesMatch =
-            sourceType.IsAssignableTo(typeof(TSource)) &&
-            targetType.IsAssignableTo(typeof(TTarget));
-
-        return typesMatch
-            ? this.ToTyped<TSource, TTarget>()
-            : _parent.WithTypes<TSource, TTarget>();
-    }
 }

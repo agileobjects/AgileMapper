@@ -10,7 +10,6 @@ using Api;
 using Api.Configuration;
 using Extensions;
 using Extensions.Internal;
-using Members;
 using ObjectPopulation;
 using ObjectPopulation.MapperKeys;
 using Plans;
@@ -239,9 +238,6 @@ internal class MappingExecutor<TSource> :
     public override object Target => _target;
 
     protected override void Set(object target) => _target = target;
-
-    public override IMappingData<TNewSource, TNewTarget> WithTypes<TNewSource, TNewTarget>()
-        => this.ToTyped<TNewSource, TNewTarget>();
 
     public override IObjectMappingData GetMappingData()
         => _rootMappingData ??= _rootMappingDataFactory.Invoke();
