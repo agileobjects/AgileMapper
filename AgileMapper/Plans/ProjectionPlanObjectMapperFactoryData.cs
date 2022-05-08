@@ -1,28 +1,27 @@
-﻿namespace AgileObjects.AgileMapper.Plans
+﻿namespace AgileObjects.AgileMapper.Plans;
+
+using System.Linq;
+using ObjectPopulation;
+using static MappingPlanSettings.Default;
+
+internal class ProjectionPlanObjectMapperFactoryData<TSourceElement, TResultElement> :
+    PlanObjectMapperFactoryDataBase<TSourceElement, TResultElement>
 {
-    using System.Linq;
-    using ObjectPopulation;
-    using static MappingPlanSettings.Default;
+    private readonly IObjectMappingData _mappingData;
 
-    internal class ProjectionPlanObjectMapperFactoryData<TSourceElement, TResultElement> :
-        PlanObjectMapperFactoryDataBase<TSourceElement, TResultElement>
+    public ProjectionPlanObjectMapperFactoryData(
+        IQueryable<TSourceElement> exampleQueryable,
+        MapperContext mapperContext)
+        : base(
+            exampleQueryable,
+            mapperContext.RuleSets.Project,
+            mapperContext)
     {
-        private readonly IObjectMappingData _mappingData;
-
-        public ProjectionPlanObjectMapperFactoryData(
-            IQueryable<TSourceElement> exampleQueryable,
-            MapperContext mapperContext)
-            : base(
-                exampleQueryable,
-                mapperContext.RuleSets.Project,
-                mapperContext)
-        {
-            _mappingData = ObjectMappingDataFactory
-                .ForProjection<TSourceElement, TResultElement>(exampleQueryable, this);
-        }
-
-        public override MappingPlanSettings PlanSettings => LazyPlanned;
-
-        public override IObjectMappingData GetMappingData() => _mappingData;
+        _mappingData = ObjectMappingDataFactory
+            .ForProjection<TSourceElement, TResultElement>(exampleQueryable, this);
     }
+
+    public override MappingPlanSettings PlanSettings => LazyPlanned;
+
+    public override IObjectMappingData GetMappingData() => _mappingData;
 }

@@ -1,30 +1,28 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation
-{
-    using System.Collections.Generic;
+namespace AgileObjects.AgileMapper.ObjectPopulation;
+
+using System.Collections.Generic;
 #if NET35
-    using Microsoft.Scripting.Ast;
+using Microsoft.Scripting.Ast;
 #else
-    using System.Linq.Expressions;
+using System.Linq.Expressions;
 #endif
-    using MapperKeys;
-    using RepeatedMappings;
+using RepeatedMappings;
 
-    internal interface IObjectMapper : IObjectMapperFunc
-    {
-        ObjectMapperData MapperData { get; }
+internal interface IObjectMapper : IObjectMapperFunc
+{
+    ObjectMapperData MapperData { get; }
 
-        LambdaExpression GetMappingLambda();
+    LambdaExpression GetMappingLambda();
 
-        IEnumerable<IRepeatedMapperFunc> RepeatedMappingFuncs { get; }
+    IEnumerable<IRepeatedMapperFunc> RepeatedMappingFuncs { get; }
 
-        void CacheRepeatedMappingFuncs();
+    void CacheRepeatedMappingFuncs();
 
-        bool IsStaticallyCacheable();
+    bool IsStaticallyCacheable();
 
-        object MapSubObject(MappingExecutionContextBase2 context);
+    object MapSubObject(MappingExecutionContextBase2 context);
 
-        object MapRepeated(MappingExecutionContextBase2 context);
+    object MapRepeated(MappingExecutionContextBase2 context);
 
-        void Reset();
-    }
+    void Reset();
 }

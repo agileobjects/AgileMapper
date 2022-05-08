@@ -1,11 +1,10 @@
-namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys
+namespace AgileObjects.AgileMapper.ObjectPopulation.MapperKeys;
+
+internal interface IMapperKeyData : IMapperContextOwner, IRuleSetOwner
 {
-    internal interface IMapperKeyData : IMapperContextOwner, IRuleSetOwner
-    {
-        MappingTypes MappingTypes { get; }
+    MappingTypes MappingTypes { get; }
 
-        object Source { get; }
+    object Source { get; }
 
-        IObjectMappingData GetMappingData();
-    }
+    IObjectMappingData GetMappingData();
 }

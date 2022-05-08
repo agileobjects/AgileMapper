@@ -55,6 +55,7 @@ internal class ChildMappingExecutionContext<TChildSource, TChildTarget> :
     #region IMappingData<,> Members
 
     TChildSource IMappingData<TChildSource, TChildTarget>.Source => _source;
+
     TChildTarget IMappingData<TChildSource, TChildTarget>.Target => _target;
 
     #endregion

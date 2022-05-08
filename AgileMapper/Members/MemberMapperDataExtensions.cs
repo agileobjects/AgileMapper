@@ -690,6 +690,7 @@ internal static class MemberMapperDataExtensions
 
     public static bool TypesMatch(this ITypePair typePair, params Type[] contextTypes)
     {
+        // TODO: Why does this check go both ways?
         var sourceType = contextTypes[0];
         var targetType = contextTypes[1];
 
