@@ -6,6 +6,7 @@
     using System.Collections.ObjectModel;
     using System.Linq;
     using AgileMapper.Extensions;
+    using AgileMapper.Extensions.Internal;
     using AgileMapper.Members;
     using Common;
     using Common.TestClasses;
@@ -249,8 +250,9 @@
                             sourceAddress.BuildingNumber,
                             sourceAddress.DependentThoroughfare,
                             sourceAddress.Thoroughfare
-                        }.Where(addressPart => !string.IsNullOrWhiteSpace(addressPart))
-                        .Select(addressPart => addressPart.Trim())))
+                        }.Where(addressPart => !addressPart.IsNullOrWhiteSpace())
+                        .Select(addressPart => addressPart.Trim())
+                        .ToArray()))
                     .To(targetAddress => targetAddress.Line1);
 
                 var source = new Issue225.Address
@@ -801,7 +803,7 @@
                         .And
                         .Before
                         .CreatingInstancesOf<Address>()
-                        .Call(ctx => { throw new InvalidOperationException("I don't like addresses"); });
+                        .Call(_ => throw new InvalidOperationException("I don't like addresses"));
 
                     var target = new PublicField<Person> { Value = new Person { Name = "Someone" } };
 
@@ -1004,7 +1006,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 Func<PersonViewModel, Address, string> combineAddressLine1 =
-                    (pvm, a) => pvm.Name + ", " + pvm.AddressLine1;
+                    (pvm, _) => pvm.Name + ", " + pvm.AddressLine1;
 
                 mapper.WhenMapping
                     .From<PersonViewModel>()
@@ -1025,7 +1027,7 @@
             using (var mapper = Mapper.CreateNew())
             {
                 Func<PersonViewModel, Person, int?, string> combineAddressLine1 =
-                    (pvm, p, i) => $"{i}: {pvm.Name}, {pvm.AddressLine1}";
+                    (pvm, _, i) => $"{i}: {pvm.Name}, {pvm.AddressLine1}";
 
                 mapper.WhenMapping
                     .From<PersonViewModel>()
