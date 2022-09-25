@@ -87,6 +87,11 @@ The created `ExpandoObject` (in both cases) will have the following member names
 * `"Specialties_0_Id"` set to 123
 * `"Specialties_0_Name"` set to "Emergency Medicine"
 
+## .NET Standard 1.0
+
+.NET Standard 1.0 does not support mapping dynamic root objects - it can only map nested dynamic members.
+.NET Standard 1.3 successfully maps both scenarios.
+
 ## Configuration
 
 Dynamic mapping is [highly configurable](/configuration/Dynamic-Mapping).
