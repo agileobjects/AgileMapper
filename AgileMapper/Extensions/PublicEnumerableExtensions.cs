@@ -94,13 +94,26 @@
         private static IEnumerable<T> StreamExclude<T>(this IEnumerable<T> items, IEnumerable<T> excludedItems)
         {
             Dictionary<T, int> excludedItemCountsByItem = null;
+            var excludedNullCount = 0;
 
             foreach (var item in items)
             {
                 if (excludedItemCountsByItem == null)
                 {
                     // ReSharper disable once PossibleMultipleEnumeration
-                    excludedItemCountsByItem = GetCountsByItem(excludedItems);
+                    excludedItemCountsByItem = GetCountsByItem(excludedItems, out excludedNullCount);
+                }
+
+                if (item == null)
+                {
+                    if (excludedNullCount > 0)
+                    {
+                        --excludedNullCount;
+                        continue;
+                    }
+
+                    yield return item;
+                    continue;
                 }
 
                 if (excludedItemCountsByItem.TryGetValue(item, out var count) && (count > 0))
@@ -113,14 +126,16 @@
             }
         }
 
-        private static Dictionary<T, int> GetCountsByItem<T>(IEnumerable<T> items)
+        private static Dictionary<T, int> GetCountsByItem<T>(IEnumerable<T> items, out int nullCount)
         {
+            nullCount = 0;
             var itemCountsByItem = new Dictionary<T, int>();
 
             foreach (var item in items)
             {
                 if (item == null)
                 {
+                    ++nullCount;
                     continue;
                 }
 
